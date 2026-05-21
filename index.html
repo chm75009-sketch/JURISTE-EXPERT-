@@ -1147,6 +1147,13 @@ Exemple :<br>
 <button class="btn-outline" onclick="genDocElectionTEC('bulletin')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">🗳️ Bulletins de vote (vierges)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('invitations_osr')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📨 Invitations aux 5 OSR (CGT/CFDT/FO/CFE-CGC/CFTC)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('note_info')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📢 Note d'information aux salariés</button>
+<button class="btn-outline" onclick="genDocElectionTEC('pv_absence_osr')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📑 PV constatant l'absence de réponse OSR (pour PAP unilatéral)</button>
+<button class="btn-outline" onclick="genDocElectionTEC('pap_unilateral')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📜 PAP en décision unilatérale (pas de syndicat)</button>
+<button class="btn-outline" onclick="genDocElectionTEC('note_info_2eme')" style="background:rgba(91,155,213,0.1);border-color:rgba(91,155,213,0.4);color:#5b9bd5">📢 Note d'info 2e tour (candidats libres)</button>
+<button class="btn-outline" onclick="genDocElectionTEC('convocations_2eme')" style="background:rgba(91,155,213,0.1);border-color:rgba(91,155,213,0.4);color:#5b9bd5">✉️ Convocations 2e tour</button>
+<button class="btn-outline" onclick="genDocElectionTEC('bulletin_2eme')" style="background:rgba(91,155,213,0.1);border-color:rgba(91,155,213,0.4);color:#5b9bd5">🗳️ Bulletins 2e tour (candidats libres)</button>
+<button class="btn-outline" onclick="genDocElectionTEC('pv_carence_total')" style="background:rgba(224,92,92,0.1);border-color:rgba(224,92,92,0.4);color:#e05c5c">⚠️ PV de carence (aucun élu après 2e tour)</button>
+<button class="btn-outline" onclick="genDocElectionTEC('affichage_resultats')" style="background:rgba(46,184,46,0.1);border-color:rgba(46,184,46,0.4);color:#2eb82e">📊 Affichage des résultats</button>
 </div>
 <div class="al warn" style="font-size:11px;margin-top:10px">⚠️ Adresses des électeurs laissées vides — à compléter manuellement avant envoi.</div>
 <button onclick="telechargerTousZIP()" style="margin-top:14px;width:100%;background:#2b579a;border:none;color:#fff;padding:14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">📦 Télécharger TOUT en ZIP (tous les documents en un seul fichier)</button>
@@ -2615,6 +2622,9 @@ async function telechargerTousZIP(){
   if(!dateScrutin){ alert('Saisissez d\'abord la date du 1er tour de scrutin.'); return; }
   if(!salariesNom || salariesNom.length === 0){ alert('Aucun salarié saisi. Importez d\'abord la liste.'); return; }
 
+  const DATE_1ER_TOUR = '15 juin 2026';
+  const DATE_2EME_TOUR = '30 juin 2026';
+
   const loader = document.createElement('div');
   loader.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a2f44;color:#e8c97a;padding:20px 30px;border:2px solid #c9a84c;border-radius:12px;z-index:999999;font-family:inherit;font-size:14px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:280px';
   loader.innerHTML = '⏳ Préparation du dossier complet...';
@@ -2648,12 +2658,22 @@ async function telechargerTousZIP(){
       loader.innerHTML = '⏳ Génération des documents d\'élection...';
       await new Promise(r => setTimeout(r, 50));
       genDocElectionTEC('note_info');
+      genDocElectionTEC('pv_absence_osr');
+      genDocElectionTEC('pap_unilateral');
       genDocElectionTEC('emargement');
       genDocElectionTEC('pv_1er');
-      genDocElectionTEC('pv_2eme');
       genDocElectionTEC('bulletin');
       genDocElectionTEC('invitations_osr');
       genDocElectionTEC('convocations');
+
+      loader.innerHTML = '⏳ Génération des documents du 2e tour...';
+      await new Promise(r => setTimeout(r, 50));
+      genDocElectionTEC('note_info_2eme');
+      genDocElectionTEC('convocations_2eme');
+      genDocElectionTEC('bulletin_2eme');
+      genDocElectionTEC('pv_2eme');
+      genDocElectionTEC('pv_carence_total');
+      genDocElectionTEC('affichage_resultats');
     } finally {
       window.showDoc = showDocOriginal;
     }
@@ -2676,47 +2696,84 @@ async function telechargerTousZIP(){
     const readme = `DOSSIER ÉLECTIONS CSE — ${E.nom || 'ENTREPRISE'}
 ===========================================================
 
-Date du 1er tour : 15 juin 2026
-Date du 2e tour (si nécessaire) : 30 juin 2026
+Date du 1er tour : ${DATE_1ER_TOUR}
+Date du 2e tour (si nécessaire) : ${DATE_2EME_TOUR}
 Lieu : ${E.adresse || ''}
 Dirigeant : ${E.dirigeant || ''}
 
-CONTENU DU DOSSIER
-------------------
+CAS DE FIGURE : PREMIÈRE ÉLECTION CSE — PAS DE SYNDICAT DANS L'ENTREPRISE
+=========================================================================
 
-Documents préparatoires (à utiliser AVANT le scrutin) :
-- Synthèse détaillée : tableau électeur/éligible par salarié
-- Liste des électeurs : à afficher dans l'entreprise
-- Liste des éligibles : à afficher dans l'entreprise
-- Justificatif du calcul d'effectif : preuve en cas de contrôle DREETS
+Cette procédure suit ces étapes :
+
+ÉTAPE 1 — INFORMATION (à faire dès maintenant)
 - Note d'information aux salariés : à afficher dans l'entreprise
-- Invitations aux 5 OSR : à envoyer en LRAR aux confédérations syndicales
-- Convocations individuelles : à compléter avec l'adresse de chaque électeur, puis envoyer
 
-Documents pour le scrutin (à utiliser LE JOUR du vote) :
-- Feuille d'émargement : pour signature des votants
-- Bulletins de vote : à reproduire en nombre suffisant
-- Procès-verbal du 1er tour (vierge)
-- Procès-verbal du 2e tour (vierge, à utiliser si quorum non atteint au 1er tour)
+ÉTAPE 2 — INVITATION DES SYNDICATS (à faire dès maintenant, LRAR)
+- Invitations aux 5 OSR : envoi obligatoire aux 5 confédérations (CGT, CFDT, FO, CFE-CGC, CFTC)
+- Délai d'attente minimum : 15 jours
+- En l'absence de syndicat dans l'entreprise, il est probable qu'aucune n'envoie de représentant
 
-INSTRUCTIONS
-------------
+ÉTAPE 3 — BASCULE EN DÉCISION UNILATÉRALE (J+15)
+- PV constatant l'absence de réponse OSR : à dater et signer après le délai
+- PAP en décision unilatérale : à afficher dans l'entreprise
 
-1. Imprimer en plusieurs exemplaires les listes électeurs/éligibles pour affichage
-2. Compléter les convocations individuelles avec les adresses
-3. Envoyer les invitations OSR en recommandé avec accusé de réception (LRAR)
-4. Le jour du scrutin :
-   - Désigner président et 2 assesseurs (doyen et benjamin des électeurs)
-   - Faire signer la feuille d'émargement à chaque votant
-   - Compléter le procès-verbal après dépouillement
-   - Transmettre le PV signé à la DDETS dans les 15 jours
+ÉTAPE 4 — PRÉPARATION DU 1er TOUR
+- Liste des électeurs et éligibles : à afficher
+- Convocations individuelles : à compléter avec les adresses et envoyer
+- Bulletins de vote : à reproduire en quantité suffisante
+- Feuille d'émargement : à préparer pour le jour du scrutin
+
+ÉTAPE 5 — JOUR DU 1er TOUR (15/06/2026)
+- Désigner président + 2 assesseurs (doyen et benjamin des électeurs présents)
+- Procès-verbal du 1er tour : à compléter après dépouillement
+- Quorum : 50% des inscrits (soit minimum 36 votants)
+
+ÉTAPE 6 — 2e TOUR (probable car pas de syndicat → carence au 1er tour)
+- Note d'info 2e tour : à afficher (annonce candidatures libres ouvertes)
+- Convocations 2e tour : à envoyer
+- Bulletin 2e tour : modèle pour candidats libres
+- Procès-verbal du 2e tour : à compléter
+- Le 2e tour est ouvert à TOUS les salariés éligibles (pas seulement syndicats)
+
+ÉTAPE 7 — APRÈS LE SCRUTIN
+- Affichage des résultats : à afficher dans l'entreprise
+- OU PV de carence : si aucun candidat ni au 1er ni au 2e tour
+- Transmission PV à la DDETS dans les 15 jours + au CTEP (centralisateur)
+
+CONTENU DU DOSSIER
+==================
+
+A. CALCUL D'EFFECTIF
+   01_Synthèse détaillée : tableau électeur/éligible par salarié
+   02_Liste des électeurs : à afficher dans l'entreprise
+   03_Liste des éligibles : à afficher dans l'entreprise
+   04_Justificatif du calcul d'effectif : preuve en cas de contrôle DREETS
+
+B. PRÉPARATION (à faire dès maintenant)
+   05_Note d'information aux salariés
+   06_PV constatant l'absence de réponse OSR (à dater après J+15)
+   07_PAP en décision unilatérale
+   08_Feuille d'émargement
+   09_PV du 1er tour (vierge)
+   10_Bulletins 1er tour
+   11_Invitations aux 5 OSR (LRAR obligatoire)
+   12_Convocations individuelles 1er tour
+
+C. 2e TOUR (probable car pas de syndicat)
+   13_Note d'info 2e tour
+   14_Convocations 2e tour
+   15_Bulletins 2e tour (candidats libres)
+   16_PV du 2e tour (vierge)
+   17_PV de carence (si aucun candidat)
+   18_Affichage des résultats
 
 ATTENTION
----------
-
-- Les adresses des électeurs sur les convocations sont laissées vides : à compléter manuellement
-- Les horaires d'ouverture/fermeture du scrutin sont à compléter
-- La composition du bureau de vote sera à désigner le jour du scrutin
+=========
+- Les adresses des électeurs sur les convocations sont vides : à compléter manuellement
+- Les horaires d'ouverture/fermeture du scrutin sont à compléter dans le PAP
+- La composition du bureau de vote (président + 2 assesseurs) sera désignée le jour du scrutin
+- Le PAP en DU doit être signé par l'employeur et affiché 15 jours avant le scrutin minimum
 
 Document généré par Juris-Transport Expert le ${new Date().toLocaleString('fr-FR')}.`;
 
@@ -3113,6 +3170,304 @@ ${e.nom}<br>
 
 <div style="margin-top:40px">
 <p style="${S}text-align:right">${DIR}<br>Gérant — ${SOC}</p>
+</div>
+</div>`;
+  }
+
+  else if(type === 'pv_absence_osr'){
+    titre = 'PV constatant l\'absence de réponse des OSR';
+    html = `<div style="${S}">
+<div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
+<strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
+</div>
+<h2 style="${S}font-size:14pt;text-align:center;text-decoration:underline">PROCÈS-VERBAL DE CARENCE DES ORGANISATIONS SYNDICALES</h2>
+<p style="${S}text-align:center;font-style:italic">Constatation de l'absence de réponse à l'invitation à négocier le PAP</p>
+<p style="${S}text-align:center"><em>${LIEU.split(',').slice(-1)[0].trim() || 'Argenteuil'}, le ${today}</em></p>
+
+<p style="${S}margin-top:20px">Je soussigné, <strong>${DIR}</strong>, agissant en qualité de Gérant de la société <strong>${SOC}</strong>, certifie ce qui suit :</p>
+
+<p style="${S}"><strong>1. Invitation envoyée :</strong></p>
+<p style="${S}">Conformément à l'article L.2314-5 du Code du travail, j'ai invité par lettre recommandée avec accusé de réception, en date du [DATE D'ENVOI], les cinq confédérations syndicales représentatives au niveau national et interprofessionnel à négocier le Protocole d'Accord Préélectoral en vue des premières élections du Comité Social et Économique de notre entreprise :</p>
+
+<ul style="${S}">
+<li>CGT — Confédération Générale du Travail</li>
+<li>CFDT — Confédération Française Démocratique du Travail</li>
+<li>FO — Force Ouvrière</li>
+<li>CFE-CGC — Confédération Française de l'Encadrement</li>
+<li>CFTC — Confédération Française des Travailleurs Chrétiens</li>
+</ul>
+
+<p style="${S}"><strong>2. Date butoir fixée :</strong> [DATE BUTOIR — minimum 15 jours après envoi]</p>
+
+<p style="${S}"><strong>3. Constatation :</strong></p>
+<p style="${S}">À la date de rédaction du présent procès-verbal, aucune des cinq organisations syndicales représentatives invitées n'a manifesté son intention de participer à la négociation du Protocole d'Accord Préélectoral, malgré le délai écoulé.</p>
+
+<p style="${S}"><strong>4. Conséquences :</strong></p>
+<p style="${S}">Conformément à l'article L.2314-13 du Code du travail, en l'absence d'organisation syndicale dans l'entreprise et en l'absence de réponse des organisations syndicales représentatives invitées, l'employeur fixe unilatéralement par décision :</p>
+<ul style="${S}">
+<li>La répartition du personnel entre les collèges électoraux</li>
+<li>La répartition des sièges entre les différentes catégories</li>
+<li>Les modalités du scrutin</li>
+</ul>
+
+<p style="${S}">Cette décision fera l'objet du document intitulé « Protocole d'Accord Préélectoral en décision unilatérale ».</p>
+
+<p style="${S}">En cas de contestation par l'une des organisations syndicales représentatives, ces dernières conservent la possibilité de saisir la DREETS dans les 15 jours suivant cette décision.</p>
+
+<div style="margin-top:40px">
+<p style="${S}text-align:right">Fait à ${LIEU.split(',').slice(-1)[0].trim() || 'Argenteuil'}, le ${today}<br><br>${DIR}<br>Gérant — ${SOC}<br><br>Signature :</p>
+</div>
+</div>`;
+  }
+
+  else if(type === 'pap_unilateral'){
+    titre = 'PAP en décision unilatérale — TEC';
+    html = `<div style="${S}">
+<div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
+<strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
+</div>
+<h2 style="${S}font-size:14pt;text-align:center;text-decoration:underline">PROTOCOLE D'ACCORD PRÉÉLECTORAL</h2>
+<p style="${S}text-align:center"><strong>Établi unilatéralement par l'employeur</strong></p>
+<p style="${S}text-align:center;font-style:italic">(Art. L.2314-13 C. trav. — Absence de réponse des organisations syndicales représentatives)</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline;margin-top:20px">ARTICLE 1 — Objet</h3>
+<p style="${S}">Le présent document fixe les modalités d'organisation des premières élections du Comité Social et Économique (CSE) de la société <strong>${SOC}</strong>.</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 2 — Effectif et nombre de sièges</h3>
+<p style="${S}">Effectif retenu au jour de l'établissement du présent document : <strong>74 salariés</strong>.</p>
+<p style="${S}">Nombre de sièges à pourvoir (Art. R.2314-1 C. trav., effectif 50-74) :</p>
+<ul style="${S}">
+<li><strong>4 titulaires + 4 suppléants</strong></li>
+</ul>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 3 — Collèges électoraux</h3>
+<p style="${S}">L'entreprise <strong>${SOC}</strong> ne comportant ni technicien-agent de maîtrise (TAM) ni cadre, il est institué un <strong>collège unique</strong> regroupant l'ensemble des salariés, conformément à l'article L.2314-11 C. trav.</p>
+
+<table style="${S}width:100%;border-collapse:collapse;margin:10px 0">
+<thead><tr style="background:#e8e8e8">
+<th style="border:1px solid #000;padding:6pt">Collège</th>
+<th style="border:1px solid #000;padding:6pt">Composition</th>
+<th style="border:1px solid #000;padding:6pt">Effectif</th>
+<th style="border:1px solid #000;padding:6pt">Sièges titulaires</th>
+<th style="border:1px solid #000;padding:6pt">Sièges suppléants</th>
+</tr></thead>
+<tbody>
+<tr><td style="border:1px solid #000;padding:6pt">Unique</td><td style="border:1px solid #000;padding:6pt">Ouvriers + Employés</td><td style="border:1px solid #000;padding:6pt;text-align:center">74</td><td style="border:1px solid #000;padding:6pt;text-align:center">4</td><td style="border:1px solid #000;padding:6pt;text-align:center">4</td></tr>
+</tbody>
+</table>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 4 — Modalités de vote</h3>
+<p style="${S}"><strong>Mode de scrutin :</strong> vote physique sur place et vote par correspondance.</p>
+<p style="${S}"><strong>Lieu :</strong> ${LIEU}</p>
+<p style="${S}"><strong>Date du 1er tour :</strong> ${DATE_1ER_TOUR}</p>
+<p style="${S}"><strong>Date du 2e tour</strong> (si nécessaire) <strong>:</strong> ${DATE_2EME_TOUR}</p>
+<p style="${S}"><strong>Horaires :</strong> [À COMPLÉTER — exemple : 9h-12h et 14h-17h]</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 5 — Dépôt des candidatures</h3>
+<p style="${S}"><strong>1er tour :</strong> seules les organisations syndicales représentatives peuvent présenter des listes (Art. L.2314-29 C. trav.). En l'absence de syndicat dans l'entreprise, ce tour pourra ne pas recueillir de candidatures, ce qui ouvrira un 2e tour ouvert à tous les salariés.</p>
+<p style="${S}"><strong>2e tour :</strong> en cas de carence au 1er tour, ou en l'absence de quorum, le 2e tour est ouvert à tout salarié éligible présentant sa candidature, qu'il soit ou non présenté par une organisation syndicale (Art. L.2314-29 C. trav.).</p>
+<p style="${S}"><strong>Date limite de dépôt des candidatures pour le 1er tour :</strong> [DATE — minimum 15 jours avant le scrutin]</p>
+<p style="${S}"><strong>Date limite pour le 2e tour :</strong> [DATE — minimum 4 jours avant le scrutin]</p>
+<p style="${S}"><strong>Lieu de dépôt :</strong> ${LIEU}</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 6 — Vote par correspondance</h3>
+<p style="${S}">Le matériel de vote (bulletins, enveloppes, profession de foi le cas échéant) sera envoyé aux salariés en faisant la demande au moins 8 jours avant le scrutin. Les enveloppes de vote par correspondance devront parvenir au bureau de vote au plus tard à la clôture du scrutin pour être prises en compte.</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 7 — Bureau de vote</h3>
+<p style="${S}">Le bureau de vote est composé du président (le plus ancien des électeurs présents) et de deux assesseurs (le plus âgé et le plus jeune des électeurs présents). Il assure la régularité des opérations et procède au dépouillement.</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 8 — Affichage et information</h3>
+<p style="${S}">La liste des électeurs et des éligibles, le présent protocole, ainsi que les résultats des scrutins seront affichés dans les locaux de l'entreprise.</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 9 — Voies de recours</h3>
+<p style="${S}">Tout salarié, organisation syndicale ou tiers intéressé peut contester le présent protocole devant le tribunal judiciaire dans les 15 jours suivant l'affichage.</p>
+<p style="${S}">Les organisations syndicales représentatives conservent la possibilité de saisir la DREETS conformément à l'article L.2314-13 C. trav.</p>
+
+<div style="margin-top:40px">
+<p style="${S}text-align:right">Fait à ${LIEU.split(',').slice(-1)[0].trim() || 'Argenteuil'}, le ${today}<br><br>${DIR}<br>Gérant — ${SOC}<br><br>Signature :</p>
+</div>
+</div>`;
+  }
+
+  else if(type === 'note_info_2eme'){
+    titre = 'Note d\'information — Organisation du 2e tour';
+    html = `<div style="${S}">
+<div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
+<strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
+</div>
+<h2 style="${S}font-size:14pt;text-align:center;text-decoration:underline">NOTE D'INFORMATION — 2E TOUR DE SCRUTIN</h2>
+<p style="${S}text-align:center;font-style:italic">Affichée le ${today}</p>
+
+<p style="${S}margin-top:20px text-decoration:underline;font-weight:bold">OBJET : Organisation du 2e tour des élections du CSE</p>
+
+<p style="${S}">À l'issue du 1er tour qui s'est tenu le ${DATE_1ER_TOUR}, [☐ le quorum n'a pas été atteint] [☐ aucune liste syndicale n'a été présentée] [☐ tous les sièges n'ont pas été pourvus].</p>
+
+<p style="${S}">Conformément à l'article L.2314-29 du Code du travail, un <strong>2e tour</strong> est organisé.</p>
+
+<p style="${S}"><strong>Date du 2e tour :</strong> ${DATE_2EME_TOUR}</p>
+<p style="${S}"><strong>Lieu :</strong> ${LIEU}</p>
+<p style="${S}"><strong>Horaires :</strong> [À COMPLÉTER]</p>
+
+<p style="${S}margin-top:14px"><strong>Spécificité du 2e tour :</strong></p>
+<p style="${S}">Contrairement au 1er tour réservé aux listes syndicales, <strong>le 2e tour est ouvert à tous les salariés éligibles</strong> souhaitant présenter leur candidature, qu'ils soient ou non soutenus par une organisation syndicale.</p>
+
+<p style="${S}"><strong>Conditions pour être candidat :</strong></p>
+<ul style="${S}">
+<li>Être âgé(e) de 18 ans révolus</li>
+<li>Justifier d'au moins 1 an d'ancienneté dans l'entreprise</li>
+<li>Ne pas être placé dans une situation d'incompatibilité (conjoint/parent/enfant du dirigeant, exclusion légale...)</li>
+</ul>
+
+<p style="${S}"><strong>Comment se porter candidat ?</strong></p>
+<p style="${S}">Adressez votre candidature écrite (lettre simple ou e-mail) à la direction au plus tard le [DATE LIMITE — minimum 4 jours avant le scrutin]. Précisez : votre nom, prénom, date d'embauche, fonction, et si vous candidatez en tant que titulaire et/ou suppléant.</p>
+
+<p style="${S}">La liste des candidats sera affichée dans l'entreprise.</p>
+
+<div style="margin-top:40px">
+<p style="${S}text-align:right">${DIR}<br>Gérant — ${SOC}</p>
+</div>
+</div>`;
+  }
+
+  else if(type === 'convocations_2eme'){
+    const electeurs = getElecteurs();
+    if(!electeurs.length){
+      alert('Aucun électeur trouvé.');
+      return;
+    }
+    titre = `Convocations 2e tour — ${electeurs.length} électeurs`;
+    const convocs = electeurs.map(e => `
+<div style="${S}page-break-after:always;padding:20px">
+<div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
+<strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
+</div>
+<table style="width:100%;margin:14px 0">
+<tr>
+<td style="width:50%;vertical-align:top;border:1px solid #000;padding:10px"><strong>Destinataire :</strong><br>${e.nom}<br><em style="color:#888">[Adresse à compléter]</em></td>
+<td style="width:50%;vertical-align:top;padding-left:20px"><em>${LIEU.split(',').slice(-1)[0].trim() || 'Argenteuil'}, le ${today}</em></td>
+</tr>
+</table>
+<p style="${S}text-align:center;font-weight:bold;text-decoration:underline;font-size:12pt;margin:20px 0">CONVOCATION AU 2E TOUR DES ÉLECTIONS DU CSE</p>
+<p style="${S}">Madame, Monsieur,</p>
+<p style="${S}">À l'issue du 1er tour qui s'est tenu le ${DATE_1ER_TOUR}, un 2e tour est nécessaire conformément à l'article L.2314-29 du Code du travail.</p>
+<p style="${S}"><strong>Date :</strong> ${DATE_2EME_TOUR}<br>
+<strong>Lieu :</strong> ${LIEU}<br>
+<strong>Horaires :</strong> [À COMPLÉTER]</p>
+<p style="${S}"><strong>Important :</strong> Le 2e tour est ouvert à <strong>tous les salariés éligibles</strong>. Si vous souhaitez vous porter candidat, adressez votre demande à la direction au plus tard le [DATE LIMITE].</p>
+<p style="${S}">Modalités de vote : vote physique sur place ou vote par correspondance.</p>
+<p style="${S}">Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.</p>
+<div style="margin-top:40px"><p style="${S}text-align:right">${DIR}<br>Gérant — ${SOC}</p></div>
+</div>`).join('');
+    html = `<div style="${S}"><h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline">CONVOCATIONS 2E TOUR — ${electeurs.length} ÉLECTEURS</h2>${convocs}</div>`;
+  }
+
+  else if(type === 'bulletin_2eme'){
+    titre = 'Bulletin de vote — 2e tour (candidats libres)';
+    html = `<div style="${S}">
+<h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline">BULLETIN DE VOTE — 2E TOUR</h2>
+<p style="${S}text-align:center;font-style:italic">Modèle à reproduire — 2e tour ouvert aux candidats libres</p>
+
+<div style="border:2px solid #000;padding:15px;margin:20px auto;width:80%;background:#fff">
+<p style="${S}text-align:center;font-weight:bold">${SOC}</p>
+<p style="${S}text-align:center;font-size:10pt">Élections du CSE — 2e tour — ${DATE_2EME_TOUR}</p>
+<p style="${S}text-align:center;text-decoration:underline;margin:10px 0"><strong>COLLÈGE UNIQUE</strong></p>
+<p style="${S}text-align:center;margin:8px 0">☐ TITULAIRE</p>
+<p style="${S}text-align:center;margin:8px 0">☐ SUPPLÉANT</p>
+<p style="${S}font-size:10pt;text-align:center;font-style:italic">Liste des candidats à reporter :</p>
+<table style="${S}width:100%;border-collapse:collapse;margin:10px 0">
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">1.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">2.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">3.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">4.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">5.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">6.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">7.</td></tr>
+<tr><td style="border:1px solid #000;padding:8pt;height:25px">8.</td></tr>
+</table>
+<p style="${S}font-size:9pt;text-align:center;font-style:italic;margin-top:8px">Cochez le ou les candidats de votre choix (max 4 titulaires + 4 suppléants)</p>
+</div>
+</div>`;
+  }
+
+  else if(type === 'pv_carence_total'){
+    titre = 'PV de carence — Aucun élu';
+    html = `<div style="${S}">
+<div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
+<strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
+</div>
+<h2 style="${S}font-size:14pt;text-align:center;text-decoration:underline">PROCÈS-VERBAL DE CARENCE</h2>
+<p style="${S}text-align:center;font-style:italic">Aucun candidat au 1er tour ni au 2e tour</p>
+
+<p style="${S}margin-top:20px">Je soussigné, <strong>${DIR}</strong>, Gérant de la société <strong>${SOC}</strong>, certifie que :</p>
+
+<p style="${S}"><strong>1er tour :</strong> le ${DATE_1ER_TOUR}, aucune liste syndicale n'a été déposée. <strong>Constat de carence au 1er tour.</strong></p>
+
+<p style="${S}"><strong>2e tour :</strong> le ${DATE_2EME_TOUR}, [☐ aucun candidat libre ne s'est présenté] [☐ le quorum n'a pas été atteint et aucun candidat n'a obtenu la majorité requise].</p>
+
+<p style="${S}"><strong>Conséquences :</strong></p>
+<ul style="${S}">
+<li>Aucun représentant du personnel élu au CSE</li>
+<li>L'employeur sera tenu d'organiser de nouvelles élections en cas de demande émanant d'un salarié ou d'une organisation syndicale</li>
+<li>Procès-verbal à transmettre à la DDETS et au prestataire centralisateur (CTEP) dans les 15 jours</li>
+</ul>
+
+<div style="margin-top:40px">
+<p style="${S}text-align:right">Fait à ${LIEU.split(',').slice(-1)[0].trim() || 'Argenteuil'}, le ${today}<br><br>${DIR}<br>Gérant — ${SOC}<br><br>Signature :</p>
+</div>
+</div>`;
+  }
+
+  else if(type === 'affichage_resultats'){
+    titre = 'Affichage des résultats du scrutin';
+    html = `<div style="${S}">
+<div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
+<strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
+</div>
+<h2 style="${S}font-size:14pt;text-align:center;text-decoration:underline">RÉSULTATS DES ÉLECTIONS DU CSE</h2>
+<p style="${S}text-align:center;font-style:italic">Affichage obligatoire dans les locaux de l'entreprise</p>
+
+<p style="${S}margin-top:20px"><strong>Tour concerné :</strong> ☐ 1er tour &nbsp;&nbsp;&nbsp; ☐ 2e tour</p>
+<p style="${S}"><strong>Date du scrutin :</strong> _________________</p>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">Participation</h3>
+<table style="${S}width:100%;border-collapse:collapse">
+<tr><td style="border:1px solid #000;padding:6pt">Électeurs inscrits</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
+<tr><td style="border:1px solid #000;padding:6pt">Votants</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
+<tr><td style="border:1px solid #000;padding:6pt">Bulletins blancs/nuls</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
+<tr><td style="border:1px solid #000;padding:6pt">Suffrages valablement exprimés</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;background:#e8e8e8"><strong>Taux de participation</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center"><strong>____ %</strong></td></tr>
+</table>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">Élus titulaires</h3>
+<table style="${S}width:100%;border-collapse:collapse">
+<thead><tr style="background:#e8e8e8">
+<th style="border:1px solid #000;padding:6pt">N°</th>
+<th style="border:1px solid #000;padding:6pt">Nom Prénom</th>
+<th style="border:1px solid #000;padding:6pt">Voix obtenues</th>
+</tr></thead>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">1</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">2</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">3</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">4</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+</table>
+
+<h3 style="${S}font-size:12pt;text-decoration:underline">Élus suppléants</h3>
+<table style="${S}width:100%;border-collapse:collapse">
+<thead><tr style="background:#e8e8e8">
+<th style="border:1px solid #000;padding:6pt">N°</th>
+<th style="border:1px solid #000;padding:6pt">Nom Prénom</th>
+<th style="border:1px solid #000;padding:6pt">Voix obtenues</th>
+</tr></thead>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">1</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">2</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">3</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;text-align:center">4</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
+</table>
+
+<p style="${S}margin-top:30px;font-style:italic">Les contestations relatives à la régularité du scrutin doivent être adressées au tribunal judiciaire dans les 15 jours suivant le présent affichage (art. R.2314-23 C. trav.).</p>
+
+<div style="margin-top:40px">
+<p style="${S}text-align:right">${DIR}<br>Gérant — ${SOC}<br>Le ${today}</p>
 </div>
 </div>`;
   }
