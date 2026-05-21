@@ -1149,6 +1149,7 @@ Exemple :<br>
 <button class="btn-outline" onclick="genDocElectionTEC('note_info')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📢 Note d'information aux salariés</button>
 </div>
 <div class="al warn" style="font-size:11px;margin-top:10px">⚠️ Adresses des électeurs laissées vides — à compléter manuellement avant envoi.</div>
+<button onclick="telechargerTousZIP()" style="margin-top:14px;width:100%;background:#2b579a;border:none;color:#fff;padding:14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">📦 Télécharger TOUT en ZIP (tous les documents en un seul fichier)</button>
 </div>
 
 </div>
@@ -2607,6 +2608,190 @@ function docPiedPage(refs){
 <p style="font-family:'Times New Roman',serif;font-size:8pt;font-style:italic;color:#555;text-align:center;margin-top:6px">
 ${refs?refs+' — ':''}Document ne constituant pas un conseil juridique (loi n°71-1130 du 31/12/1971).
 </p>`;
+}
+
+async function telechargerTousZIP(){
+  const dateScrutin = document.getElementById('cse-nom-date-scrutin')?.value;
+  if(!dateScrutin){ alert('Saisissez d\'abord la date du 1er tour de scrutin.'); return; }
+  if(!salariesNom || salariesNom.length === 0){ alert('Aucun salarié saisi. Importez d\'abord la liste.'); return; }
+
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a2f44;color:#e8c97a;padding:20px 30px;border:2px solid #c9a84c;border-radius:12px;z-index:999999;font-family:inherit;font-size:14px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:280px';
+  loader.innerHTML = '⏳ Préparation du dossier complet...';
+  document.body.appendChild(loader);
+
+  try {
+    // Charger JSZip
+    if(typeof JSZip === 'undefined'){
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('Chargement JSZip échoué'));
+        document.head.appendChild(s);
+      });
+    }
+
+    // Intercepter showDoc pour collecter les documents au lieu de les afficher
+    const documents = [];
+    const showDocOriginal = window.showDoc;
+    window.showDoc = (titre, html) => { documents.push({titre, html}); };
+
+    try {
+      loader.innerHTML = '⏳ Génération des listes électeurs/éligibles...';
+      await new Promise(r => setTimeout(r, 50));
+      exportListeNom('synthese','word');
+      exportListeNom('electeurs','word');
+      exportListeNom('eligibles','word');
+      exportListeNom('justif','word');
+
+      loader.innerHTML = '⏳ Génération des documents d\'élection...';
+      await new Promise(r => setTimeout(r, 50));
+      genDocElectionTEC('note_info');
+      genDocElectionTEC('emargement');
+      genDocElectionTEC('pv_1er');
+      genDocElectionTEC('pv_2eme');
+      genDocElectionTEC('bulletin');
+      genDocElectionTEC('invitations_osr');
+      genDocElectionTEC('convocations');
+    } finally {
+      window.showDoc = showDocOriginal;
+    }
+
+    loader.innerHTML = '⏳ Compression du dossier...';
+    await new Promise(r => setTimeout(r, 50));
+
+    // Créer le ZIP
+    const zip = new JSZip();
+    const dossier = zip.folder('Dossier_Elections_CSE_TEC');
+
+    documents.forEach((d, idx) => {
+      const num = String(idx + 1).padStart(2, '0');
+      const nomFichier = num + '_' + d.titre.replace(/[^a-zA-ZÀ-ÿ0-9\s-]/g,'').trim().replace(/\s+/g,'_') + '.doc';
+      const wordHTML = _genererWordHTML(d.titre, d.html);
+      dossier.file(nomFichier, '\ufeff' + wordHTML);
+    });
+
+    // README expliquant le contenu
+    const readme = `DOSSIER ÉLECTIONS CSE — ${E.nom || 'ENTREPRISE'}
+===========================================================
+
+Date du 1er tour : 15 juin 2026
+Date du 2e tour (si nécessaire) : 30 juin 2026
+Lieu : ${E.adresse || ''}
+Dirigeant : ${E.dirigeant || ''}
+
+CONTENU DU DOSSIER
+------------------
+
+Documents préparatoires (à utiliser AVANT le scrutin) :
+- Synthèse détaillée : tableau électeur/éligible par salarié
+- Liste des électeurs : à afficher dans l'entreprise
+- Liste des éligibles : à afficher dans l'entreprise
+- Justificatif du calcul d'effectif : preuve en cas de contrôle DREETS
+- Note d'information aux salariés : à afficher dans l'entreprise
+- Invitations aux 5 OSR : à envoyer en LRAR aux confédérations syndicales
+- Convocations individuelles : à compléter avec l'adresse de chaque électeur, puis envoyer
+
+Documents pour le scrutin (à utiliser LE JOUR du vote) :
+- Feuille d'émargement : pour signature des votants
+- Bulletins de vote : à reproduire en nombre suffisant
+- Procès-verbal du 1er tour (vierge)
+- Procès-verbal du 2e tour (vierge, à utiliser si quorum non atteint au 1er tour)
+
+INSTRUCTIONS
+------------
+
+1. Imprimer en plusieurs exemplaires les listes électeurs/éligibles pour affichage
+2. Compléter les convocations individuelles avec les adresses
+3. Envoyer les invitations OSR en recommandé avec accusé de réception (LRAR)
+4. Le jour du scrutin :
+   - Désigner président et 2 assesseurs (doyen et benjamin des électeurs)
+   - Faire signer la feuille d'émargement à chaque votant
+   - Compléter le procès-verbal après dépouillement
+   - Transmettre le PV signé à la DDETS dans les 15 jours
+
+ATTENTION
+---------
+
+- Les adresses des électeurs sur les convocations sont laissées vides : à compléter manuellement
+- Les horaires d'ouverture/fermeture du scrutin sont à compléter
+- La composition du bureau de vote sera à désigner le jour du scrutin
+
+Document généré par Juris-Transport Expert le ${new Date().toLocaleString('fr-FR')}.`;
+
+    dossier.file('README.txt', readme);
+
+    // Générer le ZIP
+    const blob = await zip.generateAsync({ type: 'blob' });
+    if(loader.parentNode) document.body.removeChild(loader);
+
+    const nomZip = 'Dossier_Elections_CSE_' + (E.nom || 'ENTREPRISE').replace(/[^a-zA-Z0-9]/g, '') + '_' + dateScrutin + '.zip';
+
+    // Tentative 1 : partage natif iOS
+    if(navigator.share){
+      try {
+        const file = new File([blob], nomZip, { type: 'application/zip' });
+        await navigator.share({ files: [file], title: 'Dossier complet élections CSE' });
+        return;
+      } catch(e){
+        if(e.name === 'AbortError') return;
+      }
+    }
+
+    // Tentative 2 : téléchargement direct
+    _telecharger(blob, 'application/zip', nomZip);
+
+  } catch(e){
+    if(loader.parentNode) document.body.removeChild(loader);
+    alert('Erreur lors de la création du ZIP : ' + e.message);
+    console.error(e);
+  }
+}
+
+function _genererWordHTML(titre, html){
+  return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset='utf-8'>
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 12">
+<title>${titre}</title>
+<!--[if gte mso 9]><xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml><![endif]-->
+<style>
+@page WordSection1 { size: 21cm 29.7cm; margin: 2cm 2cm 2cm 2cm; mso-page-orientation: portrait; }
+div.WordSection1 { page: WordSection1; }
+body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #000; line-height: 1.5; }
+h1 { font-size: 16pt; font-weight: bold; text-align: center; margin: 12pt 0; color: #1a2f44; }
+h2 { font-size: 13pt; font-weight: bold; text-align: center; text-decoration: underline; text-transform: uppercase; margin: 10pt 0; color: #1a2f44; page-break-after: avoid; }
+h3 { font-size: 12pt; font-weight: bold; margin: 8pt 0 6pt 0; color: #1a2f44; page-break-after: avoid; }
+p { margin: 6pt 0; text-align: justify; }
+table { border-collapse: collapse; margin: 8pt auto; mso-table-lspace: 9pt; mso-table-rspace: 9pt; mso-padding-alt: 4pt 4pt 4pt 4pt; }
+table, th, td { border: 1px solid #000 !important; }
+th, td { padding: 4pt 6pt; vertical-align: top; font-size: 10pt; }
+th { background: #e8e8e8 !important; font-weight: bold; text-align: center; }
+strong, b { font-weight: bold; }
+em, i { font-style: italic; }
+ul, ol { margin: 6pt 0 6pt 20pt; padding: 0; }
+li { margin: 3pt 0; }
+hr { border: none; border-top: 1px solid #000; margin: 10pt 0; }
+.no-break, tr { page-break-inside: avoid; }
+</style>
+</head>
+<body lang=FR>
+<div class=WordSection1>
+${html}
+<p style="margin-top: 20pt; text-align: center; font-style: italic; font-size: 9pt; color: #666">
+Document généré par Juris-Transport Expert · ${new Date().toLocaleString('fr-FR')}
+</p>
+</div>
+</body>
+</html>`;
 }
 
 function genDocElectionTEC(type){
@@ -5185,30 +5370,8 @@ ${html}
     return;
   }
 
-  // Desktop : génération .doc classique
-  const wordContent = `
-<html xmlns:o='urn:schemas-microsoft-com:office:office'
-      xmlns:w='urn:schemas-microsoft-com:office:word'
-      xmlns='http://www.w3.org/TR/REC-html40'>
-<head>
-<meta charset='utf-8'>
-<meta name=ProgId content=Word.Document>
-<title>${titre}</title>
-<style>
-  body{font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1.8;margin:2cm}
-  h2{font-size:13pt;text-align:center;text-decoration:underline;text-transform:uppercase;margin-bottom:8pt}
-  p{margin-bottom:8pt;text-align:justify}
-  table{margin-left:auto;margin-right:auto;border-collapse:collapse;margin-top:10pt;margin-bottom:10pt;font-size:10pt}
-  th,td{border:1px solid #000;padding:6pt;font-family:'Times New Roman',serif;vertical-align:top}
-  th{background:#e8e8e8;font-weight:bold;text-align:center}
-  strong{font-weight:bold}
-  em{font-style:italic}
-  ul,ol{margin-left:20pt;margin-bottom:8pt}
-  @page{size:A4;margin:2cm}
-</style>
-</head>
-<body>${html}</body>
-</html>`;
+  // Desktop : génération .doc classique avec mise en forme améliorée
+  const wordContent = _genererWordHTML(titre, html);
   const bom = new Uint8Array([0xEF,0xBB,0xBF]);
   const blob = new Blob([bom, wordContent], { type: 'application/msword;charset=utf-8' });
   const nomFichier = titre.replace(/[^a-zA-ZÀ-ÿ0-9\s-]/g,'').trim().replace(/\s+/g,'-').toLowerCase() + '.doc';
