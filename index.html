@@ -3641,8 +3641,11 @@ function refreshNomTable(){
       totalEff += r.effectif;
       if(r.electeur) nbElect++;
       if(r.eligible) nbElig++;
-      if(r.college === 1) col1++; else col2++;
-      if(s.statut === 'cadre') nbCadres++;
+      // Ne compter dans les collèges que les salariés qui contribuent à l'effectif (exclut les sortis et apprentis)
+      if(r.effectif > 0){
+        if(r.college === 1) col1++; else col2++;
+      }
+      if(s.statut === 'cadre' && r.effectif > 0) nbCadres++;
     }
   });
   cont.innerHTML = html;
