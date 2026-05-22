@@ -1069,8 +1069,56 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 <!-- ═══ BLOC MODE NOMINATIF ═══ -->
 <div id="cse-bloc-nominatif" class="hidden">
 
+<div class="card" style="background:linear-gradient(135deg,rgba(212,160,23,0.12),rgba(26,47,68,0.05));border:2px solid rgba(212,160,23,0.4)">
+<div class="ct" style="color:#d4a017">📋 Mode d'emploi — à suivre dans l'ordre</div>
+<div class="al warn" style="font-size:13px;margin-bottom:12px;font-weight:600">
+⚠️ Pour un décompte d'effectif fiable, utilisez le modèle de fichier vierge ci-dessous et faites-le remplir par l'entreprise en complétant TOUTES LES CASES (date de naissance, date d'entrée, type de contrat, statut). Une case manquante fausse le calcul.
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:flex-start;gap:10px">
+<span style="background:#d4a017;color:#000;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">A</span>
+<div style="flex:1">
+<strong style="font-size:13px">Télécharger le modèle vierge</strong>
+<button onclick="genererModeleCSV()" class="btn-outline" style="margin-top:6px;width:100%;background:rgba(212,160,23,0.15);border-color:#d4a017;color:#d4a017;font-weight:700">⬇️ Télécharger le modèle à remplir (CSV)</button>
+<div style="font-size:11px;color:#9a948a;margin-top:4px">Modèle conforme au registre unique du personnel. Le client peut aussi utiliser <strong>son propre fichier</strong> (CSV ou Excel) s'il contient les rubriques standard : l'app reconnaît automatiquement les colonnes.</div>
+</div>
+</div>
+
+<div style="display:flex;align-items:flex-start;gap:10px">
+<span style="background:#d4a017;color:#000;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">B</span>
+<div style="flex:1;padding-top:3px">
+<strong style="font-size:13px">Faire remplir par l'entreprise</strong><br>
+<span style="font-size:12px;color:#9a948a">L'employeur complète une ligne par salarié, TOUTES les colonnes remplies.</span>
+</div>
+</div>
+
+<div style="display:flex;align-items:flex-start;gap:10px">
+<span style="background:#d4a017;color:#000;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">C</span>
+<div style="flex:1">
+<strong style="font-size:13px">Importer le fichier rempli</strong>
+<button onclick="document.getElementById('cse-nom-import').click()" class="btn-outline" style="margin-top:6px;width:100%;background:rgba(46,184,46,0.12);border-color:#2eb82e;color:#2eb82e;font-weight:700">⬆️ Importer le fichier rempli (CSV / Excel)</button>
+</div>
+</div>
+
+<div style="display:flex;align-items:flex-start;gap:10px">
+<span style="background:#d4a017;color:#000;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">D</span>
+<div style="flex:1;padding-top:3px">
+<strong style="font-size:13px">Saisir la date du 1er tour</strong> <span style="font-size:12px;color:#9a948a">(ci-dessous)</span>
+</div>
+</div>
+
+<div style="display:flex;align-items:flex-start;gap:10px">
+<span style="background:#2eb82e;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">E</span>
+<div style="flex:1;padding-top:3px">
+<strong style="font-size:13px">Consulter le calcul + générer les documents</strong> <span style="font-size:12px;color:#9a948a">(le calcul se fait automatiquement)</span>
+</div>
+</div>
+</div>
+</div>
+
 <div class="card">
-<div class="ct">Paramètre — Date du scrutin</div>
+<div class="ct">Étape D — Date du scrutin</div>
 <div class="fg"><label class="fl">Date du 1er tour de scrutin *</label>
 <input type="date" id="cse-nom-date-scrutin" oninput="refreshNomTable()"/></div>
 <div class="al info" style="font-size:12px;margin-top:6px">Tous les calculs (effectif, électeurs, éligibles) sont effectués à cette date.</div>
@@ -1079,7 +1127,7 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 <div class="card">
 <div class="ct">Liste des salariés</div>
 <div class="al info" style="font-size:12px;margin-bottom:10px">
-Saisissez chaque salarié sur une ligne. L'application calcule automatiquement sa contribution à l'effectif, son statut d'électeur et d'éligible.
+Une fois le fichier importé (étape C), les salariés apparaissent ici. Vous pouvez aussi ajouter/modifier manuellement.
 </div>
 <div id="cse-nom-liste"></div>
 <button onclick="addSalarieNom()" class="btn-sm" style="margin-top:10px;width:100%">+ Ajouter un salarié</button>
@@ -1092,6 +1140,7 @@ Saisissez chaque salarié sur une ligne. L'application calcule automatiquement s
 <button onclick="ouvrirSaisieManuelle()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(91,155,213,0.1);border-color:rgba(91,155,213,0.4);color:#5b9bd5">📝 Saisir / coller le texte du registre manuellement</button>
 
 <button onclick="viderListeSalaries()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(224,92,92,0.08);border-color:rgba(224,92,92,0.35);color:#e05c5c">🗑 Vider la liste des salariés</button>
+
 
 <div id="registre-progress" class="al info" style="display:none;font-size:12px;margin-top:8px;text-align:center"></div>
 
@@ -2538,14 +2587,35 @@ function calcCSE(eff){
   else if(eff<=199){sieges=9;heures=21;}
   else if(eff<=249){sieges=10;heures=22;}
   else if(eff<=299){sieges=11;heures=22;}
-  else if(eff<=399){sieges=13;heures=22;}
-  else if(eff<=499){sieges=14;heures=22;}
-  else if(eff<=599){sieges=16;heures=24;}
-  else if(eff<=699){sieges=17;heures=24;}
-  else if(eff<=799){sieges=18;heures=24;}
-  else if(eff<=899){sieges=19;heures=24;}
-  else if(eff<=999){sieges=20;heures=24;}
-  else{sieges=25;heures=34;}
+  else if(eff<=399){sieges=11;heures=22;}
+  else if(eff<=499){sieges=12;heures=22;}
+  else if(eff<=599){sieges=13;heures=24;}
+  else if(eff<=699){sieges=14;heures=24;}
+  else if(eff<=799){sieges=14;heures=24;}
+  else if(eff<=899){sieges=15;heures=24;}
+  else if(eff<=999){sieges=16;heures=24;}
+  else if(eff<=1249){sieges=17;heures=24;}
+  else if(eff<=1499){sieges=18;heures=24;}
+  else if(eff<=1749){sieges=20;heures=26;}
+  else if(eff<=1999){sieges=21;heures=26;}
+  else if(eff<=2249){sieges=22;heures=26;}
+  else if(eff<=2499){sieges=23;heures=26;}
+  else if(eff<=2999){sieges=24;heures=26;}
+  else if(eff<=3499){sieges=25;heures=26;}
+  else if(eff<=3999){sieges=26;heures=26;}
+  else if(eff<=4249){sieges=26;heures=26;}
+  else if(eff<=4749){sieges=27;heures=26;}
+  else if(eff<=4999){sieges=28;heures=26;}
+  else if(eff<=5749){sieges=29;heures=26;}
+  else if(eff<=5999){sieges=30;heures=26;}
+  else if(eff<=6749){sieges=31;heures=26;}
+  else if(eff<=6999){sieges=32;heures=26;}
+  else if(eff<=7499){sieges=32;heures=26;}
+  else if(eff<=7999){sieges=32;heures=26;}
+  else if(eff<=8249){sieges=32;heures=26;}
+  else if(eff<=8999){sieges=33;heures=26;}
+  else if(eff<=9749){sieges=34;heures=26;}
+  else{sieges=35;heures=26;}
   const colleges = eff>=25 ? 2 : 1;
   const heuresTotal = sieges * heures;
   const situation = document.getElementById('cse-situation')?.value;
@@ -3838,6 +3908,7 @@ function calcSalarieNom(s, dateScrutinStr){
   const contratsDD = ['cdd_act','cdd_rempl','interim','saisonnier'];
   const dFinC = s.finContrat ? new Date(s.finContrat) : null;
   if(dSor && dSor < D){ electeur = false; electeurRaison = 'Sorti avant le scrutin'; }
+  else if(s.contrat === 'interim'){ electeur = false; electeurRaison = 'Intérimaire — électeur dans son entreprise de travail temporaire (art. L.2314-23)'; }
   else if(contratsDD.includes(s.contrat) && dFinC && dFinC < D){ electeur = false; electeurRaison = 'Contrat terminé avant le scrutin'; }
   else if(!dN){ electeur = false; electeurRaison = 'Date de naissance manquante'; }
   else if(!dE){ electeur = false; electeurRaison = 'Date d\'entrée manquante'; }
@@ -4073,6 +4144,76 @@ function normaliseStatut(s){
   return 'ouvrier';
 }
 
+function _mapperColonnes(entete){
+  // Détecte la position de chaque rubrique à partir des en-têtes (registre unique du personnel ou format simple)
+  const map = {};
+  let reconnu = 0;
+  entete.forEach((col, idx) => {
+    const c = (col||'').toString().toLowerCase().trim().replace(/[éè]/g,'e');
+    if(map.nom === undefined && /\bnom\b/.test(c) && !/prenom/.test(c)){ map.nom = idx; reconnu++; }
+    else if(map.prenom === undefined && /prenom/.test(c)){ map.prenom = idx; reconnu++; }
+    else if(map.nomcomplet === undefined && /nom.*prenom|salarie/.test(c)){ map.nomcomplet = idx; reconnu++; }
+    else if(map.naissance === undefined && /naissance|date.*nais|\bne\b|nee/.test(c)){ map.naissance = idx; reconnu++; }
+    else if(map.entree === undefined && /entree|embauche|debut|arrivee/.test(c)){ map.entree = idx; reconnu++; }
+    else if(map.sortie === undefined && /sortie|depart|fin.*contrat|date.*fin/.test(c)){ map.sortie = idx; reconnu++; }
+    else if(map.contrat === undefined && /contrat|nature|type.*cont/.test(c)){ map.contrat = idx; reconnu++; }
+    else if(map.statut === undefined && /statut|categorie|csp|qualif|emploi|fonction|poste/.test(c)){ map.statut = idx; reconnu++; }
+    else if(map.temps === undefined && /temps|heures|duree|quotite/.test(c)){ map.temps = idx; reconnu++; }
+    else if(map.obs === undefined && /observ|remarq|note|commentaire/.test(c)){ map.obs = idx; reconnu++; }
+  });
+  map._reconnu = reconnu;
+  return map;
+}
+
+function _extraireSalarie(champs, map){
+  // Extrait un salarié depuis une ligne en utilisant le mapping de colonnes
+  let nom = '';
+  if(map.nomcomplet !== undefined){
+    nom = champs[map.nomcomplet] || '';
+  } else if(map.nom !== undefined){
+    nom = (champs[map.nom] || '');
+    if(map.prenom !== undefined && champs[map.prenom]){
+      nom = nom + ' ' + champs[map.prenom];
+    }
+  }
+  nom = nom.trim();
+  if(!nom) return null;
+
+  const contratNorm = normaliseContrat(map.contrat !== undefined ? (champs[map.contrat]||'') : '');
+  const contratsDD = ['cdd_act','cdd_rempl','interim','saisonnier'];
+  const dateEntree = normaliseDate(map.entree !== undefined ? (champs[map.entree]||'') : '');
+  const dateSortie = normaliseDate(map.sortie !== undefined ? (champs[map.sortie]||'') : '');
+
+  // Temps partiel : détecter pourcentage ou "partiel"
+  let heures = 35, contratFinal = contratNorm;
+  if(map.temps !== undefined && champs[map.temps]){
+    const tt = champs[map.temps].toLowerCase();
+    const pct = tt.match(/(\d{1,3})\s*%/);
+    if(pct){
+      heures = Math.round(parseInt(pct[1]) * 35 / 100);
+      if(contratNorm === 'cdi_tp') contratFinal = 'cdi_tpartiel';
+    } else if(/partiel/.test(tt)){
+      if(contratNorm === 'cdi_tp') contratFinal = 'cdi_tpartiel';
+      heures = 17.5;
+    }
+  }
+
+  return {
+    nom,
+    dateNaissance: normaliseDate(map.naissance !== undefined ? (champs[map.naissance]||'') : ''),
+    dateEntree,
+    dateSortie,
+    contrat: contratFinal,
+    statut: normaliseStatut(map.statut !== undefined ? (champs[map.statut]||'') : ''),
+    heures,
+    debutContrat: contratsDD.includes(contratFinal) ? dateEntree : '',
+    finContrat: contratsDD.includes(contratFinal) ? dateSortie : '',
+    telephone: '',
+    adresse: '',
+    observations: map.obs !== undefined ? (champs[map.obs]||'') : ''
+  };
+}
+
 function importFichierNom(input){
   const f = input.files[0];
   if(!f) return;
@@ -4107,33 +4248,37 @@ function importCSVCore(f, input){
       const lignes = text.split(/\r?\n/).filter(l => l.trim());
       if(lignes.length === 0){ alert('Fichier vide.'); return; }
       const sep = lignes[0].includes(';') ? ';' : ',';
+      const splitLigne = l => l.split(sep).map(c => c.trim().replace(/^["']|["']$/g,''));
+
+      // Détecter si la 1ère ligne est un en-tête et mapper les colonnes
+      const entete = splitLigne(lignes[0]);
+      const map = _mapperColonnes(entete);
+      const aEntete = map._reconnu >= 3; // au moins 3 colonnes reconnues = en-tête présent
+
       let nbImportes = 0, nbIgnores = 0;
-      lignes.forEach(ligne => {
-        const champs = ligne.split(sep).map(c => c.trim().replace(/^["']|["']$/g,''));
-        if(!champs[0]){ nbIgnores++; return; }
-        // Ignorer la ligne d'en-tête si présente (détection : "nom" en col 1)
-        if(/^(nom|salari)/i.test(champs[0])){ nbIgnores++; return; }
-        const contratNorm = normaliseContrat(champs[3]||'');
-        const contratsDD = ['cdd_act','cdd_rempl','interim','saisonnier'];
-        const dateEntree = normaliseDate(champs[2]||'');
-        const dateSortie = normaliseDate(champs[5]||'');
-        salariesNom.push({
-          nom: champs[0],
-          dateNaissance: normaliseDate(champs[1]||''),
-          dateEntree,
-          dateSortie,
-          contrat: contratNorm,
-          statut: normaliseStatut(champs[4]||''),
-          heures: 35,
-          debutContrat: contratsDD.includes(contratNorm) ? dateEntree : '',
-          finContrat: contratsDD.includes(contratNorm) ? dateSortie : '',
-          telephone: '',
-          adresse: '',
-          observations: champs[6] || ''
-        });
+      const lignesData = aEntete ? lignes.slice(1) : lignes;
+
+      lignesData.forEach(ligne => {
+        const champs = splitLigne(ligne);
+        if(champs.every(c => !c)){ nbIgnores++; return; }
+
+        let salarie;
+        if(aEntete){
+          salarie = _extraireSalarie(champs, map);
+        } else {
+          // Format simple positionnel (fallback) : Nom;Naissance;Entrée;Contrat;Statut;Sortie;Obs
+          if(!champs[0]){ nbIgnores++; return; }
+          if(/^(nom|salari)/i.test(champs[0])){ nbIgnores++; return; }
+          const mapSimple = {nomcomplet:0, naissance:1, entree:2, contrat:3, statut:4, sortie:5, obs:6};
+          salarie = _extraireSalarie(champs, mapSimple);
+        }
+        if(!salarie){ nbIgnores++; return; }
+        salariesNom.push(salarie);
         nbImportes++;
       });
-      alert(`${nbImportes} salarié(s) importé(s)${nbIgnores>0?' ('+nbIgnores+' ligne(s) ignorée(s))':''}.`);
+
+      const detailFormat = aEntete ? ` (format registre détecté : ${map._reconnu} colonnes reconnues)` : '';
+      alert(`${nbImportes} salarié(s) importé(s)${detailFormat}${nbIgnores>0?'\n('+nbIgnores+' ligne(s) ignorée(s))':''}.`);
       input.value = '';
       refreshNomTable();
       saveNomSalaries();
@@ -4153,22 +4298,34 @@ function importExcelCore(f, input){
       const ws = wb.Sheets[wb.SheetNames[0]];
       if(!ws){ alert('Le fichier Excel ne contient aucune feuille.'); return; }
       const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''});
+      if(!rows.length){ alert('Le fichier Excel est vide.'); return; }
+
+      // Détecter en-tête et mapper les colonnes
+      const entete = rows[0].map(c => (c||'').toString());
+      const map = _mapperColonnes(entete);
+      const aEntete = map._reconnu >= 3;
+      const lignesData = aEntete ? rows.slice(1) : rows;
+
       let nbImportes = 0, nbIgnores = 0;
-      rows.forEach(r => {
-        if(!r[0] || !r[0].toString().trim()){ nbIgnores++; return; }
-        salariesNom.push({
-          nom: (r[0]||'').toString().trim(),
-          dateNaissance: normaliseDate(r[1]),
-          dateEntree: normaliseDate(r[2]),
-          dateSortie: '',
-          contrat: normaliseContrat((r[3]||'').toString()),
-          statut: normaliseStatut((r[4]||'').toString()),
-          heures: 35, debutContrat: '', finContrat: '',
-          telephone: '', adresse: ''
-        });
+      lignesData.forEach(r => {
+        const champs = r.map(c => (c instanceof Date) ? c : (c||'').toString().trim());
+        if(champs.every(c => !c || (c instanceof Date === false && !c.toString().trim()))){ nbIgnores++; return; }
+
+        let salarie;
+        if(aEntete){
+          salarie = _extraireSalarie(champs, map);
+        } else {
+          if(!champs[0] || !champs[0].toString().trim()){ nbIgnores++; return; }
+          if(/^(nom|salari)/i.test(champs[0].toString())){ nbIgnores++; return; }
+          const mapSimple = {nomcomplet:0, naissance:1, entree:2, contrat:3, statut:4, sortie:5, obs:6};
+          salarie = _extraireSalarie(champs, mapSimple);
+        }
+        if(!salarie){ nbIgnores++; return; }
+        salariesNom.push(salarie);
         nbImportes++;
       });
-      alert(`${nbImportes} salarié(s) importé(s)${nbIgnores>0?' ('+nbIgnores+' ligne(s) vide(s) ignorée(s))':''}.`);
+      const detailFormat = aEntete ? ` (format registre détecté : ${map._reconnu} colonnes reconnues)` : '';
+      alert(`${nbImportes} salarié(s) importé(s)${detailFormat}${nbIgnores>0?'\n('+nbIgnores+' ligne(s) ignorée(s))':''}.`);
       input.value = '';
       refreshNomTable();
       saveNomSalaries();
@@ -4349,13 +4506,14 @@ try { loadNomSalaries(); } catch(e) {}
 
 function genererModeleCSV(){
   const csv = '\ufeff' + [
-    'MARTIN Pierre;1985-03-15;2020-01-10;CDI temps plein;Ouvrier',
-    'DUPONT Marie;1990-06-15;2022-02-01;CDD;Employé',
-    'DURAND Paul;1978-11-22;2018-05-05;CDI temps plein;Cadre',
-    'BERNARD Sophie;1995-04-12;2024-09-01;CDD;Employé',
+    'Nom;Prénom;Date naissance;Sexe;Nationalité;Emploi / Qualification;Date entrée;Date sortie;Type contrat;Statut;Temps de travail;Observations',
+    'DUPONT;Pierre;15/06/1985;M;Française;Chauffeur PL;01/03/2020;;CDI;Ouvrier;Temps plein;Exemple à supprimer',
+    'MARTIN;Marie;22/11/1990;F;Française;Assistante;10/01/2023;31/12/2026;CDD;Employé;Temps plein;Exemple remplacement (à supprimer)',
+    'BERNARD;Lucas;08/04/2007;M;Française;Apprenti mécano;01/09/2024;;Apprentissage;Ouvrier;Temps plein;Exemple apprenti (à supprimer)',
+    ';;;;;;;;;;;⚠️ REGISTRE UNIQUE DU PERSONNEL - Remplir TOUTES les colonnes. Dates JJ/MM/AAAA. Contrat: CDI/CDD/Apprentissage/Stagiaire/Interim/Saisonnier/Contrat pro. Statut: Ouvrier/Employe/TAM/Cadre. Temps de travail: Temps plein OU pourcentage (ex 50%). Date sortie uniquement si sorti.',
   ].join('\n') + '\n';
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  _telecharger(blob, 'text/csv', 'Modele_salaries_CSE_5_colonnes.csv');
+  _telecharger(blob, 'text/csv', 'Modele_registre_unique_personnel.csv');
 }
 
 // ═══════════════════════════════════════
