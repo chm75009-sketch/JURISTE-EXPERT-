@@ -4110,8 +4110,8 @@ function refreshNomTable(){
       totalEff += r.effectif;
       if(r.electeur) nbElect++;
       if(r.eligible) nbElig++;
-      // Ne compter dans les collèges que les salariés qui contribuent à l'effectif (exclut les sortis et apprentis)
-      if(r.effectif > 0){
+      // Répartition des collèges = nombre d'électeurs par collège (cohérent avec le total électeurs)
+      if(r.electeur){
         if(r.college === 1) col1++; else col2++;
       }
       if(s.statut === 'cadre' && r.effectif > 0) nbCadres++;
@@ -4135,7 +4135,7 @@ function refreshNomTable(){
 Effectif décompté : <strong>${totalEff.toFixed(2)}</strong> → retenu <strong style="color:#e8c97a;font-size:15px"><u>${effArr}</u></strong><br>
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
-Répartition collèges : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>
+Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>
 ${nbCadres >= 25 ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → 3e collège possible (art. L.2314-11)</span>' : ''}
 </div></div>`;
   // Mémoriser pour usage dans les documents générés
