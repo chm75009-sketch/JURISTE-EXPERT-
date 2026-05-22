@@ -1495,6 +1495,13 @@ function show(id){document.getElementById(id)?.classList.remove('hidden');}
 function hide(id){document.getElementById(id)?.classList.add('hidden');}
 function sa(ids,aid){ids.forEach(id=>document.getElementById(id)?.classList.toggle('sel',id===aid));}
 function fmt(d){return d instanceof Date&&!isNaN(d)?d.toLocaleDateString('fr-FR'):'';}
+function fmtFR(s){
+  // Convertit une date ISO (AAAA-MM-JJ) en format français (JJ/MM/AAAA)
+  if(!s) return '-';
+  const m = s.toString().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return s;
+}
 function addMois(ds,n){if(!ds)return null;const d=new Date(ds);d.setMonth(d.getMonth()+n);return d;}
 function joursRestants(ds){if(!ds)return null;return Math.round((new Date(ds)-new Date())/(1000*60*60*24));}
 
@@ -3702,7 +3709,16 @@ function toggleModeCSE(mode){
   sa(['cse-mode-rapide','cse-mode-nominatif'],'cse-mode-'+mode);
   document.getElementById('cse-bloc-rapide')?.classList.toggle('hidden', mode==='nominatif');
   document.getElementById('cse-bloc-nominatif')?.classList.toggle('hidden', mode==='rapide');
-  if(mode==='nominatif') refreshNomTable();
+  if(mode==='nominatif'){
+    // Affiche un repère immédiat puis génère la liste juste après (basculement instantané)
+    const cont = document.getElementById('cse-nom-liste');
+    if(cont && salariesNom.length > 20){
+      cont.innerHTML = '<div class="al info" style="font-size:12px;text-align:center;padding:20px">Chargement de la liste…</div>';
+      setTimeout(refreshNomTable, 20);
+    } else {
+      refreshNomTable();
+    }
+  }
 }
 
 function addSalarieNom(donnees){
@@ -3712,6 +3728,8 @@ function addSalarieNom(donnees){
     debutContrat:'', finContrat:'',
     telephone:'', adresse:''
   });
+  // Déplier automatiquement le salarié qu'on vient d'ajouter manuellement (pour le remplir)
+  if(!donnees) window.salarieEdit = salariesNom.length - 1;
   refreshNomTable();
   saveNomSalaries();
 }
@@ -3975,6 +3993,37 @@ const CONTRAT_LABELS = {
 const STATUT_LABELS = {'ouvrier':'Ouvrier','employe':'Employé','tam':'TAM / Technicien','cadre':'Cadre'};
 
 function renderSalarieLine(s, i, r){
+  const estEdite = (window.salarieEdit === i);
+  // Badges résumé (toujours visibles)
+  let badges = '';
+  if(r){
+    const cBadge = (txt, color) => `<span style="background:rgba(${color},0.18);color:rgb(${color});padding:2px 7px;border-radius:6px;font-size:10px;display:inline-block;margin:2px 3px 2px 0">${txt}</span>`;
+    const effB = r.effectif > 0 ? cBadge(`Eff. ${r.effectif.toFixed(2)}`, '76,175,125') : cBadge(`Eff. 0`, '224,92,92');
+    const elB = r.electeur ? cBadge('✓ Électeur', '76,175,125') : cBadge('✗ Non électeur', '224,92,92');
+    const ligB = r.eligible ? cBadge('✓ Éligible', '76,175,125') : cBadge('✗ Non éligible', '212,160,23');
+    const coB = cBadge(`Col. ${r.college}`, '91,155,213');
+    badges = `<div style="margin-top:4px">${effB}${elB}${ligB}${coB}</div>`;
+  }
+  // Ligne compacte (toujours affichée — rendu rapide)
+  let bloc = `<div style="background:rgba(255,255,255,0.04);border:1px solid ${estEdite?'#d4a017':'rgba(255,255,255,0.1)'};border-radius:10px;padding:10px;margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+<div style="flex:1;min-width:160px">
+<strong style="color:#e8c97a">#${i+1} ${s.nom||'(sans nom)'}</strong>
+<span style="font-size:11px;color:#9a9585"> — ${CONTRAT_LABELS[s.contrat]||s.contrat} · ${STATUT_LABELS[s.statut]||s.statut}</span>
+${badges}
+</div>
+<div style="display:flex;gap:6px">
+<button onclick="toggleEditSalarie(${i})" style="background:${estEdite?'rgba(212,160,23,0.25)':'rgba(255,255,255,0.05)'};border:1px solid ${estEdite?'#d4a017':'rgba(255,255,255,0.15)'};border-radius:6px;padding:4px 10px;color:${estEdite?'#e8c97a':'#9a9585'};cursor:pointer;font-size:11px">${estEdite?'▲ Fermer':'✎ Modifier'}</button>
+<button onclick="delSalarieNom(${i})" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);border-radius:6px;padding:4px 8px;color:#e05c5c;cursor:pointer;font-size:11px">✕</button>
+</div>
+</div>`;
+  // Formulaire détaillé : généré uniquement si ce salarié est en cours d'édition
+  if(estEdite) bloc += renderFormDetail(s, i);
+  bloc += `</div>`;
+  return bloc;
+}
+
+function renderFormDetail(s, i){
   const needsHours = s.contrat === 'cdi_tpartiel';
   const needsCDDDates = ['cdd_act','cdd_rempl','interim','saisonnier'].includes(s.contrat);
   let extra = '';
@@ -3985,17 +4034,7 @@ function renderSalarieLine(s, i, r){
     extra += `<div><label class="fl">Début contrat</label><input type="date" value="${s.debutContrat||''}" onchange="updateSalarieNom(${i},'debutContrat',this.value)"/></div>`;
     extra += `<div><label class="fl">Fin contrat</label><input type="date" value="${s.finContrat||''}" onchange="updateSalarieNom(${i},'finContrat',this.value)"/></div>`;
   }
-  let badges = '';
-  if(r){
-    const cBadge = (txt, color) => `<span style="background:rgba(${color},0.18);color:rgb(${color});padding:3px 8px;border-radius:6px;font-size:11px;display:inline-block;margin:2px 4px 2px 0">${txt}</span>`;
-    const effB = r.effectif > 0 ? cBadge(`Effectif : ${r.effectif.toFixed(2)} (${r.raisonEff})`, '76,175,125') : cBadge(`Effectif : 0 — ${r.raisonEff}`, '224,92,92');
-    const elB = r.electeur ? cBadge('✓ Électeur', '76,175,125') : cBadge(`✗ Non électeur (${r.electeurRaison})`, '224,92,92');
-    const ligB = r.eligible ? cBadge('✓ Éligible', '76,175,125') : cBadge(`✗ Non éligible (${r.eligibleRaison})`, '212,160,23');
-    const coB = cBadge(`Collège ${r.college}${r.college===1?'er':'e'}`, '91,155,213');
-    badges = `<div style="margin-top:8px">${effB}${elB}${ligB}${coB}</div>`;
-  }
   const safe = v => (v||'').toString().replace(/"/g,'&quot;');
-  // Liste des exclusions actuelles (avec migration des anciens champs)
   const exclus = (s.exclusions || []).slice();
   if(s.exclEmployeur && !exclus.includes('employeur')) exclus.push('employeur');
   if(s.exclParente && !exclus.includes('conjoint')) exclus.push('conjoint');
@@ -4011,14 +4050,10 @@ function renderSalarieLine(s, i, r){
   const optionsHTML = Object.entries(EXCLUSIONS_CSE).map(([code, e]) =>
     `<option value="${code}"${exclus.includes(code)?' disabled':''}>${e.label}</option>`
   ).join('');
-  return `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:10px">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap">
-<strong style="color:#e8c97a;flex:1;min-width:140px">#${i+1} ${s.nom||'(sans nom)'}</strong>
-<div style="display:flex;gap:6px;flex-wrap:wrap">
+  return `<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
 <button onclick="toggleExcl(${i},'forceNonElect')" style="background:${s.forceNonElect?'rgba(224,92,92,0.25)':'rgba(255,255,255,0.05)'};border:1px solid ${s.forceNonElect?'#e05c5c':'rgba(255,255,255,0.15)'};border-radius:6px;padding:4px 8px;color:${s.forceNonElect?'#e05c5c':'#9a9585'};cursor:pointer;font-size:11px">${s.forceNonElect?'✗ Non électeur':'Forcer non électeur'}</button>
 <button onclick="toggleExcl(${i},'forceNonElig')" style="background:${s.forceNonElig?'rgba(212,160,23,0.25)':'rgba(255,255,255,0.05)'};border:1px solid ${s.forceNonElig?'#d4a017':'rgba(255,255,255,0.15)'};border-radius:6px;padding:4px 8px;color:${s.forceNonElig?'#d4a017':'#9a9585'};cursor:pointer;font-size:11px">${s.forceNonElig?'✗ Non éligible':'Forcer non éligible'}</button>
-<button onclick="delSalarieNom(${i})" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);border-radius:6px;padding:4px 8px;color:#e05c5c;cursor:pointer;font-size:11px">✕ Supprimer</button>
-</div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
 <div><label class="fl">Nom Prénom *</label><input value="${safe(s.nom)}" placeholder="MARTIN Pierre" onchange="updateSalarieNom(${i},'nom',this.value)"/></div>
@@ -4045,8 +4080,12 @@ ${optionsHTML}
 <div style="margin-top:8px"><label class="fl">Observations (facultatives)</label>
 <textarea onchange="updateSalarieNom(${i},'observations',this.value)" placeholder="Notes libres : remarques juridiques, points à vérifier..." style="width:100%;min-height:50px;font-size:12px;font-family:inherit">${safe(s.observations)}</textarea>
 </div>
-${badges}
 </div>`;
+}
+
+function toggleEditSalarie(i){
+  window.salarieEdit = (window.salarieEdit === i) ? -1 : i;
+  refreshNomTable();
 }
 
 function refreshNomTable(){
@@ -4150,9 +4189,9 @@ function _mapperColonnes(entete){
   let reconnu = 0;
   entete.forEach((col, idx) => {
     const c = (col||'').toString().toLowerCase().trim().replace(/[éè]/g,'e');
-    if(map.nom === undefined && /\bnom\b/.test(c) && !/prenom/.test(c)){ map.nom = idx; reconnu++; }
+    if(map.nomcomplet === undefined && /nom.*prenom|prenom.*nom|salarie|nom et prenom/.test(c)){ map.nomcomplet = idx; reconnu++; }
+    else if(map.nom === undefined && /\bnom\b/.test(c) && !/prenom/.test(c)){ map.nom = idx; reconnu++; }
     else if(map.prenom === undefined && /prenom/.test(c)){ map.prenom = idx; reconnu++; }
-    else if(map.nomcomplet === undefined && /nom.*prenom|salarie/.test(c)){ map.nomcomplet = idx; reconnu++; }
     else if(map.naissance === undefined && /naissance|date.*nais|\bne\b|nee/.test(c)){ map.naissance = idx; reconnu++; }
     else if(map.entree === undefined && /entree|embauche|debut|arrivee/.test(c)){ map.entree = idx; reconnu++; }
     else if(map.sortie === undefined && /sortie|depart|fin.*contrat|date.*fin/.test(c)){ map.sortie = idx; reconnu++; }
@@ -4217,6 +4256,14 @@ function _extraireSalarie(champs, map){
 function importFichierNom(input){
   const f = input.files[0];
   if(!f) return;
+  // Si la liste contient déjà des salariés, demander pour éviter le cumul involontaire
+  if(salariesNom.length > 0){
+    const remplacer = confirm(`La liste contient déjà ${salariesNom.length} salarié(s).\n\n• OK = REMPLACER (vider puis importer le nouveau fichier)\n• Annuler = AJOUTER à la suite`);
+    if(remplacer){
+      salariesNom = [];
+      window.salarieEdit = -1;
+    }
+  }
   const ext = (f.name.split('.').pop()||'').toLowerCase();
   if(ext === 'csv' || ext === 'txt'){
     importCSVCore(f, input);
@@ -4443,11 +4490,11 @@ Document établi le ${new Date().toLocaleDateString('fr-FR')}</p>
 <strong style="color:#000;font-size:12pt">${idx+1}. ${s.nom||'(sans nom)'}</strong> — ${CONTRAT_LABELS[s.contrat]||s.contrat} · ${STATUT_LABELS[s.statut]||s.statut} (Collège ${r.college}${r.college===1?'er':'e'})
 </div>
 <table style="width:100%;border-collapse:collapse;${S}font-size:10pt">
-<tr><td style="padding:3px 6px;width:30%;color:#000"><strong>Date de naissance</strong></td><td style="padding:3px 6px;color:#000">${s.dateNaissance||'-'}</td></tr>
-<tr><td style="padding:3px 6px;color:#000"><strong>Date d'entrée</strong></td><td style="padding:3px 6px;color:#000">${s.dateEntree||'-'}</td></tr>
-${s.dateSortie?`<tr><td style="padding:3px 6px;color:#000"><strong>Date de sortie</strong></td><td style="padding:3px 6px;color:#000">${s.dateSortie}</td></tr>`:''}
-${s.debutContrat?`<tr><td style="padding:3px 6px;color:#000"><strong>Début de contrat</strong></td><td style="padding:3px 6px;color:#000">${s.debutContrat}</td></tr>`:''}
-${s.finContrat?`<tr><td style="padding:3px 6px;color:#000"><strong>Fin de contrat</strong></td><td style="padding:3px 6px;color:#000">${s.finContrat}</td></tr>`:''}
+<tr><td style="padding:3px 6px;width:30%;color:#000"><strong>Date de naissance</strong></td><td style="padding:3px 6px;color:#000">${fmtFR(s.dateNaissance)}</td></tr>
+<tr><td style="padding:3px 6px;color:#000"><strong>Date d'entrée</strong></td><td style="padding:3px 6px;color:#000">${fmtFR(s.dateEntree)}</td></tr>
+${s.dateSortie?`<tr><td style="padding:3px 6px;color:#000"><strong>Date de sortie</strong></td><td style="padding:3px 6px;color:#000">${fmtFR(s.dateSortie)}</td></tr>`:''}
+${s.debutContrat?`<tr><td style="padding:3px 6px;color:#000"><strong>Début de contrat</strong></td><td style="padding:3px 6px;color:#000">${fmtFR(s.debutContrat)}</td></tr>`:''}
+${s.finContrat?`<tr><td style="padding:3px 6px;color:#000"><strong>Fin de contrat</strong></td><td style="padding:3px 6px;color:#000">${fmtFR(s.finContrat)}</td></tr>`:''}
 ${s.contrat==='cdi_tpartiel'?`<tr><td style="padding:3px 6px;color:#000"><strong>Heures par semaine</strong></td><td style="padding:3px 6px;color:#000">${s.heures||'-'} h</td></tr>`:''}
 </table>
 <table style="width:100%;border-collapse:collapse;${S}margin-top:8px;font-size:10pt">
@@ -4472,7 +4519,7 @@ ${blocs}
       const r = calcSalarieNom(s, dateScrutin);
       if(!r) return;
       total += r.effectif; n++;
-      rows += `<tr><td style="border:1px solid #000;padding:5px">${n}</td><td style="border:1px solid #000;padding:5px">${s.nom||'-'}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${s.dateEntree||'-'}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${CONTRAT_LABELS[s.contrat]||s.contrat}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:5px;text-align:right">${r.effectif.toFixed(2)}</td><td style="border:1px solid #000;padding:5px;font-size:8pt">${r.raisonEff}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.electeur?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.eligible?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.college}</td></tr>`;
+      rows += `<tr><td style="border:1px solid #000;padding:5px">${n}</td><td style="border:1px solid #000;padding:5px">${s.nom||'-'}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${CONTRAT_LABELS[s.contrat]||s.contrat}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:5px;text-align:right">${r.effectif.toFixed(2)}</td><td style="border:1px solid #000;padding:5px;font-size:8pt">${r.raisonEff}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.electeur?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.eligible?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.college}</td></tr>`;
     });
     html += `<table style="width:100%;border-collapse:collapse;${S}font-size:10pt;margin:10pt auto">
 <tr style="background:#e8e8e8"><th style="border:1px solid #000;padding:5px">N°</th><th style="border:1px solid #000;padding:5px">Nom Prénom</th><th style="border:1px solid #000;padding:5px">Entrée</th><th style="border:1px solid #000;padding:5px">Contrat</th><th style="border:1px solid #000;padding:5px">Statut</th><th style="border:1px solid #000;padding:5px">Effectif</th><th style="border:1px solid #000;padding:5px">Détail</th><th style="border:1px solid #000;padding:5px">Élect.</th><th style="border:1px solid #000;padding:5px">Élig.</th><th style="border:1px solid #000;padding:5px">Col.</th></tr>${rows}
@@ -4487,7 +4534,7 @@ ${blocs}
       if(type === 'electeurs' && !r.electeur) return;
       if(type === 'eligibles' && !r.eligible) return;
       n++;
-      rows += `<tr><td style="border:1px solid #000;padding:6px;text-align:center">${n}</td><td style="border:1px solid #000;padding:6px"><strong>${s.nom||'-'}</strong></td><td style="border:1px solid #000;padding:6px">${s.dateEntree||'-'}</td><td style="border:1px solid #000;padding:6px">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:6px;text-align:center">${r.college}${r.college===1?'er':'e'}</td></tr>`;
+      rows += `<tr><td style="border:1px solid #000;padding:6px;text-align:center">${n}</td><td style="border:1px solid #000;padding:6px"><strong>${s.nom||'-'}</strong></td><td style="border:1px solid #000;padding:6px">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:6px">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:6px;text-align:center">${r.college}${r.college===1?'er':'e'}</td></tr>`;
     });
     html += `<table style="width:90%;border-collapse:collapse;${S}margin:10pt auto">
 <tr style="background:#e8e8e8"><th style="border:1px solid #000;padding:6px">N°</th><th style="border:1px solid #000;padding:6px">Nom et Prénom</th><th style="border:1px solid #000;padding:6px">Date d'entrée</th><th style="border:1px solid #000;padding:6px">Statut</th><th style="border:1px solid #000;padding:6px">Collège</th></tr>${rows}
