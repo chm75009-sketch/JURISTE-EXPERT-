@@ -154,6 +154,50 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 </head>
 <body>
 
+<!-- ÉCRAN DE VERROUILLAGE -->
+<div id="lock-screen" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1a2f44,#0f1c2b);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px">
+  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(212,160,23,0.4);border-radius:16px;padding:32px 24px;max-width:340px;width:100%;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px">🔒</div>
+    <div style="color:#e8c97a;font-size:18px;font-weight:700;margin-bottom:6px">Juris-Transport Expert</div>
+    <div style="color:#9a9585;font-size:13px;margin-bottom:20px">Accès protégé — entrez le code</div>
+    <input type="password" id="lock-input" inputmode="numeric" placeholder="Code d'accès" autocomplete="off"
+      style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:#fff;font-size:16px;text-align:center;letter-spacing:4px;margin-bottom:12px"
+      onkeydown="if(event.key==='Enter')verifierCode()"/>
+    <button onclick="verifierCode()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#d4a017;color:#000;font-weight:700;font-size:15px;cursor:pointer">Déverrouiller</button>
+    <div id="lock-error" style="color:#e05c5c;font-size:12px;margin-top:10px;min-height:16px"></div>
+  </div>
+</div>
+
+<script>
+// Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
+const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
+async function _sha256(txt){
+  const data = new TextEncoder().encode(txt);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function verifierCode(){
+  const inp = document.getElementById('lock-input');
+  const err = document.getElementById('lock-error');
+  const h = await _sha256(inp.value);
+  if(h === _CODE_HASH){
+    try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
+    document.getElementById('lock-screen').style.display = 'none';
+  } else {
+    err.textContent = 'Code incorrect';
+    inp.value = '';
+    inp.focus();
+  }
+}
+try{
+  if(sessionStorage.getItem('jte_ok') === '1'){
+    document.getElementById('lock-screen').style.display = 'none';
+  } else {
+    setTimeout(() => { const i = document.getElementById('lock-input'); if(i) i.focus(); }, 100);
+  }
+}catch(e){}
+</script>
+
 <!-- INSCRIPTION -->
 <div id="pg-inscription">
 <div style="max-width:480px;margin:0 auto;padding:40px 20px 80px">
