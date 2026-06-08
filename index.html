@@ -2722,7 +2722,8 @@ function calcCSE(eff){
 Titulaires : <strong style="color:#e8c97a">${sieges}</strong> + ${sieges} suppléants<br>
 Heures délégation/élu/mois : <strong style="color:#e8c97a">${heures}h</strong><br>
 Total heures délégation : <strong style="color:#e8c97a">${heuresTotal}h/mois</strong><br>
-Collèges : <strong style="color:#e8c97a">${colleges}</strong>${colleges===2?' — 3e collège possible si cadres ≥ 25%':''}<br>
+Collèges (par défaut) : <strong style="color:#e8c97a">${colleges}</strong>${colleges===2?' — 3e collège distinct si ≥ 25 cadres (art. L.2314-11)':''}<br>
+<span style="font-size:11px;color:#9a9585">Collège unique admis si aucun salarié ne relève du 2e collège (ingénieurs, techniciens, agents de maîtrise, cadres), ou par accord préélectoral signé à l'unanimité des OS représentatives (art. L.2314-12 ; Cass. soc. 16 oct. 2013 n°13-11.324).</span><br>
 ${routiers>0?`<strong style="color:#d4a017">⚠ ${routiers} GR en déplacement → modalités de vote adaptées à prévoir dans le PAP (correspondance, vote anticipé ou plage horaire élargie — art. R.2314-7)</strong>`:''}
 </div></div>${alerteDelai}
 <div class="al warn" style="font-size:11px;margin-top:6px">⚠ Art. R.2314-1 C. trav. — Répartition des sièges entre collèges dans le PAP — Consultez un avocat en cas de désaccord avec les OS.</div>`;
@@ -3975,9 +3976,10 @@ function toggleExcl(i, champ){
 
 // Liste exhaustive des cas d'exclusion juridique au CSE
 const EXCLUSIONS_CSE = {
-  'employeur':  {label:'Représentant employeur (gérant, dirigeant)', effet:'tout', ref:'Art. L.2314-19'},
-  'mandatsoc':  {label:'Mandat social distinct (DG, DGD)', effet:'tout', ref:'Art. L.2314-19'},
-  'presidence': {label:'Délégation de présidence du CSE', effet:'tout', ref:'Art. L.2314-19'},
+  'employeur':  {label:'Chef d\'entreprise / gérant NON salarié (hors effectif)', effet:'tout', ref:'Non salarié — ni électeur ni éligible'},
+  'mandatsoc':  {label:'Mandataire social NON salarié (DG, DGD sans contrat de travail)', effet:'tout', ref:'Non salarié — ni électeur ni éligible'},
+  'assimile':   {label:'Salarié assimilé à l\'employeur (délégation de pouvoir) — ÉLECTEUR mais non éligible', effet:'eligible', ref:'Art. L.2314-18 et L.2314-19 (loi 2022-1598, Cons. const. 19 nov. 2021 n°2021-947 QPC)'},
+  'presidence': {label:'Salarié représentant l\'employeur devant le CSE — ÉLECTEUR mais non éligible', effet:'eligible', ref:'Art. L.2314-18 et L.2314-19 (loi 2022-1598)'},
   'conjoint':   {label:'Conjoint de l\'employeur', effet:'eligible', ref:'Art. L.2314-19 al. 3'},
   'pacs':       {label:'Partenaire de PACS de l\'employeur', effet:'eligible', ref:'Art. L.2314-19 al. 3'},
   'concubin':   {label:'Concubin(e) de l\'employeur', effet:'eligible', ref:'Art. L.2314-19 al. 3'},
