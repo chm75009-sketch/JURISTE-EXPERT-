@@ -2813,6 +2813,11 @@ async function telechargerTousZIP(){
     window.showDoc = (titre, html) => { documents.push({titre, html}); };
 
     try {
+      loader.innerHTML = '⏳ Génération du calendrier des élections...';
+      await new Promise(r => setTimeout(r, 50));
+      // LE CALENDRIER EN PREMIER — document le plus important, à lire en tête
+      genDocElectionTEC('calendrier');
+
       loader.innerHTML = '⏳ Génération des listes électeurs/éligibles...';
       await new Promise(r => setTimeout(r, 50));
       exportListeNom('synthese','word');
@@ -2851,8 +2856,14 @@ async function telechargerTousZIP(){
     const dossier = zip.folder('Dossier_Elections_CSE_TEC');
 
     documents.forEach((d, idx) => {
-      const num = String(idx + 1).padStart(2, '0');
-      const nomFichier = num + '_' + d.titre.replace(/[^a-zA-ZÀ-ÿ0-9\s-]/g,'').trim().replace(/\s+/g,'_') + '.doc';
+      let nomFichier;
+      if(idx === 0){
+        // Le calendrier en tout premier : préfixe 00 + nom explicite
+        nomFichier = '00_CALENDRIER_DES_ELECTIONS_-_A_LIRE_EN_PREMIER.doc';
+      } else {
+        const num = String(idx).padStart(2, '0'); // 01, 02, ... (aligné sur le README)
+        nomFichier = num + '_' + d.titre.replace(/[^a-zA-ZÀ-ÿ0-9\s-]/g,'').trim().replace(/\s+/g,'_') + '.doc';
+      }
       const wordHTML = _genererWordHTML(d.titre, d.html);
       dossier.file(nomFichier, '\ufeff' + wordHTML);
     });
@@ -2865,6 +2876,10 @@ Date du 1er tour : ${DATE_1ER_TOUR}
 Date du 2e tour (si nécessaire) : ${DATE_2EME_TOUR}
 Lieu : ${E.adresse || ''}
 Dirigeant : ${E.dirigeant || ''}
+
+>>> COMMENCEZ PAR LE FICHIER : 00_CALENDRIER_DES_ELECTIONS_-_A_LIRE_EN_PREMIER.doc <<<
+    Il donne, étape par étape, toutes les dates à respecter, calculées à partir
+    du 1er tour fixé au ${DATE_1ER_TOUR}.
 
 CAS DE FIGURE : PREMIÈRE ÉLECTION CSE — PAS DE SYNDICAT DANS L'ENTREPRISE
 =========================================================================
@@ -2908,6 +2923,9 @@ Cette procédure suit ces étapes :
 
 CONTENU DU DOSSIER
 ==================
+
+00_CALENDRIER DES ÉLECTIONS — À LIRE EN PREMIER
+   Rétroplanning officiel daté à partir du 1er tour (toutes les échéances J-90, J-78, J-60, J-15, J-7, J-4, J0, J+15)
 
 A. CALCUL D'EFFECTIF
    01_Synthèse détaillée : tableau électeur/éligible par salarié
