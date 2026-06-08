@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Juris-Transport Expert</title>
-<!-- Build v10 — 2026-06-08 — calendrier en tête du dossier + dates individualisées + N&B -->
-<meta name="app-version" content="v10">
+<!-- Build v11 — 2026-06-08 — N&B lisible : en-têtes gris, lignes alternées, hiérarchie typographique -->
+<meta name="app-version" content="v11">
 <meta name="app-build" content="2026-06-08">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -3008,20 +3008,21 @@ function _genererWordHTML(titre, html){
 <style>
 @page WordSection1 { size: 21cm 29.7cm; margin: 2cm 2cm 2cm 2cm; mso-page-orientation: portrait; }
 div.WordSection1 { page: WordSection1; }
-body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #000; line-height: 1.5; }
+body { font-family: 'Times New Roman', serif; font-size: 11pt; color: #000; line-height: 1.6; }
 body, h1, h2, h3, h4, p, td, th, span, em, i, strong, b, li, div, table { color: #000 !important; }
-h1 { font-size: 16pt; font-weight: bold; text-align: center; margin: 12pt 0; }
-h2 { font-size: 13pt; font-weight: bold; text-align: center; text-decoration: underline; text-transform: uppercase; margin: 10pt 0; page-break-after: avoid; }
-h3 { font-size: 12pt; font-weight: bold; margin: 8pt 0 6pt 0; page-break-after: avoid; }
+h1 { font-size: 16pt; font-weight: bold; text-align: center; margin: 12pt 0; letter-spacing: 0.5pt; }
+h2 { font-size: 13pt; font-weight: bold; text-align: center; text-decoration: underline; text-transform: uppercase; margin: 12pt 0 10pt 0; page-break-after: avoid; letter-spacing: 0.5pt; }
+h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 6pt 0; padding-bottom: 2pt; border-bottom: 1.5pt solid #000; page-break-after: avoid; }
 p { margin: 6pt 0; text-align: justify; }
-table { border-collapse: collapse; margin: 8pt auto; mso-table-lspace: 9pt; mso-table-rspace: 9pt; mso-padding-alt: 4pt 4pt 4pt 4pt; }
+table { border-collapse: collapse; margin: 10pt auto; mso-table-lspace: 9pt; mso-table-rspace: 9pt; mso-padding-alt: 5pt 6pt 5pt 6pt; }
 table, th, td { border: 1px solid #000 !important; }
-th, td { padding: 4pt 6pt; vertical-align: top; font-size: 10pt; }
-th { background: #fff !important; font-weight: bold; text-align: center; }
+th, td { padding: 5pt 7pt; vertical-align: top; font-size: 10pt; }
+th { background: #e6e6e6 !important; font-weight: bold; text-align: center; }
+tr.zebra td { background: #f3f3f3; }
 strong, b { font-weight: bold; }
 em, i { font-style: italic; }
 ul, ol { margin: 6pt 0 6pt 20pt; padding: 0; }
-li { margin: 3pt 0; }
+li { margin: 4pt 0; }
 hr { border: none; border-top: 1px solid #000; margin: 10pt 0; }
 .no-break, tr { page-break-inside: avoid; }
 </style>
@@ -4737,7 +4738,7 @@ ${blocs}
       const r = calcSalarieNom(s, dateScrutin);
       if(!r) return;
       total += r.effectif; n++;
-      rows += `<tr><td style="border:1px solid #000;padding:5px">${n}</td><td style="border:1px solid #000;padding:5px">${s.nom||'-'}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${CONTRAT_LABELS[s.contrat]||s.contrat}${s.contrat==='cdi_tpartiel'?` <strong>(${s.heures||'-'}h ≈ ${Math.round((parseFloat(s.heures)||0)/35*100)}%)</strong>`:''}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:5px;text-align:right">${r.effectif.toFixed(2)}</td><td style="border:1px solid #000;padding:5px;font-size:8pt">${r.raisonEff}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.electeur?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.eligible?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.college}</td></tr>`;
+      rows += `<tr${n%2===0?' class="zebra"':''}><td style="border:1px solid #000;padding:5px">${n}</td><td style="border:1px solid #000;padding:5px">${s.nom||'-'}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${CONTRAT_LABELS[s.contrat]||s.contrat}${s.contrat==='cdi_tpartiel'?` <strong>(${s.heures||'-'}h ≈ ${Math.round((parseFloat(s.heures)||0)/35*100)}%)</strong>`:''}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:5px;text-align:right">${r.effectif.toFixed(2)}</td><td style="border:1px solid #000;padding:5px;font-size:8pt">${r.raisonEff}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.electeur?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.eligible?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.college}</td></tr>`;
     });
     html += `<table style="width:100%;border-collapse:collapse;${S}font-size:10pt;margin:10pt auto">
 <tr style="background:#fff"><th style="border:1px solid #000;padding:5px">N°</th><th style="border:1px solid #000;padding:5px">Nom Prénom</th><th style="border:1px solid #000;padding:5px">Entrée</th><th style="border:1px solid #000;padding:5px">Contrat</th><th style="border:1px solid #000;padding:5px">Statut</th><th style="border:1px solid #000;padding:5px">Effectif</th><th style="border:1px solid #000;padding:5px">Détail</th><th style="border:1px solid #000;padding:5px">Élect.</th><th style="border:1px solid #000;padding:5px">Élig.</th><th style="border:1px solid #000;padding:5px">Col.</th></tr>${rows}
@@ -4752,7 +4753,7 @@ ${blocs}
       if(type === 'electeurs' && !r.electeur) return;
       if(type === 'eligibles' && !r.eligible) return;
       n++;
-      rows += `<tr><td style="border:1px solid #000;padding:6px;text-align:center">${n}</td><td style="border:1px solid #000;padding:6px"><strong>${s.nom||'-'}</strong></td><td style="border:1px solid #000;padding:6px">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:6px">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:6px;text-align:center">${r.college}${r.college===1?'er':'e'}</td></tr>`;
+      rows += `<tr${n%2===0?' class="zebra"':''}><td style="border:1px solid #000;padding:6px;text-align:center">${n}</td><td style="border:1px solid #000;padding:6px"><strong>${s.nom||'-'}</strong></td><td style="border:1px solid #000;padding:6px">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:6px">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:6px;text-align:center">${r.college}${r.college===1?'er':'e'}</td></tr>`;
     });
     html += `<table style="width:90%;border-collapse:collapse;${S}margin:10pt auto">
 <tr style="background:#fff"><th style="border:1px solid #000;padding:6px">N°</th><th style="border:1px solid #000;padding:6px">Nom et Prénom</th><th style="border:1px solid #000;padding:6px">Date d'entrée</th><th style="border:1px solid #000;padding:6px">Statut</th><th style="border:1px solid #000;padding:6px">Collège</th></tr>${rows}
