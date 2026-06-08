@@ -105,7 +105,7 @@ td{padding:8px;border:1px solid rgba(255,255,255,0.06);color:#e8e4d8;vertical-al
 tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 #doc-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;flex-direction:column}
 #doc-overlay.open{display:flex}
-#doc-bar{background:#f5f5f5;border-bottom:1px solid #e0e0e0;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+#doc-bar{background:#fff;border-bottom:1px solid #e0e0e0;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 #doc-content{flex:1;overflow-y:auto;padding:20px 16px;background:#fff;font-family:'Times New Roman',Times,serif;font-size:11pt;line-height:1.8;color:#000;-webkit-overflow-scrolling:touch}
 #menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:200}
 #menu-panel{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;background:#162639;border-left:1px solid rgba(255,255,255,0.1);z-index:201;overflow-y:auto}
@@ -375,7 +375,7 @@ try{
   <div style="color:#ccc;font-size:20px">›</div>
 </div>
 
-<div style="margin-top:16px;padding:12px 14px;background:#fff8f0;border-left:3px solid #c9a84c;border-radius:8px;font-size:11px;color:#888;line-height:1.6">
+<div style="margin-top:16px;padding:12px 14px;background:#fff;border-left:3px solid #c9a84c;border-radius:8px;font-size:11px;color:#888;line-height:1.6">
   <strong style="color:#c9a84c">⚠ Outil d'information juridique et de génération de documents</strong> — Ne constitue pas un conseil juridique personnalisé (loi n°71-1130 du 31/12/1971). Pour toute situation individuelle, consultez un avocat spécialisé.
 </div>
 </div>
@@ -1168,6 +1168,14 @@ try{
 <div class="al info" style="font-size:12px;margin-top:6px">Tous les calculs (effectif, électeurs, éligibles) sont effectués à cette date.</div>
 </div>
 
+<!-- CARTE DÉDIÉE CALENDRIER -->
+<div class="card" style="background:linear-gradient(135deg,rgba(212,160,23,0.18),rgba(26,47,68,0.08));border:2px solid #d4a017">
+<div class="ct" style="color:#d4a017;font-size:16px">📅 Calendrier rétroplanning officiel</div>
+<div class="al info" style="font-size:12px;margin:8px 0">Génère un document Word listant TOUTES les étapes obligatoires à partir de la date du 1er tour, avec les dates exactes et les bases légales (Code du travail + jurisprudence).</div>
+<button onclick="genDocElectionTEC('calendrier')" style="width:100%;background:#d4a017;border:none;color:#000;padding:16px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;margin-top:6px">📅 Télécharger le calendrier complet (Word)</button>
+<div style="font-size:11px;color:#9a9585;margin-top:6px;text-align:center">À éditer librement, à remettre à TEC pour validation</div>
+</div>
+
 <div class="card">
 <div class="ct">Liste des salariés</div>
 <div class="al info" style="font-size:12px;margin-bottom:10px">
@@ -1233,6 +1241,7 @@ Exemple :<br>
 <div class="ct">📦 Pack documents élection — Prêts à envoyer</div>
 <div class="al info" style="font-size:12px;margin-bottom:10px">Documents à utiliser après calcul de l'effectif. Les coordonnées de la société sont reprises depuis le Module I.</div>
 <div style="display:grid;grid-template-columns:1fr;gap:6px">
+<button class="btn-outline" onclick="genDocElectionTEC('calendrier')" style="background:rgba(91,155,213,0.18);border-color:rgba(91,155,213,0.6);color:#5b9bd5;font-weight:700">📅 Calendrier rétroplanning officiel (à partir du 1er tour)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('convocations')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">✉️ Convocations individuelles (1 par électeur)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('emargement')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📋 Feuille d'émargement</button>
 <button class="btn-outline" onclick="genDocElectionTEC('pv_1er')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📜 Procès-verbal du 1er tour (vierge)</button>
@@ -1545,6 +1554,31 @@ function fmtFR(s){
   const m = s.toString().match(/^(\d{4})-(\d{2})-(\d{2})/);
   if(m) return `${m[3]}/${m[2]}/${m[1]}`;
   return s;
+}
+function fmtFRlong(d){
+  // Date en toutes lettres ("lundi 14 septembre 2026")
+  if(!d) return '-';
+  const dt = (d instanceof Date) ? d : new Date(d);
+  if(isNaN(dt)) return '-';
+  return dt.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function calcCalendrierCSE(dateScrutinISO){
+  // Rétroplanning officiel CSE - Base : Code du travail + jurisprudence Cour de cassation
+  if(!dateScrutinISO) return null;
+  const J0 = new Date(dateScrutinISO);
+  if(isNaN(J0)) return null;
+  const dec = (n) => { const d = new Date(J0); d.setDate(d.getDate() + n); return d; };
+  return {
+    infoPersonnel:      dec(-90), // Information personnel - max 90 j avant 1er tour (art. L.2314-4)
+    invitOS:            dec(-78), // Invitation OS en LRAR (15 j avant réunion PAP + ~3 j envoi, art. L.2314-5)
+    reunionPAP:         dec(-60), // 1ère réunion PAP (~2 mois avant scrutin)
+    limiteCandidatures: dec(-15), // Dépôt candidatures (fixé dans le PAP, usuellement ~15 j avant)
+    propagande:         dec(-7),  // Convocations + propagande
+    affichListes:       dec(-4),  // Listes électorales - min 4 j avant scrutin (Cass. soc. 3 nov. 1993)
+    scrutin1:           dec(0),   // 1er tour
+    affichResultats:    dec(0),   // Affichage résultats - dans la journée
+    scrutin2:           dec(15),  // 2nd tour - max 15 j après le 1er (art. L.2314-29)
+  };
 }
 function addMois(ds,n){if(!ds)return null;const d=new Date(ds);d.setMonth(d.getMonth()+n);return d;}
 function joursRestants(ds){if(!ds)return null;return Math.round((new Date(ds)-new Date())/(1000*60*60*24));}
@@ -1951,7 +1985,7 @@ function genFicheVerif(){
 <p style="${S}text-align:center">${E.nom} · ${new Date().toLocaleDateString('fr-FR')}</p>
 <hr style="border:none;border-top:1px solid #000;margin:10px 0">
 <table style="width:100%;border-collapse:collapse;${S}">
-<tr style="background:#f5f5f5"><th style="border:1px solid #ccc;padding:6px">Paramètre</th><th style="border:1px solid #ccc;padding:6px">Valeur</th><th style="border:1px solid #ccc;padding:6px">Limite légale</th><th style="border:1px solid #ccc;padding:6px">Conformité</th></tr>
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:6px">Paramètre</th><th style="border:1px solid #ccc;padding:6px">Valeur</th><th style="border:1px solid #ccc;padding:6px">Limite légale</th><th style="border:1px solid #ccc;padding:6px">Conformité</th></tr>
 <tr><td style="border:1px solid #ccc;padding:6px">Conduite journalière</td><td style="border:1px solid #ccc;padding:6px">${cj}h</td><td style="border:1px solid #ccc;padding:6px">9h (10h max 2×/sem)</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(cj)<=9?'✓ Conforme':parseFloat(cj)<=10?'⚠ Dérogation':'🚫 Non conforme'}</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px">Conduite hebdo</td><td style="border:1px solid #ccc;padding:6px">${cs}h</td><td style="border:1px solid #ccc;padding:6px">56h max</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(cs)<=56?'✓ Conforme':'🚫 Non conforme'}</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px">Repos journalier</td><td style="border:1px solid #ccc;padding:6px">${repos}h</td><td style="border:1px solid #ccc;padding:6px">11h (9h réduit)</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(repos)>=11?'✓ Repos normal':parseFloat(repos)>=9?'⚠ Repos réduit':'🚫 Insuffisant'}</td></tr>
@@ -1996,9 +2030,9 @@ function genFicheHebdo(){
 <p style="${S}text-align:center"><strong>${E.nom}</strong> · Conducteur : ${nom} · Semaine du : ${debut}</p>
 <hr style="border:none;border-top:1px solid #000;margin:10px 0">
 <table style="width:100%;border-collapse:collapse;font-size:10pt">
-<tr style="background:#f5f5f5"><th style="border:1px solid #ccc;padding:6px">Jour</th><th style="border:1px solid #ccc;padding:6px">Conduite</th><th style="border:1px solid #ccc;padding:6px">Autre travail</th><th style="border:1px solid #ccc;padding:6px">Total service</th><th style="border:1px solid #ccc;padding:6px">Repos</th><th style="border:1px solid #ccc;padding:6px">Conduite OK</th><th style="border:1px solid #ccc;padding:6px">Repos OK</th></tr>
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:6px">Jour</th><th style="border:1px solid #ccc;padding:6px">Conduite</th><th style="border:1px solid #ccc;padding:6px">Autre travail</th><th style="border:1px solid #ccc;padding:6px">Total service</th><th style="border:1px solid #ccc;padding:6px">Repos</th><th style="border:1px solid #ccc;padding:6px">Conduite OK</th><th style="border:1px solid #ccc;padding:6px">Repos OK</th></tr>
 ${lignes}
-<tr style="background:#f0f0f0;font-weight:bold"><td style="border:1px solid #ccc;padding:6px">TOTAL</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${totalCond}h</td><td colspan="2" style="border:1px solid #ccc;padding:6px;text-align:center">${totalTrav}h</td><td colspan="3" style="border:1px solid #ccc;padding:6px"></td></tr>
+<tr style="background:#fff;font-weight:bold"><td style="border:1px solid #ccc;padding:6px">TOTAL</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${totalCond}h</td><td colspan="2" style="border:1px solid #ccc;padding:6px;text-align:center">${totalTrav}h</td><td colspan="3" style="border:1px solid #ccc;padding:6px"></td></tr>
 </table>
 <p style="${S}margin-top:10px"><strong>Conformité hebdomadaire :</strong></p>
 <p style="${S}">Conduite hebdo : ${totalCond}h — Limite : 56h — ${totalCond<=56?'✓ Conforme':'🚫 DÉPASSEMENT'}<br>
@@ -2094,14 +2128,14 @@ function genBulletinType(){
 </table>
 <hr style="border:none;border-top:1px solid #ccc;margin:8px 0">
 <table style="width:100%;border-collapse:collapse;font-size:10pt">
-<tr style="background:#f5f5f5"><th style="border:1px solid #ccc;padding:5px;text-align:left">Éléments de paie</th><th style="border:1px solid #ccc;padding:5px">Base</th><th style="border:1px solid #ccc;padding:5px">Taux</th><th style="border:1px solid #ccc;padding:5px">Montant</th></tr>
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:5px;text-align:left">Éléments de paie</th><th style="border:1px solid #ccc;padding:5px">Base</th><th style="border:1px solid #ccc;padding:5px">Taux</th><th style="border:1px solid #ccc;padding:5px">Montant</th></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Salaire de base</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${Math.min(heures,seuil)}h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${minCCN}</td><td style="border:1px solid #ccc;padding:5px;text-align:right">${salBase.toFixed(2)} €</td></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Heures supplémentaires (si applicable)</td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">+25%/+50%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Majoration heures de nuit</td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">+20%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Prime d'ancienneté (CCN art. 13)</td><td style="border:1px solid #ccc;padding:5px;text-align:center"></td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
-<tr style="font-weight:bold;background:#f5f5f5"><td style="border:1px solid #ccc;padding:5px">SALAIRE BRUT</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[BRUT] €</td></tr>
+<tr style="font-weight:bold;background:#fff"><td style="border:1px solid #ccc;padding:5px">SALAIRE BRUT</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[BRUT] €</td></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Cotisations salariales</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">- [COTIS] €</td></tr>
-<tr style="font-weight:bold;background:#f0f0f0"><td style="border:1px solid #ccc;padding:5px">NET À PAYER AVANT IR</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[NET] €</td></tr>
+<tr style="font-weight:bold;background:#fff"><td style="border:1px solid #ccc;padding:5px">NET À PAYER AVANT IR</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[NET] €</td></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Indemnités de déplacement (exonérées)</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[IND] €</td></tr>
 </table>
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">Trame de bulletin — À compléter par le logiciel de paie ou l'expert-comptable. Ce document ne remplace pas un bulletin de paie réglementaire. Ne constitue pas un conseil juridique.</p>
@@ -2208,13 +2242,13 @@ function genProcedureRI(){
 <h2 style="${S}font-size:12pt;text-align:center;text-decoration:underline">PROCÉDURE DE MISE EN PLACE DU RÈGLEMENT INTÉRIEUR</h2>
 <p style="${S}text-align:center">${E.nom} · ${new Date().toLocaleDateString('fr-FR')}</p>
 <table style="width:100%;border-collapse:collapse;font-size:10pt;margin-top:12px">
-<tr style="background:#f5f5f5"><th style="border:1px solid #ccc;padding:6px">Étape</th><th style="border:1px solid #ccc;padding:6px">Action</th><th style="border:1px solid #ccc;padding:6px">Délai</th><th style="border:1px solid #ccc;padding:6px">Réalisé</th></tr>
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:6px">Étape</th><th style="border:1px solid #ccc;padding:6px">Action</th><th style="border:1px solid #ccc;padding:6px">Délai</th><th style="border:1px solid #ccc;padding:6px">Réalisé</th></tr>
 <tr><td style="border:1px solid #ccc;padding:6px;text-align:center">①</td><td style="border:1px solid #ccc;padding:6px">Rédaction du projet de règlement intérieur</td><td style="border:1px solid #ccc;padding:6px">—</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px;text-align:center">②</td><td style="border:1px solid #ccc;padding:6px">Communication au CSE pour avis consultatif (art. L.1321-4 C. trav.) — délai de réponse 1 mois</td><td style="border:1px solid #ccc;padding:6px">Avant dépôt</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px;text-align:center">③</td><td style="border:1px solid #ccc;padding:6px">Dépôt simultané à la DREETS (inspection du travail) et au greffe du Conseil de prud'hommes compétent</td><td style="border:1px solid #ccc;padding:6px">Simultané</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px;text-align:center">④</td><td style="border:1px solid #ccc;padding:6px">Affichage dans tous les locaux et lieux de travail (art. R.1321-1)</td><td style="border:1px solid #ccc;padding:6px">Après dépôt</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px;text-align:center">⑤</td><td style="border:1px solid #ccc;padding:6px">Remise à chaque salarié (entrée en vigueur et nouvelles embauches)</td><td style="border:1px solid #ccc;padding:6px">Après affichage</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
-<tr style="font-weight:bold;background:#f5f5f5"><td style="border:1px solid #ccc;padding:6px;text-align:center">✓</td><td style="border:1px solid #ccc;padding:6px">ENTRÉE EN VIGUEUR</td><td style="border:1px solid #ccc;padding:6px">1 mois après étapes ③ + ④</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
+<tr style="font-weight:bold;background:#fff"><td style="border:1px solid #ccc;padding:6px;text-align:center">✓</td><td style="border:1px solid #ccc;padding:6px">ENTRÉE EN VIGUEUR</td><td style="border:1px solid #ccc;padding:6px">1 mois après étapes ③ + ④</td><td style="border:1px solid #ccc;padding:6px">☐</td></tr>
 </table>
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">⚠ Un RI non déposé et non affiché est inopposable aux salariés. Toute sanction prise sur son fondement est nulle (Cass. soc. 17 mai 1995). Consultez un avocat avant dépôt.</p>
 </div>`;
@@ -2399,9 +2433,9 @@ ${docObjetEncadre('Convocation à entretien préalable à une sanction disciplin
 <p style="${S}">Nous envisageons de prendre à votre égard une sanction disciplinaire pouvant aller jusqu'au licenciement.</p>
 <p style="${S}">Nous vous convions à un entretien préalable :</p>
 <table style="width:70%;border-collapse:collapse;margin:14px auto;font-family:'Times New Roman',serif;font-size:11pt">
-<tr><td style="border:1px solid #000;padding:8px;background:#e8e8e8;width:30%"><strong>Date</strong></td><td style="border:1px solid #000;padding:8px">${dateEntretienMin}</td></tr>
-<tr><td style="border:1px solid #000;padding:8px;background:#e8e8e8"><strong>Heure</strong></td><td style="border:1px solid #000;padding:8px">[HEURE — pendant les horaires habituels de travail]</td></tr>
-<tr><td style="border:1px solid #000;padding:8px;background:#e8e8e8"><strong>Lieu</strong></td><td style="border:1px solid #000;padding:8px">${E.adresse||'[ADRESSE]'}</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff;width:30%"><strong>Date</strong></td><td style="border:1px solid #000;padding:8px">${dateEntretienMin}</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Heure</strong></td><td style="border:1px solid #000;padding:8px">[HEURE — pendant les horaires habituels de travail]</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Lieu</strong></td><td style="border:1px solid #000;padding:8px">${E.adresse||'[ADRESSE]'}</td></tr>
 </table>
 <p style="${S}">${assistance}</p>
 <p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
@@ -2715,7 +2749,7 @@ function docLRAR(){
   return `<div style="text-align:right;margin-bottom:14px;font-family:'Times New Roman',serif"><table style="display:inline-table;border-collapse:collapse;font-size:10pt;color:#000"><tr><td style="border:2px solid #000;padding:8px 16px;background:#fff;text-align:center;font-weight:bold">LETTRE RECOMMANDÉE<br>AVEC ACCUSÉ DE RÉCEPTION<br><span style="font-size:9pt;font-weight:normal;font-style:italic">N° AR : ____________</span></td></tr></table></div>`;
 }
 function docObjetEncadre(texte){
-  return `<div style="text-align:center;margin:20px 0;font-family:'Times New Roman',serif"><table style="display:inline-table;border-collapse:collapse;font-size:11pt"><tr><td style="border:2px solid #000;padding:10px 24px;background:#e8e8e8;text-align:center;font-weight:bold;color:#000">OBJET : ${texte}</td></tr></table></div>`;
+  return `<div style="text-align:center;margin:20px 0;font-family:'Times New Roman',serif"><table style="display:inline-table;border-collapse:collapse;font-size:11pt"><tr><td style="border:2px solid #000;padding:10px 24px;background:#fff;text-align:center;font-weight:bold;color:#000">OBJET : ${texte}</td></tr></table></div>`;
 }
 function docSignatureBloc(qualif){
   const q = qualif || E.qualite || 'Gérant';
@@ -2953,7 +2987,7 @@ p { margin: 6pt 0; text-align: justify; }
 table { border-collapse: collapse; margin: 8pt auto; mso-table-lspace: 9pt; mso-table-rspace: 9pt; mso-padding-alt: 4pt 4pt 4pt 4pt; }
 table, th, td { border: 1px solid #000 !important; }
 th, td { padding: 4pt 6pt; vertical-align: top; font-size: 10pt; }
-th { background: #e8e8e8 !important; font-weight: bold; text-align: center; }
+th { background: #fff !important; font-weight: bold; text-align: center; }
 strong, b { font-weight: bold; }
 em, i { font-style: italic; }
 ul, ol { margin: 6pt 0 6pt 20pt; padding: 0; }
@@ -2974,14 +3008,43 @@ Document généré par Juris-Transport Expert · ${new Date().toLocaleString('fr
 }
 
 function genDocElectionTEC(type){
-  const today = new Date().toLocaleDateString('fr-FR');
+  // Récupérer la date du 1er tour saisie par l'utilisateur (étape D)
+  const dateScrutinISO = document.getElementById('cse-nom-date-scrutin')?.value;
+  const calendrier = calcCalendrierCSE(dateScrutinISO);
+  if(!dateScrutinISO && type !== 'bulletin' && type !== 'bulletin_2eme'){
+    alert('⚠️ Veuillez d\'abord saisir la date du 1er tour de scrutin (étape D).');
+    return;
+  }
+
+  // Date à inscrire sur le document, selon son type (rétroplanning légal)
+  function dateDoc(){
+    if(!calendrier) return new Date();
+    switch(type){
+      case 'note_info':         return calendrier.infoPersonnel;
+      case 'invitations_osr':   return calendrier.invitOS;
+      case 'pv_absence_osr':    return calendrier.reunionPAP;
+      case 'pap_unilateral':    return calendrier.reunionPAP;
+      case 'convocations':      return calendrier.propagande;
+      case 'emargement':
+      case 'pv_1er':
+      case 'affichage_resultats': return calendrier.scrutin1;
+      case 'note_info_2eme':
+      case 'convocations_2eme': { const d=new Date(calendrier.scrutin2); d.setDate(d.getDate()-5); return d; }
+      case 'pv_2eme':
+      case 'pv_carence_total':  return calendrier.scrutin2;
+      default:                  return new Date();
+    }
+  }
+  const _dd = dateDoc();
+  const today = _dd.toLocaleDateString('fr-FR');
+
   const S = `font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1.6;`;
   const SOC = E.nom || '[ENTREPRISE]';
   const SIRET = E.siret || '[SIRET]';
   const ADR = E.adresse || '[ADRESSE]';
   const DIR = E.dirigeant || '[NOM DIRIGEANT]';
-  const DATE_1ER_TOUR = '15 juin 2026';
-  const DATE_2EME_TOUR = '30 juin 2026';
+  const DATE_1ER_TOUR = calendrier ? fmtFRlong(calendrier.scrutin1) : '[date 1er tour]';
+  const DATE_2EME_TOUR = calendrier ? fmtFRlong(calendrier.scrutin2) : '[date 2e tour]';
   const LIEU = ADR;
 
   // Récupérer la liste des électeurs depuis salariesNom
@@ -2989,7 +3052,7 @@ function genDocElectionTEC(type){
     if(typeof salariesNom === 'undefined' || !salariesNom.length){
       return [];
     }
-    const dateScrutin = new Date('2026-06-15');
+    const dateScrutin = calendrier ? calendrier.scrutin1 : new Date();
     return salariesNom.filter(s => {
       if(s.dateSortie){
         const ds = parseDate(s.dateSortie);
@@ -3018,7 +3081,83 @@ function genDocElectionTEC(type){
 
   let titre = '', html = '';
 
-  if(type === 'convocations'){
+  if(type === 'calendrier'){
+    titre = `Calendrier rétroplanning - Élections CSE ${SOC}`;
+    const c = calendrier;
+    const today2 = new Date().toLocaleDateString('fr-FR');
+    html = `
+<h1 style="text-align:center;text-transform:uppercase">Calendrier rétroplanning officiel</h1>
+<h2 style="text-align:center">Élections du Comité Social et Économique</h2>
+<p style="text-align:center;${S}"><strong>${SOC}</strong> — ${ADR}<br>SIRET : ${SIRET}<br>Gérant : ${DIR}</p>
+<p style="text-align:right;${S}"><em>Édité le ${today2}</em></p>
+
+<p style="${S}"><strong>1er tour de scrutin fixé au ${fmtFRlong(c.scrutin1)}</strong> (date saisie dans l'application).<br>
+Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebours du 1er tour, conformément au Code du travail et à la jurisprudence de la Cour de cassation.</p>
+
+<h3 style="${S}">📋 Tableau des étapes à respecter</h3>
+<table style="width:100%;border-collapse:collapse;${S}">
+<thead><tr style="background:#fff">
+<th style="border:1px solid #000;padding:6px;width:18%">Date</th>
+<th style="border:1px solid #000;padding:6px;width:35%">Étape</th>
+<th style="border:1px solid #000;padding:6px;width:47%">Base légale / Pratique</th>
+</tr></thead>
+<tbody>
+<tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.infoPersonnel)}</strong><br><em>(J − 90)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>Information du personnel</strong> sur l'organisation des élections (affichage dans l'entreprise)</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-4 C. trav. — le 1er tour doit avoir lieu au plus tard le 90ᵉ jour suivant l'affichage de l'information du personnel.</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.invitOS)}</strong><br><em>(J − 78)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>Invitation des organisations syndicales</strong> à négocier le Protocole d'Accord Préélectoral (PAP) — envoi en LRAR aux 5 confédérations représentatives au niveau national (CGT, CFDT, FO, CFE-CGC, CFTC)</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-5 C. trav. — l'invitation doit parvenir aux syndicats au moins 15 jours avant la 1ère réunion de négociation. On retient ici un délai d'envoi de 3 jours pour la LRAR + 15 jours de prévenance.</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.reunionPAP)}</strong><br><em>(J − 60)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>1ère réunion de négociation du PAP</strong> — en l'absence de syndicat dans l'entreprise et si aucune OS ne se présente : procès-verbal de carence puis fixation par décision unilatérale de l'employeur</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-6 et L.2314-7 C. trav. — fixation des collèges, des sièges, des modalités de vote. Cass. soc. 26 sept. 2012 n° 11-60.231 : en l'absence d'OS, l'employeur fixe unilatéralement.</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.limiteCandidatures)}</strong><br><em>(J − 15)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>Date limite de dépôt des candidatures</strong> au 1er tour (réservé aux OS représentatives ; à défaut, candidatures libres au 2ᵉ tour)</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-24 et L.2314-29 C. trav. — date généralement fixée dans le PAP.</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.propagande)}</strong><br><em>(J − 7)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>Convocation individuelle des électeurs</strong> + remise du matériel de vote par correspondance + propagande électorale</td>
+<td style="border:1px solid #000;padding:6px">Pratique courante : convocation environ 7 jours avant le scrutin (à préciser dans le PAP).</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.affichListes)}</strong><br><em>(J − 4)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>Affichage des listes électorales</strong> (électeurs et éligibles) dans l'entreprise</td>
+<td style="border:1px solid #000;padding:6px">Art. R.2314-2 C. trav. + Cass. soc. 3 nov. 1993 n° 92-60.479 : affichage au minimum 4 jours avant le scrutin pour permettre les recours.</td></tr>
+
+<tr style="background:#fff"><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.scrutin1)}</strong><br><em>(J 0)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>🗳️ 1er TOUR DE SCRUTIN</strong><br>Affichage des résultats à l'issue du dépouillement</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. Quorum = 50 % des inscrits. À défaut : 2ᵉ tour.</td></tr>
+
+<tr style="background:#fff"><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.scrutin2)}</strong><br><em>(J + 15)</em></td>
+<td style="border:1px solid #000;padding:6px"><strong>🗳️ 2ᵉ TOUR (si carence au 1er)</strong> — candidatures libres ouvertes à tout salarié éligible</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. — le 2ᵉ tour doit avoir lieu dans les 15 jours suivant le 1er.</td></tr>
+</tbody>
+</table>
+
+<h3 style="${S}">📌 Points juridiques essentiels à respecter</h3>
+<ul style="${S}">
+<li><strong>Information préalable :</strong> obligatoire dès l'atteinte du seuil de 11 salariés pendant 12 mois consécutifs (art. L.2311-2 C. trav.).</li>
+<li><strong>Invitation des syndicats :</strong> obligation d'inviter les organisations syndicales représentatives au niveau national, même en l'absence de syndicat dans l'entreprise (art. L.2314-5 C. trav.).</li>
+<li><strong>Délai d'affichage des listes :</strong> 4 jours francs minimum avant le scrutin (Cass. soc. 3 nov. 1993).</li>
+<li><strong>Convention collective :</strong> la Convention collective nationale des transports routiers et activités auxiliaires du transport (IDCC 16) ne prévoit pas de délais spécifiques pour les élections CSE ; les règles générales du Code du travail s'appliquent.</li>
+<li><strong>2ᵉ tour :</strong> obligatoire en cas de carence (pas de candidat OS) ou de quorum non atteint au 1er tour.</li>
+<li><strong>Archivage :</strong> les procès-verbaux et le matériel électoral doivent être conservés pendant toute la durée du mandat.</li>
+</ul>
+
+<h3 style="${S}">⚠️ Recommandations pratiques</h3>
+<ul style="${S}">
+<li>Conserver une preuve d'envoi (LRAR avec accusé de réception) pour les invitations aux syndicats.</li>
+<li>Vérifier que la date de réunion du PAP laisse un délai suffisant entre l'envoi de l'invitation et la réunion (15 jours minimum après réception).</li>
+<li>Adapter le calendrier en cas de jours fériés ou de fermeture de l'entreprise.</li>
+<li>Communiquer le calendrier complet au personnel et à toute organisation syndicale qui se manifesterait.</li>
+</ul>
+
+<p style="${S};text-align:center;margin-top:20px"><em>Document généré le ${today2} par l'application Juris-Transport Expert.</em></p>
+`;
+  }
+  else if(type === 'convocations'){
     const electeurs = getElecteurs();
     if(!electeurs.length){
       alert('Aucun électeur trouvé. Importez d\'abord les salariés et calculez l\'effectif.');
@@ -3083,7 +3222,7 @@ ${e.nom}<br>
 <p style="${S}text-align:center">Élections du Comité Social et Économique (CSE) — 1er tour</p>
 <p style="${S}text-align:center"><strong>Date :</strong> ${DATE_1ER_TOUR} &nbsp;·&nbsp; <strong>Lieu :</strong> ${LIEU}</p>
 <table style="${S}width:100%;border-collapse:collapse;margin:20px 0">
-<thead><tr style="background:#e8e8e8">
+<thead><tr style="background:#fff">
 <th style="border:1px solid #000;padding:6pt;width:8%">N°</th>
 <th style="border:1px solid #000;padding:6pt">Nom Prénom</th>
 <th style="border:1px solid #000;padding:6pt">Signature</th>
@@ -3117,17 +3256,17 @@ ${e.nom}<br>
 
 <h3 style="${S}font-size:12pt;text-decoration:underline;margin-top:20px">2. Résultats des opérations de vote</h3>
 <table style="${S}width:100%;border-collapse:collapse;margin:10px 0">
-<tr><td style="border:1px solid #000;padding:6pt;background:#e8e8e8"><strong>Nombre d'électeurs inscrits</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;background:#fff"><strong>Nombre d'électeurs inscrits</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
 <tr><td style="border:1px solid #000;padding:6pt"><strong>Nombre de votants</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
 <tr><td style="border:1px solid #000;padding:6pt"><strong>Bulletins blancs ou nuls</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
 <tr><td style="border:1px solid #000;padding:6pt"><strong>Suffrages valablement exprimés</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
-<tr><td style="border:1px solid #000;padding:6pt;background:#e8e8e8"><strong>Quorum (50% des inscrits)</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;background:#fff"><strong>Quorum (50% des inscrits)</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
 <tr><td style="border:1px solid #000;padding:6pt"><strong>Quorum atteint</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center">☐ Oui &nbsp;&nbsp; ☐ Non</td></tr>
 </table>
 
 <h3 style="${S}font-size:12pt;text-decoration:underline;margin-top:20px">3. Résultats par liste / candidat</h3>
 <table style="${S}width:100%;border-collapse:collapse;margin:10px 0">
-<thead><tr style="background:#e8e8e8">
+<thead><tr style="background:#fff">
 <th style="border:1px solid #000;padding:6pt">Liste / Candidat</th>
 <th style="border:1px solid #000;padding:6pt">Voix obtenues</th>
 <th style="border:1px solid #000;padding:6pt">Sièges attribués</th>
@@ -3368,7 +3507,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 <p style="${S}">L'entreprise <strong>${SOC}</strong> ne comportant ni technicien-agent de maîtrise (TAM) ni cadre, il est institué un <strong>collège unique</strong> regroupant l'ensemble des salariés, conformément à l'article L.2314-11 C. trav.</p>
 
 <table style="${S}width:100%;border-collapse:collapse;margin:10px 0">
-<thead><tr style="background:#e8e8e8">
+<thead><tr style="background:#fff">
 <th style="border:1px solid #000;padding:6pt">Collège</th>
 <th style="border:1px solid #000;padding:6pt">Composition</th>
 <th style="border:1px solid #000;padding:6pt">Effectif</th>
@@ -3560,12 +3699,12 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 <tr><td style="border:1px solid #000;padding:6pt">Votants</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
 <tr><td style="border:1px solid #000;padding:6pt">Bulletins blancs/nuls</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
 <tr><td style="border:1px solid #000;padding:6pt">Suffrages valablement exprimés</td><td style="border:1px solid #000;padding:6pt;text-align:center">_____</td></tr>
-<tr><td style="border:1px solid #000;padding:6pt;background:#e8e8e8"><strong>Taux de participation</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center"><strong>____ %</strong></td></tr>
+<tr><td style="border:1px solid #000;padding:6pt;background:#fff"><strong>Taux de participation</strong></td><td style="border:1px solid #000;padding:6pt;text-align:center"><strong>____ %</strong></td></tr>
 </table>
 
 <h3 style="${S}font-size:12pt;text-decoration:underline">Élus titulaires</h3>
 <table style="${S}width:100%;border-collapse:collapse">
-<thead><tr style="background:#e8e8e8">
+<thead><tr style="background:#fff">
 <th style="border:1px solid #000;padding:6pt">N°</th>
 <th style="border:1px solid #000;padding:6pt">Nom Prénom</th>
 <th style="border:1px solid #000;padding:6pt">Voix obtenues</th>
@@ -3578,7 +3717,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 
 <h3 style="${S}font-size:12pt;text-decoration:underline">Élus suppléants</h3>
 <table style="${S}width:100%;border-collapse:collapse">
-<thead><tr style="background:#e8e8e8">
+<thead><tr style="background:#fff">
 <th style="border:1px solid #000;padding:6pt">N°</th>
 <th style="border:1px solid #000;padding:6pt">Nom Prénom</th>
 <th style="border:1px solid #000;padding:6pt">Voix obtenues</th>
@@ -4534,7 +4673,7 @@ Document établi le ${new Date().toLocaleDateString('fr-FR')}</p>
       const elecCouleur = '#000';
       const eligCouleur = '#000';
       blocs += `<div style="border:1px solid #000;padding:10px;margin:10px 0;${S}page-break-inside:avoid">
-<div style="background:#e8e8e8;padding:6px 10px;margin:-10px -10px 10px -10px;border-bottom:1px solid #000;${S}">
+<div style="background:#fff;padding:6px 10px;margin:-10px -10px 10px -10px;border-bottom:1px solid #000;${S}">
 <strong style="color:#000;font-size:12pt">${idx+1}. ${s.nom||'(sans nom)'}</strong> — ${CONTRAT_LABELS[s.contrat]||s.contrat} · ${STATUT_LABELS[s.statut]||s.statut} (Collège ${r.college}${r.college===1?'er':'e'})
 </div>
 <table style="width:100%;border-collapse:collapse;${S}font-size:10pt">
@@ -4546,13 +4685,13 @@ ${s.finContrat?`<tr><td style="padding:3px 6px;color:#000"><strong>Fin de contra
 <tr><td style="padding:3px 6px;color:#000"><strong>Durée du travail</strong></td><td style="padding:3px 6px;color:#000">${s.contrat==='cdi_tpartiel' ? `<strong>⚠️ TEMPS PARTIEL — ${s.heures||'-'} h/semaine (≈ ${Math.round((parseFloat(s.heures)||0)/35*100)} % d'un temps plein)</strong> — à confirmer par l'employeur` : 'Temps plein (35 h/semaine)'}</td></tr>
 </table>
 <table style="width:100%;border-collapse:collapse;${S}margin-top:8px;font-size:10pt">
-<tr><td style="border:1px solid #000;padding:6px;width:33%;background:#f0f0f0;color:#000;vertical-align:top"><strong>Contribution à l'effectif</strong><br><span style="font-size:14pt;color:#000">${r.effectif.toFixed(2)}</span><br><em style="font-size:9pt;color:#000">${r.raisonEff}</em></td>
-<td style="border:1px solid #000;padding:6px;width:33%;background:#f0f0f0;color:#000;vertical-align:top"><strong>Électeur</strong><br><span style="font-size:13pt;color:${elecCouleur}">${r.electeur?'✓ OUI':'✗ NON'}</span><br><em style="font-size:9pt;color:#000">${r.electeurRaison}</em></td>
-<td style="border:1px solid #000;padding:6px;width:33%;background:#f0f0f0;color:#000;vertical-align:top"><strong>Éligible</strong><br><span style="font-size:13pt;color:${eligCouleur}">${r.eligible?'✓ OUI':'✗ NON'}</span><br><em style="font-size:9pt;color:#000">${r.eligibleRaison}</em></td></tr>
+<tr><td style="border:1px solid #000;padding:6px;width:33%;background:#fff;color:#000;vertical-align:top"><strong>Contribution à l'effectif</strong><br><span style="font-size:14pt;color:#000">${r.effectif.toFixed(2)}</span><br><em style="font-size:9pt;color:#000">${r.raisonEff}</em></td>
+<td style="border:1px solid #000;padding:6px;width:33%;background:#fff;color:#000;vertical-align:top"><strong>Électeur</strong><br><span style="font-size:13pt;color:${elecCouleur}">${r.electeur?'✓ OUI':'✗ NON'}</span><br><em style="font-size:9pt;color:#000">${r.electeurRaison}</em></td>
+<td style="border:1px solid #000;padding:6px;width:33%;background:#fff;color:#000;vertical-align:top"><strong>Éligible</strong><br><span style="font-size:13pt;color:${eligCouleur}">${r.eligible?'✓ OUI':'✗ NON'}</span><br><em style="font-size:9pt;color:#000">${r.eligibleRaison}</em></td></tr>
 </table>
 </div>`;
     });
-    html += `<p style="${S}font-size:11pt;margin:10px 0;text-align:center;background:#d9d9d9;padding:8px;border:1px solid #000;color:#000"><strong>Effectif retenu : ${Math.floor(totalSyn)}</strong> (décompte exact : ${totalSyn.toFixed(2)}) &nbsp;·&nbsp; <strong>${nElect} électeur(s)</strong> &nbsp;·&nbsp; <strong>${nElig} éligible(s)</strong></p>
+    html += `<p style="${S}font-size:11pt;margin:10px 0;text-align:center;background:#fff;padding:8px;border:1px solid #000;color:#000"><strong>Effectif retenu : ${Math.floor(totalSyn)}</strong> (décompte exact : ${totalSyn.toFixed(2)}) &nbsp;·&nbsp; <strong>${nElect} électeur(s)</strong> &nbsp;·&nbsp; <strong>${nElig} éligible(s)</strong></p>
 ${blocs}
 <p style="${S}font-size:9pt;margin-top:14px;color:#000"><strong>Règles appliquées :</strong></p>
 <ul style="${S}font-size:9pt;color:#000">
@@ -4570,8 +4709,8 @@ ${blocs}
       rows += `<tr><td style="border:1px solid #000;padding:5px">${n}</td><td style="border:1px solid #000;padding:5px">${s.nom||'-'}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${CONTRAT_LABELS[s.contrat]||s.contrat}${s.contrat==='cdi_tpartiel'?` <strong>(${s.heures||'-'}h ≈ ${Math.round((parseFloat(s.heures)||0)/35*100)}%)</strong>`:''}</td><td style="border:1px solid #000;padding:5px;font-size:9pt">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:5px;text-align:right">${r.effectif.toFixed(2)}</td><td style="border:1px solid #000;padding:5px;font-size:8pt">${r.raisonEff}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.electeur?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.eligible?'✓':'✗'}</td><td style="border:1px solid #000;padding:5px;text-align:center">${r.college}</td></tr>`;
     });
     html += `<table style="width:100%;border-collapse:collapse;${S}font-size:10pt;margin:10pt auto">
-<tr style="background:#e8e8e8"><th style="border:1px solid #000;padding:5px">N°</th><th style="border:1px solid #000;padding:5px">Nom Prénom</th><th style="border:1px solid #000;padding:5px">Entrée</th><th style="border:1px solid #000;padding:5px">Contrat</th><th style="border:1px solid #000;padding:5px">Statut</th><th style="border:1px solid #000;padding:5px">Effectif</th><th style="border:1px solid #000;padding:5px">Détail</th><th style="border:1px solid #000;padding:5px">Élect.</th><th style="border:1px solid #000;padding:5px">Élig.</th><th style="border:1px solid #000;padding:5px">Col.</th></tr>${rows}
-<tr style="background:#d9d9d9;font-weight:bold;color:#000"><td colspan="5" style="border:1px solid #000;padding:5px;text-align:right;color:#000">EFFECTIF TOTAL DÉCOMPTÉ</td><td style="border:1px solid #000;padding:5px;text-align:right;color:#000">${total.toFixed(2)}</td><td colspan="4" style="border:1px solid #000;padding:5px;color:#000">→ Retenu (arrondi inférieur) : <strong>${Math.floor(total)}</strong></td></tr>
+<tr style="background:#fff"><th style="border:1px solid #000;padding:5px">N°</th><th style="border:1px solid #000;padding:5px">Nom Prénom</th><th style="border:1px solid #000;padding:5px">Entrée</th><th style="border:1px solid #000;padding:5px">Contrat</th><th style="border:1px solid #000;padding:5px">Statut</th><th style="border:1px solid #000;padding:5px">Effectif</th><th style="border:1px solid #000;padding:5px">Détail</th><th style="border:1px solid #000;padding:5px">Élect.</th><th style="border:1px solid #000;padding:5px">Élig.</th><th style="border:1px solid #000;padding:5px">Col.</th></tr>${rows}
+<tr style="background:#fff;font-weight:bold;color:#000"><td colspan="5" style="border:1px solid #000;padding:5px;text-align:right;color:#000">EFFECTIF TOTAL DÉCOMPTÉ</td><td style="border:1px solid #000;padding:5px;text-align:right;color:#000">${total.toFixed(2)}</td><td colspan="4" style="border:1px solid #000;padding:5px;color:#000">→ Retenu (arrondi inférieur) : <strong>${Math.floor(total)}</strong></td></tr>
 </table>
 <p style="${S}font-size:10pt;margin-top:14px"><strong>Base légale</strong> : art. L.1111-2 C. trav. — Les CDI sont comptés intégralement à la date du scrutin. Les CDD pour accroissement d'activité, intérimaires et saisonniers sont décomptés au prorata de leur temps de présence sur les 12 mois précédents. Sont exclus : CDD de remplacement, apprentis, contrats de professionnalisation (art. L.1111-3).</p>`;
   } else {
@@ -4585,7 +4724,7 @@ ${blocs}
       rows += `<tr><td style="border:1px solid #000;padding:6px;text-align:center">${n}</td><td style="border:1px solid #000;padding:6px"><strong>${s.nom||'-'}</strong></td><td style="border:1px solid #000;padding:6px">${fmtFR(s.dateEntree)}</td><td style="border:1px solid #000;padding:6px">${STATUT_LABELS[s.statut]||s.statut}</td><td style="border:1px solid #000;padding:6px;text-align:center">${r.college}${r.college===1?'er':'e'}</td></tr>`;
     });
     html += `<table style="width:90%;border-collapse:collapse;${S}margin:10pt auto">
-<tr style="background:#e8e8e8"><th style="border:1px solid #000;padding:6px">N°</th><th style="border:1px solid #000;padding:6px">Nom et Prénom</th><th style="border:1px solid #000;padding:6px">Date d'entrée</th><th style="border:1px solid #000;padding:6px">Statut</th><th style="border:1px solid #000;padding:6px">Collège</th></tr>${rows}
+<tr style="background:#fff"><th style="border:1px solid #000;padding:6px">N°</th><th style="border:1px solid #000;padding:6px">Nom et Prénom</th><th style="border:1px solid #000;padding:6px">Date d'entrée</th><th style="border:1px solid #000;padding:6px">Statut</th><th style="border:1px solid #000;padding:6px">Collège</th></tr>${rows}
 </table>
 <p style="${S}margin-top:14px"><strong>Total : ${n} salarié(s)</strong></p>
 <p style="${S}font-size:10pt">Cette liste doit être affichée dans l'entreprise (art. L.2314-${type==='electeurs'?'18':'19'} C. trav.). Toute contestation doit être portée devant le tribunal judiciaire dans un délai de 3 jours suivant l'affichage.</p>`;
@@ -5336,9 +5475,9 @@ ${docObjetEncadre('Convocation à la visite médicale de reprise')}
 <p style="${S}">Monsieur / Madame,</p>
 <p style="${S}">Suite à votre arrêt de travail ${type==='reprise_at'?'pour accident du travail':'pour maladie'}, nous vous informons que vous êtes convoqué(e) à une visite médicale de reprise auprès du Service de Prévention et de Santé au Travail (SPST) :</p>
 <table style="width:70%;border-collapse:collapse;margin:14px auto;font-family:'Times New Roman',serif;font-size:11pt">
-<tr><td style="border:1px solid #000;padding:8px;background:#e8e8e8;width:30%"><strong>Date</strong></td><td style="border:1px solid #000;padding:8px">[DATE]</td></tr>
-<tr><td style="border:1px solid #000;padding:8px;background:#e8e8e8"><strong>Heure</strong></td><td style="border:1px solid #000;padding:8px">[HEURE]</td></tr>
-<tr><td style="border:1px solid #000;padding:8px;background:#e8e8e8"><strong>Lieu</strong></td><td style="border:1px solid #000;padding:8px">${E.spst||'[COORDONNÉES SPST]'}</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff;width:30%"><strong>Date</strong></td><td style="border:1px solid #000;padding:8px">[DATE]</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Heure</strong></td><td style="border:1px solid #000;padding:8px">[HEURE]</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Lieu</strong></td><td style="border:1px solid #000;padding:8px">${E.spst||'[COORDONNÉES SPST]'}</td></tr>
 </table>
 <p style="${S}">Cette visite est <strong>obligatoire</strong> avant toute reprise du travail (art. R.4624-29 et R.4624-31 C. trav.). ${absCond==='oui'?'En tant que conducteur professionnel, une attention particulière sera portée à votre aptitude à la conduite.':''}</p>
 ${docSignatureBloc()}
@@ -5387,23 +5526,23 @@ ${docEnTete()}
 <hr style="border:none;border-top:1px solid #000;margin:12px 0">
 <p style="${S}"><strong>Salarié :</strong></p>
 <table style="width:80%;border-collapse:collapse;margin:8px auto;${S}">
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8;width:35%"><strong>Nom et prénom</strong></td><td style="border:1px solid #000;padding:6px">${nomSal}</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>N° Sécurité Sociale</strong></td><td style="border:1px solid #000;padding:6px">[NSS]</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>Poste</strong></td><td style="border:1px solid #000;padding:6px">[POSTE]</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>Date d'entrée</strong></td><td style="border:1px solid #000;padding:6px">[DATE ENTRÉE]</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff;width:35%"><strong>Nom et prénom</strong></td><td style="border:1px solid #000;padding:6px">${nomSal}</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>N° Sécurité Sociale</strong></td><td style="border:1px solid #000;padding:6px">[NSS]</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>Poste</strong></td><td style="border:1px solid #000;padding:6px">[POSTE]</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>Date d'entrée</strong></td><td style="border:1px solid #000;padding:6px">[DATE ENTRÉE]</td></tr>
 </table>
 <p style="${S}margin-top:12px"><strong>Arrêt de travail :</strong></p>
 <table style="width:80%;border-collapse:collapse;margin:8px auto;${S}">
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8;width:35%"><strong>Date de début</strong></td><td style="border:1px solid #000;padding:6px">[DATE]</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>Nature</strong></td><td style="border:1px solid #000;padding:6px">☐ Maladie ordinaire&nbsp;&nbsp;&nbsp;☐ Accident du travail&nbsp;&nbsp;&nbsp;☐ Maladie professionnelle</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff;width:35%"><strong>Date de début</strong></td><td style="border:1px solid #000;padding:6px">[DATE]</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>Nature</strong></td><td style="border:1px solid #000;padding:6px">☐ Maladie ordinaire&nbsp;&nbsp;&nbsp;☐ Accident du travail&nbsp;&nbsp;&nbsp;☐ Maladie professionnelle</td></tr>
 </table>
 <p style="${S}margin-top:12px"><strong>Salaire de référence (3 derniers mois) :</strong></p>
 <table style="width:80%;border-collapse:collapse;margin:8px auto;${S}">
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8;width:50%"><strong>Mois M-1</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[MONTANT] €</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>Mois M-2</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[MONTANT] €</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>Mois M-3</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[MONTANT] €</td></tr>
-<tr style="background:#f5e9c8;font-weight:bold"><td style="border:1px solid #000;padding:6px"><strong>Total 3 mois</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[TOTAL] €</td></tr>
-<tr><td style="border:1px solid #000;padding:6px;background:#e8e8e8"><strong>Salaire journalier (÷ 91,25)</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[SJR] €</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff;width:50%"><strong>Mois M-1</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[MONTANT] €</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>Mois M-2</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[MONTANT] €</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>Mois M-3</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[MONTANT] €</td></tr>
+<tr style="background:#fff;font-weight:bold"><td style="border:1px solid #000;padding:6px"><strong>Total 3 mois</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[TOTAL] €</td></tr>
+<tr><td style="border:1px solid #000;padding:6px;background:#fff"><strong>Salaire journalier (÷ 91,25)</strong></td><td style="border:1px solid #000;padding:6px;text-align:right">[SJR] €</td></tr>
 </table>
 <p style="${S}margin-top:12px"><strong>Subrogation employeur :</strong></p>
 <p style="${S}">☐ <strong>Oui</strong> — l'employeur maintient le salaire et perçoit les IJSS en lieu et place du salarié<br>☐ <strong>Non</strong> — les IJSS sont versées directement au salarié</p>
@@ -5497,7 +5636,7 @@ function genRegistreConducteurs(){
 <h2 style="${S}font-size:12pt;text-align:center;text-decoration:underline">REGISTRE DES QUALIFICATIONS CONDUCTEURS</h2>
 <p style="${S}text-align:center"><strong>${E.nom}</strong> · Édité le ${today}</p>
 <table style="width:100%;border-collapse:collapse;font-size:9pt;margin-top:10px">
-<tr style="background:#f5f5f5"><th style="border:1px solid #ccc;padding:5px">Conducteur</th><th style="border:1px solid #ccc;padding:5px">Permis</th><th style="border:1px solid #ccc;padding:5px">CQC</th><th style="border:1px solid #ccc;padding:5px">FCO</th><th style="border:1px solid #ccc;padding:5px">Visite méd.</th><th style="border:1px solid #ccc;padding:5px">ADR</th></tr>
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:5px">Conducteur</th><th style="border:1px solid #ccc;padding:5px">Permis</th><th style="border:1px solid #ccc;padding:5px">CQC</th><th style="border:1px solid #ccc;padding:5px">FCO</th><th style="border:1px solid #ccc;padding:5px">Visite méd.</th><th style="border:1px solid #ccc;padding:5px">ADR</th></tr>
 ${lignes||'<tr><td colspan="6" style="border:1px solid #ccc;padding:8px;text-align:center;color:#999">Aucun conducteur enregistré</td></tr>'}
 </table>
 <p style="${S}font-size:8pt;font-style:italic;margin-top:10px">✓ = Valide · ⚠ = Expiré ou expiration imminente · — = Non renseigné<br>À conserver et mettre à jour régulièrement. Ne constitue pas un conseil juridique.</p>
@@ -5783,7 +5922,7 @@ function sauvegarderParametres(){
 // DOC OVERLAY
 // ═══════════════════════════════════════
 // Avertissement systématique ajouté à chaque document
-const AVERT_DOC = `<div style="margin-top:30px;padding:14px;border:2px solid #cc6600;border-radius:6px;background:#fff8f0;font-family:'Times New Roman',serif;font-size:9.5pt;color:#444;line-height:1.6">
+const AVERT_DOC = `<div style="margin-top:30px;padding:14px;border:2px solid #cc6600;border-radius:6px;background:#fff;font-family:'Times New Roman',serif;font-size:9.5pt;color:#444;line-height:1.6">
 <strong style="color:#cc6600">⚠ AVERTISSEMENT JURIDIQUE OBLIGATOIRE</strong><br>
 Ce document est une trame type générée automatiquement à titre informatif. Il ne constitue pas un conseil juridique personnalisé au sens de la loi n°71-1130 du 31 décembre 1971 portant réforme de certaines professions judiciaires et juridiques.<br><br>
 <strong>L'employeur est seul responsable de l'utilisation, de l'adaptation et des conséquences de ce document.</strong> Avant toute décision engageant la responsabilité de l'entreprise (licenciement, sanction disciplinaire, mise à pied, rupture de contrat), il est <strong>impératif de consulter un avocat spécialisé en droit du travail</strong> ou un conseil juridique qualifié.<br><br>
@@ -5842,7 +5981,7 @@ h3 { font-size: 12pt; margin: 10pt 0 6pt; }
 table { border-collapse: collapse; width: 100%; margin: 10pt 0; page-break-inside: auto; }
 tr { page-break-inside: avoid; }
 th, td { border: 1px solid #000; padding: 6pt; vertical-align: top; font-size: 10pt; }
-th { background: #e8e8e8; font-weight: bold; text-align: center; }
+th { background: #fff; font-weight: bold; text-align: center; }
 strong { font-weight: bold; }
 em { font-style: italic; }
 ul, ol { margin-left: 20pt; }
@@ -5894,7 +6033,7 @@ body{font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1
 h2{font-size:13pt;text-align:center;text-decoration:underline}
 table{border-collapse:collapse;margin:auto}
 th,td{border:1px solid #000;padding:6pt}
-th{background:#e8e8e8;font-weight:bold}
+th{background:#fff;font-weight:bold}
 @page{size:A4;margin:2cm}
 </style></head><body>${html}</body></html>`;
 
@@ -5947,7 +6086,7 @@ function telechargerWord(){
 #doc-fullscreen-overlay *{color:#000 !important;background-color:transparent !important}
 #doc-fullscreen-overlay table{border-collapse:collapse;margin:10pt auto;background:#fff !important}
 #doc-fullscreen-overlay th,#doc-fullscreen-overlay td{padding:6pt;border:1px solid #000;vertical-align:top;background:#fff !important}
-#doc-fullscreen-overlay th{background:#e8e8e8 !important;font-weight:bold;text-align:center}
+#doc-fullscreen-overlay th{background:#fff !important;font-weight:bold;text-align:center}
 #doc-fullscreen-overlay h1,#doc-fullscreen-overlay h2,#doc-fullscreen-overlay h3{color:#000 !important}
 #doc-fullscreen-overlay strong{font-weight:bold}
 #doc-fullscreen-overlay em{font-style:italic}
@@ -5976,7 +6115,7 @@ function telechargerWord(){
 ${html}
 <hr style="margin-top:30px;border:none;border-top:1px solid #000">
 <p style="text-align:center;font-size:10pt;font-style:italic;color:#444 !important">Document généré par Juris-Transport Expert · ${new Date().toLocaleString('fr-FR')}</p>
-<p style="text-align:center;font-size:11pt;margin-top:14px;padding:10px;background:#f5f5f5 !important">📌 Pour sauvegarder : touchez <strong>🖨</strong> en haut → <strong>Enregistrer en PDF</strong> dans le menu iOS, puis Partager.</p>
+<p style="text-align:center;font-size:11pt;margin-top:14px;padding:10px;background:#fff !important">📌 Pour sauvegarder : touchez <strong>🖨</strong> en haut → <strong>Enregistrer en PDF</strong> dans le menu iOS, puis Partager.</p>
 </div>`;
     document.body.appendChild(overlay);
     return;
