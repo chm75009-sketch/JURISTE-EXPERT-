@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Juris-Transport Expert</title>
+<!-- Build v9 — 2026-06-08 — documents noir & blanc + dates de scrutin dynamiques (jamais figées) -->
+<meta name="app-version" content="v9">
+<meta name="app-build" content="2026-06-08">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#0f1f2e;color:#e8e4d8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;padding-bottom:80px;min-height:100vh}
@@ -2777,8 +2780,14 @@ async function telechargerTousZIP(){
   if(!dateScrutin){ alert('Saisissez d\'abord la date du 1er tour de scrutin.'); return; }
   if(!salariesNom || salariesNom.length === 0){ alert('Aucun salarié saisi. Importez d\'abord la liste.'); return; }
 
-  const DATE_1ER_TOUR = '15 juin 2026';
-  const DATE_2EME_TOUR = '30 juin 2026';
+  // Dates dérivées de la date du 1er tour saisie par l'utilisateur — JAMAIS figées
+  const calendrierZIP = calcCalendrierCSE(dateScrutin);
+  const DATE_1ER_TOUR = calendrierZIP ? fmtFRlong(calendrierZIP.scrutin1) : '[date du 1er tour à saisir]';
+  const DATE_2EME_TOUR = calendrierZIP ? fmtFRlong(calendrierZIP.scrutin2) : '[date du 2e tour à saisir]';
+  // Quorum calculé sur le nombre réel d'électeurs (jamais figé)
+  let nbInscritsZIP = 0;
+  salariesNom.forEach(s => { const r = calcSalarieNom(s, dateScrutin); if(r && r.electeur) nbInscritsZIP++; });
+  const QUORUM_ZIP = Math.ceil(nbInscritsZIP / 2);
 
   const loader = document.createElement('div');
   loader.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a2f44;color:#e8c97a;padding:20px 30px;border:2px solid #c9a84c;border-radius:12px;z-index:999999;font-family:inherit;font-size:14px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:280px';
@@ -2879,10 +2888,10 @@ Cette procédure suit ces étapes :
 - Bulletins de vote : à reproduire en quantité suffisante
 - Feuille d'émargement : à préparer pour le jour du scrutin
 
-ÉTAPE 5 — JOUR DU 1er TOUR (15/06/2026)
+ÉTAPE 5 — JOUR DU 1er TOUR (${DATE_1ER_TOUR})
 - Désigner président + 2 assesseurs (doyen et benjamin des électeurs présents)
 - Procès-verbal du 1er tour : à compléter après dépouillement
-- Quorum : 50% des inscrits (soit minimum 36 votants)
+- Quorum : 50% des inscrits (soit minimum ${QUORUM_ZIP} votants sur ${nbInscritsZIP} électeurs inscrits)
 
 ÉTAPE 6 — 2e TOUR (probable car pas de syndicat → carence au 1er tour)
 - Note d'info 2e tour : à afficher (annonce candidatures libres ouvertes)
@@ -2962,6 +2971,8 @@ Document généré par Juris-Transport Expert le ${new Date().toLocaleString('fr
 }
 
 function _genererWordHTML(titre, html){
+  // Garantit un document Word noir et blanc pur (le dossier ZIP contourne showDoc)
+  html = (typeof _purifierDocNB === 'function') ? _purifierDocNB(html) : html;
   return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
 <head>
 <meta charset='utf-8'>
@@ -3821,7 +3832,7 @@ ${avecOS ? `
 <p style="${S}"><strong>Ayant régulièrement invité, par lettres recommandées avec accusé de réception en date du [DATE], les organisations syndicales représentatives au niveau national</strong> (CGT, CFDT, FO, CFTC, CFE-CGC) à négocier le protocole d'accord préélectoral, ainsi que par affichage dans l'entreprise,</p>
 <p style="${S}"><strong>Constatant qu'aucune organisation syndicale ne s'est manifestée dans le délai imparti, ni n'a souhaité participer à cette négociation,</strong></p>
 <p style="${S}"><strong>Adopte unilatéralement le présent protocole sur les modalités d'organisation des élections du Comité Social et Économique, en application de l'article L.2314-5 du Code du travail.</strong></p>
-<div style="border:1px solid #d4a017;background:#fef7e6;padding:10px;margin:14px 0;${S}font-size:10pt"><strong>⚠ Important :</strong> conformément à l'article L.2314-13 C. trav., à défaut d'accord avec les organisations syndicales, la répartition du personnel dans les collèges et la répartition des sièges entre les collèges peuvent être fixées par décision de l'autorité administrative (DREETS). Si une partie en fait la demande, l'employeur saisit la DREETS qui statue dans les deux mois.</div>
+<div style="border:1px solid #000;background:#fff;padding:10px;margin:14px 0;${S}font-size:10pt"><strong>Important :</strong> conformément à l'article L.2314-13 C. trav., à défaut d'accord avec les organisations syndicales, la répartition du personnel dans les collèges et la répartition des sièges entre les collèges peuvent être fixées par décision de l'autorité administrative (DREETS). Si une partie en fait la demande, l'employeur saisit la DREETS qui statue dans les deux mois.</div>
 <p style="${S}"><strong>IL EST DÉCIDÉ CE QUI SUIT (DÉCISION UNILATÉRALE) :</strong></p>
 `}
 <p style="${S}"><strong>Article 1 — Collèges électoraux</strong><br>
@@ -5922,16 +5933,28 @@ function sauvegarderParametres(){
 // DOC OVERLAY
 // ═══════════════════════════════════════
 // Avertissement systématique ajouté à chaque document
-const AVERT_DOC = `<div style="margin-top:30px;padding:14px;border:2px solid #cc6600;border-radius:6px;background:#fff;font-family:'Times New Roman',serif;font-size:9.5pt;color:#444;line-height:1.6">
-<strong style="color:#cc6600">⚠ AVERTISSEMENT JURIDIQUE OBLIGATOIRE</strong><br>
+const AVERT_DOC = `<div style="margin-top:30px;padding:14px;border:2px solid #000;border-radius:6px;background:#fff;font-family:'Times New Roman',serif;font-size:9.5pt;color:#000;line-height:1.6">
+<strong style="color:#000">AVERTISSEMENT JURIDIQUE OBLIGATOIRE</strong><br>
 Ce document est une trame type générée automatiquement à titre informatif. Il ne constitue pas un conseil juridique personnalisé au sens de la loi n°71-1130 du 31 décembre 1971 portant réforme de certaines professions judiciaires et juridiques.<br><br>
 <strong>L'employeur est seul responsable de l'utilisation, de l'adaptation et des conséquences de ce document.</strong> Avant toute décision engageant la responsabilité de l'entreprise (licenciement, sanction disciplinaire, mise à pied, rupture de contrat), il est <strong>impératif de consulter un avocat spécialisé en droit du travail</strong> ou un conseil juridique qualifié.<br><br>
 Généré par Juris-Transport Expert · ${new Date().toLocaleDateString('fr-FR')}
 </div>`;
 
+// Purification noir et blanc : retire les emojis colorés des documents générés
+// (conserve les glyphes monochromes utiles : ☐ ☑ ✓ ✗ ✕ → ←)
+function _purifierDocNB(html){
+  if(!html) return html;
+  return html
+    // Sélecteurs de variante emoji (forcent le rendu couleur dans Word/PDF)
+    .replace(/[︀-️]/g, '')
+    // Emoji pictographiques du plan astral : 📋 🗳 📌 📝 📄 📊 🔴 🟡 🟢 🖨 ...
+    .replace(/[\u{1F000}-\u{1FAFF}]/gu, '')
+    // Symboles colorés isolés du plan BMP (⚠ ⛔ ✅ ❌ ✉ ⏳ ⏱ ⚖ ⚙ ⬛ ⬜ ⬆ ⬇)
+    .replace(/[⚠⛔✅❌✉⏳⏱⚖⚙⬛⬜⬆⬇⬅]/g, '');
+}
 function showDoc(titre,html){
-  // Injecter l'avertissement en bas de chaque document
-  const htmlAvec = html + AVERT_DOC;
+  // Injecter l'avertissement en bas de chaque document, puis purifier en noir et blanc pur
+  const htmlAvec = _purifierDocNB(html + AVERT_DOC);
   document.getElementById('doc-title').textContent=titre;
   document.getElementById('doc-content').innerHTML=htmlAvec;
   // Stocker pour export Word
