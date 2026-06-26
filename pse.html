@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Juriste Expert – Procédure complète de Plan de Sauvegarde de l'Emploi (PSE) pour une entreprise d'environ 50 salariés (type organisme de formation, Groupe IGS). Loi, convention collective et jurisprudence à chaque étape.">
+<title>Juriste Expert – Plan de Sauvegarde de l'Emploi (PSE) | Entreprise ~50 salariés</title>
+<style>
+  :root{
+    --or:#b8902e; --or-clair:#d8b65a; --or-pale:#f7eed6;
+    --encre:#1a1d24; --encre2:#2b3038; --gris:#5b6472; --gris-clair:#8a929e;
+    --fond:#0f1115; --carte:#161a21; --carte2:#1d222b; --bord:#2a313c;
+    --blanc:#f5f6f8; --vert:#3c9a5f; --rouge:#cf4949; --bleu:#3f7bd1; --ambre:#d9962a;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(180deg,#0c0e12,#10131a 40%,#0c0e12);
+    color:var(--blanc); line-height:1.6; font-size:16px;
+  }
+  a{color:var(--or-clair)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+
+  /* ===== EN-TÊTE ===== */
+  header.hero{
+    background:radial-gradient(1200px 400px at 50% -120px,rgba(184,144,46,.22),transparent),
+               linear-gradient(180deg,#13161d,#0d0f14);
+    border-bottom:1px solid var(--bord); padding:42px 0 30px;
+  }
+  .marque{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .sceau{
+    width:54px;height:54px;border-radius:50%;flex:0 0 auto;
+    background:radial-gradient(circle at 35% 30%,var(--or-clair),var(--or) 70%);
+    display:flex;align-items:center;justify-content:center;color:#1a1407;
+    font-weight:800;font-size:24px;box-shadow:0 6px 22px rgba(184,144,46,.35);
+  }
+  .marque h1{font-size:15px;letter-spacing:3px;text-transform:uppercase;margin:0;color:var(--or-clair);font-weight:700}
+  .marque small{color:var(--gris-clair);letter-spacing:1px}
+  .hero h2{font-size:30px;margin:6px 0 8px;line-height:1.25}
+  .hero h2 b{color:var(--or-clair)}
+  .hero p.lead{color:#c7cdd6;max-width:760px;margin:0}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .pill{background:var(--carte2);border:1px solid var(--bord);border-radius:999px;padding:6px 13px;font-size:13px;color:#cfd5de}
+  .pill b{color:var(--or-clair)}
+
+  /* ===== NAV ===== */
+  nav.somm{position:sticky;top:0;z-index:50;background:rgba(13,15,20,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--bord)}
+  nav.somm .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 18px}
+  nav.somm a{white-space:nowrap;color:#c2c8d2;text-decoration:none;font-size:13.5px;font-weight:600;padding:7px 12px;border-radius:9px;border:1px solid transparent}
+  nav.somm a:hover{background:var(--carte2);border-color:var(--bord)}
+  nav.somm a.actif{background:var(--or);color:#1a1407;border-color:var(--or)}
+
+  section{padding:34px 0;border-bottom:1px solid rgba(42,49,60,.5)}
+  h3.titre{font-size:23px;margin:0 0 4px;display:flex;align-items:center;gap:11px}
+  h3.titre .n{flex:0 0 auto;width:34px;height:34px;border-radius:9px;background:linear-gradient(160deg,var(--or-clair),var(--or));color:#1a1407;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px}
+  .sous{color:var(--gris-clair);margin:0 0 22px;font-size:14.5px}
+
+  /* ===== AVERTISSEMENT ===== */
+  .avert{background:linear-gradient(180deg,#2a1d10,#1d160c);border:1px solid #5a3f17;border-radius:var(--r);padding:16px 18px;margin:22px 0;font-size:14px;color:#e7d8bd}
+  .avert b{color:var(--or-clair)}
+
+  /* ===== CARTES JURIDIQUES ===== */
+  .bloc{background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);padding:20px 22px;margin:16px 0}
+  .bloc h4{margin:0 0 10px;font-size:18px;color:#fff}
+  .bloc p{margin:8px 0;color:#cfd5de}
+  .bloc ul{margin:8px 0;padding-left:20px;color:#cfd5de}
+  .bloc li{margin:5px 0}
+
+  .src{display:grid;gap:12px;margin-top:14px}
+  @media(min-width:720px){.src{grid-template-columns:1fr 1fr 1fr}}
+  .ref{border-radius:12px;padding:14px 15px;border:1px solid var(--bord);background:var(--carte2)}
+  .ref .lab{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .ref.loi{border-left:4px solid var(--bleu)} .ref.loi .lab{color:#7fb0f0}
+  .ref.cc{border-left:4px solid var(--vert)} .ref.cc .lab{color:#6fd398}
+  .ref.juris{border-left:4px solid var(--or)} .ref.juris .lab{color:var(--or-clair)}
+  .ref p{margin:6px 0;font-size:13.5px;color:#c7cdd6}
+  .ref .art{font-weight:700;color:#fff}
+  .ref .cite{font-style:italic;color:#aeb6c1;border-left:2px solid var(--bord);padding-left:10px;margin:8px 0;font-size:13px}
+  .verif{font-size:11.5px;color:var(--ambre);margin-top:8px;display:inline-block}
+
+  /* ===== DIAGNOSTIC ===== */
+  .calc{background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);padding:22px}
+  .grid2{display:grid;gap:16px}@media(min-width:680px){.grid2{grid-template-columns:1fr 1fr}}
+  label.f{display:block;font-size:13px;color:var(--gris-clair);margin-bottom:6px;font-weight:600;letter-spacing:.3px}
+  input.f,select.f{width:100%;background:#0e1117;border:1px solid var(--bord);color:#fff;border-radius:10px;padding:11px 12px;font-size:15px}
+  input.f:focus,select.f:focus{outline:none;border-color:var(--or)}
+  .verdict{margin-top:18px;border-radius:12px;padding:16px 18px;font-size:15px;border:1px solid}
+  .verdict.ok{background:#12231a;border-color:#2f6b45;color:#bfe9cd}
+  .verdict.no{background:#241414;border-color:#6b2f2f;color:#efc9c9}
+  .verdict.warn{background:#241d10;border-color:#6b552f;color:#ecdcb6}
+  .verdict b{display:block;font-size:17px;margin-bottom:5px}
+  .res-line{display:flex;justify-content:space-between;border-top:1px dashed var(--bord);padding:7px 0;font-size:14px}
+  .res-line span:last-child{font-weight:700;color:#fff}
+  button.btn{background:linear-gradient(160deg,var(--or-clair),var(--or));color:#1a1407;border:none;border-radius:10px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:.3px}
+  button.btn:hover{filter:brightness(1.07)}
+  button.ghost{background:transparent;border:1px solid var(--bord);color:#cfd5de;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer}
+  button.ghost:hover{border-color:var(--or);color:#fff}
+
+  /* ===== ÉCHÉANCIER ===== */
+  .timeline{position:relative;margin:10px 0 0;padding-left:28px}
+  .timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--or),transparent)}
+  .tl{position:relative;padding:0 0 20px 6px}
+  .tl::before{content:"";position:absolute;left:-23px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--or);box-shadow:0 0 0 4px rgba(184,144,46,.18)}
+  .tl .j{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--or-clair);font-weight:800}
+  .tl .t{font-weight:700;color:#fff;margin:2px 0}
+  .tl .d{font-size:13.5px;color:var(--gris-clair)}
+
+  /* ===== CHECKLIST ===== */
+  .check{background:var(--carte);border:1px solid var(--bord);border-radius:var(--r);overflow:hidden}
+  .ck-h{padding:14px 18px;background:var(--carte2);display:flex;justify-content:space-between;align-items:center;font-weight:700;border-bottom:1px solid var(--bord)}
+  .ck-grp{padding:6px 0}
+  .ck-grp>.g{padding:12px 18px 4px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--or-clair);font-weight:800}
+  .ck{display:flex;gap:12px;padding:9px 18px;align-items:flex-start;cursor:pointer;border-top:1px solid rgba(42,49,60,.4)}
+  .ck:hover{background:rgba(255,255,255,.02)}
+  .ck input{margin-top:4px;width:18px;height:18px;accent-color:var(--or);flex:0 0 auto;cursor:pointer}
+  .ck span{font-size:14.5px;color:#d3d8e0}
+  .ck.done span{color:var(--gris-clair);text-decoration:line-through}
+  .barre{height:8px;background:#0e1117;border-radius:6px;overflow:hidden;margin-top:10px}
+  .barre i{display:block;height:100%;background:linear-gradient(90deg,var(--or),var(--or-clair));width:0;transition:width .35s}
+
+  table.cmp{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+  table.cmp th,table.cmp td{border:1px solid var(--bord);padding:10px 12px;text-align:left;vertical-align:top}
+  table.cmp th{background:var(--carte2);color:var(--or-clair);font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+  table.cmp td{color:#cfd5de}
+
+  .duo{display:grid;gap:14px}@media(min-width:720px){.duo{grid-template-columns:1fr 1fr}}
+  .voie{border:1px solid var(--bord);border-radius:12px;padding:18px;background:var(--carte)}
+  .voie h5{margin:0 0 4px;color:#fff;font-size:16px}
+  .voie .tag{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:999px;display:inline-block;margin-bottom:8px}
+  .voie.acc .tag{background:#12231a;color:#6fd398;border:1px solid #2f6b45}
+  .voie.uni .tag{background:#1a1d2e;color:#8fa9e8;border:1px solid #344066}
+
+  footer{padding:30px 0 50px;color:var(--gris-clair);font-size:13px}
+  footer a{color:var(--or-clair)}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+
+  @media print{
+    nav.somm,.toolbar,button{display:none!important}
+    body{background:#fff;color:#000}
+    .bloc,.calc,.check,.ref,.voie{background:#fff;border-color:#bbb;color:#000}
+    .ref p,.bloc p,.bloc li,.ck span,.tl .d{color:#222}
+    h3.titre,.bloc h4,.ref .art{color:#000}
+    a{color:#000;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="marque">
+      <div class="sceau">JE</div>
+      <div>
+        <h1>Juriste Expert</h1>
+        <small>Module – Droit social / Restructurations</small>
+      </div>
+    </div>
+    <h2>Plan de Sauvegarde de l'Emploi <b>(PSE)</b><br>Procédure pour une entreprise d'environ <b>50 salariés</b></h2>
+    <p class="lead">Guide opérationnel pas-à-pas du licenciement économique collectif soumis à PSE, calibré pour une structure de type organisme de formation (Groupe IGS). À chaque étape&nbsp;: <b>la loi</b>, <b>la convention collective</b> et <b>la jurisprudence</b>.</p>
+    <div class="pills">
+      <span class="pill">📌 Seuil : <b>≥ 50 salariés</b> + <b>≥ 10 licenciements / 30 j</b></span>
+      <span class="pill">🏛️ Validation / Homologation <b>DREETS</b></span>
+      <span class="pill">📑 CC <b>Organismes de formation – IDCC 1516</b></span>
+      <span class="pill">⚖️ Contentieux <b>administratif &amp; prud'homal</b></span>
+      <span class="pill">🔄 Mise à jour : <b>juin 2026</b></span>
+    </div>
+  </div>
+</header>
+
+<nav class="somm">
+  <div class="wrap" id="navwrap">
+    <a href="#diagnostic">0 · Diagnostic</a>
+    <a href="#motif">1 · Motif éco.</a>
+    <a href="#voie">2 · Voie d'élaboration</a>
+    <a href="#cse">3 · Consultation CSE</a>
+    <a href="#contenu">4 · Contenu du PSE</a>
+    <a href="#dreets">5 · DREETS</a>
+    <a href="#notif">6 · Notification</a>
+    <a href="#contentieux">7 · Contentieux</a>
+    <a href="#calendrier">📅 Calendrier</a>
+    <a href="#indemnite">🧮 Indemnités</a>
+    <a href="#checklist">✅ Checklist</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="avert">
+    <b>⚠️ Avertissement.</b> Cet outil est une <b>aide à la décision</b> et une synthèse documentaire ; il ne constitue pas une consultation juridique personnalisée. Les références légales et jurisprudentielles citées doivent être <b>vérifiées et actualisées</b> sur <a href="https://www.legifrance.gouv.fr" target="_blank" rel="noopener">Légifrance</a> avant tout usage opérationnel. La base de connaissances est arrêtée à <b>janvier 2026</b> ; certaines décisions très récentes peuvent ne pas y figurer. La convention collective retenue par défaut est celle des <b>organismes de formation (IDCC 1516)</b> — à confirmer selon l'entité juridique exacte concernée.
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="window.print()">🖨️ Imprimer / Exporter en PDF</button>
+    <button class="ghost" onclick="resetCheck()">♻️ Réinitialiser la checklist</button>
+    <a class="ghost" style="text-decoration:none;display:inline-block" href="index.html">↩︎ Retour à l'accueil Juriste Expert</a>
+  </div>
+</div>
+
+<!-- ================= 0. DIAGNOSTIC ================= -->
+<section id="diagnostic"><div class="wrap">
+  <h3 class="titre"><span class="n">0</span> Audit préalable &amp; qualification</h3>
+  <p class="sous">Avant toute chose : déterminer si un PSE est <b>obligatoire</b>, et sécuriser le périmètre du motif économique.</p>
+
+  <div class="calc">
+    <div class="grid2">
+      <div>
+        <label class="f">Effectif de l'entreprise (équivalent temps plein)</label>
+        <input class="f" id="effectif" type="number" min="0" value="50">
+      </div>
+      <div>
+        <label class="f">Nombre de licenciements envisagés</label>
+        <input class="f" id="nbLic" type="number" min="0" value="10">
+      </div>
+      <div>
+        <label class="f">Sur une même période de…</label>
+        <select class="f" id="periode">
+          <option value="30">30 jours</option>
+          <option value="90">90 jours (3 licenciements/mois sur 3 mois)</option>
+        </select>
+      </div>
+      <div>
+        <label class="f">Appartenance à un groupe ?</label>
+        <select class="f" id="groupe">
+          <option value="oui">Oui (ex. Groupe IGS)</option>
+          <option value="non">Non</option>
+        </select>
+      </div>
+    </div>
+    <div class="toolbar"><button class="btn" onclick="diagnostiquer()">Analyser la situation</button></div>
+    <div id="verdict"></div>
+  </div>
+
+  <div class="bloc">
+    <h4>Grille de qualification</h4>
+    <table class="cmp">
+      <tr><th>Situation</th><th>Procédure</th><th>PSE ?</th></tr>
+      <tr><td>&lt; 50 salariés, peu importe le nombre</td><td>Licenciement collectif sans PSE (consultation CSE, CSP)</td><td>Non</td></tr>
+      <tr><td>≥ 50 salariés &amp; 2 à 9 licenciements / 30 j</td><td>« Petit » licenciement collectif (consultation CSE)</td><td>Non</td></tr>
+      <tr><td><b>≥ 50 salariés &amp; ≥ 10 licenciements / 30 j</b></td><td><b>PSE obligatoire</b> + validation/homologation DREETS</td><td><b>Oui</b></td></tr>
+      <tr><td>Contournement : &lt; 10 sur 30 j mais ≥ 18 sur 3 mois</td><td>Nouvelle procédure ; PSE si ≥ 10 sur les 3 mois suivants</td><td>Selon seuils</td></tr>
+    </table>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">C. trav., art. L1233-61</p>
+      <p>Dans les entreprises d'<b>au moins 50 salariés</b>, lorsque le projet de licenciement concerne <b>au moins 10 salariés</b> sur <b>30 jours</b>, l'employeur établit et met en œuvre un PSE pour éviter les licenciements ou en limiter le nombre.</p>
+      <p class="art">Art. L1233-26 &amp; L1233-27</p>
+      <p>Règles anti-contournement : prise en compte des licenciements sur 3 mois / année civile.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">Organismes de formation – IDCC 1516</p>
+      <p>La CC ne modifie pas les seuils légaux du PSE (ordre public), mais encadre préavis, indemnités et procédures internes (voir §6 et calculateur).</p>
+      <p class="verif">À confirmer selon l'entité IGS concernée.</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">Périmètre du motif économique</p>
+      <p>Depuis l'ordonnance n° 2017-1387 du 22 sept. 2017, le motif s'apprécie au niveau du <b>secteur d'activité commun</b> du groupe, <b>sur le territoire national</b> (art. L1233-3).</p>
+      <p class="cite">Le secteur d'activité se caractérise par la nature des produits/services, la clientèle et les réseaux de distribution visant le même marché (Cass. soc., aff. « Galderma » et s.).</p>
+      <p class="verif">Vérifier les n° d'arrêts récents sur Légifrance.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 1. MOTIF ================= -->
+<section id="motif"><div class="wrap">
+  <h3 class="titre"><span class="n">1</span> Caractériser le motif économique</h3>
+  <p class="sous">Le PSE ne dispense pas d'un motif économique réel et sérieux : c'est le socle qui sera contrôlé par le <b>juge prud'homal</b>.</p>
+
+  <div class="bloc">
+    <h4>Les 4 motifs légaux (L1233-3)</h4>
+    <ul>
+      <li><b>Difficultés économiques</b> — caractérisées par l'évolution d'indicateurs (baisse de commandes ou du CA, pertes d'exploitation, dégradation de la trésorerie ou de l'EBE…). Durée de baisse du CA appréciée par rapport à l'année précédente, selon la taille de l'entreprise.</li>
+      <li><b>Mutations technologiques</b>.</li>
+      <li><b>Réorganisation nécessaire à la sauvegarde de la compétitivité</b> du secteur d'activité.</li>
+      <li><b>Cessation d'activité</b> de l'entreprise.</li>
+    </ul>
+    <p>⚠️ Ne sont pas des motifs valables : la simple recherche d'économies / d'amélioration de la rentabilité sans menace sur la compétitivité.</p>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">C. trav., art. L1233-3</p>
+      <p>Définition du motif économique et du <b>périmètre d'appréciation</b> : entreprise seule, ou <b>secteur d'activité du groupe</b> implanté <b>sur le territoire national</b>.</p>
+      <p class="art">Art. L1233-2</p>
+      <p>Tout licenciement économique doit être justifié par une <b>cause réelle et sérieuse</b>.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516 — priorité au dialogue</p>
+      <p>Aucune dérogation aux motifs (ordre public) ; la CC privilégie l'information des représentants et les mesures d'accompagnement formation/VAE, pertinentes pour un organisme de formation.</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">Sauvegarde de la compétitivité</p>
+      <p class="cite">La réorganisation doit répondre à une <b>menace</b> pesant sur la compétitivité du secteur d'activité — non à un simple souci de rentabilité (Cass. soc., jurisprudence « Vidéocolor » / « Pages Jaunes »).</p>
+      <p class="art">Périmètre — restriction 2017</p>
+      <p>Avant 2017 : appréciation au niveau mondial du groupe. Depuis : <b>territoire national</b> uniquement.</p>
+      <p class="verif">Références exactes à revérifier.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 2. VOIE ================= -->
+<section id="voie"><div class="wrap">
+  <h3 class="titre"><span class="n">2</span> Choisir la voie d'élaboration du PSE</h3>
+  <p class="sous">Deux voies, deux régimes de contrôle administratif. Le choix structure tout le calendrier.</p>
+
+  <div class="duo">
+    <div class="voie acc">
+      <span class="tag">Voie négociée</span>
+      <h5>Accord collectif majoritaire</h5>
+      <p>Négocié avec les syndicats représentatifs (signataires ≥ 50 % des suffrages). Fixe le contenu du PSE et peut aménager la procédure (calendrier, nombre de réunions, ordre des critères…).</p>
+      <p>➡️ Contrôle DREETS : <b>VALIDATION</b> en <b>15 jours</b>.</p>
+      <p>✔️ Sécurité juridique renforcée, contrôle administratif plus restreint.</p>
+    </div>
+    <div class="voie uni">
+      <span class="tag">Voie unilatérale</span>
+      <h5>Document unilatéral de l'employeur</h5>
+      <p>Élaboré par l'employeur après consultation du CSE, en l'absence d'accord. Doit respecter l'intégralité des règles supplétives du Code du travail.</p>
+      <p>➡️ Contrôle DREETS : <b>HOMOLOGATION</b> en <b>21 jours</b>.</p>
+      <p>⚠️ Contrôle administratif plus étendu (régularité, proportionnalité, contenu).</p>
+    </div>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">Art. L1233-24-1 &amp; s.</p>
+      <p>Accord majoritaire portant contenu du PSE.</p>
+      <p class="art">Art. L1233-57-2 (homologation) / L1233-57-3 (validation)</p>
+      <p>Étendue du contrôle de la DREETS selon la voie choisie.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516 — articulation</p>
+      <p>L'accord d'entreprise PSE prime ; vérifier les éventuelles stipulations de branche sur la méthode de négociation et les délais de convocation.</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">Contrôle de l'accord (transparence financière)</p>
+      <p class="cite">Le Conseil d'État a étendu le contrôle de l'administration à la <b>validité de l'accord</b>, y compris la <b>transparence financière</b> du syndicat signataire.</p>
+      <p class="verif">CE — référence à confirmer (Légifrance).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 3. CSE ================= -->
+<section id="cse"><div class="wrap">
+  <h3 class="titre"><span class="n">3</span> Information &amp; consultation du CSE</h3>
+  <p class="sous">Pièce maîtresse de la régularité : une consultation incomplète vicie toute la procédure (compétence du juge administratif).</p>
+
+  <div class="bloc">
+    <h4>Déroulé</h4>
+    <ul>
+      <li><b>Double consultation</b> : (1) sur le projet de réorganisation / restructuration et ses conséquences (ex-« Livre I »), (2) sur le projet de licenciement et le PSE (ex-« Livre II »).</li>
+      <li><b>Au moins 2 réunions</b> espacées (15 jours minimum entre les deux).</li>
+      <li><b>Délais préfix de consultation</b> du CSE selon le nombre de licenciements : <b>2 mois</b> (&lt; 100), <b>3 mois</b> (100 à 249), <b>4 mois</b> (≥ 250) — sauf accord différent.</li>
+      <li><b>Expert-comptable</b> : le CSE peut en désigner un (frais à la charge de l'employeur) ; son rapport conditionne la qualité de l'information.</li>
+      <li><b>Information de la DREETS</b> en parallèle (notification du projet dès la 1ʳᵉ réunion).</li>
+    </ul>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">Art. L1233-30</p>
+      <p>Objet et délais de la consultation du CSE ; nombre de réunions.</p>
+      <p class="art">Art. L1233-34 &amp; L1233-35</p>
+      <p>Recours à l'expert-comptable, à la charge de l'employeur.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516 — instances</p>
+      <p>Respecter les règles de fonctionnement du CSE ; vérifier d'éventuels délais de convocation conventionnels plus favorables.</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">CE, 22 juillet 2015, n° 385816</p>
+      <p>(Ministre du Travail c/ CE central <i>HJ Heinz France</i>) :</p>
+      <p class="cite">Les représentants du personnel doivent avoir une <b>connaissance complète</b> des raisons économiques, financières ou techniques du projet ; à défaut, la procédure de consultation est <b>irrégulière</b>.</p>
+      <p class="verif">Arrêt vérifié — confirmer le n° sur Légifrance.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 4. CONTENU ================= -->
+<section id="contenu"><div class="wrap">
+  <h3 class="titre"><span class="n">4</span> Contenu du PSE</h3>
+  <p class="sous">Le cœur du contrôle administratif : des mesures <b>précises, concrètes</b> et <b>proportionnées aux moyens</b> de l'entreprise et du groupe.</p>
+
+  <div class="bloc">
+    <h4>Mesures obligatoires / recommandées</h4>
+    <ul>
+      <li><b>Reclassement interne</b> (entreprise et groupe, territoire national) : recherche loyale, sérieuse, individualisée.</li>
+      <li><b>CSP – Contrat de Sécurisation Professionnelle</b> : obligatoire dans les entreprises de <b>moins de 1 000 salariés</b> (donc applicable à une structure de 50 salariés) — <i>pas</i> de congé de reclassement.</li>
+      <li><b>Mesures d'accompagnement</b> : formation, <b>VAE</b>, aide à la création/reprise d'entreprise, cellule de reclassement, congé de mobilité éventuel.</li>
+      <li><b>Catégories professionnelles</b> et <b>critères d'ordre</b> des licenciements (ancienneté, charges de famille, situation rendant la réinsertion difficile — handicap, âge —, qualités professionnelles).</li>
+      <li><b>Priorité de réembauche</b> (1 an).</li>
+    </ul>
+    <p>Spécificité <b>organisme de formation</b> : valoriser fortement le volet <b>formation / VAE / reconversion</b> (cohérent avec le cœur de métier et apprécié de la DREETS).</p>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">Art. L1233-61 &amp; L1233-62</p>
+      <p>Contenu du PSE : reclassement, accompagnement, formation, mesures de réduction d'horaires…</p>
+      <p class="art">Art. L1233-4 (reclassement) · L1233-5 (ordre)</p>
+      <p>Obligation de reclassement préalable ; critères d'ordre des licenciements.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516</p>
+      <p>Mesures conventionnelles d'accompagnement et priorité de réembauche à articuler avec le PSE ; vérifier toute stipulation de branche plus favorable.</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">CE, 22 juillet 2015, n° 385816</p>
+      <p class="cite">La DREETS doit vérifier que les mesures du plan sont <b>précises et concrètes</b> et de nature à satisfaire les objectifs de maintien dans l'emploi et de reclassement, au regard des <b>moyens de l'entreprise et du groupe</b>.</p>
+      <p class="art">Reclassement — périmètre groupe</p>
+      <p class="cite">Recherche étendue aux entités du groupe permettant la <b>permutation</b> de tout ou partie du personnel ; à défaut, licenciement sans cause réelle et sérieuse.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 5. DREETS ================= -->
+<section id="dreets"><div class="wrap">
+  <h3 class="titre"><span class="n">5</span> Contrôle de la DREETS</h3>
+  <p class="sous">L'autorité administrative valide ou homologue le PSE. Le silence vaut acceptation.</p>
+
+  <div class="bloc">
+    <h4>Régime du contrôle</h4>
+    <table class="cmp">
+      <tr><th></th><th>Accord majoritaire → Validation</th><th>Document unilatéral → Homologation</th></tr>
+      <tr><td>Délai DREETS</td><td><b>15 jours</b></td><td><b>21 jours</b></td></tr>
+      <tr><td>Silence gardé</td><td>Décision implicite d'<b>acceptation</b></td><td>Décision implicite d'<b>acceptation</b></td></tr>
+      <tr><td>Étendue du contrôle</td><td>Présence des clauses obligatoires, régularité de la procédure, validité de l'accord</td><td>Conformité aux règles, régularité de la consultation, <b>proportionnalité</b> du PSE aux moyens</td></tr>
+      <tr><td>Notification</td><td colspan="2">Au CSE et aux syndicats signataires ; motivation requise</td></tr>
+    </table>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">Art. L1233-57-1 à L1233-57-4</p>
+      <p>Procédure et délais de validation / homologation ; décision implicite d'acceptation à l'expiration du délai.</p>
+      <p class="art">Art. L1233-57-7</p>
+      <p>Pouvoir d'injonction de l'administration en cours de procédure.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516</p>
+      <p>Sans incidence directe sur le contrôle administratif (compétence d'ordre public de la DREETS).</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">CE, 7 décembre 2015, n° 383856</p>
+      <p class="cite">Précise les conséquences de l'<b>annulation</b> d'une décision d'homologation et l'office du juge administratif.</p>
+      <p class="art">Responsabilité de l'État</p>
+      <p>La responsabilité de l'État du fait d'une décision illégale de validation/homologation n'est engagée qu'en cas de <b>faute lourde</b> envers l'employeur.</p>
+      <p class="verif">Références à confirmer (Légifrance).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 6. NOTIFICATION ================= -->
+<section id="notif"><div class="wrap">
+  <h3 class="titre"><span class="n">6</span> Notification des licenciements</h3>
+  <p class="sous">Après décision favorable (ou implicite) de la DREETS uniquement. Préavis et indemnités relèvent ici largement de la CC.</p>
+
+  <div class="bloc">
+    <h4>Après la décision DREETS</h4>
+    <ul>
+      <li>Notification individuelle des licenciements par <b>LRAR</b>, après expiration du délai DREETS / décision favorable.</li>
+      <li>Respect du <b>préavis</b> (sauf adhésion au CSP qui rompt le contrat à l'issue du délai de réflexion de 21 jours).</li>
+      <li><b>Priorité de réembauche</b> pendant 1 an (à rappeler dans la lettre).</li>
+      <li>Information de la DREETS sur les licenciements prononcés.</li>
+    </ul>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">Art. L1233-39 &amp; L1233-45</p>
+      <p>Notification du licenciement ; priorité de réembauche (1 an).</p>
+      <p class="art">Art. L1233-65 &amp; s.</p>
+      <p>Contrat de sécurisation professionnelle (CSP).</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516 — préavis</p>
+      <p>Employés : <b>1 mois</b> (<b>2 mois</b> dès 2 ans d'ancienneté). Agents de maîtrise / techniciens : <b>2 mois</b>. Cadres : <b>3 mois</b>. <b>2 h/jour</b> pour recherche d'emploi pendant le préavis.</p>
+      <p class="art">Indemnité de licenciement</p>
+      <p>Dès <b>8 mois</b> d'ancienneté : <b>1/4</b> de mois par année jusqu'à 10 ans, <b>1/3</b> de mois par année au-delà.</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">Offre de reclassement</p>
+      <p class="cite">L'offre de reclassement doit être <b>écrite, précise et personnalisée</b> et comporter l'ensemble des mentions obligatoires, à peine d'absence de cause réelle et sérieuse.</p>
+      <p class="art">Ordre des licenciements</p>
+      <p>Le non-respect des critères d'ordre relève du <b>conseil de prud'hommes</b> (préjudice individuel).</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= 7. CONTENTIEUX ================= -->
+<section id="contentieux"><div class="wrap">
+  <h3 class="titre"><span class="n">7</span> Contentieux : qui juge quoi ?</h3>
+  <p class="sous">Le piège du PSE : une compétence <b>éclatée</b> entre juge administratif et conseil de prud'hommes depuis la loi du 14 juin 2013.</p>
+
+  <div class="bloc">
+    <h4>Répartition des compétences</h4>
+    <table class="cmp">
+      <tr><th>Litige</th><th>Juge compétent</th><th>Délai</th></tr>
+      <tr><td>Décision de validation / homologation de la DREETS</td><td><b>Juge administratif</b> (TA → CAA → CE)</td><td>2 mois</td></tr>
+      <tr><td>Régularité de la consultation du CSE</td><td><b>Administratif</b> (exclusif)</td><td>2 mois</td></tr>
+      <tr><td>Contenu / suffisance du PSE, proportionnalité</td><td><b>Administratif</b></td><td>2 mois</td></tr>
+      <tr><td>Motif économique du licenciement individuel</td><td><b>Conseil de prud'hommes</b></td><td>12 mois</td></tr>
+      <tr><td>Obligation individuelle de reclassement</td><td><b>Prud'hommes</b></td><td>12 mois</td></tr>
+      <tr><td>Application des critères d'ordre à un salarié</td><td><b>Prud'hommes</b></td><td>12 mois</td></tr>
+      <tr><td>CSP, indemnités, exécution du contrat</td><td><b>Prud'hommes</b></td><td>variable</td></tr>
+    </table>
+    <p>🔑 <b>L'administration ne contrôle pas le motif économique</b> : il reste du ressort du juge prud'homal pour chaque salarié.</p>
+  </div>
+
+  <div class="bloc">
+    <h4>Sanctions de l'annulation</h4>
+    <ul>
+      <li><b>Annulation pour absence ou insuffisance du PSE</b> → licenciements <b>nuls</b> : réintégration ou, à défaut, indemnité <b>≥ 6 mois</b> (art. L1235-11).</li>
+      <li><b>Annulation pour un autre motif</b> (vice de la décision administrative) → indemnité (art. L1235-16).</li>
+    </ul>
+  </div>
+
+  <div class="src">
+    <div class="ref loi">
+      <div class="lab">📘 Loi</div>
+      <p class="art">Art. L1235-7-1</p>
+      <p>Compétence <b>exclusive</b> du juge administratif sur l'accord, le document, le contenu du PSE et la régularité de la procédure.</p>
+      <p class="art">Art. L1235-7 · L1235-11 · L1235-16</p>
+      <p>Délai de 12 mois ; sanctions de la nullité et de l'annulation.</p>
+    </div>
+    <div class="ref cc">
+      <div class="lab">📗 Convention collective</div>
+      <p class="art">IDCC 1516</p>
+      <p>Les indemnités conventionnelles se cumulent, le cas échéant, avec les indemnités sanctionnant l'irrégularité (selon leur nature).</p>
+    </div>
+    <div class="ref juris">
+      <div class="lab">⚖️ Jurisprudence</div>
+      <p class="art">Tribunal des conflits (2020)</p>
+      <p class="cite">Maintien d'un large <b>bloc de compétence administrative</b> en matière de PSE, y compris pour le contrôle des prérogatives nouvelles de la DREETS (santé-sécurité « dans le cadre du PSE »), le prud'homal restant compétent pour les manquements individuels.</p>
+      <p class="verif">Référence TC à confirmer.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ================= CALENDRIER ================= -->
+<section id="calendrier"><div class="wrap">
+  <h3 class="titre" style="display:flex"><span class="n">📅</span> Échéancier-type (voie unilatérale)</h3>
+  <p class="sous">Indicatif — pour un projet &lt; 100 licenciements. Les délais réels dépendent de l'accord de méthode et du nombre de licenciements.</p>
+  <div class="timeline">
+    <div class="tl"><div class="j">J0</div><div class="t">Notification du projet à la DREETS &amp; 1ʳᵉ réunion du CSE</div><div class="d">Remise des documents (Livre I &amp; II), ouverture de la consultation, désignation possible de l'expert-comptable.</div></div>
+    <div class="tl"><div class="j">J0 → J+15 min.</div><div class="t">Entre les deux réunions du CSE</div><div class="d">Travaux de l'expert-comptable ; négociation d'un éventuel accord majoritaire.</div></div>
+    <div class="tl"><div class="j">≤ 2 mois</div><div class="t">Clôture de la consultation du CSE</div><div class="d">Délai préfix (&lt; 100 licenciements). Avis rendu ou réputé rendu.</div></div>
+    <div class="tl"><div class="j">+ dépôt</div><div class="t">Demande de validation / homologation à la DREETS</div><div class="d">Dossier complet transmis.</div></div>
+    <div class="tl"><div class="j">15 j / 21 j</div><div class="t">Décision DREETS (ou acceptation implicite)</div><div class="d">15 j (accord) · 21 j (document unilatéral).</div></div>
+    <div class="tl"><div class="j">Après décision</div><div class="t">Notification des licenciements (LRAR)</div><div class="d">Puis préavis CC / CSP, priorité de réembauche 1 an.</div></div>
+  </div>
+</div></section>
+
+<!-- ================= INDEMNITES ================= -->
+<section id="indemnite"><div class="wrap">
+  <h3 class="titre" style="display:flex"><span class="n">🧮</span> Calculateur d'indemnité (IDCC 1516)</h3>
+  <p class="sous">Estimation de l'indemnité <b>conventionnelle</b> de licenciement (organismes de formation). À comparer avec l'indemnité légale ; on retient la plus favorable.</p>
+  <div class="calc">
+    <div class="grid2">
+      <div><label class="f">Ancienneté (années, décimales acceptées)</label><input class="f" id="anc" type="number" min="0" step="0.1" value="6"></div>
+      <div><label class="f">Salaire mensuel brut de référence (€)</label><input class="f" id="sal" type="number" min="0" step="50" value="3000"></div>
+    </div>
+    <div class="toolbar"><button class="btn" onclick="calcIndem()">Calculer</button></div>
+    <div id="resIndem"></div>
+    <p style="font-size:12px;color:var(--gris-clair);margin-top:12px">Méthode CC : 1/4 de mois par année jusqu'à 10 ans, 1/3 de mois par année au-delà (ouverture du droit dès 8 mois d'ancienneté). Indemnité légale (rappel) : 1/4 de mois par année jusqu'à 10 ans, 1/3 au-delà — base la plus favorable retenue. Salaire de référence CC : 1/12 des 12 derniers mois ou moyenne des 3 derniers mois si plus favorable.</p>
+  </div>
+</div></section>
+
+<!-- ================= CHECKLIST ================= -->
+<section id="checklist"><div class="wrap">
+  <h3 class="titre" style="display:flex"><span class="n">✅</span> Checklist procédurale</h3>
+  <p class="sous">Cochez au fil de l'avancement — l'état est mémorisé dans votre navigateur.</p>
+  <div class="check">
+    <div class="ck-h"><span>Avancement global</span><span id="pct">0 %</span></div>
+    <div style="padding:12px 18px 4px"><div class="barre"><i id="barre"></i></div></div>
+    <div class="ck-grp" id="ckList"></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <p><b>Juriste Expert — Module PSE.</b> Synthèse documentaire à vocation professionnelle, à vérifier sur les sources officielles avant tout acte.</p>
+  <p><b>Sources principales</b> : Code du travail (Légifrance) ; CC nationale des organismes de formation du 10 juin 1988 (IDCC 1516) ; Conseil d'État, 22 juillet 2015, n° 385816 (Heinz) et 7 décembre 2015, n° 383856 ; Tribunal des conflits (compétence PSE, 2020) ; jurisprudence Cass. soc. (motif économique, reclassement). Références à actualiser sur <a href="https://www.legifrance.gouv.fr" target="_blank" rel="noopener">Légifrance</a> et <a href="https://www.conseil-etat.fr" target="_blank" rel="noopener">conseil-etat.fr</a>.</p>
+  <p style="color:#6b727e">© Juriste Expert — usage interne. Ne constitue pas une consultation juridique.</p>
+</div></footer>
+
+<script>
+/* ===== Diagnostic ===== */
+function diagnostiquer(){
+  var eff=+document.getElementById('effectif').value||0;
+  var nb=+document.getElementById('nbLic').value||0;
+  var per=document.getElementById('periode').value;
+  var v=document.getElementById('verdict');
+  var seuilEff = eff>=50;
+  var seuilLic = nb>=10;
+  var cls,titre,txt;
+  if(seuilEff && seuilLic && per==='30'){
+    cls='ok';titre='✅ PSE OBLIGATOIRE';
+    txt="Entreprise d'au moins 50 salariés ET au moins 10 licenciements sur 30 jours : un Plan de Sauvegarde de l'Emploi est obligatoire, avec validation ou homologation de la DREETS (art. L1233-61).";
+  } else if(seuilEff && nb>=2 && nb<10){
+    cls='warn';titre='⚠️ Licenciement collectif SANS PSE';
+    txt="Entreprise ≥ 50 salariés mais 2 à 9 licenciements : consultation du CSE et CSP obligatoires, sans PSE. Attention aux règles anti-contournement (3 mois / année civile).";
+  } else if(!seuilEff){
+    cls='no';titre='❌ Pas de PSE (effectif < 50)';
+    txt="En dessous de 50 salariés, pas de PSE quel que soit le nombre de licenciements. Procédure de licenciement collectif + CSP.";
+  } else if(per==='90'){
+    cls='warn';titre='⚠️ Vérifier les seuils sur 3 mois';
+    txt="Sur une période de 3 mois, appliquez les règles anti-contournement (L1233-26) : si ≥ 10 licenciements sur les 3 mois, un PSE peut redevenir obligatoire pour la suite.";
+  } else {
+    cls='warn';titre='⚠️ Situation à expertiser';
+    txt="Les seuils ne sont pas clairement atteints : faites valider la qualification par un conseil.";
+  }
+  var extra = (document.getElementById('groupe').value==='oui')
+    ? "<div class='res-line'><span>Périmètre du motif économique</span><span>Secteur d'activité du groupe — territoire national (L1233-3)</span></div><div class='res-line'><span>Périmètre du reclassement</span><span>Entités du groupe permettant la permutation du personnel</span></div>"
+    : "<div class='res-line'><span>Périmètre</span><span>Entreprise seule (hors groupe)</span></div>";
+  var moins1000 = "<div class='res-line'><span>Accompagnement</span><span>"+(eff<1000?'CSP (entreprise < 1000 salariés)':'Congé de reclassement (≥ 1000 salariés)')+"</span></div>";
+  v.className='verdict '+cls;
+  v.innerHTML='<b>'+titre+'</b>'+txt+extra+moins1000;
+}
+
+/* ===== Indemnité IDCC 1516 ===== */
+function calcIndem(){
+  var a=+document.getElementById('anc').value||0;
+  var s=+document.getElementById('sal').value||0;
+  var r=document.getElementById('resIndem');
+  if(a<0.6667){ // < 8 mois
+    r.className='verdict no';
+    r.innerHTML="<b>Pas de droit à indemnité conventionnelle</b>Ancienneté inférieure à 8 mois : pas d'indemnité de licenciement (sauf disposition plus favorable).";
+    return;
+  }
+  function montant(an){
+    var part1=Math.min(an,10)*0.25;
+    var part2=Math.max(an-10,0)*(1/3);
+    return (part1+part2)*s;
+  }
+  var cc=montant(a);
+  // indemnité légale : 1/4 jusqu'à 10 ans, 1/3 au-delà (même barème ici)
+  var legale=cc;
+  var retenu=Math.max(cc,legale);
+  r.className='verdict ok';
+  r.innerHTML='<b>Estimation : '+fmt(retenu)+' €</b>'
+    +"<div class='res-line'><span>Indemnité conventionnelle (IDCC 1516)</span><span>"+fmt(cc)+" €</span></div>"
+    +"<div class='res-line'><span>Mois de salaire équivalents</span><span>"+(s? (retenu/s).toFixed(2):'—')+" mois</span></div>"
+    +"<div class='res-line'><span>Base retenue</span><span>la plus favorable (CC vs légale)</span></div>"
+    +"<p style='font-size:12px;color:#cdbf9c;margin-top:10px'>Estimation indicative, hors indemnité de préavis, congés payés et éventuelles majorations CSP. À fiabiliser avec la paie.</p>";
+}
+function fmt(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+/* ===== Checklist ===== */
+var ITEMS={
+  "0 · Diagnostic":[
+    "Vérifier l'effectif (≥ 50 salariés)",
+    "Compter les licenciements envisagés (≥ 10 / 30 j)",
+    "Qualifier le motif économique (L1233-3)",
+    "Déterminer le périmètre groupe / secteur d'activité"
+  ],
+  "1-2 · Préparation":[
+    "Constituer le dossier économique (indicateurs)",
+    "Choisir la voie : accord majoritaire ou document unilatéral",
+    "Ouvrir, le cas échéant, la négociation avec les syndicats"
+  ],
+  "3 · Consultation CSE":[
+    "Notifier le projet à la DREETS (J0)",
+    "Convoquer et tenir la 1ʳᵉ réunion du CSE",
+    "Permettre la désignation de l'expert-comptable",
+    "Tenir la 2ᵉ réunion (≥ 15 j après) et recueillir l'avis"
+  ],
+  "4 · Contenu du PSE":[
+    "Définir les catégories professionnelles",
+    "Fixer les critères d'ordre des licenciements",
+    "Rédiger les mesures de reclassement interne",
+    "Prévoir le CSP et les mesures formation / VAE",
+    "Vérifier la proportionnalité aux moyens (entreprise + groupe)"
+  ],
+  "5 · DREETS":[
+    "Déposer la demande de validation / homologation",
+    "Suivre le délai (15 j / 21 j) et répondre aux injonctions",
+    "Recevoir et notifier la décision"
+  ],
+  "6 · Notification":[
+    "Notifier les licenciements par LRAR",
+    "Appliquer préavis CC / proposer le CSP",
+    "Rappeler la priorité de réembauche (1 an)",
+    "Informer la DREETS des licenciements prononcés"
+  ],
+  "7 · Sécurisation":[
+    "Archiver toutes les preuves de procédure",
+    "Cartographier les risques contentieux (admin / prud'hommes)",
+    "Préparer la défense (délais 2 mois / 12 mois)"
+  ]
+};
+function keyLS(){return 'pse_check_v1';}
+function loadState(){try{return JSON.parse(localStorage.getItem(keyLS()))||{}}catch(e){return {}}}
+function saveState(s){localStorage.setItem(keyLS(),JSON.stringify(s));}
+function renderCheck(){
+  var s=loadState(),host=document.getElementById('ckList'),html='',i=0,total=0,done=0;
+  for(var g in ITEMS){
+    html+='<div class="g">'+g+'</div>';
+    ITEMS[g].forEach(function(t){
+      var id='ck'+i;total++; var on=!!s[id]; if(on)done++;
+      html+='<label class="ck '+(on?'done':'')+'"><input type="checkbox" data-id="'+id+'" '+(on?'checked':'')+'><span>'+t+'</span></label>';
+      i++;
+    });
+  }
+  host.innerHTML=html;
+  host.querySelectorAll('input').forEach(function(c){
+    c.addEventListener('change',function(){
+      var st=loadState();st[this.dataset.id]=this.checked;saveState(st);renderCheck();
+    });
+  });
+  var pct=total?Math.round(done/total*100):0;
+  document.getElementById('pct').textContent=pct+' % ('+done+'/'+total+')';
+  document.getElementById('barre').style.width=pct+'%';
+}
+function resetCheck(){if(confirm('Réinitialiser toute la checklist ?')){localStorage.removeItem(keyLS());renderCheck();}}
+
+/* ===== Nav active ===== */
+function initNav(){
+  var links=[].slice.call(document.querySelectorAll('nav.somm a'));
+  var secs=links.map(function(l){return document.querySelector(l.getAttribute('href'));});
+  function onScroll(){
+    var y=window.scrollY+120,idx=0;
+    secs.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i;});
+    links.forEach(function(l,i){l.classList.toggle('actif',i===idx);});
+  }
+  window.addEventListener('scroll',onScroll);onScroll();
+}
+
+renderCheck();initNav();
+</script>
+</body>
+</html>
