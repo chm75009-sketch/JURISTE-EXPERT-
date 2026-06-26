@@ -1823,6 +1823,17 @@ Exemple :<br>
   </div>
 </div>
 
+<!-- BASE JURISPRUDENTIELLE -->
+<div class="card" id="pse-db">
+  <div class="bl">Base de données</div>
+  <div class="ct">⚖️ Jurisprudence favorable aux salariés (PSE)</div>
+  <div class="al warn" style="margin-bottom:10px">Sélection de décisions marquantes — les références (numéros, dates) doivent être vérifiées sur Légifrance avant tout usage professionnel. Base destinée à être enrichie.</div>
+  <input id="pse-db-q" type="text" placeholder="🔍 Rechercher (mot-clé, article, juridiction…)" oninput="pseJurisRender()">
+  <div id="pse-db-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px"></div>
+  <div id="pse-db-count" style="font-size:11px;color:#9a9585;margin:6px 0 10px"></div>
+  <div id="pse-db-list"></div>
+</div>
+
 <!-- ÉCHÉANCIER -->
 <div class="card">
   <div class="bl">Repère</div>
@@ -1913,6 +1924,59 @@ function pseRender(){
 }
 function pseResetCheck(){if(confirm('Réinitialiser la checklist PSE ?')){localStorage.removeItem(pseKey());pseRender();}}
 pseRender();
+
+/* ===== Base jurisprudentielle PSE (favorable aux salariés) ===== */
+var PSE_JURIS=[
+ {ref:"Cass. soc., 13 févr. 1997 — « La Samaritaine »", jur:"Cour de cassation", date:"1997", theme:"Nullité / réintégration",
+  regle:"Arrêt fondateur : l'absence ou l'insuffisance de plan de sauvegarde de l'emploi entraîne la nullité de la procédure de licenciement et des licenciements prononcés ; les salariés peuvent obtenir leur réintégration.", textes:"Art. L1235-10 / L1235-11", verif:true},
+ {ref:"CE, 22 juill. 2015, n° 385816 — « Heinz »", jur:"Conseil d'État", date:"2015", theme:"Consultation CSE",
+  regle:"Les représentants du personnel doivent disposer d'une information complète sur les raisons économiques, financières ou techniques du projet ; à défaut, la consultation est irrégulière et le PSE peut être annulé.", textes:"Art. L1233-30"},
+ {ref:"CE, 7 déc. 2015, n° 383856", jur:"Conseil d'État", date:"2015", theme:"Annulation / procédure",
+  regle:"Précise les conséquences de l'annulation d'une décision d'homologation et l'étendue de l'office du juge administratif au profit des salariés.", textes:"Art. L1235-7-1"},
+ {ref:"Cass. soc., 14 sept. 2017, n° 16-11.563", jur:"Cour de cassation", date:"2017", theme:"Indemnisation",
+  regle:"En cas d'annulation de la validation ou de l'homologation, le salarié dont le licenciement est privé de cause a droit à une indemnité au moins égale aux six derniers mois de salaire.", textes:"Art. L1235-11 / L1235-16"},
+ {ref:"CAA Versailles, 8 nov. 2018", jur:"Cour administrative d'appel", date:"2018", theme:"Nullité / réintégration",
+  regle:"Le défaut de caractère majoritaire de l'accord portant PSE le rend inexistant : les licenciements sont nuls et la réintégration des salariés qui la demandent est de droit.", textes:"Art. L1233-24-1", verif:true},
+ {ref:"CE, 4 oct. 2023, n° 460949", jur:"Conseil d'État", date:"2023", theme:"Contenu du PSE",
+  regle:"Le juge administratif doit contrôler en priorité le contenu et la suffisance des mesures du PSE, garantie essentielle pour les salariés.", textes:"Art. L1233-57-3", verif:true},
+ {ref:"CE, 27 juin 2025, n° 463870", jur:"Conseil d'État", date:"2025", theme:"Annulation / procédure",
+  regle:"Après annulation d'un PSE unilatéral, l'employeur n'est dispensé de reprendre intégralement la consultation que si les modifications du plan ne sont pas substantielles.", textes:"Art. L1233-57-3", verif:true},
+ {ref:"Cass. soc., 23 oct. 2024, n° 23-19.629", jur:"Cour de cassation", date:"2024", theme:"Reclassement",
+  regle:"Une offre de reclassement imprécise (mentions obligatoires manquantes) caractérise un manquement de l'employeur à son obligation de reclassement et prive le licenciement de cause réelle et sérieuse.", textes:"Art. L1233-4", verif:true}
+];
+var pseJurisTheme='Tous';
+function pseJurisChips(){
+  var themes=['Tous'];PSE_JURIS.forEach(function(d){if(themes.indexOf(d.theme)<0)themes.push(d.theme);});
+  var h='';themes.forEach(function(t){h+='<span onclick="pseJurisSetTheme(this.dataset.t)" data-t="'+t+'" class="tab'+(t===pseJurisTheme?' act':'')+'" style="cursor:pointer">'+t+'</span>';});
+  document.getElementById('pse-db-chips').innerHTML=h;
+}
+function pseJurisSetTheme(t){pseJurisTheme=t;pseJurisRender();}
+function pseJurisRender(){
+  pseJurisChips();
+  var q=(document.getElementById('pse-db-q').value||'').toLowerCase();
+  var host=document.getElementById('pse-db-list'),h='',n=0;
+  PSE_JURIS.forEach(function(d){
+    if(pseJurisTheme!=='Tous'&&d.theme!==pseJurisTheme)return;
+    var blob=(d.ref+' '+d.jur+' '+d.theme+' '+d.regle+' '+d.textes+' '+d.date).toLowerCase();
+    if(q&&blob.indexOf(q)<0)return;
+    n++;
+    var lien='https://www.google.com/search?q='+encodeURIComponent(d.ref+' Légifrance');
+    h+='<div class="juris-card">'
+      +'<div class="juris-ref">'+d.ref+'</div>'
+      +'<div style="margin:5px 0">'
+        +'<span class="badge badge-gold">'+d.jur+'</span> '
+        +'<span class="badge badge-green">✓ Favorable salariés</span> '
+        +'<span class="badge badge-blue">'+d.theme+'</span>'
+        +(d.verif?' <span class="badge badge-red">à vérifier</span>':'')
+      +'</div>'
+      +'<div style="font-size:13px;color:#e8e4d8;line-height:1.55">'+d.regle+'</div>'
+      +'<div class="juris-regle">📘 '+d.textes+' · <a href="'+lien+'" target="_blank" rel="noopener" style="color:#e8c97a">Vérifier sur Légifrance ↗</a></div>'
+      +'</div>';
+  });
+  host.innerHTML=h||'<div class="al info">Aucune décision ne correspond à votre recherche.</div>';
+  document.getElementById('pse-db-count').textContent=n+' décision(s) affichée(s) sur '+PSE_JURIS.length;
+}
+pseJurisRender();
 </script>
 
 </div><!-- fin pg-app -->
