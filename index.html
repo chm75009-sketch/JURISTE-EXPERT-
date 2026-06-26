@@ -1161,8 +1161,19 @@ try{
 <!-- ═══ MODULE VI — CSE ═══ -->
 <div id="pg-cse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
-<div style="flex:1"><div class="tt">Module VI — Élections CSE</div><div class="ts">Spécificités transport · Vote par correspondance</div></div>
+<div style="flex:1"><div class="tt">Module VI — Élections CSE</div><div class="ts">Procédure Code du travail · convention paramétrable</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+<div class="bl">Secteur / convention collective</div>
+<div class="fg"><label class="fl">Convention collective à mentionner dans le dossier électoral :</label>
+<select id="cse-secteur" onchange="cseSetSecteur()">
+  <option value="transport">Transport routier de marchandises — IDCC 0016</option>
+  <option value="banque">Banque — IDCC 2120</option>
+  <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
+</select></div>
+<div class="al info" style="font-size:12px"><b>À noter :</b> la procédure d'élection du CSE relève du <b>Code du travail</b> (seuils, collèges, PAP, délais) — identique quel que soit le secteur. La convention choisie sert de référence dans les documents générés.<br>Convention retenue : <b id="cse-cc-label">—</b></div>
+</div>
 
 <div class="card">
 <div class="ct">Mode de saisie</div>
@@ -2030,6 +2041,11 @@ function pseSetSecteur(){
     +'<div class="bl" style="margin-top:14px">⚖️ Jurisprudence du secteur ('+jur.length+')</div>'+jh;
 }
 pseSetSecteur();
+
+var cseSecteur='transport';
+function cseConvNom(){var s=SECTEURS_PSE[cseSecteur];return s?(s.nom+' (IDCC '+s.idcc+')'):'la convention collective applicable';}
+function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value;var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
+cseSetSecteur();
 </script>
 
 </div><!-- fin pg-app -->
@@ -3684,7 +3700,7 @@ Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebo
 <li><strong>Information préalable :</strong> obligatoire dès l'atteinte du seuil de 11 salariés pendant 12 mois consécutifs (art. L.2311-2 C. trav.).</li>
 <li><strong>Invitation des syndicats :</strong> obligation d'inviter les organisations syndicales représentatives au niveau national, même en l'absence de syndicat dans l'entreprise (art. L.2314-5 C. trav.).</li>
 <li><strong>Délai d'affichage des listes :</strong> 4 jours francs minimum avant le scrutin (Cass. soc. 3 nov. 1993).</li>
-<li><strong>Convention collective :</strong> la Convention collective nationale des transports routiers et activités auxiliaires du transport (IDCC 16) ne prévoit pas de délais spécifiques pour les élections CSE ; les règles générales du Code du travail s'appliquent.</li>
+<li><strong>Convention collective :</strong> la ${cseConvNom()} ne prévoit pas de délais spécifiques pour les élections CSE ; les règles générales du Code du travail s'appliquent.</li>
 <li><strong>2ᵉ tour :</strong> obligatoire en cas de carence (pas de candidat OS) ou de quorum non atteint au 1er tour.</li>
 <li><strong>Archivage :</strong> les procès-verbaux et le matériel électoral doivent être conservés pendant toute la durée du mandat.</li>
 </ul>
