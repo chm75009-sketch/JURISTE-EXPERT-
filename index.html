@@ -1773,7 +1773,7 @@ Exemple :<br>
   </div>
   <div class="pse-tri">
     <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">Art. L1233-3 · L1233-2</div><p>Définition du motif et <b>cause réelle et sérieuse</b> ; périmètre = secteur d'activité du groupe sur le territoire national.</p></div>
-    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">CC <span class="pse-idcc">IDCC 0016</span></div><p>Pas de dérogation aux motifs ; valoriser l'accompagnement formation/VAE (cœur de métier).</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">CC <span class="pse-idcc">IDCC 0016</span></div><p>Pas de dérogation aux motifs (ordre public) ; la convention encadre l'accompagnement et le reclassement.</p></div>
     <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">Compétitivité</div><p class="cite">La réorganisation doit répondre à une <b>menace</b> sur la compétitivité (jurispr. « Pages Jaunes »).<span class="pse-verif">Réf. à confirmer.</span></p></div>
   </div>
 </div>
@@ -1822,7 +1822,7 @@ Exemple :<br>
     <div class="step"><div class="step-num">•</div><div class="step-txt">Mesures : <b>formation, VAE</b>, aide à la création d'entreprise, cellule de reclassement.</div></div>
     <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Catégories professionnelles</b> &amp; <b>critères d'ordre</b> ; priorité de réembauche (1 an).</div></div>
   </div>
-  <div class="al info" style="margin-top:4px">🎓 Spécificité organisme de formation : renforcer le volet <b>formation / VAE / reconversion</b> (apprécié de la DREETS).</div>
+  <div class="al info" style="margin-top:4px">💡 Adapter les mesures d'accompagnement (formation, reconversion, mobilité interne) aux <b>moyens de l'entreprise et du groupe</b> — apprécié de la DREETS.</div>
   <div class="pse-tri">
     <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">L1233-61/62 · L1233-4/5</div><p>Contenu du PSE ; obligation de reclassement ; critères d'ordre.</p></div>
     <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">CC <span class="pse-idcc">IDCC 0016</span></div><p>Mesures conventionnelles d'accompagnement à articuler avec le PSE.</p></div>
@@ -1960,7 +1960,7 @@ var PSE_ITEMS={
  "0 · Diagnostic":["Vérifier l'effectif (≥ 50)","Compter les licenciements (≥ 10 / 30 j)","Qualifier le motif économique","Déterminer le périmètre groupe"],
  "1-2 · Préparation":["Constituer le dossier économique","Choisir la voie (accord / unilatéral)","Ouvrir la négociation syndicale"],
  "3 · CSE":["Notifier le projet à la DREETS (J0)","Tenir la 1ʳᵉ réunion CSE","Permettre la désignation de l'expert","Tenir la 2ᵉ réunion et recueillir l'avis"],
- "4 · Contenu":["Définir les catégories professionnelles","Fixer les critères d'ordre","Rédiger le reclassement interne","Prévoir CSP + formation/VAE","Vérifier la proportionnalité aux moyens"],
+ "4 · Contenu":["Définir les catégories professionnelles","Fixer les critères d'ordre","Rédiger le reclassement interne","Prévoir CSP + mesures de formation/reconversion","Vérifier la proportionnalité aux moyens"],
  "5 · DREETS":["Déposer la demande","Suivre le délai (15/21 j)","Notifier la décision"],
  "6 · Notification":["Notifier par LRAR","Préavis CC / proposer le CSP","Rappeler la priorité de réembauche","Informer la DREETS"],
  "7 · Sécurisation":["Archiver les preuves de procédure","Cartographier les risques contentieux","Préparer la défense (2 mois / 12 mois)"]
@@ -2079,9 +2079,7 @@ function modRender(mod,id){
 function modSecteur(mod){var el=document.getElementById('sec-'+mod);var id=el?el.value:'transport';secSet('secteur_'+mod,id);modRender(mod,id);}
 function modInit(mod){var id=secGet('secteur_'+mod)||appGetSecteur();var el=document.getElementById('sec-'+mod);if(el)el.value=id;modRender(mod,id);}
 function updateHeroTop(){
-  var s=SECTEURS_PSE[appGetSecteur()];
-  var h=document.getElementById('hero-secteur'); if(h&&s)h.textContent=s.label+' — CCN IDCC '+s.idcc;
-  var t=document.getElementById('top-nom'); if(t)t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+'CCN IDCC '+(s?s.idcc:'0016');
+  var t=document.getElementById('top-nom'); if(t)t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+'CCN IDCC 0016';
 }
 function appSetSecteur(id){
   secSet('app_secteur',id);
