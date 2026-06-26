@@ -450,7 +450,7 @@ try{
 <div class="home-hero">
   <div class="eyebrow">Cabinet juridique augmenté</div>
   <h2>Que voulez-vous faire&nbsp;?</h2>
-  <p>Transport routier de marchandises — CCN IDCC 0016. Procédures guidées, documents prêts à signer et jurisprudence à l'appui.</p>
+  <p><span id="hero-secteur">Transport routier de marchandises — CCN IDCC 0016</span>. Procédures guidées, documents prêts à signer et jurisprudence à l'appui.</p>
 </div>
 <div class="home-wrap">
 
@@ -2125,18 +2125,25 @@ function modRender(mod,id){
 }
 function modSecteur(mod){var el=document.getElementById('sec-'+mod);var id=el?el.value:'transport';secSet('secteur_'+mod,id);modRender(mod,id);}
 function modInit(mod){var id=secGet('secteur_'+mod)||appGetSecteur();var el=document.getElementById('sec-'+mod);if(el)el.value=id;modRender(mod,id);}
+function updateHeroTop(){
+  var s=SECTEURS_PSE[appGetSecteur()];
+  var h=document.getElementById('hero-secteur'); if(h&&s)h.textContent=s.label+' — CCN IDCC '+s.idcc;
+  var t=document.getElementById('top-nom'); if(t)t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+'CCN IDCC '+(s?s.idcc:'0016');
+}
 function appSetSecteur(id){
   secSet('app_secteur',id);
   var hs=document.getElementById('home-secteur');if(hs)hs.value=id;
   var pe=document.getElementById('pse-secteur');if(pe)pe.value=id; secSet('secteur_pse',id); if(typeof pseSetSecteur==='function')pseSetSecteur();
   var ce=document.getElementById('cse-secteur');if(ce)ce.value=id; secSet('secteur_cse',id); if(typeof cseSetSecteur==='function')cseSetSecteur();
   MODS_SECTEUR.forEach(function(m){var el=document.getElementById('sec-'+m);if(el)el.value=id;secSet('secteur_'+m,id);modRender(m,id);});
+  updateHeroTop();
 }
 (function(){
   var hs=document.getElementById('home-secteur');if(hs)hs.value=appGetSecteur();
   var pv=secGet('secteur_pse')||appGetSecteur();var pe=document.getElementById('pse-secteur');if(pe)pe.value=pv;if(typeof pseSetSecteur==='function')pseSetSecteur();
   var cv=secGet('secteur_cse')||appGetSecteur();var ce=document.getElementById('cse-secteur');if(ce)ce.value=cv;if(typeof cseSetSecteur==='function')cseSetSecteur();
   MODS_SECTEUR.forEach(modInit);
+  updateHeroTop();
 })();
 </script>
 
@@ -2248,7 +2255,7 @@ function validerInscription(){
   E.effectif=gv('ins-effectif')||'moins11';
   E.org=gv('ins-org')||'fntr';
   try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){}
-  document.getElementById('top-nom').textContent=E.nom+' · CCN IDCC 0016';
+  updateHeroTop();
   document.getElementById('pg-inscription').style.display='none';
   document.getElementById('pg-app').style.display='block';
   chargerConducteurs();
@@ -2262,7 +2269,7 @@ function initApp(){
     const s=typeof localStorage!=='undefined'?localStorage.getItem('juris_transport'):null;
     if(s){
       E=JSON.parse(s);
-      document.getElementById('top-nom').textContent=E.nom+' · CCN IDCC 0016';
+      updateHeroTop();
       document.getElementById('pg-inscription').style.display='none';
       document.getElementById('pg-app').style.display='block';
       chargerParametres();
@@ -6565,7 +6572,7 @@ function sauvegarderParametres(){
   });
   E.qualite=gv('p-qualite')||E.qualite;
   try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){}
-  document.getElementById('top-nom').textContent=E.nom+' · CCN IDCC 0016';
+  updateHeroTop();
   show('p-saved');
   setTimeout(()=>hide('p-saved'),2500);
 }
