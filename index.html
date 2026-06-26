@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Juris-Transport Expert</title>
-<!-- Build v12 — 2026-06-08 — apercu document force en noir sur blanc (fix theme dore) -->
-<meta name="app-version" content="v12">
-<meta name="app-build" content="2026-06-08">
+<!-- Build v13 — 2026-06-26 — refonte visuelle (accueil, identite, navigation) + Module XI PSE -->
+<meta name="app-version" content="v13">
+<meta name="app-build" content="2026-06-26">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#0f1f2e;color:#e8e4d8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;padding-bottom:80px;min-height:100vh}
@@ -164,6 +164,162 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 .dot-orange{background:#d4a017}
 .dot-green{background:#4caf7d}
 </style>
+
+<!-- ═══════════ REFONTE VISUELLE v13 (additive, surcharge le thème ci-dessus) ═══════════ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --nuit:#0c1a28; --nuit2:#0f2233; --ardoise:#152c40; --ardoise2:#1a3450;
+  --or:#d4af55; --or-clair:#eccf86; --or-fonce:#b8902e;
+  --texte:#eef1f5; --texte2:#aeb9c6; --texte3:#7f8da0;
+  --ligne:rgba(255,255,255,.09); --ligne2:rgba(255,255,255,.06);
+  --bleu:#5b9bd5; --vert:#46b885; --rouge:#e76a6a; --ambre:#e0a83a;
+  --ombre:0 10px 30px rgba(0,0,0,.28); --ombre-s:0 4px 14px rgba(0,0,0,.22);
+  --r:16px;
+}
+body{
+  background:
+    radial-gradient(900px 500px at 80% -120px,rgba(212,175,85,.10),transparent 60%),
+    radial-gradient(700px 500px at -10% 10%,rgba(91,155,213,.08),transparent 55%),
+    linear-gradient(180deg,#0b1722,#0d1d2b 45%,#0b1620);
+  background-attachment:fixed;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  color:var(--texte); letter-spacing:.1px;
+}
+/* ----- titres élégants ----- */
+.ct,.tt{font-family:'Fraunces','Georgia',serif!important;letter-spacing:.2px}
+.ct{font-size:18px!important;color:var(--or-clair)!important}
+/* ----- cartes ----- */
+.card{
+  background:linear-gradient(170deg,rgba(255,255,255,.045),rgba(255,255,255,.015))!important;
+  border:1px solid var(--ligne)!important; border-radius:var(--r)!important;
+  padding:18px!important; margin:0 14px 14px!important; box-shadow:var(--ombre-s)!important;
+}
+.bloc{background:rgba(255,255,255,.035)!important;border:1px solid var(--ligne2)!important;border-radius:12px!important;padding:14px!important}
+/* ----- topbar (pages modules) ----- */
+.topbar{
+  background:linear-gradient(180deg,rgba(18,38,55,.96),rgba(15,32,47,.92))!important;
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--ligne)!important;
+  box-shadow:0 1px 0 rgba(212,175,85,.18);
+  padding:14px 16px!important;
+}
+.tt{font-size:16px!important;color:var(--texte)!important;font-weight:600}
+.ts{color:var(--texte3)!important}
+/* ----- boutons ----- */
+.btn{
+  background:linear-gradient(160deg,var(--or-clair),var(--or-fonce))!important;
+  color:#1c1607!important; border-radius:12px!important; font-weight:800!important;
+  letter-spacing:.3px; box-shadow:0 6px 18px rgba(212,175,85,.28)!important;
+  transition:transform .12s,filter .12s;
+}
+.btn:active{transform:translateY(1px);filter:brightness(1.05)}
+.btn-sm,.btn-outline{border-radius:10px!important}
+.btn-outline{transition:border-color .15s,background .15s}
+.btn-outline:hover{border-color:var(--or)!important;background:rgba(212,175,85,.08)!important}
+/* ----- badges ----- */
+.badge{border-radius:999px!important;letter-spacing:.4px}
+/* ----- inputs ----- */
+input,select,textarea{border-radius:11px!important;border-width:1.5px!important;background:rgba(8,18,28,.6)!important}
+input:focus,select:focus,textarea:focus{border-color:var(--or)!important;outline:3px solid rgba(212,175,85,.22)!important;background:#12283b!important}
+/* ----- tables ----- */
+table{border-radius:10px;overflow:hidden}
+th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!important;color:var(--or-clair)!important;letter-spacing:.3px}
+/* ----- menu latéral ----- */
+#menu-panel{background:linear-gradient(180deg,#102132,#0c1a28)!important;box-shadow:-18px 0 50px rgba(0,0,0,.45)!important;width:300px!important}
+.mi{transition:background .15s,transform .12s;border:1px solid transparent}
+.mi:hover{background:rgba(212,175,85,.10)!important;border-color:var(--ligne)}
+/* ----- bottom nav ----- */
+.botnav{
+  background:linear-gradient(180deg,rgba(18,38,55,.98),rgba(13,28,40,.98))!important;
+  border-top:1px solid var(--ligne)!important; box-shadow:0 -8px 24px rgba(0,0,0,.3)!important;
+}
+.bn.act{color:var(--or-clair)!important}
+.bn.act .bn-ic{filter:drop-shadow(0 0 8px rgba(212,175,85,.45))}
+.juris-card{border-radius:12px!important}
+
+/* ═══════════ ACCUEIL MODERNE ═══════════ */
+#pg-home{background:linear-gradient(180deg,#0b1722,#0d1d2b 60%,#0b1620)!important}
+.home-top{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(180deg,rgba(15,32,47,.95),rgba(13,28,40,.85));
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--ligne);
+  display:flex;align-items:center;justify-content:space-between;padding:13px 18px;
+}
+.home-brand{display:flex;align-items:center;gap:12px}
+.home-sceau{
+  width:42px;height:42px;border-radius:12px;flex:0 0 auto;
+  background:linear-gradient(150deg,var(--or-clair),var(--or-fonce));
+  display:flex;align-items:center;justify-content:center;color:#1c1607;font-weight:800;font-size:18px;
+  box-shadow:0 6px 18px rgba(212,175,85,.35);font-family:'Fraunces',serif;
+}
+.home-brand h1{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--texte);margin:0;line-height:1.1}
+.home-brand small{font-size:11px;color:var(--texte3);letter-spacing:.5px}
+.home-burger{background:rgba(255,255,255,.06);border:1px solid var(--ligne);border-radius:10px;padding:9px 12px;color:var(--texte);font-size:16px;cursor:pointer}
+.home-hero{padding:30px 20px 8px;text-align:center}
+.home-hero .eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);font-weight:800}
+.home-hero h2{font-family:'Fraunces',serif;font-size:27px;font-weight:600;color:#fff;margin:8px 0 6px;line-height:1.2}
+.home-hero p{color:var(--texte2);font-size:13.5px;max-width:520px;margin:0 auto}
+.home-wrap{max-width:760px;margin:0 auto;padding:8px 16px 28px}
+.home-sec{font-size:11px;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1.6px;margin:22px 6px 12px;display:flex;align-items:center;gap:9px}
+.home-sec::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--ligne),transparent)}
+.home-grid{display:grid;gap:12px}
+@media(min-width:600px){.home-grid{grid-template-columns:1fr 1fr}}
+.hcard{
+  position:relative;display:flex;align-items:center;gap:15px;cursor:pointer;
+  background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid var(--ligne);border-radius:var(--r);padding:16px 16px;
+  box-shadow:var(--ombre-s);transition:transform .14s,border-color .14s,box-shadow .14s;
+  overflow:hidden;
+}
+.hcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent,var(--or));opacity:.9}
+.hcard:hover{transform:translateY(-2px);border-color:rgba(212,175,85,.4);box-shadow:var(--ombre)}
+.hcard:active{transform:translateY(0)}
+.hcard-ic{
+  width:50px;height:50px;border-radius:13px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:25px;
+  background:color-mix(in srgb,var(--accent,var(--or)) 18%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent,var(--or)) 35%,transparent);
+}
+.hcard-body{flex:1;min-width:0}
+.hcard-body .t{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.hcard-body .d{font-size:12px;color:var(--texte2);line-height:1.5}
+.hcard-body .m{font-size:10.5px;font-weight:800;letter-spacing:.4px;color:var(--accent,var(--or));margin-top:6px;text-transform:uppercase}
+.hcard .chev{color:var(--texte3);font-size:20px;flex:0 0 auto}
+.hcard.neuf .hcard-body .t::after{content:"NOUVEAU";font-family:'Inter';font-size:9px;font-weight:800;letter-spacing:.6px;color:#1c1607;background:var(--or-clair);padding:2px 7px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.home-disclaimer{margin:22px 6px 0;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--ligne2);border-left:3px solid var(--or);border-radius:12px;font-size:11.5px;color:var(--texte3);line-height:1.65}
+.home-disclaimer b{color:var(--or-clair)}
+
+/* ═══════════ Composants PSE dédiés (page intégrée) ═══════════ */
+.pse-tri{display:grid;gap:10px;margin-top:12px}
+@media(min-width:560px){.pse-tri{grid-template-columns:1fr 1fr 1fr}}
+.pse-ref{border-radius:12px;padding:13px 14px;background:rgba(255,255,255,.03);border:1px solid var(--ligne2)}
+.pse-ref .lab{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;margin-bottom:7px}
+.pse-ref.loi{border-left:3px solid var(--bleu)} .pse-ref.loi .lab{color:#8fc0f0}
+.pse-ref.cc{border-left:3px solid var(--vert)} .pse-ref.cc .lab{color:#74d6a6}
+.pse-ref.jur{border-left:3px solid var(--or)} .pse-ref.jur .lab{color:var(--or-clair)}
+.pse-ref .art{font-weight:700;color:#fff;font-size:12.5px;margin:5px 0}
+.pse-ref p{font-size:12px;color:var(--texte2);margin:4px 0;line-height:1.5}
+.pse-ref .cite{font-style:italic;border-left:2px solid var(--ligne);padding-left:9px;color:#b9c2cd;font-size:11.5px}
+.pse-verif{font-size:10.5px;color:var(--ambre);margin-top:6px;display:block}
+.pse-tl{position:relative;padding-left:26px;margin-top:6px}
+.pse-tl::before{content:"";position:absolute;left:8px;top:4px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--or),transparent)}
+.pse-ev{position:relative;padding:0 0 16px}
+.pse-ev::before{content:"";position:absolute;left:-22px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--or);box-shadow:0 0 0 4px rgba(212,175,85,.16)}
+.pse-ev .j{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--or-clair);text-transform:uppercase}
+.pse-ev .x{font-weight:700;color:#fff;font-size:13.5px;margin:1px 0}
+.pse-ev .y{font-size:12.5px;color:var(--texte2)}
+.pse-pct{height:9px;background:rgba(8,18,28,.7);border-radius:6px;overflow:hidden;margin-top:8px;border:1px solid var(--ligne2)}
+.pse-pct i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--or-fonce),var(--or-clair));transition:width .35s}
+.pse-verdict{margin-top:12px;border-radius:12px;padding:14px 15px;border:1px solid;font-size:13.5px}
+.pse-verdict.ok{background:rgba(70,184,133,.10);border-color:rgba(70,184,133,.4);color:#bfe9cd}
+.pse-verdict.no{background:rgba(231,106,106,.10);border-color:rgba(231,106,106,.4);color:#f0caca}
+.pse-verdict.warn{background:rgba(224,168,58,.10);border-color:rgba(224,168,58,.4);color:#ecdcb6}
+.pse-verdict b{display:block;font-size:15px;margin-bottom:4px}
+.pse-line{display:flex;justify-content:space-between;gap:10px;border-top:1px dashed var(--ligne);padding:6px 0;font-size:12.5px}
+.pse-line span:last-child{font-weight:700;color:#fff;text-align:right}
+</style>
 </head>
 <body>
 
@@ -277,120 +433,106 @@ try{
 <div id="pg-app">
 
 <!-- TOPBAR GLOBAL -->
-<div style="background:#162639;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">
-  <div>
-    <div style="font-family:Georgia,serif;font-size:17px;color:#e8c97a">Juris-Transport Expert</div>
-    <div id="top-nom" style="font-size:11px;color:#6b6660;margin-top:1px">CCN IDCC 0016</div>
+<div class="home-top">
+  <div class="home-brand">
+    <div class="home-sceau">JT</div>
+    <div>
+      <h1>Juris-Transport Expert</h1>
+      <small id="top-nom">CCN IDCC 0016</small>
+    </div>
   </div>
-  <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px">☰</button>
+  <button class="home-burger" onclick="openMenu()">☰</button>
 </div>
 
 
 <!-- ═══ PAGE ACCUEIL ═══ -->
-<div id="pg-home" class="page act" style="background:#f5f5f0;min-height:100vh;padding:0 0 24px">
-<div style="text-align:center;padding:24px 20px 16px">
-  <div style="font-size:21px;font-weight:700;color:#1a1a1a;margin-bottom:6px">Que voulez-vous faire ?</div>
-  <div style="font-size:13px;color:#888">Transport routier de marchandises — CCN IDCC 0016</div>
+<div id="pg-home" class="page act">
+<div class="home-hero">
+  <div class="eyebrow">Cabinet juridique augmenté</div>
+  <h2>Que voulez-vous faire&nbsp;?</h2>
+  <p>Transport routier de marchandises — CCN IDCC 0016. Procédures guidées, documents prêts à signer et jurisprudence à l'appui.</p>
 </div>
-<div style="padding:0 16px">
+<div class="home-wrap">
 
-<div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Contrats & RH</div>
+  <div class="home-sec">Contrats &amp; RH</div>
+  <div class="home-grid">
+    <div class="hcard" style="--accent:#d4af55" onclick="goPage('contrat')">
+      <div class="hcard-ic">📋</div>
+      <div class="hcard-body"><div class="t">Embauche &amp; contrats</div><div class="d">CDI · CDD · DPAE · Fiche de poste · Checklist</div><div class="m">Module I</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#e76a6a" onclick="goPage('disciplinaire')">
+      <div class="hcard-ic">⚖️</div>
+      <div class="hcard-body"><div class="t">Discipline &amp; licenciement</div><div class="d">Permis · Alcool · Inaptitude · Indemnités</div><div class="m">Module V</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard neuf" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('pse')">
+      <div class="hcard-ic">🛟</div>
+      <div class="hcard-body"><div class="t">Plan de Sauvegarde de l'Emploi</div><div class="d">Licenciement économique collectif (≥ 50 salariés) — procédure pas-à-pas, DREETS, loi · convention · jurisprudence</div><div class="m">Module XI · PSE</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
 
-<div onclick="goPage('contrat')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">📋</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Embauche et contrats conducteur</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">CDI · CDD · DPAE · Fiche de poste · Checklist embauche</div>
-  <div style="font-size:11px;font-weight:700;color:#c9a84c">Module I · Embauche</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
+  <div class="home-sec">Réglementation</div>
+  <div class="home-grid">
+    <div class="hcard" style="--accent:#5b9bd5" onclick="goPage('temps')">
+      <div class="hcard-ic">⏱️</div>
+      <div class="hcard-body"><div class="t">Temps de travail</div><div class="d">Décret 83-40 · CE 561/2006 · Calculatrice</div><div class="m">Module II</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#46b885" onclick="goPage('remuneration')">
+      <div class="hcard-ic">💶</div>
+      <div class="hcard-body"><div class="t">Rémunération</div><div class="d">Salaires · GAR · Prime ancienneté · Frais</div><div class="m">Module III</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="goPage('ri')">
+      <div class="hcard-ic">📜</div>
+      <div class="hcard-body"><div class="t">Règlement intérieur transport</div><div class="d">Alcool · Tachygraphe · Géolocalisation · Discipline</div><div class="m">Module IV</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
 
-<div onclick="goPage('disciplinaire')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">⚖️</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Procédures disciplinaires et licenciement</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Permis · Alcool · Tachygraphe · Inaptitude · Calcul indemnités</div>
-  <div style="font-size:11px;font-weight:700;color:#e05c5c">Module V · Discipline</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
+  <div class="home-sec">Conformité &amp; suivi</div>
+  <div class="home-grid">
+    <div class="hcard" style="--accent:#46b885" onclick="goPage('absences')">
+      <div class="hcard-ic">🏥</div>
+      <div class="hcard-body"><div class="t">Absences &amp; congés</div><div class="d">Maladie · AT/MP · Maintien salaire · Reprise</div><div class="m">Module VII</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#e76a6a" onclick="goPage('tableau-bord')">
+      <div class="hcard-ic">📊</div>
+      <div class="hcard-body"><div class="t">Tableau de bord</div><div class="d">Permis · CQC · FCO · Visite médicale · ADR</div><div class="m">Module VIII</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('cse')">
+      <div class="hcard-ic">🗳️</div>
+      <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">PAP · Listes électorales · PV · Vote par correspondance</div><div class="m">Module VI</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
 
-<div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.12em;margin:16px 0 10px">Réglementation</div>
+  <div class="home-sec">Ressources</div>
+  <div class="home-grid">
+    <div class="hcard" style="--accent:#5b9bd5" onclick="goPage('jurisprudence')">
+      <div class="hcard-ic">📚</div>
+      <div class="hcard-body"><div class="t">Jurisprudence</div><div class="d">Arrêts par thème · Règle de droit · Textes</div><div class="m">Module IX</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#e0a83a" onclick="goPage('veille')">
+      <div class="hcard-ic">📡</div>
+      <div class="hcard-body"><div class="t">Veille réglementaire</div><div class="d">Réformes · Textes en vigueur · Vos notes</div><div class="m">Module X</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#7f8da0;grid-column:1/-1" onclick="goPage('parametrage')">
+      <div class="hcard-ic">⚙️</div>
+      <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · Licences · Gestionnaire transport</div><div class="m">Configuration</div></div>
+      <div class="chev">›</div>
+    </div>
+  </div>
 
-<div onclick="goPage('temps')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">⏱️</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Durée du travail — Temps de conduite</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Décret 83-40 · CE 561/2006 · Calculatrice · Fiche hebdo</div>
-  <div style="font-size:11px;font-weight:700;color:#5b9bd5">Module II · Temps de travail</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('remuneration')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">💶</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Rémunération et indemnités</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Salaires · GAR · Prime ancienneté · Indemnités déplacement</div>
-  <div style="font-size:11px;font-weight:700;color:#4caf7d">Module III · Rémunération</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('ri')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">📜</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Règlement intérieur transport</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Alcool · Tachygraphe · Géolocalisation · Discipline transport</div>
-  <div style="font-size:11px;font-weight:700;color:#888">Module IV · Règlement intérieur</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.12em;margin:16px 0 10px">Conformité & Suivi</div>
-
-<div onclick="goPage('absences')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">🏥</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Gestion des absences et congés</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Maladie · AT/MP · Maintien salaire CCN · Visites reprise</div>
-  <div style="font-size:11px;font-weight:700;color:#888">Module VII · Absences</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('tableau-bord')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">📊</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Tableau de bord — Alertes conducteurs</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Validité permis · CQC · FCO · Visite médicale · ADR</div>
-  <div style="font-size:11px;font-weight:700;color:#e05c5c">Module VIII · Tableau de bord</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('cse')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">🗳️</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Élections CSE</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">PAP · Listes électorales · PV · Vote par correspondance</div>
-  <div style="font-size:11px;font-weight:700;color:#888">Module VI · CSE</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('jurisprudence')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">📚</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Base jurisprudentielle transport</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Arrêts classés par thème · Règle de droit · Textes visés</div>
-  <div style="font-size:11px;font-weight:700;color:#5b9bd5">Module IX · Jurisprudence</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('veille')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">📡</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Veille réglementaire</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Réformes récentes · Textes en vigueur · Sources officielles · Vos notes</div>
-  <div style="font-size:11px;font-weight:700;color:#d4a017">Module X · Veille</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div onclick="goPage('parametrage')" style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px">
-  <div style="font-size:32px;flex-shrink:0">⚙️</div>
-  <div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px">Paramétrage entreprise</div>
-  <div style="font-size:12px;color:#888;margin-bottom:6px">Coordonnées · Licences · Gestionnaire transport</div>
-  <div style="font-size:11px;font-weight:700;color:#888">Paramétrage</div></div>
-  <div style="color:#ccc;font-size:20px">›</div>
-</div>
-
-<div style="margin-top:16px;padding:12px 14px;background:#fff;border-left:3px solid #c9a84c;border-radius:8px;font-size:11px;color:#888;line-height:1.6">
-  <strong style="color:#c9a84c">⚠ Outil d'information juridique et de génération de documents</strong> — Ne constitue pas un conseil juridique personnalisé (loi n°71-1130 du 31/12/1971). Pour toute situation individuelle, consultez un avocat spécialisé.
-</div>
+  <div class="home-disclaimer">
+    <b>⚠ Outil d'information juridique et de génération de documents.</b> Ne constitue pas un conseil juridique personnalisé (loi n°71-1130 du 31/12/1971). Pour toute situation individuelle, consultez un avocat spécialisé.
+  </div>
 </div>
 </div>
 
@@ -1505,6 +1647,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">III — Rémunération</div></div></div>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">IV — Règlement intérieur</div></div></div>
   <div class="mi" onclick="goPage('disciplinaire');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">V — Discipline / Licenciement</div></div></div>
+  <div class="mi" onclick="goPage('pse');closeMenu()"><span style="font-size:18px">🛟</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XI — PSE / Licenciement éco.</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VI — Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VII — Absences et congés</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VIII — Tableau de bord</div></div></div>
@@ -1529,6 +1672,248 @@ Exemple :<br>
   <button class="bn" id="bn-disciplinaire" onclick="goPage('disciplinaire')"><span class="bn-ic">⚖️</span>V</button>
   <button class="bn" id="bn-tableau-bord" onclick="goPage('tableau-bord')"><span class="bn-ic">📊</span>VIII</button>
 </nav>
+
+<!-- ═══ MODULE XI — PLAN DE SAUVEGARDE DE L'EMPLOI (PSE) ═══ -->
+<div id="pg-pse" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XI — Plan de Sauvegarde de l'Emploi</div><div class="ts">Licenciement économique collectif · entreprise ≥ 50 salariés</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+  <div class="ct">⚖️ Procédure guidée — du diagnostic au contentieux</div>
+  <div class="al warn" style="margin-bottom:0">Synthèse documentaire — ne constitue pas un conseil juridique. Références à vérifier sur <a href="https://www.legifrance.gouv.fr" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance</a>. Base de connaissances arrêtée à janvier 2026. Convention collective retenue par défaut : <b>organismes de formation (IDCC 1516)</b>.</div>
+</div>
+
+<!-- DIAGNOSTIC -->
+<div class="card">
+  <div class="bl">Étape 0 · Audit préalable</div>
+  <div class="ct" style="font-size:16px">Un PSE est-il obligatoire&nbsp;?</div>
+  <div class="fg"><label class="fl">Effectif de l'entreprise (ETP)</label><input id="pse-eff" type="number" value="50" min="0"></div>
+  <div class="fg"><label class="fl">Nombre de licenciements envisagés</label><input id="pse-nb" type="number" value="10" min="0"></div>
+  <div class="fg"><label class="fl">Sur une même période de…</label><select id="pse-per"><option value="30">30 jours</option><option value="90">3 mois</option></select></div>
+  <div class="fg"><label class="fl">Appartenance à un groupe&nbsp;?</label><select id="pse-grp"><option value="oui">Oui (ex. Groupe IGS)</option><option value="non">Non</option></select></div>
+  <button class="btn" onclick="pseDiag()">Analyser la situation</button>
+  <div id="pse-verdict"></div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">C. trav., art. L1233-61</div><p>Entreprise d'<b>au moins 50 salariés</b> + <b>≥ 10 licenciements</b> sur <b>30 jours</b> → PSE obligatoire.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>La CC ne modifie pas les seuils (ordre public) ; elle encadre préavis et indemnités.<span class="pse-verif">À confirmer selon l'entité IGS.</span></p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">Périmètre du motif</div><p>Depuis l'ord. 2017 : secteur d'activité du groupe, <b>territoire national</b> (L1233-3, aff. Galderma).<span class="pse-verif">N° à vérifier.</span></p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 1 -->
+<div class="card">
+  <div class="bl">Étape 1</div>
+  <div class="ct">Caractériser le motif économique</div>
+  <div class="bloc">
+    <div class="step"><div class="step-num">1</div><div class="step-txt"><b>Difficultés économiques</b> — baisse des commandes/CA, pertes, dégradation trésorerie/EBE.</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-txt"><b>Mutations technologiques</b>.</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-txt"><b>Sauvegarde de la compétitivité</b> du secteur d'activité (menace réelle, pas simple rentabilité).</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-txt"><b>Cessation d'activité</b> de l'entreprise.</div></div>
+  </div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">Art. L1233-3 · L1233-2</div><p>Définition du motif et <b>cause réelle et sérieuse</b> ; périmètre = secteur d'activité du groupe sur le territoire national.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>Pas de dérogation aux motifs ; valoriser l'accompagnement formation/VAE (cœur de métier).</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">Compétitivité</div><p class="cite">La réorganisation doit répondre à une <b>menace</b> sur la compétitivité (jurispr. « Pages Jaunes »).<span class="pse-verif">Réf. à confirmer.</span></p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 2 -->
+<div class="card">
+  <div class="bl">Étape 2</div>
+  <div class="ct">Choisir la voie d'élaboration</div>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Accord majoritaire</th><th>Document unilatéral</th></tr>
+    <tr><td>Contrôle DREETS</td><td><b>Validation</b></td><td><b>Homologation</b></td></tr>
+    <tr><td>Délai</td><td>15 jours</td><td>21 jours</td></tr>
+    <tr><td>Contrôle</td><td>Plus restreint</td><td>Plus étendu (proportionnalité)</td></tr>
+  </table></div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">L1233-24-1 · L1233-57-2/3</div><p>Accord majoritaire portant contenu du PSE ; étendue du contrôle selon la voie.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>L'accord d'entreprise prime ; vérifier la méthode de négociation de branche.</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">Contrôle de l'accord</div><p>Le CE contrôle la validité de l'accord (y c. transparence financière du syndicat signataire).<span class="pse-verif">Réf. CE à confirmer.</span></p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 3 -->
+<div class="card">
+  <div class="bl">Étape 3</div>
+  <div class="ct">Information &amp; consultation du CSE</div>
+  <div class="bloc">
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Double consultation</b> : projet de réorganisation, puis projet de licenciement / PSE.</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>≥ 2 réunions</b> (15 j min. entre les deux).</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt">Délai préfix de consultation : <b>2 mois</b> (&lt; 100 lic.), 3 mois (100–249), 4 mois (≥ 250).</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Expert-comptable</b> à la charge de l'employeur ; information de la DREETS dès la 1ʳᵉ réunion.</div></div>
+  </div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">Art. L1233-30 · L1233-34</div><p>Objet et délais de consultation ; recours à l'expert-comptable.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>Respecter le fonctionnement du CSE ; vérifier les délais de convocation conventionnels.</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">CE 22 juil. 2015, n°385816</div><p class="cite">(« Heinz ») Les représentants doivent avoir une <b>connaissance complète</b> des raisons du projet, sous peine d'irrégularité.</p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 4 -->
+<div class="card">
+  <div class="bl">Étape 4</div>
+  <div class="ct">Contenu du PSE</div>
+  <div class="bloc">
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Reclassement interne</b> (entreprise + groupe, territoire national) — recherche loyale et individualisée.</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>CSP</b> obligatoire (entreprise &lt; 1 000 salariés) — pas de congé de reclassement.</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt">Mesures : <b>formation, VAE</b>, aide à la création d'entreprise, cellule de reclassement.</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Catégories professionnelles</b> &amp; <b>critères d'ordre</b> ; priorité de réembauche (1 an).</div></div>
+  </div>
+  <div class="al info" style="margin-top:4px">🎓 Spécificité organisme de formation : renforcer le volet <b>formation / VAE / reconversion</b> (apprécié de la DREETS).</div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">L1233-61/62 · L1233-4/5</div><p>Contenu du PSE ; obligation de reclassement ; critères d'ordre.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>Mesures conventionnelles d'accompagnement à articuler avec le PSE.</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">CE 22 juil. 2015, n°385816</div><p class="cite">Mesures <b>précises et concrètes</b>, <b>proportionnées aux moyens</b> de l'entreprise et du groupe.</p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 5 -->
+<div class="card">
+  <div class="bl">Étape 5</div>
+  <div class="ct">Contrôle de la DREETS</div>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Validation (accord)</th><th>Homologation (unilatéral)</th></tr>
+    <tr><td>Délai</td><td>15 jours</td><td>21 jours</td></tr>
+    <tr><td>Silence gardé</td><td>Acceptation implicite</td><td>Acceptation implicite</td></tr>
+  </table></div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">L1233-57-1 à -4 · -57-7</div><p>Procédure, délais, décision implicite, pouvoir d'injonction.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>Sans incidence (compétence d'ordre public de la DREETS).</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">CE 7 déc. 2015, n°383856</div><p class="cite">Conséquences de l'<b>annulation</b> ; responsabilité de l'État seulement en cas de <b>faute lourde</b>.<span class="pse-verif">Réf. à confirmer.</span></p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 6 -->
+<div class="card">
+  <div class="bl">Étape 6</div>
+  <div class="ct">Notification des licenciements</div>
+  <div class="bloc">
+    <div class="step"><div class="step-num">•</div><div class="step-txt">Notification par <b>LRAR</b>, après décision (ou acceptation implicite) de la DREETS.</div></div>
+    <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Préavis</b> CC (sauf adhésion au CSP) ; priorité de réembauche 1 an à rappeler.</div></div>
+  </div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">L1233-39/45 · L1233-65</div><p>Notification ; priorité de réembauche ; CSP.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516 — préavis</div><p>Employés <b>1 mois</b> (2 mois dès 2 ans) · AM/techn. <b>2 mois</b> · cadres <b>3 mois</b>. Indemnité dès 8 mois : <b>¼</b> mois/an jusqu'à 10 ans, <b>⅓</b> au-delà.</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">Reclassement / ordre</div><p class="cite">Offre de reclassement <b>écrite, précise, personnalisée</b> ; le non-respect des critères d'ordre relève des <b>prud'hommes</b>.</p></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 7 -->
+<div class="card">
+  <div class="bl">Étape 7</div>
+  <div class="ct">Contentieux : qui juge quoi&nbsp;?</div>
+  <div class="table-wrap"><table>
+    <tr><th>Litige</th><th>Juge</th><th>Délai</th></tr>
+    <tr><td>Validation / homologation · consultation CSE · contenu du PSE</td><td><b>Administratif</b> (TA→CAA→CE)</td><td>2 mois</td></tr>
+    <tr><td>Motif éco. individuel · reclassement · ordre · CSP</td><td><b>Prud'hommes</b></td><td>12 mois</td></tr>
+  </table></div>
+  <div class="al err" style="margin-top:4px">🔑 L'administration <b>ne contrôle pas</b> le motif économique : il reste du ressort du juge prud'homal.</div>
+  <div class="bloc">
+    <div class="item-titre">Sanctions</div>
+    <div class="step"><div class="step-num">!</div><div class="step-txt">Absence/insuffisance du PSE → licenciements <b>nuls</b> : réintégration ou indemnité <b>≥ 6 mois</b> (L1235-11).</div></div>
+    <div class="step"><div class="step-num">!</div><div class="step-txt">Autre vice de la décision admin. → indemnité (L1235-16).</div></div>
+  </div>
+  <div class="pse-tri">
+    <div class="pse-ref loi"><div class="lab">📘 Loi</div><div class="art">L1235-7-1 · L1235-7/11/16</div><p>Compétence exclusive du juge administratif ; délais et sanctions.</p></div>
+    <div class="pse-ref cc"><div class="lab">📗 Convention</div><div class="art">IDCC 1516</div><p>Les indemnités conventionnelles peuvent se cumuler selon leur nature.</p></div>
+    <div class="pse-ref jur"><div class="lab">⚖️ Jurisprudence</div><div class="art">Tribunal des conflits (2020)</div><p class="cite">Maintien d'un large <b>bloc de compétence administrative</b> en matière de PSE.<span class="pse-verif">Réf. à confirmer.</span></p></div>
+  </div>
+</div>
+
+<!-- ÉCHÉANCIER -->
+<div class="card">
+  <div class="bl">Repère</div>
+  <div class="ct">📅 Échéancier-type (voie unilatérale, &lt; 100 licenciements)</div>
+  <div class="pse-tl">
+    <div class="pse-ev"><div class="j">J0</div><div class="x">Notification DREETS &amp; 1ʳᵉ réunion CSE</div><div class="y">Remise des documents, désignation possible de l'expert-comptable.</div></div>
+    <div class="pse-ev"><div class="j">+ 15 j min.</div><div class="x">2ᵉ réunion du CSE</div><div class="y">Travaux de l'expert ; négociation d'un éventuel accord.</div></div>
+    <div class="pse-ev"><div class="j">≤ 2 mois</div><div class="x">Clôture de la consultation</div><div class="y">Avis rendu ou réputé rendu (délai préfix).</div></div>
+    <div class="pse-ev"><div class="j">15 j / 21 j</div><div class="x">Décision DREETS</div><div class="y">Validation (accord) ou homologation (unilatéral), ou acceptation implicite.</div></div>
+    <div class="pse-ev"><div class="j">Après</div><div class="x">Notification des licenciements</div><div class="y">Préavis CC / CSP ; priorité de réembauche 1 an.</div></div>
+  </div>
+</div>
+
+<!-- CALCULATEUR -->
+<div class="card">
+  <div class="bl">Outil</div>
+  <div class="ct">🧮 Indemnité de licenciement (IDCC 1516)</div>
+  <div class="fg"><label class="fl">Ancienneté (années)</label><input id="pse-anc" type="number" value="6" min="0" step="0.1"></div>
+  <div class="fg"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="pse-sal" type="number" value="3000" min="0" step="50"></div>
+  <button class="btn" onclick="pseIndem()">Calculer</button>
+  <div id="pse-resindem"></div>
+  <div class="loi">¼ mois/an jusqu'à 10 ans, ⅓ au-delà (droit ouvert dès 8 mois). Salaire de référence : 1/12 des 12 derniers mois ou moyenne des 3 derniers mois si plus favorable. Estimation hors préavis et congés payés.</div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="card">
+  <div class="bl">Suivi</div>
+  <div class="ct">✅ Checklist procédurale</div>
+  <div style="display:flex;justify-content:space-between;font-size:12px;color:#9a9585;margin-bottom:2px"><span>Avancement</span><span id="pse-pct">0 %</span></div>
+  <div class="pse-pct"><i id="pse-barre"></i></div>
+  <div id="pse-cklist" style="margin-top:12px"></div>
+  <button class="btn-outline" onclick="pseResetCheck()" style="margin-top:10px">♻️ Réinitialiser la checklist</button>
+</div>
+
+<div style="height:20px"></div>
+</div>
+
+<script>
+/* ===== Module XI — PSE ===== */
+function pseFmt(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pseDiag(){
+  var eff=+document.getElementById('pse-eff').value||0,nb=+document.getElementById('pse-nb').value||0,
+      per=document.getElementById('pse-per').value,grp=document.getElementById('pse-grp').value,
+      v=document.getElementById('pse-verdict'),cls,titre,txt;
+  if(eff>=50&&nb>=10&&per==='30'){cls='ok';titre='✅ PSE OBLIGATOIRE';txt="Au moins 50 salariés ET au moins 10 licenciements sur 30 jours : PSE obligatoire avec validation/homologation DREETS (L1233-61).";}
+  else if(eff>=50&&nb>=2&&nb<10){cls='warn';titre='⚠️ Licenciement collectif SANS PSE';txt="≥ 50 salariés mais 2 à 9 licenciements : consultation CSE + CSP, sans PSE. Attention aux règles anti-contournement.";}
+  else if(eff<50){cls='no';titre='❌ Pas de PSE (effectif < 50)';txt="Sous 50 salariés, pas de PSE : procédure de licenciement collectif + CSP.";}
+  else if(per==='90'){cls='warn';titre='⚠️ Vérifier les seuils sur 3 mois';txt="Sur 3 mois, appliquez les règles anti-contournement (L1233-26) : si ≥ 10 licenciements, un PSE peut redevenir obligatoire.";}
+  else{cls='warn';titre='⚠️ Situation à expertiser';txt="Seuils non clairement atteints : faites valider la qualification.";}
+  var ex=(grp==='oui')?"<div class='pse-line'><span>Périmètre motif éco.</span><span>Secteur d'activité du groupe — national</span></div><div class='pse-line'><span>Reclassement</span><span>Entités du groupe (permutation)</span></div>":"<div class='pse-line'><span>Périmètre</span><span>Entreprise seule</span></div>";
+  ex+="<div class='pse-line'><span>Accompagnement</span><span>"+(eff<1000?'CSP (< 1000 salariés)':'Congé de reclassement (≥ 1000)')+"</span></div>";
+  v.className='pse-verdict '+cls;v.innerHTML='<b>'+titre+'</b>'+txt+ex;
+}
+function pseIndem(){
+  var a=+document.getElementById('pse-anc').value||0,s=+document.getElementById('pse-sal').value||0,r=document.getElementById('pse-resindem');
+  if(a<0.6667){r.className='pse-verdict no';r.innerHTML="<b>Pas d'indemnité conventionnelle</b>Ancienneté inférieure à 8 mois.";return;}
+  var m=(Math.min(a,10)*0.25+Math.max(a-10,0)/3)*s;
+  r.className='pse-verdict ok';
+  r.innerHTML='<b>Estimation : '+pseFmt(m)+' €</b>'
+    +"<div class='pse-line'><span>Indemnité conventionnelle (IDCC 1516)</span><span>"+pseFmt(m)+" €</span></div>"
+    +"<div class='pse-line'><span>Mois de salaire</span><span>"+(s?(m/s).toFixed(2):'—')+" mois</span></div>";
+}
+var PSE_ITEMS={
+ "0 · Diagnostic":["Vérifier l'effectif (≥ 50)","Compter les licenciements (≥ 10 / 30 j)","Qualifier le motif économique","Déterminer le périmètre groupe"],
+ "1-2 · Préparation":["Constituer le dossier économique","Choisir la voie (accord / unilatéral)","Ouvrir la négociation syndicale"],
+ "3 · CSE":["Notifier le projet à la DREETS (J0)","Tenir la 1ʳᵉ réunion CSE","Permettre la désignation de l'expert","Tenir la 2ᵉ réunion et recueillir l'avis"],
+ "4 · Contenu":["Définir les catégories professionnelles","Fixer les critères d'ordre","Rédiger le reclassement interne","Prévoir CSP + formation/VAE","Vérifier la proportionnalité aux moyens"],
+ "5 · DREETS":["Déposer la demande","Suivre le délai (15/21 j)","Notifier la décision"],
+ "6 · Notification":["Notifier par LRAR","Préavis CC / proposer le CSP","Rappeler la priorité de réembauche","Informer la DREETS"],
+ "7 · Sécurisation":["Archiver les preuves de procédure","Cartographier les risques contentieux","Préparer la défense (2 mois / 12 mois)"]
+};
+function pseKey(){return 'pse_check_app_v1';}
+function pseLoad(){try{return JSON.parse(localStorage.getItem(pseKey()))||{}}catch(e){return {};}}
+function pseSave(s){localStorage.setItem(pseKey(),JSON.stringify(s));}
+function pseRender(){
+  var s=pseLoad(),host=document.getElementById('pse-cklist');if(!host)return;
+  var html='',i=0,total=0,done=0;
+  for(var g in PSE_ITEMS){
+    html+='<div class="bl" style="margin-top:10px">'+g+'</div>';
+    PSE_ITEMS[g].forEach(function(t){var id='pc'+i;total++;var on=!!s[id];if(on)done++;
+      html+='<label class="chk"><input type="checkbox" data-pid="'+id+'" '+(on?'checked':'')+'><span style="'+(on?'opacity:.55;text-decoration:line-through':'')+'">'+t+'</span></label>';i++;});
+  }
+  host.innerHTML=html;
+  host.querySelectorAll('input').forEach(function(c){c.addEventListener('change',function(){var st=pseLoad();st[this.dataset.pid]=this.checked;pseSave(st);pseRender();});});
+  var pct=total?Math.round(done/total*100):0;
+  document.getElementById('pse-pct').textContent=pct+' % ('+done+'/'+total+')';
+  document.getElementById('pse-barre').style.width=pct+'%';
+}
+function pseResetCheck(){if(confirm('Réinitialiser la checklist PSE ?')){localStorage.removeItem(pseKey());pseRender();}}
+pseRender();
+</script>
 
 </div><!-- fin pg-app -->
 
