@@ -454,7 +454,18 @@ try{
 </div>
 <div class="home-wrap">
 
-  <div class="home-sec">Contrats &amp; RH</div>
+  <div class="home-disclaimer" style="border-left-color:var(--or);background:rgba(212,175,85,.08);margin-top:18px;margin-bottom:8px">
+  <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:8px">🏢 Secteur d'activité</div>
+  <select id="home-secteur" onchange="appSetSecteur(this.value)" style="margin-bottom:8px">
+    <option value="transport">Transport routier de marchandises — IDCC 0016</option>
+    <option value="banque">Banque — IDCC 2120</option>
+    <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
+    <option value="syntec">Syntec — conseil, informatique, ingénierie (IDCC 1486)</option>
+  </select>
+  <div style="font-size:11.5px;color:var(--texte2)">Pilote la <b>convention collective</b>, les <b>spécificités</b> et la <b>jurisprudence</b> des modules <b>PSE</b> et <b>Élections CSE</b>.</div>
+</div>
+
+<div class="home-sec">Contrats &amp; RH</div>
   <div class="home-grid">
     <div class="hcard" style="--accent:#d4af55" onclick="goPage('contrat')">
       <div class="hcard-ic">📋</div>
@@ -1167,7 +1178,7 @@ try{
 <div class="card">
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Convention collective à mentionner dans le dossier électoral :</label>
-<select id="cse-secteur" onchange="cseSetSecteur()">
+<select id="cse-secteur" onchange="appSetSecteur(this.value)">
   <option value="transport">Transport routier de marchandises — IDCC 0016</option>
   <option value="banque">Banque — IDCC 2120</option>
   <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
@@ -1723,7 +1734,7 @@ Exemple :<br>
   <div class="bl">Secteur d'activité</div>
   <div class="ct" style="font-size:16px">Adapter au secteur</div>
   <div class="fg"><label class="fl">La convention collective, les spécificités et la jurisprudence ci-dessous s'adaptent au secteur choisi :</label>
-  <select id="pse-secteur" onchange="pseSetSecteur()">
+  <select id="pse-secteur" onchange="appSetSecteur(this.value)">
     <option value="transport">Transport routier de marchandises — IDCC 0016</option>
     <option value="banque">Banque — IDCC 2120</option>
     <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
@@ -2048,6 +2059,15 @@ var cseSecteur='transport';
 function cseConvNom(){var s=SECTEURS_PSE[cseSecteur];return s?(s.nom+' (IDCC '+s.idcc+')'):'la convention collective applicable';}
 function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value;var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
 cseSetSecteur();
+
+/* ===== Secteur global (accueil <-> PSE <-> Élections) ===== */
+function appGetSecteur(){try{return localStorage.getItem('app_secteur')||'transport';}catch(e){return 'transport';}}
+function appSetSecteur(id){try{localStorage.setItem('app_secteur',id);}catch(e){}
+  ['home-secteur','pse-secteur','cse-secteur'].forEach(function(sid){var el=document.getElementById(sid);if(el)el.value=id;});
+  if(typeof pseSetSecteur==='function')pseSetSecteur();
+  if(typeof cseSetSecteur==='function')cseSetSecteur();
+}
+appSetSecteur(appGetSecteur());
 </script>
 
 </div><!-- fin pg-app -->
