@@ -551,8 +551,7 @@ try{
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
         <button class="btn" style="width:auto;margin:0" onclick="auteurSave()">💾 Enregistrer</button>
-        <button class="btn-outline" style="width:auto;margin:0" onclick="auteurReset('mounir')">↺ Mounir CHIKHAOUI</button>
-        <button class="btn-outline" style="width:auto;margin:0" onclick="auteurReset('tec')">Rétablir « TEC »</button>
+        <button class="btn-outline" style="width:auto;margin:0" onclick="auteurReset()">↺ Mounir CHIKHAOUI</button>
       </div>
     </div>
   </div>
@@ -3366,7 +3365,7 @@ async function telechargerTousZIP(){
 
     // Créer le ZIP
     const zip = new JSZip();
-    const dossier = zip.folder('Dossier_Elections_CSE_TEC');
+    const dossier = zip.folder('Dossier_Elections_CSE');
 
     documents.forEach((d, idx) => {
       let nomFichier;
@@ -4028,7 +4027,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
   }
 
   else if(type === 'pap_unilateral'){
-    titre = 'PAP en décision unilatérale — TEC';
+    titre = 'PAP en décision unilatérale';
     html = `<div style="${S}">
 <div style="border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px">
 <strong style="font-size:13pt">${SOC}</strong><br>${ADR}<br>SIRET : ${SIRET}
@@ -6815,9 +6814,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
 /* ===== Auteur / page de garde / personnalisation ===== */
 var AUTEUR_DEFAUT={prenom:'Mounir',nom:'CHIKHAOUI',email:'r.t.h@orange.fr',tel:'06 61 47 61 65'};
-var AUTEUR_TEC={prenom:'',nom:'TEC',email:'',tel:''};
 function auteurGet(){try{var v=JSON.parse(localStorage.getItem('app_auteur'));return v&&typeof v==='object'?v:AUTEUR_DEFAUT;}catch(e){return AUTEUR_DEFAUT;}}
-function auteurFull(a){return ((a.prenom||'')+' '+(a.nom||'')).trim()||'TEC';}
+function auteurFull(a){return ((a.prenom||'')+' '+(a.nom||'')).trim();}
 function auteurApply(){var a=auteurGet(),full=auteurFull(a),coord=[a.email,a.tel].filter(Boolean).join(' · ');
   var n=document.getElementById('garde-nom');if(n)n.textContent=full;
   var c=document.getElementById('garde-coord');if(c)c.textContent=coord;
@@ -6825,7 +6823,7 @@ function auteurApply(){var a=auteurGet(),full=auteurFull(a),coord=[a.email,a.tel
 function auteurFill(){var a=auteurGet();['prenom','nom','email','tel'].forEach(function(k){var e=document.getElementById('au-'+k);if(e)e.value=a[k]||'';});}
 function auteurToggle(){var f=document.getElementById('garde-form');if(!f)return;var open=f.style.display!=='none';f.style.display=open?'none':'block';if(!open)auteurFill();}
 function auteurSave(){var a={};['prenom','nom','email','tel'].forEach(function(k){a[k]=(document.getElementById('au-'+k).value||'').trim();});localStorage.setItem('app_auteur',JSON.stringify(a));auteurApply();var f=document.getElementById('garde-form');if(f)f.style.display='none';}
-function auteurReset(which){var a=which==='tec'?AUTEUR_TEC:AUTEUR_DEFAUT;localStorage.setItem('app_auteur',JSON.stringify(a));auteurApply();auteurFill();}
+function auteurReset(){localStorage.setItem('app_auteur',JSON.stringify(AUTEUR_DEFAUT));auteurApply();auteurFill();}
 auteurApply();
 </script>
 </body>
