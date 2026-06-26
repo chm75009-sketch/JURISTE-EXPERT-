@@ -224,6 +224,7 @@ body{
 /* ----- inputs ----- */
 input,select,textarea{border-radius:11px!important;border-width:1.5px!important;background:rgba(8,18,28,.6)!important}
 input:focus,select:focus,textarea:focus{border-color:var(--or)!important;outline:3px solid rgba(212,175,85,.22)!important;background:#12283b!important}
+#home-secteur,#pse-secteur,#cse-secteur,[id^="sec-"]{font-size:13.5px!important;padding-right:44px!important;background-position:right 14px center}
 /* ----- tables ----- */
 table{border-radius:10px;overflow:hidden}
 th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!important;color:var(--or-clair)!important;letter-spacing:.3px}
@@ -457,10 +458,10 @@ try{
   <div class="home-disclaimer" style="border-left-color:var(--or);background:rgba(212,175,85,.08);margin-top:18px;margin-bottom:8px">
   <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:8px">🏢 Secteur d'activité</div>
   <select id="home-secteur" onchange="appSetSecteur(this.value)" style="margin-bottom:8px">
-    <option value="transport">Transport routier de marchandises — IDCC 0016</option>
-    <option value="banque">Banque — IDCC 2120</option>
-    <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
-    <option value="syntec">Syntec — conseil, informatique, ingénierie (IDCC 1486)</option>
+    <option value="transport">Transport routier (IDCC 0016)</option>
+    <option value="banque">Banque (IDCC 2120)</option>
+    <option value="assurances">Assurances (IDCC 1672)</option>
+    <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
   </select>
   <div style="font-size:11.5px;color:var(--texte2)">Pilote la <b>convention collective</b>, les <b>spécificités</b> et la <b>jurisprudence</b> des modules <b>PSE</b> et <b>Élections CSE</b>.</div>
 </div>
@@ -580,10 +581,10 @@ try{
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Adapter la convention, le préavis, l'indemnité et la jurisprudence à votre secteur :</label>
 <select id="sec-contrat" onchange="modSecteur('contrat')">
-  <option value="transport">Transport routier — IDCC 0016</option>
-  <option value="banque">Banque — IDCC 2120</option>
-  <option value="assurances">Assurances — IDCC 1672</option>
-  <option value="syntec">Syntec — IDCC 1486</option>
+  <option value="transport">Transport routier (IDCC 0016)</option>
+  <option value="banque">Banque (IDCC 2120)</option>
+  <option value="assurances">Assurances (IDCC 1672)</option>
+  <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
 </select></div>
 <div id="secpanel-contrat"></div>
 </div>
@@ -922,10 +923,10 @@ try{
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Adapter la convention, le préavis, l'indemnité et la jurisprudence à votre secteur :</label>
 <select id="sec-remuneration" onchange="modSecteur('remuneration')">
-  <option value="transport">Transport routier — IDCC 0016</option>
-  <option value="banque">Banque — IDCC 2120</option>
-  <option value="assurances">Assurances — IDCC 1672</option>
-  <option value="syntec">Syntec — IDCC 1486</option>
+  <option value="transport">Transport routier (IDCC 0016)</option>
+  <option value="banque">Banque (IDCC 2120)</option>
+  <option value="assurances">Assurances (IDCC 1672)</option>
+  <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
 </select></div>
 <div id="secpanel-remuneration"></div>
 </div>
@@ -1070,10 +1071,10 @@ try{
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Adapter la convention, le préavis, l'indemnité et la jurisprudence à votre secteur :</label>
 <select id="sec-disciplinaire" onchange="modSecteur('disciplinaire')">
-  <option value="transport">Transport routier — IDCC 0016</option>
-  <option value="banque">Banque — IDCC 2120</option>
-  <option value="assurances">Assurances — IDCC 1672</option>
-  <option value="syntec">Syntec — IDCC 1486</option>
+  <option value="transport">Transport routier (IDCC 0016)</option>
+  <option value="banque">Banque (IDCC 2120)</option>
+  <option value="assurances">Assurances (IDCC 1672)</option>
+  <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
 </select></div>
 <div id="secpanel-disciplinaire"></div>
 </div>
@@ -1215,10 +1216,10 @@ try{
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Convention collective à mentionner dans le dossier électoral :</label>
 <select id="cse-secteur" onchange="cseSetSecteur()">
-  <option value="transport">Transport routier de marchandises — IDCC 0016</option>
-  <option value="banque">Banque — IDCC 2120</option>
-  <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
-    <option value="syntec">Syntec — bureaux d'études, conseil, informatique (IDCC 1486)</option>
+  <option value="transport">Transport routier (IDCC 0016)</option>
+  <option value="banque">Banque (IDCC 2120)</option>
+  <option value="assurances">Assurances (IDCC 1672)</option>
+    <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
 </select></div>
 <div class="al info" style="font-size:12px"><b>À noter :</b> la procédure d'élection du CSE relève du <b>Code du travail</b> (seuils, collèges, PAP, délais) — identique quel que soit le secteur. La convention choisie sert de référence dans les documents générés.<br>Convention retenue : <b id="cse-cc-label">—</b></div>
 </div>
@@ -1510,10 +1511,10 @@ Exemple :<br>
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Adapter la convention, le préavis, l'indemnité et la jurisprudence à votre secteur :</label>
 <select id="sec-absences" onchange="modSecteur('absences')">
-  <option value="transport">Transport routier — IDCC 0016</option>
-  <option value="banque">Banque — IDCC 2120</option>
-  <option value="assurances">Assurances — IDCC 1672</option>
-  <option value="syntec">Syntec — IDCC 1486</option>
+  <option value="transport">Transport routier (IDCC 0016)</option>
+  <option value="banque">Banque (IDCC 2120)</option>
+  <option value="assurances">Assurances (IDCC 1672)</option>
+  <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
 </select></div>
 <div id="secpanel-absences"></div>
 </div>
@@ -1783,10 +1784,10 @@ Exemple :<br>
   <div class="ct" style="font-size:16px">Adapter au secteur</div>
   <div class="fg"><label class="fl">La convention collective, les spécificités et la jurisprudence ci-dessous s'adaptent au secteur choisi :</label>
   <select id="pse-secteur" onchange="pseSetSecteur()">
-    <option value="transport">Transport routier de marchandises — IDCC 0016</option>
-    <option value="banque">Banque — IDCC 2120</option>
-    <option value="assurances">Assurances (sociétés d'assurances) — IDCC 1672</option>
-    <option value="syntec">Syntec — bureaux d'études, conseil, informatique (IDCC 1486)</option>
+    <option value="transport">Transport routier (IDCC 0016)</option>
+    <option value="banque">Banque (IDCC 2120)</option>
+    <option value="assurances">Assurances (IDCC 1672)</option>
+    <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option>
   </select></div>
   <div id="pse-secteur-panel"></div>
 </div>
