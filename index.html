@@ -551,7 +551,7 @@ try{
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
         <button class="btn" style="width:auto;margin:0" onclick="auteurSave()">💾 Enregistrer</button>
-        <button class="btn-outline" style="width:auto;margin:0" onclick="auteurReset()">↺ Mounir CHIKHAOUI</button>
+        <button class="btn-outline" style="width:auto;margin:0" onclick="auteurReset()">Rétablir</button>
       </div>
     </div>
   </div>
@@ -6814,6 +6814,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 /* ===== Auteur / page de garde / personnalisation ===== */
 var AUTEUR_DEFAUT={prenom:'Mounir',nom:'CHIKHAOUI',email:'r.t.h@orange.fr',tel:'06 61 47 61 65'};
+var AUTEUR_TEC={prenom:'',nom:'TEC',email:'',tel:''};
 function auteurGet(){try{var v=JSON.parse(localStorage.getItem('app_auteur'));return v&&typeof v==='object'?v:AUTEUR_DEFAUT;}catch(e){return AUTEUR_DEFAUT;}}
 function auteurFull(a){return ((a.prenom||'')+' '+(a.nom||'')).trim();}
 function auteurApply(){var a=auteurGet(),full=auteurFull(a),coord=[a.email,a.tel].filter(Boolean).join(' · ');
@@ -6823,7 +6824,7 @@ function auteurApply(){var a=auteurGet(),full=auteurFull(a),coord=[a.email,a.tel
 function auteurFill(){var a=auteurGet();['prenom','nom','email','tel'].forEach(function(k){var e=document.getElementById('au-'+k);if(e)e.value=a[k]||'';});}
 function auteurToggle(){var f=document.getElementById('garde-form');if(!f)return;var open=f.style.display!=='none';f.style.display=open?'none':'block';if(!open)auteurFill();}
 function auteurSave(){var a={};['prenom','nom','email','tel'].forEach(function(k){a[k]=(document.getElementById('au-'+k).value||'').trim();});localStorage.setItem('app_auteur',JSON.stringify(a));auteurApply();var f=document.getElementById('garde-form');if(f)f.style.display='none';}
-function auteurReset(){localStorage.setItem('app_auteur',JSON.stringify(AUTEUR_DEFAUT));auteurApply();auteurFill();}
+function auteurReset(){localStorage.setItem('app_auteur',JSON.stringify(AUTEUR_TEC));auteurApply();auteurFill();}
 auteurApply();
 </script>
 </body>
