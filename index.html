@@ -2589,9 +2589,9 @@ function openMenu(){document.getElementById('menu-overlay').style.display='block
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 
 function insCheck(){
-  const ok=gv('ins-nom')&&gv('ins-siret')&&gv('ins-adresse')&&gv('ins-dirigeant');
+  // Champs facultatifs : on peut accéder directement sans remplir la fiche
   const btn=document.getElementById('ins-btn');
-  if(btn){btn.disabled=!ok;btn.style.opacity=ok?'1':'0.4';}
+  if(btn){btn.disabled=false;btn.style.opacity='1';}
 }
 
 function validerInscription(){
