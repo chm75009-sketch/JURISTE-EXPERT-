@@ -493,6 +493,11 @@ try{
       <div class="hcard-body"><div class="t">Base jurisprudentielle sociale</div><div class="d">Toutes branches — recherche &amp; filtres par secteur et « favorable aux salariés »</div><div class="m">Module XIII</div></div>
       <div class="chev">›</div>
     </div>
+    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('calc')">
+      <div class="hcard-ic">🧮</div>
+      <div class="hcard-body"><div class="t">Calculateurs d'indemnités</div><div class="d">Indemnité légale de licenciement &amp; barème Macron (licenciement sans cause)</div><div class="m">Module XIV</div></div>
+      <div class="chev">›</div>
+    </div>
   </div>
 
   <div class="home-sec">Réglementation</div>
@@ -1706,6 +1711,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('pse');closeMenu()"><span style="font-size:18px">🛟</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XI — PSE / Licenciement éco.</div></div></div>
   <div class="mi" onclick="goPage('statut');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XII — Statut conventionnel</div></div></div>
   <div class="mi" onclick="goPage('juris');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIII — Jurisprudence sociale</div></div></div>
+  <div class="mi" onclick="goPage('calc');closeMenu()"><span style="font-size:18px">🧮</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIV — Calculateurs</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VI — Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VII — Absences et congés</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VIII — Tableau de bord</div></div></div>
@@ -1730,6 +1736,24 @@ Exemple :<br>
   <button class="bn" id="bn-disciplinaire" onclick="goPage('disciplinaire')"><span class="bn-ic">⚖️</span>V</button>
   <button class="bn" id="bn-tableau-bord" onclick="goPage('tableau-bord')"><span class="bn-ic">📊</span>VIII</button>
 </nav>
+
+<!-- ═══ MODULE XIV — CALCULATEURS INDEMNITÉS ═══ -->
+<div id="pg-calc" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XIV — Calculateurs d'indemnités</div><div class="ts">Indemnité légale · barème Macron</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+  <div class="ct">🧮 Indemnités de licenciement</div>
+  <div class="al info" style="font-size:12px;margin-bottom:12px">Indemnité légale de licenciement + barème d'indemnisation du licenciement sans cause réelle et sérieuse (art. L.1235-3). Pour l'indemnité <b>conventionnelle</b> propre au secteur, voir le Module XII (Statut conventionnel).</div>
+  <div class="fg"><label class="fl">Ancienneté (années, décimales acceptées)</label><input id="calc-anc" type="number" min="0" step="0.1" value="6"></div>
+  <div class="fg"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="calc-sal" type="number" min="0" step="50" value="3000"></div>
+  <div class="fg"><label class="fl">Effectif de l'entreprise</label><select id="calc-eff"><option value="ge11">11 salariés ou plus</option><option value="lt11">Moins de 11 salariés</option></select></div>
+  <button class="btn" onclick="calcIndemXIV()">Calculer</button>
+  <div id="calc-res" style="margin-top:6px"></div>
+</div>
+<div style="height:20px"></div>
+</div>
 
 <!-- ═══ MODULE XIII — BASE JURISPRUDENTIELLE SOCIALE ═══ -->
 <div id="pg-juris" class="page">
@@ -2070,6 +2094,33 @@ function statRender(id){
 }
 function statSetSecteur(){var el=document.getElementById('stat-secteur');var id=el?el.value:'transport';try{localStorage.setItem('secteur_statut',id);}catch(e){}statRender(id);}
 function statInit(){var id;try{id=localStorage.getItem('secteur_statut');}catch(e){}id=id||appGetSecteur();var el=document.getElementById('stat-secteur');if(el)el.value=id;statRender(id);}
+
+/* ===== Module XIV — Calculateurs indemnités ===== */
+var BAREME_GE11=[[0,1],[1,2],[3,3.5],[3,4],[3,5],[3,6],[3,7],[3,8],[3,8],[3,9],[3,10],[3,10.5],[3,11],[3,11.5],[3,12],[3,13],[3,13.5],[3,14],[3,14.5],[3,15],[3,15.5],[3,16],[3,16.5],[3,17],[3,17.5],[3,18],[3,18.5],[3,19],[3,19.5],[3,20],[3,20]];
+var BAREME_MIN_LT11=[0,0.5,0.5,1,1,1.5,1.5,2,2,2.5,2.5];
+function calcFmt(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function calcIndemXIV(){
+  var anc=parseFloat(document.getElementById('calc-anc').value)||0;
+  var sal=parseFloat(document.getElementById('calc-sal').value)||0;
+  var eff=document.getElementById('calc-eff').value;
+  var out=document.getElementById('calc-res');
+  var ai=Math.floor(anc); if(ai>30)ai=30;
+  var bar=BAREME_GE11[ai]||[3,20];
+  var mn=bar[0], mx=bar[1];
+  if(eff==='lt11' && ai<=10){ mn=BAREME_MIN_LT11[ai]; }
+  // indemnité légale de licenciement (dès 8 mois)
+  var leg = anc>=0.6667 ? (Math.min(anc,10)*0.25 + Math.max(anc-10,0)/3)*sal : 0;
+  var html='<div class="pse-verdict ok"><b>Indemnité légale de licenciement</b>'
+    + (anc>=0.6667 ? ('≈ <b>'+calcFmt(leg)+' €</b> ('+ (sal? (leg/sal).toFixed(2):'—') +' mois) — ¼ mois/an jusqu\'à 10 ans, ⅓ au-delà.') : 'Ancienneté < 8 mois : pas d\'indemnité légale.')
+    + '</div>';
+  html+='<div class="pse-verdict warn" style="margin-top:10px"><b>Barème « Macron » (L1235-3)</b>'
+    + 'Indemnité en cas de licenciement <b>sans cause réelle et sérieuse</b> ('+ai+(ai>=30?'+':'')+' an'+(ai>1?'s':'')+' d\'ancienneté, entreprise '+(eff==='lt11'?'< 11':'≥ 11')+' salariés) :'
+    + '<div class="pse-line"><span>Fourchette (mois)</span><span>'+mn+' à '+mx+' mois</span></div>'
+    + '<div class="pse-line"><span>Fourchette (€)</span><span>'+calcFmt(mn*sal)+' € à '+calcFmt(mx*sal)+' €</span></div>'
+    + '<p class="loi" style="margin-top:8px">Plancher/plafond fixés par l\'article L.1235-3 (hors nullité : licenciement nul = ≥ 6 mois, hors barème). Barème indicatif — vérifier la table en vigueur.</p>'
+    + '</div>';
+  out.innerHTML=html;
+}
 
 /* ===== Module XIII — Base jurisprudentielle agrégée ===== */
 var JURIS_ALL=PSE_JURIS.slice();
