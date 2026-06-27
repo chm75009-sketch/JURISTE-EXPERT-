@@ -503,6 +503,26 @@ try{
       <div class="hcard-body"><div class="t">Procédure de licenciement</div><div class="d">Motif personnel : convocation, entretien, notification, délais, échéancier, sanctions</div><div class="m">Module XV</div></div>
       <div class="chev">›</div>
     </div>
+    <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="goPage('rupconv')">
+      <div class="hcard-ic">🤝</div>
+      <div class="hcard-body"><div class="t">Rupture conventionnelle</div><div class="d">Procédure, TéléRC, rétractation 15 j, homologation DREETS, indemnité</div><div class="m">Module XVI</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('cdd')">
+      <div class="hcard-ic">📄</div>
+      <div class="hcard-body"><div class="t">CDD &amp; précarité</div><div class="d">Cas de recours, mentions, indemnité 10%, requalification</div><div class="m">Module XVII</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('inapt')">
+      <div class="hcard-ic">🏥</div>
+      <div class="hcard-body"><div class="t">Inaptitude &amp; reclassement</div><div class="d">Médecin du travail, consultation CSE, reclassement, indemnités</div><div class="m">Module XVIII</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('temps2')">
+      <div class="hcard-ic">⏱️</div>
+      <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures sup, forfait-jours, spécificités par secteur</div><div class="m">Module XIX</div></div>
+      <div class="chev">›</div>
+    </div>
   </div>
 
   <div class="home-sec">Réglementation</div>
@@ -1718,6 +1738,10 @@ Exemple :<br>
   <div class="mi" onclick="goPage('juris');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIII — Jurisprudence sociale</div></div></div>
   <div class="mi" onclick="goPage('calc');closeMenu()"><span style="font-size:18px">🧮</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIV — Calculateurs</div></div></div>
   <div class="mi" onclick="goPage('licenc');closeMenu()"><span style="font-size:18px">📑</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XV — Procédure licenciement</div></div></div>
+  <div class="mi" onclick="goPage('rupconv');closeMenu()"><span style="font-size:18px">🤝</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XVI — Rupture conventionnelle</div></div></div>
+  <div class="mi" onclick="goPage('cdd');closeMenu()"><span style="font-size:18px">📄</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XVII — CDD & précarité</div></div></div>
+  <div class="mi" onclick="goPage('inapt');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XVIII — Inaptitude</div></div></div>
+  <div class="mi" onclick="goPage('temps2');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIX — Temps de travail</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VI — Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VII — Absences et congés</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VIII — Tableau de bord</div></div></div>
@@ -1742,6 +1766,65 @@ Exemple :<br>
   <button class="bn" id="bn-disciplinaire" onclick="goPage('disciplinaire')"><span class="bn-ic">⚖️</span>V</button>
   <button class="bn" id="bn-tableau-bord" onclick="goPage('tableau-bord')"><span class="bn-ic">📊</span>VIII</button>
 </nav>
+
+<!-- ═══ MODULE XVI — RUPTURE CONVENTIONNELLE ═══ -->
+<div id="pg-rupconv" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XVI — Rupture conventionnelle</div><div class="ts">CDI · TéléRC · homologation</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card"><div class="ct">🤝 Rupture conventionnelle individuelle</div>
+<div class="al info" style="font-size:12px">Mode de rupture d'un commun accord du <b>CDI</b> (art. L.1237-11 s.). Procédure nationale. Exclut le CDD et la rupture du contrat en cours de période d'essai.</div></div>
+<div class="card"><div class="bl">Étapes</div><div class="ct" style="font-size:16px">Déroulé &amp; délais</div><div class="step"><div class="step-num">1</div><div class="step-txt"><b>Un ou plusieurs entretiens</b> : le salarié peut se faire assister (membre du personnel ou conseiller du salarié) ; s'il l'est, l'employeur peut l'être aussi (et en informer le salarié).</div></div><div class="step"><div class="step-num">2</div><div class="step-txt"><b>Signature de la convention</b> (formulaire Cerfa) fixant la date de rupture et l'indemnité. <b>Un exemplaire doit être remis au salarié</b> — à peine de nullité.</div></div><div class="step"><div class="step-num">3</div><div class="step-txt"><b>Délai de rétractation : 15 jours calendaires</b> à compter de la signature, pour chaque partie (par lettre).</div></div><div class="step"><div class="step-num">4</div><div class="step-txt"><b>Demande d'homologation</b> à la DREETS via <b>TéléRC</b> après le délai de rétractation.</div></div><div class="step"><div class="step-num">5</div><div class="step-txt"><b>Instruction : 15 jours ouvrables</b> ; le silence vaut <b>homologation tacite</b>. Rupture au plus tôt le lendemain de l'homologation.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">💶 Indemnité spécifique de rupture conventionnelle</div><div class="step"><div class="step-num">•</div><div class="step-txt">Montant <b>au moins égal à l'indemnité légale de licenciement</b> (et à l'indemnité conventionnelle si elle est plus favorable — selon l'ANI/branche). Voir Module XIV.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Régime social et fiscal spécifique (exonérations dans certaines limites, forfait social).</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚠️ Points de vigilance</div><div class="step"><div class="step-num">!</div><div class="step-txt"><b>Vice du consentement</b> (pression, contexte de harcèlement) : la rupture peut être annulée et requalifiée en licenciement sans cause.</div></div><div class="step"><div class="step-num">!</div><div class="step-txt"><b>Salarié protégé</b> : autorisation de l'inspecteur du travail requise (pas d'homologation DREETS).</div></div><div class="step"><div class="step-num">!</div><div class="step-txt">Possible même pendant un <b>arrêt maladie</b> / accident du travail, sous réserve d'un consentement libre.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚖️ Jurisprudence</div>
+<div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Remise d'un exemplaire de la convention au salarié</div><div class="juris-ref">Cass. soc., 6 février 2013, n° 11-27.000</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">À défaut de remise d'un exemplaire de la convention de rupture au salarié, celle-ci est <b>nulle</b> (le salarié ne peut alors vérifier son droit de rétractation).</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%206%20f%C3%A9vrier%202013%2011-27.000%20L%C3%A9gifrance" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div>
+<div class="al warn" style="font-size:11.5px;margin-top:6px">Référence à confirmer sur Légifrance.</div></div>
+<div style="height:20px"></div></div>
+
+<!-- ═══ MODULE XVII — CDD & PRÉCARITÉ ═══ -->
+<div id="pg-cdd" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XVII — CDD &amp; indemnité de précarité</div><div class="ts">Recours · mentions · 10% · requalification</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card"><div class="ct">📄 Contrat à durée déterminée</div><div class="al info" style="font-size:12px">Le CDD ne peut avoir pour objet de pourvoir durablement un emploi lié à l'activité normale et permanente de l'entreprise (art. L.1242-1).</div></div>
+<div class="card"><div class="ct" style="font-size:16px">Cas de recours autorisés</div><div class="step"><div class="step-num">•</div><div class="step-txt">Remplacement d'un salarié absent (ou poste supprimé à terme, attente d'arrivée…).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Accroissement temporaire d'activité.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Emplois saisonniers ou d'usage (secteurs définis).</div></div><div class="al warn" style="font-size:12px;margin-top:8px"><b>Interdits</b> : remplacer un gréviste, travaux dangereux listés, accroissement d'activité dans les 6 mois suivant un licenciement économique sur le poste concerné.</div></div>
+<div class="card"><div class="ct" style="font-size:16px">Forme &amp; durée</div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>Écrit obligatoire</b>, transmis dans les <b>2 jours ouvrables</b> ; à défaut, requalification en CDI.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Mentions : motif précis, terme ou durée minimale, poste, convention collective, montant de la rémunération.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Renouvellement : <b>2 fois maximum</b> dans la limite de la durée maximale ; délai de carence entre deux CDD sur le même poste.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">💶 Indemnité de fin de contrat (précarité)</div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>10 %</b> de la rémunération brute totale (6 % si accord de branche + accès privilégié à la formation).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>Exclusions</b> : CDD saisonnier ou d'usage, jeune pendant ses vacances scolaires, refus d'un CDI sur le même emploi, embauche en CDI à l'issue, rupture anticipée à l'initiative du salarié ou pour faute grave.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚖️ Requalification en CDI</div><div class="step"><div class="step-num">!</div><div class="step-txt">Absence d'écrit, motif irrégulier, recours hors cas légal, dépassement de durée → <b>requalification en CDI</b> + indemnité <b>≥ 1 mois</b> de salaire (art. L.1245-2).</div></div><div class="al warn" style="font-size:11.5px;margin-top:6px">Jurisprudence constante (Cass. soc.) — vérifier les références applicables.</div></div>
+<div style="height:20px"></div></div>
+
+<!-- ═══ MODULE XVIII — INAPTITUDE ═══ -->
+<div id="pg-inapt" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XVIII — Inaptitude &amp; reclassement</div><div class="ts">Médecin du travail · CSE · reclassement</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card"><div class="ct">🏥 Inaptitude médicale</div><div class="al info" style="font-size:12px">Inaptitude constatée par le <b>médecin du travail</b> (en principe un examen, après étude de poste et des conditions de travail). Distinguer l'origine <b>professionnelle</b> (AT/MP) et <b>non professionnelle</b>.</div></div>
+<div class="card"><div class="ct" style="font-size:16px">Obligations de l'employeur</div><div class="step"><div class="step-num">1</div><div class="step-txt"><b>Recherche de reclassement</b> sur un emploi approprié aux capacités du salarié (au besoin par mutation/aménagement), au sein de l'entreprise et du groupe.</div></div><div class="step"><div class="step-num">2</div><div class="step-txt"><b>Consultation du CSE</b> sur les propositions de reclassement (obligatoire, que l'inaptitude soit d'origine professionnelle ou non).</div></div><div class="step"><div class="step-num">3</div><div class="step-txt"><b>Dispense de reclassement</b> uniquement si le médecin mentionne expressément que tout maintien dans un emploi serait gravement préjudiciable à la santé, ou que l'état de santé fait obstacle à tout reclassement.</div></div><div class="step"><div class="step-num">4</div><div class="step-txt"><b>Reprise du paiement du salaire</b> si, au terme d'<b>1 mois</b> après l'avis d'inaptitude, le salarié n'est ni reclassé ni licencié.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">💶 Indemnités (licenciement pour inaptitude)</div>
+<div class="table-wrap"><table><tr><th></th><th>Origine professionnelle (AT/MP)</th><th>Origine non professionnelle</th></tr>
+<tr><td>Indemnité de licenciement</td><td><b>Indemnité spéciale</b> = double de l'indemnité légale</td><td>Indemnité légale (ou conventionnelle)</td></tr>
+<tr><td>Préavis</td><td>Non exécuté mais <b>indemnité compensatrice</b> due</td><td>Non exécuté, non payé (mais compté pour l'ancienneté)</td></tr></table></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚖️ Jurisprudence</div>
+<div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Consultation du CSE obligatoire, même sans poste disponible</div><div class="juris-ref">Cass. soc., 30 septembre 2020, n° 19-11.974</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">Le défaut de consultation des représentants du personnel sur le reclassement prive le licenciement pour inaptitude de cause réelle et sérieuse, y compris pour une inaptitude d'origine non professionnelle.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%2030%20septembre%202020%2019-11.974" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div>
+<div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Offre de reclassement imprécise = manquement</div><div class="juris-ref">Cass. soc., 23 octobre 2024, n° 23-19.629</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">Une offre de reclassement incomplète prive le licenciement de cause réelle et sérieuse.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%2023%20octobre%202024%2023-19.629" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div>
+<div class="al warn" style="font-size:11.5px;margin-top:6px">Références à confirmer sur Légifrance.</div></div>
+<div style="height:20px"></div></div>
+
+<!-- ═══ MODULE XIX — TEMPS DE TRAVAIL & FORFAITS ═══ -->
+<div id="pg-temps2" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XIX — Temps de travail &amp; forfaits</div><div class="ts">Heures sup · forfait-jours · par secteur</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card"><div class="ct">⏱️ Durée du travail — règles communes</div><div class="step"><div class="step-num">•</div><div class="step-txt">Durée légale : <b>35 h/semaine</b>. Heures supplémentaires majorées : <b>+25 %</b> (36e-43e h), <b>+50 %</b> au-delà (sauf accord), contingent annuel + contrepartie obligatoire en repos au-delà.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Durées maximales : <b>10 h/jour</b>, <b>48 h/semaine</b> (44 h en moyenne sur 12 semaines) ; repos quotidien 11 h, hebdomadaire 35 h.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>Forfait-jours</b> : réservé aux cadres autonomes / salariés autonomes ; nécessite un <b>accord collectif</b> conforme et un <b>suivi effectif de la charge</b> + entretien annuel — à défaut la convention est <b>nulle</b> (rappel d'heures supplémentaires).</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">Spécificités par secteur</div><div class="bloc"><div class="bl">💼 Syntec (IDCC 1486)</div><div style="font-size:13px;color:#e8e4d8;line-height:1.6">3 modalités : Modalité 1 (35 h), Modalité 2 « réalisation de missions » (forfait en heures, cadres/ETAM autonomes ≥ 115 % du minimum &amp; ≥ PMSS), Modalité 3 <b>forfait-jours 218 j</b> (cadres position ≥ 3 ou ≥ 2 PMSS). Les forfaits-jours conclus sous l'accord de 1999 sont <b>nuls</b> ; sécurisés seulement par l'avenant du 1er avril 2014 (Cass. soc. 24 avr. 2013, n° 11-28.398).</div></div><div class="bloc"><div class="bl">🏦 Banque (IDCC 2120)</div><div style="font-size:13px;color:#e8e4d8;line-height:1.6">Forfaits-jours pour les cadres autonomes (niveaux H-K) encadrés par accord de branche/entreprise ; RTT fréquents. Vérifier le suivi de charge et l'entretien annuel, sous peine de nullité.</div></div><div class="bloc"><div class="bl">🛡️ Assurances (IDCC 1672)</div><div style="font-size:13px;color:#e8e4d8;line-height:1.6">Forfaits-jours pour cadres (classes 5-7) selon accords ; organisation du temps de travail souvent par accord d'entreprise (RTT). Mêmes exigences de suivi de charge.</div></div><div class="bloc"><div class="bl">🚚 Transport (IDCC 0016)</div><div style="font-size:13px;color:#e8e4d8;line-height:1.6">Régime spécifique du <b>temps de service</b> / temps de conduite (Décret 83-40, Règlement CE n° 561/2006) pour le personnel roulant — distinct du droit commun. Voir Module II (Temps de conduite).</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚖️ Jurisprudence</div>
+<div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Nullité du forfait-jours sans garanties de suivi</div><div class="juris-ref">Cass. soc., 24 avril 2013, n° 11-28.398 (Syntec) — et jurisprudence constante</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">À défaut de stipulations conventionnelles assurant le contrôle de la charge et de l'amplitude de travail, la convention de forfait-jours est privée d'effet : le salarié peut réclamer le paiement des heures supplémentaires.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%2024%20avril%202013%2011-28.398" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div></div>
+<div style="height:20px"></div></div>
 
 <!-- ═══ MODULE XV — PROCÉDURE DE LICENCIEMENT (MOTIF PERSONNEL) ═══ -->
 <div id="pg-licenc" class="page">
