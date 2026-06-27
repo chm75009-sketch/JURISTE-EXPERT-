@@ -7458,9 +7458,56 @@ var DOCS={
      re.push('Recherche de reclassement loyale et sérieuse exigée (poste approprié, conclusions du médecin), le cas échéant au niveau du groupe.');}
    if(x.sal==='non')ko.push(['Si, 1 mois après l’avis, le salarié n’est ni reclassé ni licencié, l’employeur doit reprendre le versement du salaire.','C. trav. art. L1226-4 (non pro) / L1226-11 (pro)']);else if(x.sal==='oui')ok.push('Reprise du salaire au-delà d’un mois respectée.');
    re.push('Inaptitude d’origine professionnelle : indemnité spéciale = double de l’indemnité légale + indemnité compensatrice de préavis (art. L1226-14) ; indemnité conventionnelle plus favorable applicable.');
+   return {ok:ok,ko:ko,re:re};}},
+ accordent:{nom:'Accord d’entreprise',q:[
+   {id:'sig',l:'Qui a signé l’accord ?',t:'sel',o:['Syndicats représentant plus de 50% des suffrages','Syndicats représentant 30 à 50% + référendum salariés','Syndicats représentant moins de 30%','Entreprise sans délégué syndical (CSE mandaté / référendum)']},
+   {id:'obj',l:'Objet principal de l’accord',t:'sel',o:['Durée du travail / RTT / forfaits','Rémunération / primes / épargne salariale','Accord de performance collective (APC)','Égalité professionnelle / QVT','Autre']},
+   {id:'cse',l:'Le CSE a-t-il été informé/consulté quand c’était requis ?',t:'on'},
+   {id:'dep',l:'L’accord a-t-il été déposé (TéléAccords + greffe du conseil de prud’hommes) ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.sig==='Syndicats représentant plus de 50% des suffrages')ok.push('Accord majoritaire valable (signé par des syndicats > 50% des suffrages au 1er tour des dernières élections CSE, titulaires).');
+   else if(x.sig==='Syndicats représentant 30 à 50% + référendum salariés')ok.push('Validité possible par référendum : à défaut de 50%, des syndicats représentant au moins 30% peuvent demander une consultation des salariés ; approuvé à la majorité des suffrages, l’accord est valable.');
+   else if(x.sig==='Syndicats représentant moins de 30%')ko.push(['Des signataires représentant moins de 30% des suffrages ne peuvent pas valider l’accord, même par référendum : accord non valable.','C. trav. art. L2232-12']);
+   else if(x.sig)re.push('Entreprise sans délégué syndical : des modalités spécifiques de négociation s’appliquent (élu mandaté, élu non mandaté, ou référendum aux 2/3 des salariés pour les TPE), selon l’effectif (C. trav. art. L2232-23 à L2232-26).');
+   var eff=parseInt(c.eff||'0',10);
+   if(c.eff&&eff<50&&(x.sig&&x.sig.indexOf('moins de 30%')<0))re.push('Effectif < 50 : vérifiez le bon circuit de conclusion (délégué syndical, élu mandaté/non mandaté, ou référendum) — l’irrégularité du circuit affecte la validité.');
+   if(x.dep==='non')ko.push(['Dépôt non effectué : l’accord n’entre en vigueur (et n’est opposable) qu’après dépôt sur la plateforme TéléAccords et au greffe du conseil de prud’hommes.','C. trav. art. L2231-6, D2231-4']);else if(x.dep==='oui')ok.push('Accord déposé (entrée en vigueur et opposabilité).');
+   if(x.cse==='non')re.push('Vérifiez si l’objet imposait une information/consultation du CSE (ex. durée du travail, organisation) : son absence peut constituer une irrégularité.');
+   if(x.obj==='Accord de performance collective (APC)')re.push('APC : le refus du salarié de voir appliquer l’accord permet un licenciement sui generis, qui doit être engagé dans les 2 mois du refus et repose sur une cause réelle et sérieuse contrôlée par le juge (C. trav. art. L2254-2).');
+   re.push('Articulation des normes : depuis les ordonnances de 2017, l’accord d’entreprise prime sur l’accord de branche hors des domaines réservés (blocs 1 et 2 des art. L2253-1 à L2253-3) ; le principe de faveur joue toujours pour le contrat de travail.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ pap:{nom:'Protocole d’accord préélectoral (PAP)',q:[
+   {id:'inv',l:'Toutes les organisations syndicales ont-elles été invitées à négocier (dont par courrier les représentatives/affiliées) ?',t:'on'},
+   {id:'dm',l:'Le PAP est-il signé selon la double majorité (majorité des OS présentes, dont OS ayant recueilli la majorité des suffrages) ?',t:'on'},
+   {id:'col',l:'La répartition du personnel et des sièges entre collèges est-elle fixée ?',t:'on'},
+   {id:'par',l:'Les listes respectent-elles la représentation équilibrée femmes-hommes du collège ?',t:'on'},
+   {id:'del',l:'L’invitation à négocier a-t-elle respecté les délais (env. 15 jours avant la 1re réunion / annonce des élections) ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.inv==='non')ko.push(['Toutes les OS doivent être invitées à négocier le PAP (par voie d’affichage, et par courrier pour les OS représentatives, celles ayant une section syndicale et les affiliées à une organisation représentative au niveau national interprofessionnel) : le manquement à cette obligation de loyauté peut entraîner l’annulation des élections.','C. trav. art. L2314-5']);else if(x.inv==='oui')ok.push('Invitation régulière de toutes les organisations syndicales.');
+   if(x.dm==='non')ko.push(['Défaut de double majorité : la validité du PAP suppose sa signature par la majorité des OS ayant participé à la négociation, dont les OS représentatives ayant recueilli la majorité des suffrages aux dernières élections. À défaut, certaines clauses sont inopposables et la répartition relève de la DREETS.','C. trav. art. L2314-6']);else if(x.dm==='oui')ok.push('Condition de double majorité satisfaite.');
+   if(x.col==='non')ko.push(['Le PAP doit fixer la répartition du personnel et des sièges entre les collèges électoraux. La modification du nombre ou de la composition des collèges exige l’unanimité des signataires.','C. trav. art. L2314-13']);else if(x.col==='oui')ok.push('Répartition par collèges prévue.');
+   if(x.par==='non')ko.push(['Listes non conformes à la représentation équilibrée F-H : chaque liste doit comporter une proportion de femmes et d’hommes reflétant celle du collège, par candidatures alternées. Le non-respect entraîne l’annulation de l’élection des élus surnuméraires du sexe surreprésenté.','C. trav. art. L2314-30, L2314-32']);else if(x.par==='oui')ok.push('Représentation équilibrée femmes-hommes respectée.');
+   if(x.del==='non')re.push('Délais : l’employeur informe le personnel de l’organisation des élections et invite les OS suffisamment tôt (la 1re réunion de négociation se tient en principe dans les 15 jours de l’invitation) ; un calendrier trop contraint fragilise le scrutin.');
+   re.push('Contestation : la régularité des élections se conteste devant le tribunal judiciaire dans les 15 jours de la proclamation des résultats.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ ri:{nom:'Règlement intérieur',q:[
+   {id:'cse',l:'Le CSE a-t-il rendu un avis sur le règlement intérieur ?',t:'on'},
+   {id:'it',l:'A-t-il été transmis à l’inspection du travail et déposé au greffe du conseil de prud’hommes ?',t:'on'},
+   {id:'aff',l:'Est-il porté à la connaissance des salariés (affichage / mise à disposition) ?',t:'on'},
+   {id:'cont',l:'Contenu',t:'sel',o:['Hygiène-sécurité + échelle des sanctions + droits de la défense + harcèlement/agissements sexistes','Incomplet (une de ces rubriques manque)']}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   var eff=parseInt(c.eff||'0',10);
+   if(c.eff){if(eff>=50)re.push('Effectif ≥ 50 : le règlement intérieur est obligatoire (lorsque le seuil de 50 salariés est atteint pendant 12 mois) ; il doit être établi dans le délai requis.');else re.push('Effectif < 50 : le règlement intérieur n’est pas obligatoire, mais s’il existe il doit respecter les mêmes règles de validité.');}
+   if(x.cont==='Incomplet (une de ces rubriques manque)')ko.push(['Contenu incomplet : le RI doit fixer les mesures d’hygiène et de sécurité, l’échelle des sanctions, les garanties de procédure disciplinaire (droits de la défense) et rappeler les dispositions sur le harcèlement et les agissements sexistes.','C. trav. art. L1321-1, L1321-2']);else if(x.cont)ok.push('Rubriques obligatoires présentes.');
+   if(x.cse==='non')ko.push(['Le règlement intérieur ne peut être introduit ou modifié qu’après avis du CSE : à défaut, il est inopposable aux salariés.','C. trav. art. L1321-4']);else if(x.cse==='oui')ok.push('Avis du CSE recueilli.');
+   if(x.it==='non')ko.push(['Formalités de publicité non remplies : le RI doit être transmis à l’inspection du travail (accompagné de l’avis du CSE) et déposé au greffe du conseil de prud’hommes ; à défaut il est inopposable.','C. trav. art. L1321-4, R1321-1, R1321-2']);else if(x.it==='oui')ok.push('Transmission inspection du travail + dépôt greffe effectués.');
+   if(x.aff==='non')ko.push(['Le RI doit être porté à la connaissance des salariés (par tout moyen, ex. affichage ou intranet) pour leur être opposable.','C. trav. art. R1321-1']);else if(x.aff==='oui')ok.push('RI porté à la connaissance des salariés.');
+   re.push('Les clauses du RI ne peuvent apporter aux droits des personnes et aux libertés des restrictions non justifiées par la nature de la tâche ni proportionnées au but recherché (C. trav. art. L1321-3) ; une CCN peut prévoir des garanties supplémentaires.');
    return {ok:ok,ko:ko,re:re};}}
 };
-var ORDER=['convocation','licenciement','sanction','cdd','rupconv','inaptitude'];
+var ORDER=['convocation','licenciement','sanction','cdd','rupconv','inaptitude','accordent','pap','ri'];
 
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
 window.diagPreview=function(){var f=document.getElementById('diag-file').files[0];var p=document.getElementById('diag-preview');if(!f){p.innerHTML='';return;}if(f.type.indexOf('image')===0){var u=URL.createObjectURL(f);p.innerHTML='<img src="'+u+'" style="max-width:100%;max-height:260px;border-radius:8px;border:1px solid #ddd">';}else{p.innerHTML='<div style="font-size:12px;color:#555">📎 '+esc(f.name)+' joint ('+Math.round(f.size/1024)+' Ko) — visualisation directe non disponible pour ce format.</div>';}};
