@@ -1957,6 +1957,9 @@ Exemple :<br>
   <div class="fg"><label class="fl">Ancienneté (années, décimales acceptées)</label><input id="calc-anc" type="number" min="0" step="0.1" value="6"></div>
   <div class="fg"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="calc-sal" type="number" min="0" step="50" value="3000"></div>
   <div class="fg"><label class="fl">Effectif de l'entreprise</label><select id="calc-eff"><option value="ge11">11 salariés ou plus</option><option value="lt11">Moins de 11 salariés</option></select></div>
+  <div class="fg"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="autre">Autre convention</option></select></div>
+  <div id="calc-secteur-note" style="font-size:12px;color:#6b5a2e;background:#fff7e6;border:1px solid #e7d9b0;border-radius:8px;padding:8px;margin-bottom:8px;display:none"></div>
+  <div class="fg"><label class="fl">Indemnité conventionnelle connue (€) — facultatif</label><input id="calc-conv" type="number" min="0" step="50" placeholder="Montant selon votre CCN, si connu"></div>
   <button class="btn" onclick="calcIndemXIV()">Calculer</button>
   <div id="calc-res" style="margin-top:6px"></div>
 </div>
@@ -2327,7 +2330,25 @@ function calcIndemXIV(){
     + '<div class="pse-line"><span>Fourchette (€)</span><span>'+calcFmt(mn*sal)+' € à '+calcFmt(mx*sal)+' €</span></div>'
     + '<p class="loi" style="margin-top:8px">Plancher/plafond fixés par l\'article L.1235-3 (hors nullité : licenciement nul = ≥ 6 mois, hors barème). Barème indicatif — vérifier la table en vigueur.</p>'
     + '</div>';
+  var conv=parseFloat((document.getElementById('calc-conv')||{}).value)||0;
+  var sc=(document.getElementById('calc-secteur')||{}).value||'';
+  var SCL={transport:'la CCN Transports routiers (IDCC 0016)',banque:'la CCN Banque (IDCC 2120)',assurances:'la CCN Sociétés d\'assurances (IDCC 1672)',syntec:'la CCN Syntec (IDCC 1486)',autre:'votre convention collective'};
+  if(conv>0){
+    var ret=Math.max(leg,conv); var favConv=(conv>leg);
+    html='<div class="pse-verdict ok"><b>Montant retenu (le plus favorable)</b> ≈ <b>'+calcFmt(ret)+' €</b>'
+      +'<div class="pse-line"><span>Indemnité légale</span><span>'+calcFmt(leg)+' €</span></div>'
+      +'<div class="pse-line"><span>Indemnité conventionnelle saisie</span><span>'+calcFmt(conv)+' €</span></div>'
+      +'<p class="loi" style="margin-top:6px">'+(favConv?'L\'indemnité CONVENTIONNELLE s\'applique (plus favorable).':'L\'indemnité LÉGALE s\'applique (au moins égale à la conventionnelle).')+' Principe de faveur — art. L2251-1.</p></div>'+html;
+  } else {
+    html+='<div class="pse-verdict" style="margin-top:10px;background:#fff7e6;border:1px solid #e7d9b0"><b>⚖️ Et la convention collective ?</b> L\'indemnité légale ci-dessus n\'est qu\'un PLANCHER. Si '+(SCL[sc]||'votre convention collective')+' prévoit une indemnité de licenciement plus favorable, c\'est elle qui s\'applique (art. L2251-1). Reportez-vous à sa grille (par tranches d\'ancienneté et catégorie) puis saisissez le montant conventionnel ci-dessus pour comparer automatiquement.</div>';
+  }
   out.innerHTML=html;
+}
+function calcSecteurNote(){
+  var sc=(document.getElementById('calc-secteur')||{}).value||'';
+  var N={transport:'CCN Transports routiers (IDCC 0016) : l\'indemnité conventionnelle de licenciement varie selon l\'ancienneté et la catégorie (roulants/sédentaires, ouvriers-employés, agents de maîtrise, cadres) et peut dépasser l\'indemnité légale.',banque:'CCN Banque (IDCC 2120) : indemnité conventionnelle de licenciement généralement plus favorable, par tranches d\'ancienneté.',assurances:'CCN Sociétés d\'assurances (IDCC 1672) : barème conventionnel d\'indemnité de licenciement par tranches d\'ancienneté.',syntec:'CCN Syntec (IDCC 1486) : indemnité de licenciement propre (ETAM / ingénieurs et cadres) selon l\'ancienneté.',autre:'Reportez-vous à la grille d\'indemnité de licenciement de votre convention collective.'};
+  var d=document.getElementById('calc-secteur-note');
+  if(d){if(N[sc]){d.textContent='ℹ️ '+N[sc]+' On retient toujours le montant le plus favorable (légal ou conventionnel).';d.style.display='block';}else{d.style.display='none';}}
 }
 
 /* ===== Module XIII — Base jurisprudentielle agrégée ===== */
