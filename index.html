@@ -222,9 +222,9 @@ body{
 /* ----- badges ----- */
 .badge{border-radius:999px!important;letter-spacing:.4px}
 /* ----- inputs ----- */
-input,select,textarea{border-radius:11px!important;border-width:1.5px!important;background:rgba(8,18,28,.6)!important}
-input:focus,select:focus,textarea:focus{border-color:var(--or)!important;outline:3px solid rgba(212,175,85,.22)!important;background:#12283b!important}
-#home-secteur,#pse-secteur,#cse-secteur,[id^="sec-"]{font-size:13.5px!important;padding-right:44px!important;background-position:right 14px center}
+input,select,textarea{border-radius:11px!important;border-width:1.5px!important;background-color:rgba(8,18,28,.6)!important}
+input:focus,select:focus,textarea:focus{border-color:var(--or)!important;outline:3px solid rgba(212,175,85,.22)!important;background-color:#12283b!important}
+#home-secteur,#pse-secteur,#cse-secteur,#stat-secteur{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='12'%3E%3Cpath fill='none' stroke='%23eccf86' stroke-width='2.6' d='M2 3l7 6 7-6'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 14px center!important;background-color:#12283b!important;padding-right:46px!important;font-size:14px!important;font-weight:600;color:#fff!important}
 /* ----- tables ----- */
 table{border-radius:10px;overflow:hidden}
 th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!important;color:var(--or-clair)!important;letter-spacing:.3px}
@@ -456,7 +456,7 @@ try{
 <div class="home-wrap">
 
   <div class="home-disclaimer" style="border-left-color:var(--or);background:rgba(212,175,85,.08);margin-top:18px;margin-bottom:8px">
-  <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:8px">🏢 Secteur d'activité</div>
+  <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:8px">🏢 Choisissez votre secteur d'activité</div>
   <select id="home-secteur" onchange="appSetSecteur(this.value)" style="margin-bottom:8px">
     <option value="transport">Transport routier (IDCC 0016)</option>
     <option value="banque">Banque (IDCC 2120)</option>
@@ -2613,6 +2613,7 @@ function initApp(){
     const s=typeof localStorage!=='undefined'?localStorage.getItem('juris_transport'):null;
     if(s){
       E=JSON.parse(s);
+      if(E&&(E.nom==='T.E.C.'||E.nom==='TEC'||E.siret==='53845047900034')){E.nom='';E.siret='';E.adresse='';E.dirigeant='';try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){}}
       updateHeroTop();
       document.getElementById('pg-inscription').style.display='none';
       document.getElementById('pg-app').style.display='block';
