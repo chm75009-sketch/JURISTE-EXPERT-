@@ -488,6 +488,11 @@ try{
       <div class="hcard-body"><div class="t">Statut conventionnel &amp; RH</div><div class="d">Par secteur : convention, classification, essai, préavis, indemnités, maladie, primes, congés + jurisprudence</div><div class="m">Module XII</div></div>
       <div class="chev">›</div>
     </div>
+    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('juris')">
+      <div class="hcard-ic">⚖️</div>
+      <div class="hcard-body"><div class="t">Base jurisprudentielle sociale</div><div class="d">Toutes branches — recherche &amp; filtres par secteur et « favorable aux salariés »</div><div class="m">Module XIII</div></div>
+      <div class="chev">›</div>
+    </div>
   </div>
 
   <div class="home-sec">Réglementation</div>
@@ -1700,6 +1705,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('disciplinaire');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">V — Discipline / Licenciement</div></div></div>
   <div class="mi" onclick="goPage('pse');closeMenu()"><span style="font-size:18px">🛟</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XI — PSE / Licenciement éco.</div></div></div>
   <div class="mi" onclick="goPage('statut');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XII — Statut conventionnel</div></div></div>
+  <div class="mi" onclick="goPage('juris');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIII — Jurisprudence sociale</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VI — Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VII — Absences et congés</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VIII — Tableau de bord</div></div></div>
@@ -1724,6 +1730,23 @@ Exemple :<br>
   <button class="bn" id="bn-disciplinaire" onclick="goPage('disciplinaire')"><span class="bn-ic">⚖️</span>V</button>
   <button class="bn" id="bn-tableau-bord" onclick="goPage('tableau-bord')"><span class="bn-ic">📊</span>VIII</button>
 </nav>
+
+<!-- ═══ MODULE XIII — BASE JURISPRUDENTIELLE SOCIALE ═══ -->
+<div id="pg-juris" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XIII — Base jurisprudentielle sociale</div><div class="ts">Toutes branches · filtres secteur &amp; favorable</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+  <div class="ct">⚖️ Jurisprudence sociale — toutes branches</div>
+  <div class="al warn" style="font-size:12px;margin-bottom:10px">Base consolidée (PSE, licenciement économique, statut conventionnel) — toutes juridictions. Décisions marquées « réf. à vérifier » à recontrôler sur Légifrance avant usage professionnel.</div>
+  <input id="jur-q" type="text" placeholder="🔍 Rechercher (mot-clé, arrêt, juridiction, année…)" oninput="jurRender()">
+  <div id="jur-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px"></div>
+  <div id="jur-count" style="font-size:11px;color:#9a9585;margin:6px 0 10px"></div>
+  <div id="jur-list"></div>
+</div>
+<div style="height:20px"></div>
+</div>
 
 <!-- ═══ MODULE XII — STATUT CONVENTIONNEL & RH ═══ -->
 <div id="pg-statut" class="page">
@@ -2048,6 +2071,33 @@ function statRender(id){
 function statSetSecteur(){var el=document.getElementById('stat-secteur');var id=el?el.value:'transport';try{localStorage.setItem('secteur_statut',id);}catch(e){}statRender(id);}
 function statInit(){var id;try{id=localStorage.getItem('secteur_statut');}catch(e){}id=id||appGetSecteur();var el=document.getElementById('stat-secteur');if(el)el.value=id;statRender(id);}
 
+/* ===== Module XIII — Base jurisprudentielle agrégée ===== */
+var JURIS_ALL=PSE_JURIS.slice();
+(function(){for(var k in SECTEURS_STATUT){(SECTEURS_STATUT[k].jurisprudence||[]).forEach(function(d){JURIS_ALL.push(d);});}})();
+var jurSecteur='tous', jurFav=false;
+var JUR_SECTEURS=[['tous','Tous'],['transport','Transport'],['banque','Banque'],['assurances','Assurances'],['syntec','Syntec'],['general','Général']];
+function jurChips(){var h='';JUR_SECTEURS.forEach(function(a){h+='<span onclick="jurSetSecteur(this.dataset.s)" data-s="'+a[0]+'" class="tab'+(a[0]===jurSecteur?' act':'')+'" style="cursor:pointer">'+a[1]+'</span>';});
+  h+='<span onclick="jurToggleFav()" class="tab'+(jurFav?' act':'')+'" style="cursor:pointer">★ Favorables salariés</span>';
+  document.getElementById('jur-chips').innerHTML=h;}
+function jurSetSecteur(x){jurSecteur=x;jurRender();}
+function jurToggleFav(){jurFav=!jurFav;jurRender();}
+function jurMatch(d){if(jurSecteur==='general'){if(d.secteur)return false;}else if(jurSecteur!=='tous'){if(d.secteur!==jurSecteur)return false;}if(jurFav&&!d.fav)return false;return true;}
+function jurRender(){jurChips();
+  var q=(document.getElementById('jur-q').value||'').toLowerCase();
+  var host=document.getElementById('jur-list'),h='',n=0;
+  JURIS_ALL.forEach(function(d){if(!jurMatch(d))return;
+    var blob=((d.titre||'')+' '+(d.resume||d.regle||'')+' '+d.ref+' '+d.jur+' '+(d.theme||'')+' '+d.date).toLowerCase();
+    if(q&&blob.indexOf(q)<0)return; n++;
+    var lien=d.lien||('https://www.google.com/search?q='+encodeURIComponent(d.ref+' Légifrance'));
+    h+='<div class="juris-card"><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:5px">'+pseEsc(d.titre||d.ref)+'</div>'
+      +'<div class="juris-ref">'+pseEsc(d.ref)+'</div>'
+      +'<div style="margin:6px 0"><span class="badge badge-gold">'+pseEsc(d.jur)+'</span>'+(d.theme?' <span class="badge badge-blue">'+pseEsc(d.theme)+'</span>':'')+(d.fav?' <span class="badge badge-green">★ Favorable salariés</span>':'')+(d.verif?' <span class="badge badge-red">réf. à vérifier</span>':'')+'</div>'
+      +'<div style="font-size:13px;color:#e8e4d8;line-height:1.55">'+pseEsc(d.resume||d.regle||'')+'</div>'
+      +'<div class="juris-regle"><a href="'+lien+'" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div>';
+  });
+  host.innerHTML=h||'<div class="al info">Aucune décision ne correspond.</div>';
+  document.getElementById('jur-count').textContent=n+' décision(s) sur '+JURIS_ALL.length;}
+
 var pseJurisTheme='Tous', pseJurisFav=false;
 function pseJurisChips(){
   var themes=['Tous'];PSE_JURIS.forEach(function(d){if(themes.indexOf(d.theme)<0)themes.push(d.theme);});
@@ -2153,6 +2203,7 @@ function appSetSecteur(id){
   var cv=secGet('secteur_cse')||appGetSecteur();var ce=document.getElementById('cse-secteur');if(ce)ce.value=cv;if(typeof cseSetSecteur==='function')cseSetSecteur();
   MODS_SECTEUR.forEach(modInit);
   statInit();
+  if(document.getElementById('jur-list'))jurRender();
   updateHeroTop();
 })();
 </script>
