@@ -498,6 +498,11 @@ try{
       <div class="hcard-body"><div class="t">Calculateurs d'indemnités</div><div class="d">Indemnité légale de licenciement &amp; barème Macron (licenciement sans cause)</div><div class="m">Module XIV</div></div>
       <div class="chev">›</div>
     </div>
+    <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="goPage('licenc')">
+      <div class="hcard-ic">📑</div>
+      <div class="hcard-body"><div class="t">Procédure de licenciement</div><div class="d">Motif personnel : convocation, entretien, notification, délais, échéancier, sanctions</div><div class="m">Module XV</div></div>
+      <div class="chev">›</div>
+    </div>
   </div>
 
   <div class="home-sec">Réglementation</div>
@@ -1712,6 +1717,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('statut');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XII — Statut conventionnel</div></div></div>
   <div class="mi" onclick="goPage('juris');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIII — Jurisprudence sociale</div></div></div>
   <div class="mi" onclick="goPage('calc');closeMenu()"><span style="font-size:18px">🧮</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIV — Calculateurs</div></div></div>
+  <div class="mi" onclick="goPage('licenc');closeMenu()"><span style="font-size:18px">📑</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XV — Procédure licenciement</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VI — Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VII — Absences et congés</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VIII — Tableau de bord</div></div></div>
@@ -1736,6 +1742,73 @@ Exemple :<br>
   <button class="bn" id="bn-disciplinaire" onclick="goPage('disciplinaire')"><span class="bn-ic">⚖️</span>V</button>
   <button class="bn" id="bn-tableau-bord" onclick="goPage('tableau-bord')"><span class="bn-ic">📊</span>VIII</button>
 </nav>
+
+<!-- ═══ MODULE XV — PROCÉDURE DE LICENCIEMENT (MOTIF PERSONNEL) ═══ -->
+<div id="pg-licenc" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XV — Procédure de licenciement</div><div class="ts">Motif personnel · délais · échéancier</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+  <div class="ct">⚖️ Licenciement pour motif personnel — règles communes</div>
+  <div class="al info" style="font-size:12px">Procédure de droit commun (Code du travail), <b>identique quel que soit le secteur</b>. Le préavis et les indemnités, eux, dépendent de la convention : voir Module XII (Statut conventionnel) et Module XIV (Calculateurs).</div>
+</div>
+
+<div class="card">
+  <div class="bl">Étape 1</div><div class="ct" style="font-size:16px">Convocation à l'entretien préalable</div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt">Par <b>LRAR</b> ou remise en main propre contre décharge (art. L.1232-2).</div></div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt">Mentions : objet (éventuel licenciement), date/heure/lieu de l'entretien, possibilité de se faire <b>assister</b> (par un membre du personnel ; à défaut d'IRP, par un conseiller du salarié — liste en mairie/DREETS).</div></div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Délai : l'entretien ne peut avoir lieu moins de 5 jours ouvrables</b> après présentation de la convocation (art. L.1232-2).</div></div>
+</div>
+
+<div class="card">
+  <div class="bl">Étape 2</div><div class="ct" style="font-size:16px">Entretien préalable</div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt">L'employeur <b>expose les motifs</b> et recueille les explications du salarié (art. L.1232-3). <b>Aucune décision</b> n'est prise à l'entretien.</div></div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt">L'absence du salarié ne bloque pas la procédure.</div></div>
+</div>
+
+<div class="card">
+  <div class="bl">Étape 3</div><div class="ct" style="font-size:16px">Notification du licenciement</div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt">Par <b>LRAR</b>, avec <b>énoncé précis des motifs</b> (art. L.1232-6) — possibilité de préciser les motifs dans les 15 jours suivant la notification (art. L.1235-2).</div></div>
+  <div class="table-wrap"><table>
+    <tr><th>Type</th><th>Délai minimum après l'entretien</th><th>Délai maximum</th></tr>
+    <tr><td><b>Disciplinaire</b></td><td>2 jours ouvrables</td><td><b>1 mois</b> après l'entretien</td></tr>
+    <tr><td>Non disciplinaire (insuffisance…)</td><td>2 jours ouvrables</td><td>Pas de délai maximum</td></tr>
+  </table></div>
+</div>
+
+<div class="card">
+  <div class="bl">Étape 4</div><div class="ct" style="font-size:16px">Préavis &amp; fin du contrat</div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Préavis</b> sauf faute grave ou lourde — durée selon la <b>convention collective</b> et la catégorie (voir Module XII).</div></div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Documents</b> à remettre : certificat de travail, attestation France Travail, reçu pour solde de tout compte.</div></div>
+  <div class="step"><div class="step-num">•</div><div class="step-txt"><b>Indemnités</b> : indemnité de licenciement (légale ou conventionnelle, la plus favorable), indemnité compensatrice de préavis et de congés payés (voir Module XIV).</div></div>
+</div>
+
+<div class="card">
+  <div class="bl">Repère</div><div class="ct" style="font-size:16px">📅 Échéancier-type (disciplinaire)</div>
+  <div class="pse-tl">
+    <div class="pse-ev"><div class="j">J0</div><div class="x">Envoi de la convocation (LRAR)</div><div class="y">Le délai court à la présentation de la lettre.</div></div>
+    <div class="pse-ev"><div class="j">≥ J+5 ouvrables</div><div class="x">Entretien préalable</div><div class="y">Minimum 5 jours ouvrables après présentation.</div></div>
+    <div class="pse-ev"><div class="j">≥ entretien +2 j ouvrables</div><div class="x">Notification possible</div><div class="y">Et au plus tard 1 mois après l'entretien (disciplinaire).</div></div>
+    <div class="pse-ev"><div class="j">Après notification</div><div class="x">Préavis (sauf faute grave/lourde)</div><div class="y">Puis remise des documents de fin de contrat.</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct" style="font-size:16px">⚠️ Sanctions des irrégularités</div>
+  <div class="step"><div class="step-num">!</div><div class="step-txt"><b>Irrégularité de procédure</b> (mais cause réelle et sérieuse) : indemnité <b>≤ 1 mois</b> de salaire (art. L.1235-2).</div></div>
+  <div class="step"><div class="step-num">!</div><div class="step-txt"><b>Absence de cause réelle et sérieuse</b> : indemnité selon le <b>barème L.1235-3</b> (voir Module XIV).</div></div>
+  <div class="step"><div class="step-num">!</div><div class="step-txt"><b>Licenciement nul</b> (discrimination, harcèlement, statut protecteur…) : réintégration ou indemnité <b>≥ 6 mois</b> (hors barème).</div></div>
+</div>
+
+<div class="card">
+  <div class="ct" style="font-size:16px">⚖️ Jurisprudence procédurale</div>
+  <div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Assistance du salarié : mention obligatoire</div><div class="juris-ref">Art. L.1232-4 · jurisprudence constante</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">L'omission, dans la convocation, de la faculté de se faire assister constitue une irrégularité de procédure ouvrant droit à indemnité.</div></div>
+  <div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Énoncé des motifs : une lettre imprécise = absence de cause</div><div class="juris-ref">Cass. soc. (jurisprudence constante) · art. L.1232-6</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">À défaut de précision suffisante des motifs (et sauf complément dans les 15 jours), le licenciement est réputé sans cause réelle et sérieuse.</div></div>
+  <div class="al warn" style="font-size:11.5px;margin-top:6px">Références à confirmer sur Légifrance avant usage professionnel.</div>
+</div>
+<div style="height:20px"></div>
+</div>
 
 <!-- ═══ MODULE XIV — CALCULATEURS INDEMNITÉS ═══ -->
 <div id="pg-calc" class="page">
