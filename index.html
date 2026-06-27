@@ -523,6 +523,11 @@ try{
       <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures sup, forfait-jours, spécificités par secteur</div><div class="m">Module XIX</div></div>
       <div class="chev">›</div>
     </div>
+    <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="goPage('harcele')">
+      <div class="hcard-ic">🛡️</div>
+      <div class="hcard-body"><div class="t">Harcèlement &amp; discrimination</div><div class="d">Prévention, charge de la preuve aménagée, nullité, jurisprudence</div><div class="m">Module XX</div></div>
+      <div class="chev">›</div>
+    </div>
   </div>
 
   <div class="home-sec">Réglementation</div>
@@ -1742,6 +1747,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('cdd');closeMenu()"><span style="font-size:18px">📄</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XVII — CDD & précarité</div></div></div>
   <div class="mi" onclick="goPage('inapt');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XVIII — Inaptitude</div></div></div>
   <div class="mi" onclick="goPage('temps2');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XIX — Temps de travail</div></div></div>
+  <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">XX — Harcèlement &amp; discrim.</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VI — Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VII — Absences et congés</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">VIII — Tableau de bord</div></div></div>
@@ -1766,6 +1772,23 @@ Exemple :<br>
   <button class="bn" id="bn-disciplinaire" onclick="goPage('disciplinaire')"><span class="bn-ic">⚖️</span>V</button>
   <button class="bn" id="bn-tableau-bord" onclick="goPage('tableau-bord')"><span class="bn-ic">📊</span>VIII</button>
 </nav>
+
+<!-- ═══ MODULE XX — HARCÈLEMENT & DISCRIMINATION ═══ -->
+<div id="pg-harcele" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Module XX — Harcèlement &amp; discrimination</div><div class="ts">Prévention · preuve aménagée · nullité</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card"><div class="ct">🛡️ Harcèlement &amp; discrimination — cadre</div><div class="al info" style="font-size:12px">Dispositions d'ordre public (Code du travail), applicables <b>tous secteurs</b>. L'employeur est tenu d'une <b>obligation de sécurité</b> incluant la prévention du harcèlement.</div></div>
+<div class="card"><div class="ct" style="font-size:16px">Harcèlement moral (L.1152-1)</div><div class="step"><div class="step-num">•</div><div class="step-txt">Agissements répétés ayant pour objet ou effet une <b>dégradation des conditions de travail</b> susceptible de porter atteinte aux droits et à la dignité, d'altérer la santé ou de compromettre l'avenir professionnel.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>Prévention obligatoire</b> : actions de prévention, information, procédure interne ; <b>référent harcèlement</b> au CSE (et dans les entreprises ≥ 250 salariés côté employeur).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Tout licenciement / sanction lié à un harcèlement subi ou dénoncé (de bonne foi) est <b>nul</b>.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">Harcèlement sexuel &amp; agissement sexiste (L.1153-1, L.1142-2-1)</div><div class="step"><div class="step-num">•</div><div class="step-txt">Propos ou comportements à connotation sexuelle ou sexiste répétés ; ou pression grave même non répétée, dans le but d'obtenir un acte de nature sexuelle.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Mêmes protections : nullité des sanctions, obligation de prévention, affichage des textes.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">Discrimination (L.1132-1)</div><div class="step"><div class="step-num">•</div><div class="step-txt">Interdiction de toute mesure fondée sur un <b>critère prohibé</b> (origine, sexe, âge, état de santé, handicap, grossesse, activités syndicales, orientation sexuelle, convictions…).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Mesure discriminatoire = <b>nulle</b> ; réintégration possible et réparation intégrale du préjudice.</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚖️ Charge de la preuve aménagée</div><div class="step"><div class="step-num">!</div><div class="step-txt">Le salarié présente des <b>éléments de fait</b> laissant supposer l'existence d'un harcèlement / d'une discrimination ; il incombe alors à l'<b>employeur</b> de prouver que ses décisions sont justifiées par des éléments objectifs étrangers à tout harcèlement/discrimination (art. L.1154-1, L.1134-1).</div></div></div>
+<div class="card"><div class="ct" style="font-size:16px">⚖️ Jurisprudence</div>
+<div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Office du juge : appréciation globale des faits</div><div class="juris-ref">Cass. soc., 25 septembre 2024, n° 23-15.766 (et jurisprudence constante)</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">Le juge doit examiner <b>l'ensemble des éléments</b> présentés par le salarié et apprécier s'ils laissent supposer un harcèlement, sans se prononcer fait par fait.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%20harc%C3%A8lement%20moral%20appr%C3%A9ciation%20globale%20L%C3%A9gifrance" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div>
+<div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Obligation de sécurité &amp; prévention</div><div class="juris-ref">Cass. soc., 1er juin 2016, n° 14-19.702 (et s.)</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">L'employeur qui a pris les mesures de prévention nécessaires peut s'exonérer ; à défaut, sa responsabilité est engagée même s'il a réagi après les faits.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%201er%20juin%202016%2014-19.702%20obligation%20s%C3%A9curit%C3%A9" target="_blank" rel="noopener" style="color:#e8c97a">Consulter la source ↗</a></div></div>
+<div class="al warn" style="font-size:11.5px;margin-top:6px">Références à confirmer sur Légifrance avant usage professionnel.</div></div>
+<div style="height:20px"></div></div>
 
 <!-- ═══ MODULE XVI — RUPTURE CONVENTIONNELLE ═══ -->
 <div id="pg-rupconv" class="page">
