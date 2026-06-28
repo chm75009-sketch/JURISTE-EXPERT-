@@ -7820,5 +7820,34 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 })();
 </script>
 
+<script>
+/* ===== Sauvegarde automatique des saisies (survit à la fermeture) ===== */
+(function(){
+  var KEY='jx_fields_v1';
+  var BLOCK={'lock-input':1};
+  var WL=['diag-secteur','diag-ccn','diag-effectif','diag-rep','diag-anc','diag-anc-unit','diag-type','diag-resume',
+    'calc-type','calc-anc','calc-sal','calc-eff','calc-cpjours','calc-brut','calc-retmode','calc-secteur','calc-conv',
+    'disc-secteur','disc-motif','disc-faits','disc-date-faits','disc-date-connaissance','disc-protection',
+    'disc-sal-nom','disc-ant-desc'];
+  function keep(el){ if(!el||!el.id||BLOCK[el.id])return false; if(el.type==='file'||el.type==='password')return false; if(el.id.indexOf('dq-')===0)return true; return WL.indexOf(el.id)>=0; }
+  function load(){ try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};} }
+  function save(){ try{ var d=load(); document.querySelectorAll('input,select,textarea').forEach(function(el){ if(keep(el))d[el.id]=el.value; }); localStorage.setItem(KEY,JSON.stringify(d)); }catch(e){} }
+  function restore(){ var d=load(); for(var id in d){ if(BLOCK[id])continue; var el=document.getElementById(id); if(el&&el.type!=='file'&&d[id]!=null&&d[id]!=='')el.value=d[id]; } }
+  window.jxResetFields=function(){ try{localStorage.removeItem(KEY);}catch(e){} location.reload(); };
+  function init(){
+    restore(); // champs statiques
+    try{ if(typeof calcTypeChange==='function'&&document.getElementById('calc-type'))calcTypeChange(); }catch(e){}
+    try{ if(typeof calcSecteurNote==='function'&&document.getElementById('calc-secteur'))calcSecteurNote(); }catch(e){}
+    try{ if(typeof window.diagRender==='function'&&document.getElementById('diag-type'))window.diagRender(); }catch(e){}
+    try{ if(typeof buildDiscMotifs==='function'&&document.getElementById('disc-secteur'))buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||'transport'); }catch(e){}
+    restore(); // champs dynamiques (questions dq-*, motif) désormais présents
+    try{ if(typeof updateDiscMotif==='function'&&(document.getElementById('disc-motif')||{}).value)updateDiscMotif(); }catch(e){}
+    document.addEventListener('input',save,true);
+    document.addEventListener('change',save,true);
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+
 </body>
 </html>
