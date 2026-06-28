@@ -1787,9 +1787,9 @@ Exemple :<br>
   <div class="ct">💬 Questions / Réponses des salariés</div>
   <div class="al warn" style="font-size:12px;margin-bottom:10px"><b>⚠️ Réserve importante.</b> Ces réponses sont des <b>éléments d'information juridique générale</b>, à jour à la date de rédaction et <b>non un conseil personnalisé</b>. Elles <b>doivent être vérifiées</b> (textes et jurisprudence sur Légifrance) et <b>adaptées</b> à votre situation concrète et à votre <b>convention collective</b>. En cas de litige, rapprochez-vous d'un avocat, d'un syndicat ou de l'inspection du travail.</div>
   <input id="faq-q" type="text" placeholder="🔍 Rechercher une question, un mot-clé…" oninput="faqRender()" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.20);background:rgba(255,255,255,0.10);color:#fff;font-size:15px;outline:none;margin-bottom:4px">
-  <div id="faq-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px"></div>
-  <div id="faq-count" style="font-size:11px;color:#9a9585;margin:6px 0 10px"></div>
-  <div id="faq-list"></div>
+  <div id="faq-count" style="font-size:12px;color:#e8c97a;font-weight:600;margin:8px 0 6px"></div>
+  <div id="faq-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px"></div>
+  <div id="faq-list" style="margin-top:8px"></div>
 </div>
 <div style="height:20px"></div>
 </div>
@@ -2463,7 +2463,8 @@ function faqChips(){var t=['Tous'];FAQ_ALL.forEach(function(d){if(t.indexOf(d.th
 function faqSetTheme(x){faqTheme=x;faqRender();}
 function faqToggle(i){var a=document.getElementById('faq-a-'+i);var p=document.getElementById('faq-p-'+i);if(a){var o=a.style.display!=='none';a.style.display=o?'none':'block';if(p)p.textContent=o?'+':'–';}}
 function faqRender(){faqChips();
-  var q=(document.getElementById('faq-q').value||'').toLowerCase();
+  var q=(document.getElementById('faq-q').value||'').toLowerCase().trim();
+  var chips=document.getElementById('faq-chips');if(chips)chips.style.display=q?'none':'flex';
   var host=document.getElementById('faq-list'),h='',n=0;
   FAQ_ALL.forEach(function(d,i){
     if(faqTheme!=='Tous'&&d.theme!==faqTheme)return;
@@ -2477,7 +2478,7 @@ function faqRender(){faqChips();
       +'</div></div>';
   });
   host.innerHTML=h||'<div class="al info">Aucune question ne correspond à votre recherche.</div>';
-  document.getElementById('faq-count').textContent=n+' question(s) sur '+FAQ_ALL.length;}
+  document.getElementById('faq-count').textContent = q ? (n+' résultat(s) pour « '+q+' »') : (n+' question(s) — tapez un mot-clé ou choisissez un thème');}
 
 
 var pseJurisTheme='Tous', pseJurisFav=false;
