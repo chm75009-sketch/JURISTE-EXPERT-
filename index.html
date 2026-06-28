@@ -1102,29 +1102,21 @@ try{
 <div class="ct">Identification de la situation</div>
 <div class="al err" style="font-size:12px;margin-bottom:12px">⚠ La qualification de la faute et la rédaction de la lettre de licenciement engagent la responsabilité de l'employeur. Consultez impérativement un avocat avant toute notification.</div>
 
+<div class="fg"><label class="fl">Secteur / convention collective</label>
+<select id="disc-secteur" onchange="buildDiscMotifs(this.value)">
+  <option value="transport">Transport routier (IDCC 0016)</option>
+  <option value="banque">Banque (IDCC 2120)</option>
+  <option value="assurances">Assurances (IDCC 1672)</option>
+  <option value="syntec">Syntec — conseil / informatique (IDCC 1486)</option>
+  <option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option>
+  <option value="formation">Organismes de formation (IDCC 1516)</option>
+  <option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option>
+  <option value="autre">Autre / non précisé</option>
+</select></div>
+
 <div class="fg"><label class="fl">Nature des faits reprochés</label>
 <select id="disc-motif" onchange="updateDiscMotif()">
   <option value="">Sélectionnez...</option>
-  <optgroup label="Spécificités transport">
-    <option value="permis_travail">Retrait/suspension de permis — lors du travail</option>
-    <option value="permis_hors">Retrait/suspension de permis — hors travail</option>
-    <option value="alcool_travail">Alcoolémie positive — lors du service</option>
-    <option value="alcool_hors">Alcoolémie/stupéfiants — hors travail</option>
-    <option value="tachygraphe">Falsification/manipulation du tachygraphe</option>
-    <option value="inaptitude">Inaptitude médicale à la conduite</option>
-    <option value="accident">Accident de la route responsable</option>
-    <option value="surcharge">Surcharge du véhicule</option>
-    <option value="itineraire">Non-respect d'itinéraire imposé (ADR)</option>
-    <option value="usage_prive">Utilisation du véhicule à des fins personnelles</option>
-  </optgroup>
-  <optgroup label="Fautes générales">
-    <option value="absence">Absence injustifiée</option>
-    <option value="insubordination">Insubordination / refus de mission</option>
-    <option value="vol">Vol / détournement de marchandise</option>
-    <option value="avarie">Avarie marchandise / retard répété</option>
-    <option value="abandon">Abandon de poste</option>
-    <option value="autre">Autre (description libre)</option>
-  </optgroup>
 </select></div>
 
 <div class="fg"><label class="fl">Description précise des faits</label>
@@ -1952,14 +1944,26 @@ Exemple :<br>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
-  <div class="ct">🧮 Indemnités de licenciement</div>
-  <div class="al info" style="font-size:12px;margin-bottom:12px">Indemnité légale de licenciement + barème d'indemnisation du licenciement sans cause réelle et sérieuse (art. L.1235-3). Pour l'indemnité <b>conventionnelle</b> propre au secteur, voir le Module XII (Statut conventionnel).</div>
-  <div class="fg"><label class="fl">Ancienneté (années, décimales acceptées)</label><input id="calc-anc" type="number" min="0" step="0.1" value="6"></div>
-  <div class="fg"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="calc-sal" type="number" min="0" step="50" value="3000"></div>
-  <div class="fg"><label class="fl">Effectif de l'entreprise</label><select id="calc-eff"><option value="ge11">11 salariés ou plus</option><option value="lt11">Moins de 11 salariés</option></select></div>
-  <div class="fg"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="autre">Autre convention</option></select></div>
+  <div class="ct">🧮 Calculateur d'indemnités</div>
+  <div class="al info" style="font-size:12px;margin-bottom:12px">Choisissez d'abord le <b>type d'indemnité</b> à calculer. Les montants sont des estimations ; la convention collective plus favorable prime toujours (art. L2251-1).</div>
+  <div class="fg"><label class="fl">Type d'indemnité</label><select id="calc-type" onchange="calcTypeChange()">
+    <option value="lic">Indemnité de licenciement (légale / conventionnelle)</option>
+    <option value="macron">Licenciement sans cause réelle et sérieuse (barème « Macron »)</option>
+    <option value="cp">Indemnité compensatrice de congés payés</option>
+    <option value="preavis">Indemnité compensatrice de préavis</option>
+    <option value="precarite">Indemnité de précarité (fin de CDD)</option>
+    <option value="rupconv">Indemnité de rupture conventionnelle</option>
+    <option value="retraite">Indemnité de départ / mise à la retraite</option>
+  </select></div>
+  <div class="fg" id="cg-anc"><label class="fl">Ancienneté (années, décimales acceptées)</label><input id="calc-anc" type="number" min="0" step="0.1" value="6"></div>
+  <div class="fg" id="cg-sal"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="calc-sal" type="number" min="0" step="50" value="3000"></div>
+  <div class="fg" id="cg-eff"><label class="fl">Effectif de l'entreprise</label><select id="calc-eff"><option value="ge11">11 salariés ou plus</option><option value="lt11">Moins de 11 salariés</option></select></div>
+  <div class="fg" id="cg-cpjours"><label class="fl">Jours de congés payés acquis et non pris (jours ouvrables)</label><input id="calc-cpjours" type="number" min="0" step="0.5" value="0"></div>
+  <div class="fg" id="cg-brut"><label class="fl">Rémunération brute totale perçue pendant tout le CDD (€)</label><input id="calc-brut" type="number" min="0" step="100" value="0"></div>
+  <div class="fg" id="cg-retmode"><label class="fl">Situation de départ en retraite</label><select id="calc-retmode"><option value="mise">Mise à la retraite (à l'initiative de l'employeur)</option><option value="depart">Départ volontaire à la retraite (à l'initiative du salarié)</option></select></div>
+  <div class="fg" id="cg-secteur"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="autre">Autre convention</option></select></div>
   <div id="calc-secteur-note" style="font-size:12px;color:#6b5a2e;background:#fff7e6;border:1px solid #e7d9b0;border-radius:8px;padding:8px;margin-bottom:8px;display:none"></div>
-  <div class="fg"><label class="fl">Indemnité conventionnelle connue (€) — facultatif</label><input id="calc-conv" type="number" min="0" step="50" placeholder="Montant selon votre CCN, si connu"></div>
+  <div class="fg" id="cg-conv"><label class="fl">Indemnité conventionnelle connue (€) — facultatif</label><input id="calc-conv" type="number" min="0" step="50" placeholder="Montant selon votre CCN, si connu"></div>
   <button class="btn" onclick="calcIndemXIV()">Calculer</button>
   <div id="calc-res" style="margin-top:6px"></div>
 </div>
@@ -2310,37 +2314,105 @@ function statInit(){var id;try{id=localStorage.getItem('secteur_statut');}catch(
 var BAREME_GE11=[[0,1],[1,2],[3,3.5],[3,4],[3,5],[3,6],[3,7],[3,8],[3,8],[3,9],[3,10],[3,10.5],[3,11],[3,11.5],[3,12],[3,13],[3,13.5],[3,14],[3,14.5],[3,15],[3,15.5],[3,16],[3,16.5],[3,17],[3,17.5],[3,18],[3,18.5],[3,19],[3,19.5],[3,20],[3,20]];
 var BAREME_MIN_LT11=[0,0.5,0.5,1,1,1.5,1.5,2,2,2.5,2.5];
 function calcFmt(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+var CALC_VIS={lic:['anc','sal','eff','secteur','conv'],macron:['anc','sal','eff'],cp:['sal','cpjours'],preavis:['anc','sal','secteur'],precarite:['brut'],rupconv:['anc','sal','secteur','conv'],retraite:['anc','sal','retmode','secteur','conv']};
+function calcTypeChange(){
+  var t=(document.getElementById('calc-type')||{}).value||'lic';
+  var vis=CALC_VIS[t]||[];
+  ['anc','sal','eff','cpjours','brut','retmode','secteur','conv'].forEach(function(g){
+    var el=document.getElementById('cg-'+g); if(el)el.style.display=(vis.indexOf(g)>=0?'':'none');
+  });
+  if(vis.indexOf('secteur')<0){var n=document.getElementById('calc-secteur-note');if(n)n.style.display='none';}
+  var r=document.getElementById('calc-res'); if(r)r.innerHTML='';
+}
 function calcIndemXIV(){
+  var t=(document.getElementById('calc-type')||{}).value||'lic';
   var anc=parseFloat(document.getElementById('calc-anc').value)||0;
   var sal=parseFloat(document.getElementById('calc-sal').value)||0;
   var eff=document.getElementById('calc-eff').value;
-  var out=document.getElementById('calc-res');
-  var ai=Math.floor(anc); if(ai>30)ai=30;
-  var bar=BAREME_GE11[ai]||[3,20];
-  var mn=bar[0], mx=bar[1];
-  if(eff==='lt11' && ai<=10){ mn=BAREME_MIN_LT11[ai]; }
-  // indemnité légale de licenciement (dès 8 mois)
-  var leg = anc>=0.6667 ? (Math.min(anc,10)*0.25 + Math.max(anc-10,0)/3)*sal : 0;
-  var html='<div class="pse-verdict ok"><b>Indemnité légale de licenciement</b>'
-    + (anc>=0.6667 ? ('≈ <b>'+calcFmt(leg)+' €</b> ('+ (sal? (leg/sal).toFixed(2):'—') +' mois) — ¼ mois/an jusqu\'à 10 ans, ⅓ au-delà.') : 'Ancienneté < 8 mois : pas d\'indemnité légale.')
-    + '</div>';
-  html+='<div class="pse-verdict warn" style="margin-top:10px"><b>Barème « Macron » (L1235-3)</b>'
-    + 'Indemnité en cas de licenciement <b>sans cause réelle et sérieuse</b> ('+ai+(ai>=30?'+':'')+' an'+(ai>1?'s':'')+' d\'ancienneté, entreprise '+(eff==='lt11'?'< 11':'≥ 11')+' salariés) :'
-    + '<div class="pse-line"><span>Fourchette (mois)</span><span>'+mn+' à '+mx+' mois</span></div>'
-    + '<div class="pse-line"><span>Fourchette (€)</span><span>'+calcFmt(mn*sal)+' € à '+calcFmt(mx*sal)+' €</span></div>'
-    + '<p class="loi" style="margin-top:8px">Plancher/plafond fixés par l\'article L.1235-3 (hors nullité : licenciement nul = ≥ 6 mois, hors barème). Barème indicatif — vérifier la table en vigueur.</p>'
-    + '</div>';
-  var conv=parseFloat((document.getElementById('calc-conv')||{}).value)||0;
   var sc=(document.getElementById('calc-secteur')||{}).value||'';
+  var conv=parseFloat((document.getElementById('calc-conv')||{}).value)||0;
+  var out=document.getElementById('calc-res');
   var SCL={transport:'la CCN Transports routiers (IDCC 0016)',banque:'la CCN Banque (IDCC 2120)',assurances:'la CCN Sociétés d\'assurances (IDCC 1672)',syntec:'la CCN Syntec (IDCC 1486)',enseignement:'la CCN Enseignement privé non lucratif – EPNL (IDCC 3218)',formation:'la CCN des organismes de formation (IDCC 1516)',ensindep:'la CCN de l\'enseignement privé indépendant (IDCC 2691)',autre:'votre convention collective'};
-  if(conv>0){
-    var ret=Math.max(leg,conv); var favConv=(conv>leg);
-    html='<div class="pse-verdict ok"><b>Montant retenu (le plus favorable)</b> ≈ <b>'+calcFmt(ret)+' €</b>'
-      +'<div class="pse-line"><span>Indemnité légale</span><span>'+calcFmt(leg)+' €</span></div>'
-      +'<div class="pse-line"><span>Indemnité conventionnelle saisie</span><span>'+calcFmt(conv)+' €</span></div>'
-      +'<p class="loi" style="margin-top:6px">'+(favConv?'L\'indemnité CONVENTIONNELLE s\'applique (plus favorable).':'L\'indemnité LÉGALE s\'applique (au moins égale à la conventionnelle).')+' Principe de faveur — art. L2251-1.</p></div>'+html;
-  } else {
-    html+='<div class="pse-verdict" style="margin-top:10px;background:#fff7e6;border:1px solid #e7d9b0"><b>⚖️ Et la convention collective ?</b> L\'indemnité légale ci-dessus n\'est qu\'un PLANCHER. Si '+(SCL[sc]||'votre convention collective')+' prévoit une indemnité de licenciement plus favorable, c\'est elle qui s\'applique (art. L2251-1). Reportez-vous à sa grille (par tranches d\'ancienneté et catégorie) puis saisissez le montant conventionnel ci-dessus pour comparer automatiquement.</div>';
+  var ccnLabel=SCL[sc]||'votre convention collective';
+  // indemnité légale de licenciement (dès 8 mois d'ancienneté)
+  var leg = anc>=0.6667 ? (Math.min(anc,10)*0.25 + Math.max(anc-10,0)/3)*sal : 0;
+  var html='';
+  function compareConv(legalAmount,legalLabel){
+    if(conv>0){
+      var ret=Math.max(legalAmount,conv); var favConv=(conv>legalAmount);
+      return '<div class="pse-verdict ok"><b>Montant retenu (le plus favorable)</b> ≈ <b>'+calcFmt(ret)+' €</b>'
+        +'<div class="pse-line"><span>'+legalLabel+'</span><span>'+calcFmt(legalAmount)+' €</span></div>'
+        +'<div class="pse-line"><span>Montant conventionnel saisi</span><span>'+calcFmt(conv)+' €</span></div>'
+        +'<p class="loi" style="margin-top:6px">'+(favConv?'Le montant CONVENTIONNEL s\'applique (plus favorable).':'Le montant LÉGAL s\'applique (au moins égal au conventionnel).')+' Principe de faveur — art. L2251-1.</p></div>';
+    }
+    return '<div class="pse-verdict" style="margin-top:10px;background:#fff7e6;border:1px solid #e7d9b0"><b>⚖️ Et la convention collective ?</b> Le montant légal ci-dessus n\'est qu\'un PLANCHER. Si '+ccnLabel+' prévoit un montant plus favorable, c\'est lui qui s\'applique (art. L2251-1). Reportez-vous à sa grille puis saisissez le montant conventionnel ci-dessus pour comparer automatiquement.</div>';
+  }
+
+  if(t==='macron'){
+    var ai=Math.floor(anc); if(ai>30)ai=30;
+    var bar=BAREME_GE11[ai]||[3,20]; var mn=bar[0], mx=bar[1];
+    if(eff==='lt11' && ai<=10){ mn=BAREME_MIN_LT11[ai]; }
+    html='<div class="pse-verdict warn"><b>Barème « Macron » (art. L1235-3)</b>'
+      + 'Indemnité en cas de licenciement <b>sans cause réelle et sérieuse</b> ('+ai+(ai>=30?'+':'')+' an'+(ai>1?'s':'')+' d\'ancienneté, entreprise '+(eff==='lt11'?'< 11':'≥ 11')+' salariés) :'
+      + '<div class="pse-line"><span>Fourchette (mois)</span><span>'+mn+' à '+mx+' mois</span></div>'
+      + '<div class="pse-line"><span>Fourchette (€)</span><span>'+calcFmt(mn*sal)+' € à '+calcFmt(mx*sal)+' €</span></div>'
+      + '<p class="loi" style="margin-top:8px">Plancher/plafond fixés par l\'article L1235-3. En cas de licenciement <b>nul</b> (discrimination, harcèlement, grève, maternité…), le barème ne s\'applique pas : l\'indemnité est au minimum de 6 mois de salaire. Le juge peut écarter le barème dans certains cas (contrôle de conventionnalité). Barème indicatif — vérifier la table en vigueur.</p></div>';
+
+  } else if(t==='cp'){
+    var j=parseFloat((document.getElementById('calc-cpjours')||{}).value)||0;
+    var dix=j*sal/25, maint=j*sal/26, ret=Math.max(dix,maint);
+    html='<div class="pse-verdict ok"><b>Indemnité compensatrice de congés payés</b> ≈ <b>'+calcFmt(ret)+' €</b>'
+      +'<div class="pse-line"><span>Règle du 1/10e</span><span>'+calcFmt(dix)+' €</span></div>'
+      +'<div class="pse-line"><span>Règle du maintien de salaire</span><span>'+calcFmt(maint)+' €</span></div>'
+      +'<p class="loi" style="margin-top:8px">On retient le montant le plus favorable au salarié (C. trav. art. L3141-24). Estimation pour '+(j||0)+' jour(s) ouvrable(s) — la base 1/10e porte sur la rémunération brute totale de la période de référence ; le calcul exact dépend des éléments de salaire inclus. Due quelle que soit la cause de la rupture (sauf faute lourde, et encore : la jurisprudence l\'accorde). Vérifiez aussi les jours conventionnels/RTT non pris.</p></div>';
+
+  } else if(t==='preavis'){
+    var dur, durTxt;
+    if(anc<0.5){dur=null;durTxt='Ancienneté < 6 mois : durée fixée par la convention collective, les usages ou le contrat (pas de durée légale fixée).';}
+    else if(anc<2){dur=1;durTxt='1 mois (ancienneté de 6 mois à moins de 2 ans).';}
+    else {dur=2;durTxt='2 mois (ancienneté ≥ 2 ans).';}
+    html='<div class="pse-verdict ok"><b>Indemnité compensatrice de préavis</b>';
+    if(dur){html+=' ≈ <b>'+calcFmt(dur*sal)+' €</b>'
+      +'<div class="pse-line"><span>Durée légale (minimum)</span><span>'+dur+' mois</span></div>'
+      +'<div class="pse-line"><span>Montant ('+dur+' × salaire)</span><span>'+calcFmt(dur*sal)+' €</span></div>';}
+    html+='<p class="loi" style="margin-top:8px">'+durTxt+' Durées légales minimales de l\'art. L1234-1. <b>La convention collective ('+ccnLabel+') prévoit souvent un préavis plus long</b> (ex. 3 mois pour les cadres) : c\'est elle qui s\'applique si elle est plus favorable. Due si l\'employeur dispense le salarié d\'exécuter le préavis ; non due en cas de faute grave ou lourde. À ne pas confondre avec le préavis de démission (souvent fixé par la CCN).</p></div>';
+
+  } else if(t==='precarite'){
+    var brut=parseFloat((document.getElementById('calc-brut')||{}).value)||0;
+    var p10=brut*0.10, p6=brut*0.06;
+    html='<div class="pse-verdict ok"><b>Indemnité de fin de CDD (prime de précarité)</b> ≈ <b>'+calcFmt(p10)+' €</b>'
+      +'<div class="pse-line"><span>Taux normal : 10%</span><span>'+calcFmt(p10)+' €</span></div>'
+      +'<div class="pse-line"><span>Taux réduit éventuel : 6%</span><span>'+calcFmt(p6)+' €</span></div>'
+      +'<p class="loi" style="margin-top:8px">10% de la rémunération brute totale versée pendant le contrat (C. trav. art. L1243-8). Taux réductible à 6% par accord de branche étendu si des contreparties de formation sont offertes. <b>Non due</b> notamment : CDD saisonnier ou d\'usage, contrat avec un jeune pendant ses vacances scolaires, refus par le salarié d\'un CDI sur le même emploi, embauche en CDI à l\'issue, rupture anticipée pour faute grave ou force majeure. S\'ajoute à l\'indemnité de congés payés.</p></div>';
+
+  } else if(t==='rupconv'){
+    html='<div class="pse-verdict ok"><b>Indemnité spécifique de rupture conventionnelle</b>'
+      + (anc>=0.6667 ? (' — minimum ≈ <b>'+calcFmt(leg)+' €</b> ('+(sal?(leg/sal).toFixed(2):'—')+' mois)') : ' : ancienneté < 8 mois, pas de plancher légal d\'indemnité de licenciement, mais une indemnité reste négociable.')
+      + '<p class="loi" style="margin-top:8px">L\'indemnité de rupture conventionnelle ne peut être inférieure à l\'indemnité légale de licenciement (¼ mois/an jusqu\'à 10 ans, ⅓ au-delà — C. trav. art. L1237-13). Si la convention collective prévoit une indemnité de licenciement plus favorable et lui est applicable, ce montant conventionnel sert de plancher. Le montant réel est <b>librement négocié</b> et peut être supérieur. Régime social/fiscal spécifique selon les seuils.</p></div>';
+    html+=compareConv(leg,'Indemnité légale de licenciement (plancher)');
+
+  } else if(t==='retraite'){
+    var mode=(document.getElementById('calc-retmode')||{}).value||'mise';
+    if(mode==='mise'){
+      html='<div class="pse-verdict ok"><b>Indemnité de mise à la retraite</b>'
+        + ' — minimum ≈ <b>'+calcFmt(leg)+' €</b> ('+(sal?(leg/sal).toFixed(2):'—')+' mois)'
+        + '<p class="loi" style="margin-top:8px">À l\'initiative de l\'employeur : l\'indemnité ne peut être inférieure à l\'indemnité légale de licenciement (C. trav. art. L1237-7), sauf indemnité conventionnelle de mise à la retraite plus favorable. La mise à la retraite n\'est possible qu\'à partir de 70 ans sans accord du salarié ; entre l\'âge du taux plein et 70 ans, une procédure d\'interrogation annuelle est requise.</p></div>';
+      html+=compareConv(leg,'Indemnité légale de licenciement (plancher)');
+    } else {
+      var dr; if(anc<10)dr=0; else if(anc<15)dr=0.5; else if(anc<20)dr=1; else if(anc<30)dr=1.5; else dr=2;
+      var dm=dr*sal;
+      html='<div class="pse-verdict ok"><b>Indemnité de départ volontaire à la retraite</b>'
+        + (dr>0 ? (' ≈ <b>'+calcFmt(dm)+' €</b> ('+dr+' mois)') : ' : ancienneté < 10 ans → pas d\'indemnité légale de départ.')
+        + '<div class="pse-line"><span>Barème légal</span><span>'+dr+' mois</span></div>'
+        + '<p class="loi" style="margin-top:8px">Départ à l\'initiative du salarié (C. trav. art. L1237-9, D1237-1) : ½ mois après 10 ans, 1 mois après 15 ans, 1,5 mois après 20 ans, 2 mois après 30 ans. <b>La convention collective ('+ccnLabel+') prévoit souvent un barème plus favorable</b> : il s\'applique alors.</p></div>';
+      html+=compareConv(dm,'Indemnité légale de départ à la retraite');
+    }
+
+  } else { // lic — indemnité de licenciement
+    html='<div class="pse-verdict ok"><b>Indemnité légale de licenciement</b>'
+      + (anc>=0.6667 ? (' ≈ <b>'+calcFmt(leg)+' €</b> ('+ (sal? (leg/sal).toFixed(2):'—') +' mois) — ¼ mois/an jusqu\'à 10 ans, ⅓ au-delà.') : ' : ancienneté < 8 mois → pas d\'indemnité légale.')
+      + '<p class="loi" style="margin-top:6px">Base de calcul = moyenne la plus favorable entre les 12 ou les 3 derniers mois (C. trav. art. R1234-4). Non due en cas de faute grave ou lourde.</p></div>';
+    html+=compareConv(leg,'Indemnité légale de licenciement');
   }
   out.innerHTML=html;
 }
@@ -2350,6 +2422,7 @@ function calcSecteurNote(){
   var d=document.getElementById('calc-secteur-note');
   if(d){if(N[sc]){d.textContent='ℹ️ '+N[sc]+' On retient toujours le montant le plus favorable (légal ou conventionnel).';d.style.display='block';}else{d.style.display='none';}}
 }
+if(document.readyState!=='loading')calcTypeChange();else document.addEventListener('DOMContentLoaded',function(){try{calcTypeChange();}catch(e){}});
 
 /* ===== Module XIII — Base jurisprudentielle agrégée ===== */
 var JURIS_ALL=PSE_JURIS.slice();
@@ -3301,8 +3374,124 @@ const JURISPRUDENCE_DISCIPLINE={
   tachygraphe:{titre:`Falsification du tachygraphe`,analyse:`<div class="juris-card"><div class="juris-ref">Cass. soc. 13 décembre 2017 — n°16-19.044 · Cass. crim. 7 mars 2018</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> Falsification = faute grave systématique. Double responsabilité pénale conducteur + employeur (art. L.3315-5 C. transports — 2 ans + 30 000 €).</div></div><div class="al err" style="font-size:12px;margin-top:8px">⚠ Envisager un signalement DREAL et consulter un avocat pénaliste</div>`,docs:['map_conservatoire','convocation','lettre_fg']},
   inaptitude:{titre:`Inaptitude médicale`,analyse:`<div class="juris-card"><div class="badge badge-blue" style="margin-bottom:6px">ORIGINE NON PRO — Art. L.1226-2</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7">Indemnité légale normale · Reclassement obligatoire · Consultation CSE recommandée</div></div><div class="juris-card" style="margin-top:8px"><div class="badge badge-red" style="margin-bottom:6px">ORIGINE PRO (AT/MP) — Art. L.1226-10</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7">Consultation CSE OBLIGATOIRE · Indemnité DOUBLÉE · Préavis dû même si non exécuté (art. L.1226-14)</div></div>`,docs:['reclassement','lettre_inaptitude']},
   absence:{titre:`Absence injustifiée / Abandon de poste`,analyse:`<div class="juris-card"><div class="juris-ref">Loi du 21/12/2022 — Art. L.1237-1-1 C. trav.</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> Mise en demeure OBLIGATOIRE (délai 15 jours min.) avant présomption de démission. Ne pas licencier sans cette étape préalable.</div></div>`,docs:['mise_demeure','convocation','lettre_fg']},
-  standard:{titre:`Licenciement — Procédure standard`,analyse:`<div class="al info" style="font-size:13px">Procédure de droit commun — Étapes : convocation (5 jours ouvrables) → entretien → notification (2j ouvrables min., 1 mois max). CCN Transport : préavis ouvriers/employés < 6 mois : 8j | ≥ 6 mois : 1 mois · TAM : 2 mois · Cadres : 3 mois.</div>`,docs:['convocation','lettre_lic']},
+  standard:{titre:`Licenciement — Procédure standard`,analyse:`<div class="al info" style="font-size:13px">Procédure de droit commun — Étapes : convocation (5 jours ouvrables) → entretien → notification (2j ouvrables min., 1 mois max). Vérifiez le préavis et l'indemnité prévus par votre convention collective (souvent plus favorables que la loi — art. L2251-1).</div>`,docs:['convocation','lettre_lic']},
 };
+
+/* ===== Fautes spécifiques par secteur (menu adaptatif) ===== */
+var _DFG=['map_conservatoire','convocation','lettre_fg'];
+var _DLIC=['convocation','lettre_lic'];
+function _jc(ref,regle,extra){return '<div class="juris-card"><div class="juris-ref">'+ref+'</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> '+regle+'</div></div>'+(extra||'');}
+var _fgBan='<div class="al err" style="font-size:12px;margin-top:8px">Procédure : mise à pied conservatoire → convocation → licenciement pour faute grave. Faire vérifier par un avocat.</div>';
+
+var DISC_GENERAL=[
+  {v:'absence',l:'Absence injustifiée / abandon de poste'},
+  {v:'insubordination',l:'Insubordination / refus d\'instruction'},
+  {v:'vol',l:'Vol / détournement'},
+  {v:'harcelement',l:'Harcèlement / violence / agissements sexistes',t:'Harcèlement, violence ou agissements sexistes',
+    a:_jc('C. trav. art. L1152-1, L1153-1 · obligation de sécurité L4121-1','L\'employeur a une obligation de prévention ; des faits de harcèlement ou de violence avérés justifient en principe un licenciement pour faute grave. La preuve s\'apprécie au regard des éléments présentés de part et d\'autre (art. L1154-1).',_fgBan),d:_DFG},
+  {v:'inaptitude',l:'Inaptitude médicale'},
+  {v:'faute_hors',l:'Fait relevant de la vie personnelle / hors travail',t:'Fait tiré de la vie personnelle',
+    a:_jc('Jurisprudence constante (Cass. soc.)','Un motif tiré de la vie personnelle ne peut en principe justifier un licenciement disciplinaire, SAUF s\'il constitue un manquement à une obligation découlant du contrat (ex. obligation de sécurité, atteinte à l\'image ou aux intérêts de l\'entreprise rattachée à la vie professionnelle). À défaut de rattachement, seul un licenciement non disciplinaire (trouble objectif) reste éventuellement envisageable.'),d:_DLIC},
+  {v:'autre',l:'Autre (description libre)'}
+];
+
+var DISC_SECTEURS={
+ transport:[
+   {v:'permis_travail',l:'Retrait/suspension de permis — lors du travail'},
+   {v:'permis_hors',l:'Retrait/suspension de permis — hors travail'},
+   {v:'alcool_travail',l:'Alcoolémie positive — lors du service'},
+   {v:'alcool_hors',l:'Alcoolémie/stupéfiants — hors travail'},
+   {v:'tachygraphe',l:'Falsification/manipulation du tachygraphe'},
+   {v:'accident',l:'Accident de la route responsable'},
+   {v:'surcharge',l:'Surcharge du véhicule'},
+   {v:'itineraire',l:'Non-respect d\'itinéraire imposé (ADR)'},
+   {v:'usage_prive',l:'Utilisation du véhicule à des fins personnelles'}
+ ],
+ banque:[
+   {v:'ban_secret',l:'Violation du secret bancaire / professionnel',t:'Violation du secret bancaire',
+     a:_jc('C. monét. fin. art. L511-33 · délit art. L571-4','Le secret bancaire s\'impose à tout salarié de banque. La divulgation d\'informations couvertes constitue en principe une faute grave et peut être pénalement réprimée.',_fgBan),d:_DFG},
+   {v:'ban_detournement',l:'Détournement de fonds / opérations frauduleuses',t:'Détournement de fonds',
+     a:_jc('Abus de confiance — C. pénal art. 314-1','Le détournement de fonds ou les opérations frauduleuses sur les comptes clients constituent une faute grave, voire lourde (intention de nuire), et exposent à des poursuites pénales.',_fgBan),d:_DFG},
+   {v:'ban_conformite',l:'Manquement à la conformité / LCB-FT / déontologie',t:'Manquement à la conformité',
+     a:_jc('Dispositif LCB-FT — C. monét. fin. art. L561-1 s.','Le non-respect des procédures de contrôle interne, de lutte contre le blanchiment et des règles déontologiques peut justifier un licenciement ; sa gravité s\'apprécie selon les fonctions et les conséquences.'),d:_DLIC},
+   {v:'ban_incompat',l:'Condamnation / interdiction incompatible avec l\'emploi',t:'Incompatibilité légale',
+     a:_jc('C. monét. fin. art. L500-1','Certaines condamnations rendent légalement impossible l\'exercice d\'une fonction bancaire ; l\'impossibilité de maintenir le salarié dans l\'emploi peut fonder le licenciement.'),d:_DLIC},
+   {v:'ban_conflit',l:'Conflit d\'intérêts / opérations pour compte personnel',t:'Conflit d\'intérêts',
+     a:_jc('Obligation de loyauté — C. trav. art. L1222-1','Les opérations réalisées pour son compte personnel en conflit avec les intérêts de la banque, ou la dissimulation d\'un conflit d\'intérêts, constituent un manquement à la loyauté dont la gravité s\'apprécie au cas par cas.'),d:_DLIC}
+ ],
+ assurances:[
+   {v:'ass_detournement',l:'Détournement de primes / encaissements clients',t:'Détournement de primes',
+     a:_jc('Abus de confiance — C. pénal art. 314-1','Le détournement de primes ou d\'encaissements clients constitue une faute grave, voire lourde, et expose à des poursuites pénales.',_fgBan),d:_DFG},
+   {v:'ass_faux',l:'Faux / fausse déclaration de sinistre / contrats falsifiés',t:'Faux et falsification',
+     a:_jc('Faux — C. pénal art. 441-1','L\'établissement de faux contrats, fausses déclarations de sinistre ou falsifications constitue une faute grave et un délit pénal.',_fgBan),d:_DFG},
+   {v:'ass_conseil',l:'Manquement au devoir de conseil / d\'information (DDA)',t:'Manquement au devoir de conseil',
+     a:_jc('C. assur. art. L521-1 s. (distribution d\'assurance)','Le distributeur doit respecter le devoir de conseil et d\'information ; un manquement répété, engageant la responsabilité de l\'entreprise, peut justifier une sanction proportionnée.'),d:_DLIC},
+   {v:'ass_mandat',l:'Dépassement de mandat / souscription irrégulière',t:'Dépassement de mandat',
+     a:_jc('Obligation de loyauté — C. trav. art. L1222-1','La souscription de contrats hors mandat ou en violation des procédures internes constitue un manquement dont la gravité dépend des conséquences et de l\'intention.'),d:_DLIC},
+   {v:'ass_confid',l:'Violation de la confidentialité des données clients',t:'Violation de la confidentialité',
+     a:_jc('RGPD + secret professionnel','La divulgation ou l\'usage détourné de données clients constitue un manquement pouvant justifier une sanction, dont la gravité s\'apprécie selon l\'ampleur et l\'intention.'),d:_DLIC}
+ ],
+ syntec:[
+   {v:'syn_confid',l:'Violation de confidentialité / fuite de données client',t:'Violation de confidentialité',
+     a:_jc('Obligation contractuelle de confidentialité','La divulgation d\'informations confidentielles d\'un client ou de l\'entreprise constitue en principe une faute grave, selon la sensibilité des données et les conséquences.',_fgBan),d:_DFG},
+   {v:'syn_loyaute',l:'Détournement de clientèle / activité concurrente',t:'Concurrence déloyale en cours de contrat',
+     a:_jc('Obligation de loyauté — C. trav. art. L1222-1','L\'exercice d\'une activité concurrente ou le détournement de clientèle pendant l\'exécution du contrat constitue un manquement à la loyauté, généralement qualifié de faute grave.',_fgBan),d:_DFG},
+   {v:'syn_propintel',l:'Atteinte à la propriété intellectuelle / appropriation de code',t:'Atteinte à la propriété intellectuelle',
+     a:_jc('Contrefaçon — Code de la propriété intellectuelle','L\'appropriation ou la divulgation de code source, livrables ou créations protégées constitue une faute grave et peut relever de la contrefaçon.',_fgBan),d:_DFG},
+   {v:'syn_secu',l:'Accès/maintien frauduleux dans un système informatique',t:'Atteinte à un système informatique',
+     a:_jc('C. pénal art. 323-1','L\'accès ou le maintien frauduleux dans un système de traitement automatisé de données, ou son altération, constitue un délit et une faute grave.',_fgBan),d:_DFG},
+   {v:'syn_mission',l:'Abandon / carence répétée en mission chez le client',t:'Carence en mission',
+     a:_jc('Cause réelle et sérieuse — C. trav. art. L1232-1','L\'abandon de mission ou des carences répétées perturbant la prestation chez le client peuvent justifier un licenciement, dont la gravité s\'apprécie selon leur réitération et leurs conséquences.'),d:_DLIC}
+ ],
+ enseignement:[
+   {v:'ens_violence',l:'Violence / maltraitance / châtiment sur un élève',t:'Violence sur un élève',
+     a:_jc('Obligation de signalement — C. proc. pén. art. 40 · CASF art. L226-2-1','Toute violence ou maltraitance sur un élève constitue une faute grave et impose un signalement aux autorités ; la protection du mineur prime. Mise à pied conservatoire immédiate recommandée.',_fgBan),d:_DFG},
+   {v:'ens_inconduite',l:'Comportement inapproprié / atteinte envers un mineur',t:'Comportement inapproprié envers un mineur',
+     a:_jc('Signalement — C. proc. pén. art. 40','Tout comportement inapproprié ou atteinte envers un mineur constitue une faute grave, impose un signalement et justifie une suspension conservatoire dans l\'attente des suites.',_fgBan),d:_DFG},
+   {v:'ens_neutralite',l:'Manquement à la neutralité / au caractère propre / prosélytisme',t:'Manquement au caractère propre',
+     a:_jc('C. éduc. art. L442-5 (caractère propre de l\'établissement)','L\'enseignant doit respecter les obligations liées au caractère propre de l\'établissement et, le cas échéant, l\'obligation de neutralité. Un manquement caractérisé peut justifier une sanction, dans le respect de la liberté de conscience (la seule conviction personnelle ne suffit pas).'),d:_DLIC},
+   {v:'ens_obligation',l:'Manquement aux obligations pédagogiques / refus des programmes',t:'Manquement pédagogique',
+     a:_jc('Cause réelle et sérieuse — C. trav. art. L1232-1','Le refus d\'appliquer les programmes ou des carences pédagogiques répétées peuvent justifier un licenciement, dont la gravité dépend de la réitération et des conséquences pour les élèves.'),d:_DLIC},
+   {v:'ens_diplome',l:'Absence de titre requis / perte de l\'accord du recteur',t:'Absence de titre ou d\'agrément',
+     a:_jc('C. éduc. (enseignement privé sous contrat — accord du recteur)','L\'enseignement requiert les titres exigés et, dans le privé sous contrat, l\'accord/agrément de l\'autorité académique. Leur absence ou leur retrait peut rendre impossible le maintien dans l\'emploi.'),d:_DLIC},
+   {v:'ens_statut',l:'⚠ Maître contractuel : qui exerce le pouvoir disciplinaire ?',t:'Particularité du maître contractuel',
+     a:_jc('Enseignement privé SOUS CONTRAT','Le maître contractuel est lié à l\'État par un contrat de droit public pour son activité d\'enseignement, tout en étant salarié de l\'établissement pour le reste. Le pouvoir disciplinaire est partagé entre le chef d\'établissement (employeur) et l\'autorité académique (rectorat) : distinguez soigneusement ce qui relève de chacun avant toute procédure.'),d:_DLIC}
+ ],
+ ensindep:[
+   {v:'ens_violence',l:'Violence / maltraitance sur un élève'},
+   {v:'ens_inconduite',l:'Comportement inapproprié envers un mineur'},
+   {v:'ens_neutralite',l:'Manquement au caractère propre / prosélytisme'},
+   {v:'ens_obligation',l:'Manquement aux obligations pédagogiques'},
+   {v:'ens_diplome',l:'Absence de titre / qualification requise'}
+ ],
+ formation:[
+   {v:'for_emargement',l:'Falsification de feuilles de présence / attestations',t:'Falsification d\'émargements',
+     a:_jc('Faux — C. pénal art. 441-1 · financements OPCO','La falsification de feuilles d\'émargement, attestations ou justificatifs de formation constitue une faute grave, expose à des poursuites pénales et au remboursement des financements.',_fgBan),d:_DFG},
+   {v:'for_qualiopi',l:'Manquement aux obligations qualité (Qualiopi)',t:'Manquement qualité',
+     a:_jc('C. trav. art. L6316-1 s. (référentiel national qualité)','Le non-respect des obligations du référentiel qualité peut justifier une sanction proportionnée selon la gravité et les conséquences pour la certification de l\'organisme.'),d:_DLIC},
+   {v:'for_inconduite',l:'Comportement inapproprié envers un stagiaire',t:'Comportement inapproprié envers un stagiaire',
+     a:_jc('Obligation de sécurité — C. trav. art. L4121-1','Un comportement inapproprié, harcèlement ou violence envers un stagiaire constitue en principe une faute grave.',_fgBan),d:_DFG},
+   {v:'for_obligation',l:'Carence pédagogique / non-respect du programme',t:'Carence pédagogique',
+     a:_jc('Cause réelle et sérieuse — C. trav. art. L1232-1','Le non-respect du programme ou des carences pédagogiques répétées peuvent justifier un licenciement, selon leur réitération et leurs conséquences.'),d:_DLIC},
+   {v:'for_confid',l:'Violation de la confidentialité des données stagiaires',t:'Violation de la confidentialité',
+     a:_jc('RGPD','La divulgation ou l\'usage détourné de données des stagiaires constitue un manquement pouvant justifier une sanction proportionnée.'),d:_DLIC}
+ ],
+ autre:[]
+};
+// fusionne les analyses sectorielles dans la base jurisprudentielle
+(function(){function add(o){if(o&&o.a&&!JURISPRUDENCE_DISCIPLINE[o.v])JURISPRUDENCE_DISCIPLINE[o.v]={titre:o.t||o.l,analyse:o.a,docs:o.d||['convocation','lettre_lic']};}
+  DISC_GENERAL.forEach(add);for(var k in DISC_SECTEURS)DISC_SECTEURS[k].forEach(add);})();
+function buildDiscMotifs(sec){
+  var sel=document.getElementById('disc-motif');if(!sel)return;
+  var spec=DISC_SECTEURS[sec]||[];
+  var labels={transport:'Spécificités transport',banque:'Spécificités banque',assurances:'Spécificités assurances',syntec:'Spécificités conseil / informatique',enseignement:'Spécificités enseignement privé (sous contrat)',formation:'Spécificités organismes de formation',ensindep:'Spécificités enseignement privé indépendant',autre:'Fautes spécifiques'};
+  var h='<option value="">Sélectionnez...</option>';
+  if(spec.length){h+='<optgroup label="'+(labels[sec]||'Spécificités secteur')+'">';spec.forEach(function(o){h+='<option value="'+o.v+'">'+o.l+'</option>';});h+='</optgroup>';}
+  h+='<optgroup label="Fautes générales (tous secteurs)">';DISC_GENERAL.forEach(function(o){h+='<option value="'+o.v+'">'+o.l+'</option>';});h+='</optgroup>';
+  sel.innerHTML=h;
+}
+if(document.readyState!=='loading'){try{buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||'transport');}catch(e){}}
+else document.addEventListener('DOMContentLoaded',function(){try{buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||'transport');}catch(e){}});
 
 function analyserSituation(){
   const motif=gv('disc-motif');
