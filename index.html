@@ -737,7 +737,7 @@ try{
 <div id="cqc-warn" class="herr hidden">⚠ CQC expirée — FCO obligatoire avant toute reprise de conduite professionnelle</div>
 <div class="fg"><label class="fl">Date FIMO obtenue</label><input type="date" id="c-fimo"/></div>
 <div class="fg"><label class="fl">Date dernière FCO</label><input type="date" id="c-fco"/></div>
-<div class="fg"><label class="fl">Date visite médicale d'aptitude conduite</label><input type="date" id="c-visite-med" oninput="checkVisite()"/></div>
+<div class="fg"><label class="fl">Date de fin de validité de la visite médicale d'aptitude</label><input type="date" id="c-visite-med" oninput="checkVisite()"/></div>
 <div id="visite-warn" class="herr hidden">⚠ Visite médicale expirée — inapte légalement à la conduite professionnelle</div>
 <label class="chk"><input type="checkbox" id="c-has-adr" onchange="toggleADR(this.checked)"/> Certificat ADR en cours de validité</label>
 <div id="adr-det" class="hidden">
@@ -2787,11 +2787,19 @@ function checkPermis(){
 }
 function checkCQC(){
   const jr=joursRestants(gv('c-cqc-val'));
-  document.getElementById('cqc-warn').classList.toggle('hidden',jr===null||jr>90);
+  const el=document.getElementById('cqc-warn');
+  if(jr===null||jr>90){el.classList.add('hidden');return;}
+  if(jr<=0){el.className='herr';el.textContent='⚠ CQC expirée — FCO obligatoire avant toute reprise de conduite professionnelle';}
+  else{el.className='al warn';el.textContent='⏳ CQC valide encore '+jr+' jour(s) — anticipez la FCO (carte valable 5 ans) avant l\'échéance';}
+  el.classList.remove('hidden');
 }
 function checkVisite(){
   const jr=joursRestants(gv('c-visite-med'));
-  document.getElementById('visite-warn').classList.toggle('hidden',jr===null||jr>0);
+  const el=document.getElementById('visite-warn');
+  if(jr===null||jr>90){el.classList.add('hidden');return;}
+  if(jr<=0){el.className='herr';el.textContent='⚠ Visite médicale expirée — inapte légalement à la conduite professionnelle';}
+  else{el.className='al warn';el.textContent='⏳ Visite médicale à renouveler dans '+jr+' jour(s)';}
+  el.classList.remove('hidden');
 }
 function toggleADR(v){document.getElementById('adr-det').classList.toggle('hidden',!v);}
 function checkSalaire(){
