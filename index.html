@@ -1250,6 +1250,13 @@ try{
 <div id="cse-bloc-rapide">
 
 <div class="card">
+<div class="ct">Nombre d'élus CSE — accès direct</div>
+<div class="al info" style="font-size:12px;margin-bottom:10px">Vous connaissez déjà votre effectif ? Saisissez-le pour obtenir immédiatement le nombre de titulaires et de suppléants à élire. Sinon, utilisez le calcul détaillé ci-dessous.</div>
+<div class="fg"><label class="fl">Effectif (nombre de salariés)</label><input type="number" id="cse-eff-direct" min="0" placeholder="Ex : 150" oninput="cseEffDirect()"/></div>
+<div id="cse-direct-result" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
 <div class="ct">Calcul de l'effectif réel — Art. L.1111-2 C. trav.</div>
 <div class="al info" style="font-size:12px;margin-bottom:12px">L'effectif est apprécié à la date du calcul (en général à la date du 1er tour de scrutin). Les CDI (temps plein ou temps partiel) sont comptés à cette date, peu importe leur ancienneté. Les CDD pour accroissement d'activité, intérimaires et saisonniers sont décomptés au prorata de leur temps de présence sur les 12 mois glissants précédents. Art. L.1111-2 C. trav.</div>
 
@@ -3854,16 +3861,11 @@ function calcEffectif(){
   window.lastEffArrondi = effArrondi;
 }
 
-function calcCSE(eff){
-  if(eff===undefined || isNaN(eff)) eff=0;
-  const res=document.getElementById('cse-result');
-  if(!res) return;
-  if(eff<11){
-    res.innerHTML=`<div class="al info" style="font-size:12px">Effectif < 11 salariés — Pas d'obligation CSE (art. L.2311-2 C. trav.).</div>`;
-    return;
-  }
+function cseBareme(eff){
+  // Nombre de titulaires et heures de délégation/mois selon l'effectif (art. R.2314-1)
   let sieges=0, heures=0;
-  if(eff<=24){sieges=1;heures=10;}
+  if(eff<11){return {sieges:0,heures:0};}
+  else if(eff<=24){sieges=1;heures=10;}
   else if(eff<=49){sieges=2;heures=10;}
   else if(eff<=74){sieges=4;heures=18;}
   else if(eff<=99){sieges=5;heures=19;}
@@ -3902,6 +3904,38 @@ function calcCSE(eff){
   else if(eff<=8999){sieges=33;heures=26;}
   else if(eff<=9749){sieges=34;heures=26;}
   else{sieges=35;heures=26;}
+  return {sieges:sieges,heures:heures};
+}
+function cseEffDirect(){
+  const v=document.getElementById('cse-eff-direct');
+  const out=document.getElementById('cse-direct-result');
+  if(!out)return;
+  const eff=parseInt(v&&v.value,10);
+  if(!eff||eff<=0){out.innerHTML='';return;}
+  if(eff<11){
+    out.innerHTML='<div class="al info" style="font-size:12px">Effectif &lt; 11 salariés — pas d\'obligation de CSE (art. L.2311-2). Aucun élu à prévoir.</div>';
+    return;
+  }
+  const b=cseBareme(eff);
+  const colleges=eff>=25?2:1;
+  out.innerHTML='<div class="item"><div class="badge badge-gold">NOMBRE D\'ÉLUS — '+eff+' SALARIÉS (art. R.2314-1)</div>'
+    +'<div style="font-size:14px;color:#e8e4d8;line-height:2.1;margin-top:8px">'
+    +'Titulaires à élire : <strong style="color:#e8c97a;font-size:18px">'+b.sieges+'</strong><br>'
+    +'Suppléants à élire : <strong style="color:#e8c97a;font-size:18px">'+b.sieges+'</strong><br>'
+    +'<span style="font-size:12px;color:#9a9585">Soit '+(b.sieges*2)+' candidats à présenter au total (1 suppléant par titulaire).</span><br>'
+    +'Heures de délégation : <strong style="color:#e8c97a">'+b.heures+'h</strong>/titulaire/mois — total <strong style="color:#e8c97a">'+(b.sieges*b.heures)+'h</strong>/mois<br>'
+    +'Collèges électoraux : <strong style="color:#e8c97a">'+colleges+'</strong>'+(colleges===2?' (3e collège distinct si ≥ 25 cadres — art. L.2314-11)':' (collège unique)')
+    +'</div></div>';
+}
+function calcCSE(eff){
+  if(eff===undefined || isNaN(eff)) eff=0;
+  const res=document.getElementById('cse-result');
+  if(!res) return;
+  if(eff<11){
+    res.innerHTML=`<div class="al info" style="font-size:12px">Effectif < 11 salariés — Pas d'obligation CSE (art. L.2311-2 C. trav.).</div>`;
+    return;
+  }
+  const _b=cseBareme(eff); let sieges=_b.sieges, heures=_b.heures;
   const colleges = eff>=25 ? 2 : 1;
   const heuresTotal = sieges * heures;
   const situation = document.getElementById('cse-situation')?.value;
