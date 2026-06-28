@@ -1521,7 +1521,7 @@ Exemple :<br>
 <div class="card">
 <div class="ct">Nature de l'absence</div>
 <div class="fg"><label class="fl">Type d'absence</label>
-<select id="abs-type" onchange="updateAbsence()">
+<select id="abs-type" onchange="analyserAbsence()">
   <option value="">Sélectionnez...</option>
   <option value="maladie">Maladie ordinaire</option>
   <option value="at">Accident du travail (AT)</option>
@@ -1534,14 +1534,14 @@ Exemple :<br>
   <option value="sans_solde">Congé sans solde</option>
 </select></div>
 <div class="fg"><label class="fl">Ancienneté du salarié dans l'entreprise</label>
-<select id="abs-anciennete">
+<select id="abs-anciennete" onchange="analyserAbsence()">
   <option value="moins1">Moins d'1 an</option>
   <option value="1a3">1 à 3 ans</option>
   <option value="3a5">3 à 5 ans</option>
   <option value="5plus">Plus de 5 ans</option>
 </select></div>
 <div class="fg"><label class="fl">Date de début de l'absence</label><input type="date" id="abs-debut"/></div>
-<div class="fg"><label class="fl">Durée estimée (jours)</label><input type="number" id="abs-duree" placeholder="Ex : 30"/></div>
+<div class="fg"><label class="fl">Durée estimée (jours)</label><input type="number" id="abs-duree" placeholder="Ex : 30" oninput="analyserAbsence()"/></div>
 <div class="fg"><label class="fl">Le salarié est-il conducteur ?</label>
 <div class="rr"><div class="ro sel" id="abs-cond-oui" onclick="setAbsCond('oui')">Oui</div><div class="ro" id="abs-cond-non" onclick="setAbsCond('non')">Non</div></div></div>
 <div id="abs-result" class="hidden" style="margin-top:10px"></div>
@@ -6614,7 +6614,7 @@ function importerSalariesRegistre(){
 // ═══════════════════════════════════════
 // MODULE VII — ABSENCES
 // ═══════════════════════════════════════
-function setAbsCond(v){absCond=v;sa(['abs-cond-oui','abs-cond-non'],'abs-cond-'+v);}
+function setAbsCond(v){absCond=v;sa(['abs-cond-oui','abs-cond-non'],'abs-cond-'+v);if(document.getElementById('abs-type')&&gv('abs-type'))analyserAbsence();}
 
 function analyserAbsence(){
   const type=gv('abs-type');
@@ -6675,7 +6675,54 @@ ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée > 30 jours — Visi
 <strong style="color:#d4a017">⚠ Ne pas licencier sans avoir préalablement envoyé la mise en demeure</strong>
 </div></div>
 <button class="btn-outline" style="margin-top:8px" onclick="genDocAbsence('mise_demeure_abs')">📨 Mise en demeure →</button>`;
+  } else if(type==='mp'){
+    html=`<div class="item">
+<div class="badge badge-red">MALADIE PROFESSIONNELLE</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
+<strong style="color:#e8c97a">Régime protecteur identique à l'AT</strong> (art. L.1226-7 et s.) :<br>
+• Maintien de salaire à 100% dès le 1er jour (pas de carence)<br>
+• Suspension du contrat ; licenciement interdit pendant l'arrêt sauf faute grave ou impossibilité de maintenir le contrat pour un motif étranger à la maladie<br>
+• Indemnité spéciale doublée en cas d'inaptitude d'origine professionnelle (art. L.1226-14)<br>
+${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée > 30 jours — visite médicale de reprise OBLIGATOIRE (art. R.4624-29)</strong>':''}
+</div></div>`;
+  } else if(type==='maternite'){
+    html=`<div class="item">
+<div class="badge badge-blue">CONGÉ MATERNITÉ</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
+<strong style="color:#e8c97a">Protection contre le licenciement (art. L.1225-4) :</strong> protection absolue pendant le congé ; en dehors, licenciement possible uniquement pour faute grave non liée à l'état de grossesse ou impossibilité de maintenir le contrat.<br>
+<strong style="color:#e8c97a">Durée légale :</strong> 16 semaines (6 avant + 10 après) pour le 1er/2e enfant ; 26 semaines à partir du 3e ; allongée en cas de naissances multiples.<br>
+• IJSS maternité versées par la CPAM ; maintien employeur selon la CCN.<br>
+• Visite médicale de reprise obligatoire après le congé maternité (art. R.4624-31).
+</div></div>`;
+  } else if(type==='paternite'){
+    html=`<div class="item">
+<div class="badge badge-blue">CONGÉ PATERNITÉ / D'ACCUEIL DE L'ENFANT</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
+<strong style="color:#e8c97a">Durée (depuis le 1er juillet 2021) :</strong> 25 jours calendaires (32 en cas de naissances multiples), en plus des 3 jours de congé de naissance à la charge de l'employeur.<br>
+• 4 jours obligatoires accolés au congé de naissance (interdiction d'emploi).<br>
+• À prendre dans les 6 mois suivant la naissance (fractionnement possible).<br>
+• Protection contre le licenciement pendant les 10 semaines suivant la naissance (art. L.1225-4-1).
+</div></div>`;
+  } else if(type==='conges'){
+    html=`<div class="item">
+<div class="badge badge-blue">CONGÉS PAYÉS</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
+<strong style="color:#e8c97a">Acquisition :</strong> 2,5 jours ouvrables par mois de travail effectif, soit 30 jours ouvrables (5 semaines) pour une année complète (art. L.3141-3).<br>
+<strong style="color:#e8c97a">Indemnité :</strong> la plus favorable entre la règle du 1/10e de la rémunération brute de la période de référence et le maintien de salaire (art. L.3141-24).<br>
+• Depuis 2024, l'arrêt maladie (même non professionnel) ouvre des droits à congés.<br>
+• L'employeur fixe l'ordre des départs ; un délai de prévenance s'applique.
+</div></div>`;
+  } else if(type==='sans_solde'){
+    html=`<div class="item">
+<div class="badge badge-gold">CONGÉ SANS SOLDE</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
+<strong style="color:#e8c97a">Pas de cadre légal spécifique :</strong> il repose sur l'accord des deux parties (à formaliser par écrit : durée, date de retour).<br>
+• Le contrat est suspendu : pas de rémunération, et en principe pas d'acquisition de congés ni d'ancienneté pendant la période.<br>
+• Le salarié n'est pas tenu à une obligation de loyauté allégée : une activité concurrente reste fautive.<br>
+• Bien distinguer des congés légaux (sabbatique, création d'entreprise, proche aidant…) qui ont leurs propres règles.
+</div></div>`;
   }
+  if(!html)html='<div class="al info" style="font-size:13px">Sélectionnez un type d\'absence pour afficher l\'analyse.</div>';
   res.innerHTML=html;
   res.classList.remove('hidden');
 }
