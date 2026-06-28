@@ -1257,6 +1257,27 @@ try{
 </div>
 
 <div class="card">
+<div class="ct">Électeurs, éligibles et inscrits</div>
+<div style="font-size:12.5px;color:#e8e4d8;line-height:1.8">
+<div style="color:#4caf7d;font-weight:700;margin-top:2px">🗳️ Électeurs (inscrits sur les listes) — art. L.2314-18</div>
+<div style="border-left:2px solid rgba(76,175,125,0.4);padding-left:10px;margin:4px 0 10px">
+Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'ancienneté</strong> minimum, et n'ayant fait l'objet d'aucune interdiction, déchéance ou incapacité relative à leurs droits civiques.<br>
+<span style="font-size:11px;color:#9a9585">Les salariés mis à disposition sont électeurs dans l'entreprise utilisatrice s'ils y sont présents depuis 12 mois continus (et choisissent d'y voter). Les salariés assimilés à l'employeur (détenant une délégation écrite d'autorité ou le représentant devant le personnel) ne sont ni électeurs ni éligibles.</span>
+</div>
+<div style="color:#e8c97a;font-weight:700">✅ Éligibles (candidats) — art. L.2314-19</div>
+<div style="border-left:2px solid rgba(201,168,76,0.4);padding-left:10px;margin:4px 0 10px">
+Électeurs âgés de <strong>18 ans révolus</strong>, travaillant dans l'entreprise depuis <strong>1 an</strong> au moins.<br>
+<strong>Exclus :</strong> conjoint, partenaire de PACS, concubin, ascendants, descendants, frères, sœurs et alliés au même degré de l'employeur.<br>
+<span style="font-size:11px;color:#9a9585">Représentation équilibrée femmes-hommes obligatoire sur chaque liste, par candidatures alternées, à proportion du collège (art. L.2314-30).</span>
+</div>
+<div style="color:#e8c97a;font-weight:700">📊 Vérification du quorum (1er tour)</div>
+<div class="fg" style="margin-top:6px"><label class="fl">Nombre d'électeurs inscrits</label><input type="number" id="cse-inscrits" min="0" placeholder="Ex : 150" oninput="cseQuorum()"/></div>
+<div class="fg"><label class="fl">Suffrages valablement exprimés (1er tour)</label><input type="number" id="cse-exprimes" min="0" placeholder="Ex : 80" oninput="cseQuorum()"/></div>
+<div id="cse-quorum-result" style="margin-top:6px"></div>
+</div>
+</div>
+
+<div class="card">
 <div class="ct">Calcul de l'effectif réel — Art. L.1111-2 C. trav.</div>
 <div class="al info" style="font-size:12px;margin-bottom:12px">L'effectif est apprécié à la date du calcul (en général à la date du 1er tour de scrutin). Les CDI (temps plein ou temps partiel) sont comptés à cette date, peu importe leur ancienneté. Les CDD pour accroissement d'activité, intérimaires et saisonniers sont décomptés au prorata de leur temps de présence sur les 12 mois glissants précédents. Art. L.1111-2 C. trav.</div>
 
@@ -3926,6 +3947,20 @@ function cseEffDirect(){
     +'Heures de délégation : <strong style="color:#e8c97a">'+b.heures+'h</strong>/titulaire/mois — total <strong style="color:#e8c97a">'+(b.sieges*b.heures)+'h</strong>/mois<br>'
     +'Collèges électoraux : <strong style="color:#e8c97a">'+colleges+'</strong>'+(colleges===2?' (3e collège distinct si ≥ 25 cadres — art. L.2314-11)':' (collège unique)')
     +'</div></div>';
+}
+function cseQuorum(){
+  const ins=parseInt((document.getElementById('cse-inscrits')||{}).value,10)||0;
+  const exp=parseInt((document.getElementById('cse-exprimes')||{}).value,10)||0;
+  const out=document.getElementById('cse-quorum-result'); if(!out)return;
+  if(ins<=0){out.innerHTML='';return;}
+  const q=ins/2;
+  if(exp<=0){out.innerHTML='<div class="al info" style="font-size:12px">Quorum = la moitié des inscrits = <strong>'+q+'</strong> suffrages. Saisissez les suffrages exprimés pour vérifier.</div>';return;}
+  const atteint=exp>=q;
+  out.innerHTML='<div class="al '+(atteint?'ok':'warn')+'" style="font-size:12px">Quorum (½ des inscrits) = <strong>'+q+'</strong> suffrages — exprimés : <strong>'+exp+'</strong><br>'
+    +(atteint
+      ?'✓ Quorum ATTEINT — les sièges pourvus le sont définitivement au 1er tour (réservé aux listes syndicales).'
+      :'✗ Quorum NON atteint — un 2nd tour doit être organisé dans les 15 jours (art. L.2314-29), ouvert aux candidatures libres (non syndiquées).')
+    +'</div><div style="font-size:11px;color:#9a9585;margin-top:4px">Le quorum s\'apprécie collège par collège ; renseignez les inscrits/exprimés du collège concerné pour un résultat précis.</div>';
 }
 function calcCSE(eff){
   if(eff===undefined || isNaN(eff)) eff=0;
