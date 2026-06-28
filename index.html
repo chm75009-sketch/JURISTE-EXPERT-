@@ -7355,6 +7355,9 @@ auteurApply();
           <input id="diag-file" type="file" accept="image/*,application/pdf" capture="environment" onchange="diagPreview()" style="width:100%;padding:7px;margin-top:3px;border:1px dashed #bbb;border-radius:8px;background:#fff">
         </label>
         <div id="diag-preview" style="margin-top:8px"></div>
+        <label style="font-size:12px;color:#555;display:block;margin-top:10px">Résumé / coller le contenu du document (facultatif)
+          <textarea id="diag-resume" rows="4" placeholder="Collez ici le texte du document ou décrivez-le en quelques lignes (le scan/photo n'est pas lu automatiquement : ce résumé aide à garder une trace et figure dans le diagnostic)." style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px;font-family:inherit;font-size:12.5px;resize:vertical"></textarea>
+        </label>
       </div>
     </div>
 
@@ -7527,17 +7530,95 @@ var DOCS={
    if(x.it==='non')ko.push(['Formalités de publicité non remplies : le RI doit être transmis à l’inspection du travail (accompagné de l’avis du CSE) et déposé au greffe du conseil de prud’hommes ; à défaut il est inopposable.','C. trav. art. L1321-4, R1321-1, R1321-2']);else if(x.it==='oui')ok.push('Transmission inspection du travail + dépôt greffe effectués.');
    if(x.aff==='non')ko.push(['Le RI doit être porté à la connaissance des salariés (par tout moyen, ex. affichage ou intranet) pour leur être opposable.','C. trav. art. R1321-1']);else if(x.aff==='oui')ok.push('RI porté à la connaissance des salariés.');
    re.push('Les clauses du RI ne peuvent apporter aux droits des personnes et aux libertés des restrictions non justifiées par la nature de la tâche ni proportionnées au but recherché (C. trav. art. L1321-3) ; une CCN peut prévoir des garanties supplémentaires.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ arretmaladie:{nom:'Arrêt maladie / arrêt de travail',q:[
+   {id:'type',l:'Origine de l’arrêt',t:'sel',o:['Maladie non professionnelle','Accident du travail (AT)','Maladie professionnelle (MP)','Accident de trajet']},
+   {id:'tr',l:'L’avis d’arrêt a-t-il été transmis dans les 48 h (employeur + CPAM) ?',t:'on'},
+   {id:'prol',l:'S’agit-il d’une prolongation ?',t:'on'},
+   {id:'maintien',l:'L’employeur verse-t-il le maintien de salaire (si ancienneté ≥ 1 an) ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.tr==='non')ko.push(['Transmission tardive : le salarié doit adresser l’avis d’arrêt (volet employeur) sous 48 h. Un retard peut justifier une mise en demeure et, en cas de récidive après avertissement, une sanction ; il peut aussi réduire les indemnités journalières.','C. séc. soc. art. R321-2 ; C. trav. (pouvoir disciplinaire)']);
+   else if(x.tr==='oui')ok.push('Avis d’arrêt transmis dans le délai de 48 h.');
+   if(x.type==='Accident du travail (AT)'||x.type==='Maladie professionnelle (MP)'||x.type==='Accident de trajet'){
+     re.push('Origine professionnelle : protection renforcée. Pendant la suspension, le contrat ne peut être rompu que pour faute grave ou impossibilité de maintenir le contrat pour un motif étranger à l’accident/maladie (C. trav. art. L1226-9, L1226-13) ; à défaut, le licenciement est nul.');
+     re.push('À l’issue de l’arrêt pour AT/MP : visite de reprise obligatoire, obligation de reclassement renforcée et, en cas d’inaptitude d’origine professionnelle, indemnité spéciale de licenciement doublée + indemnité compensatrice de préavis (C. trav. art. L1226-14).');
+   } else {
+     re.push('Maladie non professionnelle : le contrat est suspendu. Le licenciement n’est possible ni en raison de l’état de santé (discrimination prohibée, C. trav. art. L1132-1) ni en raison de l’absence, sauf perturbation objective de l’entreprise nécessitant un remplacement définitif.');
+   }
+   if(x.maintien==='non')re.push('Maintien de salaire : à partir d’1 an d’ancienneté, l’employeur doit compléter les IJSS (90 % puis 66 % du brut, durée selon ancienneté) après 7 jours de carence (C. trav. art. L1226-1, D1226-1 et s.). Vérifiez la CCN : elle prévoit souvent un maintien plus favorable (souvent dès l’entrée, sans carence, à 100 %).');
+   else if(x.maintien==='oui')ok.push('Maintien de salaire assuré — vérifiez qu’il est au moins égal au plus favorable entre la loi et la CCN.');
+   if(c.ccn)re.push('Convention collective ('+c.ccn+') : contrôlez le régime conventionnel de maintien de salaire, de prévoyance et de garantie d’emploi pendant l’arrêt — il prime s’il est plus favorable (principe de faveur, C. trav. art. L2251-1).');
+   re.push('Contre-visite médicale patronale : possible si l’employeur verse un complément de salaire ; en cas d’absence injustifiée au domicile aux heures de sortie autorisées, le complément employeur peut être suspendu (pas les IJSS de la CPAM, gérées séparément).');
+   re.push('La prolongation doit en principe être prescrite par le médecin auteur de l’arrêt initial ou par le médecin traitant, sauf impossibilité justifiée.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ accordbranche:{nom:'Accord / convention collective de branche',q:[
+   {id:'idcc',l:'L’entreprise relève-t-elle bien du champ d’application (IDCC / activité principale) ?',t:'on'},
+   {id:'ext',l:'L’accord est-il étendu (arrêté d’extension) ?',t:'on'},
+   {id:'dom',l:'Domaine principal de l’accord',t:'sel',o:['Salaires minima / classifications','Prévoyance / mutualisation / pénibilité','Égalité F-H / handicap','Durée et organisation du travail','Primes / autres thèmes']},
+   {id:'fav',l:'L’accord est-il plus favorable que l’accord d’entreprise éventuel ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.idcc==='non')ko.push(['Champ d’application : une CCN ne s’applique que si l’activité réelle principale de l’entreprise relève de son champ (l’IDCC mentionné sur le bulletin de paie ne fait que présumer). Une application erronée peut être contestée.','C. trav. art. L2261-2']);
+   else if(x.idcc==='oui')ok.push('Entreprise dans le champ d’application de la branche.');
+   if(x.ext==='oui')ok.push('Accord étendu : il s’impose à toutes les entreprises de la branche, qu’elles soient ou non adhérentes d’une organisation signataire.');
+   else if(x.ext==='non')re.push('Accord non étendu : il ne lie que les entreprises adhérentes d’une organisation patronale signataire (sauf application volontaire). Vérifiez l’existence d’un arrêté d’extension au Journal officiel (C. trav. art. L2261-15).');
+   if(x.dom==='Salaires minima / classifications'||x.dom==='Prévoyance / mutualisation / pénibilité'||x.dom==='Égalité F-H / handicap')
+     re.push('Domaine relevant en principe de la primauté de branche (bloc 1, C. trav. art. L2253-1 : salaires minima, classifications, mutualisation des fonds, prévoyance, égalité, pénibilité, etc.) : un accord d’entreprise ne peut y déroger que dans un sens au moins équivalent.');
+   else
+     re.push('Hors domaines réservés (bloc 3, C. trav. art. L2253-3), l’accord d’entreprise prime sur la branche, même moins favorable, depuis les ordonnances de 2017 — sous réserve d’un éventuel verrouillage de branche (bloc 2, art. L2253-2).');
+   if(x.fav==='oui')ok.push('Disposition de branche plus favorable retenue.');
+   re.push('Principe de faveur résiduel : à l’égard du contrat de travail, la norme la plus favorable au salarié continue de s’appliquer (C. trav. art. L2251-1).');
+   re.push('Dénonciation / mise en cause : en cas de changement de CCN (fusion, transfert), les salariés conservent les avantages individuels et la garantie de rémunération dans les conditions des art. L2261-13 et s.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ clause:{nom:'Clause de contrat / article proposé',q:[
+   {id:'type',l:'Type de clause',t:'sel',o:['Non-concurrence','Mobilité géographique','Exclusivité','Période d’essai','Forfait-jours','Dédit-formation','Variabilité de la rémunération / objectifs']},
+   {id:'ecrit',l:'La clause est-elle écrite et acceptée par le salarié (contrat signé / avenant) ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.ecrit==='non')ko.push(['Une clause dérogatoire (non-concurrence, mobilité, forfait, exclusivité…) doit figurer dans le contrat ou un avenant accepté par le salarié : sans écrit signé, elle est en principe inopposable.','C. trav. art. L1221-1 (contrat) ; principe d’acceptation']);
+   else if(x.ecrit==='oui')ok.push('Clause matérialisée par un écrit accepté.');
+   var t=x.type;
+   if(t==='Non-concurrence')re.push('Non-concurrence : valable seulement si elle est (1) indispensable à la protection des intérêts légitimes de l’entreprise, (2) limitée dans le temps et l’espace, (3) tient compte des spécificités de l’emploi, et (4) assortie d’une CONTREPARTIE FINANCIÈRE. À défaut de contrepartie, la clause est nulle (Cass. soc. 10 juillet 2002). La CCN fixe souvent le montant minimal de la contrepartie.');
+   else if(t==='Mobilité géographique')re.push('Mobilité : la clause doit définir de façon précise sa zone géographique d’application et ne peut être étendue unilatéralement par l’employeur. Sa mise en œuvre doit être justifiée par l’intérêt de l’entreprise et respecter un délai de prévenance ; un usage abusif peut être sanctionné.');
+   else if(t==='Exclusivité')re.push('Exclusivité : elle porte atteinte à la liberté du travail ; elle n’est licite que si elle est indispensable à la protection des intérêts légitimes de l’entreprise, justifiée par la nature de la tâche et proportionnée au but recherché (C. trav. art. L1121-1). Inapplicable de plein droit à un temps partiel non justifié.');
+   else if(t==='Période d’essai')re.push('Période d’essai : durées maximales légales — 2 mois (ouvriers/employés), 3 mois (agents de maîtrise/techniciens), 4 mois (cadres), renouvelables une fois si un accord de branche étendu le prévoit et si le contrat le stipule (C. trav. art. L1221-19, L1221-21). La CCN ne peut imposer une durée plus longue que la loi depuis 2008.');
+   else if(t==='Forfait-jours')re.push('Forfait-jours : suppose (1) un accord collectif l’autorisant et fixant le suivi, (2) une convention individuelle écrite, et (3) un contrôle effectif de la charge de travail, du repos et du droit à la déconnexion. À défaut de garanties suffisantes, la convention de forfait est privée d’effet et les heures supplémentaires redeviennent dues.');
+   else if(t==='Dédit-formation')re.push('Dédit-formation : licite si la formation va au-delà des obligations légales de l’employeur, si le montant est proportionné aux frais réellement engagés, et si la clause n’a pas pour effet de priver le salarié de sa faculté de démissionner. Nulle si elle dissuade abusivement le départ.');
+   else if(t==='Variabilité de la rémunération / objectifs')re.push('Rémunération variable : la clause ne peut faire dépendre la rémunération de la seule volonté de l’employeur, doit reposer sur des éléments objectifs indépendants de sa volonté, et ne peut réduire la rémunération en deçà des minima légaux et conventionnels. Les objectifs doivent être réalisables et portés à la connaissance du salarié.');
+   if(c.ccn)re.push('Comparez systématiquement la clause avec la convention collective ('+c.ccn+') et le principe de faveur (C. trav. art. L2251-1) : une clause moins favorable que la CCN est écartée.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ saisine:{nom:'Requête de saisine du conseil de prud’hommes',q:[
+   {id:'nat',l:'Nature principale du litige',t:'sel',o:['Contestation du licenciement / rupture','Rappels de salaire / heures supplémentaires','Requalification CDD ou intérim en CDI','Harcèlement / discrimination','Prise d’acte / résiliation judiciaire','Autre']},
+   {id:'presc',l:'Le délai de prescription est-il respecté ?',t:'on'},
+   {id:'ment',l:'La requête expose-t-elle les motifs et liste-t-elle chaque demande (+ bordereau de pièces) ?',t:'on'},
+   {id:'comp',l:'Le conseil saisi est-il territorialement compétent (lieu de travail ou domicile) ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.ment==='non')ko.push(['La requête doit comporter un exposé sommaire des motifs et mentionner chacun des chefs de demande, avec un bordereau énumérant les pièces : à défaut, elle est incomplète et peut être régularisée mais retarde la procédure.','C. trav. art. R1452-2']);
+   else if(x.ment==='oui')ok.push('Requête motivée avec chefs de demande et bordereau de pièces.');
+   if(x.comp==='non')ko.push(['Compétence territoriale : le conseil compétent est celui du lieu de l’établissement où s’exécute le travail (ou, si le travail est à domicile / hors établissement, du domicile du salarié) ; le salarié peut aussi saisir celui du lieu d’embauche ou du siège. Une saisine devant un conseil incompétent peut être contestée.','C. trav. art. R1412-1, R1412-2']);
+   else if(x.comp==='oui')ok.push('Conseil territorialement compétent.');
+   var n=x.nat;
+   if(x.presc==='non'||x.presc==='')re.push('Délais de prescription à vérifier impérativement : 12 mois pour contester la rupture du contrat (C. trav. art. L1471-1) ; 3 ans pour les salaires (art. L3245-1) ; 2 ans pour l’exécution du contrat ; 5 ans pour discrimination et harcèlement (à compter de la révélation) ; 6 mois pour dénoncer un solde de tout compte signé.');
+   else if(x.presc==='oui')ok.push('Délai de prescription a priori respecté (à confirmer selon la nature exacte des demandes).');
+   if(n==='Requalification CDD ou intérim en CDI'||n==='Prise d’acte / résiliation judiciaire')
+     re.push('Saisine directe du bureau de jugement (sans phase de conciliation) prévue pour la requalification de CDD (C. trav. art. L1245-2) et pour la prise d’acte (art. L1451-1) : la procédure est accélérée.');
+   else re.push('Phase de conciliation : l’affaire passe en principe d’abord devant le bureau de conciliation et d’orientation (BCO) avant, à défaut d’accord, le bureau de jugement.');
+   if(n==='Harcèlement / discrimination')re.push('Harcèlement / discrimination : le salarié présente des éléments laissant supposer l’existence des faits ; il appartient ensuite à l’employeur de prouver que ses décisions sont justifiées par des éléments objectifs étrangers (aménagement de la charge de la preuve, C. trav. art. L1134-1 et L1154-1).');
+   re.push('Depuis 2016, le principe d’unicité de l’instance est supprimé : plusieurs instances successives sont possibles. La représentation par avocat ou défenseur syndical est facultative en première instance, obligatoire en appel.');
    return {ok:ok,ko:ko,re:re};}}
 };
-var ORDER=['convocation','licenciement','sanction','cdd','rupconv','inaptitude','accordent','pap','ri'];
+var ORDER=['convocation','licenciement','sanction','cdd','rupconv','inaptitude','arretmaladie','accordent','accordbranche','pap','ri','clause','saisine'];
 
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
 window.diagPreview=function(){var f=document.getElementById('diag-file').files[0];var p=document.getElementById('diag-preview');if(!f){p.innerHTML='';return;}if(f.type.indexOf('image')===0){var u=URL.createObjectURL(f);p.innerHTML='<img src="'+u+'" style="max-width:100%;max-height:260px;border-radius:8px;border:1px solid #ddd">';}else{p.innerHTML='<div style="font-size:12px;color:#555">📎 '+esc(f.name)+' joint ('+Math.round(f.size/1024)+' Ko) — visualisation directe non disponible pour ce format.</div>';}};
 window.diagRender=function(){var t=document.getElementById('diag-type').value;var box=document.getElementById('diag-questions');if(!t||!DOCS[t]){box.style.display='none';box.innerHTML='';return;}var d=DOCS[t];var h='<div style="font-weight:600;color:#1b2a4a;margin-bottom:8px">3 · Questions — '+esc(d.nom)+'</div>';d.q.forEach(function(q){h+='<div style="margin-bottom:10px"><label style="font-size:12.5px;color:#444;display:block;margin-bottom:3px">'+esc(q.l)+'</label>';if(q.t==='date')h+='<input id="dq-'+q.id+'" type="date" style="padding:7px;border:1px solid #ccc;border-radius:8px">';else if(q.t==='on')h+='<select id="dq-'+q.id+'" style="padding:7px;border:1px solid #ccc;border-radius:8px"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select>';else if(q.t==='sel'){h+='<select id="dq-'+q.id+'" style="padding:7px;border:1px solid #ccc;border-radius:8px"><option value="">—</option>';q.o.forEach(function(op){h+='<option>'+esc(op)+'</option>';});h+='</select>';}h+='</div>';});box.innerHTML=h;box.style.display='block';};
-window.diagAnalyser=function(){var t=document.getElementById('diag-type').value;var R=document.getElementById('diag-result');if(!t||!DOCS[t]){R.innerHTML='<div style="color:#b00;font-size:13px">Choisissez d’abord un type de document.</div>';return;}var d=DOCS[t];var x={};d.q.forEach(function(q){var el=document.getElementById('dq-'+q.id);x[q.id]=el?el.value:'';});var c={rep:document.getElementById('diag-rep').value,eff:document.getElementById('diag-effectif').value,ccn:document.getElementById('diag-ccn').value,anc:document.getElementById('diag-anc').value};var r=d.a(x,c);
+window.diagAnalyser=function(){var t=document.getElementById('diag-type').value;var R=document.getElementById('diag-result');if(!t||!DOCS[t]){R.innerHTML='<div style="color:#b00;font-size:13px">Choisissez d’abord un type de document.</div>';return;}var d=DOCS[t];var x={};d.q.forEach(function(q){var el=document.getElementById('dq-'+q.id);x[q.id]=el?el.value:'';});var resumeEl=document.getElementById('diag-resume');var c={rep:document.getElementById('diag-rep').value,eff:document.getElementById('diag-effectif').value,ccn:document.getElementById('diag-ccn').value,anc:document.getElementById('diag-anc').value,resume:resumeEl?resumeEl.value.trim():''};var r=d.a(x,c);
 var h='<div style="background:#fff;border:1px solid #e3ddcd;border-radius:12px;padding:16px">';
 h+='<div style="font-family:Fraunces,serif;font-size:18px;color:#1b2a4a;margin-bottom:4px">Diagnostic — '+esc(d.nom)+'</div>';
 if(c.ccn)h+='<div style="font-size:11.5px;color:#777;margin-bottom:10px">Contexte : '+esc(c.ccn)+(c.eff?(' · effectif '+esc(c.eff)):'')+(c.rep?(' · représentants : '+esc(c.rep)):'')+'</div>';
+if(c.resume)h+='<div style="font-size:11.5px;color:#555;background:#f7f5ee;border-radius:8px;padding:8px 10px;margin-bottom:10px"><b>Résumé fourni :</b> '+esc(c.resume)+'</div>';
 var score=r.ko.length===0?'✅ Aucune non-conformité majeure détectée sur les points contrôlés':'⚠️ '+r.ko.length+' point(s) de non-conformité / risque à corriger';
 h+='<div style="font-weight:600;color:'+(r.ko.length?'#b00':'#1a7a3a')+';margin-bottom:10px">'+score+'</div>';
 if(r.ko.length){h+='<div style="font-weight:600;color:#b00;font-size:13px;margin:6px 0">⚠️ Non-conformités / risques</div>';r.ko.forEach(function(k){h+='<div style="background:#fdecec;border-left:3px solid #d33;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;color:#5a1a1a">'+esc(k[0])+'<div style="font-size:11px;color:#a55;margin-top:3px">↳ '+esc(k[1])+'</div></div>';});}
