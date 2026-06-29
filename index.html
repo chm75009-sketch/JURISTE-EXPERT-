@@ -466,147 +466,169 @@ try{
   <div style="font-size:11.5px;color:var(--texte2)">Pilote la <b>convention collective</b>, les <b>spécificités</b> et la <b>jurisprudence</b> des modules <b>PSE</b> et <b>Élections CSE</b>.</div>
 </div>
 
-  <div class="home-sec">🔎 Comprendre &amp; rechercher</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('faq')">
-      <div class="hcard-ic">💬</div>
-      <div class="hcard-body"><div class="t">FAQ salariés — Questions / Réponses</div><div class="d">Plus de 1300 questions fréquentes, réponses précises (convention &amp; jurisprudence). Recherche par mot-clé ou thème.</div><div class="m">FAQ</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#9a7b2e;grid-column:1/-1" onclick="goPage('diag')">
-      <div class="hcard-ic">⚖️</div>
-      <div class="hcard-body"><div class="t">Analyse &amp; conformité d’un document</div><div class="d">Diagnostic guidé : convocation, licenciement, CDD, accord, règlement intérieur, requête prud’homale… selon loi, convention, effectif.</div><div class="m">Diagnostic</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('juris')">
-      <div class="hcard-ic">⚖️</div>
-      <div class="hcard-body"><div class="t">Base jurisprudentielle sociale</div><div class="d">Toutes branches — recherche &amp; filtres par secteur et « favorable aux salariés ».</div><div class="m">Jurisprudence</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('jurisprudence')">
-      <div class="hcard-ic">📚</div>
-      <div class="hcard-body"><div class="t">Jurisprudence par thème</div><div class="d">Arrêts classés par thème · règle de droit · textes applicables.</div><div class="m">Arrêts</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('veille')">
-      <div class="hcard-ic">📡</div>
-      <div class="hcard-body"><div class="t">Veille réglementaire</div><div class="d">Réformes · textes en vigueur · vos notes personnelles.</div><div class="m">Veille</div></div>
-      <div class="chev">›</div>
-    </div>
+    <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Choisissez une catégorie pour afficher les outils.</div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>🔎 Comprendre &amp; rechercher</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">5</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▾</span></span>
+  </div>
+  <div class="home-grid" style="display:">
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('faq')">
+        <div class="hcard-ic">💬</div>
+        <div class="hcard-body"><div class="t">FAQ salariés — Questions / Réponses</div><div class="d">Plus de 1300 questions fréquentes, réponses précises (convention &amp; jurisprudence). Recherche par mot-clé ou thème.</div><div class="m">FAQ</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#9a7b2e;grid-column:1/-1" onclick="event.stopPropagation();goPage('diag')">
+        <div class="hcard-ic">⚖️</div>
+        <div class="hcard-body"><div class="t">Analyse &amp; conformité d’un document</div><div class="d">Diagnostic guidé : convocation, licenciement, CDD, accord, règlement intérieur, requête prud’homale…</div><div class="m">Diagnostic</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('juris')">
+        <div class="hcard-ic">⚖️</div>
+        <div class="hcard-body"><div class="t">Base jurisprudentielle sociale</div><div class="d">Toutes branches — recherche &amp; filtres par secteur et « favorable aux salariés ».</div><div class="m">Jurisprudence</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('jurisprudence')">
+        <div class="hcard-ic">📚</div>
+        <div class="hcard-body"><div class="t">Jurisprudence par thème</div><div class="d">Arrêts classés par thème · règle de droit · textes applicables.</div><div class="m">Arrêts</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="event.stopPropagation();goPage('veille')">
+        <div class="hcard-ic">📡</div>
+        <div class="hcard-body"><div class="t">Veille réglementaire</div><div class="d">Réformes · textes en vigueur · vos notes personnelles.</div><div class="m">Veille</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">📝 Embauche &amp; contrats</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="goPage('contrat')">
-      <div class="hcard-ic">📋</div>
-      <div class="hcard-body"><div class="t">Embauche &amp; contrats</div><div class="d">CDI · CDD · DPAE · fiche de poste · checklist d’embauche · période d’essai.</div><div class="m">Contrats</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('cdd')">
-      <div class="hcard-ic">📄</div>
-      <div class="hcard-body"><div class="t">CDD &amp; précarité</div><div class="d">Cas de recours, mentions obligatoires, indemnité de précarité 10%, requalification.</div><div class="m">CDD</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('statut')">
-      <div class="hcard-ic">📊</div>
-      <div class="hcard-body"><div class="t">Statut conventionnel par secteur</div><div class="d">Convention, classification, essai, préavis, indemnités, maladie, primes, congés + jurisprudence.</div><div class="m">Conventions</div></div>
-      <div class="chev">›</div>
-    </div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>📝 Embauche &amp; contrats</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+  </div>
+  <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="event.stopPropagation();goPage('contrat')">
+        <div class="hcard-ic">📋</div>
+        <div class="hcard-body"><div class="t">Embauche &amp; contrats</div><div class="d">CDI · CDD · DPAE · fiche de poste · checklist d’embauche · période d’essai.</div><div class="m">Contrats</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('cdd')">
+        <div class="hcard-ic">📄</div>
+        <div class="hcard-body"><div class="t">CDD &amp; précarité</div><div class="d">Cas de recours, mentions obligatoires, indemnité de précarité 10%, requalification.</div><div class="m">CDD</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('statut')">
+        <div class="hcard-ic">📊</div>
+        <div class="hcard-body"><div class="t">Statut conventionnel par secteur</div><div class="d">Convention, classification, essai, préavis, indemnités, maladie, primes, congés + jurisprudence.</div><div class="m">Conventions</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">⚖️ Rupture du contrat</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="goPage('licenc')">
-      <div class="hcard-ic">📑</div>
-      <div class="hcard-body"><div class="t">Procédure de licenciement</div><div class="d">Motif personnel : convocation, entretien, notification, délais, échéancier, sanctions.</div><div class="m">Licenciement</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="goPage('disciplinaire')">
-      <div class="hcard-ic">⚖️</div>
-      <div class="hcard-body"><div class="t">Discipline &amp; sanctions</div><div class="d">Fautes adaptées au secteur, prescription, procédure disciplinaire, documents.</div><div class="m">Discipline</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="goPage('rupconv')">
-      <div class="hcard-ic">🤝</div>
-      <div class="hcard-body"><div class="t">Rupture conventionnelle</div><div class="d">TéléRC, rétractation 15 j, homologation DREETS, indemnité spécifique.</div><div class="m">Rupture amiable</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('inapt')">
-      <div class="hcard-ic">🏥</div>
-      <div class="hcard-body"><div class="t">Inaptitude &amp; reclassement</div><div class="d">Médecin du travail, consultation CSE, reclassement, indemnités (origine pro/non pro).</div><div class="m">Inaptitude</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('pse')">
-      <div class="hcard-ic">🛟</div>
-      <div class="hcard-body"><div class="t">Plan de Sauvegarde de l’Emploi (PSE)</div><div class="d">Licenciement économique collectif (≥ 50 salariés) — procédure pas-à-pas, DREETS, jurisprudence.</div><div class="m">Économique</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('calc')">
-      <div class="hcard-ic">🧮</div>
-      <div class="hcard-body"><div class="t">Calculateurs d’indemnités</div><div class="d">Licenciement, barème Macron, congés payés, préavis, précarité, rupture conventionnelle, retraite.</div><div class="m">Calculs</div></div>
-      <div class="chev">›</div>
-    </div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>⚖️ Rupture du contrat</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">6</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+  </div>
+  <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('licenc')">
+        <div class="hcard-ic">📑</div>
+        <div class="hcard-body"><div class="t">Procédure de licenciement</div><div class="d">Motif personnel : convocation, entretien, notification, délais, échéancier, sanctions.</div><div class="m">Licenciement</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('disciplinaire')">
+        <div class="hcard-ic">⚖️</div>
+        <div class="hcard-body"><div class="t">Discipline &amp; sanctions</div><div class="d">Fautes adaptées au secteur, prescription, procédure disciplinaire, documents.</div><div class="m">Discipline</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="event.stopPropagation();goPage('rupconv')">
+        <div class="hcard-ic">🤝</div>
+        <div class="hcard-body"><div class="t">Rupture conventionnelle</div><div class="d">TéléRC, rétractation 15 j, homologation DREETS, indemnité spécifique.</div><div class="m">Rupture amiable</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('inapt')">
+        <div class="hcard-ic">🏥</div>
+        <div class="hcard-body"><div class="t">Inaptitude &amp; reclassement</div><div class="d">Médecin du travail, consultation CSE, reclassement, indemnités (origine pro/non pro).</div><div class="m">Inaptitude</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="event.stopPropagation();goPage('pse')">
+        <div class="hcard-ic">🛟</div>
+        <div class="hcard-body"><div class="t">Plan de Sauvegarde de l’Emploi (PSE)</div><div class="d">Licenciement économique collectif (≥ 50 salariés) — procédure pas-à-pas, DREETS, jurisprudence.</div><div class="m">Économique</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('calc')">
+        <div class="hcard-ic">🧮</div>
+        <div class="hcard-body"><div class="t">Calculateurs d’indemnités</div><div class="d">Licenciement, barème Macron, congés payés, préavis, précarité, rupture conventionnelle, retraite.</div><div class="m">Calculs</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">🕒 Vie du contrat</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('temps2')">
-      <div class="hcard-ic">⏱️</div>
-      <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures supplémentaires, forfait-jours, spécificités par secteur.</div><div class="m">Durée du travail</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('absences')">
-      <div class="hcard-ic">🏥</div>
-      <div class="hcard-body"><div class="t">Absences &amp; congés</div><div class="d">Maladie · AT/MP · maternité/paternité · congés payés · maintien de salaire · reprise.</div><div class="m">Absences</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="goPage('harcele')">
-      <div class="hcard-ic">🛡️</div>
-      <div class="hcard-body"><div class="t">Harcèlement &amp; discrimination</div><div class="d">Prévention, charge de la preuve aménagée, nullité, jurisprudence.</div><div class="m">Protection</div></div>
-      <div class="chev">›</div>
-    </div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>🕒 Vie du contrat</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+  </div>
+  <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps2')">
+        <div class="hcard-ic">⏱️</div>
+        <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures supplémentaires, forfait-jours, spécificités par secteur.</div><div class="m">Durée du travail</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('absences')">
+        <div class="hcard-ic">🏥</div>
+        <div class="hcard-body"><div class="t">Absences &amp; congés</div><div class="d">Maladie · AT/MP · maternité/paternité · congés payés · maintien de salaire · reprise.</div><div class="m">Absences</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('harcele')">
+        <div class="hcard-ic">🛡️</div>
+        <div class="hcard-body"><div class="t">Harcèlement &amp; discrimination</div><div class="d">Prévention, charge de la preuve aménagée, nullité, jurisprudence.</div><div class="m">Protection</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">🗳️ Représentation du personnel</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('cse')">
-      <div class="hcard-ic">🗳️</div>
-      <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">Effectif, nombre de sièges, électeurs/éligibles, quorum, PAP, listes, PV.</div><div class="m">CSE</div></div>
-      <div class="chev">›</div>
-    </div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>🗳️ Représentation du personnel</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">1</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+  </div>
+  <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('cse')">
+        <div class="hcard-ic">🗳️</div>
+        <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">Effectif, nombre de sièges, électeurs/éligibles, quorum, PAP, listes, PV.</div><div class="m">CSE</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">🚚 Spécifique transport routier</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="goPage('temps')">
-      <div class="hcard-ic">⏱️</div>
-      <div class="hcard-body"><div class="t">Temps de conduite &amp; repos</div><div class="d">Décret 83-40 · CE 561/2006 · calculatrice conduite/repos/amplitude.</div><div class="m">Conduite</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="goPage('remuneration')">
-      <div class="hcard-ic">💶</div>
-      <div class="hcard-body"><div class="t">Rémunération transport</div><div class="d">Salaires · GAR · prime d’ancienneté · frais · minima conventionnels.</div><div class="m">Paie transport</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="goPage('ri')">
-      <div class="hcard-ic">📜</div>
-      <div class="hcard-body"><div class="t">Règlement intérieur transport</div><div class="d">Alcool · tachygraphe · géolocalisation · discipline.</div><div class="m">RI</div></div>
-      <div class="chev">›</div>
-    </div>
-    <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="goPage('tableau-bord')">
-      <div class="hcard-ic">📊</div>
-      <div class="hcard-body"><div class="t">Tableau de bord conducteurs</div><div class="d">Permis · CQC · FCO · visite médicale · ADR — alertes d’échéance.</div><div class="m">Suivi conducteurs</div></div>
-      <div class="chev">›</div>
-    </div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>🚚 Spécifique transport routier</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">4</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+  </div>
+  <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps')">
+        <div class="hcard-ic">⏱️</div>
+        <div class="hcard-body"><div class="t">Temps de conduite &amp; repos</div><div class="d">Décret 83-40 · CE 561/2006 · calculatrice conduite/repos/amplitude.</div><div class="m">Conduite</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('remuneration')">
+        <div class="hcard-ic">💶</div>
+        <div class="hcard-body"><div class="t">Rémunération transport</div><div class="d">Salaires · GAR · prime d’ancienneté · frais · minima conventionnels.</div><div class="m">Paie transport</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="event.stopPropagation();goPage('ri')">
+        <div class="hcard-ic">📜</div>
+        <div class="hcard-body"><div class="t">Règlement intérieur transport</div><div class="d">Alcool · tachygraphe · géolocalisation · discipline.</div><div class="m">RI</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('tableau-bord')">
+        <div class="hcard-ic">📊</div>
+        <div class="hcard-body"><div class="t">Tableau de bord conducteurs</div><div class="d">Permis · CQC · FCO · visite médicale · ADR — alertes d’échéance.</div><div class="m">Suivi conducteurs</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">⚙️ Configuration</div>
-  <div class="home-grid">
-    <div class="hcard" style="--accent:#7f8da0;grid-column:1/-1" onclick="goPage('parametrage')">
-      <div class="hcard-ic">⚙️</div>
-      <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · licences · gestionnaire transport.</div><div class="m">Config</div></div>
-      <div class="chev">›</div>
-    </div>
+  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
+    <span>⚙️ Configuration</span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">1</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+  </div>
+  <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#7f8da0;grid-column:1/-1" onclick="event.stopPropagation();goPage('parametrage')">
+        <div class="hcard-ic">⚙️</div>
+        <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · licences · gestionnaire transport.</div><div class="m">Config</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
 <div class="home-disclaimer">
@@ -2725,6 +2747,14 @@ function retourAuto(){
   if(overlay && overlay.classList.contains('open')){closeDoc();return;}
   // Sinon retour accueil
   goPage('home');
+}
+function homeToggle(head){
+  var body=head.nextElementSibling;
+  if(!body)return;
+  var open=body.style.display!=='none';
+  body.style.display=open?'none':'';
+  var chev=head.querySelector('.home-acc-chev');
+  if(chev)chev.textContent=open?'▸':'▾';
 }
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
