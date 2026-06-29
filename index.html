@@ -2277,6 +2277,58 @@ Exemple :<br>
   <div class="loi">¼ mois/an jusqu'à 10 ans, ⅓ au-delà (droit ouvert dès 8 mois). Salaire de référence : 1/12 des 12 derniers mois ou moyenne des 3 derniers mois si plus favorable. Estimation hors préavis et congés payés.</div>
 </div>
 
+<!-- FAILLES / CONTESTATION -->
+<div class="card">
+  <div class="bl">Contestation</div>
+  <div class="ct">🔎 Failles à explorer — points de contestation</div>
+  <div class="al warn" style="font-size:12px;margin-bottom:8px">Grille d'analyse côté salariés / élus : pour chaque point, indiquez s'il paraît conforme ou contestable au vu des pièces (note économique, PV du CSE, rapport de l'expert, décision DREETS). Information générale — à valider avec un avocat ou le syndicat.</div>
+  <div id="pse-failles-count" style="font-size:12px;color:#e8c97a;font-weight:600;margin-bottom:8px"></div>
+  <div id="pse-failles"></div>
+  <button class="btn-outline" onclick="pseFaillesReset()" style="margin-top:10px">♻️ Réinitialiser</button>
+</div>
+<script>
+(function(){
+  var KEY='pse_failles_v1';
+  var PTS=[
+   {id:'motif',t:'Motif économique apprécié au niveau du GROUPE',ref:'C. trav. art. L1233-3',d:'Réalité des difficultés (ou sauvegarde de compétitivité / mutations) appréciée au niveau du secteur d\'activité du GROUPE, pas de la seule entité. Difficultés locales mais groupe bénéficiaire = faille majeure.'},
+   {id:'propo',t:'Proportionnalité des mesures aux MOYENS DU GROUPE',ref:'C. trav. art. L1233-61',d:'Le contenu du PSE (reclassement, formation, indemnités supra-légales) doit être proportionné aux moyens du groupe, pas de la filiale. Plan « pauvre » alors que le groupe est solide = insuffisance du plan.'},
+   {id:'reclass',t:'Obligation de reclassement sérieuse et individualisée',ref:'C. trav. art. L1233-4',d:'Recherche préalable, personnalisée et sur tous les postes disponibles du groupe (entités permutables). Offres vagues, tardives, collectives ou absentes = motif de nullité / sans cause.'},
+   {id:'cse',t:'Régularité de l\'info-consultation du CSE',ref:'C. trav. art. L1233-28 à L1233-34',d:'Délais respectés, double consultation (réorganisation / PSE), recours à l\'expert-comptable et accès effectif aux informations, réponses motivées aux questions des élus.'},
+   {id:'dreets',t:'Décision DREETS (validation / homologation) — recours TA 2 mois',ref:'C. trav. art. L1235-7-1',d:'Vérifier la motivation et le respect des délais (15/21 jours). Contestation devant le tribunal administratif dans les 2 mois : c\'est le contentieux central depuis 2013.'},
+   {id:'categories',t:'Catégories professionnelles & ordre des licenciements',ref:'C. trav. art. L1233-5',d:'Catégories définies par fonctions de même nature et socle de formation commune (non « taillées » pour viser des personnes) ; critères d\'ordre réellement pondérés et appliqués sur le bon périmètre.'},
+   {id:'coemploi',t:'Périmètre / co-emploi / cause créée artificiellement',ref:'Jurisprudence Cass. soc. (co-emploi, fraude)',d:'Réorganisations ou transferts intra-groupe créant artificiellement la cause économique ; immixtion de la tête de groupe caractérisant un co-emploi. Difficile mais très puissant si avéré.'},
+   {id:'proteges',t:'Salariés protégés — autorisation de l\'inspection du travail',ref:'C. trav. art. L2411-1',d:'Tout élu / délégué syndical / candidat licencié dans le PSE exige l\'autorisation préalable de l\'inspection du travail. Absence = vice de procédure.'},
+   {id:'ccn',t:'CCN applicable & statut des personnels enseignants',ref:'EPNL (IDCC 3218) / formation (IDCC 1516)',d:'Vérifier la convention réellement applicable et ses garanties propres ; statut particulier des éventuels maîtres / personnels sous contrat (articulation employeur privé / autorité académique). Terrain souvent mal traité.'},
+   {id:'egalite',t:'Égalité de traitement / non-discrimination dans les critères',ref:'C. trav. art. L1132-1',d:'Application des critères sans discrimination (âge, sexe, état de santé, activité syndicale) ni rupture d\'égalité injustifiée.'}
+  ];
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};}}
+  function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}}
+  function col(s){return s==='ok'?'#46b885':s==='check'?'#e0a83a':s==='ko'?'#e05c5c':'#7f8da0';}
+  function opt(v,cur,lab){return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+lab+'</option>';}
+  function render(){
+    var host=document.getElementById('pse-failles'); if(!host)return;
+    var saved=load(),h='',ko=0;
+    PTS.forEach(function(p,i){
+      var st=saved[p.id]||''; if(st==='ko')ko++;
+      h+='<div style="border-left:3px solid '+col(st)+';background:rgba(255,255,255,.03);border-radius:8px;padding:10px;margin-bottom:8px">'
+        +'<div style="font-size:13px;font-weight:600;color:#fff;line-height:1.4">'+(i+1)+'. '+esc(p.t)+'</div>'
+        +'<div style="font-size:12px;color:#cfc8b8;margin:4px 0 6px;line-height:1.55">'+esc(p.d)+'</div>'
+        +'<div style="font-size:11px;color:#9a9585;margin-bottom:6px">📘 '+esc(p.ref)+'</div>'
+        +'<select onchange="pseFaillesSet(\''+p.id+'\',this.value)" style="padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:#162639;color:#e8e4d8;font-size:12px">'
+        +opt('',st,'— à évaluer')+opt('ok',st,'✅ Conforme')+opt('check',st,'🔍 À vérifier')+opt('ko',st,'⚠️ À contester')
+        +'</select></div>';
+    });
+    host.innerHTML=h;
+    var c=document.getElementById('pse-failles-count');
+    if(c)c.textContent=ko+' point(s) marqué(s) « à contester » sur '+PTS.length;
+  }
+  window.pseFaillesSet=function(id,val){var d=load();if(val)d[id]=val;else delete d[id];save(d);render();};
+  window.pseFaillesReset=function(){save({});render();};
+  if(document.readyState!=='loading')render();else document.addEventListener('DOMContentLoaded',render);
+})();
+</script>
+
 <!-- CHECKLIST -->
 <div class="card">
   <div class="bl">Suivi</div>
