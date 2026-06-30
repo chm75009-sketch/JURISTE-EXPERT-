@@ -5711,6 +5711,9 @@ function refreshNomTable(){
   }
   const effArr = Math.floor(totalEff);
   const sousSeuil = effArr < 11;
+  // Nombre de sièges (titulaires) — table art. R.2314-1 C. trav.
+  const SIEGES_TBL=[[24,1,10],[49,2,10],[74,4,18],[99,5,19],[124,6,21],[149,7,21],[174,8,21],[199,9,21],[249,10,22],[299,11,22],[399,11,22],[499,12,22],[599,13,24],[699,14,24],[799,14,24],[899,15,24],[999,16,24],[1249,17,24],[1499,18,24],[1749,20,26],[1999,21,26],[2249,22,26],[2499,23,26],[2999,24,26],[3499,25,26],[3999,26,26]];
+  let sg=[35,26]; for(const row of SIEGES_TBL){ if(effArr<=row[0]){ sg=[row[1],row[2]]; break; } }
   synth.innerHTML = `${sousSeuil ? `<div style="background:rgba(224,92,92,0.15);border:2px solid #e05c5c;border-radius:10px;padding:12px;margin-bottom:10px;color:#e05c5c">
 <div style="font-size:14px;font-weight:700;margin-bottom:6px">⛔ Pas d'élections CSE obligatoires</div>
 <div style="font-size:12px;color:#e8e4d8;line-height:1.6">L'obligation d'organiser des élections CSE ne s'applique qu'à partir de <strong>11 salariés atteints pendant 12 mois consécutifs</strong> (art. L.2311-2 C. trav.). Avec un effectif retenu de <strong>${effArr}</strong>, l'entreprise n'a pas cette obligation. Les exports d'élections sont désactivés.</div>
@@ -5718,6 +5721,7 @@ function refreshNomTable(){
 <div style="font-size:13px;color:#e8c97a;font-weight:700;margin-bottom:8px">Date de calcul : ${new Date(dateScrutin).toLocaleDateString('fr-FR')}</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:2">
 Effectif décompté : <strong>${totalEff.toFixed(2)}</strong> → retenu <strong style="color:#e8c97a;font-size:15px"><u>${effArr}</u></strong><br>
+${!sousSeuil ? `Nombre de sièges à pourvoir : <strong style="color:#e8c97a;font-size:15px"><u>${sg[0]}</u> titulaire(s)</strong> + <strong>${sg[0]} suppléant(s)</strong> · ${sg[1]} h de délégation/mois (art. R.2314-1)<br>` : ''}
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
 Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>
