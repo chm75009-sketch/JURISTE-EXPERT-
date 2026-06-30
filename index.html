@@ -341,6 +341,9 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
 const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
+// Code d'accès temporaire (essai 3 jours) — expire le 03/07/2026 23:59
+const _TEMP_HASH = '83292184a5ee893afc29574dc7581852de7fd71a225fd2414ff631927edb5e57';
+const _TEMP_EXPIRY = 1783123199000;
 async function _sha256(txt){
   const data = new TextEncoder().encode(txt);
   const buf = await crypto.subtle.digest('SHA-256', data);
@@ -353,6 +356,14 @@ async function verifierCode(){
   if(h === _CODE_HASH){
     try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
+  } else if(h === _TEMP_HASH){
+    if(Date.now() <= _TEMP_EXPIRY){
+      try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
+      document.getElementById('lock-screen').style.display = 'none';
+    } else {
+      err.textContent = 'Code temporaire expiré';
+      inp.value = ''; inp.focus();
+    }
   } else {
     err.textContent = 'Code incorrect';
     inp.value = '';
