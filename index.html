@@ -341,9 +341,9 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
 const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
-// Code d'accès temporaire (essai 3 jours) — expire le 03/07/2026 23:59
+// Code d'accès temporaire (essai 3 jours) — expire le 06/07/2026 23:59
 const _TEMP_HASH = '83292184a5ee893afc29574dc7581852de7fd71a225fd2414ff631927edb5e57';
-const _TEMP_EXPIRY = 1783123199000;
+const _TEMP_EXPIRY = 1783382399000;
 async function _sha256(txt){
   const data = new TextEncoder().encode(txt);
   const buf = await crypto.subtle.digest('SHA-256', data);
@@ -632,12 +632,17 @@ try{
 
   <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
     <span>⚙️ Configuration</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">1</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">2</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
   </div>
   <div class="home-grid" style="display:none">
       <div class="hcard" style="--accent:#7f8da0;grid-column:1/-1" onclick="event.stopPropagation();goPage('parametrage')">
         <div class="hcard-ic">⚙️</div>
         <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · licences · gestionnaire transport.</div><div class="m">Config</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('rgpd')">
+        <div class="hcard-ic">🔒</div>
+        <div class="hcard-body"><div class="t">Charte de confidentialité (RGPD)</div><div class="d">Ce que l'app fait de vos données · stockage local · vos droits.</div><div class="m">RGPD</div></div>
         <div class="chev">›</div>
       </div>
   </div>
@@ -1837,8 +1842,90 @@ Exemple :<br>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
+  <div class="mi" onclick="goPage('rgpd');closeMenu()"><span style="font-size:18px">🔒</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Charte RGPD / confidentialité</div></div></div>
 </div>
 <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:#6b6660;line-height:1.5">Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</div>
+</div>
+
+<!-- ═══ CHARTE RGPD / CONFIDENTIALITÉ ═══ -->
+<div id="pg-rgpd" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Charte de confidentialité (RGPD)</div><div class="ts">Protection des données · Règlement (UE) 2016/679</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+  <div class="ct">🔒 Vos données, en clair</div>
+  <div class="al ok" style="font-size:12.5px;line-height:1.7">L'essentiel : <b>les informations que vous saisissez (fiche entreprise, salariés, calculs, réponses aux questionnaires) restent stockées sur VOTRE appareil</b>, dans la mémoire locale de votre navigateur. Elles ne sont <b>ni envoyées à un serveur de l'éditeur, ni partagées, ni revendues</b>. Aucun compte, aucune base de données centralisée.</div>
+</div>
+
+<div class="card">
+  <div class="ct">1 · Responsable du traitement</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  <b>Mounir CHIKHAOUI</b> — éditeur de l'application « Juris Expert MCH ».<br>
+  Contact : <a href="mailto:r.t.h@orange.fr" style="color:#e8c97a">r.t.h@orange.fr</a> · 06 61 47 61 65.<br>
+  <span style="font-size:11.5px;color:#9a9585">(Coordonnées à adapter par l'éditeur ; renseignez le cas échéant la raison sociale et un éventuel délégué à la protection des données.)</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">2 · Quelles données et pour quoi</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  • <b>Données saisies</b> (nom/SIRET/adresse de l'entreprise, données de salariés, dates, montants, réponses aux questionnaires) — pour <b>générer vos documents et diagnostics</b>.<br>
+  • <b>Préférences</b> (secteur, personnalisation de l'auteur) — pour le confort d'usage.<br>
+  <b>Base légale :</b> votre utilisation de l'outil et votre intérêt légitime (art. 6 RGPD). Vous n'êtes jamais obligé de remplir la fiche entreprise pour accéder à l'app.
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">3 · Où sont stockées vos données</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  Dans le <b>stockage local de votre navigateur</b> (localStorage / sessionStorage), sur votre appareil uniquement. <b>Aucune transmission à un serveur applicatif</b> (l'application n'a pas de back-end). Vous gardez la maîtrise complète : vider le stockage de votre navigateur efface tout.
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">4 · Hébergement & services tiers</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  • <b>Hébergement :</b> GitHub Pages (GitHub Inc. / Microsoft). Comme tout site, le serveur d'hébergement peut journaliser techniquement votre adresse IP pour délivrer les pages.<br>
+  • <b>Polices d'écriture :</b> Google Fonts, chargées depuis les serveurs de Google — votre adresse IP est alors transmise à Google.<br>
+  • <b>Bibliothèques chargées à la demande</b> (uniquement si vous utilisez ces fonctions) : export Word/Excel/PDF et lecture de documents (jsDelivr, Cloudflare) — votre IP est transmise à ces réseaux de diffusion lors de l'usage.<br>
+  <span style="font-size:11.5px;color:#9a9585">Aucun de ces tiers ne reçoit le contenu que vous saisissez ; seule la requête technique de chargement (dont l'IP) leur parvient.</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">5 · Cookies & traceurs</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  <b>Aucun cookie publicitaire, aucun traceur analytique.</b> Le stockage local utilisé l'est à des fins <b>strictement fonctionnelles</b> (mémoriser vos saisies et l'accès). Un identifiant technique d'accès (code) est conservé sous forme <b>hachée</b>, jamais en clair.
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">6 · Durée de conservation</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  Vos données restent tant que <b>vous</b> ne les effacez pas (bouton de réinitialisation dans les modules, ou vidage du cache du navigateur). Un éventuel <b>code d'accès temporaire</b> cesse de fonctionner à sa date d'expiration.
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">7 · Vos droits</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  Droits d'<b>accès, rectification, effacement, limitation, opposition et portabilité</b> (art. 15 à 22 RGPD). Les données étant <b>locales</b>, vous les exercez directement : consultez-les dans l'app, modifiez-les, ou effacez-les en vidant le stockage de votre navigateur. Pour toute question, contactez le responsable ci-dessus.<br>
+  <b>Réclamation :</b> vous pouvez saisir la <a href="https://www.cnil.fr" target="_blank" rel="noopener" style="color:#e8c97a">CNIL</a> (www.cnil.fr).
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">8 · Sécurité</div>
+  <div style="font-size:13px;color:#e8e4d8;line-height:1.9">
+  Diffusion en <b>HTTPS</b>, accès protégé par un code (conservé haché). L'application étant sans serveur, vos données ne transitent pas et ne sont pas centralisées — ce qui réduit fortement les risques de fuite côté éditeur. Veillez toutefois à la sécurité de votre propre appareil.
+  </div>
+</div>
+
+<div class="card">
+  <div class="al warn" style="font-size:11.5px;margin:0">Version du 3 juillet 2026 · Charte informative adaptée au fonctionnement réel de l'application. Ne dispense pas l'éditeur de vérifier ses obligations propres (registre des traitements, mentions légales) au regard de son usage.</div>
+</div>
+<div style="height:20px"></div>
 </div>
 
 <!-- BOTTOM NAV -->
