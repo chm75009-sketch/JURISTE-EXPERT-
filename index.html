@@ -1987,7 +1987,106 @@ Exemple :<br>
 <div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Office du juge : appréciation globale des faits</div><div class="juris-ref">Cass. soc., 25 septembre 2024, n° 23-15.766 (et jurisprudence constante)</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">Le juge doit examiner <b>l'ensemble des éléments</b> présentés par le salarié et apprécier s'ils laissent supposer un harcèlement, sans se prononcer fait par fait.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%20harc%C3%A8lement%20moral%20appr%C3%A9ciation%20globale%20L%C3%A9gifrance" target="_blank" rel="noopener" style="color:#e8c97a">🔎 Rechercher la décision (Légifrance) ↗</a></div></div>
 <div class="juris-card"><div style="font-size:13.5px;font-weight:700;color:#fff">Obligation de sécurité &amp; prévention</div><div class="juris-ref">Cass. soc., 1er juin 2016, n° 14-19.702 (et s.)</div><div style="font-size:12.5px;color:#e8e4d8;margin-top:3px">L'employeur qui a pris les mesures de prévention nécessaires peut s'exonérer ; à défaut, sa responsabilité est engagée même s'il a réagi après les faits.</div><div class="juris-regle"><a href="https://www.google.com/search?q=Cass.%20soc.%201er%20juin%202016%2014-19.702%20obligation%20s%C3%A9curit%C3%A9" target="_blank" rel="noopener" style="color:#e8c97a">🔎 Rechercher la décision (Légifrance) ↗</a></div></div>
 <div class="al warn" style="font-size:11.5px;margin-top:6px">Références à confirmer sur Légifrance avant usage professionnel.</div></div>
+
+<div class="card">
+  <div class="bl">Diagnostic</div>
+  <div class="ct">🧭 Licenciement en représailles après signalement ?</div>
+  <div class="al warn" style="font-size:12px;margin-bottom:10px">Questionnaire précis pour évaluer si un licenciement (souvent sur un prétexte type « mensonge sur le CV ») constitue une <b>mesure de rétorsion nulle</b> à la suite d'un signalement de harcèlement. Renseignez les dates : l'outil calcule la concomitance, l'antériorité du grief et la protection applicable. Information générale — à valider avec un avocat/syndicat.</div>
+  <div id="har-diag-form"></div>
+  <button class="btn" onclick="harDiagAnalyse()" style="margin-top:6px">Analyser la situation ⚖️</button>
+  <div id="har-diag-res" style="margin-top:12px"></div>
+</div>
 <div style="height:20px"></div></div>
+<script>
+(function(){
+  var Q=[
+   {id:'emb',l:'Date d\'embauche',t:'date'},
+   {id:'essaiDuree',l:'Durée de la période d\'essai (mois)',t:'num'},
+   {id:'essaiRenouv',l:'Période d\'essai renouvelée ?',t:'on'},
+   {id:'essaiValid',l:'Période d\'essai validée ?',t:'sel',o:['Oui, validée','Non','Rompue par l\'employeur']},
+   {id:'cvDate',l:'Date de communication du CV et des diplômes au service RH',t:'date'},
+   {id:'cvPreuve',l:'Preuve de dépôt / accusé de réception RH ?',t:'on'},
+   {id:'motif',l:'Motif invoqué pour le licenciement',t:'sel',o:['Mensonge sur le CV / diplômes','Autre motif']},
+   {id:'hType',l:'Type de harcèlement subi',t:'sel',o:['Harcèlement moral','Harcèlement sexuel / agissement sexiste']},
+   {id:'hDebut',l:'Date de début des faits de harcèlement',t:'date'},
+   {id:'hFreq',l:'Fréquence des faits',t:'sel',o:['Faits répétés','Fait isolé mais grave']},
+   {id:'hReaction',l:'Date de votre 1re réaction écrite (e-mail…)',t:'date'},
+   {id:'rhDate',l:'Date de saisine des RH (signalement formel)',t:'date'},
+   {id:'refDate',l:'Date de saisine du référent harcèlement',t:'date'},
+   {id:'enquete',l:'Une enquête a-t-elle été menée ?',t:'on'},
+   {id:'preuves',l:'Témoignages de collègues / attestation du référent ?',t:'on'},
+   {id:'bonneFoi',l:'Saviez-vous que les faits dénoncés étaient faux ?',t:'sel',o:['Non — signalement de bonne foi','Oui']},
+   {id:'licDate',l:'Date d\'engagement de la procédure de licenciement (convocation)',t:'date'}
+  ];
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function render(){
+    var host=document.getElementById('har-diag-form'); if(!host)return;
+    var h='';
+    Q.forEach(function(q){
+      h+='<div style="margin-bottom:9px"><label style="font-size:12.5px;color:#cfc8b8;display:block;margin-bottom:3px">'+esc(q.l)+'</label>';
+      if(q.t==='date')h+='<input id="hd-'+q.id+'" type="date" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#fff;font-size:13px">';
+      else if(q.t==='num')h+='<input id="hd-'+q.id+'" type="number" min="0" step="1" placeholder="ex. 4" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#fff;font-size:13px;width:120px">';
+      else if(q.t==='on')h+='<select id="hd-'+q.id+'" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#e8e4d8;font-size:13px"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select>';
+      else if(q.t==='sel'){h+='<select id="hd-'+q.id+'" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#e8e4d8;font-size:13px"><option value="">—</option>';q.o.forEach(function(op){h+='<option>'+esc(op)+'</option>';});h+='</select>';}
+      h+='</div>';
+    });
+    host.innerHTML=h;
+  }
+  function pd(v){if(!v)return null;var d=new Date(v+'T00:00:00');return isNaN(d)?null:d;}
+  function addM(d,m){var x=new Date(d);x.setMonth(x.getMonth()+m);return x;}
+  function days(a,b){return Math.round((b-a)/86400000);}
+  function fdate(d){return d?d.toLocaleDateString('fr-FR'):'—';}
+  function gv(id){var e=document.getElementById('hd-'+id);return e?e.value:'';}
+  window.harDiagAnalyse=function(){
+    var emb=pd(gv('emb')),cvDate=pd(gv('cvDate')),rhDate=pd(gv('rhDate')),refDate=pd(gv('refDate')),licDate=pd(gv('licDate'));
+    var essaiDuree=parseInt(gv('essaiDuree'),10)||0,renouv=gv('essaiRenouv'),essaiValid=gv('essaiValid');
+    var cvPreuve=gv('cvPreuve'),motif=gv('motif'),hType=gv('hType'),preuves=gv('preuves'),enquete=gv('enquete'),bonneFoi=gv('bonneFoi');
+    var essaiFin = (emb&&essaiDuree)? addM(emb, essaiDuree*(renouv==='oui'?2:1)) : null;
+    var fav=[],vig=[],re=[];
+    // Signalement le plus ancien
+    var signal=null; if(rhDate&&refDate)signal=(rhDate<refDate?rhDate:refDate); else signal=rhDate||refDate;
+    // 1. Grief CV connu depuis l'embauche + purgé par l'essai
+    var cvGrief=(motif==='Mensonge sur le CV / diplômes');
+    if(cvGrief){
+      if(cvDate&&emb&&days(emb,cvDate)<=31&&days(emb,cvDate)>=-5)
+        fav.push('CV et diplômes communiqués dès l\'embauche (le '+fdate(cvDate)+')'+(cvPreuve==='oui'?', avec preuve de réception RH':'')+' : l\'employeur connaissait ces éléments depuis le début. Un grief connu et non sanctionné à temps ne peut fonder un licenciement ultérieur.');
+      else if(cvDate&&essaiFin&&cvDate<=essaiFin)
+        fav.push('CV/diplômes transmis avant la fin de la période d\'essai : éléments connus de l\'employeur pendant l\'essai.');
+      if(essaiValid==='Oui, validée')
+        fav.push('Période d\'essai validée'+(essaiFin?(' (fin le '+fdate(essaiFin)+')'):'')+' : l\'employeur a pu apprécier les compétences réelles. Le grief tiré du CV est en pratique purgé — les mentions inexactes ne justifient un licenciement que si le salarié n\'a pas les compétences requises.');
+      if(cvPreuve==='oui')fav.push('Preuve de dépôt/accusé de réception : la salariée peut démontrer que l\'employeur détenait les documents dès l\'embauche.');
+    }
+    // 2. Concomitance signalement -> licenciement
+    if(signal&&licDate){
+      var g=days(signal,licDate);
+      if(g>=0&&g<=90)fav.push('Procédure de licenciement engagée '+g+' jour(s) après le signalement (signalement le '+fdate(signal)+', convocation le '+fdate(licDate)+') : la concomitance fait fortement présumer une mesure de rétorsion.');
+      else if(g>90)vig.push('Délai de '+g+' jours entre signalement et licenciement : le lien de rétorsion est moins immédiat, à étayer par d\'autres éléments (contexte, propos, absence de grief nouveau).');
+      else vig.push('La procédure de licenciement paraît engagée AVANT le signalement : l\'angle « représailles » ne s\'applique pas tel quel — analyser le motif sur le terrain classique.');
+    } else re.push('Renseignez la date de saisine RH/référent ET la date de convocation pour mesurer la concomitance (indice clé de la rétorsion).');
+    // 3. Protection du signalement de bonne foi
+    if(hType&&bonneFoi==='Non — signalement de bonne foi'){
+      var art=(hType.indexOf('sexuel')>=0)?'L1153-2 et L1153-3':'L1152-2 et L1152-3';
+      fav.push('Signalement de harcèlement de bonne foi : toute mesure (dont le licenciement) prise en raison de ce signalement est NULLE (C. trav. art. '+art+').');
+    }
+    if(bonneFoi==='Oui')vig.push('Point de vigilance : si l\'employeur démontre votre mauvaise foi (connaissance de la fausseté des faits dénoncés), la protection contre les représailles tombe.');
+    // 4. Preuves / bonne foi présumée
+    if(preuves==='oui')fav.push('Témoignages de collègues et/ou attestation du référent'+(enquete==='oui'?' + enquête menée':'')+' : les faits sont étayés, la bonne foi est présumée et la charge de la preuve est aménagée (art. L1154-1).');
+    // Verdict
+    var strong = fav.length>=3 && (signal&&licDate&&days(signal,licDate)>=0&&days(signal,licDate)<=90) && (hType&&bonneFoi==='Non — signalement de bonne foi');
+    var verdict = strong
+      ? {c:'ok',t:'✅ Forte probabilité de NULLITÉ (mesure de rétorsion)',d:'Concomitance courte + signalement protégé + grief connu/purgé : le licenciement s\'apparente à des représailles. Effet : nullité → réintégration ou indemnité ≥ 6 mois, hors barème Macron (art. L1235-3-1).'}
+      : (fav.length? {c:'warn',t:'⚠️ Indices sérieux de nullité — à consolider',d:'Plusieurs éléments plaident la rétorsion ; complétez les dates/preuves manquantes pour renforcer.'} : {c:'no',t:'ℹ️ Éléments insuffisants',d:'Renseignez davantage de champs (dates, motif, preuves) pour un diagnostic.'});
+    var h='<div class="pse-verdict '+verdict.c+'"><b>'+verdict.t+'</b>'+verdict.d+'</div>';
+    if(fav.length){h+='<div style="font-weight:600;color:#1a7a3a;font-size:13px;margin:10px 0 6px">✅ Éléments en faveur de la nullité</div>';fav.forEach(function(x){h+='<div style="background:rgba(70,184,133,.10);border-left:3px solid #46b885;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;color:#dfeee7">'+esc(x)+'</div>';});}
+    if(vig.length){h+='<div style="font-weight:600;color:#9a7b2e;font-size:13px;margin:10px 0 6px">⚠️ Points de vigilance</div>';vig.forEach(function(x){h+='<div style="background:rgba(224,168,58,.10);border-left:3px solid #e0a83a;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;color:#efe6cf">'+esc(x)+'</div>';});}
+    if(re.length){re.forEach(function(x){h+='<div style="font-size:12px;color:#9a9585;padding:3px 0">• '+esc(x)+'</div>';});}
+    h+='<div style="font-size:11px;color:#999;margin-top:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px">Fondements : C. trav. art. L1152-2, L1152-3 (et L1153-2/-3), L1154-1, L1235-3-1. Diagnostic indicatif — ne remplace pas l\'avis d\'un avocat. Délai pour agir : la contestation d\'un licenciement nul se prescrit par 12 mois (voire plus selon le fondement) — à sécuriser.</div>';
+    document.getElementById('har-diag-res').innerHTML=h;
+    document.getElementById('har-diag-res').scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+  if(document.readyState!=='loading')render();else document.addEventListener('DOMContentLoaded',render);
+})();
+</script>
 
 <!-- ═══ MODULE XVI — RUPTURE CONVENTIONNELLE ═══ -->
 <div id="pg-rupconv" class="page">
