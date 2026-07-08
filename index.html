@@ -176,6 +176,15 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Juris Expert">
 <style>
+/* Lisibilité : flèche des listes déroulantes jamais répétée (fix rendu Windows/PWA) */
+select{background-repeat:no-repeat!important;background-size:12px 8px!important;background-position:right 14px center!important}
+/* Module d'analyse (diag) : passage au thème sombre, comme le reste de l'app */
+#pg-diag [style*="f5f3ec"]{background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.08)!important}
+#pg-diag [style*="color:#1b2a4a"]{color:#cfc8b8!important}
+#pg-diag [style*="color:#555"]{color:#9a9585!important}
+#pg-diag select,#pg-diag input,#pg-diag textarea{background-color:#12283b!important;color:#fff!important;border-color:rgba(255,255,255,.18)!important}
+</style>
+<style>
 :root{
   --nuit:#0c1a28; --nuit2:#0f2233; --ardoise:#152c40; --ardoise2:#1a3450;
   --or:#d4af55; --or-clair:#eccf86; --or-fonce:#b8902e;
