@@ -169,6 +169,12 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0c1a28">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Juris Expert">
 <style>
 :root{
   --nuit:#0c1a28; --nuit2:#0f2233; --ardoise:#152c40; --ardoise2:#1a3450;
@@ -477,7 +483,8 @@ try{
   <div style="font-size:11.5px;color:var(--texte2)">Pilote la <b>convention collective</b>, les <b>spécificités</b> et la <b>jurisprudence</b> des modules <b>PSE</b> et <b>Élections CSE</b>.</div>
 </div>
 
-    <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Choisissez une catégorie pour afficher les outils.</div>
+    <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
+  <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Choisissez une catégorie pour afficher les outils.</div>
   <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
     <span>🔎 Comprendre &amp; rechercher</span>
     <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▾</span></span>
@@ -8231,6 +8238,26 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     document.addEventListener('change',save,true);
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+
+<script>
+/* ===== PWA : installation + hors ligne ===== */
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+  }
+  var deferred=null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferred=e;
+    var b=document.getElementById('pwa-install'); if(b)b.style.display='block';
+  });
+  window.pwaInstall=function(){
+    if(!deferred){ alert("Pour installer : ouvrez le menu de votre navigateur (⋮) puis « Installer l'application » / « Ajouter à l'écran d'accueil »."); return; }
+    deferred.prompt();
+    deferred.userChoice.finally(function(){ deferred=null; var b=document.getElementById('pwa-install'); if(b)b.style.display='none'; });
+  };
+  window.addEventListener('appinstalled', function(){ var b=document.getElementById('pwa-install'); if(b)b.style.display='none'; });
 })();
 </script>
 
