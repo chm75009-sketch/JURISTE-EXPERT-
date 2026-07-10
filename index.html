@@ -2125,29 +2125,48 @@ Exemple :<br>
 })();
 </script>
 <script>
-/* ===== Répertoire de fiches salariés (partagé Parcours / Discipline) ===== */
+/* ===== Répertoire de fiches salariés (partagé entre tous les modules) ===== */
 (function(){
   var KEY='jx_salaries_v1';
   function load(){try{var a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
   function save(a){try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){}}
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function set(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!==''){e.value=v;try{e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}catch(x){}}}
+  function anciennete(emb){ if(!emb)return ''; var d=new Date(emb+'T00:00:00'); if(isNaN(d))return ''; var y=(Date.now()-d.getTime())/(365.25*24*3600*1000); return y>0?(Math.round(y*10)/10):''; }
+  // Comment chaque module se pré-remplit à partir d'une fiche
+  var FILL={
+    parcours:function(f){set('pc-nom',f.nom);set('pc-poste',f.poste);set('pc-adr',f.adr);set('pc-emb',f.emb);set('pc-type',f.type);set('pc-coeff',f.coeff);set('pc-sal',f.sal);},
+    disc:function(f){set('disc-sal-nom',f.nom);set('disc-sal-poste',f.poste);set('disc-sal-entree',f.emb);
+      var st=(f.coeff?('coeff. '+f.coeff+' — '):'')+(f.sal?(f.sal+' € brut'):''); if(st)set('disc-sal-salaire',st);},
+    contrat:function(f){set('c-nom',f.nom);set('c-poste',f.poste);set('c-adr-sal',f.adr);set('c-coeff',f.coeff);set('c-salaire',f.sal);set('c-debut',f.emb);},
+    absences:function(f){set('disc-sal-nom',f.nom);set('disc-sal-poste',f.poste);set('disc-sal-entree',f.emb);},
+    calc:function(f){var a=anciennete(f.emb); if(a!=='')set('calc-anc',a); set('calc-sal',f.sal);},
+    pse:function(f){var a=anciennete(f.emb); if(a!=='')set('pse-anc',a); set('pse-sal',f.sal);},
+    harcele:function(f){set('hd-emb',f.emb);}
+  };
+  // Où injecter automatiquement la liste déroulante
+  var INJECT=[
+    {key:'contrat',anchor:'c-nom',label:'Salarié enregistré (fiches)'},
+    {key:'absences',anchor:'abs-type',label:'Salarié concerné (fiches enregistrées)'},
+    {key:'calc',anchor:'calc-anc',label:'Salarié enregistré — pré-remplit ancienneté & salaire'},
+    {key:'pse',anchor:'pse-anc',label:'Salarié enregistré — pré-remplit ancienneté & salaire'},
+    {key:'harcele',anchor:'hd-emb',label:'Salarié enregistré — pré-remplit la date d\'embauche'}
+  ];
   function fillSelect(sel){
     var list=load(), cur=sel.value;
-    var h='<option value="">— choisir ou créer —</option>';
+    var h='<option value="">— choisir un salarié —</option>';
     list.forEach(function(f,i){h+='<option value="'+i+'">'+esc(f.nom||('Fiche '+(i+1)))+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
-    sel.innerHTML=h; if(cur!=='')sel.value=cur;
+    h+='<option value="__new">➕ Créer une nouvelle fiche…</option>';
+    sel.innerHTML=h; if(cur!==''&&cur!=='__new')sel.value=cur;
   }
-  window.salRefresh=function(){['sal-select-parcours','sal-select-disc'].forEach(function(id){var s=document.getElementById(id);if(s)fillSelect(s);});};
-  window.salPick=function(where,idx){
-    if(idx==='')return; var f=load()[parseInt(idx,10)]; if(!f)return;
-    function set(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!==''){e.value=v;try{e.dispatchEvent(new Event('input',{bubbles:true}));}catch(x){}}}
-    if(where==='parcours'){
-      set('pc-nom',f.nom);set('pc-poste',f.poste);set('pc-adr',f.adr);set('pc-emb',f.emb);set('pc-type',f.type);set('pc-coeff',f.coeff);set('pc-sal',f.sal);
-    } else {
-      set('disc-sal-nom',f.nom);set('disc-sal-poste',f.poste);set('disc-sal-entree',f.emb);
-      var st=(f.coeff?('coeff. '+f.coeff+' — '):'')+(f.sal?(f.sal+' € brut'):'');
-      if(st)set('disc-sal-salaire',st);
-    }
+  function allSelects(){return [].slice.call(document.querySelectorAll('select[id^="sal-select-"]'));}
+  window.salRefresh=function(){allSelects().forEach(fillSelect);};
+  var _pendingKey=null;
+  window.salPick=function(key,idx){
+    if(idx==='__new'){_pendingKey=key; salOpenNew(); var s=document.getElementById('sal-select-'+key); if(s)s.value=''; return;}
+    if(idx==='')return;
+    var f=load()[parseInt(idx,10)]; if(!f)return;
+    if(FILL[key])FILL[key](f);
   };
   window.salSaveFromParcours=function(){
     function g(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
@@ -2160,12 +2179,55 @@ Exemple :<br>
     if(msg){msg.textContent='✓ Fiche « '+f.nom+' » enregistrée — '+list.length+' fiche(s) au total';msg.style.display='block';setTimeout(function(){msg.style.display='none';},3000);}
   };
   window.salDelete=function(){
-    var s=document.getElementById('sal-select-parcours'); if(!s||s.value===''){alert('Sélectionnez d\'abord la fiche à supprimer dans la liste.');return;}
+    var s=document.getElementById('sal-select-parcours'); if(!s||s.value===''||s.value==='__new'){alert('Sélectionnez d\'abord la fiche à supprimer dans la liste.');return;}
     var list=load(), i=parseInt(s.value,10), f=list[i];
     if(f && confirm('Supprimer la fiche « '+(f.nom||'')+' » ?')){list.splice(i,1);save(list);salRefresh();}
   };
-  if(document.readyState!=='loading')setTimeout(window.salRefresh,300);
-  else document.addEventListener('DOMContentLoaded',function(){setTimeout(window.salRefresh,300);});
+  // Mini-fenêtre « créer une fiche » utilisable depuis n'importe quel module
+  function salOpenNew(){
+    var ov=document.getElementById('sal-new-overlay');
+    if(!ov){
+      ov=document.createElement('div'); ov.id='sal-new-overlay';
+      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:600;display:flex;align-items:center;justify-content:center;padding:16px';
+      ov.innerHTML='<div style="background:#12283b;border:1px solid rgba(201,168,76,.4);border-radius:14px;padding:18px;max-width:430px;width:100%;max-height:85vh;overflow:auto">'
+        +'<div style="font-weight:700;color:#e8c97a;font-size:15px;margin-bottom:10px">➕ Nouvelle fiche salarié</div>'
+        +'<div class="fg"><label class="fl">Nom et prénom *</label><input id="qs-nom" placeholder="Ex : DUPONT Jean"></div>'
+        +'<div class="fg"><label class="fl">Poste</label><input id="qs-poste" placeholder="Ex : Conducteur PL"></div>'
+        +'<div class="fg"><label class="fl">Adresse</label><input id="qs-adr"></div>'
+        +'<div class="fg"><label class="fl">Date d\'embauche</label><input id="qs-emb" type="date"></div>'
+        +'<div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="qs-coeff" placeholder="Ex : 138M — Groupe 7"></div>'
+        +'<div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="qs-sal" type="number" min="0" step="50"></div>'
+        +'<div style="display:flex;gap:8px;margin-top:8px"><button class="btn" style="margin:0;flex:1" onclick="salCreateQuick()">💾 Enregistrer</button><button class="btn-outline" style="margin:0;width:auto;flex:0 0 auto" onclick="document.getElementById(\'sal-new-overlay\').style.display=\'none\'">Annuler</button></div>'
+        +'</div>';
+      document.body.appendChild(ov);
+    }
+    ['qs-nom','qs-poste','qs-adr','qs-emb','qs-coeff','qs-sal'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    ov.style.display='flex';
+    setTimeout(function(){var e=document.getElementById('qs-nom');if(e)e.focus();},60);
+  }
+  window.salCreateQuick=function(){
+    function g(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
+    var f={nom:g('qs-nom'),poste:g('qs-poste'),adr:g('qs-adr'),emb:g('qs-emb'),type:'CDI',coeff:g('qs-coeff'),sal:g('qs-sal')};
+    if(!f.nom){alert('Le nom est obligatoire.');return;}
+    var list=load(), i=list.findIndex(function(x){return String(x.nom||'').toLowerCase()===f.nom.toLowerCase();});
+    if(i>=0){list[i]=f;} else {list.push(f); i=list.length-1;}
+    save(list); salRefresh();
+    var ov=document.getElementById('sal-new-overlay'); if(ov)ov.style.display='none';
+    if(_pendingKey){ var s=document.getElementById('sal-select-'+_pendingKey); if(s)s.value=String(i); if(FILL[_pendingKey])FILL[_pendingKey](f); _pendingKey=null; }
+  };
+  function inject(){
+    INJECT.forEach(function(c){
+      if(document.getElementById('sal-select-'+c.key))return;
+      var a=document.getElementById(c.anchor); if(!a)return;
+      var host=a.closest('.fg')||a.closest('div'); if(!host||!host.parentElement)return;
+      var d=document.createElement('div'); d.className='fg';
+      d.innerHTML='<label class="fl">'+c.label+'</label><select id="sal-select-'+c.key+'" onchange="salPick(\''+c.key+'\',this.value)"></select>';
+      host.parentElement.insertBefore(d,host);
+    });
+    window.salRefresh();
+  }
+  if(document.readyState!=='loading')setTimeout(inject,400);
+  else document.addEventListener('DOMContentLoaded',function(){setTimeout(inject,400);});
 })();
 </script>
 
