@@ -354,6 +354,8 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 </div>
 
 <script>
+// Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
+var JX_MAJ = '10 juillet 2026';
 // Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
 const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
 // Code d'accès temporaire (essai 3 jours) — expire le 06/07/2026 23:59
@@ -8023,6 +8025,7 @@ const AVERT_DOC = `<div style="margin-top:30px;padding:14px;border:2px solid #00
 <strong style="color:#000">AVERTISSEMENT JURIDIQUE OBLIGATOIRE</strong><br>
 Ce document est une trame type générée automatiquement à titre informatif. Il ne constitue pas un conseil juridique personnalisé au sens de la loi n°71-1130 du 31 décembre 1971 portant réforme de certaines professions judiciaires et juridiques.<br><br>
 <strong>L'employeur est seul responsable de l'utilisation, de l'adaptation et des conséquences de ce document.</strong> Avant toute décision engageant la responsabilité de l'entreprise (licenciement, sanction disciplinaire, mise à pied, rupture de contrat), il est <strong>impératif de consulter un avocat spécialisé en droit du travail</strong> ou un conseil juridique qualifié.<br><br>
+📅 <strong>Base juridique arrêtée au ${typeof JX_MAJ!=='undefined'?JX_MAJ:'—'}</strong> — le droit évolue : vérifier l'actualité des textes, de la jurisprudence et de la convention collective (Légifrance) avant tout usage.<br><br>
 Généré par Juris Expert MCH · ${new Date().toLocaleDateString('fr-FR')}
 </div>`;
 
@@ -8743,6 +8746,32 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     deferred.userChoice.finally(function(){ deferred=null; var b=document.getElementById('pwa-install'); if(b)b.style.display='none'; });
   };
   window.addEventListener('appinstalled', function(){ var b=document.getElementById('pwa-install'); if(b)b.style.display='none'; });
+})();
+</script>
+
+<script>
+/* ===== Avertissement juridique systématique (toutes les pages) + date de la base ===== */
+(function(){
+  var TXT='<div class="jx-avert" style="margin:18px 4px 10px;padding:12px 14px;border-left:3px solid #c9a84c;background:rgba(201,168,76,.07);border-radius:10px;font-size:11px;color:#9a9585;line-height:1.65">'
+   +'<b style="color:#cfc8b8">⚠️ Avertissement.</b> Juris Expert MCH est un outil d\'<b>information juridique</b> et de génération de trames de documents. Il ne constitue <b>pas un conseil juridique personnalisé</b> (loi n° 71-1130 du 31 décembre 1971) et ne remplace pas l\'intervention d\'un avocat ou d\'un professionnel qualifié.<br>'
+   +'Les contenus, barèmes, calculs et modèles sont fournis <b>à titre indicatif</b> et doivent être <b>vérifiés</b> (Légifrance, convention collective applicable) et <b>adaptés à chaque situation</b> avant tout usage.<br>'
+   +'<b>📅 Mise à jour :</b> la base juridique (lois, jurisprudence, conventions collectives, barèmes) est arrêtée au <b>'+JX_MAJ+'</b> et actualisée périodiquement. Le droit évolue en permanence : entre deux mises à jour, une loi, un avenant conventionnel ou un revirement de jurisprudence peut modifier les règles présentées — <b>vérifiez qu\'elles sont toujours en vigueur</b> avant toute décision.<br>'
+   +'<b>L\'utilisateur demeure seul responsable</b> de l\'usage des informations et des documents générés. Avant toute décision engageant l\'entreprise ou vos droits (embauche, sanction, licenciement, rupture, contentieux), <b>consultez un avocat en droit du travail</b>. L\'éditeur décline toute responsabilité en cas d\'utilisation sans validation par un professionnel.'
+   +'</div>';
+  function init(){
+    document.querySelectorAll('.page').forEach(function(pg){
+      if(pg.id==='pg-home')return;               // l'accueil a déjà son encart (complété ci-dessous)
+      if(pg.querySelector('.jx-avert'))return;   // jamais de doublon
+      var d=document.createElement('div'); d.innerHTML=TXT; pg.appendChild(d.firstChild);
+    });
+    var hd=document.querySelector('#pg-home .home-disclaimer');
+    if(hd && hd.textContent.indexOf('Base juridique')<0){
+      var s=document.createElement('div'); s.style.cssText='margin-top:6px;font-size:11px;color:#9a9585';
+      s.innerHTML='📅 Base juridique arrêtée au <b>'+JX_MAJ+'</b> — actualisée périodiquement ; vérifiez l\'actualité des textes, de la jurisprudence et de votre convention collective avant toute décision.';
+      hd.appendChild(s);
+    }
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
 
