@@ -1951,7 +1951,13 @@ Exemple :<br>
   <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="pc-nom" placeholder="Ex : DUPONT Jean"></div>
   <div class="fg"><label class="fl">Poste</label><input id="pc-poste" placeholder="Ex : Conducteur routier PL (SPL)"></div>
   <div class="fg"><label class="fl">Adresse du salarié</label><input id="pc-adr" placeholder="Ex : 12 rue des Lilas, 95000 Cergy"></div>
-  <div class="al info" style="font-size:11.5px;margin:2px 0 0">Ces informations remplissent automatiquement les modèles générés (visite médicale, clauses, solde de tout compte…). Les dates et montants restent à compléter sur le document.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="fg"><label class="fl">Type de contrat</label><select id="pc-type"><option>CDI</option><option>CDD</option></select></div>
+    <div class="fg"><label class="fl">Date d'embauche</label><input id="pc-emb" type="date"></div>
+    <div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="pc-coeff" placeholder="Ex : 138M — Groupe 7 (SPL)"></div>
+    <div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="pc-sal" type="number" min="0" step="50" placeholder="Ex : 2450"></div>
+  </div>
+  <div class="al info" style="font-size:11.5px;margin:2px 0 0">Ces informations remplissent automatiquement les modèles générés (contrat, période d'essai, visite médicale, clauses, FCO, solde de tout compte…). Les dates et montants restants sont à compléter sur le document.</div>
 </div>
 <div id="parcours-list" style="padding:0 4px"></div>
 <div style="height:20px"></div>
@@ -1964,13 +1970,13 @@ Exemple :<br>
      {n:2,t:'Clauses (non-concurrence, mobilité, exclusivité, dédit-formation)',d:'Vérifier la validité des clauses insérées au contrat.',doc:'clauses',note:'Non-concurrence : nulle sans contrepartie financière. Mobilité : zone géographique précise. FIMO/FCO financées par l’employeur : un dédit-formation est en principe exclu pour ces formations obligatoires.'},
      {n:3,t:'Déclarations & formalités d’embauche',d:'DPAE, registre unique du personnel, affiliation mutuelle/prévoyance.',go:'contrat',note:'DPAE à adresser à l’URSSAF dans les 8 jours précédant l’embauche. Vérifier l’affiliation à la prévoyance et à la mutuelle conventionnelles du transport.'},
      {n:4,t:'Visite médicale d’embauche',d:'Visite d’information et de prévention, ou examen d’aptitude si poste à risques.',doc:'visite',note:'Conducteur = poste à risques (suivi individuel renforcé) : examen d’aptitude par le médecin du travail AVANT la prise de poste (art. R.4624-24).'},
-     {n:5,t:'Période d’essai',d:'Durée, renouvellement, confirmation ou rupture.',go:'contrat',note:'Durées légales : 2 mois (ouvriers/employés), 3 mois (AM/TAM), 4 mois (cadres), renouvelables selon la CCN. Respecter le délai de prévenance.'},
+     {n:5,t:'Période d’essai',d:'Durée, renouvellement, confirmation ou rupture.',go:'contrat',doc:'essai',note:'Durées légales : 2 mois (ouvriers/employés), 3 mois (AM/TAM), 4 mois (cadres), renouvelables selon la CCN. Respecter le délai de prévenance.'},
      {n:6,t:'Rémunération & bulletin de paie',d:'Salaire conventionnel, heures supplémentaires, primes, frais de déplacement.',go:'remuneration',note:'Transport : garantie annuelle de rémunération (GAR), taux horaires par coefficient, majoration heures sup, indemnités de repas/découcher.'},
      {n:7,t:'Durée du travail & horaires',d:'Temps de service, temps de conduite et de repos.',go:'temps',note:'Réglementation spécifique : Décret 83-40 (durée du travail) et Règlement CE 561/2006 (conduite/repos). Contrôle par chronotachygraphe.'}
    ]},
    {ph:'B · VIE DU CONTRAT',steps:[
      {n:8,t:'Congés payés & événements familiaux',d:'Acquisition, prise, indemnité, congés pour événements familiaux.',go:'absences',note:'2,5 jours ouvrables/mois (5 semaines/an). Indemnité = la plus favorable (1/10e ou maintien).'},
-     {n:9,t:'Formation professionnelle',d:'FIMO/FCO obligatoires, plan de développement des compétences, CPF.',note:'Transport : FIMO (formation initiale) et FCO (tous les 5 ans) sont obligatoires et à la charge de l’employeur pour les conducteurs. Suivre les échéances (voir Tableau de bord conducteurs).'},
+     {n:9,t:'Formation professionnelle',d:'FIMO/FCO obligatoires, plan de développement des compétences, CPF.',doc:'fco',note:'Transport : FIMO (formation initiale) et FCO (tous les 5 ans) sont obligatoires et à la charge de l’employeur pour les conducteurs. Suivre les échéances (voir Tableau de bord conducteurs).'},
      {n:10,t:'Information & consultation du CSE',d:'Obligations selon l’effectif, réunions, expertises.',go:'cse',note:'CSE obligatoire à partir de 11 salariés (12 mois consécutifs). Voir aussi les élections (effectif, sièges, quorum).'},
      {n:11,t:'Harcèlement & discrimination',d:'Prévention, signalement, enquête, protection.',go:'harcele',note:'Obligation de sécurité et de prévention ; nullité des sanctions liées à un signalement de bonne foi.'},
      {n:12,t:'Maladie & absences',d:'Arrêt, maintien de salaire, AT/MP, visite de reprise.',go:'absences',note:'Maintien de salaire selon ancienneté et CCN ; visite de reprise obligatoire après ≥ 60 jours (maladie) ou ≥ 30 jours (AT). Aptitude à la conduite à revérifier si besoin.'}
@@ -1986,7 +1992,7 @@ Exemple :<br>
      {n:18,t:'Licenciement — cause réelle et sérieuse',d:'Procédure, notification, préavis, indemnités.',go:'licenc',note:'Notification 2 jours ouvrables min. après l’entretien ; préavis et indemnité selon la CCN transport (souvent plus favorables).'},
      {n:19,t:'Licenciement — faute grave',d:'Privation de préavis et d’indemnité de licenciement.',go:'disciplinaire',note:'La faute grave rend impossible le maintien ; l’indemnité de congés payés reste due.'},
      {n:20,t:'Licenciement — faute lourde',d:'Intention de nuire ; régime le plus sévère.',go:'disciplinaire',note:'Intention de nuire à l’employeur exigée ; l’indemnité de congés payés reste due (QPC 2016).'},
-     {n:21,t:'Salarié protégé (représentant du personnel)',d:'Autorisation préalable de l’inspection du travail.',note:'Tout licenciement d’un élu / délégué syndical / candidat exige l’AUTORISATION préalable de l’inspection du travail (art. L.2411-1). À défaut, licenciement nul et réintégration.'},
+     {n:21,t:'Salarié protégé (représentant du personnel)',d:'Autorisation préalable de l’inspection du travail.',doc:'protege',note:'Tout licenciement d’un élu / délégué syndical / candidat exige l’AUTORISATION préalable de l’inspection du travail (art. L.2411-1). À défaut, licenciement nul et réintégration.'},
      {n:22,t:'Rupture conventionnelle',d:'Convention, rétractation 15 j, homologation, indemnité.',go:'rupconv',note:'Indemnité au moins égale à l’indemnité légale (ou conventionnelle si plus favorable).'},
      {n:23,t:'Inaptitude & reclassement',d:'Avis du médecin du travail, reclassement, indemnités.',go:'inapt',note:'Inaptitude d’origine professionnelle : indemnité spéciale doublée + préavis dû (art. L.1226-14).'},
      {n:24,t:'Fin de CDD',d:'Terme, indemnité de précarité, requalification.',go:'cdd',note:'Indemnité de précarité 10% (sauf exceptions) ; requalification en CDI si irrégularité.'},
@@ -2054,11 +2060,57 @@ Exemple :<br>
         +'<p style="'+S+'">Fait à ______, le ______<br>Signature du salarié (précédée de la mention « bon pour solde de tout compte ») ______</p>'
         +'<hr style="border:none;border-top:1px solid #000;margin:10px 0"><p style="'+S+'font-size:10pt"><b>À remettre également :</b> certificat de travail, attestation France Travail (ex-Pôle emploi), information sur la <b>portabilité</b> de la mutuelle/prévoyance.</p>'
         +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à compléter et adapter.</p></div>';
+    } else if(key==='essai'){
+      titre='Période d’essai — confirmation ou rupture (modèles)';
+      html=_head()+'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">1 · CONFIRMATION À L’ISSUE DE LA PÉRIODE D’ESSAI</p>'
+        +'<p style="'+S+'">Madame, Monsieur [NOM Prénom],</p>'
+        +'<p style="'+S+'">Votre période d’essai, prévue par votre contrat [TYPE CONTRAT] du [DATE EMBAUCHE] pour le poste de [POSTE] (coefficient [COEFFICIENT]), arrive à son terme le ______.</p>'
+        +'<p style="'+S+'">Nous avons le plaisir de vous confirmer votre engagement définitif au sein de l’entreprise à compter du ______, aux conditions prévues à votre contrat (salaire mensuel brut : [SALAIRE] €).</p>'
+        +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
+        +'<hr style="border:none;border-top:1px solid #000;margin:12px 0">'
+        +'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">2 · RUPTURE DE LA PÉRIODE D’ESSAI (à l’initiative de l’employeur)</p>'
+        +'<p style="'+S+'font-size:10pt;font-style:italic">Remise en main propre contre décharge ou LRAR</p>'
+        +'<p style="'+S+'">Madame, Monsieur [NOM Prénom],</p>'
+        +'<p style="'+S+'">Nous vous informons de notre décision de mettre fin à votre période d’essai, conformément à l’article L.1221-25 du code du travail. Compte tenu de votre durée de présence, le délai de prévenance applicable est de ______ ; votre contrat prendra fin le ______.</p>'
+        +'<table style="width:100%;border-collapse:collapse;font-size:10pt"><tr><th style="border:1px solid #000;padding:4pt">Présence du salarié</th><th style="border:1px solid #000;padding:4pt">Délai de prévenance</th></tr>'
+        +'<tr><td style="border:1px solid #000;padding:4pt">Moins de 8 jours</td><td style="border:1px solid #000;padding:4pt">24 heures</td></tr>'
+        +'<tr><td style="border:1px solid #000;padding:4pt">8 jours à 1 mois</td><td style="border:1px solid #000;padding:4pt">48 heures</td></tr>'
+        +'<tr><td style="border:1px solid #000;padding:4pt">Après 1 mois</td><td style="border:1px solid #000;padding:4pt">2 semaines</td></tr>'
+        +'<tr><td style="border:1px solid #000;padding:4pt">Après 3 mois</td><td style="border:1px solid #000;padding:4pt">1 mois</td></tr></table>'
+        +'<p style="'+S+'font-size:10pt">Rappels : la rupture d’essai n’a pas à être motivée, mais ne peut reposer sur un motif discriminatoire ni étranger à l’appréciation des compétences (sinon abusive). Salarié protégé : autorisation de l’inspection du travail requise même pendant l’essai.</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèles indicatifs — à adapter. Ne constitue pas un conseil juridique.</p></div>';
+    } else if(key==='fco'){
+      titre='Convocation à la FCO (formation continue obligatoire)';
+      html=_head()+'<p style="'+S+'text-align:right">Fait à ______, le ______</p>'
+        +'<p style="'+S+'"><b>Objet : convocation à la formation continue obligatoire (FCO)</b></p>'
+        +'<p style="'+S+'">Madame, Monsieur [NOM Prénom],</p>'
+        +'<p style="'+S+'">En votre qualité de [POSTE], vous êtes tenu(e) de suivre la formation continue obligatoire (FCO) des conducteurs routiers, à renouveler tous les 5 ans (code des transports, art. L.3314-1 et s. ; directive 2003/59/CE).</p>'
+        +'<p style="'+S+'">Vous êtes convoqué(e) à la session suivante :<br>• Dates : du ______ au ______ (35 heures sur 5 jours)<br>• Organisme de formation agréé : ______<br>• Lieu : ______</p>'
+        +'<p style="'+S+'">Cette formation, à la charge de l’entreprise, se déroule sur le temps de travail et est rémunérée comme tel. Votre carte de qualification de conducteur (CQC) sera renouvelée à son issue.</p>'
+        +'<p style="'+S+'">Nous attirons votre attention sur le fait qu’à défaut de FCO à jour, la conduite professionnelle est interdite à l’échéance de la CQC.</p>'
+        +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à adapter.</p></div>';
+    } else if(key==='protege'){
+      titre='Demande d’autorisation de licenciement — salarié protégé (inspection du travail)';
+      html=_head()+'<p style="'+S+'">À l’attention de Monsieur / Madame l’Inspecteur du travail<br>DDETS de ______<br><b>Lettre recommandée avec AR</b></p>'
+        +'<p style="'+S+'"><b>Objet : demande d’autorisation de licenciement d’un salarié protégé (art. L.2411-1 et R.2421-1 s. C. trav.)</b></p>'
+        +'<p style="'+S+'">Monsieur / Madame l’Inspecteur,</p>'
+        +'<p style="'+S+'">Nous sollicitons l’autorisation de procéder au licenciement de M./Mme [NOM Prénom], occupant le poste de [POSTE], investi(e) du mandat suivant : ______ (élu CSE titulaire/suppléant, délégué syndical, candidat, ancien élu…).</p>'
+        +'<p style="'+S+'">Motif envisagé : ______ (exposer précisément les faits et leur date).</p>'
+        +'<p style="'+S+'">La procédure préalable a été respectée : convocation à l’entretien préalable le ______ ; entretien le ______ ; consultation du CSE le ______ (avis joint, lorsqu’elle est requise).</p>'
+        +'<p style="'+S+'">Pièces jointes : convocation, procès-verbal/avis du CSE, éléments établissant les faits. Nous nous tenons à votre disposition pour l’enquête contradictoire.</p>'
+        +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
+        +'<p style="'+S+'font-size:10pt">Rappel : la demande est adressée dans les 15 jours suivant la délibération du CSE (48 h en cas de mise à pied conservatoire — art. R.2421-14) ; l’inspecteur statue après enquête contradictoire. À défaut d’autorisation, le licenciement est nul.</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à faire valider par un conseil.</p></div>';
     }
     // Pré-remplissage depuis la fiche salarié
     function _f(id,d){var e=document.getElementById(id);var v=e&&e.value?e.value.trim():'';return v||d;}
     var NOM=esc(_f('pc-nom','[NOM Prénom]')), POSTE=esc(_f('pc-poste','[POSTE]')), ADR=esc(_f('pc-adr','______'));
-    html=html.replace(/\[NOM Prénom\]/g,NOM).replace(/\[POSTE\]/g,POSTE).replace(/\[NOM\]/g,NOM).replace(/demeurant à ______/g,'demeurant à '+ADR);
+    var EMBraw=_f('pc-emb',''), EMB='______';
+    if(EMBraw){ try{ var _d=new Date(EMBraw+'T00:00:00'); if(!isNaN(_d)) EMB=_d.toLocaleDateString('fr-FR'); }catch(e){} }
+    var COEFF=esc(_f('pc-coeff','______')), SAL=esc(_f('pc-sal','______')), TYPE=esc(_f('pc-type','CDI'));
+    html=html.replace(/\[NOM Prénom\]/g,NOM).replace(/\[POSTE\]/g,POSTE).replace(/\[NOM\]/g,NOM).replace(/demeurant à ______/g,'demeurant à '+ADR)
+             .replace(/\[DATE EMBAUCHE\]/g,EMB).replace(/\[COEFFICIENT\]/g,COEFF).replace(/\[SALAIRE\]/g,SAL).replace(/\[TYPE CONTRAT\]/g,TYPE);
     if(typeof showDoc==='function') showDoc(titre, html);
     else { var w=window.open('','_blank'); if(w){w.document.write(html);w.document.close();} }
   };
@@ -8441,7 +8493,8 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
   var WL=['diag-secteur','diag-ccn','diag-effectif','diag-rep','diag-anc','diag-anc-unit','diag-type','diag-resume',
     'calc-type','calc-anc','calc-sal','calc-eff','calc-cpjours','calc-brut','calc-retmode','calc-secteur','calc-conv',
     'disc-secteur','disc-motif','disc-faits','disc-date-faits','disc-date-connaissance','disc-protection',
-    'disc-sal-nom','disc-ant-desc'];
+    'disc-sal-nom','disc-ant-desc',
+    'pc-nom','pc-poste','pc-adr','pc-emb','pc-type','pc-coeff','pc-sal'];
   function keep(el){ if(!el||!el.id||BLOCK[el.id])return false; if(el.type==='file'||el.type==='password')return false; if(el.id.indexOf('dq-')===0)return true; return WL.indexOf(el.id)>=0; }
   function load(){ try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};} }
   function save(){ try{ var d=load(); document.querySelectorAll('input,select,textarea').forEach(function(el){ if(keep(el))d[el.id]=el.value; }); localStorage.setItem(KEY,JSON.stringify(d)); }catch(e){} }
