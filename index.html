@@ -359,6 +359,8 @@ const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb
 // Code d'accès temporaire (essai 3 jours) — expire le 06/07/2026 23:59
 const _TEMP_HASH = '83292184a5ee893afc29574dc7581852de7fd71a225fd2414ff631927edb5e57';
 const _TEMP_EXPIRY = 1783382399000;
+// Code administrateur (accès total, tous secteurs — pour vérifier l'application)
+const _ADMIN_HASH = '82d12a0cbcf1b775ae391064930ebde991ebd1849d56cb80317c37b5fedd1c92';
 async function _sha256(txt){
   const data = new TextEncoder().encode(txt);
   const buf = await crypto.subtle.digest('SHA-256', data);
@@ -368,7 +370,10 @@ async function verifierCode(){
   const inp = document.getElementById('lock-input');
   const err = document.getElementById('lock-error');
   const h = await _sha256(inp.value);
-  if(h === _CODE_HASH){
+  if(h === _ADMIN_HASH){
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); }catch(e){}
+    document.getElementById('lock-screen').style.display = 'none';
+  } else if(h === _CODE_HASH){
     try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
   } else if(h === _TEMP_HASH){
@@ -404,6 +409,16 @@ try{
 </div>
 <div style="background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
   <div style="font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px">Configurer votre entreprise</div>
+  <label class="ins-label">Secteur d'activité *</label>
+  <select class="ins-input" id="ins-secteur" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="transport">Transport routier</option>
+    <option value="banque">Banque</option>
+    <option value="assurances">Assurances</option>
+    <option value="syntec">Syntec (conseil, informatique)</option>
+    <option value="enseignement">Enseignement privé (EPNL)</option>
+    <option value="formation">Organismes de formation</option>
+    <option value="ensindep">Enseignement privé indépendant</option>
+  </select>
   <label class="ins-label">Raison sociale *</label>
   <input class="ins-input" id="ins-nom" placeholder="Ex : SARL TRANSPORT EXPRESS" oninput="insCheck()"/>
   <label class="ins-label">SIRET *</label>
@@ -492,7 +507,8 @@ try{
   <div style="font-size:11.5px;color:var(--texte2)">Pilote la <b>convention collective</b>, les <b>spécificités</b> et la <b>jurisprudence</b> des modules <b>PSE</b> et <b>Élections CSE</b>.</div>
 </div>
 
-    <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
+    <div id="client-secteur-badge" style="display:none;margin:2px 0 10px;padding:8px 12px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:#e8c97a;font-size:12.5px;font-weight:700"></div>
+  <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Choisissez une catégorie pour afficher les outils.</div>
   <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
     <span>🔎 Comprendre &amp; rechercher</span>
@@ -2983,6 +2999,37 @@ function homeToggle(head){
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 
+/* ===== Cadrage par secteur : le client ne voit que son secteur (admin = tout) ===== */
+function applyClientSector(retry){
+  try{
+    var admin = (typeof sessionStorage!=='undefined' && sessionStorage.getItem('jte_admin')==='1');
+    var sec = (typeof E!=='undefined' && E && E.secteur) ? E.secteur : '';
+    window.CLIENT_SECTEUR = admin ? '' : sec;
+    if(!retry) setTimeout(function(){ try{ applyClientSector(true); }catch(e){} }, 500);
+    var LAB={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
+    var badge=document.getElementById('client-secteur-badge');
+    if(badge){ badge.textContent = admin ? '👑 Mode administrateur — tous secteurs' : (sec?('🏷️ Secteur : '+(LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
+    if(admin || !sec) return;
+    // 1) Masquer tout ce qui est spécifique au transport si le client n'est pas transport
+    if(sec!=='transport'){
+      document.querySelectorAll('#pg-home .home-sec').forEach(function(hs){
+        if(/transport routier/i.test(hs.textContent)){ hs.style.display='none'; var g=hs.nextElementSibling; if(g&&g.classList.contains('home-grid'))g.style.display='none'; }
+      });
+      ['temps','remuneration','ri','tableau-bord'].forEach(function(t){
+        var mi=document.querySelector('#menu-panel .mi[onclick*="goPage(\''+t+'\')"]'); if(mi)mi.style.display='none';
+      });
+      [].forEach.call(document.querySelectorAll('#menu-panel div'),function(d){ if(d.textContent.trim()==='Spécifique transport routier') d.style.display='none'; });
+    }
+    // 2) Pré-régler et verrouiller les sélecteurs de secteur sur le secteur du client
+    ['diag-secteur','calc-secteur','pse-secteur','cse-secteur','stat-secteur','disc-secteur'].forEach(function(id){
+      var el=document.getElementById(id); if(!el)return;
+      var has=[].some.call(el.options,function(o){return o.value===sec;});
+      if(has){ el.value=sec; try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
+        el.disabled=true; el.style.opacity='0.9'; el.title='Secteur défini par votre inscription'; }
+    });
+  }catch(e){}
+}
+
 function insCheck(){
   // Champs facultatifs : on peut accéder directement sans remplir la fiche
   const btn=document.getElementById('ins-btn');
@@ -2995,6 +3042,7 @@ function validerInscription(){
   E.adresse=gv('ins-adresse')||'';
   E.dirigeant=gv('ins-dirigeant')||'';
   E.qualite=gv('ins-qualite')||'Gérant';
+  E.secteur=gv('ins-secteur')||'transport';
   E.activite=gv('ins-activite')||'marchandises';
   E.email=gv('ins-email')||'';
   E.tel=gv('ins-tel')||'';
@@ -3008,6 +3056,7 @@ function validerInscription(){
   initFicheJours();
   showJuris('permis');
   goPage('home');
+  applyClientSector();
 }
 
 function initApp(){
@@ -3024,6 +3073,7 @@ function initApp(){
       initFicheJours();
       showJuris('permis');
       goPage('home');
+      applyClientSector();
     } else {
       document.getElementById('ins-nom').value='';
       document.getElementById('ins-siret').value='';
