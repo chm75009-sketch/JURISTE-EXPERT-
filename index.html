@@ -1973,12 +1973,12 @@ Exemple :<br>
 (function(){
   var P=[
    {ph:'A · EMBAUCHE',steps:[
-     {n:1,t:'Contrat de travail (CDI / CDD)',d:'Rédiger le contrat : mentions obligatoires, coefficient, rémunération, lieu, durée.',go:'contrat',note:'Transport : mentionner le coefficient et le groupe (CCN IDCC 0016), le taux horaire conventionnel, le lieu de rattachement, la nature de l’activité (marchandises/voyageurs).'},
+     {n:1,t:'Contrat de travail (CDI / CDD)',d:'Rédiger le contrat : mentions obligatoires, coefficient, rémunération, lieu, durée.',go:'contrat',doc:'promesse',note:'Transport : mentionner le coefficient et le groupe (CCN IDCC 0016), le taux horaire conventionnel, le lieu de rattachement, la nature de l’activité (marchandises/voyageurs).'},
      {n:2,t:'Clauses (non-concurrence, mobilité, exclusivité, dédit-formation)',d:'Vérifier la validité des clauses insérées au contrat.',doc:'clauses',note:'Non-concurrence : nulle sans contrepartie financière. Mobilité : zone géographique précise. FIMO/FCO financées par l’employeur : un dédit-formation est en principe exclu pour ces formations obligatoires.'},
-     {n:3,t:'Déclarations & formalités d’embauche',d:'DPAE, registre unique du personnel, affiliation mutuelle/prévoyance.',go:'contrat',note:'DPAE à adresser à l’URSSAF dans les 8 jours précédant l’embauche. Vérifier l’affiliation à la prévoyance et à la mutuelle conventionnelles du transport.'},
+     {n:3,t:'Déclarations & formalités d’embauche',d:'DPAE, registre unique du personnel, affiliation mutuelle/prévoyance.',go:'contrat',doc:'attestation',note:'DPAE à adresser à l’URSSAF dans les 8 jours précédant l’embauche. Vérifier l’affiliation à la prévoyance et à la mutuelle conventionnelles du transport.'},
      {n:4,t:'Visite médicale d’embauche',d:'Visite d’information et de prévention, ou examen d’aptitude si poste à risques.',doc:'visite',note:'Conducteur = poste à risques (suivi individuel renforcé) : examen d’aptitude par le médecin du travail AVANT la prise de poste (art. R.4624-24).'},
      {n:5,t:'Période d’essai',d:'Durée, renouvellement, confirmation ou rupture.',go:'contrat',doc:'essai',note:'Durées légales : 2 mois (ouvriers/employés), 3 mois (AM/TAM), 4 mois (cadres), renouvelables selon la CCN. Respecter le délai de prévenance.'},
-     {n:6,t:'Rémunération & bulletin de paie',d:'Salaire conventionnel, heures supplémentaires, primes, frais de déplacement.',go:'remuneration',note:'Transport : garantie annuelle de rémunération (GAR), taux horaires par coefficient, majoration heures sup, indemnités de repas/découcher.'},
+     {n:6,t:'Rémunération & bulletin de paie',d:'Salaire conventionnel, heures supplémentaires, primes, frais de déplacement.',go:'remuneration',doc:'avenant',note:'Transport : garantie annuelle de rémunération (GAR), taux horaires par coefficient, majoration heures sup, indemnités de repas/découcher.'},
      {n:7,t:'Durée du travail & horaires',d:'Temps de service, temps de conduite et de repos.',go:'temps',note:'Réglementation spécifique : Décret 83-40 (durée du travail) et Règlement CE 561/2006 (conduite/repos). Contrôle par chronotachygraphe.'}
    ]},
    {ph:'B · VIE DU CONTRAT',steps:[
@@ -2109,6 +2109,34 @@ Exemple :<br>
         +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
         +'<p style="'+S+'font-size:10pt">Rappel : la demande est adressée dans les 15 jours suivant la délibération du CSE (48 h en cas de mise à pied conservatoire — art. R.2421-14) ; l’inspecteur statue après enquête contradictoire. À défaut d’autorisation, le licenciement est nul.</p>'
         +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à faire valider par un conseil.</p></div>';
+    } else if(key==='promesse'){
+      titre='Promesse unilatérale de contrat de travail';
+      html=_head()+'<p style="'+S+'text-align:right">Fait à ______, le ______</p>'
+        +'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">PROMESSE UNILATÉRALE DE CONTRAT DE TRAVAIL</p>'
+        +'<p style="'+S+'">À l’attention de M./Mme [NOM Prénom], demeurant à ______.</p>'
+        +'<p style="'+S+'">Nous avons le plaisir de vous proposer un engagement au sein de notre entreprise aux conditions suivantes :</p>'
+        +'<p style="'+S+'">• Poste : <b>[POSTE]</b><br>• Nature du contrat : <b>[TYPE CONTRAT]</b><br>• Date d’entrée en fonction : <b>[DATE EMBAUCHE]</b><br>• Classification : coefficient <b>[COEFFICIENT]</b> (convention collective applicable)<br>• Rémunération mensuelle brute : <b>[SALAIRE] €</b><br>• Lieu de travail : ______</p>'
+        +'<p style="'+S+'">La présente promesse est valable jusqu’au ______. Votre acceptation dans ce délai formera le contrat de travail : la promesse unilatérale de contrat engage l’employeur dès son émission et sa rétractation après acceptation (ou pendant le délai laissé au bénéficiaire) produit les effets d’une rupture (Cass. soc. 21 septembre 2017, n° 16-20.103 et 16-20.104 — distinction offre / promesse).</p>'
+        +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
+        +'<p style="'+S+'margin-top:14px">☐ <b>Acceptation du bénéficiaire</b> — Je soussigné(e) [NOM Prénom] accepte la présente promesse.<br>Date : ______ Signature : ______</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à adapter. Ne constitue pas un conseil juridique.</p></div>';
+    } else if(key==='attestation'){
+      titre='Attestation de travail';
+      html=_head()+'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">ATTESTATION DE TRAVAIL</p>'
+        +'<p style="'+S+'">Je soussigné(e) '+esc(_E('dirigeant','[Le représentant légal]'))+', agissant en qualité de '+esc(_E('qualite','représentant légal'))+' de la société '+esc(_E('nom','[ENTREPRISE]'))+', certifie que :</p>'
+        +'<p style="'+S+'">M./Mme <b>[NOM Prénom]</b>, demeurant à ______,<br>est employé(e) au sein de notre entreprise en qualité de <b>[POSTE]</b>, dans le cadre d’un contrat <b>[TYPE CONTRAT]</b>, depuis le <b>[DATE EMBAUCHE]</b> (coefficient [COEFFICIENT]).</p>'
+        +'<p style="'+S+'">La présente attestation est délivrée à la demande de l’intéressé(e) pour faire valoir ce que de droit.</p>'
+        +'<p style="'+S+'">Fait à ______, le ______<br>Signature et cachet de l’entreprise :</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à adapter.</p></div>';
+    } else if(key==='avenant'){
+      titre='Avenant au contrat de travail';
+      html=_head()+'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">AVENANT N° ____ AU CONTRAT DE TRAVAIL</p>'
+        +'<p style="'+S+'">Entre la société '+esc(_E('nom','[ENTREPRISE]'))+', représentée par '+esc(_E('dirigeant','[Le représentant légal]'))+', d’une part,<br>et M./Mme <b>[NOM Prénom]</b>, <b>[POSTE]</b>, engagé(e) par contrat [TYPE CONTRAT] du <b>[DATE EMBAUCHE]</b>, d’autre part,</p>'
+        +'<p style="'+S+'"><b>Article 1 — Objet.</b> À compter du ______, les dispositions suivantes du contrat sont modifiées :<br>______ (exemples : rémunération mensuelle brute portée de [SALAIRE] € à ______ € ; changement de poste/coefficient ; nouvel horaire ; nouveau lieu de travail…).</p>'
+        +'<p style="'+S+'"><b>Article 2 — Autres dispositions.</b> Toutes les autres clauses du contrat de travail demeurent inchangées et continuent de recevoir application.</p>'
+        +'<p style="'+S+'">Fait en deux exemplaires, à ______, le ______<br><br>Pour l’entreprise ______ &nbsp;&nbsp;&nbsp; Le/la salarié(e) (signature précédée de « lu et approuvé ») ______</p>'
+        +'<p style="'+S+'font-size:10pt">Rappel : la modification d’un élément essentiel du contrat (rémunération, qualification, durée du travail…) exige l’<b>accord exprès</b> du salarié ; son refus n’est pas fautif. Un simple changement des conditions de travail relève en revanche du pouvoir de direction.</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à adapter et faire valider.</p></div>';
     }
     // Pré-remplissage depuis la fiche salarié
     function _f(id,d){var e=document.getElementById(id);var v=e&&e.value?e.value.trim():'';return v||d;}
