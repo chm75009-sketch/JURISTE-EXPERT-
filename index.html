@@ -361,6 +361,8 @@ const _TEMP_HASH = '83292184a5ee893afc29574dc7581852de7fd71a225fd2414ff631927edb
 const _TEMP_EXPIRY = 1783382399000;
 // Code administrateur (accès total, tous secteurs — pour vérifier l'application)
 const _ADMIN_HASH = '82d12a0cbcf1b775ae391064930ebde991ebd1849d56cb80317c37b5fedd1c92';
+// Codes par secteur : le code détermine et verrouille le secteur (T=transport, B=banque, A=assurances, S=syntec, E=enseignement, F=formation, I=indépendant)
+const _SECTOR_CODES = {"c6093bd2b22e6f77d3979071c6572f4bfa53fdc63d747609203b21cd01053278":"transport","2f976a836e23b83190bd24c4cd66ab27c4a4b61c5b3896ecc35f4c61cebbc158":"banque","7e670d78f5a3df680ef735ca5aeb0a05cd3fe8897eb93f47fb8c9d309323c928":"assurances","16b2c3fd3757888d98f1c7e17e1dfa18e235a98e7bfcbb37ea13dd5532832b89":"syntec","f4bef4a348a86c8ad0bc32c8580c811c4df8e2fca53081bc16c84729119c7de8":"enseignement","3728336f3afec77a935392cc91294b60b05f76deb88f7323d493c72b19ab0b8f":"formation","e2cd6de73fe088dc9fd5ca0d8fd1cd6bf3724cc7b262c59c95e616dc0e5927ce":"ensindep"};
 async function _sha256(txt){
   const data = new TextEncoder().encode(txt);
   const buf = await crypto.subtle.digest('SHA-256', data);
@@ -371,8 +373,13 @@ async function verifierCode(){
   const err = document.getElementById('lock-error');
   const h = await _sha256(inp.value);
   if(h === _ADMIN_HASH){
-    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); }catch(e){}
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
+  } else if(_SECTOR_CODES[h]){
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _SECTOR_CODES[h]); sessionStorage.removeItem('jte_admin'); }catch(e){}
+    document.getElementById('lock-screen').style.display = 'none';
+    try{ var _s=_SECTOR_CODES[h], _sel=document.getElementById('ins-secteur'); if(_sel){ _sel.value=_s; _sel.disabled=true; } }catch(e){}
+    try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
   } else if(h === _CODE_HASH){
     try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
@@ -508,6 +515,19 @@ try{
 </div>
 
     <div id="client-secteur-badge" style="display:none;margin:2px 0 10px;padding:8px 12px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:#e8c97a;font-size:12.5px;font-weight:700"></div>
+  <div id="admin-secteur-wrap" style="display:none;margin:2px 0 12px">
+    <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">Secteur (administrateur) — verrouille toute l'application</label>
+    <select id="admin-secteur" onchange="adminPickSector(this.value)" style="width:100%">
+      <option value="">Tous les secteurs (déverrouillé)</option>
+      <option value="transport">Transport routier</option>
+      <option value="banque">Banque</option>
+      <option value="assurances">Assurances</option>
+      <option value="syntec">Syntec (conseil, informatique)</option>
+      <option value="enseignement">Enseignement privé (EPNL)</option>
+      <option value="formation">Organismes de formation</option>
+      <option value="ensindep">Enseignement privé indépendant</option>
+    </select>
+  </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Choisissez une catégorie pour afficher les outils.</div>
   <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
@@ -3000,33 +3020,42 @@ function openMenu(){document.getElementById('menu-overlay').style.display='block
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 
 /* ===== Cadrage par secteur : le client ne voit que son secteur (admin = tout) ===== */
+var SECTEUR_LAB={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
+function _setTransportVisible(show){
+  document.querySelectorAll('#pg-home .home-sec').forEach(function(hs){
+    if(/transport routier/i.test(hs.textContent)){ hs.style.display=show?'':'none'; if(!show){ var g=hs.nextElementSibling; if(g&&g.classList.contains('home-grid'))g.style.display='none'; } }
+  });
+  ['temps','remuneration','ri','tableau-bord'].forEach(function(t){
+    var mi=document.querySelector('#menu-panel .mi[onclick*="goPage(\''+t+'\')"]'); if(mi)mi.style.display=show?'':'none';
+  });
+  [].forEach.call(document.querySelectorAll('#menu-panel div'),function(d){ if(d.textContent.trim()==='Spécifique transport routier') d.style.display=show?'':'none'; });
+}
+function adminPickSector(v){ try{ if(v) sessionStorage.setItem('jte_sector',v); else sessionStorage.removeItem('jte_sector'); }catch(e){} applyClientSector(); }
 function applyClientSector(retry){
   try{
     var admin = (typeof sessionStorage!=='undefined' && sessionStorage.getItem('jte_admin')==='1');
-    var sec = (typeof E!=='undefined' && E && E.secteur) ? E.secteur : '';
-    window.CLIENT_SECTEUR = admin ? '' : sec;
+    var codeSec = (typeof sessionStorage!=='undefined') ? (sessionStorage.getItem('jte_sector')||'') : '';
+    // Secteur effectif : imposé par le code/choix (client ou admin) ; sinon fiche entreprise (client)
+    var sec = codeSec || (admin ? '' : ((typeof E!=='undefined' && E && E.secteur) ? E.secteur : ''));
+    window.CLIENT_SECTEUR = sec;
+    if(!admin && codeSec && typeof E!=='undefined' && E && E.secteur!==codeSec){ E.secteur=codeSec; try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){} }
     if(!retry) setTimeout(function(){ try{ applyClientSector(true); }catch(e){} }, 500);
-    var LAB={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
+    // Badge + sélecteur admin
     var badge=document.getElementById('client-secteur-badge');
-    if(badge){ badge.textContent = admin ? '👑 Mode administrateur — tous secteurs' : (sec?('🏷️ Secteur : '+(LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
-    if(admin || !sec) return;
-    // 1) Masquer tout ce qui est spécifique au transport si le client n'est pas transport
-    if(sec!=='transport'){
-      document.querySelectorAll('#pg-home .home-sec').forEach(function(hs){
-        if(/transport routier/i.test(hs.textContent)){ hs.style.display='none'; var g=hs.nextElementSibling; if(g&&g.classList.contains('home-grid'))g.style.display='none'; }
-      });
-      ['temps','remuneration','ri','tableau-bord'].forEach(function(t){
-        var mi=document.querySelector('#menu-panel .mi[onclick*="goPage(\''+t+'\')"]'); if(mi)mi.style.display='none';
-      });
-      [].forEach.call(document.querySelectorAll('#menu-panel div'),function(d){ if(d.textContent.trim()==='Spécifique transport routier') d.style.display='none'; });
-    }
-    // 2) Pré-régler et verrouiller les sélecteurs de secteur sur le secteur du client
-    ['diag-secteur','calc-secteur','pse-secteur','cse-secteur','stat-secteur','disc-secteur'].forEach(function(id){
-      var el=document.getElementById(id); if(!el)return;
-      var has=[].some.call(el.options,function(o){return o.value===sec;});
-      if(has){ el.value=sec; try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
-        el.disabled=true; el.style.opacity='0.9'; el.title='Secteur défini par votre inscription'; }
+    if(badge){ badge.textContent = admin ? (sec?('👑 Admin — verrouillé sur : '+(SECTEUR_LAB[sec]||sec)):'👑 Mode administrateur — tous secteurs') : (sec?('🏷️ Secteur : '+(SECTEUR_LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
+    var apw=document.getElementById('admin-secteur-wrap'); if(apw)apw.style.display=admin?'block':'none';
+    var ap=document.getElementById('admin-secteur'); if(ap && ap.value!==(sec||''))ap.value=sec||'';
+    // Rubrique/menu transport : visibles seulement si secteur transport OU aucun secteur
+    _setTransportVisible(sec===''||sec==='transport');
+    // Verrouiller / déverrouiller TOUS les sélecteurs de secteur de toutes les pages
+    document.querySelectorAll('select[id$="secteur"]').forEach(function(el){
+      if(el.id==='admin-secteur'||el.id==='ins-secteur')return;
+      if(sec){ var has=[].some.call(el.options,function(o){return o.value===sec;});
+        if(has){ el.value=sec; try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} el.disabled=true; el.style.opacity='0.9'; el.title='Verrouillé sur le secteur choisi'; }
+      } else { el.disabled=false; el.style.opacity=''; el.title=''; }
     });
+    // Jurisprudence : filtrer sur le secteur (pour ceux qui ont un onglet dédié)
+    if(typeof jurSetSecteur==='function'){ var JC={transport:1,banque:1,assurances:1,syntec:1}; if(sec&&JC[sec])jurSetSecteur(sec); else if(!sec)jurSetSecteur('tous'); }
   }catch(e){}
 }
 
@@ -3042,7 +3071,7 @@ function validerInscription(){
   E.adresse=gv('ins-adresse')||'';
   E.dirigeant=gv('ins-dirigeant')||'';
   E.qualite=gv('ins-qualite')||'Gérant';
-  E.secteur=gv('ins-secteur')||'transport';
+  E.secteur=(function(){try{return sessionStorage.getItem('jte_sector');}catch(e){return null;}})()||gv('ins-secteur')||'transport';
   E.activite=gv('ins-activite')||'marchandises';
   E.email=gv('ins-email')||'';
   E.tel=gv('ins-tel')||'';
@@ -3080,6 +3109,7 @@ function initApp(){
       document.getElementById('ins-adresse').value='';
       document.getElementById('ins-dirigeant').value='';
       insCheck();
+      try{ var _cs=sessionStorage.getItem('jte_sector'); if(_cs){ var _sel=document.getElementById('ins-secteur'); if(_sel){ _sel.value=_cs; _sel.disabled=true; _sel.title='Secteur défini par votre code d\'accès'; } } }catch(e){}
       document.getElementById('pg-inscription').style.display='block';
     }
   } catch(e){document.getElementById('pg-inscription').style.display='block';}
