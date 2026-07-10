@@ -1996,15 +1996,15 @@ Exemple :<br>
      {n:17,t:'Sanction (rétrogradation, etc.)',d:'Choix et notification de la sanction proportionnée.',go:'disciplinaire',note:'Une rétrogradation modifiant le contrat suppose l’accord du salarié ; à défaut, l’employeur reprend la procédure.'}
    ]},
    {ph:'D · RUPTURE',steps:[
-     {n:18,t:'Licenciement — cause réelle et sérieuse',d:'Procédure, notification, préavis, indemnités.',go:'licenc',note:'Notification 2 jours ouvrables min. après l’entretien ; préavis et indemnité selon la CCN transport (souvent plus favorables).'},
+     {n:18,t:'Licenciement — cause réelle et sérieuse',d:'Procédure, notification, préavis, indemnités.',go:'licenc',docs:[{k:'lic_crs',l:'📄 Notification de licenciement (CRS) →'}],note:'Notification 2 jours ouvrables min. après l’entretien ; préavis et indemnité selon la CCN transport (souvent plus favorables).'},
      {n:19,t:'Licenciement — faute grave',d:'Privation de préavis et d’indemnité de licenciement.',go:'disciplinaire',note:'La faute grave rend impossible le maintien ; l’indemnité de congés payés reste due.'},
      {n:20,t:'Licenciement — faute lourde',d:'Intention de nuire ; régime le plus sévère.',go:'disciplinaire',note:'Intention de nuire à l’employeur exigée ; l’indemnité de congés payés reste due (QPC 2016).'},
      {n:21,t:'Salarié protégé (représentant du personnel)',d:'Autorisation préalable de l’inspection du travail.',doc:'protege',note:'Tout licenciement d’un élu / délégué syndical / candidat exige l’AUTORISATION préalable de l’inspection du travail (art. L.2411-1). À défaut, licenciement nul et réintégration.'},
-     {n:22,t:'Rupture conventionnelle',d:'Convention, rétractation 15 j, homologation, indemnité.',go:'rupconv',note:'Indemnité au moins égale à l’indemnité légale (ou conventionnelle si plus favorable).'},
+     {n:22,t:'Rupture conventionnelle',d:'Convention, rétractation 15 j, homologation, indemnité.',go:'rupconv',docs:[{k:'rupconv_doc',l:'📄 Invitation à l’entretien + trame de convention →'}],note:'Indemnité au moins égale à l’indemnité légale (ou conventionnelle si plus favorable).'},
      {n:23,t:'Inaptitude & reclassement',d:'Avis du médecin du travail, reclassement, indemnités.',go:'inapt',note:'Inaptitude d’origine professionnelle : indemnité spéciale doublée + préavis dû (art. L.1226-14).'},
      {n:24,t:'Fin de CDD',d:'Terme, indemnité de précarité, requalification.',go:'cdd',note:'Indemnité de précarité 10% (sauf exceptions) ; requalification en CDI si irrégularité.'},
      {n:25,t:'Départ / mise à la retraite',d:'Indemnité de départ ou de mise à la retraite.',go:'calc',note:'Mise à la retraite : indemnité ≥ indemnité légale de licenciement ; départ volontaire : barème légal selon ancienneté.'},
-     {n:26,t:'Solde de tout compte & documents de fin',d:'Reçu STC, certificat de travail, attestation France Travail.',doc:'stc',note:'Remettre : certificat de travail, attestation France Travail (ex-Pôle emploi), reçu pour solde de tout compte (dénonçable dans les 6 mois), et le cas échéant le maintien de la mutuelle (portabilité).'}
+     {n:26,t:'Solde de tout compte & documents de fin',d:'Reçu STC, certificat de travail, attestation France Travail.',docs:[{k:'stc',l:'📄 Reçu pour solde de tout compte →'},{k:'certif',l:'📄 Certificat de travail →'}],note:'Remettre : certificat de travail, attestation France Travail (ex-Pôle emploi), reçu pour solde de tout compte (dénonçable dans les 6 mois), et le cas échéant le maintien de la mutuelle (portabilité).'}
    ]}
   ];
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -2024,6 +2024,7 @@ Exemple :<br>
           +(s.note?'<div style="font-size:11.5px;color:#9a9585;line-height:1.5;border-left:2px solid rgba(201,168,76,.4);padding-left:8px;margin-bottom:8px">🚚 '+esc(s.note)+'</div>':'')
           +(s.go?'<button class="btn-outline" style="margin-top:0" onclick="goPage(\''+s.go+'\')">Ouvrir l’outil →</button>':'')
           +(s.doc?'<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+s.doc+'\')">📄 Générer le modèle →</button>':'')
+          +(s.docs?s.docs.map(function(x){return '<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+x.k+'\')">'+x.l+'</button>';}).join(''):'')
           +'</div></div></div>';
       });
       h+='</div>';
@@ -2137,6 +2138,45 @@ Exemple :<br>
         +'<p style="'+S+'">Fait en deux exemplaires, à ______, le ______<br><br>Pour l’entreprise ______ &nbsp;&nbsp;&nbsp; Le/la salarié(e) (signature précédée de « lu et approuvé ») ______</p>'
         +'<p style="'+S+'font-size:10pt">Rappel : la modification d’un élément essentiel du contrat (rémunération, qualification, durée du travail…) exige l’<b>accord exprès</b> du salarié ; son refus n’est pas fautif. Un simple changement des conditions de travail relève en revanche du pouvoir de direction.</p>'
         +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à adapter et faire valider.</p></div>';
+    } else if(key==='lic_crs'){
+      titre='Notification de licenciement — cause réelle et sérieuse';
+      html=_head()+'<p style="'+S+'font-style:italic;font-size:10pt">Lettre recommandée avec AR — à expédier au plus tôt 2 jours ouvrables après l’entretien préalable (art. L.1232-6)</p>'
+        +'<p style="'+S+'">Madame, Monsieur [NOM Prénom],</p>'
+        +'<p style="'+S+'">À la suite de l’entretien préalable du ______, auquel vous '+ '['+'vous êtes présenté(e) / ne vous êtes pas présenté(e)]'+', nous vous notifions votre licenciement pour cause réelle et sérieuse, pour les motifs suivants :</p>'
+        +'<p style="'+S+'">______ (énoncer précisément et complètement les faits, leurs dates et leurs conséquences — la lettre fixe les limites du litige ; ses motifs peuvent être précisés dans les 15 jours suivant la notification, à votre initiative ou à la nôtre — art. L.1235-2).</p>'
+        +'<p style="'+S+'">Votre préavis, d’une durée de ______ (selon votre ancienneté et la convention collective), débutera à la première présentation de la présente lettre. '+ '[Vous exécuterez votre préavis / Nous vous dispensons d’exécuter votre préavis, qui vous sera néanmoins rémunéré.]'+'</p>'
+        +'<p style="'+S+'">À l’issue de votre contrat, vous percevrez, le cas échéant, l’indemnité de licenciement (légale ou conventionnelle si plus favorable), l’indemnité compensatrice de congés payés, et nous tiendrons à votre disposition votre certificat de travail, votre attestation France Travail et votre reçu pour solde de tout compte.</p>'
+        +'<p style="'+S+'">Poste occupé : [POSTE] — entré(e) le [DATE EMBAUCHE].</p>'
+        +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
+        +'<p style="'+S+'font-size:10pt">Rappels : vérifier la prescription des faits (2 mois — L.1332-4) ; salarié protégé = autorisation préalable de l’inspection du travail ; en cas de faute grave/lourde, utiliser le modèle du module Discipline (pas de préavis ni d’indemnité de licenciement).</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à faire valider par un conseil avant toute notification.</p></div>';
+    } else if(key==='rupconv_doc'){
+      titre='Rupture conventionnelle — invitation à l’entretien + trame de convention';
+      html=_head()+'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">1 · INVITATION À UN ENTRETIEN (rupture conventionnelle)</p>'
+        +'<p style="'+S+'">Madame, Monsieur [NOM Prénom],</p>'
+        +'<p style="'+S+'">Nous vous proposons de nous rencontrer afin d’envisager une éventuelle rupture conventionnelle de votre contrat de travail (art. L.1237-11 et s.) :<br>• Date et heure : ______<br>• Lieu : ______</p>'
+        +'<p style="'+S+'">Vous pouvez vous faire assister lors de cet (ces) entretien(s) par une personne de votre choix appartenant au personnel, ou, en l’absence d’institutions représentatives, par un conseiller du salarié (art. L.1237-12). Si vous vous faites assister, vous voudrez bien nous en informer au préalable ; nous pourrons alors nous-mêmes être assistés.</p>'
+        +'<p style="'+S+'">Cet entretien n’emporte aucune obligation : chacune des parties reste libre d’accepter ou de refuser le principe de la rupture.</p>'
+        +'<hr style="border:none;border-top:1px solid #000;margin:12px 0">'
+        +'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">2 · TRAME DE LA CONVENTION — POINTS OBLIGATOIRES</p>'
+        +'<p style="'+S+'">• Parties : '+esc(_E('nom','[ENTREPRISE]'))+' et M./Mme [NOM Prénom], [POSTE], entré(e) le [DATE EMBAUCHE].<br>'
+        +'• Entretien(s) : le(s) ______.<br>'
+        +'• <b>Indemnité spécifique de rupture conventionnelle</b> : ______ € — au minimum égale à l’indemnité légale de licenciement (ou conventionnelle si plus favorable) ; utilisez le Calculateur pour le plancher.<br>'
+        +'• Date de signature : ______ — chaque partie reçoit un exemplaire (à peine de nullité).<br>'
+        +'• <b>Rétractation</b> : 15 jours calendaires à compter du lendemain de la signature (L.1237-13), par lettre.<br>'
+        +'• <b>Homologation</b> : demande via TéléRC à l’issue du délai de rétractation ; la DREETS dispose de 15 jours ouvrables (silence = homologation) — L.1237-14.<br>'
+        +'• <b>Date de rupture</b> : au plus tôt le lendemain de l’homologation (ou de l’autorisation de l’inspection du travail si salarié protégé).</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — la convention se formalise sur le formulaire officiel (TéléRC). Ne constitue pas un conseil juridique.</p></div>';
+    } else if(key==='certif'){
+      titre='Certificat de travail';
+      html=_head()+'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">CERTIFICAT DE TRAVAIL</p>'
+        +'<p style="'+S+'">Je soussigné(e) '+esc(_E('dirigeant','[Le représentant légal]'))+', agissant en qualité de '+esc(_E('qualite','représentant légal'))+' de la société '+esc(_E('nom','[ENTREPRISE]'))+', certifie que :</p>'
+        +'<p style="'+S+'">M./Mme <b>[NOM Prénom]</b>, demeurant à ______,<br>a été employé(e) au sein de notre entreprise du <b>[DATE EMBAUCHE]</b> au <b>______</b>, en dernier lieu en qualité de <b>[POSTE]</b> (coefficient [COEFFICIENT]).</p>'
+        +'<p style="'+S+'">Conformément à l’article L.911-8 du code de la sécurité sociale, l’intéressé(e) bénéficie du <b>maintien à titre gratuit des garanties de complémentaire santé et de prévoyance</b> (portabilité) dans les conditions légales, sous réserve de sa prise en charge par l’assurance chômage.</p>'
+        +'<p style="'+S+'">L’intéressé(e) quitte l’entreprise libre de tout engagement '+ '[sauf clause de non-concurrence maintenue — à préciser le cas échéant]'+'.</p>'
+        +'<p style="'+S+'">Fait à ______, le ______, pour servir et valoir ce que de droit.<br>Signature et cachet :</p>'
+        +'<p style="'+S+'font-size:10pt">Rappel : le certificat mentionne les dates d’entrée et de sortie et la nature du (des) emploi(s) occupés (art. D.1234-6). Il est quérable : à tenir à disposition du salarié dès la fin du contrat.</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à adapter.</p></div>';
     }
     // Pré-remplissage depuis la fiche salarié
     function _f(id,d){var e=document.getElementById(id);var v=e&&e.value?e.value.trim():'';return v||d;}
