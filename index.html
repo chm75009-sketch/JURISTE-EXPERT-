@@ -1946,7 +1946,12 @@ Exemple :<br>
 <div style="flex:1"><div class="tt">Parcours de la relation de travail</div><div class="ts">Étape par étape · de l'embauche à la rupture</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card">
-  <div class="al info" style="font-size:12px;margin:0">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Repères transport routier (CCN IDCC 0016) indiqués le cas échéant.</div>
+  <div class="al info" style="font-size:12px;margin:0 0 10px">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Repères transport routier (CCN IDCC 0016) indiqués le cas échéant.</div>
+  <div class="ct" style="font-size:15px">Fiche salarié — pré-remplit les modèles</div>
+  <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="pc-nom" placeholder="Ex : DUPONT Jean"></div>
+  <div class="fg"><label class="fl">Poste</label><input id="pc-poste" placeholder="Ex : Conducteur routier PL (SPL)"></div>
+  <div class="fg"><label class="fl">Adresse du salarié</label><input id="pc-adr" placeholder="Ex : 12 rue des Lilas, 95000 Cergy"></div>
+  <div class="al info" style="font-size:11.5px;margin:2px 0 0">Ces informations remplissent automatiquement les modèles générés (visite médicale, clauses, solde de tout compte…). Les dates et montants restent à compléter sur le document.</div>
 </div>
 <div id="parcours-list" style="padding:0 4px"></div>
 <div style="height:20px"></div>
@@ -2050,6 +2055,10 @@ Exemple :<br>
         +'<hr style="border:none;border-top:1px solid #000;margin:10px 0"><p style="'+S+'font-size:10pt"><b>À remettre également :</b> certificat de travail, attestation France Travail (ex-Pôle emploi), information sur la <b>portabilité</b> de la mutuelle/prévoyance.</p>'
         +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à compléter et adapter.</p></div>';
     }
+    // Pré-remplissage depuis la fiche salarié
+    function _f(id,d){var e=document.getElementById(id);var v=e&&e.value?e.value.trim():'';return v||d;}
+    var NOM=esc(_f('pc-nom','[NOM Prénom]')), POSTE=esc(_f('pc-poste','[POSTE]')), ADR=esc(_f('pc-adr','______'));
+    html=html.replace(/\[NOM Prénom\]/g,NOM).replace(/\[POSTE\]/g,POSTE).replace(/\[NOM\]/g,NOM).replace(/demeurant à ______/g,'demeurant à '+ADR);
     if(typeof showDoc==='function') showDoc(titre, html);
     else { var w=window.open('','_blank'); if(w){w.document.write(html);w.document.close();} }
   };
