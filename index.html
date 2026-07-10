@@ -529,7 +529,12 @@ try{
     </select>
   </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
-  <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Choisissez une catégorie pour afficher les outils.</div>
+  <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1;margin-bottom:12px" onclick="goPage('parcours')">
+    <div class="hcard-ic">🧭</div>
+    <div class="hcard-body"><div class="t">Parcours de la relation de travail</div><div class="d">De l'embauche à la rupture, étape par étape (1 → 26), avec rappels et modèles adaptés au secteur.</div><div class="m">Guide pas-à-pas</div></div>
+    <div class="chev">›</div>
+  </div>
+  <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Ou choisissez une catégorie ci-dessous.</div>
   <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
     <span>🔎 Comprendre &amp; rechercher</span>
     <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▾</span></span>
@@ -1808,6 +1813,7 @@ Exemple :<br>
 </div>
 <div style="padding:8px">
   <div class="mi" onclick="goPage('home');closeMenu()"><span style="font-size:18px">◈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Accueil</div></div></div>
+  <div class="mi" onclick="goPage('parcours');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parcours (pas-à-pas)</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Comprendre &amp; rechercher</div>
   <div class="mi" onclick="goPage('faq');closeMenu()"><span style="font-size:18px">💬</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">FAQ salariés</div></div></div>
   <div class="mi" onclick="goPage('diag');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Analyse d’un document</div></div></div>
@@ -1933,6 +1939,123 @@ Exemple :<br>
 </div>
 <div style="height:20px"></div>
 </div>
+
+<!-- ═══ PARCOURS DE LA RELATION DE TRAVAIL (TRANSPORT) ═══ -->
+<div id="pg-parcours" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Parcours de la relation de travail</div><div class="ts">Étape par étape · de l'embauche à la rupture</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card">
+  <div class="al info" style="font-size:12px;margin:0">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Repères transport routier (CCN IDCC 0016) indiqués le cas échéant.</div>
+</div>
+<div id="parcours-list" style="padding:0 4px"></div>
+<div style="height:20px"></div>
+</div>
+<script>
+(function(){
+  var P=[
+   {ph:'A · EMBAUCHE',steps:[
+     {n:1,t:'Contrat de travail (CDI / CDD)',d:'Rédiger le contrat : mentions obligatoires, coefficient, rémunération, lieu, durée.',go:'contrat',note:'Transport : mentionner le coefficient et le groupe (CCN IDCC 0016), le taux horaire conventionnel, le lieu de rattachement, la nature de l’activité (marchandises/voyageurs).'},
+     {n:2,t:'Clauses (non-concurrence, mobilité, exclusivité, dédit-formation)',d:'Vérifier la validité des clauses insérées au contrat.',doc:'clauses',note:'Non-concurrence : nulle sans contrepartie financière. Mobilité : zone géographique précise. FIMO/FCO financées par l’employeur : un dédit-formation est en principe exclu pour ces formations obligatoires.'},
+     {n:3,t:'Déclarations & formalités d’embauche',d:'DPAE, registre unique du personnel, affiliation mutuelle/prévoyance.',go:'contrat',note:'DPAE à adresser à l’URSSAF dans les 8 jours précédant l’embauche. Vérifier l’affiliation à la prévoyance et à la mutuelle conventionnelles du transport.'},
+     {n:4,t:'Visite médicale d’embauche',d:'Visite d’information et de prévention, ou examen d’aptitude si poste à risques.',doc:'visite',note:'Conducteur = poste à risques (suivi individuel renforcé) : examen d’aptitude par le médecin du travail AVANT la prise de poste (art. R.4624-24).'},
+     {n:5,t:'Période d’essai',d:'Durée, renouvellement, confirmation ou rupture.',go:'contrat',note:'Durées légales : 2 mois (ouvriers/employés), 3 mois (AM/TAM), 4 mois (cadres), renouvelables selon la CCN. Respecter le délai de prévenance.'},
+     {n:6,t:'Rémunération & bulletin de paie',d:'Salaire conventionnel, heures supplémentaires, primes, frais de déplacement.',go:'remuneration',note:'Transport : garantie annuelle de rémunération (GAR), taux horaires par coefficient, majoration heures sup, indemnités de repas/découcher.'},
+     {n:7,t:'Durée du travail & horaires',d:'Temps de service, temps de conduite et de repos.',go:'temps',note:'Réglementation spécifique : Décret 83-40 (durée du travail) et Règlement CE 561/2006 (conduite/repos). Contrôle par chronotachygraphe.'}
+   ]},
+   {ph:'B · VIE DU CONTRAT',steps:[
+     {n:8,t:'Congés payés & événements familiaux',d:'Acquisition, prise, indemnité, congés pour événements familiaux.',go:'absences',note:'2,5 jours ouvrables/mois (5 semaines/an). Indemnité = la plus favorable (1/10e ou maintien).'},
+     {n:9,t:'Formation professionnelle',d:'FIMO/FCO obligatoires, plan de développement des compétences, CPF.',note:'Transport : FIMO (formation initiale) et FCO (tous les 5 ans) sont obligatoires et à la charge de l’employeur pour les conducteurs. Suivre les échéances (voir Tableau de bord conducteurs).'},
+     {n:10,t:'Information & consultation du CSE',d:'Obligations selon l’effectif, réunions, expertises.',go:'cse',note:'CSE obligatoire à partir de 11 salariés (12 mois consécutifs). Voir aussi les élections (effectif, sièges, quorum).'},
+     {n:11,t:'Harcèlement & discrimination',d:'Prévention, signalement, enquête, protection.',go:'harcele',note:'Obligation de sécurité et de prévention ; nullité des sanctions liées à un signalement de bonne foi.'},
+     {n:12,t:'Maladie & absences',d:'Arrêt, maintien de salaire, AT/MP, visite de reprise.',go:'absences',note:'Maintien de salaire selon ancienneté et CCN ; visite de reprise obligatoire après ≥ 60 jours (maladie) ou ≥ 30 jours (AT). Aptitude à la conduite à revérifier si besoin.'}
+   ]},
+   {ph:'C · DISCIPLINE & SANCTIONS',steps:[
+     {n:13,t:'Avertissement / blâme',d:'Sanction mineure, sans entretien obligatoire (sauf incidence sur le poste).',go:'disciplinaire',note:'Prescription : 2 mois pour engager les poursuites à compter de la connaissance des faits (art. L.1332-4).'},
+     {n:14,t:'Mise à pied disciplinaire',d:'Sanction avec suspension du contrat et du salaire, durée plafonnée par le RI.',go:'disciplinaire',note:'Doit être prévue par le règlement intérieur et respecter la procédure disciplinaire.'},
+     {n:15,t:'Mise à pied conservatoire',d:'Mesure d’attente (non disciplinaire) dans l’attente de la sanction.',go:'disciplinaire',note:'À notifier concomitamment à l’engagement de la procédure ; le salaire est en principe maintenu si aucune faute grave n’est finalement retenue.'},
+     {n:16,t:'Entretien préalable',d:'Convocation, délai, assistance, déroulé.',go:'disciplinaire',note:'Convocation par LRAR ou remise en main propre ; entretien au moins 5 jours ouvrables après la 1re présentation ; assistance possible.'},
+     {n:17,t:'Sanction (rétrogradation, etc.)',d:'Choix et notification de la sanction proportionnée.',go:'disciplinaire',note:'Une rétrogradation modifiant le contrat suppose l’accord du salarié ; à défaut, l’employeur reprend la procédure.'}
+   ]},
+   {ph:'D · RUPTURE',steps:[
+     {n:18,t:'Licenciement — cause réelle et sérieuse',d:'Procédure, notification, préavis, indemnités.',go:'licenc',note:'Notification 2 jours ouvrables min. après l’entretien ; préavis et indemnité selon la CCN transport (souvent plus favorables).'},
+     {n:19,t:'Licenciement — faute grave',d:'Privation de préavis et d’indemnité de licenciement.',go:'disciplinaire',note:'La faute grave rend impossible le maintien ; l’indemnité de congés payés reste due.'},
+     {n:20,t:'Licenciement — faute lourde',d:'Intention de nuire ; régime le plus sévère.',go:'disciplinaire',note:'Intention de nuire à l’employeur exigée ; l’indemnité de congés payés reste due (QPC 2016).'},
+     {n:21,t:'Salarié protégé (représentant du personnel)',d:'Autorisation préalable de l’inspection du travail.',note:'Tout licenciement d’un élu / délégué syndical / candidat exige l’AUTORISATION préalable de l’inspection du travail (art. L.2411-1). À défaut, licenciement nul et réintégration.'},
+     {n:22,t:'Rupture conventionnelle',d:'Convention, rétractation 15 j, homologation, indemnité.',go:'rupconv',note:'Indemnité au moins égale à l’indemnité légale (ou conventionnelle si plus favorable).'},
+     {n:23,t:'Inaptitude & reclassement',d:'Avis du médecin du travail, reclassement, indemnités.',go:'inapt',note:'Inaptitude d’origine professionnelle : indemnité spéciale doublée + préavis dû (art. L.1226-14).'},
+     {n:24,t:'Fin de CDD',d:'Terme, indemnité de précarité, requalification.',go:'cdd',note:'Indemnité de précarité 10% (sauf exceptions) ; requalification en CDI si irrégularité.'},
+     {n:25,t:'Départ / mise à la retraite',d:'Indemnité de départ ou de mise à la retraite.',go:'calc',note:'Mise à la retraite : indemnité ≥ indemnité légale de licenciement ; départ volontaire : barème légal selon ancienneté.'},
+     {n:26,t:'Solde de tout compte & documents de fin',d:'Reçu STC, certificat de travail, attestation France Travail.',doc:'stc',note:'Remettre : certificat de travail, attestation France Travail (ex-Pôle emploi), reçu pour solde de tout compte (dénonçable dans les 6 mois), et le cas échéant le maintien de la mutuelle (portabilité).'}
+   ]}
+  ];
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  window.parcoursToggle=function(h){var b=h.nextElementSibling;if(!b)return;var o=b.style.display!=='none';b.style.display=o?'none':'';var c=h.querySelector('.pc-chev');if(c)c.textContent=o?'▸':'▾';};
+  window.parcoursRender=function(){
+    var host=document.getElementById('parcours-list'); if(!host)return; var h='';
+    P.forEach(function(ph,pi){
+      var open=pi===0;
+      h+='<div onclick="parcoursToggle(this)" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin:14px 4px 6px;color:#e8c97a;font-weight:800;font-size:13px;letter-spacing:.05em"><span>'+esc(ph.ph)+'</span><span class="pc-chev" style="color:#c9a84c">'+(open?'▾':'▸')+'</span></div>';
+      h+='<div style="display:'+(open?'':'none')+'">';
+      ph.steps.forEach(function(s){
+        h+='<div class="juris-card" style="margin-bottom:8px">'
+          +'<div style="display:flex;gap:10px;align-items:flex-start">'
+          +'<div style="flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:#c9a84c;color:#0f1f2e;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px">'+s.n+'</div>'
+          +'<div style="flex:1"><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.35">'+esc(s.t)+'</div>'
+          +'<div style="font-size:12.5px;color:#cfc8b8;margin:3px 0 6px;line-height:1.5">'+esc(s.d)+'</div>'
+          +(s.note?'<div style="font-size:11.5px;color:#9a9585;line-height:1.5;border-left:2px solid rgba(201,168,76,.4);padding-left:8px;margin-bottom:8px">🚚 '+esc(s.note)+'</div>':'')
+          +(s.go?'<button class="btn-outline" style="margin-top:0" onclick="goPage(\''+s.go+'\')">Ouvrir l’outil →</button>':'')
+          +(s.doc?'<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+s.doc+'\')">📄 Générer le modèle →</button>':'')
+          +'</div></div></div>';
+      });
+      h+='</div>';
+    });
+    host.innerHTML=h;
+  };
+  function _E(k,def){try{return (typeof E!=='undefined'&&E&&E[k])?E[k]:def;}catch(e){return def;}}
+  function _head(){var S="font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.7;";
+    return '<div style="'+S+'"><div style="font-weight:bold">'+esc(_E('nom','[ENTREPRISE]'))+'</div>'+esc(_E('adresse',''))+(_E('siret','')?('<br>SIRET : '+esc(_E('siret',''))):'')+'<hr style="border:none;border-top:1px solid #000;margin:10px 0">';}
+  window.parcoursDoc=function(key){
+    var S="font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;";
+    var html='',titre='';
+    if(key==='visite'){
+      titre='Convocation à la visite médicale d’embauche';
+      html=_head()+'<p style="'+S+'text-align:right">Fait à ______, le ______</p>'
+        +'<p style="'+S+'"><b>Objet : convocation à la visite médicale d’embauche</b></p>'
+        +'<p style="'+S+'">Madame, Monsieur [NOM Prénom],</p>'
+        +'<p style="'+S+'">Dans le cadre de votre embauche au poste de [POSTE], vous êtes convoqué(e) à une visite auprès du service de prévention et de santé au travail (SPST) :</p>'
+        +'<p style="'+S+'">• Date et heure : ______<br>• Lieu : ______ (SPST)</p>'
+        +'<p style="'+S+'">Votre poste de conducteur relevant d’un <b>suivi individuel renforcé</b> (poste à risques), cet examen médical d’aptitude est réalisé <b>par le médecin du travail préalablement à la prise de poste</b> (art. R.4624-24 et s. C. trav.). Cette convocation est faite sur le temps de travail.</p>'
+        +'<p style="'+S+'">Nous vous prions de bien vouloir vous y présenter muni(e) d’une pièce d’identité.</p>'
+        +'<p style="'+S+'">Pour l’entreprise,<br>'+esc(_E('dirigeant','[Le représentant légal]'))+'</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic;margin-top:12px">Modèle indicatif — à adapter. Ne constitue pas un conseil juridique.</p></div>';
+    } else if(key==='clauses'){
+      titre='Clauses contractuelles — modèle & points de validité';
+      html='<div style="'+S+'"><h3 style="'+S+'">Clause de non-concurrence</h3>'
+        +'<p style="'+S+'">« À l’expiration du présent contrat, pour quelque cause que ce soit, M./Mme [NOM] s’interdit d’exercer une activité concurrente de celle de l’entreprise, pendant une durée de ______ mois, dans le secteur géographique suivant : ______. En contrepartie, l’entreprise versera une indemnité mensuelle égale à ______ % du salaire brut moyen. »</p>'
+        +'<p style="'+S+'font-size:10pt"><b>Validité :</b> indispensable à la protection des intérêts de l’entreprise, limitée dans le temps et l’espace, tenant compte des spécificités de l’emploi, et <b>assortie d’une contrepartie financière</b> (à défaut : nulle). La CCN peut fixer un minimum.</p>'
+        +'<h3 style="'+S+'">Clause de mobilité</h3>'
+        +'<p style="'+S+'">« M./Mme [NOM] pourra être affecté(e) dans tout établissement situé dans la zone géographique suivante : ______, définie de façon précise. »</p>'
+        +'<p style="'+S+'font-size:10pt"><b>Validité :</b> zone géographique précise et non extensible unilatéralement ; mise en œuvre de bonne foi et dans l’intérêt de l’entreprise.</p>'
+        +'<h3 style="'+S+'">Dédit-formation (attention — transport)</h3>'
+        +'<p style="'+S+'font-size:10pt">Un dédit-formation n’est valable que pour une formation <b>au-delà des obligations légales</b>. Les formations obligatoires du conducteur (<b>FIMO/FCO</b>) sont à la charge de l’employeur et <b>ne peuvent donner lieu à dédit-formation</b>.</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèles indicatifs — à adapter et faire valider.</p></div>';
+    } else if(key==='stc'){
+      titre='Reçu pour solde de tout compte & documents de fin';
+      html=_head()+'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline">REÇU POUR SOLDE DE TOUT COMPTE</p>'
+        +'<p style="'+S+'">Je soussigné(e) M./Mme [NOM Prénom], demeurant à ______, reconnais avoir reçu de '+esc(_E('nom','[ENTREPRISE]'))+' la somme de ______ € (détaillée ci-dessous) pour solde de tout compte, en règlement des sommes dues au titre de l’exécution et de la cessation de mon contrat de travail.</p>'
+        +'<p style="'+S+'">Détail : dernier salaire ______ € · indemnité compensatrice de congés payés ______ € · indemnité de préavis ______ € · indemnité de licenciement/rupture ______ € · autres ______ €.</p>'
+        +'<p style="'+S+'">Établi en double exemplaire. Le reçu peut être <b>dénoncé dans les 6 mois</b> ; au-delà, il devient libératoire pour les sommes qui y sont mentionnées (art. L.1234-20).</p>'
+        +'<p style="'+S+'">Fait à ______, le ______<br>Signature du salarié (précédée de la mention « bon pour solde de tout compte ») ______</p>'
+        +'<hr style="border:none;border-top:1px solid #000;margin:10px 0"><p style="'+S+'font-size:10pt"><b>À remettre également :</b> certificat de travail, attestation France Travail (ex-Pôle emploi), information sur la <b>portabilité</b> de la mutuelle/prévoyance.</p>'
+        +'<p style="'+S+'font-size:9pt;font-style:italic">Modèle indicatif — à compléter et adapter.</p></div>';
+    }
+    if(typeof showDoc==='function') showDoc(titre, html);
+    else { var w=window.open('','_blank'); if(w){w.document.write(html);w.document.close();} }
+  };
+  if(document.readyState!=='loading')parcoursRender();else document.addEventListener('DOMContentLoaded',parcoursRender);
+})();
+</script>
 
 <!-- BOTTOM NAV -->
 <!-- Bouton retour flottant visible même clavier ouvert -->
