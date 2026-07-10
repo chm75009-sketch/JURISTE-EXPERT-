@@ -2132,7 +2132,25 @@ Exemple :<br>
   function save(a){try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){}}
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function set(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!==''){e.value=v;try{e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}catch(x){}}}
-  function anciennete(emb){ if(!emb)return ''; var d=new Date(emb+'T00:00:00'); if(isNaN(d))return ''; var y=(Date.now()-d.getTime())/(365.25*24*3600*1000); return y>0?(Math.round(y*10)/10):''; }
+  // Ancienneté exacte en années/mois/jours. Règle : seuls les mois COMPLETS comptent pour l'indemnité
+  // (art. R.1234-1 — année incomplète proratisée aux mois complets) ; le barème Macron retient les années complètes.
+  function ancDetail(emb){
+    if(!emb)return null; var a=new Date(emb+'T00:00:00'); if(isNaN(a))return null;
+    var b=new Date(); var y=b.getFullYear()-a.getFullYear(), m=b.getMonth()-a.getMonth(), d=b.getDate()-a.getDate();
+    if(d<0){m--; d+=new Date(b.getFullYear(),b.getMonth(),0).getDate();}
+    if(m<0){y--; m+=12;}
+    if(y<0)return null;
+    var dec=Math.round((y+m/12)*100)/100;
+    return {y:y,m:m,d:d,dec:dec};
+  }
+  function ancNote(anchorId,noteId,det){
+    var host=document.getElementById(anchorId); if(!host||!det)return;
+    var n=document.getElementById(noteId);
+    if(!n){ n=document.createElement('div'); n.id=noteId; n.style.cssText='font-size:11.5px;color:#9a9585;margin:-2px 0 10px;line-height:1.5';
+      var fg=host.closest('.fg'); if(fg&&fg.parentElement)fg.parentElement.insertBefore(n,fg.nextSibling); else host.parentElement.appendChild(n); }
+    var brute=det.y+' an'+(det.y>1?'s':'')+(det.m?(', '+det.m+' mois'):'')+(det.d?(' et '+det.d+' jour'+(det.d>1?'s':'')):'');
+    n.innerHTML='Ancienneté à ce jour : <b>'+brute+'</b> → retenue pour l\'indemnité : <b>'+det.y+' ans + '+det.m+' mois complets = '+String(det.dec).replace('.',',')+' ans</b> (art. R.1234-1'+(det.d?(' — les '+det.d+' jour'+(det.d>1?'s':'')+' restants ne comptent pas'):'')+'). Barème Macron : <b>'+det.y+' année'+(det.y>1?'s':'')+' complète'+(det.y>1?'s':'')+'</b>.';
+  }
   // Comment chaque module se pré-remplit à partir d'une fiche
   var FILL={
     parcours:function(f){set('pc-nom',f.nom);set('pc-poste',f.poste);set('pc-adr',f.adr);set('pc-emb',f.emb);set('pc-type',f.type);set('pc-coeff',f.coeff);set('pc-sal',f.sal);},
@@ -2140,8 +2158,8 @@ Exemple :<br>
       var st=(f.coeff?('coeff. '+f.coeff+' — '):'')+(f.sal?(f.sal+' € brut'):''); if(st)set('disc-sal-salaire',st);},
     contrat:function(f){set('c-nom',f.nom);set('c-poste',f.poste);set('c-adr-sal',f.adr);set('c-coeff',f.coeff);set('c-salaire',f.sal);set('c-debut',f.emb);},
     absences:function(f){set('disc-sal-nom',f.nom);set('disc-sal-poste',f.poste);set('disc-sal-entree',f.emb);},
-    calc:function(f){var a=anciennete(f.emb); if(a!=='')set('calc-anc',a); set('calc-sal',f.sal);},
-    pse:function(f){var a=anciennete(f.emb); if(a!=='')set('pse-anc',a); set('pse-sal',f.sal);},
+    calc:function(f){var t=ancDetail(f.emb); if(t){set('calc-anc',t.dec); ancNote('calc-anc','calc-anc-note',t);} set('calc-sal',f.sal);},
+    pse:function(f){var t=ancDetail(f.emb); if(t){set('pse-anc',t.dec); ancNote('pse-anc','pse-anc-note',t);} set('pse-sal',f.sal);},
     harcele:function(f){set('hd-emb',f.emb);}
   };
   // Où injecter automatiquement la liste déroulante
