@@ -1281,6 +1281,7 @@ try{
 <div id="sanction-etapes"></div>
 </div>
 
+<div class="fg"><label class="fl">Sélectionner un salarié enregistré (fiches du Parcours)</label><select id="sal-select-disc" onchange="salPick('disc',this.value)"><option value="">— choisir ou saisir ci-dessous —</option></select></div>
 <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="disc-sal-nom" placeholder="Ex : MARTIN Pierre"/></div>
 <div class="fg"><label class="fl">Poste occupé</label><input id="disc-sal-poste" placeholder="Ex : Conducteur SPL"/></div>
 <div class="fg"><label class="fl">Date d'entrée dans l'entreprise</label><input type="date" id="disc-sal-entree"/></div>
@@ -1948,6 +1949,7 @@ Exemple :<br>
 <div class="card">
   <div class="al info" style="font-size:12px;margin:0 0 10px">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Repères transport routier (CCN IDCC 0016) indiqués le cas échéant.</div>
   <div class="ct" style="font-size:15px">Fiche salarié — pré-remplit les modèles</div>
+  <div class="fg"><label class="fl">Sélectionner un salarié enregistré</label><select id="sal-select-parcours" onchange="salPick('parcours',this.value)"><option value="">— choisir ou créer ci-dessous —</option></select></div>
   <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="pc-nom" placeholder="Ex : DUPONT Jean"></div>
   <div class="fg"><label class="fl">Poste</label><input id="pc-poste" placeholder="Ex : Conducteur routier PL (SPL)"></div>
   <div class="fg"><label class="fl">Adresse du salarié</label><input id="pc-adr" placeholder="Ex : 12 rue des Lilas, 95000 Cergy"></div>
@@ -1957,7 +1959,12 @@ Exemple :<br>
     <div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="pc-coeff" placeholder="Ex : 138M — Groupe 7 (SPL)"></div>
     <div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="pc-sal" type="number" min="0" step="50" placeholder="Ex : 2450"></div>
   </div>
-  <div class="al info" style="font-size:11.5px;margin:2px 0 0">Ces informations remplissent automatiquement les modèles générés (contrat, période d'essai, visite médicale, clauses, FCO, solde de tout compte…). Les dates et montants restants sont à compléter sur le document.</div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn" style="margin:0;flex:1" onclick="salSaveFromParcours()">💾 Enregistrer la fiche</button>
+    <button class="btn-outline" style="margin:0;width:auto;flex:0 0 auto" onclick="salDelete()">🗑️ Supprimer</button>
+  </div>
+  <div id="sal-save-msg" style="display:none;font-size:12px;color:#46b885;margin-top:6px"></div>
+  <div class="al info" style="font-size:11.5px;margin:8px 0 0">Enregistrez la fiche : elle devient sélectionnable ici et dans le module Discipline. Les modèles générés (contrat, période d'essai, visite médicale, clauses, FCO, solde de tout compte…) se pré-remplissent automatiquement.</div>
 </div>
 <div id="parcours-list" style="padding:0 4px"></div>
 <div style="height:20px"></div>
@@ -2115,6 +2122,50 @@ Exemple :<br>
     else { var w=window.open('','_blank'); if(w){w.document.write(html);w.document.close();} }
   };
   if(document.readyState!=='loading')parcoursRender();else document.addEventListener('DOMContentLoaded',parcoursRender);
+})();
+</script>
+<script>
+/* ===== Répertoire de fiches salariés (partagé Parcours / Discipline) ===== */
+(function(){
+  var KEY='jx_salaries_v1';
+  function load(){try{var a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function fillSelect(sel){
+    var list=load(), cur=sel.value;
+    var h='<option value="">— choisir ou créer —</option>';
+    list.forEach(function(f,i){h+='<option value="'+i+'">'+esc(f.nom||('Fiche '+(i+1)))+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
+    sel.innerHTML=h; if(cur!=='')sel.value=cur;
+  }
+  window.salRefresh=function(){['sal-select-parcours','sal-select-disc'].forEach(function(id){var s=document.getElementById(id);if(s)fillSelect(s);});};
+  window.salPick=function(where,idx){
+    if(idx==='')return; var f=load()[parseInt(idx,10)]; if(!f)return;
+    function set(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!==''){e.value=v;try{e.dispatchEvent(new Event('input',{bubbles:true}));}catch(x){}}}
+    if(where==='parcours'){
+      set('pc-nom',f.nom);set('pc-poste',f.poste);set('pc-adr',f.adr);set('pc-emb',f.emb);set('pc-type',f.type);set('pc-coeff',f.coeff);set('pc-sal',f.sal);
+    } else {
+      set('disc-sal-nom',f.nom);set('disc-sal-poste',f.poste);set('disc-sal-entree',f.emb);
+      var st=(f.coeff?('coeff. '+f.coeff+' — '):'')+(f.sal?(f.sal+' € brut'):'');
+      if(st)set('disc-sal-salaire',st);
+    }
+  };
+  window.salSaveFromParcours=function(){
+    function g(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
+    var f={nom:g('pc-nom'),poste:g('pc-poste'),adr:g('pc-adr'),emb:g('pc-emb'),type:g('pc-type'),coeff:g('pc-coeff'),sal:g('pc-sal')};
+    if(!f.nom){alert('Renseignez au moins le nom du salarié.');return;}
+    var list=load(), i=list.findIndex(function(x){return String(x.nom||'').toLowerCase()===f.nom.toLowerCase();});
+    if(i>=0)list[i]=f; else list.push(f);
+    save(list); salRefresh();
+    var msg=document.getElementById('sal-save-msg');
+    if(msg){msg.textContent='✓ Fiche « '+f.nom+' » enregistrée — '+list.length+' fiche(s) au total';msg.style.display='block';setTimeout(function(){msg.style.display='none';},3000);}
+  };
+  window.salDelete=function(){
+    var s=document.getElementById('sal-select-parcours'); if(!s||s.value===''){alert('Sélectionnez d\'abord la fiche à supprimer dans la liste.');return;}
+    var list=load(), i=parseInt(s.value,10), f=list[i];
+    if(f && confirm('Supprimer la fiche « '+(f.nom||'')+' » ?')){list.splice(i,1);save(list);salRefresh();}
+  };
+  if(document.readyState!=='loading')setTimeout(window.salRefresh,300);
+  else document.addEventListener('DOMContentLoaded',function(){setTimeout(window.salRefresh,300);});
 })();
 </script>
 
