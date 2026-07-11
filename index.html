@@ -306,6 +306,22 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .hcard.neuf .hcard-body .t::after{content:"NOUVEAU";font-family:'Inter';font-size:9px;font-weight:800;letter-spacing:.6px;color:#1c1607;background:var(--or-clair);padding:2px 7px;border-radius:999px;margin-left:8px;vertical-align:middle}
 .home-disclaimer{margin:22px 6px 0;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--ligne2);border-left:3px solid var(--or);border-radius:12px;font-size:11.5px;color:var(--texte3);line-height:1.65}
 .home-disclaimer b{color:var(--or-clair)}
+/* ── Assistant guidé (wizard) ── */
+.wz-tiles{display:grid;gap:12px;margin-top:14px}
+@media(min-width:600px){.wz-tiles{grid-template-columns:1fr 1fr}}
+.wz-tile{position:relative;border-radius:16px;padding:16px;cursor:pointer;background:linear-gradient(135deg,var(--g1,#1d3a55),var(--g2,#152b40));border:1px solid rgba(255,255,255,.14);transition:transform .12s}
+.wz-tile:active{transform:scale(.97)}
+.wz-em{font-size:26px;margin-bottom:6px}
+.wz-tt{font-size:15px;font-weight:800;color:#fff;line-height:1.3}
+.wz-td{font-size:11.5px;color:rgba(255,255,255,.85);margin-top:4px;line-height:1.5}
+.wz-prog{display:flex;align-items:center;gap:8px;margin:4px 0 12px}
+.wz-prog .b{height:5px;border-radius:4px;flex:1;background:rgba(255,255,255,.12)}
+.wz-prog .b.on{background:#c9a84c}
+.wz-stop{border:1px solid rgba(224,92,92,.5);background:rgba(224,92,92,.1);border-radius:14px;padding:16px;font-size:13px;color:#f0d9d9;line-height:1.7}
+.wz-stop b{color:#ff9b9b}
+.wz-ok{border:1px solid rgba(94,181,122,.5);background:rgba(94,181,122,.1);border-radius:14px;padding:16px;font-size:13px;color:#dceadfff;line-height:1.7}
+.wz-ok b{color:#7fd49a}
+.wz-back{background:none;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;color:#cfc8b8;font-family:inherit;font-size:13px;cursor:pointer}
 
 /* ═══════════ Composants PSE dédiés (page intégrée) ═══════════ */
 .pse-tri{display:grid;gap:10px;margin-top:12px}
@@ -356,9 +372,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.5';
+var JX_BUILD = 'v2026-07-11.6';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.6', d:'11 juillet 2026', t:[
+   'NOUVEAU — Assistant guidé « 🧑‍💼 J\'embauche un salarié » : répondez aux questions, l\'application vérifie la légalité (7 motifs de CDD, interdictions gréviste/licenciement éco, durées maximales), vous ARRÊTE si c\'est risqué en expliquant les conséquences (requalification, indemnités, sanctions pénales), puis génère le contrat complet + DPAE + visite médicale + documents à exiger du salarié.',
+   'Couvre aussi l\'apprentissage (éligibilité 16-29 ans, rémunération % SMIC calculée, CERFA FA13, OPCO Mobilités), la professionnalisation (CERFA EJ20) et l\'intérim (vos obligations).',
+   'Le module Contrat connaît désormais les 7 motifs légaux de CDD (art. L.1242-2) au lieu de 3.',
+   'La fiche salarié est créée automatiquement à la fin du parcours — réutilisable dans tous les modules.'
+ ]},
  {v:'v2026-07-11.5', d:'11 juillet 2026', t:[
    'Accueil entièrement réorganisé : toutes les rubriques visibles d\'un coup d\'œil (plus de menus repliés), section « 🚦 Pilotage & conformité » en tête avec les Alertes de conformité et le Contrôle-minute.',
    'Le sélecteur de secteur disparaît quand le secteur est verrouillé par votre code (remplacé par un badge clair).',
@@ -566,6 +588,15 @@ try{
   </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
+
+  <div class="home-sec">👋 Actions guidées — nous vous guidons directement</div>
+  <div class="wz-tiles" style="margin-top:0">
+    <div class="wz-tile" style="--g1:#1e6e46;--g2:#124a2f;grid-column:1/-1" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start')">
+      <div class="wz-em">🧑‍💼</div>
+      <div class="wz-tt">J'embauche un salarié</div>
+      <div class="wz-td">CDI, CDD, apprentissage, intérim… Répondez aux questions : on vérifie la légalité, on vous arrête si c'est risqué, et on prépare TOUT (contrat, DPAE, visite médicale, documents à exiger).</div>
+    </div>
+  </div>
 
   <div class="home-sec sec-transport">🚦 Pilotage &amp; conformité</div>
   <div class="home-grid sec-transport">
@@ -801,8 +832,12 @@ try{
 <div class="fg"><label class="fl">Motif du CDD (obligatoire — art. L.1242-12 C. trav.)</label>
 <select id="c-cdd-motif" onchange="updateMotifCDD()">
   <option value="remplacement">Remplacement d'un salarié absent</option>
+  <option value="remplacement-tp">Remplacement d'un salarié passé provisoirement à temps partiel</option>
+  <option value="attente-cdi">Attente de l'entrée en service d'un salarié recruté en CDI (max 9 mois)</option>
+  <option value="depart-definitif">Départ définitif avant suppression du poste (max 24 mois)</option>
   <option value="accroissement">Accroissement temporaire d'activité</option>
   <option value="saisonnier">Emploi saisonnier</option>
+  <option value="usage">CDD d'usage — déménagement uniquement (art. D.1242-1)</option>
 </select>
 <div class="loi">L'absence ou l'imprécision du motif entraîne la requalification en CDI — présomption irréfragable (Cass. soc. constante)</div>
 </div>
@@ -1882,6 +1917,8 @@ Exemple :<br>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
   <div class="mi" onclick="goPage('rgpd');closeMenu()"><span style="font-size:18px">🔒</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Charte RGPD / confidentialité</div></div></div>
   <div class="mi" onclick="goPage('nouveautes');closeMenu()"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Nouveautés & mises à jour</div></div></div>
+  <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Actions guidées</div>
+  <div class="mi" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start');closeMenu()"><span style="font-size:18px">🧑‍💼</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">J'embauche un salarié (assistant)</div></div></div>
 </div>
 <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:#6b6660;line-height:1.5">Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</div>
 </div>
@@ -1991,6 +2028,14 @@ Exemple :<br>
 
 <div id="nouveautes-list"></div>
 <div style="height:20px"></div>
+</div>
+
+<!-- ═══ ASSISTANT GUIDÉ — JE VEUX EMBAUCHER ═══ -->
+<div id="pg-embauche" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">J'embauche un salarié</div><div class="ts">Assistant guidé · légalité vérifiée · documents prêts</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card"><div id="wz-emb"></div></div>
 </div>
 
 <!-- ═══ PARCOURS DE LA RELATION DE TRAVAIL (TRANSPORT) ═══ -->
@@ -3700,7 +3745,7 @@ function updateCatPoste(){
 }
 function updateMotifCDD(){
   const m=gv('c-cdd-motif');
-  document.getElementById('cdd-remplacement').classList.toggle('hidden',m!=='remplacement');
+  document.getElementById('cdd-remplacement').classList.toggle('hidden',['remplacement','remplacement-tp','attente-cdi','depart-definitif'].indexOf(m)<0);
 }
 function checkDureeCDD(){
   const d=gv('c-cdd-debut'),f=gv('c-cdd-fin');
@@ -3817,7 +3862,7 @@ function genContrat(){
 <p style="${S}">Le présent contrat est régi par la CCN Transports Routiers IDCC 0016, le Décret n°83-40 du 26 janvier 1983, l'accord de branche du 20 avril 2021, et les Règlements CE n°561/2006 et UE n°165/2014. Le salarié reconnaît avoir été informé de la convention collective et du règlement intérieur applicables (art. R.1221-34 C. trav.).</p>
 <p style="${S}"><strong style="${S}">${art("Période d'essai")}</strong></p>
 <p style="${S}">${pe==='0'?'Aucune période d\'essai.':'Période d\'essai de '+pe+' mois, conformément à l\'art. 5 de la CCN Transports Routiers IDCC 0016. Le renouvellement doit être proposé avant l\'expiration et accepté par écrit par les deux parties (Cass. soc. 21/09/2017). Délais de prévenance : < 8 jours : 24h | 8j-1 mois : 48h | 1-3 mois : 2 semaines | > 3 mois : 1 mois (art. L.1221-25 C. trav.).'} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>
-${contratType!=='cdi'?('<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat (CDD — mentions obligatoires)')+'</strong></p>'+'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+(({remplacement:'pour le remplacement d’un salarié absent',accroissement:'pour accroissement temporaire de l’activité de l’entreprise',saisonnier:'pour un emploi à caractère saisonnier'})[gv('c-cdd-motif')]||'[MOTIF PRÉCIS À COMPLÉTER]')+(gv('c-cdd-motif')==='remplacement'?(' — salarié remplacé : <strong style="'+S+'">'+(gv('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '+(gv('c-remplace-motif')||'[motif de l’absence]')+', qualification : [QUALIFICATION DU REMPLACÉ]'):'')+'.</p>'+'<p style="'+S+'">Il court du <strong style="'+S+'">'+(gv('c-cdd-debut')?fmt(new Date(gv('c-cdd-debut'))):debut)+'</strong> au <strong style="'+S+'">'+(gv('c-cdd-fin')?fmt(new Date(gv('c-cdd-fin'))):'[DATE DE FIN — à défaut de terme précis : durée minimale ______]')+'</strong>'+(gv('c-cdd-renouv')==='1'?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)':(gv('c-cdd-renouv')==='2'?', renouvelable deux fois (maximum légal) par avenant conclu avant le terme (art. L.1243-13)':''))+'. Période d’essai du CDD : 1 jour par semaine, dans la limite de 2 semaines (contrat ≤ 6 mois) ou d’un mois (au-delà) — art. L.1242-10.</p>'+'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à 10 % de la rémunération totale brute (art. L.1243-8)'+(contratType==='cddi'?' — sous réserve de l’exclusion applicable aux emplois à caractère saisonnier':'')+', ainsi que l’indemnité compensatrice de congés payés.</p>'+'<p style="'+S+'">Caisse de retraite complémentaire : CARCEPT (groupe KLESIA) — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter selon les organismes de l’entreprise] (mentions requises par l’art. L.1242-12).</p>'):''}
+${contratType!=='cdi'?('<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat (CDD — mentions obligatoires)')+'</strong></p>'+'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+(({remplacement:'pour le remplacement d’un salarié absent','remplacement-tp':'pour le remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'dans l’attente de l’entrée en service effective du salarié recruté par contrat à durée indéterminée appelé à le remplacer (durée maximale : 9 mois — art. L.1242-8-1)','depart-definitif':'pour le remplacement d’un salarié ayant quitté définitivement l’entreprise, dans l’attente de la suppression de son poste de travail (durée maximale : 24 mois — art. L.1242-8-1)',accroissement:'pour accroissement temporaire de l’activité de l’entreprise',saisonnier:'pour un emploi à caractère saisonnier',usage:'pour un emploi à caractère temporaire pour lequel il est d’usage constant de ne pas recourir au CDI — activité de déménagement (art. D.1242-1)'})[gv('c-cdd-motif')]||'[MOTIF PRÉCIS À COMPLÉTER]')+(['remplacement','remplacement-tp','attente-cdi','depart-definitif'].indexOf(gv('c-cdd-motif'))>=0?(' — salarié remplacé : <strong style="'+S+'">'+(gv('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '+(gv('c-remplace-motif')||'[motif de l’absence]')+', qualification : [QUALIFICATION DU REMPLACÉ]'):'')+'.</p>'+'<p style="'+S+'">Il court du <strong style="'+S+'">'+(gv('c-cdd-debut')?fmt(new Date(gv('c-cdd-debut'))):debut)+'</strong> au <strong style="'+S+'">'+(gv('c-cdd-fin')?fmt(new Date(gv('c-cdd-fin'))):'[DATE DE FIN — à défaut de terme précis : durée minimale ______]')+'</strong>'+(gv('c-cdd-renouv')==='1'?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)':(gv('c-cdd-renouv')==='2'?', renouvelable deux fois (maximum légal) par avenant conclu avant le terme (art. L.1243-13)':''))+'. Période d’essai du CDD : 1 jour par semaine, dans la limite de 2 semaines (contrat ≤ 6 mois) ou d’un mois (au-delà) — art. L.1242-10.</p>'+'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à 10 % de la rémunération totale brute (art. L.1243-8)'+(contratType==='cddi'?' — sous réserve de l’exclusion applicable aux emplois à caractère saisonnier':'')+', ainsi que l’indemnité compensatrice de congés payés.</p>'+'<p style="'+S+'">Caisse de retraite complémentaire : CARCEPT (groupe KLESIA) — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter selon les organismes de l’entreprise] (mentions requises par l’art. L.1242-12).</p>'):''}
 
 <p style="${S}"><strong style="${S}">${art("Qualifications professionnelles et aptitude médicale")}</strong></p>
 <p style="${S}">Le salarié déclare être titulaire des qualifications requises pour l'exercice de ses fonctions (permis, CQC, FIMO/FCO, visite médicale d'aptitude à la conduite), dont il remet les justificatifs à l'employeur. Il s'engage à les maintenir à jour et à informer immédiatement l'employeur de tout retrait, suspension ou restriction. Le défaut d'information constitue une faute grave (Cass. soc. 3 mai 2011 — n°09-67.464).</p>
@@ -9017,6 +9062,296 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     document.addEventListener('input',save,true);
     document.addEventListener('change',save,true);
   }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+
+<script>
+/* ===== Assistant guidé « Je veux embaucher » — questionnaire, verrous légaux, documents ===== */
+(function(){
+  var A={};                       // réponses du parcours en cours
+  window.WZA=A;
+  function V(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
+  function box(h){var b=document.getElementById('wz-emb');if(b){b.innerHTML=h;}try{window.scrollTo(0,0);}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function prog(n,t){var h='<div class="wz-prog">';for(var i=1;i<=t;i++)h+='<div class="b'+(i<=n?' on':'')+'"></div>';return h+'</div>';}
+  function head(n,t,titre,sous){return prog(n,t)+'<div class="ct" style="margin-bottom:2px">'+titre+'</div>'+(sous?'<div style="font-size:12px;color:#9a9585;margin-bottom:10px;line-height:1.6">'+sous+'</div>':'');}
+  function tiles(list){return '<div class="wz-tiles">'+list.map(function(x){
+    return '<div class="wz-tile" style="--g1:'+x.c[0]+';--g2:'+x.c[1]+'" onclick="'+x.on+'"><div class="wz-em">'+x.e+'</div><div class="wz-tt">'+x.t+'</div><div class="wz-td">'+x.d+'</div></div>';}).join('')+'</div>';}
+  function btns(nextFn,backScreen,label){return '<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzGo(\''+backScreen+'\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="'+nextFn+'">'+(label||'Continuer →')+'</button></div>';}
+  function fg(label,inner){return '<div class="fg"><label class="fl">'+label+'</label>'+inner+'</div>';}
+  function inp(id,ph,type,val){return '<input id="'+id+'" type="'+(type||'text')+'" placeholder="'+(ph||'')+'" value="'+esc(val||'')+'">';}
+  function loi(t){return '<div class="loi">'+t+'</div>';}
+  function salList(){try{var a=JSON.parse(localStorage.getItem('jx_salaries_v1')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+  var MOTIF_LAB={remplacement:'Remplacement d’un salarié absent','remplacement-tp':'Remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'Attente de l’entrée en service d’un CDI recruté','depart-definitif':'Départ définitif avant suppression du poste',accroissement:'Accroissement temporaire d’activité',saisonnier:'Emploi saisonnier',usage:'CDD d’usage (déménagement)'};
+  var MOTIF_MAX={remplacement:18,'remplacement-tp':18,'attente-cdi':9,'depart-definitif':24,accroissement:18,saisonnier:null,usage:18};
+  var MOTIF_IMPRECIS={remplacement:1,'remplacement-tp':1,'attente-cdi':1,saisonnier:1,usage:1};
+
+  var S={};                       // écrans
+  window.wzGo=function(name){A._screen=name;(S[name]||S.start)();};
+
+  /* ── Étape 1 : quel contrat ? ── */
+  S.start=function(){A={};window.WZA=A;box(
+    head(1,4,'👋 Vous embauchez — quel contrat ?','Le <b>CDI est la forme normale</b> de la relation de travail (art. L.1221-2). Tout autre contrat est une exception encadrée par la loi — répondez aux questions, on vérifie la légalité et on prépare tout.')
+    +tiles([
+      {e:'🟢',t:'CDI',d:'Contrat à durée indéterminée — la forme normale, recommandée. Temps plein ou partiel.',c:['#1e6e46','#124a2f'],on:"wzType('cdi')"},
+      {e:'🟠',t:'CDD',d:'Exception : uniquement dans les cas prévus par la loi. On vérifie votre motif AVANT de rédiger.',c:['#9a6a1e','#6e4a12'],on:"wzType('cdd')"},
+      {e:'🎓',t:'Apprentissage',d:'Jeune de 16 à 29 ans en formation diplômante (CFA — AFTRAL, Promotrans…). Aides & exonérations.',c:['#1e5a8a','#123c5e'],on:"wzType('apprentissage')"},
+      {e:'📘',t:'Professionnalisation',d:'Qualification en alternance : 16-25 ans, demandeurs d’emploi 26+, RSA/ASS/AAH.',c:['#5a3e8a','#3c2a5e'],on:"wzType('pro')"},
+      {e:'⏳',t:'Intérim',d:'Besoin ponctuel via une agence (ETT) : ce n’est pas vous l’employeur — on vous explique vos obligations.',c:['#555f6e','#3a4250'],on:"wzGo('interim')"}
+    ]));};
+  window.wzType=function(t){A.type=t;if(t==='cdd')wzGo('cdd-motif');else if(t==='cdi')wzGo('salarie');else if(t==='apprentissage')wzGo('appr-1');else if(t==='pro')wzGo('pro-1');};
+
+  /* ── CDD : le motif d'abord (verrou légal) ── */
+  S['cdd-motif']=function(){box(
+    head(2,5,'⚠️ CDD — quel est votre motif de recours ?','Le CDD ne peut être conclu que pour l’exécution d’une <b>tâche précise et temporaire</b>, dans les cas <b>limitativement</b> énumérés par la loi (art. L.1242-2). Sans motif valable, n’allez pas plus loin.')
+    +tiles([
+      {e:'🤒',t:'Remplacement d’un salarié absent',d:'Maladie, congés, maternité, congé parental… (nom du remplacé obligatoire au contrat)',c:['#1e5a8a','#123c5e'],on:"wzMotif('remplacement')"},
+      {e:'🕐',t:'Salarié passé provisoirement à temps partiel',d:'Congé parental à temps partiel, temps partiel thérapeutique…',c:['#1e5a8a','#123c5e'],on:"wzMotif('remplacement-tp')"},
+      {e:'🪑',t:'Attente de l’arrivée d’un CDI recruté',d:'Le poste est pourvu, le recruté n’est pas encore arrivé — 9 mois maximum',c:['#1e5a8a','#123c5e'],on:"wzMotif('attente-cdi')"},
+      {e:'🚪',t:'Départ définitif avant suppression du poste',d:'Le titulaire est parti, le poste sera supprimé — 24 mois maximum',c:['#1e5a8a','#123c5e'],on:"wzMotif('depart-definitif')"},
+      {e:'📈',t:'Accroissement temporaire d’activité',d:'Surcroît ponctuel de commandes, tâche occasionnelle définie et non durable',c:['#9a6a1e','#6e4a12'],on:"wzMotif('accroissement')"},
+      {e:'☀️',t:'Emploi saisonnier',d:'Tâches appelées à se répéter chaque année aux mêmes périodes (saison)',c:['#9a6a1e','#6e4a12'],on:"wzMotif('saisonnier')"},
+      {e:'📦',t:'Déménagement (CDD d’usage)',d:'Uniquement pour l’activité de déménagement — secteur d’usage constant (art. D.1242-1)',c:['#555f6e','#3a4250'],on:"wzMotif('usage')"},
+      {e:'❌',t:'Je n’ai pas de motif précis / autre motif',d:'Besoin durable, activité normale et permanente, « pour voir »…',c:['#8a1e1e','#5e1212'],on:"wzGo('cdd-stop')"}
+    ])+'<div style="margin-top:12px"><button class="wz-back" onclick="wzGo(\'start\')">← Retour</button></div>');};
+  window.wzMotif=function(m){A.motif=m;wzGo('cdd-detail');};
+
+  /* ── STOP : pas de motif ── */
+  S['cdd-stop']=function(){box(
+    head(2,5,'⛔ N’établissez PAS de CDD','')
+    +'<div class="wz-stop"><b>Sans motif légal, le CDD est requalifié en CDI</b> — et les conséquences sont lourdes :'
+    +'<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
+    +'<li><b>Requalification automatique en CDI</b> (art. L.1245-1) — le juge ne peut pas l’écarter, même de bonne foi ;</li>'
+    +'<li><b>Indemnité de requalification : au minimum 1 mois de salaire</b> (art. L.1245-2) ;</li>'
+    +'<li>Le salarié saisit <b>directement le bureau de jugement</b> des prud’hommes, qui statue <b>sous 1 mois</b> — sans conciliation préalable (art. L.1245-2) ;</li>'
+    +'<li>Si le contrat a déjà pris fin : la rupture devient un <b>licenciement sans cause réelle et sérieuse</b> → indemnités de licenciement, préavis, dommages-intérêts (barème Macron) ;</li>'
+    +'<li><b>Sanctions pénales</b> : 3 750 € d’amende ; récidive : 7 500 € et 6 mois d’emprisonnement (art. L.1248-1).</li>'
+    +'</ul></div>'
+    +'<div class="al ok" style="margin-top:14px;font-size:12.5px">✅ <b>La bonne solution : le CDI.</b> Besoin durable = CDI. Vous restez libre de prévoir une <b>période d’essai</b> (jusqu’à 3 mois selon le coefficient, renouvelable) qui vous protège largement.</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzGo(\'cdd-motif\')">← Revoir les motifs</button><button class="btn" style="margin:0;flex:1" onclick="wzType(\'cdi\')">🟢 Faire un CDI à la place →</button></div>');};
+
+  /* ── STOP : gréviste / licenciement éco ── */
+  S['cdd-stop-greve']=function(){box(
+    head(3,5,'⛔ Interdiction absolue','')
+    +'<div class="wz-stop"><b>Il est interdit de conclure un CDD pour remplacer un salarié gréviste</b> (art. L.1242-6). Cette embauche est <b>nulle</b>, expose à la requalification, à des dommages-intérêts et à des <b>sanctions pénales</b>, et constitue une atteinte au droit de grève. N’allez pas plus loin sur cette voie.</div>'
+    +'<div style="margin-top:16px"><button class="wz-back" onclick="wzGo(\'cdd-detail\')">← Retour</button></div>');};
+  S['cdd-stop-eco']=function(){box(
+    head(3,5,'⛔ CDD interdit sur ce poste','')
+    +'<div class="wz-stop"><b>Un licenciement économique a eu lieu sur ce poste dans les 6 derniers mois :</b> le recours au CDD pour accroissement d’activité y est <b>interdit</b> (art. L.1242-5).<br><br>Exceptions strictes (à valider par un avocat) : CDD de <b>3 mois maximum non renouvelable</b>, ou commande exceptionnelle à l’exportation.</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzGo(\'cdd-detail\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzType(\'cdi\')">🟢 Faire un CDI à la place →</button></div>');};
+
+  /* ── CDD : questions propres au motif ── */
+  S['cdd-detail']=function(){var m=A.motif,h=head(3,5,'📋 '+MOTIF_LAB[m],'Ces précisions figureront <b>obligatoirement</b> au contrat (art. L.1242-12) — un motif imprécis = requalification.');
+    if(m==='remplacement'||m==='remplacement-tp'||m==='attente-cdi'||m==='depart-definitif'){
+      var lab=(m==='attente-cdi')?'Nom du salarié recruté en CDI (attendu)':'Nom et prénom du salarié remplacé';
+      h+=fg(lab+' *',inp('wz-rempl-nom','Ex : DURAND Paul','text',A.remplNom))
+        +fg('Poste / qualification de ce salarié *',inp('wz-rempl-poste','Ex : Conducteur PL — coeff. 138M','text',A.remplPoste));
+      if(m==='remplacement')h+=fg('Motif de l’absence *','<select id="wz-rempl-abs"><option value="">— choisir —</option><option>arrêt maladie</option><option>congés payés</option><option>congé maternité / paternité</option><option>congé parental d’éducation</option><option>formation</option><option>absence autorisée</option><option value="greve">grève</option><option>autre absence temporaire</option></select>')+loi('Le remplacement d’un <b>gréviste</b> est interdit (L.1242-6) — le choisir arrête le parcours.');
+      if(m==='remplacement-tp')h+=fg('Cause du passage à temps partiel',inp('wz-rempl-abs','Ex : congé parental à temps partiel','text',A.remplAbs));
+    }
+    if(m==='accroissement'){
+      h+=fg('Décrivez précisément le surcroît d’activité *',inp('wz-accr','Ex : marché X obtenu le …, surcroît de commandes du client Y jusqu’au …','text',A.accrDetail))
+        +loi('« Accroissement temporaire » = surcroît <b>ponctuel</b> ; un besoin structurel ou permanent = requalification (Cass. soc. constante).')
+        +fg('Un licenciement économique a-t-il eu lieu sur ce poste dans les 6 derniers mois ? *','<select id="wz-accr-eco"><option value="">— choisir —</option><option value="non">Non</option><option value="oui">Oui</option></select>');
+    }
+    if(m==='saisonnier')h+=fg('Précisez la saison / l’activité saisonnière *',inp('wz-sais','Ex : saison des récoltes betteravières (septembre-décembre)','text',A.saisDetail))+loi('Saisonnier = tâches appelées à se répéter <b>chaque année aux mêmes périodes</b> en fonction du rythme des saisons ou des modes de vie collectifs (L.1242-2 3°). Un simple pic d’activité n’est pas « saisonnier ».');
+    if(m==='usage')h+=fg('Confirmez votre activité *','<select id="wz-usage-ok"><option value="">— choisir —</option><option value="oui">Oui, entreprise de déménagement</option><option value="non">Non, transport de marchandises général</option></select>')+fg('Mission précise',inp('wz-usage-det','Ex : opération de déménagement du client X','text',A.usageDetail))+loi('Le CDD d’usage n’est admis que dans les secteurs listés à l’art. D.1242-1 — le <b>déménagement</b> en fait partie, PAS le transport routier de marchandises général.');
+    box(h+btns('wzCddDetailNext()','cdd-motif'));};
+  window.wzCddDetailNext=function(){var m=A.motif;
+    if(m==='remplacement'||m==='remplacement-tp'||m==='attente-cdi'||m==='depart-definitif'){
+      A.remplNom=V('wz-rempl-nom');A.remplPoste=V('wz-rempl-poste');A.remplAbs=V('wz-rempl-abs');
+      if(!A.remplNom||!A.remplPoste){alert('Le nom et la qualification sont obligatoires : ils doivent figurer au contrat (L.1242-12).');return;}
+      if(m==='remplacement'&&!A.remplAbs){alert('Précisez le motif de l’absence.');return;}
+      if(A.remplAbs==='greve'){wzGo('cdd-stop-greve');return;}
+    }
+    if(m==='accroissement'){A.accrDetail=V('wz-accr');var eco=V('wz-accr-eco');
+      if(!A.accrDetail){alert('Décrivez le surcroît d’activité : un motif vague = requalification.');return;}
+      if(!eco){alert('Répondez à la question sur le licenciement économique (verrou légal L.1242-5).');return;}
+      if(eco==='oui'){wzGo('cdd-stop-eco');return;}}
+    if(m==='saisonnier'){A.saisDetail=V('wz-sais');if(!A.saisDetail){alert('Précisez la saison.');return;}}
+    if(m==='usage'){if(V('wz-usage-ok')!=='oui'){alert('Hors activité de déménagement, le CDD d’usage est illégal dans le transport de marchandises. Choisissez un autre motif ou faites un CDI.');return;}A.usageDetail=V('wz-usage-det');}
+    wzGo('cdd-dates');};
+
+  /* ── CDD : dates, terme, renouvellement ── */
+  S['cdd-dates']=function(){var m=A.motif,max=MOTIF_MAX[m],imp=MOTIF_IMPRECIS[m];
+    var h=head(4,5,'📅 Durée du CDD','Durée maximale pour ce motif : <b>'+(max?max+' mois':'fin de la saison')+'</b>'+(imp?' — terme imprécis possible (retour du salarié / fin de saison) avec une <b>durée minimale</b>.':'.'));
+    h+=fg('Date de début *',inp('wz-debut','','date',A.debut));
+    if(imp)h+=fg('Type de terme','<select id="wz-terme" onchange="document.getElementById(\'wz-fin-wrap\').style.display=this.value===\'precis\'?\'\':\'none\';document.getElementById(\'wz-min-wrap\').style.display=this.value===\'precis\'?\'none\':\'\'"><option value="precis"'+(A.terme!=='imprecis'?' selected':'')+'>Terme précis (date de fin fixée)</option><option value="imprecis"'+(A.terme==='imprecis'?' selected':'')+'>Terme imprécis ('+(m==='saisonnier'?'fin de saison':'retour / arrivée du salarié')+')</option></select>');
+    h+='<div id="wz-fin-wrap"'+(A.terme==='imprecis'?' style="display:none"':'')+'>'+fg('Date de fin *',inp('wz-fin','','date',A.fin))+fg('Renouvellement','<select id="wz-renouv"><option value="non">Sans renouvellement</option><option value="1"'+(A.renouv==='1'?' selected':'')+'>Renouvelable 1 fois</option><option value="2"'+(A.renouv==='2'?' selected':'')+'>Renouvelable 2 fois (maximum — L.1243-13)</option></select>')+'</div>';
+    if(imp)h+='<div id="wz-min-wrap"'+(A.terme==='imprecis'?'':' style="display:none"')+'>'+fg('Durée minimale (mois) *',inp('wz-min','Ex : 3','number',A.dureeMin))+loi('À défaut de terme précis, le contrat doit prévoir une <b>durée minimale</b> (L.1242-7). Pas de renouvellement pour un terme imprécis.')+'</div>';
+    h+=loi('⏳ N’oubliez pas le <b>délai de carence</b> entre deux CDD sur le même poste (L.1244-3) — sauf nouvelle absence du salarié remplacé, saisonnier, usage.');
+    box(h+btns('wzCddDatesNext()','cdd-detail'));};
+  window.wzCddDatesNext=function(){var m=A.motif,max=MOTIF_MAX[m];
+    A.debut=V('wz-debut');A.terme=(document.getElementById('wz-terme')?V('wz-terme'):'precis');
+    if(!A.debut){alert('La date de début est obligatoire.');return;}
+    if(A.terme==='imprecis'){A.dureeMin=V('wz-min');A.fin='';A.renouv='non';
+      if(!A.dureeMin){alert('Indiquez la durée minimale (obligatoire — L.1242-7).');return;}}
+    else{A.fin=V('wz-fin');A.renouv=V('wz-renouv')||'non';
+      if(!A.fin){alert('La date de fin est obligatoire pour un terme précis.');return;}
+      var d1=new Date(A.debut),d2=new Date(A.fin);
+      if(d2<=d1){alert('La date de fin doit être postérieure au début.');return;}
+      var mois=(d2-d1)/(30.44*24*3600*1000);
+      if(max&&mois>max+0.05){alert('⛔ Durée trop longue : '+Math.round(mois*10)/10+' mois. Maximum légal pour ce motif : '+max+' mois, RENOUVELLEMENTS COMPRIS (L.1242-8-1). Corrigez la date de fin.');return;}}
+    wzGo('salarie');};
+
+  /* ── Le salarié & le poste ── */
+  S.salarie=function(){var list=salList(),cdd=(A.type==='cdd');
+    var opts='<option value="">— nouveau salarié (saisir ci-dessous) —</option>';
+    list.forEach(function(f,i){opts+='<option value="'+i+'">'+esc(f.nom||('Fiche '+(i+1)))+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
+    var cats=document.getElementById('c-cat-poste')?document.getElementById('c-cat-poste').innerHTML:'';
+    var h=head(cdd?5:2,cdd?5:4,'👤 Le salarié et le poste','Sélectionnez une fiche existante ou saisissez — la fiche salarié sera créée automatiquement.');
+    h+=fg('Fiche salarié existante','<select id="wz-fiche" onchange="wzPickFiche(this.value)">'+opts+'</select>')
+      +fg('Civilité','<select id="wz-civ"><option value="m">M.</option><option value="mme"'+(A.civ==='mme'?' selected':'')+'>Mme</option></select>')
+      +fg('Nom et prénom *',inp('wz-nom','Ex : MARTIN Pierre','text',A.nom))
+      +fg('Date de naissance',inp('wz-naissance','','date',A.naissance))
+      +fg('Lieu de naissance',inp('wz-lieu','Ex : Paris (75)','text',A.lieuNaiss))
+      +fg('Nationalité',inp('wz-nat','Française','text',A.nationalite||'Française'))
+      +fg('N° Sécurité sociale',inp('wz-ss','15 chiffres','text',A.ss))
+      +fg('Adresse',inp('wz-adr','Ex : 12 rue des Lilas, 95100 Argenteuil','text',A.adr))
+      +fg('Catégorie du poste (CCN transport) *','<select id="wz-cat">'+cats+'</select>')
+      +loi('Le coefficient détermine automatiquement le <b>salaire minimum</b>, la <b>période d’essai</b> et le <b>préavis</b> conventionnels.')
+      +fg('Le salarié conduira-t-il des véhicules ? *','<select id="wz-conducteur"><option value="">— choisir —</option><option value="oui"'+(A.conducteur==='oui'?' selected':'')+'>Oui — conducteur</option><option value="non"'+(A.conducteur==='non'?' selected':'')+'>Non — sédentaire</option></select>')
+      +fg('Salaire mensuel brut (€) *',inp('wz-sal','Ex : 2200','number',A.salaire));
+    if(!cdd)h+=fg('Date d’embauche *',inp('wz-emb','','date',A.debut));
+    box(h+btns('wzSalarieNext()',cdd?'cdd-dates':'start'));
+    if(A.cat){var c=document.getElementById('wz-cat');if(c)c.value=A.cat;}};
+  window.wzPickFiche=function(i){if(i==='')return;var f=salList()[parseInt(i,10)];if(!f)return;
+    var m={'wz-nom':f.nom,'wz-adr':f.adr,'wz-sal':f.sal};Object.keys(m).forEach(function(k){var e=document.getElementById(k);if(e&&m[k])e.value=m[k];});};
+  window.wzSalarieNext=function(){A.civ=V('wz-civ');A.nom=V('wz-nom');A.naissance=V('wz-naissance');A.lieuNaiss=V('wz-lieu');A.nationalite=V('wz-nat');A.ss=V('wz-ss');A.adr=V('wz-adr');A.cat=V('wz-cat');A.conducteur=V('wz-conducteur');A.salaire=V('wz-sal');
+    if(A.type!=='cdd')A.debut=V('wz-emb');
+    if(!A.nom){alert('Le nom du salarié est obligatoire.');return;}
+    if(!A.conducteur){alert('Précisez si le salarié conduira (cela change la visite médicale et les documents à exiger).');return;}
+    if(!A.salaire){alert('Le salaire est obligatoire.');return;}
+    if(!A.debut){alert('La date d’embauche est obligatoire.');return;}
+    var c=document.getElementById('wz-cat'),o=c&&c.options[c.selectedIndex];
+    A.coeff=o?(o.dataset.coeff||''):'';A.posteLab=o?o.text.replace(/\s*—.*$/,''):'';A.seuil=o?(o.dataset.seuil||'169'):'169';A.pe=o?(o.dataset.pe||'2'):'2';
+    wzSaveFiche();wzGo('result');};
+  function wzSaveFiche(){try{var list=salList(),f={nom:A.nom,poste:A.posteLab+(A.coeff?(' — coeff. '+A.coeff):''),adr:A.adr,emb:A.debut,type:(A.type==='cdd'?'CDD':'CDI'),coeff:A.coeff,sal:A.salaire};
+    var i=list.findIndex(function(x){return String(x.nom||'').toLowerCase()===f.nom.toLowerCase();});
+    if(i>=0)list[i]=f;else list.push(f);
+    localStorage.setItem('jx_salaries_v1',JSON.stringify(list));if(typeof salRefresh==='function')salRefresh();}catch(e){}}
+
+  /* ── Application des réponses au module contrat, puis génération ── */
+  function apply(){try{
+    if(typeof setContratType==='function')setContratType(A.type==='cdd'?(A.motif==='saisonnier'?'cddi':'cdd'):'cdi');
+    var cp=document.getElementById('c-cat-poste');if(cp&&A.cat){cp.value=A.cat;try{updateCatPoste();}catch(e){}}
+    try{setCiv(A.civ||'m');}catch(e){}
+    var map={'c-nom':A.nom,'c-naissance':A.naissance,'c-lieu-naiss':A.lieuNaiss,'c-nationalite':A.nationalite,'c-ss':A.ss,'c-adr-sal':A.adr,'c-salaire':A.salaire,'c-debut':A.debut,'c-poste':A.posteLab};
+    Object.keys(map).forEach(function(k){var e=document.getElementById(k);if(e)e.value=map[k]||'';});
+    try{calcPE();}catch(e){}try{checkSalaire();}catch(e){}
+    if(A.type==='cdd'){var mm=document.getElementById('c-cdd-motif');if(mm){mm.value=A.motif;try{updateMotifCDD();}catch(e){}}
+      var m2={'c-remplace-nom':A.remplNom?(A.remplNom+(A.remplPoste?(' ('+A.remplPoste+')'):'')):'','c-remplace-motif':A.remplAbs||A.accrDetail||A.saisDetail||A.usageDetail||'','c-cdd-debut':A.debut,'c-cdd-fin':A.fin||''};
+      Object.keys(m2).forEach(function(k){var e=document.getElementById(k);if(e)e.value=m2[k]||'';});
+      var rv=document.getElementById('c-cdd-renouv');if(rv)rv.value=A.renouv||'non';}
+  }catch(e){}}
+  window.wzDoc=function(which){apply();
+    if(which==='contrat'&&typeof genContrat==='function')genContrat();
+    if(which==='dpae'&&typeof genDPAE==='function')genDPAE();
+    if(which==='check'&&typeof genChecklistEmbauche==='function')genChecklistEmbauche();
+    if(which==='fiche'&&typeof genFichePoste==='function')genFichePoste();};
+
+  /* ── Résultat : verdict + documents + obligations ── */
+  S.result=function(){var cdd=(A.type==='cdd'),cond=(A.conducteur==='oui');
+    var peLab={'0':'sans période d’essai','1':'1 mois','2':'2 mois','3':'3 mois'}[A.pe]||A.pe+' mois';
+    var minima='';try{if(typeof MINIMA!=='undefined'&&A.coeff){var tx=MINIMA[String(A.coeff).replace('M','')];
+      if(tx){var minMens=Math.round(tx*parseFloat(A.seuil)*100)/100;
+        minima=(parseFloat(A.salaire)<minMens)?'<li>⚠️ <b>Salaire sous le minimum conventionnel estimé</b> ('+String(minMens).replace('.',',')+' € pour '+A.seuil+' h au taux '+String(tx).replace('.',',')+' €/h — coeff. '+A.coeff+') : à corriger.</li>':'<li>✅ Salaire ≥ minimum conventionnel estimé ('+String(minMens).replace('.',',')+' € — coeff. '+A.coeff+').</li>';}}}catch(e){}
+    var h=head(cdd?5:4,cdd?5:4,'✅ Votre embauche est prête','');
+    h+='<div class="wz-ok"><b>'+(cdd?('CDD — '+MOTIF_LAB[A.motif]):'CDI')+'</b> · '+esc(A.nom)+' · '+esc(A.posteLab)+(A.coeff?(' (coeff. '+A.coeff+')'):'')+'<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
+      +'<li>Motif '+(cdd?'vérifié — mentions obligatoires intégrées au contrat (L.1242-12)':'— CDI, forme normale (L.1221-2)')+'.</li>'
+      +'<li>Période d’essai conventionnelle : <b>'+peLab+'</b> (CCN transport, selon coefficient).</li>'
+      +(cdd&&A.terme==='imprecis'?'<li>Terme imprécis : durée minimale <b>'+esc(A.dureeMin)+' mois</b>, fin au '+(A.motif==='saisonnier'?'terme de la saison':'retour/arrivée du salarié')+'.</li>':'')
+      +(cdd?'<li>Indemnité de fin de contrat 10 % (L.1243-8)'+((A.motif==='saisonnier'||A.motif==='usage')?' — <b>non due</b> pour ce motif (L.1243-10)':'')+'.</li>':'')
+      +minima+'</ul></div>';
+    h+='<div class="ct" style="margin-top:18px">📄 Vos documents</div><div style="display:grid;gap:8px">'
+      +'<button class="btn" style="margin:0" onclick="wzDoc(\'contrat\')">📄 Générer le CONTRAT '+(cdd?'CDD':'CDI')+' complet →</button>'
+      +'<button class="btn-outline" style="margin:0" onclick="wzDoc(\'dpae\')">📋 DPAE pré-remplie (obligatoire AVANT la mise au travail) →</button>'
+      +'<button class="btn-outline" style="margin:0" onclick="wzDoc(\'check\')">🗂️ Documents à exiger du salarié (checklist) →</button>'
+      +'<button class="btn-outline" style="margin:0" onclick="wzDoc(\'fiche\')">📝 Fiche de poste →</button></div>';
+    h+='<div class="ct" style="margin-top:18px">⚡ Vos obligations — dans l’ordre</div>'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2;padding:4px 2px">'
+      +'1️⃣ <b>DPAE</b> auprès de l’URSSAF : au plus tôt 8 jours avant, au plus tard <b>immédiatement avant</b> la mise au travail (L.1221-10, R.1221-4).<br>'
+      +'2️⃣ <b>Contrat signé</b>'+(cdd?' et <b>transmis au salarié sous 2 jours ouvrables</b> (L.1242-13 — sinon indemnité jusqu’à 1 mois de salaire)':' avant ou au plus tard le jour de l’embauche')+'.<br>'
+      +'3️⃣ <b>Documents du salarié</b> : pièce d’identité'+(cond?', <b>permis en cours de validité, carte de qualification (CQC/FIMO), carte conducteur (tachygraphe)</b>':'')+', carte Vitale, RIB, diplômes — et vérification du <b>titre de travail</b> pour un salarié étranger (L.8251-1, L.5221-8).<br>'
+      +'4️⃣ <b>Visite médicale</b> : '+(cond?'conducteur = <b>avant l’affectation au poste</b> si poste à risque (ADR : examen d’aptitude obligatoire AVANT — R.4624-24) ; sinon visite d’information et de prévention dans les 3 mois':'visite d’information et de prévention dans les 3 mois (R.4624-10)')+'.<br>'
+      +'5️⃣ <b>Registre unique du personnel</b> à jour dès l’arrivée (L.1221-13).<br>'
+      +'6️⃣ <b>Affiliations</b> : CARCEPT (retraite complémentaire), prévoyance KLESIA, <b>mutuelle</b> obligatoire (L.911-7 — dispense écrite possible).<br>'
+      +'7️⃣ <b>Formation sécurité</b> à l’embauche (L.4141-2)'+(cond?' + suivi des échéances permis/CQC/FCO : ajoutez le conducteur au <b>tableau de bord</b>':'')+'.<br>'
+      +(cdd?'8️⃣ À l’échéance : <b>délai de carence</b> avant un nouveau CDD sur le même poste (L.1244-3).':'8️⃣ Période d’essai : renouvellement à proposer <b>par écrit avant expiration</b> (accord exprès du salarié).')+'</div>';
+    if(cond)h+='<button class="btn-outline" style="margin-top:8px" onclick="goPage(\'tableau-bord\')">📊 Ajouter au tableau de bord conducteurs →</button>';
+    h+='<div class="al warn" style="font-size:11px;margin-top:14px">⚠ Trames à faire valider par un avocat avant signature — outil d’information (loi n° 71-1130 du 31/12/1971).</div>'
+      +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'salarie\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzGo(\'start\')">🔄 Nouvelle embauche</button></div>';
+    box(h);};
+
+  /* ── Apprentissage ── */
+  S['appr-1']=function(){box(head(2,4,'🎓 Apprentissage — éligibilité','Contrat en alternance avec un CFA (transport : AFTRAL, Promotrans…). Le contrat DOIT être établi sur le <b>formulaire CERFA FA13</b> et transmis à l’OPCO Mobilités.')
+    +fg('Âge du candidat à la date de début *',inp('wz-age','Ex : 19','number',A.age))
+    +fg('Diplôme ou titre préparé *',inp('wz-diplome','Ex : Titre pro Conducteur du transport routier de marchandises','text',A.diplome))
+    +fg('Année d’exécution du contrat','<select id="wz-annee"><option value="1">1re année</option><option value="2"'+(A.annee==='2'?' selected':'')+'>2e année</option><option value="3"'+(A.annee==='3'?' selected':'')+'>3e année</option></select>')
+    +btns('wzApprNext()','start'));};
+  window.wzApprNext=function(){A.age=parseInt(V('wz-age'),10);A.diplome=V('wz-diplome');A.annee=V('wz-annee')||'1';
+    if(!A.age||!A.diplome){alert('Âge et diplôme préparé sont obligatoires.');return;}
+    if(A.age<16){box(head(2,4,'⛔ Âge insuffisant','')+'<div class="wz-stop">L’apprentissage est ouvert à partir de <b>16 ans</b> (L.6222-1). Seule exception : <b>15 ans</b> si le jeune a achevé sa classe de 3e. En dessous : impossible.</div><div style="margin-top:14px"><button class="wz-back" onclick="wzGo(\'appr-1\')">← Retour</button></div>');return;}
+    if(A.age>29){box(head(2,4,'⚠️ Plus de 29 ans','')+'<div class="wz-stop">Au-delà de <b>29 ans révolus</b>, l’apprentissage n’est possible que par exception (L.6222-2) : travailleur <b>reconnu handicapé</b>, projet de <b>création/reprise d’entreprise</b> exigeant le diplôme, <b>sportif de haut niveau</b>, ou poursuite vers un diplôme supérieur après un premier contrat. Sinon : envisagez le <b>contrat de professionnalisation</b> (ouvert aux demandeurs d’emploi de 26 ans et plus).</div><div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'appr-1\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzType(\'pro\')">📘 Voir la professionnalisation →</button></div>');return;}
+    wzGo('appr-2');};
+  S['appr-2']=function(){box(head(3,4,'🎓 CFA et maître d’apprentissage','')
+    +fg('Nom du candidat *',inp('wz-nom','Ex : MARTIN Lucas','text',A.nom))
+    +fg('CFA','<select id="wz-cfa"><option>AFTRAL</option><option>Promotrans</option><option>Autre CFA</option></select>')
+    +fg('Date de début *',inp('wz-debut','','date',A.debut))
+    +fg('Durée du contrat (mois)',inp('wz-duree','Ex : 12 à 36 selon le diplôme','number',A.duree))
+    +fg('Maître d’apprentissage (nom) *',inp('wz-maitre','Ex : DUPONT Jean','text',A.maitre))
+    +fg('Le maître remplit-il les conditions ? *','<select id="wz-maitre-ok"><option value="">— choisir —</option><option value="oui">Oui : diplôme du domaine + 1 an d’exercice, OU 2 ans d’exercice du métier</option><option value="non">Non / je ne sais pas</option></select>')
+    +btns('wzAppr2Next()','appr-1'));};
+  window.wzAppr2Next=function(){A.nom=V('wz-nom');A.cfa=V('wz-cfa');A.debut=V('wz-debut');A.duree=V('wz-duree');A.maitre=V('wz-maitre');
+    if(!A.nom||!A.debut||!A.maitre){alert('Nom, date de début et maître d’apprentissage sont obligatoires.');return;}
+    if(V('wz-maitre-ok')!=='oui'){alert('⛔ Sans maître d’apprentissage qualifié (diplôme équivalent + 1 an d’exercice, ou 2 ans d’exercice), le contrat ne peut pas être enregistré. Désignez un salarié ou le dirigeant remplissant ces conditions.');return;}
+    wzGo('appr-result');};
+  S['appr-result']=function(){var g={'1':{a:'27 %',b:'43 %',c:'53 %',d:'100 %'},'2':{a:'39 %',b:'51 %',c:'61 %',d:'100 %'},'3':{a:'55 %',b:'67 %',c:'78 %',d:'100 %'}}[A.annee||'1'];
+    var pct=(A.age<18)?g.a:(A.age<21)?g.b:(A.age<26)?g.c:g.d;
+    box(head(4,4,'✅ Dossier apprentissage — '+esc(A.nom),'')
+    +'<div class="wz-ok"><b>Rémunération minimale ('+A.annee+'ʳᵉ année, '+A.age+' ans) : '+pct+' du SMIC</b>'+(A.age>=21?' (ou du minimum conventionnel s’il est supérieur)':'')+' — art. D.6222-26. Vérifiez le SMIC en vigueur à la date de début.<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
+    +'<li>⚠️ Le contrat DOIT être établi sur le <b>formulaire CERFA FA13</b> (n° 10103) — un contrat sur papier libre n’est pas enregistrable : <a href="https://www.service-public.fr/particuliers/vosdroits/R1319" target="_blank" style="color:#e8c97a">télécharger le CERFA officiel</a>.</li>'
+    +'<li>Transmission à l’<b>OPCO Mobilités</b> au plus tard <b>5 jours ouvrables</b> après le début (L.6224-1).</li>'
+    +'<li>Inscription au CFA ('+esc(A.cfa||'')+') AVANT ou dans les 3 mois du début.</li>'
+    +'<li><b>DPAE</b> et <b>visite d’information et de prévention</b> comme toute embauche ; mineur : VIP <b>avant l’affectation</b>.</li>'
+    +'<li>Aides à l’embauche d’apprentis et exonérations : vérifiez les montants en vigueur auprès de l’OPCO.</li>'
+    +'<li>Conduite : l’apprenti conducteur suit la formation du titre — vérifiez permis/âge minimum selon véhicule.</li></ul></div>'
+    +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'appr-2\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzGo(\'start\')">🔄 Nouvelle embauche</button></div>');};
+
+  /* ── Professionnalisation ── */
+  S['pro-1']=function(){box(head(2,3,'📘 Professionnalisation — éligibilité','')
+    +fg('Situation du candidat *','<select id="wz-pro-sit"><option value="">— choisir —</option><option value="jeune">16 à 25 ans (complément de formation initiale)</option><option value="de26">Demandeur d’emploi de 26 ans et plus</option><option value="min">Bénéficiaire RSA / ASS / AAH ou sortant de contrat aidé</option><option value="autre">Aucune de ces situations</option></select>')
+    +fg('Âge *',inp('wz-age','Ex : 24','number',A.age))
+    +fg('Niveau du candidat','<select id="wz-pro-niv"><option value="std">Inférieur au bac professionnel</option><option value="bac">Bac professionnel ou plus</option></select>')
+    +btns('wzProNext()','start'));};
+  window.wzProNext=function(){var sit=V('wz-pro-sit');A.age=parseInt(V('wz-age'),10)||0;A.proNiv=V('wz-pro-niv');
+    if(!sit){alert('Précisez la situation du candidat.');return;}
+    if(sit==='autre'){box(head(2,3,'⛔ Candidat non éligible','')+'<div class="wz-stop">Le contrat de professionnalisation est réservé (L.6325-1) aux <b>16-25 ans</b>, aux <b>demandeurs d’emploi de 26 ans et plus</b>, et aux bénéficiaires de <b>minima sociaux</b> (RSA, ASS, AAH) ou sortants de contrat aidé. Hors de ces cas : CDI/CDD classique ou apprentissage.</div><div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'pro-1\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzGo(\'start\')">Voir les autres contrats →</button></div>');return;}
+    A.proSit=sit;wzGo('pro-result');};
+  S['pro-result']=function(){var pct=(A.age<21)?(A.proNiv==='bac'?'65 %':'55 %'):(A.age<26)?(A.proNiv==='bac'?'80 %':'70 %'):'100 % du SMIC (et au moins 85 % du minimum conventionnel)';
+    box(head(3,3,'✅ Dossier professionnalisation','')
+    +'<div class="wz-ok"><b>Rémunération minimale : '+pct+(A.age<26?' du SMIC':'')+'</b> (D.6325-14 s.).<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
+    +'<li>Contrat sur <b>formulaire CERFA EJ20</b> (n° 12434) : <a href="https://www.service-public.fr/particuliers/vosdroits/R11592" target="_blank" style="color:#e8c97a">télécharger le CERFA officiel</a>.</li>'
+    +'<li>Envoi à l’<b>OPCO Mobilités</b> dans les <b>5 jours</b> du début (L.6325-5).</li>'
+    +'<li>Durée : CDD de <b>6 à 12 mois</b> (jusqu’à 36 mois pour certains publics) ou CDI débutant par l’action de professionnalisation.</li>'
+    +'<li>Formation : 15 à 25 % de la durée (minimum 150 h), par un organisme ou service de formation interne.</li>'
+    +'<li><b>DPAE</b>, <b>visite d’information et de prévention</b>, registre du personnel : comme toute embauche.</li>'
+    +'<li>Tuteur : salarié qualifié justifiant de <b>2 ans d’expérience</b> dans le métier visé.</li></ul></div>'
+    +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'pro-1\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzGo(\'start\')">🔄 Nouvelle embauche</button></div>');};
+
+  /* ── Intérim ── */
+  S.interim=function(){box(head(2,2,'⏳ Intérim — ce que vous devez savoir','')
+    +'<div class="al ok" style="font-size:12.5px;line-height:1.8">Avec l’intérim, <b>vous ne rédigez PAS de contrat de travail</b> : l’entreprise de travail temporaire (ETT) est l’employeur. Vous signez avec elle un <b>contrat de mise à disposition</b>, au plus tard <b>2 jours ouvrables</b> après la mise à disposition (L.1251-42).</div>'
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2;margin-top:12px">'
+    +'• Les <b>cas de recours sont les mêmes que le CDD</b> (L.1251-6) : remplacement, accroissement temporaire, saisonnier… — les mêmes interdictions aussi (gréviste, poste supprimé pour motif éco depuis moins de 6 mois).<br>'
+    +'• <b>Égalité de traitement</b> : l’intérimaire a droit à la même rémunération qu’un salarié embauché sur le poste (L.1251-18) — y compris frais et indemnités CCN transport.<br>'
+    +'• Vérifiez la <b>garantie financière</b> de l’ETT et son autorisation d’exercer.<br>'
+    +'• Vous restez responsable des <b>conditions de travail, de la sécurité</b> (équipements, formation renforcée pour les postes à risques — L.4154-2) et du respect des temps de conduite.<br>'
+    +'• Requalification possible <b>à votre encontre</b> si le recours est irrégulier (L.1251-40).</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzGo(\'start\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzType(\'cdd\')">Plutôt un CDD en direct →</button></div>');};
+
+  function init(){if(document.getElementById('wz-emb'))wzGo('start');}
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
