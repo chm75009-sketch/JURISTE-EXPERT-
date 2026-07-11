@@ -1249,6 +1249,11 @@ try{
 <div id="protection-warn" class="herr hidden">⚠ Salarié protégé — Autorisation préalable de l'inspection du travail OBLIGATOIRE (art. L.2411-1 C. trav.). Procédure spécifique activée.</div>
 </div>
 
+<div class="fg"><label class="fl">L'entreprise dispose-t-elle d'un CSE / de représentants du personnel ?</label>
+<select id="disc-cse-exist"><option value="oui">Oui</option><option value="non">Non — aucune institution représentative</option></select>
+<div class="loi" style="margin-top:4px">Sans représentant du personnel, la convocation doit mentionner le conseiller du salarié et les LIEUX de consultation de la liste (inspection du travail et mairie) — l'omission constitue une irrégularité indemnisable.</div>
+</div>
+
 <div class="fg"><label class="fl">Le salarié est-il en arrêt maladie ou AT ?</label>
 <div class="rr">
   <div class="ro" id="arret-non" onclick="setArret('non')">Non</div>
@@ -4399,9 +4404,11 @@ function genDocDisc(type){
   // (NON calculable depuis la date de connaissance des faits — dépend de la date d'envoi + délais postaux)
   const dateEntretienMin='[DATE — au moins 5 jours ouvrables après la première présentation de la LRAR au salarié]';
   const prot=gv('disc-protection');
-  const assistance=prot==='non'?
-    `Vous pourrez vous faire assister par une personne de votre choix appartenant au personnel de l'entreprise, ou par un conseiller du salarié extérieur inscrit sur la liste départementale arrêtée par le Préfet (art. L.1232-4 C. trav.).`:
-    `Vous pourrez vous faire assister par une personne de votre choix appartenant au personnel de l'entreprise (art. L.1232-4 C. trav.). En votre qualité de salarié protégé, la procédure spécifique applicable à votre statut sera respectée.`;
+  const cseExist=gv('disc-cse-exist');
+  let assistance=(cseExist==='non')
+    ? `Vous pourrez vous faire assister lors de cet entretien par une personne de votre choix appartenant au personnel de l'entreprise ou, l'entreprise étant dépourvue d'institutions représentatives du personnel, par un conseiller du salarié inscrit sur la liste dressée par le préfet du département. Cette liste peut être consultée à l'inspection du travail — [ADRESSE DE LA DDETS / UNITÉ DE CONTRÔLE] — ainsi qu'à la mairie de [COMMUNE — ADRESSE DE LA MAIRIE] (art. L.1232-4 et D.1232-5 C. trav.).`
+    : `Vous pourrez vous faire assister lors de cet entretien par une personne de votre choix appartenant au personnel de l'entreprise (art. L.1232-4 C. trav.).`;
+  if(prot && prot!=='non') assistance += ` En votre qualité de salarié protégé, la procédure spéciale applicable à votre statut sera respectée (autorisation de l'inspection du travail requise avant toute rupture — art. L.2411-1 C. trav.).`;
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
   let titre='',html='';
 
@@ -4431,9 +4438,10 @@ ${docObjetEncadre('Convocation à entretien préalable à une sanction disciplin
 <tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Lieu</strong></td><td style="border:1px solid #000;padding:8px">${E.adresse||'[ADRESSE]'}</td></tr>
 </table>
 <p style="${S}">${assistance}</p>
+<p style="${S}">[Le cas échéant : Vous faites l'objet d'une mise à pied à titre conservatoire, notifiée le ______, qui demeure applicable pendant la durée de la procédure.]</p>
 <p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
 ${docSignatureBloc()}
-${docPiedPage('Art. L.1232-2 et L.1232-4 C. trav. — Délai minimum 5 jours ouvrables après réception')}
+${docPiedPage('Art. L.1232-2, L.1232-4 et D.1232-5 C. trav. — Entretien : au moins 5 jours ouvrables PLEINS après la première présentation. Sanction : au plus tôt 2 jours ouvrables et au plus tard 1 mois après l’entretien (L.1332-2)')}
 </div>`;
   } else if(type==='map_conservatoire'){
     titre=`Mise à pied conservatoire`;
@@ -4479,10 +4487,12 @@ ${docObjetEncadre('Notification de licenciement pour faute grave')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
 <p style="${S}">Suite à l'entretien préalable du <strong>[DATE DE L'ENTRETIEN PRÉALABLE]</strong>, nous avons décidé de procéder à votre licenciement pour faute grave.</p>
 <p style="${S}"><strong>Motifs (faits constatés le ${dateFaits}) :</strong><br>${faits}</p>
-<p style="${S}">Ces faits constituent une faute grave rendant impossible votre maintien dans l'entreprise. Votre licenciement prend effet immédiatement à la date de première présentation de cette lettre, <strong>sans préavis ni indemnité de licenciement</strong>.</p>
+<p style="${S}">Ces faits constituent une faute grave rendant impossible votre maintien dans l'entreprise. Votre licenciement prend effet à la date d'envoi de la présente lettre, <strong>sans préavis ni indemnité de licenciement</strong>. [Le cas échéant : la période de mise à pied conservatoire du ______ au ______ ne vous sera pas rémunérée, la faute grave étant retenue.]</p>
 <p style="${S}">Votre indemnité compensatrice de congés payés vous sera versée. Vos documents de fin de contrat (certificat de travail, attestation Pôle emploi/France Travail, solde de tout compte) vous seront remis dans les délais légaux.</p>
+<p style="${S}">Vous disposez d'un délai de 15 jours à compter de la notification du licenciement pour demander, par lettre recommandée avec avis de réception ou remise contre récépissé, que les motifs en soient précisés ; nous disposons de la même faculté (art. L.1235-2 et R.1232-13 C. trav.).</p>
+<p style="${S}">Vous bénéficiez du maintien à titre gratuit des garanties de complémentaire santé et de prévoyance (portabilité — art. L.911-8 C. séc. soc.), sous réserve de votre prise en charge par l'assurance chômage.</p>
 ${docSignatureBloc()}
-${docPiedPage('⚠ La lettre fixe définitivement les termes du litige — Art. L.1232-6 C. trav.')}
+${docPiedPage('⚠ La lettre fixe les limites du litige (précision des motifs possible sous 15 jours — L.1235-2) — Notification : au plus tôt 2 jours ouvrables et au plus tard 1 mois après l’entretien (L.1332-2)')}
 </div>`;
   } else if(type==='lettre_lic'){
     titre=`Lettre de licenciement — Cause réelle et sérieuse`;
@@ -4502,8 +4512,10 @@ ${nom} — ${poste}<br>
 ${docObjetEncadre('Notification de licenciement pour cause réelle et sérieuse')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
 <p style="${S}">Suite à l'entretien préalable du <strong>[DATE DE L'ENTRETIEN PRÉALABLE]</strong>, nous avons décidé de vous licencier pour les motifs suivants (faits constatés le ${dateFaits}) :<br>${faits}</p>
-<p style="${S}">Votre préavis de <strong>[DURÉE — CCN Transport selon coefficient et ancienneté]</strong> débutera à la date de première présentation de cette lettre.</p>
-<p style="${S}">À l'issue du préavis, vos documents de fin de contrat (certificat de travail, attestation France Travail, solde de tout compte) vous seront remis. Votre indemnité légale de licenciement et votre indemnité compensatrice de congés payés vous seront versées.</p>
+<p style="${S}">Votre préavis de <strong>[DURÉE — CCN Transport selon coefficient et ancienneté]</strong> débutera à la date de première présentation de cette lettre. [Le cas échéant : nous vous dispensons de l'exécuter ; il vous sera intégralement rémunéré aux échéances habituelles.]</p>
+<p style="${S}">À l'issue du préavis, vos documents de fin de contrat (certificat de travail, attestation France Travail, solde de tout compte) vous seront remis. Votre indemnité de licenciement (légale ou conventionnelle si plus favorable) et votre indemnité compensatrice de congés payés vous seront versées.</p>
+<p style="${S}">Vous disposez d'un délai de 15 jours à compter de la notification pour demander que les motifs du licenciement soient précisés ; nous disposons de la même faculté (art. L.1235-2 et R.1232-13 C. trav.).</p>
+<p style="${S}">Vous bénéficiez de la portabilité des garanties santé et prévoyance (art. L.911-8 C. séc. soc.), sous réserve de votre prise en charge par l'assurance chômage.</p>
 ${docSignatureBloc()}
 ${docPiedPage('⚠ La lettre fixe définitivement les termes du litige — Art. L.1232-6 et L.1234-1 C. trav.')}
 </div>`;
@@ -4524,11 +4536,15 @@ ${nom} — ${poste}<br>
 <p style="${S}text-align:right">${_docVille()}, le ${today}</p>
 ${docObjetEncadre('Licenciement pour inaptitude et impossibilité de reclassement')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
-<p style="${S}">Par avis du <strong>[DATE D'AVIS DU MÉDECIN DU TRAVAIL]</strong>, le médecin du travail vous a déclaré inapte à votre poste de ${poste}.</p>
-<p style="${S}">Après recherche de reclassement et consultation du CSE (le cas échéant), nous n'avons pas pu identifier de poste compatible avec votre état de santé en raison de : <strong>[PRÉCISER LES RAISONS]</strong>.</p>
-<p style="${S}">Nous vous notifions par la présente votre licenciement pour inaptitude et impossibilité de reclassement.</p>
+<p style="${S}">Par avis du <strong>[DATE D'AVIS DU MÉDECIN DU TRAVAIL]</strong>, le médecin du travail vous a déclaré(e) inapte à votre poste de ${poste}. Origine de l'inaptitude : <strong>[professionnelle (AT/MP) / non professionnelle]</strong>.</p>
+<p style="${S}">[Cas n°1 — reclassement recherché :] Après recherche loyale et sérieuse de reclassement au sein de l'entreprise [et des entreprises du groupe dont l'organisation permet la permutation], et après consultation du comité social et économique le <strong>[DATE DE LA CONSULTATION]</strong>, aucun poste approprié à vos capacités et conforme aux préconisations du médecin du travail n'a pu être identifié, pour les raisons suivantes : <strong>[PRÉCISER PAR ÉCRIT LES RAISONS]</strong> (art. L.1226-2-1 / L.1226-12 C. trav.).</p>
+<p style="${S}">[Cas n°2 — dispense légale de reclassement :] L'avis du médecin du travail mentionne expressément que tout maintien dans un emploi serait gravement préjudiciable à votre santé / que votre état de santé fait obstacle à tout reclassement dans un emploi : l'employeur est en conséquence légalement dispensé de la recherche de reclassement (art. L.1226-2-1 / L.1226-12 C. trav.).</p>
+<p style="${S}">Nous vous notifions en conséquence votre licenciement pour inaptitude et impossibilité de reclassement [ou : inaptitude avec dispense légale de reclassement]. Le contrat prend fin à la date de notification de la présente lettre, sans exécution d'un préavis.</p>
+<p style="${S}"><strong>Indemnités :</strong> inaptitude d'origine <strong>non professionnelle</strong> — indemnité de licenciement (légale ou conventionnelle si plus favorable) ; le préavis non exécuté n'est pas rémunéré mais est pris en compte pour le calcul de l'indemnité (art. L.1226-4). Inaptitude d'origine <strong>professionnelle</strong> — indemnité spéciale égale au DOUBLE de l'indemnité légale (sauf dispositions conventionnelles plus favorables) et indemnité compensatrice d'un montant égal à l'indemnité de préavis (art. L.1226-14). Dans tous les cas : indemnité compensatrice de congés payés.</p>
+<p style="${S}">Vous bénéficiez de la portabilité des garanties santé et prévoyance (art. L.911-8 C. séc. soc.). Vos documents de fin de contrat vous seront remis.</p>
+<p style="${S}"><em>Transport routier :</em> en cas d'inaptitude définitive à la conduite, vérifier également le régime conventionnel spécifique (indemnisation IPRIAC et garanties de branche).</p>
 ${docSignatureBloc()}
-${docPiedPage('Art. L.1226-2 (inaptitude non pro) ou L.1226-10 (inaptitude pro avec indemnité doublée) C. trav.')}
+${docPiedPage('Art. L.1226-2 à L.1226-4 (non professionnelle) · L.1226-10 à L.1226-14 (professionnelle : indemnité doublée + indemnité compensatrice de préavis) — supprimer le cas inutilisé avant envoi')}
 </div>`;
   } else if(type==='reclassement'){
     titre=`Courrier de recherche de reclassement`;
@@ -4540,6 +4556,12 @@ ${docObjetEncadre(`Recherche de reclassement — ${nom}`)}
 <p style="${S}">Conformément à notre obligation légale (art. L.1226-2 ou L.1226-10 C. trav.), nous recherchons un poste de reclassement compatible avec ses capacités et tenant compte des recommandations médicales.</p>
 <p style="${S}"><strong>Postes recherchés / disponibles :</strong> [LISTER ou : aucun poste disponible compatible pour les raisons suivantes — préciser]</p>
 <p style="${S}"><em>Document interne destiné à constituer la preuve de la recherche loyale de reclassement.</em></p>
+<hr style="border:none;border-top:1px solid #000;margin:14px 0">
+<p style="${S}"><strong>Volet 2 — Offre écrite de reclassement adressée au salarié</strong></p>
+<p style="${S}">Monsieur / Madame ${nom}, à la suite de l'avis d'inaptitude du <strong>[DATE DE L'AVIS]</strong> et conformément aux préconisations du médecin du travail, nous vous proposons le poste de reclassement suivant :</p>
+<p style="${S}">• Poste : ______ — • Lieu de travail : ______ — • Durée du travail / horaires : ______ — • Rémunération : ______ — • Modifications éventuelles du contrat : ______</p>
+<p style="${S}">Nous vous remercions de nous faire connaître votre réponse dans un délai de ______ jours [délai raisonnable, par ex. 8 à 15 jours]. Nous restons à votre disposition pour tout échange sur cette proposition. En cas de refus et en l'absence d'autre poste compatible, un licenciement pour inaptitude et impossibilité de reclassement pourrait être engagé.</p>
+<p style="${S}"><em>L'offre doit être écrite, précise et conforme aux préconisations médicales (jurisprudence constante) — conserver la preuve de sa transmission.</em></p>
 ${docSignatureBloc()}
 ${docPiedPage('Art. L.1226-2 et L.1226-10 C. trav. — Obligation de recherche loyale')}
 </div>`;
@@ -7624,6 +7646,7 @@ ${docObjetEncadre('Mise en demeure de reprendre votre poste de travail')}
 </ul>
 <p style="${S}">dans un délai de <strong>15 jours calendaires</strong> à compter de la date de première présentation de la présente lettre.</p>
 <p style="${S}">À défaut de réponse dans ce délai, vous serez présumé(e) avoir démissionné de votre poste de travail, conformément aux dispositions de l'article L.1237-1-1 du Code du travail. <em>Cette présomption de démission prive le salarié du bénéfice de l'assurance chômage.</em></p>
+<p style="${S}">Si votre absence s'explique par un motif légitime — notamment raisons médicales, exercice du droit de retrait ou du droit de grève, refus d'exécuter une instruction contraire à la réglementation, ou refus d'une modification unilatérale d'un élément essentiel de votre contrat de travail —, nous vous invitons à nous l'indiquer dans votre réponse et dans le même délai : dans ce cas, la présomption de démission ne trouvera pas à s'appliquer (art. R.1237-13 C. trav.).</p>
 <p style="${S}">Nous vous rappelons que votre poste de travail est le suivant : <strong>[POSTE — LIEU D'AFFECTATION]</strong>.</p>
 <p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
 ${docSignatureBloc()}
@@ -8722,7 +8745,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
   var WL=['diag-secteur','diag-ccn','diag-effectif','diag-rep','diag-anc','diag-anc-unit','diag-type','diag-resume',
     'calc-type','calc-anc','calc-sal','calc-eff','calc-cpjours','calc-brut','calc-retmode','calc-secteur','calc-conv',
     'disc-secteur','disc-motif','disc-faits','disc-date-faits','disc-date-connaissance','disc-protection',
-    'disc-sal-nom','disc-ant-desc',
+    'disc-sal-nom','disc-ant-desc','disc-cse-exist',
     'pc-nom','pc-poste','pc-adr','pc-emb','pc-type','pc-coeff','pc-sal'];
   function keep(el){ if(!el||!el.id||BLOCK[el.id])return false; if(el.type==='file'||el.type==='password')return false; if(el.id.indexOf('dq-')===0)return true; return WL.indexOf(el.id)>=0; }
   function load(){ try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};} }
