@@ -372,9 +372,16 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.12';
+var JX_BUILD = 'v2026-07-11.13';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.13', d:'11 juillet 2026', t:[
+   'MISE À JOUR JURIDIQUE (audit externe) — Congés payés & maladie : intégration de la loi n° 2024-364 du 22 avril 2024 — l\'arrêt maladie ordinaire ouvre 2 j ouvrables de CP/mois (max 24 j/an), l\'AT/MP 2,5 j/mois, report 15 mois, information du salarié à la reprise. Affiché dans le module Absences (maladie, AT, MP) et rappelé dans le calculateur de congés payés.',
+   'Prescription disciplinaire : le contrôle des 2 mois explique désormais les exceptions (poursuites pénales, faits continus/répétés, point de départ à la connaissance exacte) et rappelle que l\'arrêt maladie ne suspend PAS le délai.',
+   'Documents disciplinaires : impossible de générer une lettre de sanction sans avoir décrit précisément les faits (verrou) ; les crochets « à préciser » sont remplacés par la référence datée propre.',
+   'Contrat CDD : nouveau champ « qualification du salarié remplacé » (mention obligatoire L.1242-12) — plus de crochet vide dans le contrat ; l\'assistant Embauche le remplit automatiquement.',
+   'Rémunération : plancher SMIC automatique sur tous les taux conventionnels (L.3231-2) + avertissement de vérification du SMIC en vigueur ; rupture conventionnelle : précision du régime si le salarié peut liquider sa retraite (indemnité intégralement soumise).'
+ ]},
  {v:'v2026-07-11.12', d:'11 juillet 2026', t:[
    'Calculateurs d\'indemnités : nouveau bloc « 🔍 Détail du calcul » sous chaque résultat — la formule complète avec vos chiffres, étape par étape (licenciement ¼/⅓ par tranches, congés payés 1/10e vs maintien avec valeur du jour, barème Macron plancher/plafond, préavis, précarité 10 %/6 %, rupture conventionnelle, retraite). Le client peut vérifier chaque euro.'
  ]},
@@ -912,6 +919,7 @@ try{
 </div>
 <div id="cdd-remplacement" class="hidden">
 <div class="fg"><label class="fl">Nom du salarié remplacé</label><input id="c-remplace-nom" placeholder="Ex : M. DURAND Paul"/></div>
+<div class="fg"><label class="fl">Qualification / poste du salarié remplacé (obligatoire au contrat — L.1242-12)</label><input id="c-remplace-qualif" placeholder="Ex : Conducteur PL — coeff. 138M"/></div>
 <div class="fg"><label class="fl">Motif de l'absence</label><input id="c-remplace-motif" placeholder="Ex : congé maladie"/></div>
 </div>
 <div class="fg"><label class="fl">Date de début</label><input type="date" id="c-cdd-debut"/></div>
@@ -3391,7 +3399,7 @@ function calcIndemXIV(){
         'Règle du maintien : salaire ÷ 26 (jours ouvrables du mois) = '+calcFmt(sal/26)+' €/jour → × '+(j||0)+' j = <b>'+calcFmt(maint)+' €</b>',
         '<b>Montant retenu (le plus favorable) = '+calcFmt(ret)+' €</b>'
       ])
-      +'<p class="loi" style="margin-top:8px">On retient le montant le plus favorable au salarié (C. trav. art. L3141-24). Estimation pour '+(j||0)+' jour(s) ouvrable(s) — la base 1/10e porte sur la rémunération brute totale de la période de référence ; le calcul exact dépend des éléments de salaire inclus. Due quelle que soit la cause de la rupture (sauf faute lourde, et encore : la jurisprudence l\'accorde). Vérifiez aussi les jours conventionnels/RTT non pris.</p></div>';
+      +'<p class="loi" style="margin-top:8px">On retient le montant le plus favorable au salarié (C. trav. art. L3141-24). Estimation pour '+(j||0)+' jour(s) ouvrable(s) — la base 1/10e porte sur la rémunération brute totale de la période de référence ; le calcul exact dépend des éléments de salaire inclus. Due quelle que soit la cause de la rupture (sauf faute lourde, et encore : la jurisprudence l\'accorde). Vérifiez aussi les jours conventionnels/RTT non pris. <b>⚠️ Depuis la loi n° 2024-364 du 22/04/2024, les arrêts maladie comptent pour l\'acquisition</b> : 2 j ouvrables/mois en maladie ordinaire (max 24 j/an), 2,5 j/mois en AT/MP — intégrez ces jours dans le total à indemniser au solde de tout compte.</p></div>';
 
   } else if(t==='preavis'){
     var dur, durTxt;
@@ -3653,6 +3661,11 @@ let cseEtab = 'non';
 // Grille embauche — accord du 11 octobre 2023 (effet 01/12/2023), NAO 2025 sans accord.
 // 110 et 150M CONFIRMÉS ; coefficients intermédiaires ESTIMÉS (interpolation) — à vérifier sur Légifrance.
 const MINIMA = {'110':12.09,'115':12.13,'117':12.15,'117M':12.16,'120':12.19,'128':12.26,'128M':12.28,'138':12.35,'138M':12.37,'150':12.43,'200':16.20};
+// Plancher absolu : aucun taux conventionnel ne peut être inférieur au SMIC horaire en vigueur (L.3231-2).
+// SMIC_H à ACTUALISER à chaque revalorisation (valeur de référence : 11,88 € brut au 01/11/2024) —
+// si le SMIC dépasse un taux conventionnel, c'est le SMIC qui s'applique automatiquement partout ci-dessous.
+var SMIC_H = 11.88;
+Object.keys(MINIMA).forEach(function(k){ if(MINIMA[k] < SMIC_H) MINIMA[k] = SMIC_H; });
 
 // GAR indicatifs (Garantie Annuelle de Rémunération)
 const GAR = {'110':21500,'117':22000,'128':23500,'138':25000,'150':28000,'200':35000};
@@ -3972,7 +3985,7 @@ function genContrat(){
 <p style="${S}">Le présent contrat est régi par la CCN Transports Routiers IDCC 0016, le Décret n°83-40 du 26 janvier 1983, l'accord de branche du 20 avril 2021, et les Règlements CE n°561/2006 et UE n°165/2014. Le salarié reconnaît avoir été informé de la convention collective et du règlement intérieur applicables (art. R.1221-34 C. trav.).</p>
 <p style="${S}"><strong style="${S}">${art("Période d'essai")}</strong></p>
 <p style="${S}">${pe==='0'?'Aucune période d\'essai.':'Période d\'essai de '+pe+' mois, conformément à l\'art. 5 de la CCN Transports Routiers IDCC 0016. Le renouvellement doit être proposé avant l\'expiration et accepté par écrit par les deux parties (Cass. soc. 21/09/2017). Délais de prévenance : < 8 jours : 24h | 8j-1 mois : 48h | 1-3 mois : 2 semaines | > 3 mois : 1 mois (art. L.1221-25 C. trav.).'} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>
-${contratType!=='cdi'?('<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat (CDD — mentions obligatoires)')+'</strong></p>'+'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+(({remplacement:'pour le remplacement d’un salarié absent','remplacement-tp':'pour le remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'dans l’attente de l’entrée en service effective du salarié recruté par contrat à durée indéterminée appelé à le remplacer (durée maximale : 9 mois — art. L.1242-8-1)','depart-definitif':'pour le remplacement d’un salarié ayant quitté définitivement l’entreprise, dans l’attente de la suppression de son poste de travail (durée maximale : 24 mois — art. L.1242-8-1)',accroissement:'pour accroissement temporaire de l’activité de l’entreprise',saisonnier:'pour un emploi à caractère saisonnier',usage:'pour un emploi à caractère temporaire pour lequel il est d’usage constant de ne pas recourir au CDI — activité de déménagement (art. D.1242-1)'})[gv('c-cdd-motif')]||'[MOTIF PRÉCIS À COMPLÉTER]')+(['remplacement','remplacement-tp','attente-cdi','depart-definitif'].indexOf(gv('c-cdd-motif'))>=0?(' — salarié remplacé : <strong style="'+S+'">'+(gv('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '+(gv('c-remplace-motif')||'[motif de l’absence]')+', qualification : [QUALIFICATION DU REMPLACÉ]'):'')+'.</p>'+'<p style="'+S+'">Il court du <strong style="'+S+'">'+(gv('c-cdd-debut')?fmt(new Date(gv('c-cdd-debut'))):debut)+'</strong> au <strong style="'+S+'">'+(gv('c-cdd-fin')?fmt(new Date(gv('c-cdd-fin'))):'[DATE DE FIN — à défaut de terme précis : durée minimale ______]')+'</strong>'+(gv('c-cdd-renouv')==='1'?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)':(gv('c-cdd-renouv')==='2'?', renouvelable deux fois (maximum légal) par avenant conclu avant le terme (art. L.1243-13)':''))+'. Période d’essai du CDD : 1 jour par semaine, dans la limite de 2 semaines (contrat ≤ 6 mois) ou d’un mois (au-delà) — art. L.1242-10.</p>'+'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à 10 % de la rémunération totale brute (art. L.1243-8)'+(contratType==='cddi'?' — sous réserve de l’exclusion applicable aux emplois à caractère saisonnier':'')+', ainsi que l’indemnité compensatrice de congés payés.</p>'+'<p style="'+S+'">Caisse de retraite complémentaire : CARCEPT (groupe KLESIA) — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter selon les organismes de l’entreprise] (mentions requises par l’art. L.1242-12).</p>'):''}
+${contratType!=='cdi'?('<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat (CDD — mentions obligatoires)')+'</strong></p>'+'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+(({remplacement:'pour le remplacement d’un salarié absent','remplacement-tp':'pour le remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'dans l’attente de l’entrée en service effective du salarié recruté par contrat à durée indéterminée appelé à le remplacer (durée maximale : 9 mois — art. L.1242-8-1)','depart-definitif':'pour le remplacement d’un salarié ayant quitté définitivement l’entreprise, dans l’attente de la suppression de son poste de travail (durée maximale : 24 mois — art. L.1242-8-1)',accroissement:'pour accroissement temporaire de l’activité de l’entreprise',saisonnier:'pour un emploi à caractère saisonnier',usage:'pour un emploi à caractère temporaire pour lequel il est d’usage constant de ne pas recourir au CDI — activité de déménagement (art. D.1242-1)'})[gv('c-cdd-motif')]||'[MOTIF PRÉCIS À COMPLÉTER]')+(['remplacement','remplacement-tp','attente-cdi','depart-definitif'].indexOf(gv('c-cdd-motif'))>=0?(' — salarié remplacé : <strong style="'+S+'">'+(gv('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '+(gv('c-remplace-motif')||'[motif de l’absence]')+', qualification : '+(gv('c-remplace-qualif')||'[QUALIFICATION DU REMPLACÉ]')):'')+'.</p>'+'<p style="'+S+'">Il court du <strong style="'+S+'">'+(gv('c-cdd-debut')?fmt(new Date(gv('c-cdd-debut'))):debut)+'</strong> au <strong style="'+S+'">'+(gv('c-cdd-fin')?fmt(new Date(gv('c-cdd-fin'))):'[DATE DE FIN — à défaut de terme précis : durée minimale ______]')+'</strong>'+(gv('c-cdd-renouv')==='1'?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)':(gv('c-cdd-renouv')==='2'?', renouvelable deux fois (maximum légal) par avenant conclu avant le terme (art. L.1243-13)':''))+'. Période d’essai du CDD : 1 jour par semaine, dans la limite de 2 semaines (contrat ≤ 6 mois) ou d’un mois (au-delà) — art. L.1242-10.</p>'+'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à 10 % de la rémunération totale brute (art. L.1243-8)'+(contratType==='cddi'?' — sous réserve de l’exclusion applicable aux emplois à caractère saisonnier':'')+', ainsi que l’indemnité compensatrice de congés payés.</p>'+'<p style="'+S+'">Caisse de retraite complémentaire : CARCEPT (groupe KLESIA) — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter selon les organismes de l’entreprise] (mentions requises par l’art. L.1242-12).</p>'):''}
 
 <p style="${S}"><strong style="${S}">${art("Qualifications professionnelles et aptitude médicale")}</strong></p>
 <p style="${S}">Le salarié déclare être titulaire des qualifications requises pour l'exercice de ses fonctions (permis, CQC, FIMO/FCO, visite médicale d'aptitude à la conduite), dont il remet les justificatifs à l'employeur. Il s'engage à les maintenir à jour et à informer immédiatement l'employeur de tout retrait, suspension ou restriction. Le défaut d'information constitue une faute grave (Cass. soc. 3 mai 2011 — n°09-67.464).</p>
@@ -4291,7 +4304,7 @@ ${repas>0?`Repas (${repas} × 16,36 €) : ${indemRepas} €<br>`:''}
 ${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indemNuits} €<br>`:''}
 </em>`:''}
 </div>
-<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — les NAO 2025 n'ont pas abouti) ; coefficients 110 et 150M confirmés, intermédiaires estimés. Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. SMIC pris en compte à titre indicatif.</div>
+<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — les NAO 2025 n'ont pas abouti) ; coefficients 110 et 150M confirmés, intermédiaires estimés. Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher (valeur de référence chargée : 11,88 €, à jour au 01/11/2024) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
 </div>`;
 }
 
@@ -4489,9 +4502,9 @@ function checkPrescription(){
   const limite=addMois(dc,2);
   const today=new Date();
   const jr=Math.round((limite-today)/(1000*60*60*24));
-  if(jr<0){res.className='herr';res.textContent=`🚫 PRESCRIPTION — Les faits sont prescrits depuis ${Math.abs(jr)} jours. Procédure impossible (art. L.1332-4 C. trav.).`;}
-  else if(jr<15){res.className='warn al';res.textContent=`⚠ Urgence — ${jr} jours restants avant prescription. Engagez la procédure immédiatement.`;}
-  else{res.className='ok al';res.textContent=`✓ ${jr} jours restants (limite : ${fmt(limite)}).`;}
+  if(jr<0){res.className='herr';res.innerHTML=`🚫 PRESCRIPTION — Les faits sont prescrits depuis ${Math.abs(jr)} jours (art. L.1332-4 C. trav.).<br><span style="font-weight:400;font-size:11.5px">⚠️ Exceptions à vérifier avant d'abandonner : (1) si les faits ont donné lieu à des <b>poursuites pénales</b> dans les 2 mois, le délai est interrompu ; (2) le délai court de la connaissance EXACTE et complète des faits par l'employeur ; (3) pour des <b>faits continus ou répétés</b> (retards, absences...), le délai court du dernier fait — les faits anciens de même nature peuvent être invoqués à l'appui. L'arrêt maladie du salarié, lui, ne suspend PAS le délai. Consultez un avocat.</span>`;}
+  else if(jr<15){res.className='warn al';res.innerHTML=`⚠ Urgence — ${jr} jours restants avant prescription. Engagez la procédure immédiatement (la convocation à entretien interrompt le délai).<br><span style="font-weight:400;font-size:11.5px">Rappel : l'arrêt maladie du salarié ne suspend pas ce délai.</span>`;}
+  else{res.className='ok al';res.innerHTML=`✓ ${jr} jours restants (limite : ${fmt(limite)}). La convocation à l'entretien préalable interrompt la prescription ; l'arrêt maladie du salarié ne la suspend pas.`;}
   res.classList.remove('hidden');
 }
 
@@ -4745,6 +4758,12 @@ function calcIndemnites(){
 function genDocDisc(type){
   const nom=gv('disc-sal-nom')||'[NOM SALARIÉ]';
   const poste=gv('disc-sal-poste')||'[POSTE]';
+  // Verrou : une lettre de sanction sans faits précisément décrits est juridiquement fragile — on bloque
+  const LETTRES_SANCTION=['lettre_avertissement','lettre_blame','lettre_map_disc','lettre_retrogradation','lettre_fg','lettre_fl','lettre_lic'];
+  if(LETTRES_SANCTION.indexOf(type)>=0 && (gv('disc-faits')||'').trim().length<15){
+    alert('⛔ Décrivez d\'abord PRÉCISÉMENT les faits reprochés (dates, lieux, circonstances) dans le champ « Description précise des faits ».\n\nUne lettre de sanction aux motifs vagues est juridiquement fragile : aux prud\'hommes, la lettre fixe les limites du litige — ce qui n\'y figure pas ne peut plus être invoqué.');
+    return;
+  }
   const faits=gv('disc-faits')||'[FAITS À DÉCRIRE PRÉCISÉMENT]';
   const today=new Date().toLocaleDateString('fr-FR');
   const dateFaitsRaw=gv('disc-date-faits');
@@ -4810,8 +4829,8 @@ ${docEnTete()}
 ${docObjetEncadre('Notification d\'un '+sanctionNom+' disciplinaire')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
 <p style="${S}">En votre qualité de ${poste}, nous avons eu à déplorer de votre part les faits suivants, dont nous avons eu connaissance le ${dateConn} :</p>
-<p style="${S}"><strong>${faits}</strong> [préciser dates, lieux, circonstances — faits du ${dateFaits}]</p>
-<p style="${S}">Ces faits constituent un manquement à vos obligations professionnelles [préciser : contrat de travail, règlement intérieur, consignes]. Nous ne pouvons les tolérer.</p>
+<p style="${S}"><strong>${faits}</strong> (faits du ${dateFaits}).</p>
+<p style="${S}">Ces faits constituent un manquement à vos obligations professionnelles [préciser si utile : contrat de travail, règlement intérieur, consignes]. Nous ne pouvons les tolérer.</p>
 <p style="${S}">En conséquence, nous vous notifions par la présente un <strong>${sanctionNom}</strong>, qui sera versé à votre dossier.</p>
 <p style="${S}">Nous vous demandons de veiller à l'avenir au strict respect de vos obligations. Nous attirons votre attention sur le fait que <strong>tout nouveau manquement</strong> de même nature nous conduirait à envisager une sanction plus sévère, pouvant aller jusqu'au licenciement.</p>
 <p style="${S}">[Si le salarié souhaite s'expliquer, nous restons à sa disposition.]</p>
@@ -4835,7 +4854,7 @@ ${docObjetEncadre('Notification d\'une mise à pied disciplinaire')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
 <p style="${S}">À la suite de l'entretien préalable qui s'est tenu le [DATE DE L'ENTRETIEN — ou auquel vous ne vous êtes pas présenté(e)], et après réflexion, nous vous notifions une <strong>mise à pied disciplinaire de [NOMBRE] jour(s) ouvré(s)</strong>, qui prendra effet du [DATE DE DÉBUT] au [DATE DE FIN] inclus.</p>
 <p style="${S}">Cette sanction est motivée par les faits suivants, dont nous avons eu connaissance le ${dateConn} :</p>
-<p style="${S}"><strong>${faits}</strong> [faits du ${dateFaits} — préciser dates, lieux, circonstances]</p>
+<p style="${S}"><strong>${faits}</strong> (faits du ${dateFaits}).</p>
 <p style="${S}">Ces faits, dont vous n'avez pas fourni d'explication satisfaisante lors de l'entretien, constituent un manquement à vos obligations que nous ne pouvons tolérer.</p>
 <p style="${S}">Pendant cette période, votre contrat de travail sera suspendu et <strong>votre rémunération ne vous sera pas versée</strong> à due proportion.</p>
 <p style="${S}">Nous vous informons que tout nouveau manquement pourra entraîner une sanction plus grave, pouvant aller jusqu'au licenciement.</p>
@@ -4885,7 +4904,7 @@ ${docEnTete()}
 ${docObjetEncadre('Notification de licenciement pour faute lourde')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
 <p style="${S}">À la suite de l'entretien préalable qui s'est tenu le [DATE DE L'ENTRETIEN — ou auquel vous ne vous êtes pas présenté(e)], nous vous notifions votre <strong>licenciement pour faute lourde</strong>, pour les motifs suivants :</p>
-<p style="${S}"><strong>${faits}</strong> [décrire précisément : dates, lieux, circonstances, éléments matériels — faits du ${dateFaits}, portés à notre connaissance le ${dateConn}]</p>
+<p style="${S}"><strong>${faits}</strong> (faits du ${dateFaits}, portés à notre connaissance le ${dateConn}).</p>
 <p style="${S}">Ces agissements caractérisent une <strong>intention de nuire à l'entreprise</strong> [préciser en quoi : volonté délibérée de porter préjudice, détournement, sabotage, concurrence déloyale pendant le contrat…], rendant impossible votre maintien même temporaire dans l'entreprise.</p>
 <p style="${S}">Votre licenciement prend effet <strong>immédiatement</strong>, sans préavis ni indemnité de licenciement. La période de mise à pied conservatoire du [DATE] au jour de la présente ne vous sera pas rémunérée.</p>
 <p style="${S}">Vous percevrez l'indemnité compensatrice de congés payés acquis. Nous tenons à votre disposition votre certificat de travail, votre reçu pour solde de tout compte et votre attestation France Travail.</p>
@@ -7949,6 +7968,7 @@ ${m.p100>0
 <strong style="color:#e8c97a">Délai de carence maintien :</strong> selon barème conventionnel · <strong style="color:#e8c97a">carence IJSS :</strong> 3 jours<br>`
 : `<strong style="color:#e05c5c">Ancienneté inférieure à 1 an : AUCUN maintien de salaire obligatoire.</strong><br>
 La loi (art. L.1226-1 C. trav. — mensualisation) comme la CCN Transport exigent <b>1 an d'ancienneté</b> pour le complément employeur. Le salarié ne perçoit que les <b>IJSS de la Sécurité sociale</b> (50 % du salaire journalier de base, carence 3 jours). Vérifiez toutefois accord d'entreprise ou usage plus favorable.<br>`}
+<strong style="color:#e8c97a">Congés payés :</strong> depuis la loi n° 2024-364 du 22 avril 2024, l'arrêt maladie ordinaire OUVRE des droits à congés : <b>2 jours ouvrables par mois d'absence</b> (au plus 24 j ouvrables par an) ; report possible sur <b>15 mois</b> ; à la reprise, vous devez <b>informer le salarié dans le mois</b> de ses droits acquis et de la date limite de prise (L.3141-19-3).<br>
 ${isCond&&duree>60?'<strong style="color:#e05c5c">⚠ Durée > 60 jours — Visite médicale de reprise obligatoire auprès du médecin du travail (art. R.4624-31 C. trav.)</strong>':''}<br>
 ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite nécessite un avis médical d\'aptitude spécifique si l\'arrêt est lié à des problèmes de santé pouvant affecter la conduite.</strong>':''}
 </div></div>
@@ -7960,6 +7980,7 @@ ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite n
 <div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
 <strong style="color:#e8c97a">Maintien de salaire :</strong> 100% dès le 1er jour (pas de délai de carence AT)<br>
 <strong style="color:#e8c97a">Protection :</strong> Interdiction de licencier pendant l'arrêt AT sauf faute grave ou impossibilité de maintenir le contrat pour motif étranger à l'AT<br>
+<strong style="color:#e8c97a">Congés payés :</strong> l'arrêt AT/MP ouvre des droits à congés au rythme normal de <b>2,5 jours ouvrables par mois</b>, sans plus de limite de durée (loi n° 2024-364 du 22/04/2024) ; report 15 mois + information du salarié à la reprise<br>
 ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Visite médicale de reprise OBLIGATOIRE, au plus tard dans les 8 jours de la reprise (art. R.4624-31 C. trav.)</strong>':''}
 </div></div>
 <button class="btn-outline" style="margin-top:8px" onclick="genDocAbsence('reprise_at')">📄 Convocation visite de reprise AT →</button>`;
@@ -7996,6 +8017,7 @@ ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Vi
 • Maintien de salaire à 100% dès le 1er jour (pas de carence)<br>
 • Suspension du contrat ; licenciement interdit pendant l'arrêt sauf faute grave ou impossibilité de maintenir le contrat pour un motif étranger à la maladie<br>
 • Indemnité spéciale doublée en cas d'inaptitude d'origine professionnelle (art. L.1226-14)<br>
+• <strong style="color:#e8c97a">Congés payés :</strong> acquisition au rythme normal de 2,5 j ouvrables/mois pendant tout l'arrêt (loi n° 2024-364 du 22/04/2024), report 15 mois + information à la reprise<br>
 <strong style="color:#e05c5c">⚠ Visite médicale de reprise OBLIGATOIRE quelle que soit la durée de l'arrêt (art. R.4624-31)</strong>
 </div></div>`;
   } else if(type==='maternite'){
@@ -9488,7 +9510,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     Object.keys(map).forEach(function(k){var e=document.getElementById(k);if(e)e.value=map[k]||'';});
     try{calcPE();}catch(e){}try{checkSalaire();}catch(e){}
     if(A.type==='cdd'){var mm=document.getElementById('c-cdd-motif');if(mm){mm.value=A.motif;try{updateMotifCDD();}catch(e){}}
-      var m2={'c-remplace-nom':A.remplNom?(A.remplNom+(A.remplPoste?(' ('+A.remplPoste+')'):'')):'','c-remplace-motif':A.remplAbs||A.accrDetail||A.saisDetail||A.usageDetail||'','c-cdd-debut':A.debut,'c-cdd-fin':A.fin||''};
+      var m2={'c-remplace-nom':A.remplNom||'','c-remplace-qualif':A.remplPoste||'','c-remplace-motif':A.remplAbs||A.accrDetail||A.saisDetail||A.usageDetail||'','c-cdd-debut':A.debut,'c-cdd-fin':A.fin||''};
       Object.keys(m2).forEach(function(k){var e=document.getElementById(k);if(e)e.value=m2[k]||'';});
       var rv=document.getElementById('c-cdd-renouv');if(rv)rv.value=A.renouv||'non';}
   }catch(e){}}
@@ -9730,7 +9752,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +'5️⃣ Instruction DREETS : <b>15 jours ouvrables</b> → fin estimée le <b>'+fdate(finInstr)+'</b> (silence = homologation acquise — L.1237-14).<br>'
       +'6️⃣ <b>Rupture du contrat au plus tôt : '+fdate(rupture)+'</b> — remise du certificat de travail, du solde de tout compte et de l’attestation France Travail.')
     +'</div>'+partWarn
-    +'<div class="al ok" style="font-size:12px;margin-top:12px">💡 Régime social/fiscal : indemnité exonérée dans les limites légales ; <b>contribution patronale de 30 %</b> sur la part exonérée (CSS L.137-12). Le salarié a droit au chômage.</div>'
+    +'<div class="al ok" style="font-size:12px;margin-top:12px">💡 Régime social/fiscal : indemnité exonérée dans les limites légales ; <b>contribution patronale de 30 %</b> sur la part exonérée de cotisations (CSS L.137-12, régime unifié depuis le 01/09/2023). ⚠️ Si le salarié est <b>en droit de liquider une pension de retraite</b>, l\'indemnité est intégralement soumise à cotisations et à l\'impôt — faites chiffrer ce cas par votre expert-comptable. Le salarié a droit au chômage.</div>'
     +'<div class="ct" style="margin-top:16px">📄 Vos documents</div><div style="display:grid;gap:8px">'
     +'<button class="btn" style="margin:0" onclick="wzrRcDoc(\'invitation\')">✉️ Invitation à l’entretien (trame) →</button>'
     +'<button class="btn-outline" style="margin:0" onclick="wzrRcDoc(\'convention\')">📄 Trame de convention de rupture →</button>'
