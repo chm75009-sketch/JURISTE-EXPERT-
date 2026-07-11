@@ -3704,7 +3704,7 @@ function genDPAE(){
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
   const html=`<div style="${S}">
 <h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline">DÉCLARATION PRÉALABLE À L'EMBAUCHE (DPAE)</h2>
-<p style="${S}text-align:center;font-size:10pt;font-style:italic">À transmettre à l'URSSAF au plus tôt 8 jours avant l'embauche, au plus tard le jour de la prise de fonctions (art. L.1221-10 C. trav.)</p>
+<p style="${S}text-align:center;font-size:10pt;font-style:italic">À transmettre à l'URSSAF au plus tôt 8 jours avant l'embauche et au plus tard IMMÉDIATEMENT AVANT la mise au travail effective du salarié (art. L.1221-10 et R.1221-4 C. trav.) — déclaration en ligne : urssaf.fr / net-entreprises.fr</p>
 <hr style="border:none;border-top:1px solid #000;margin:12px 0">
 <p style="${S}"><strong>Employeur :</strong><br>
 Raison sociale : ${E.nom}<br>SIRET : ${E.siret}<br>Adresse : ${E.adresse}</p>
@@ -7506,7 +7506,7 @@ ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite n
 <div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
 <strong style="color:#e8c97a">Maintien de salaire :</strong> 100% dès le 1er jour (pas de délai de carence AT)<br>
 <strong style="color:#e8c97a">Protection :</strong> Interdiction de licencier pendant l'arrêt AT sauf faute grave ou impossibilité de maintenir le contrat pour motif étranger à l'AT<br>
-${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée > 30 jours — Visite médicale de reprise OBLIGATOIRE (art. R.4624-29 C. trav.)</strong>':''}
+${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Visite médicale de reprise OBLIGATOIRE, au plus tard dans les 8 jours de la reprise (art. R.4624-31 C. trav.)</strong>':''}
 </div></div>
 <button class="btn-outline" style="margin-top:8px" onclick="genDocAbsence('reprise_at')">📄 Convocation visite de reprise AT →</button>`;
   } else if(type==='famille'){
@@ -7542,7 +7542,7 @@ ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée > 30 jours — Visi
 • Maintien de salaire à 100% dès le 1er jour (pas de carence)<br>
 • Suspension du contrat ; licenciement interdit pendant l'arrêt sauf faute grave ou impossibilité de maintenir le contrat pour un motif étranger à la maladie<br>
 • Indemnité spéciale doublée en cas d'inaptitude d'origine professionnelle (art. L.1226-14)<br>
-${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée > 30 jours — visite médicale de reprise OBLIGATOIRE (art. R.4624-29)</strong>':''}
+<strong style="color:#e05c5c">⚠ Visite médicale de reprise OBLIGATOIRE quelle que soit la durée de l'arrêt (art. R.4624-31)</strong>
 </div></div>`;
   } else if(type==='maternite'){
     html=`<div class="item">
@@ -7615,9 +7615,9 @@ ${docObjetEncadre('Convocation à la visite médicale de reprise')}
 <tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Heure</strong></td><td style="border:1px solid #000;padding:8px">[HEURE]</td></tr>
 <tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Lieu</strong></td><td style="border:1px solid #000;padding:8px">${E.spst||'[COORDONNÉES SPST]'}</td></tr>
 </table>
-<p style="${S}">Cette visite est <strong>obligatoire</strong> avant toute reprise du travail (art. R.4624-29 et R.4624-31 C. trav.). ${absCond==='oui'?'En tant que conducteur professionnel, une attention particulière sera portée à votre aptitude à la conduite.':''}</p>
+<p style="${S}">Cette visite de reprise, organisée à l'initiative de l'employeur auprès du SPST, est <strong>obligatoire</strong> : elle a lieu le jour de la reprise ou au plus tard dans les <strong>8 jours qui suivent</strong> (art. R.4624-31 C. trav.), sur le temps de travail. Elle s'impose après un congé maternité, une absence pour maladie professionnelle (quelle qu'en soit la durée), une absence d'au moins 30 jours pour accident du travail, ou d'au moins 60 jours pour maladie ou accident non professionnel. ${absCond==='oui'?'En tant que conducteur professionnel, une attention particulière sera portée à votre aptitude à la conduite.':''}</p>
 ${docSignatureBloc()}
-${docPiedPage('Art. R.4624-29 et R.4624-31 C. trav.')}
+${docPiedPage('Art. R.4624-31 C. trav. — visite de reprise. La visite de PRÉ-reprise (R.4624-29) peut être sollicitée pendant un arrêt de plus de 30 jours par le salarié, son médecin ou le médecin conseil')}
 </div>`;
   } else if(type==='mise_demeure_abs'){
     const nomSal=gv('disc-sal-nom')||gv('c-nom')||'[NOM SALARIÉ]';
