@@ -372,9 +372,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.17';
+var JX_BUILD = 'v2026-07-11.18';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.18', d:'11 juillet 2026', t:[
+   'GAR : première valeur CERTIFIÉE intégrée — coefficient 150M (base 200 h) : 33 108 € brut/an à l\'embauche, jusqu\'à 35 757 € après 15 ans (accord du 11/10/2023, étendu par arrêté du 19/12/2023). Le vérificateur GAR distingue désormais valeur certifiée / valeurs indicatives et rappelle que la GAR dépend de la base d\'heures contractuelle.',
+   'Le document CCN transmis (aperçu LegiSocial 2012, texte volontairement brouillé) confirme la règle du plancher : « c\'est le taux horaire du Smic qui s\'applique en lieu et place du taux conventionnel » — mécanisme déjà appliqué par l\'application.'
+ ]},
  {v:'v2026-07-11.17', d:'11 juillet 2026', t:[
    'Article 10 ter intégré INTÉGRALEMENT (texte conventionnel fourni et recoupé) : barème ACCIDENT DU TRAVAIL sans franchise — 1 à 3 ans : 100 % du 1er au 30e jour + 75 % du 31e au 90e (si hospitalisation ≥ 3 jours ou arrêt ≥ 28 jours, hors trajet et rechute d\'un AT chez un autre employeur) ; 3 ans : idem sans condition ; 5 ans : 60/150 jours ; 10 ans : 90/210 jours.',
    'Règles communes ajoutées (maladie et AT) : plafonnement sur 12 mois glissants des périodes successives, nouvelle indemnisation après reprise effective, déduction des IJSS déclarées, plafond au net qu\'aurait perçu le salarié.'
@@ -3695,7 +3699,11 @@ var SMIC_H = 12.31;
 Object.keys(MINIMA).forEach(function(k){ if(MINIMA[k] < SMIC_H) MINIMA[k] = SMIC_H; });
 
 // GAR indicatifs (Garantie Annuelle de Rémunération)
-const GAR = {'110':21500,'117':22000,'128':23500,'138':25000,'150':28000,'200':35000};
+const GAR = {'110':21500,'117':22000,'128':23500,'138':25000,'150':33108,'200':35000};
+// SEULE VALEUR CERTIFIÉE : coefficient 150M sur base 200 h/mois = 33 108 € brut/an à l'embauche
+// (jusqu'à 35 757 € après 15 ans) — accord du 11/10/2023 étendu par arrêté du 19/12/2023.
+// Les autres montants sont des ESTIMATIONS et la GAR dépend de la BASE D'HEURES contractuelle
+// (151,67 / 169 / 186,33 / 200 h) : vérifier la grille de l'accord sur Légifrance avant usage.
 
 // ═══════════════════════════════════════
 // INIT ET NAVIGATION
@@ -4342,7 +4350,7 @@ function calcGAR(){
   const res=document.getElementById('gar-result');
   if(!res||!annuel)return;
   if(annuel>=garMin){
-    res.innerHTML=`<div class="ok al">✓ GAR respectée — Rémunération annuelle ${annuel.toLocaleString('fr-FR')} € ≥ GAR ${garMin.toLocaleString('fr-FR')} € (coeff. ${coeff})</div>`;
+    res.innerHTML=`<div class="ok al">✓ GAR respectée — Rémunération annuelle ${annuel.toLocaleString('fr-FR')} € ≥ GAR ${garMin.toLocaleString('fr-FR')} € (coeff. ${coeff})</div><div class="loi" style="margin-top:6px">${coeff==='150'?'✔️ Valeur CERTIFIÉE (base 200 h) : accord du 11/10/2023 étendu par arrêté du 19/12/2023 — 33 108 € à l\'embauche, jusqu\'à 35 757 € après 15 ans.':'⚠ Valeur indicative NON CONFIRMÉE pour ce coefficient — la GAR dépend aussi de la base d\'heures contractuelle (151,67 à 200 h). Vérifiez la grille de l\'accord du 11/10/2023 sur Légifrance.'}</div>`;
   } else {
     const complement=garMin-annuel;
     res.innerHTML=`<div class="err al">⚠ GAR non respectée — Complément à verser en fin d'année : <strong>${complement.toLocaleString('fr-FR')} €</strong><br>Rémunération : ${annuel.toLocaleString('fr-FR')} € | GAR minimale : ${garMin.toLocaleString('fr-FR')} €</div><div class="loi" style="margin-top:6px">⚠ Valeurs GAR indicatives <b>NON CONFIRMÉES</b> (les avenants GAR récents ne sont pas librement accessibles) — à vérifier impérativement avant usage sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a> ou auprès de votre organisation patronale.</div>`;
