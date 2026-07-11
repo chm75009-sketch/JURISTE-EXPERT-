@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.7';
+var JX_BUILD = 'v2026-07-11.8';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.8', d:'11 juillet 2026', t:[
+   'NOUVEAU — Assistant guidé « 🚪 Je veux rompre un contrat » : 8 voies de rupture couvertes. Rupture conventionnelle avec CALENDRIER DATÉ (signature → rétractation 15 j → TéléRC → homologation DREETS → date de rupture) et indemnité minimale CALCULÉE à partir de l\'ancienneté exacte ; CDD avant terme (5 cas légaux, sinon blocage : salaires dus jusqu\'au terme — L.1243-4) ; licenciement économique (PSE obligatoire détecté, CSP, critères d\'ordre) ; insuffisance professionnelle ; démission (préavis, abandon de poste) ; retraite (67/70 ans).',
+   'L\'accueil devient un tableau d\'actions « Que voulez-vous faire ? » : 10 tuiles-intentions (j\'embauche, je sanctionne, je romps, absent/malade, je calcule, je vérifie un salaire, élections CSE, je vérifie un document, j\'ai une question, j\'ai un litige).',
+   'Trames générées : invitation à entretien de rupture conventionnelle, convention de rupture pré-remplie (indemnité minimale intégrée).'
+ ]},
  {v:'v2026-07-11.7', d:'11 juillet 2026', t:[
    'Assistant Embauche : estimation du COÛT EMPLOYEUR du salarié, par mois et par an — brut + cotisations patronales (4 niveaux selon la réduction générale), mutuelle, médecine du travail, frais de route si conducteur (barème avenant n° 81), provision fin de contrat + congés payés si CDD.'
  ]},
@@ -592,12 +597,57 @@ try{
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
 
-  <div class="home-sec">👋 Actions guidées — nous vous guidons directement</div>
+  <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
   <div class="wz-tiles" style="margin-top:0">
-    <div class="wz-tile" style="--g1:#1e6e46;--g2:#124a2f;grid-column:1/-1" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start')">
+    <div class="wz-tile" style="--g1:#1e6e46;--g2:#124a2f" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start')">
       <div class="wz-em">🧑‍💼</div>
       <div class="wz-tt">J'embauche un salarié</div>
-      <div class="wz-td">CDI, CDD, apprentissage, intérim… Répondez aux questions : on vérifie la légalité, on vous arrête si c'est risqué, et on prépare TOUT (contrat, DPAE, visite médicale, documents à exiger).</div>
+      <div class="wz-td">CDI, CDD, apprentissage… Légalité vérifiée, contrat + DPAE + coût réel, tout est préparé.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#8a1e1e;--g2:#5e1212" onclick="goPage('disciplinaire')">
+      <div class="wz-em">⚖️</div>
+      <div class="wz-tt">Je sanctionne un salarié</div>
+      <div class="wz-td">Faute, prescription, procédure pas-à-pas, lettres prêtes, indemnités calculées.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#9a6a1e;--g2:#6e4a12" onclick="goPage('rupture');if(typeof wzrGo==='function')wzrGo('start')">
+      <div class="wz-em">🚪</div>
+      <div class="wz-tt">Je veux rompre un contrat</div>
+      <div class="wz-td">Rupture conventionnelle (calendrier daté + indemnité), CDD avant terme, économique, retraite, démission.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#1e5a8a;--g2:#123c5e" onclick="goPage('absences')">
+      <div class="wz-em">🤒</div>
+      <div class="wz-tt">Un salarié est absent / malade</div>
+      <div class="wz-td">Maladie, AT/MP, absence injustifiée, abandon de poste — vos obligations et les courriers.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#5a3e8a;--g2:#3c2a5e" onclick="goPage('calc')">
+      <div class="wz-em">🧮</div>
+      <div class="wz-tt">Je calcule une indemnité</div>
+      <div class="wz-td">Licenciement, barème Macron, congés payés, préavis, précarité, rupture conventionnelle, retraite.</div>
+    </div>
+    <div class="wz-tile sec-transport" style="--g1:#1e6e5a;--g2:#124a3c" onclick="goPage('remuneration')">
+      <div class="wz-em">💶</div>
+      <div class="wz-tt">Je vérifie un salaire</div>
+      <div class="wz-td">Minima conventionnels, prime d'ancienneté, frais de route — la paie est-elle conforme ?</div>
+    </div>
+    <div class="wz-tile" style="--g1:#355d8a;--g2:#233d5c" onclick="goPage('cse')">
+      <div class="wz-em">🗳️</div>
+      <div class="wz-tt">J'organise les élections CSE</div>
+      <div class="wz-td">Effectif, sièges, électeurs/éligibles, quorum, calendrier, PV — tout est calculé.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#7a6a2e;--g2:#524618" onclick="goPage('diag')">
+      <div class="wz-em">🔍</div>
+      <div class="wz-tt">Je vérifie un document</div>
+      <div class="wz-td">Lettre, convocation, CDD, accord, requête prud'homale… diagnostic guidé de conformité.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#555f6e;--g2:#3a4250" onclick="goPage('faq')">
+      <div class="wz-em">💬</div>
+      <div class="wz-tt">J'ai une question précise</div>
+      <div class="wz-td">1 300+ questions-réponses fondées sur la loi, la convention et la jurisprudence.</div>
+    </div>
+    <div class="wz-tile" style="--g1:#4a3e6e;--g2:#2f2848" onclick="goPage('juris')">
+      <div class="wz-em">📚</div>
+      <div class="wz-tt">J'ai un litige</div>
+      <div class="wz-td">Trouvez les arrêts qui s'appliquent à votre situation — recherche par thème et mot-clé.</div>
     </div>
   </div>
 
@@ -1922,6 +1972,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('nouveautes');closeMenu()"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Nouveautés & mises à jour</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Actions guidées</div>
   <div class="mi" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start');closeMenu()"><span style="font-size:18px">🧑‍💼</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">J'embauche un salarié (assistant)</div></div></div>
+  <div class="mi" onclick="goPage('rupture');if(typeof wzrGo==='function')wzrGo('start');closeMenu()"><span style="font-size:18px">🚪</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Je veux rompre un contrat (assistant)</div></div></div>
 </div>
 <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:#6b6660;line-height:1.5">Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</div>
 </div>
@@ -2039,6 +2090,14 @@ Exemple :<br>
 <div style="flex:1"><div class="tt">J'embauche un salarié</div><div class="ts">Assistant guidé · légalité vérifiée · documents prêts</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card"><div id="wz-emb"></div></div>
+</div>
+
+<!-- ═══ ASSISTANT GUIDÉ — JE VEUX ROMPRE UN CONTRAT ═══ -->
+<div id="pg-rupture" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Je veux rompre un contrat</div><div class="ts">Assistant guidé · légalité vérifiée · calendrier daté</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card"><div id="wz-rup"></div></div>
 </div>
 
 <!-- ═══ PARCOURS DE LA RELATION DE TRAVAIL (TRANSPORT) ═══ -->
@@ -9388,6 +9447,200 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzGo(\'start\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzType(\'cdd\')">Plutôt un CDD en direct →</button></div>');};
 
   function init(){if(document.getElementById('wz-emb'))wzGo('start');}
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+
+<script>
+/* ===== Assistant guidé « Je veux rompre un contrat » ===== */
+(function(){
+  var A={};
+  function V(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
+  function box(h){var b=document.getElementById('wz-rup');if(b){b.innerHTML=h;}try{window.scrollTo(0,0);}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function prog(n,t){var h='<div class="wz-prog">';for(var i=1;i<=t;i++)h+='<div class="b'+(i<=n?' on':'')+'"></div>';return h+'</div>';}
+  function head(n,t,titre,sous){return prog(n,t)+'<div class="ct" style="margin-bottom:2px">'+titre+'</div>'+(sous?'<div style="font-size:12px;color:#9a9585;margin-bottom:10px;line-height:1.6">'+sous+'</div>':'');}
+  function tiles(list){return '<div class="wz-tiles">'+list.map(function(x){
+    return '<div class="wz-tile" style="--g1:'+x.c[0]+';--g2:'+x.c[1]+'" onclick="'+x.on+'"><div class="wz-em">'+x.e+'</div><div class="wz-tt">'+x.t+'</div><div class="wz-td">'+x.d+'</div></div>';}).join('')+'</div>';}
+  function btns(nextFn,backScreen,label){return '<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzrGo(\''+backScreen+'\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="'+nextFn+'">'+(label||'Continuer →')+'</button></div>';}
+  function fg(label,inner){return '<div class="fg"><label class="fl">'+label+'</label>'+inner+'</div>';}
+  function inp(id,ph,type,val){return '<input id="'+id+'" type="'+(type||'text')+'" placeholder="'+(ph||'')+'" value="'+esc(val||'')+'">';}
+  function salList(){try{var a=JSON.parse(localStorage.getItem('jx_salaries_v1')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function fdate(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+  function addD(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x;}
+  function addOuvrables(d,n){var x=new Date(d),c=0;while(c<n){x.setDate(x.getDate()+1);if(x.getDay()!==0)c++;}return x;}
+  // Ancienneté : années + mois complets (R.1234-1)
+  function anc(emb,ref){if(!emb)return null;var a=new Date(emb),b=ref?new Date(ref):new Date();if(isNaN(a))return null;
+    var y=b.getFullYear()-a.getFullYear(),m=b.getMonth()-a.getMonth();if(b.getDate()<a.getDate())m--;if(m<0){y--;m+=12;}if(y<0)return null;
+    return {y:y,m:m,dec:Math.round((y+m/12)*100)/100};}
+  // Indemnité légale de licenciement = plancher de l'indemnité de rupture conventionnelle (L.1237-13)
+  function indemLegale(dec,sal){var p1=Math.min(dec,10)*0.25,p2=Math.max(0,dec-10)/3;return Math.round((p1+p2)*sal*100)/100;}
+
+  var S={};
+  window.wzrGo=function(n){A._s=n;(S[n]||S.start)();};
+
+  /* ── Choix de la voie de rupture ── */
+  S.start=function(){A={};box(
+    head(1,4,'🚪 Quelle rupture envisagez-vous ?','Chaque voie a ses conditions, sa procédure et ses risques. Choisissez la situation — on vérifie la légalité et on vous donne le calendrier exact.')
+    +tiles([
+      {e:'🤝',t:'Rupture conventionnelle',d:'Séparation d’un commun accord (CDI uniquement) — calendrier TéléRC daté + indemnité minimale calculée.',c:['#1e6e46','#124a2f'],on:"wzrGo('rc-1')"},
+      {e:'⚖️',t:'Licenciement disciplinaire (faute)',d:'Faute simple, grave ou lourde — questionnaire complet : prescription, procédure, lettres, indemnités.',c:['#8a1e1e','#5e1212'],on:"wzrModule('disciplinaire')"},
+      {e:'📉',t:'Insuffisance professionnelle',d:'Motif personnel NON disciplinaire — mêmes délais de procédure, preuves objectives exigées.',c:['#9a6a1e','#6e4a12'],on:"wzrGo('insuff')"},
+      {e:'🏥',t:'Inaptitude médicale',d:'Avis du médecin du travail, obligation de reclassement, consultation du CSE.',c:['#1e5a8a','#123c5e'],on:"wzrModule('disciplinaire','inapt')"},
+      {e:'💶',t:'Licenciement économique',d:'Difficultés économiques, mutations technologiques, réorganisation — CSP, PSE selon l’ampleur.',c:['#5a3e8a','#3c2a5e'],on:"wzrGo('eco-1')"},
+      {e:'⏳',t:'Rompre un CDD avant son terme',d:'⚠️ Cas très limités — hors de ces cas, vous payez les salaires jusqu’au terme.',c:['#9a6a1e','#6e4a12'],on:"wzrGo('cdd-1')"},
+      {e:'✉️',t:'Le salarié démissionne',d:'Vérifier la validité, préavis, documents de fin de contrat à remettre.',c:['#555f6e','#3a4250'],on:"wzrGo('dem')"},
+      {e:'🎂',t:'Retraite',d:'Mise à la retraite (67/70 ans) ou départ volontaire du salarié — conditions et indemnités.',c:['#555f6e','#3a4250'],on:"wzrGo('ret')"}
+    ]));};
+  window.wzrModule=function(pg,mode){goPage(pg);if(mode==='inapt'){try{var s=document.getElementById('disc-sanction');if(s)s.value='lic_inaptitude_np';}catch(e){}}};
+
+  /* ── Rupture conventionnelle ── */
+  S['rc-1']=function(){var list=salList(),opts='<option value="">— saisir ci-dessous —</option>';
+    list.forEach(function(f,i){opts+='<option value="'+i+'">'+esc(f.nom)+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
+    box(head(2,4,'🤝 Rupture conventionnelle — le salarié','CDI uniquement (L.1237-11). Elle ne peut être <b>imposée</b> : le consentement doit être libre — un vice de consentement (pression, menace) entraîne la nullité.')
+    +fg('Fiche salarié','<select id="rc-fiche" onchange="wzrRcFiche(this.value)">'+opts+'</select>')
+    +fg('Nom et prénom *',inp('rc-nom','Ex : MARTIN Pierre','text',A.nom))
+    +fg('Date d’entrée dans l’entreprise *',inp('rc-emb','','date',A.emb))
+    +fg('Salaire mensuel brut de référence (€) *',inp('rc-sal','Moyenne la plus favorable : 12 derniers mois ou 3 derniers mois','number',A.sal))
+    +fg('Le contrat est-il un CDI ? *','<select id="rc-cdi"><option value="">— choisir —</option><option value="oui">Oui</option><option value="non">Non (CDD, intérim…)</option></select>')
+    +fg('Le salarié est-il protégé (élu CSE, délégué syndical…) ? *','<select id="rc-prot"><option value="non">Non</option><option value="oui">Oui — protégé</option></select>')
+    +fg('Situation particulière','<select id="rc-part"><option value="non">Aucune</option><option value="at">En arrêt suite accident du travail / maladie pro.</option><option value="mat">Enceinte / congé maternité</option><option value="inapt">Déclaré inapte par le médecin du travail</option></select>')
+    +btns('wzrRc1Next()','start'));};
+  window.wzrRcFiche=function(i){if(i==='')return;var f=salList()[parseInt(i,10)];if(!f)return;
+    var m={'rc-nom':f.nom,'rc-emb':f.emb,'rc-sal':f.sal};Object.keys(m).forEach(function(k){var e=document.getElementById(k);if(e&&m[k])e.value=m[k];});};
+  window.wzrRc1Next=function(){A.nom=V('rc-nom');A.emb=V('rc-emb');A.sal=parseFloat(V('rc-sal'))||0;A.prot=V('rc-prot');A.part=V('rc-part');
+    if(V('rc-cdi')!=='oui'){if(!V('rc-cdi')){alert('Précisez si le contrat est un CDI.');return;}
+      box(head(2,4,'⛔ Réservée au CDI','')+'<div class="wz-stop">La rupture conventionnelle ne s’applique qu’au <b>CDI</b> (L.1237-11). Pour un CDD : rupture anticipée uniquement dans les cas légaux — passez par le parcours dédié.</div><div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzrGo(\'rc-1\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzrGo(\'cdd-1\')">⏳ Rompre un CDD →</button></div>');return;}
+    if(!A.nom||!A.emb||!A.sal){alert('Nom, date d’entrée et salaire de référence sont obligatoires (ils déterminent l’indemnité minimale).');return;}
+    wzrGo('rc-2');};
+  S['rc-2']=function(){box(head(3,4,'🗓️ Les dates','Un ou plusieurs <b>entretiens</b> sont obligatoires (L.1237-12) — le salarié peut être assisté (il doit vous en informer) ; s’il l’est, vous pouvez l’être aussi.')
+    +fg('Date (prévue) de signature de la convention *',inp('rc-sig','','date',A.sig))
+    +loiRC()
+    +btns('wzrRc2Next()','rc-1'));
+    function loiRC(){return '<div class="loi">La convention fixe la date de rupture (au plus tôt le lendemain de l’homologation) et l’indemnité (≥ indemnité légale de licenciement — L.1237-13). Formulaire : <b>TéléRC</b> (télétransmission obligatoire pour l’homologation, sauf salarié protégé → demande d’AUTORISATION à l’inspection du travail).</div>';}};
+  window.wzrRc2Next=function(){A.sig=V('rc-sig');if(!A.sig){alert('Indiquez la date de signature envisagée.');return;}wzrGo('rc-result');};
+  S['rc-result']=function(){
+    var a=anc(A.emb),dec=a?a.dec:0,ind=indemLegale(dec,A.sal);
+    var sig=new Date(A.sig);
+    var finRetr=addD(sig,15);                       // 15 jours calendaires, à compter du lendemain
+    var envoi=addD(finRetr,1);
+    var recep=addD(envoi,2);
+    var finInstr=addOuvrables(recep,15);            // 15 jours ouvrables DREETS
+    var rupture=addD(finInstr,1);
+    var euros=function(x){return x.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';};
+    var partWarn={at:'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Salarié en arrêt AT/MP : la rupture conventionnelle reste possible (Cass. soc. 30/09/2014, n° 13-16.297) <b>sauf fraude ou vice du consentement</b> — prudence renforcée, consultez un avocat.</div>',
+      mat:'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Salariée enceinte / en congé maternité : possible (Cass. soc. 25/03/2015, n° 14-10.149) sauf vice du consentement — prudence renforcée.</div>',
+      inapt:'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Salarié déclaré inapte : la rupture conventionnelle est possible (Cass. soc. 9/05/2019, n° 17-28.767) mais ne doit pas servir à éluder l’obligation de reclassement — avis d’avocat indispensable.</div>'}[A.part]||'';
+    var prot=(A.prot==='oui');
+    box(head(4,4,'✅ Votre calendrier de rupture conventionnelle','')
+    +'<div class="wz-ok"><b>'+esc(A.nom)+'</b> — ancienneté : <b>'+(a?(a.y+' an(s) et '+a.m+' mois'):'—')+'</b> ('+String(dec).replace('.',',')+' ans retenus, R.1234-1)<br>'
+    +'💶 <b>Indemnité spécifique minimale : '+euros(ind)+'</b> (= indemnité légale de licenciement : 1/4 de mois par année ≤ 10 ans, 1/3 au-delà — L.1237-13). Vous pouvez convenir de plus, jamais de moins.</div>'
+    +'<div class="ct" style="margin-top:16px">📆 Calendrier exact</div>'
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2.1">'
+    +'1️⃣ Entretien(s) préalable(s) : avant la signature — assistance possible des deux côtés (L.1237-12).<br>'
+    +'2️⃣ <b>Signature de la convention : '+fdate(sig)+'</b> — remettez un exemplaire signé au salarié (à peine de nullité, Cass. soc. 3/07/2019).<br>'
+    +'3️⃣ <b>Rétractation jusqu’au '+fdate(finRetr)+' inclus</b> (15 jours calendaires à compter du lendemain de la signature — L.1237-13 ; si l’échéance tombe un samedi, dimanche ou férié, elle est reportée au 1er jour ouvrable suivant).<br>'
+    +(prot?'4️⃣ <b>Salarié protégé</b> : demande d’<b>AUTORISATION</b> à l’inspection du travail (formulaire dédié, PAS TéléRC) — délai d’instruction jusqu’à 2 mois ; la rupture ne peut intervenir qu’après autorisation expresse (L.1237-15).<br>5️⃣ Rupture au plus tôt : <b>le lendemain de l’autorisation</b>.'
+      :'4️⃣ Demande d’homologation via <b>TéléRC</b> dès le '+fdate(envoi)+' (après la rétractation) — réception estimée le '+fdate(recep)+'.<br>'
+      +'5️⃣ Instruction DREETS : <b>15 jours ouvrables</b> → fin estimée le <b>'+fdate(finInstr)+'</b> (silence = homologation acquise — L.1237-14).<br>'
+      +'6️⃣ <b>Rupture du contrat au plus tôt : '+fdate(rupture)+'</b> — remise du certificat de travail, du solde de tout compte et de l’attestation France Travail.')
+    +'</div>'+partWarn
+    +'<div class="al ok" style="font-size:12px;margin-top:12px">💡 Régime social/fiscal : indemnité exonérée dans les limites légales ; <b>contribution patronale de 30 %</b> sur la part exonérée (CSS L.137-12). Le salarié a droit au chômage.</div>'
+    +'<div class="ct" style="margin-top:16px">📄 Vos documents</div><div style="display:grid;gap:8px">'
+    +'<button class="btn" style="margin:0" onclick="wzrRcDoc(\'invitation\')">✉️ Invitation à l’entretien (trame) →</button>'
+    +'<button class="btn-outline" style="margin:0" onclick="wzrRcDoc(\'convention\')">📄 Trame de convention de rupture →</button>'
+    +'<button class="btn-outline" style="margin:0" onclick="window.open(\'https://www.telerc.travail.gouv.fr\',\'_blank\')">🌐 TéléRC (site officiel) →</button></div>'
+    +'<div class="al warn" style="font-size:11px;margin-top:12px">⚠ À faire valider par un avocat — outil d’information (loi n° 71-1130 du 31/12/1971).</div>'
+    +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzrGo(\'rc-2\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzrGo(\'start\')">🔄 Autre rupture</button></div>');};
+  window.wzrRcDoc=function(k){var E2=(typeof E!=='undefined'&&E)?E:{};var a=anc(A.emb),dec=a?a.dec:0,ind=indemLegale(dec,A.sal);
+    var S1='font-family:\'Times New Roman\',Times,serif;font-size:11pt;color:#000;line-height:1.8;';
+    var euros=function(x){return x.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';};
+    if(k==='invitation'){showDoc('Invitation à un entretien — rupture conventionnelle','<div style="'+S1+'"><p style="text-align:right">'+esc(E2.nom||'[ENTREPRISE]')+'<br>'+esc(E2.adresse||'[ADRESSE]')+'</p><p>À l’attention de '+esc(A.nom)+'<br>Remise en main propre contre décharge / LRAR</p><p>Objet : invitation à un entretien</p><p>Madame, Monsieur,</p><p>Nous vous proposons de nous rencontrer le ____ à ____ heures, dans les locaux de l’entreprise, afin d’échanger sur une éventuelle rupture conventionnelle de votre contrat de travail, dans les conditions prévues aux articles L.1237-11 et suivants du code du travail.</p><p>Nous vous précisons que vous pouvez vous faire assister lors de cet entretien par une personne de votre choix appartenant au personnel de l’entreprise ou, en l’absence d’institution représentative du personnel, par un conseiller du salarié choisi sur la liste consultable auprès de l’inspection du travail ou de la mairie. Si vous faites usage de cette faculté, nous vous remercions de nous en informer au préalable.</p><p>Cet entretien n’a aucun caractère disciplinaire et ne préjuge d’aucune décision : la rupture conventionnelle suppose le libre consentement de chacune des parties.</p><p>Veuillez agréer, Madame, Monsieur, l’expression de nos salutations distinguées.</p><p style="text-align:right">Fait à ____, le ____<br>'+esc(E2.dirigeant||'[SIGNATAIRE]')+'</p></div>');}
+    else{showDoc('Convention de rupture conventionnelle — trame','<div style="'+S1+'"><h2 style="text-align:center;text-decoration:underline">CONVENTION DE RUPTURE CONVENTIONNELLE</h2><p>(articles L.1237-11 à L.1237-16 du code du travail — homologation via TéléRC obligatoire)</p><p><strong>Entre</strong> '+esc(E2.nom||'[ENTREPRISE]')+', représentée par '+esc(E2.dirigeant||'[REPRÉSENTANT]')+', et <strong>'+esc(A.nom)+'</strong>, salarié(e) en CDI depuis le '+(A.emb?new Date(A.emb).toLocaleDateString('fr-FR'):'____')+'.</p><p><strong>Article 1 — Objet.</strong> Les parties conviennent de rompre d’un commun accord le contrat de travail, après entretien(s) tenu(s) le ____.</p><p><strong>Article 2 — Indemnité spécifique.</strong> Le salarié percevra une indemnité spécifique de rupture conventionnelle de <strong>'+euros(ind)+'</strong> minimum [montant convenu : ______ €], au moins égale à l’indemnité légale de licenciement (ancienneté retenue : '+String(dec).replace('.',',')+' ans ; salaire de référence : '+euros(A.sal)+').</p><p><strong>Article 3 — Date de rupture.</strong> Le contrat prendra fin le ______, au plus tôt le lendemain du jour de l’homologation par la DREETS (ou de l’autorisation de l’inspection du travail pour un salarié protégé).</p><p><strong>Article 4 — Rétractation.</strong> Chaque partie dispose d’un délai de 15 jours calendaires à compter du lendemain de la signature pour se rétracter, par lettre attestant de sa date de réception.</p><p><strong>Article 5 — Exemplaires.</strong> La présente convention est établie en deux exemplaires, dont un remis ce jour au salarié — à peine de nullité.</p><p>Fait à ____, le ____, en deux exemplaires.</p><table style="width:100%;border:none"><tr><td style="border:none">L’employeur<br>(signature précédée de « lu et approuvé »)</td><td style="border:none;text-align:right">Le salarié<br>(signature précédée de « lu et approuvé »)</td></tr></table></div>');}};
+
+  /* ── Insuffisance professionnelle ── */
+  S.insuff=function(){box(head(2,2,'📉 Insuffisance professionnelle','')
+    +'<div class="al ok" style="font-size:12.5px;line-height:1.8">C’est un licenciement pour <b>motif personnel NON disciplinaire</b> : l’insuffisance n’est pas une faute (Cass. soc. 9/05/2000). La procédure est la même que le licenciement disciplinaire (convocation → entretien ≥ 5 jours ouvrables → notification ≥ 2 jours ouvrables après), mais :</div>'
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2;margin-top:10px">'
+    +'• Il faut des <b>éléments objectifs, précis et vérifiables</b> (résultats, erreurs répétées, comparaison avec des collègues) imputables au salarié ;<br>'
+    +'• Vous devez avoir assuré <b>formation et adaptation au poste</b> (L.6321-1) — sinon le licenciement est sans cause ;<br>'
+    +'• Objectifs : ils doivent être <b>réalistes et connus</b> du salarié (Cass. soc. 2/03/2011) ;<br>'
+    +'• <b>Préavis et indemnité de licenciement dus</b> (pas de faute grave possible pour insuffisance) ;<br>'
+    +'• Ancienneté des griefs : pas de prescription de 2 mois (non disciplinaire), mais des faits anciens et tolérés affaiblissent le dossier.</div>'
+    +'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Terrain le plus contesté aux prud’hommes : constituez le dossier AVANT d’engager la procédure (évaluations, courriels, plan d’accompagnement) et faites-le valider par un avocat.</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzrGo(\'start\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzrModule(\'disciplinaire\')">⚖️ Dérouler la procédure complète →</button></div>');};
+
+  /* ── Économique ── */
+  S['eco-1']=function(){box(head(2,3,'💶 Licenciement économique — cadrage','Le motif doit être <b>réel et sérieux</b> : difficultés économiques (baisse significative des commandes ou du CA — L.1233-3), mutations technologiques, réorganisation nécessaire à la sauvegarde de la compétitivité, ou cessation d’activité.')
+    +fg('Effectif de l’entreprise *','<select id="eco-eff"><option value="">— choisir —</option><option value="moins11">Moins de 11 salariés</option><option value="11-49">11 à 49 salariés</option><option value="50plus">50 salariés et plus</option></select>')
+    +fg('Nombre de licenciements envisagés (sur 30 jours) *','<select id="eco-nb"><option value="">— choisir —</option><option value="1">1 seul</option><option value="2-9">2 à 9</option><option value="10plus">10 ou plus</option></select>')
+    +btns('wzrEcoNext()','start'));};
+  window.wzrEcoNext=function(){var eff=V('eco-eff'),nb=V('eco-nb');if(!eff||!nb){alert('Répondez aux deux questions.');return;}
+    A.eff=eff;A.nb=nb;wzrGo('eco-2');};
+  S['eco-2']=function(){var pse=(A.eff==='50plus'&&A.nb==='10plus');
+    box(head(3,3,pse?'🛟 PSE OBLIGATOIRE':'✅ Votre feuille de route économique','')
+    +(pse?'<div class="wz-stop"><b>≥ 10 licenciements sur 30 jours dans une entreprise ≥ 50 salariés : un Plan de Sauvegarde de l’Emploi est OBLIGATOIRE</b> (L.1233-61) — accord collectif majoritaire et/ou document unilatéral, validation/homologation DREETS, consultation CSE encadrée. Sans PSE : nullité des licenciements. Utilisez le module PSE complet.</div><button class="btn" style="margin-top:14px" onclick="goPage(\'pse\')">🛟 Ouvrir le module PSE →</button>'
+    :'<div class="wz-ok">Procédure applicable à votre cas :</div>'
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2.1;margin-top:8px">'
+    +'1️⃣ <b>Critères d’ordre</b> des licenciements (charges de famille, ancienneté, situation sociale, qualités professionnelles — L.1233-5) appliqués par catégorie professionnelle.<br>'
+    +'2️⃣ <b>Recherche de reclassement</b> interne préalable (L.1233-4) — proposition écrite et précise.<br>'
+    +(A.nb==='1'?'3️⃣ <b>Convocation à entretien préalable</b> (5 jours ouvrables), entretien, puis notification par LRAR au plus tôt <b>7 jours ouvrables</b> après l’entretien (15 pour un cadre).<br>':'3️⃣ <b>Consultation du CSE</b> (2 à 9 licenciements : une réunion — L.1233-8), puis entretiens préalables individuels et notifications (7 jours ouvrables après entretien).<br>')
+    +'4️⃣ <b>CSP obligatoire</b> (entreprise < 1 000 salariés) : proposition en entretien, le salarié a <b>21 jours</b> pour accepter — défaut de proposition = vous devez sa contribution à France Travail.<br>'
+    +'5️⃣ <b>Information de la DREETS</b> dans les 8 jours des notifications (L.1233-19).<br>'
+    +'6️⃣ <b>Priorité de réembauche</b> 1 an à mentionner dans la lettre (L.1233-45).</div>'
+    +'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Le motif économique s’apprécie au niveau du <b>secteur d’activité du groupe</b> — dossier à sécuriser avec un avocat/expert-comptable.</div>')
+    +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzrGo(\'eco-1\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzrGo(\'start\')">🔄 Autre rupture</button></div>');};
+
+  /* ── CDD avant terme ── */
+  S['cdd-1']=function(){box(head(2,3,'⏳ Rompre un CDD avant son terme','Le CDD ne peut être rompu avant l’échéance que dans <b>5 cas limitatifs</b> (L.1243-1 s.). Dans quelle situation êtes-vous ?')
+    +tiles([
+      {e:'🤝',t:'Accord commun écrit',d:'Les deux parties sont d’accord pour arrêter — écrit clair et non équivoque.',c:['#1e6e46','#124a2f'],on:"wzrCddCase('accord')"},
+      {e:'⚖️',t:'Faute grave du salarié',d:'Procédure disciplinaire complète obligatoire (convocation, entretien, notification).',c:['#8a1e1e','#5e1212'],on:"wzrCddCase('fg')"},
+      {e:'🌪️',t:'Force majeure',d:'Événement extérieur, imprévisible et irrésistible (très rare — l’incendie ne suffit pas toujours).',c:['#555f6e','#3a4250'],on:"wzrCddCase('fm')"},
+      {e:'🏥',t:'Inaptitude constatée',d:'Par le médecin du travail — obligation de reclassement puis rupture avec indemnités.',c:['#1e5a8a','#123c5e'],on:"wzrCddCase('inapt')"},
+      {e:'💼',t:'Le salarié a trouvé un CDI',d:'Rupture À L’INITIATIVE DU SALARIÉ — préavis 1 jour/semaine, max 2 semaines.',c:['#1e5a8a','#123c5e'],on:"wzrCddCase('cdi')"},
+      {e:'❌',t:'Aucun de ces cas',d:'Baisse d’activité, mésentente, erreur de recrutement…',c:['#8a1e1e','#5e1212'],on:"wzrCddCase('aucun')"}
+    ])+'<div style="margin-top:12px"><button class="wz-back" onclick="wzrGo(\'start\')">← Retour</button></div>');};
+  window.wzrCddCase=function(c){var T={
+    accord:{t:'🤝 Rupture d’un commun accord',ok:1,h:'Établissez un <b>écrit signé des deux parties</b>, exprimant une volonté claire et non équivoque de mettre fin au CDD (L.1243-1). Versez l’<b>indemnité de fin de contrat de 10 %</b> sur la période travaillée (sauf saisonnier/usage) + l’indemnité compensatrice de congés payés. Remettez certificat de travail, solde de tout compte, attestation France Travail.'},
+    fg:{t:'⚖️ Faute grave',ok:1,h:'La faute grave doit rendre <b>impossible le maintien</b> du salarié. Procédure disciplinaire COMPLÈTE obligatoire : convocation (5 jours ouvrables), entretien, notification motivée (≥ 2 jours ouvrables après). Mise à pied conservatoire possible. <b>Pas d’indemnité de fin de contrat</b> (L.1243-10), congés payés dus. Utilisez le module Discipline pour dérouler la procédure et générer les lettres.',btn:'⚖️ Dérouler la procédure disciplinaire →',go:"wzrModule('disciplinaire')"},
+    fm:{t:'🌪️ Force majeure',ok:1,h:'Événement <b>extérieur, imprévisible et irrésistible</b> rendant impossible la poursuite (destruction totale de l’entreprise…). La jurisprudence l’admet <b>très rarement</b>. Si sinistre : indemnité compensatrice égale aux rémunérations restantes à la charge de l’employeur (L.1243-4 al.2). Avis d’avocat indispensable AVANT d’invoquer ce motif.'},
+    inapt:{t:'🏥 Inaptitude en cours de CDD',ok:1,h:'Après avis du médecin du travail : <b>obligation de reclassement</b> (L.1226-2) puis, à défaut, rupture anticipée avec versement de l’<b>indemnité de rupture</b> au moins égale à l’indemnité légale de licenciement (doublée si origine professionnelle — L.1226-4-3) + indemnité de fin de contrat. Consultation du CSE si origine professionnelle.',btn:'🏥 Utiliser le parcours inaptitude →',go:"wzrModule('disciplinaire','inapt')"},
+    cdi:{t:'💼 Le salarié part pour un CDI',ok:1,h:'C’est <b>SON droit</b> (L.1243-2) : il doit justifier d’une embauche en CDI et respecter un préavis d’<b>1 jour par semaine</b> de durée du contrat (renouvellement inclus), <b>2 semaines maximum</b>. Vous ne pouvez pas vous y opposer ; pas d’indemnité de fin de contrat pour lui. Exigez le justificatif et formalisez les dates par écrit.'},
+    aucun:{t:'⛔ N’y allez PAS',ok:0,h:'<b>Hors des 5 cas légaux, la rupture anticipée d’un CDD est illicite</b> : vous devez au salarié des <b>dommages-intérêts au moins égaux à TOUTES les rémunérations qu’il aurait perçues jusqu’au terme</b> du contrat (L.1243-4) + l’indemnité de fin de contrat de 10 %. Une « baisse d’activité » ou une mésentente ne sont PAS des motifs valables.<br><br>💡 Alternatives légales : négocier un <b>accord commun écrit</b>, ou laisser le contrat aller à son terme.'}}[c];
+    box(head(3,3,T.t,'')
+    +'<div class="'+(T.ok?'wz-ok':'wz-stop')+'" style="line-height:1.8">'+T.h+'</div>'
+    +(T.btn?'<button class="btn" style="margin-top:14px" onclick="'+T.go+'">'+T.btn+'</button>':'')
+    +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzrGo(\'cdd-1\')">← Retour</button><button class="wz-back" style="flex:1" onclick="wzrGo(\'start\')">🔄 Autre rupture</button></div>');};
+
+  /* ── Démission ── */
+  S.dem=function(){box(head(2,2,'✉️ Le salarié démissionne — vos vérifications','')
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2.1">'
+    +'1️⃣ La démission doit être <b>claire et non équivoque</b> (Cass. soc. constante) : exigez un <b>écrit daté et signé</b>. Une absence ou un « coup de tête » en colère n’est pas une démission — laissez un délai de réflexion.<br>'
+    +'2️⃣ <b>N’acceptez rien à chaud</b> : une démission donnée sous le coup de l’émotion et rétractée rapidement peut être requalifiée.<br>'
+    +'3️⃣ <b>Préavis</b> (CCN transport) : ouvriers/roulants 1 semaine (< 6 mois d’ancienneté), 2 semaines (6 mois à 2 ans), 1 mois (> 2 ans) ; maîtrise/techniciens 1 à 2 mois ; cadres 3 mois — vérifiez l’article applicable à la catégorie. Dispense possible d’un commun accord (écrite).<br>'
+    +'4️⃣ <b>Abandon de poste ≠ démission spontanée</b> : utilisez la procédure de <b>présomption de démission</b> (L.1237-1-1) — mise en demeure de reprendre le poste ou justifier l’absence sous un délai ≥ 15 jours ; sans réponse, le salarié est présumé démissionnaire (documents dans le module Absences).<br>'
+    +'5️⃣ À la fin : <b>certificat de travail, reçu pour solde de tout compte, attestation France Travail</b> — remise obligatoire, aucune retenue arbitraire.<br>'
+    +'6️⃣ Clause de <b>dédit-formation</b> ou de <b>non-concurrence</b> ? Pensez à la lever par écrit dans le délai prévu si vous ne voulez pas payer la contrepartie.</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzrGo(\'start\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="goPage(\'absences\')">📄 Mise en demeure abandon de poste →</button></div>');};
+
+  /* ── Retraite ── */
+  S.ret=function(){box(head(2,2,'🎂 Retraite — deux situations distinctes','')
+    +'<div class="ct" style="font-size:14px">1. Mise à la retraite (votre initiative)</div>'
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2">'
+    +'• <b>Avant 67 ans : IMPOSSIBLE.</b><br>'
+    +'• <b>De 67 à 69 ans</b> : uniquement avec l’accord du salarié — interrogez-le <b>par écrit 3 mois avant</b> son anniversaire ; il a <b>1 mois</b> pour répondre ; s’il refuse, pas de mise à la retraite cette année-là (procédure renouvelable chaque année — L.1237-5).<br>'
+    +'• <b>À partir de 70 ans</b> : mise à la retraite d’office possible.<br>'
+    +'• Indemnité de mise à la retraite ≥ <b>indemnité légale de licenciement</b> + préavis (1 à 2 mois selon ancienneté).</div>'
+    +'<div class="ct" style="font-size:14px;margin-top:14px">2. Départ volontaire du salarié</div>'
+    +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2">'
+    +'• Le salarié doit pouvoir <b>liquider sa pension</b> (âge légal atteint) ;<br>'
+    +'• Préavis = préavis de démission ; indemnité de départ (L.1237-9) : 1/2 mois après 10 ans, 1 mois après 15 ans, 1,5 mois après 20 ans, 2 mois après 30 ans (comparez avec la CCN — appliquez le plus favorable) ;<br>'
+    +'• Documents de fin de contrat habituels.</div>'
+    +'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Une « mise à la retraite » hors conditions d’âge = <b>licenciement nul ou sans cause réelle et sérieuse</b> avec dommages-intérêts — n’improvisez pas.</div>'
+    +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzrGo(\'start\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="goPage(\'calc\')">🧮 Calculer l’indemnité →</button></div>');};
+
+  function init(){if(document.getElementById('wz-rup'))wzrGo('start');}
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
