@@ -372,9 +372,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.9';
+var JX_BUILD = 'v2026-07-11.10';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.10', d:'11 juillet 2026', t:[
+   'AUDIT COMPLET de l\'application, ligne par ligne : chaque bouton, chaque champ, chaque enchaînement question → réponse → document testé automatiquement (16 motifs disciplinaires, 9 sanctions, 11 lettres, 9 types d\'absence, 24 contrats, 12 modèles du parcours, 13 diagnostics de documents, 9 calculateurs, CSE, PSE, harcèlement, rémunération, temps de conduite, FAQ, alertes). Aucune incohérence restante.',
+   'Alertes conducteurs : nouveau niveau URGENT — un document qui expire sous 15 jours passe en ROUGE (avant : rouge seulement une fois expiré).'
+ ]},
  {v:'v2026-07-11.9', d:'11 juillet 2026', t:[
    'CORRECTIF module Discipline : les documents proposés suivent désormais la SANCTION choisie — un avertissement ne propose plus « convocation + lettre de licenciement » mais la lettre d\'avertissement.',
    '5 nouvelles lettres : avertissement, blâme, notification de mise à pied disciplinaire (contrôle RI — Cass. 26/10/2010), proposition de rétrogradation (accord du salarié requis, droit de refus mentionné — Cass. 28/04/2011), licenciement pour faute lourde (intention de nuire, CP dus — Cons. const. 2015-523 QPC).',
@@ -8139,6 +8143,7 @@ function calcAlertesConducteurs(){
     Object.keys(SEUILS).forEach(k=>{
       if(!c[k])return; const jr=joursRestants(c[k]); if(jr===null)return;
       if(jr<=0) out.red.push({nom:c.nom,label:SEUILS[k].label,msg:'expiré depuis '+Math.abs(jr)+' j',jr});
+      else if(jr<=15) out.red.push({nom:c.nom,label:SEUILS[k].label,msg:'expire dans '+jr+' j — URGENT',jr});
       else if(jr<=SEUILS[k].orange) out.orange.push({nom:c.nom,label:SEUILS[k].label,msg:'expire dans '+jr+' j',jr});
     });
   });
