@@ -356,7 +356,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.2';
+var JX_BUILD = 'v2026-07-11.3';
 // Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
 const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
 // Code d'accès temporaire (essai 3 jours) — expire le 06/07/2026 23:59
@@ -9002,6 +9002,53 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     deferred.userChoice.finally(function(){ deferred=null; var b=document.getElementById('pwa-install'); if(b)b.style.display='none'; });
   };
   window.addEventListener('appinstalled', function(){ var b=document.getElementById('pwa-install'); if(b)b.style.display='none'; });
+
+  /* ===== Mise à jour AUTOMATIQUE et OBLIGATOIRE (pilotée par version.json) ===== */
+  function _forceUpdate(newBuild){
+    try{
+      var guard='jx_forced_'+newBuild;
+      var last=parseInt(sessionStorage.getItem(guard)||'0',10);
+      if(last && (Date.now()-last)<600000) return;   /* anti-boucle : 1 tentative / 10 min / version */
+      sessionStorage.setItem(guard, String(Date.now()));
+    }catch(e){}
+    try{
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,16,26,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#e8e2d2;font-family:inherit;text-align:center;padding:24px';
+      ov.innerHTML='<div style="font-size:40px">🔄</div><div style="font-size:17px;font-weight:700">Mise à jour de l\'application…</div><div style="font-size:13px;color:#9a9585;max-width:420px">Une nouvelle version obligatoire ('+newBuild+') est installée automatiquement. L\'application va redémarrer dans un instant.</div>';
+      document.body.appendChild(ov);
+    }catch(e){}
+    var work=[];
+    try{ if(window.caches && caches.keys) work.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(k){ return caches.delete(k); })); })); }catch(e){}
+    try{
+      if('serviceWorker' in navigator) work.push(navigator.serviceWorker.getRegistrations().then(function(rs){
+        return Promise.all(rs.map(function(r){
+          try{ if(r.waiting) r.waiting.postMessage('SKIP_WAITING'); }catch(e){}
+          return r.update().catch(function(){});
+        }));
+      }));
+    }catch(e){}
+    Promise.all(work).catch(function(){}).then(function(){ setTimeout(function(){ location.reload(); },700); });
+  }
+  function _checkUpdate(){
+    try{ if(navigator.onLine===false) return; }catch(e){}
+    if(location.protocol==='file:') return;          /* pas de contrôle en local */
+    fetch('./version.json?t='+Date.now(), {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if(j && j.build && typeof JX_BUILD!=='undefined' && j.build!==JX_BUILD) _forceUpdate(j.build);
+      }).catch(function(){});
+  }
+  window._jxCheckUpdate=_checkUpdate;
+  window.addEventListener('load', function(){ setTimeout(_checkUpdate, 3000); });
+  setInterval(_checkUpdate, 600000);                  /* contrôle toutes les 10 minutes */
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') _checkUpdate(); });
+  /* Quand un nouveau service worker prend la main, on recharge (sauf 1re installation) */
+  if('serviceWorker' in navigator){
+    var _hadCtrl=!!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(_hadCtrl){ location.reload(); } else { _hadCtrl=true; }
+    });
+  }
 })();
 </script>
 

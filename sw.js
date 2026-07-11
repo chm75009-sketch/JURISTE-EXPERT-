@@ -1,5 +1,5 @@
-/* Service worker — Juris Expert MCH (PWA installable + hors ligne) */
-const CACHE = 'jem-v2';
+/* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
+const CACHE = 'jem-v3';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -13,13 +13,19 @@ self.addEventListener('activate', e => {
   );
 });
 
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Laisser passer les ressources tierces (polices, CDN) directement au réseau
+  // Ressources tierces (polices, CDN) : réseau direct
   if (url.origin !== location.origin) return;
-  // Navigation : réseau d'abord (pour recevoir les mises à jour), cache en secours hors ligne
+  // version.json : TOUJOURS le réseau, jamais le cache (pilote la mise à jour forcée)
+  if (url.pathname.indexOf('version.json') >= 0) { e.respondWith(fetch(req)); return; }
+  // Navigation : réseau d'abord (mises à jour), cache en secours hors ligne
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); return r; })
