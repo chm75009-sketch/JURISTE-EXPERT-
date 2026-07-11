@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#0f1f2e;color:#e8e4d8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;padding-bottom:80px;min-height:100vh}
-.page{display:none;padding:0 0 20px}
+.page{display:none;padding:0 0 96px}
 .page.act{display:block}
 .card{background:#162639;border-radius:14px;padding:16px;margin:0 14px 12px;border:1px solid rgba(255,255,255,0.06)}
 .ct{font-family:Georgia,serif;font-size:17px;color:#e8c97a;margin-bottom:12px}
@@ -356,9 +356,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.4';
+var JX_BUILD = 'v2026-07-11.5';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.5', d:'11 juillet 2026', t:[
+   'Accueil entièrement réorganisé : toutes les rubriques visibles d\'un coup d\'œil (plus de menus repliés), section « 🚦 Pilotage & conformité » en tête avec les Alertes de conformité et le Contrôle-minute.',
+   'Le sélecteur de secteur disparaît quand le secteur est verrouillé par votre code (remplacé par un badge clair).',
+   'Le contenu ne passe plus derrière la barre de navigation en bas d\'écran.'
+ ]},
  {v:'v2026-07-11.4', d:'11 juillet 2026', t:[
    'Nouvelle page « Nouveautés » : historique complet des versions, accessible depuis l\'accueil et le menu.',
    'Après chaque mise à jour automatique, un message s\'affiche sur l\'accueil avec le détail des nouveautés.'
@@ -535,18 +540,17 @@ try{
 </div>
 <div class="home-wrap">
 
-  <div class="home-disclaimer" style="border-left-color:var(--or);background:rgba(212,175,85,.08);margin-top:18px;margin-bottom:8px">
-  <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:8px">🏢 Choisissez votre secteur d'activité</div>
-  <select id="home-secteur" onchange="appSetSecteur(this.value)" style="margin-bottom:8px">
+  <div id="home-secteur-wrap" style="margin:14px 0 8px">
+  <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">🏢 Secteur d'activité (pilote toute l'application)</label>
+  <select id="home-secteur" onchange="appSetSecteur(this.value)">
     <option value="transport">Transport routier (IDCC 0016)</option>
     <option value="banque">Banque (IDCC 2120)</option>
     <option value="assurances">Assurances (IDCC 1672)</option>
     <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option>
   </select>
-  <div style="font-size:11.5px;color:var(--texte2)">Pilote la <b>convention collective</b>, les <b>spécificités</b> et la <b>jurisprudence</b> des modules <b>PSE</b> et <b>Élections CSE</b>.</div>
 </div>
 
-    <div id="client-secteur-badge" style="display:none;margin:2px 0 10px;padding:8px 12px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:#e8c97a;font-size:12.5px;font-weight:700"></div>
+    <div id="client-secteur-badge" style="display:none;margin:14px 0 10px;padding:10px 14px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:#e8c97a;font-size:13px;font-weight:700"></div>
   <div id="admin-secteur-wrap" style="display:none;margin:2px 0 12px">
     <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">Secteur (administrateur) — verrouille toute l'application</label>
     <select id="admin-secteur" onchange="adminPickSector(this.value)" style="width:100%">
@@ -562,17 +566,30 @@ try{
   </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
+
+  <div class="home-sec sec-transport">🚦 Pilotage &amp; conformité</div>
+  <div class="home-grid sec-transport">
+      <div class="hcard" style="--accent:#e05c5c;grid-column:1/-1" onclick="goPage('tableau-bord')">
+        <div class="hcard-ic">🔔</div>
+        <div class="hcard-body"><div class="t">Alertes de conformité</div><div class="d">Surveillance automatique des échéances : permis, CQC/FCO, visites médicales, ADR, tachygraphe.</div><div class="m">Tableau de bord conducteurs</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('audit')">
+        <div class="hcard-ic">🎯</div>
+        <div class="hcard-body"><div class="t">Contrôle-minute — êtes-vous prêt ?</div><div class="d">Auto-audit en 24 questions : score de conformité + plan d'action priorisé (URSSAF, inspection, DREAL).</div><div class="m">Audit de conformité</div></div>
+        <div class="chev">›</div>
+      </div>
+  </div>
+
+  <div class="home-sec">🧭 Guide</div>
   <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1;margin-bottom:12px" onclick="goPage('parcours')">
     <div class="hcard-ic">🧭</div>
     <div class="hcard-body"><div class="t">Parcours de la relation de travail</div><div class="d">De l'embauche à la rupture, étape par étape (1 → 26), avec rappels et modèles adaptés au secteur.</div><div class="m">Guide pas-à-pas</div></div>
     <div class="chev">›</div>
   </div>
-  <div style="font-size:12.5px;color:#9a9585;margin:2px 0 10px">Ou choisissez une catégorie ci-dessous.</div>
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>🔎 Comprendre &amp; rechercher</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▾</span></span>
-  </div>
-  <div class="home-grid" style="display:">
+
+  <div class="home-sec">🔎 Comprendre &amp; rechercher</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('faq')">
         <div class="hcard-ic">💬</div>
         <div class="hcard-body"><div class="t">FAQ salariés — Questions / Réponses</div><div class="d">Plus de 1300 questions fréquentes, réponses précises (convention &amp; jurisprudence). Recherche par mot-clé ou thème.</div><div class="m">FAQ</div></div>
@@ -590,11 +607,8 @@ try{
       </div>
   </div>
 
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>📝 Embauche &amp; contrats</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
-  </div>
-  <div class="home-grid" style="display:none">
+  <div class="home-sec">📝 Embauche &amp; contrats</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="event.stopPropagation();goPage('contrat')">
         <div class="hcard-ic">📋</div>
         <div class="hcard-body"><div class="t">Embauche &amp; contrats</div><div class="d">CDI · CDD · DPAE · fiche de poste · checklist d’embauche · période d’essai.</div><div class="m">Contrats</div></div>
@@ -612,11 +626,8 @@ try{
       </div>
   </div>
 
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>⚖️ Rupture du contrat</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">6</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
-  </div>
-  <div class="home-grid" style="display:none">
+  <div class="home-sec">⚖️ Rupture du contrat</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('licenc')">
         <div class="hcard-ic">📑</div>
         <div class="hcard-body"><div class="t">Procédure de licenciement</div><div class="d">Motif personnel : convocation, entretien, notification, délais, échéancier, sanctions.</div><div class="m">Licenciement</div></div>
@@ -649,11 +660,8 @@ try{
       </div>
   </div>
 
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>🕒 Vie du contrat</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">3</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
-  </div>
-  <div class="home-grid" style="display:none">
+  <div class="home-sec">🕒 Vie du contrat</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps2')">
         <div class="hcard-ic">⏱️</div>
         <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures supplémentaires, forfait-jours, spécificités par secteur.</div><div class="m">Durée du travail</div></div>
@@ -671,11 +679,8 @@ try{
       </div>
   </div>
 
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>🗳️ Représentation du personnel</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">1</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
-  </div>
-  <div class="home-grid" style="display:none">
+  <div class="home-sec">🗳️ Représentation du personnel</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('cse')">
         <div class="hcard-ic">🗳️</div>
         <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">Effectif, nombre de sièges, électeurs/éligibles, quorum, PAP, listes, PV.</div><div class="m">CSE</div></div>
@@ -683,16 +688,8 @@ try{
       </div>
   </div>
 
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>🚚 Spécifique transport routier</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">5</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
-  </div>
-  <div class="home-grid" style="display:none">
-      <div class="hcard" style="--accent:#e05c5c;grid-column:1/-1" onclick="event.stopPropagation();goPage('audit')">
-        <div class="hcard-ic">🎯</div>
-        <div class="hcard-body"><div class="t">Contrôle-minute — êtes-vous prêt ?</div><div class="d">Audit de conformité sociale en 24 questions : score + plan d'action priorisé (URSSAF, inspection, DREAL).</div><div class="m">Audit</div></div>
-        <div class="chev">›</div>
-      </div>
+  <div class="home-sec">🚚 Spécifique transport routier</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps')">
         <div class="hcard-ic">⏱️</div>
         <div class="hcard-body"><div class="t">Temps de conduite &amp; repos</div><div class="d">Décret 83-40 · CE 561/2006 · calculatrice conduite/repos/amplitude.</div><div class="m">Conduite</div></div>
@@ -708,18 +705,10 @@ try{
         <div class="hcard-body"><div class="t">Règlement intérieur transport</div><div class="d">Alcool · tachygraphe · géolocalisation · discipline.</div><div class="m">RI</div></div>
         <div class="chev">›</div>
       </div>
-      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('tableau-bord')">
-        <div class="hcard-ic">📊</div>
-        <div class="hcard-body"><div class="t">Tableau de bord conducteurs</div><div class="d">Permis · CQC · FCO · visite médicale · ADR — alertes d’échéance.</div><div class="m">Suivi conducteurs</div></div>
-        <div class="chev">›</div>
-      </div>
   </div>
 
-  <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
-    <span>⚙️ Configuration</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">2</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
-  </div>
-  <div class="home-grid" style="display:none">
+  <div class="home-sec">⚙️ Configuration</div>
+  <div class="home-grid">
       <div class="hcard" style="--accent:#7f8da0;grid-column:1/-1" onclick="event.stopPropagation();goPage('parametrage')">
         <div class="hcard-ic">⚙️</div>
         <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · licences · gestionnaire transport.</div><div class="m">Config</div></div>
@@ -3592,8 +3581,9 @@ function closeMenu(){document.getElementById('menu-overlay').style.display='none
 var SECTEUR_LAB={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
 function _setTransportVisible(show){
   document.querySelectorAll('#pg-home .home-sec').forEach(function(hs){
-    if(/transport routier/i.test(hs.textContent)){ hs.style.display=show?'':'none'; if(!show){ var g=hs.nextElementSibling; if(g&&g.classList.contains('home-grid'))g.style.display='none'; } }
+    if(/transport routier/i.test(hs.textContent)){ hs.style.display=show?'':'none'; var g=hs.nextElementSibling; if(g&&g.classList.contains('home-grid'))g.style.display=show?'':'none'; }
   });
+  document.querySelectorAll('#pg-home .sec-transport').forEach(function(el){ el.style.display=show?'':'none'; });
   ['temps','remuneration','ri','tableau-bord'].forEach(function(t){
     var mi=document.querySelector('#menu-panel .mi[onclick*="goPage(\''+t+'\')"]'); if(mi)mi.style.display=show?'':'none';
   });
@@ -3614,6 +3604,8 @@ function applyClientSector(retry){
     if(badge){ badge.textContent = admin ? (sec?('👑 Admin — verrouillé sur : '+(SECTEUR_LAB[sec]||sec)):'👑 Mode administrateur — tous secteurs') : (sec?('🏷️ Secteur : '+(SECTEUR_LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
     var apw=document.getElementById('admin-secteur-wrap'); if(apw)apw.style.display=admin?'block':'none';
     var ap=document.getElementById('admin-secteur'); if(ap && ap.value!==(sec||''))ap.value=sec||'';
+    // Sélecteur d'accueil : inutile pour un client verrouillé (badge) ou un admin (son propre sélecteur)
+    var hsw=document.getElementById('home-secteur-wrap'); if(hsw)hsw.style.display=(admin||sec)?'none':'';
     // Rubrique/menu transport : visibles seulement si secteur transport OU aucun secteur
     _setTransportVisible(sec===''||sec==='transport');
     // Verrouiller / déverrouiller TOUS les sélecteurs de secteur de toutes les pages
