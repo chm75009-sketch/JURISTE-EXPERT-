@@ -372,9 +372,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.16';
+var JX_BUILD = 'v2026-07-11.17';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.17', d:'11 juillet 2026', t:[
+   'Article 10 ter intégré INTÉGRALEMENT (texte conventionnel fourni et recoupé) : barème ACCIDENT DU TRAVAIL sans franchise — 1 à 3 ans : 100 % du 1er au 30e jour + 75 % du 31e au 90e (si hospitalisation ≥ 3 jours ou arrêt ≥ 28 jours, hors trajet et rechute d\'un AT chez un autre employeur) ; 3 ans : idem sans condition ; 5 ans : 60/150 jours ; 10 ans : 90/210 jours.',
+   'Règles communes ajoutées (maladie et AT) : plafonnement sur 12 mois glissants des périodes successives, nouvelle indemnisation après reprise effective, déduction des IJSS déclarées, plafond au net qu\'aurait perçu le salarié.'
+ ]},
  {v:'v2026-07-11.16', d:'11 juillet 2026', t:[
    'Sources officielles consolidées : l\'avenant n° 81 (frais de déplacement) est cité avec son arrêté d\'extension du 3 février 2026 (Journal officiel — applicable à TOUTES les entreprises de la branche, adhérentes ou non).',
    'Clause d\'ancienneté du contrat de travail affermie : majorations ouvriers 2 % (2 ans), 4 % (5 ans), 6 % (10 ans), 8 % (15 ans) — barème recoupé avec la grille publiée (13,06 €/13,42 € après 15 ans = base × 1,08).'
@@ -7988,7 +7992,8 @@ ${m.d1
 ? `<strong style="color:#e8c97a">Maintien de salaire — CCN Transport, art. 10 ter (ouvriers) :</strong><br>
 • <b>100 %</b> du salaire du <b>${m.d1}e au ${m.f1}e jour</b> d'arrêt (après déduction des IJSS)<br>
 • <b>75 %</b> du <b>${m.d2}e au ${m.f2}e jour</b><br>
-<strong style="color:#e8c97a">Franchise conventionnelle :</strong> 5 jours — <b>hospitalisation : dès le 3e jour (TRM)</b> et périodes à 75 % prolongées de 30 jours · <strong style="color:#e8c97a">carence IJSS :</strong> 3 jours<br>`
+<strong style="color:#e8c97a">Franchise conventionnelle :</strong> 5 jours — <b>hospitalisation : dès le 3e jour (TRM)</b> et périodes à 75 % prolongées de 30 jours · <strong style="color:#e8c97a">carence IJSS :</strong> 3 jours<br>
+<span style="font-size:11.5px;color:#9a9585">Périodes successives : durées maximales appréciées sur toute période de 12 mois consécutifs ; nouvelle indemnisation après reprise effective du travail. Déduction des IJSS (déclaration obligatoire par le salarié) ; plafond : le net qu'il aurait perçu en travaillant, déduction faite de la franchise (art. 10 ter §2d et §3).</span><br>`
 : m.legal
 ? `<strong style="color:#e8c97a">Maintien LÉGAL (1 à 3 ans d'ancienneté — L.1226-1, D.1226-1) :</strong><br>
 • <b>90 %</b> du salaire brut pendant <b>30 jours</b>, puis <b>66,66 %</b> pendant <b>30 jours</b><br>
@@ -8006,7 +8011,13 @@ ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite n
     html=`<div class="item">
 <div class="badge badge-red">ACCIDENT DU TRAVAIL</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
-<strong style="color:#e8c97a">Maintien de salaire :</strong> 100% dès le 1er jour (pas de délai de carence AT)<br>
+<strong style="color:#e8c97a">Garantie de ressources AT — art. 10 ter §2c (ouvriers, SANS franchise) :</strong><br>
+${anc==='moins1'?`• <b>Moins d'1 an d'ancienneté : aucune garantie conventionnelle ni légale</b> (L.1226-1 : 1 an requis) — IJSS accident du travail seules (80 % du salaire journalier dès le 1er jour, sans carence)<br>`
+:anc==='1a3'?`• <b>100 %</b> du 1er au 30e jour, puis <b>75 %</b> du 31e au 90e jour<br>• ⚠️ Entre 1 et 3 ans d'ancienneté, garantie due seulement si l'AT a entraîné une <b>hospitalisation d'au moins 3 jours</b> OU une <b>incapacité d'au moins 28 jours</b> (accidents de trajet et rechutes d'un AT survenu chez un autre employeur exclus)<br>`
+:anc==='3a5'?`• <b>100 %</b> du 1er au 30e jour, puis <b>75 %</b> du 31e au 90e jour (sans condition de durée)<br>`
+:anc==='5a10'?`• <b>100 %</b> du 1er au 60e jour, puis <b>75 %</b> du 61e au 150e jour<br>`
+:`• <b>100 %</b> du 1er au 90e jour, puis <b>75 %</b> du 91e au 210e jour<br>`}
+<span style="font-size:11.5px;color:#9a9585">Déduction des IJSS (et de la part patronale de prévoyance) ; l'ouvrier doit déclarer ses indemnités journalières ; plafond : jamais plus que le net qu'il aurait perçu en travaillant. Périodes successives : durées maximales appréciées sur 12 mois glissants, nouvelle indemnisation seulement après reprise effective.</span><br>
 <strong style="color:#e8c97a">Protection :</strong> Interdiction de licencier pendant l'arrêt AT sauf faute grave ou impossibilité de maintenir le contrat pour motif étranger à l'AT<br>
 <strong style="color:#e8c97a">Congés payés :</strong> l'arrêt AT/MP ouvre des droits à congés au rythme normal de <b>2,5 jours ouvrables par mois</b>, sans plus de limite de durée (loi n° 2024-364 du 22/04/2024) ; report 15 mois + information du salarié à la reprise<br>
 ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Visite médicale de reprise OBLIGATOIRE, au plus tard dans les 8 jours de la reprise (art. R.4624-31 C. trav.)</strong>':''}
