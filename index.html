@@ -1815,6 +1815,7 @@ Exemple :<br>
     ← Retour
   </button>
   <div id="doc-title" style="flex:1;font-size:12px;font-weight:600;color:#e8e4d8;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+  <button id="doc-vierge-btn" onclick="docVierge()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 12px;font-size:13px;cursor:pointer;color:#e8e4d8;font-family:inherit;flex-shrink:0">🗒️ Vierge</button>
   <button onclick="telechargerWord()" style="background:#2b579a;border:none;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;flex-shrink:0">📄 Word</button>
   <button onclick="printDoc()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:10px 12px;font-size:13px;cursor:pointer;color:#e8e4d8;font-family:inherit;flex-shrink:0">🖨</button>
 </div>
@@ -8254,6 +8255,46 @@ function _purifierDocNB(html){
     // Symboles colorés isolés du plan BMP (⚠ ⛔ ✅ ❌ ✉ ⏳ ⏱ ⚖ ⚙ ⬛ ⬜ ⬆ ⬇)
     .replace(/[⚠⛔✅❌✉⏳⏱⚖⚙⬛⬜⬆⬇⬅]/g, '');
 }
+/* ===== Version VIERGE de tout document généré (modèle type à compléter) ===== */
+function _viergeMap(){
+  const map=[];
+  function add(v,ph){ v=(v==null?'':String(v)).trim(); if(v.length>=3) map.push([v,ph]); }
+  try{
+    add(E.nom,'[RAISON SOCIALE]'); add(E.adresse,'[ADRESSE DE L\'ENTREPRISE]'); add(E.siret,'[SIRET]');
+    add(E.dirigeant,'[REPRÉSENTANT LÉGAL]'); add(E.email,'[EMAIL]'); add(E.tel,'[TÉLÉPHONE]');
+  }catch(e){}
+  function g(id){const e=document.getElementById(id);return e?e.value:'';}
+  ['pc-nom','disc-sal-nom','c-nom','fh-nom','tb-nom'].forEach(id=>add(g(id),'[NOM Prénom]'));
+  ['pc-poste','disc-sal-poste','c-poste'].forEach(id=>add(g(id),'[POSTE]'));
+  ['pc-adr','c-adr-sal'].forEach(id=>add(g(id),'[ADRESSE DU SALARIÉ]'));
+  ['pc-coeff','c-coeff'].forEach(id=>add(g(id),'[COEFFICIENT]'));
+  ['pc-sal','c-salaire','disc-sal-salaire'].forEach(id=>add(g(id),'[SALAIRE]'));
+  add(g('c-ss'),'[N° SÉCURITÉ SOCIALE]'); add(g('c-lieu-naiss'),'[LIEU DE NAISSANCE]');
+  add(g('disc-faits'),'[FAITS À DÉCRIRE PRÉCISÉMENT — dates, lieux, circonstances]');
+  add(g('c-remplace-nom'),'[NOM DU SALARIÉ REMPLACÉ]'); add(g('c-remplace-motif'),'[MOTIF DE L\'ABSENCE]');
+  ['c-debut','pc-emb','disc-sal-entree','c-naissance','c-cdd-debut','c-cdd-fin','disc-date-faits','disc-date-connaissance'].forEach(id=>{
+    const v=g(id); if(v){ try{ const d=new Date(v+'T00:00:00'); if(!isNaN(d)) add(d.toLocaleDateString('fr-FR'),'[DATE]'); }catch(e){} }
+  });
+  map.sort((a,b)=>b[0].length-a[0].length);
+  return map;
+}
+function docVierge(){
+  if(!window._docCurrent) return;
+  const btn=document.getElementById('doc-vierge-btn');
+  if(window._docOriginal){
+    window._docCurrent={titre:window._docOriginal.titre, html:window._docOriginal.html};
+    document.getElementById('doc-content').innerHTML=window._docOriginal.html;
+    window._docOriginal=null;
+    if(btn)btn.textContent='🗒️ Vierge';
+    return;
+  }
+  window._docOriginal={titre:window._docCurrent.titre, html:window._docCurrent.html};
+  let html=window._docCurrent.html;
+  _viergeMap().forEach(([v,ph])=>{ html=html.split(v).join(ph); });
+  window._docCurrent={titre:window._docCurrent.titre+' — modèle vierge', html:html};
+  document.getElementById('doc-content').innerHTML=html;
+  if(btn)btn.textContent='↩️ Rempli';
+}
 function showDoc(titre,html){
   // Injecter l'avertissement en bas de chaque document, puis purifier en noir et blanc pur
   const htmlAvec = _purifierDocNB(html + AVERT_DOC);
@@ -8261,6 +8302,7 @@ function showDoc(titre,html){
   document.getElementById('doc-content').innerHTML=htmlAvec;
   // Stocker pour export Word
   window._docCurrent = {titre, html: htmlAvec};
+  window._docOriginal=null; var _vb=document.getElementById('doc-vierge-btn'); if(_vb)_vb.textContent='🗒️ Vierge';
   document.getElementById('doc-overlay').classList.add('open');
   document.getElementById('doc-overlay').scrollTop=0;
   try{window.history.pushState({page:'doc', titre}, '', '');}catch(e){}
