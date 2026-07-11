@@ -372,9 +372,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.6';
+var JX_BUILD = 'v2026-07-11.7';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.7', d:'11 juillet 2026', t:[
+   'Assistant Embauche : estimation du COÛT EMPLOYEUR du salarié, par mois et par an — brut + cotisations patronales (4 niveaux selon la réduction générale), mutuelle, médecine du travail, frais de route si conducteur (barème avenant n° 81), provision fin de contrat + congés payés si CDD.'
+ ]},
  {v:'v2026-07-11.6', d:'11 juillet 2026', t:[
    'NOUVEAU — Assistant guidé « 🧑‍💼 J\'embauche un salarié » : répondez aux questions, l\'application vérifie la légalité (7 motifs de CDD, interdictions gréviste/licenciement éco, durées maximales), vous ARRÊTE si c\'est risqué en expliquant les conséquences (requalification, indemnités, sanctions pénales), puis génère le contrat complet + DPAE + visite médicale + documents à exiger du salarié.',
    'Couvre aussi l\'apprentissage (éligibilité 16-29 ans, rémunération % SMIC calculée, CERFA FA13, OPCO Mobilités), la professionnalisation (CERFA EJ20) et l\'intérim (vos obligations).',
@@ -9251,6 +9254,28 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     if(which==='check'&&typeof genChecklistEmbauche==='function')genChecklistEmbauche();
     if(which==='fiche'&&typeof genFichePoste==='function')genFichePoste();};
 
+  /* ── Estimation du coût employeur (mensuel / annuel) ── */
+  window.wzCoutCalc=function(){var out=document.getElementById('wz-cout-out');if(!out)return;
+    var brut=parseFloat(A.salaire)||0;
+    var taux=parseFloat(V('wz-ct-taux'))||43;
+    var charges=brut*taux/100, mutuelle=30, med=10;
+    var cond=(A.conducteur==='oui');
+    var repas=cond?(parseFloat(V('wz-ct-repas'))||0):0;
+    var dec=cond?(parseFloat(V('wz-ct-dec'))||0):0;
+    var frais=repas*16.36+dec*52.31;
+    var cdd=(A.type==='cdd');
+    var sansPrec=(A.motif==='saisonnier'||A.motif==='usage');
+    var prov=cdd?(brut*(sansPrec?0.10:0.20)):0;
+    var mensuel=brut+charges+mutuelle+med+frais+prov, annuel=mensuel*12;
+    function eu(x){return x.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:0})+' €';}
+    out.innerHTML='Salaire brut : <b>'+eu(brut)+'</b><br>'
+     +'Cotisations patronales estimées ('+taux+' %) : <b>+ '+eu(charges)+'</b><br>'
+     +'Mutuelle (part employeur, estimation) : + '+eu(mutuelle)+' · Médecine du travail : + '+eu(med)+'<br>'
+     +(cond&&frais?('Frais de route ('+repas+' repas × 16,36 €'+(dec?(' + '+dec+' découcher(s) × 52,31 €'):'')+' — avenant n° 81) : <b>+ '+eu(frais)+'</b><br>'):'')
+     +(cdd?('Provision CDD — '+(sansPrec?'congés payés (≈ 10 % — pas d’indemnité de fin de contrat pour ce motif, L.1243-10)':'fin de contrat 10 % + congés payés 10 % (≈ 20 % du brut)')+' : <b>+ '+eu(prov)+'</b><br>'):'')
+     +'<span style="color:#e8c97a;font-size:15px">➡️ Coût employeur total : <b>≈ '+eu(mensuel)+' / mois</b> · <b>≈ '+eu(annuel)+' / an</b></span>'
+     +(brut?(' <span style="color:#9a9585">(≈ '+String(Math.round(mensuel/brut*100)/100).replace('.',',')+' fois le brut)</span>'):'');};
+
   /* ── Résultat : verdict + documents + obligations ── */
   S.result=function(){var cdd=(A.type==='cdd'),cond=(A.conducteur==='oui');
     var peLab={'0':'sans période d’essai','1':'1 mois','2':'2 mois','3':'3 mois'}[A.pe]||A.pe+' mois';
@@ -9264,6 +9289,15 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +(cdd&&A.terme==='imprecis'?'<li>Terme imprécis : durée minimale <b>'+esc(A.dureeMin)+' mois</b>, fin au '+(A.motif==='saisonnier'?'terme de la saison':'retour/arrivée du salarié')+'.</li>':'')
       +(cdd?'<li>Indemnité de fin de contrat 10 % (L.1243-8)'+((A.motif==='saisonnier'||A.motif==='usage')?' — <b>non due</b> pour ce motif (L.1243-10)':'')+'.</li>':'')
       +minima+'</ul></div>';
+    /* — Estimation du coût employeur — */
+    var brut=parseFloat(A.salaire)||0,defT=(brut<2100)?22:(brut<2600)?32:43;
+    h+='<div class="ct" style="margin-top:18px">💶 Ce que ce salarié va vous coûter (estimation)</div>'
+      +'<div style="border:1px solid rgba(201,168,76,.35);background:rgba(201,168,76,.06);border-radius:14px;padding:14px">'
+      +fg('Niveau de cotisations patronales (après réduction générale)','<select id="wz-ct-taux" onchange="wzCoutCalc()"><option value="13"'+(defT===13?' selected':'')+'>≈ 13 % — salaire proche du SMIC (réduction maximale)</option><option value="22"'+(defT===22?' selected':'')+'>≈ 22 % — jusqu’à ≈ 1,2 SMIC</option><option value="32"'+(defT===32?' selected':'')+'>≈ 32 % — jusqu’à ≈ 1,4 SMIC</option><option value="43"'+(defT===43?' selected':'')+'>≈ 43 % — ≥ 1,6 SMIC (plus de réduction générale)</option></select>')
+      +(cond?fg('Jours avec indemnité repas / mois (route)',inp('wz-ct-repas','18','number','18'))+fg('Découchers / mois',inp('wz-ct-dec','0','number','0')):'')
+      +'<div id="wz-cout-out" style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:6px"></div>'
+      +'<div style="font-size:10.5px;color:#9a9585;margin-top:8px;line-height:1.6">Estimation indicative (hors heures supplémentaires, primes, aides à l’embauche et taux AT/MP propres à l’entreprise). La réduction générale de cotisations est dégressive jusqu’à 1,6 SMIC. Chiffrage exact : votre expert-comptable ou le simulateur officiel URSSAF.</div>'
+      +'</div>';
     h+='<div class="ct" style="margin-top:18px">📄 Vos documents</div><div style="display:grid;gap:8px">'
       +'<button class="btn" style="margin:0" onclick="wzDoc(\'contrat\')">📄 Générer le CONTRAT '+(cdd?'CDD':'CDI')+' complet →</button>'
       +'<button class="btn-outline" style="margin:0" onclick="wzDoc(\'dpae\')">📋 DPAE pré-remplie (obligatoire AVANT la mise au travail) →</button>'
@@ -9282,7 +9316,9 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     if(cond)h+='<button class="btn-outline" style="margin-top:8px" onclick="goPage(\'tableau-bord\')">📊 Ajouter au tableau de bord conducteurs →</button>';
     h+='<div class="al warn" style="font-size:11px;margin-top:14px">⚠ Trames à faire valider par un avocat avant signature — outil d’information (loi n° 71-1130 du 31/12/1971).</div>'
       +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'salarie\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzGo(\'start\')">🔄 Nouvelle embauche</button></div>';
-    box(h);};
+    box(h);
+    ['wz-ct-repas','wz-ct-dec'].forEach(function(id){var e=document.getElementById(id);if(e)e.addEventListener('input',wzCoutCalc);});
+    wzCoutCalc();};
 
   /* ── Apprentissage ── */
   S['appr-1']=function(){box(head(2,4,'🎓 Apprentissage — éligibilité','Contrat en alternance avec un CFA (transport : AFTRAL, Promotrans…). Le contrat DOIT être établi sur le <b>formulaire CERFA FA13</b> et transmis à l’OPCO Mobilités.')
