@@ -531,6 +531,7 @@ try{
     </select>
   </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
+  <div id="home-alertes" style="display:none"></div>
   <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1;margin-bottom:12px" onclick="goPage('parcours')">
     <div class="hcard-ic">🧭</div>
     <div class="hcard-body"><div class="t">Parcours de la relation de travail</div><div class="d">De l'embauche à la rupture, étape par étape (1 → 26), avec rappels et modèles adaptés au secteur.</div><div class="m">Guide pas-à-pas</div></div>
@@ -654,9 +655,14 @@ try{
 
   <div class="home-sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="homeToggle(this)">
     <span>🚚 Spécifique transport routier</span>
-    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">4</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
+    <span style="display:flex;align-items:center;gap:8px"><span style="background:rgba(201,168,76,.15);color:#e8c97a;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700">5</span><span class="home-acc-chev" style="font-size:13px;color:#c9a84c">▸</span></span>
   </div>
   <div class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#e05c5c;grid-column:1/-1" onclick="event.stopPropagation();goPage('audit')">
+        <div class="hcard-ic">🎯</div>
+        <div class="hcard-body"><div class="t">Contrôle-minute — êtes-vous prêt ?</div><div class="d">Audit de conformité sociale en 24 questions : score + plan d'action priorisé (URSSAF, inspection, DREAL).</div><div class="m">Audit</div></div>
+        <div class="chev">›</div>
+      </div>
       <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps')">
         <div class="hcard-ic">⏱️</div>
         <div class="hcard-body"><div class="t">Temps de conduite &amp; repos</div><div class="d">Décret 83-40 · CE 561/2006 · calculatrice conduite/repos/amplitude.</div><div class="m">Conduite</div></div>
@@ -1847,6 +1853,7 @@ Exemple :<br>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
+  <div class="mi" onclick="goPage('audit');closeMenu()"><span style="font-size:18px">🎯</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Contrôle-minute (audit)</div></div></div>
   <div class="mi" onclick="goPage('temps');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de conduite &amp; repos</div></div></div>
   <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Rémunération transport</div></div></div>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
@@ -2324,6 +2331,127 @@ Exemple :<br>
   }
   if(document.readyState!=='loading')setTimeout(inject,400);
   else document.addEventListener('DOMContentLoaded',function(){setTimeout(inject,400);});
+})();
+</script>
+
+<!-- ═══ CONTRÔLE-MINUTE — AUDIT DE CONFORMITÉ SOCIALE ═══ -->
+<div id="pg-audit" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Contrôle-minute</div><div class="ts">Êtes-vous prêt pour un contrôle ? · score &amp; plan d'action</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card">
+  <div class="al info" style="font-size:12px;margin:0 0 10px">Répondez aux questions ci-dessous (Oui / Non / Non concerné). L'outil calcule votre <b>score de conformité sociale</b> et génère un <b>plan d'action priorisé</b>, avec pour chaque point l'outil de l'application qui vous aide à corriger. Vos réponses sont enregistrées sur cet appareil.</div>
+  <div id="audit-score" style="display:none;margin-bottom:12px"></div>
+  <div id="audit-list"></div>
+  <button class="btn" onclick="auditCalc()">Calculer mon score et mon plan d'action ⚖️</button>
+  <button class="btn-outline" onclick="auditReset()" style="margin-top:8px">♻️ Réinitialiser mes réponses</button>
+  <div id="audit-plan" style="margin-top:14px"></div>
+</div>
+<div style="height:20px"></div>
+</div>
+<script>
+(function(){
+  var KEY='jx_audit_v1';
+  var Q=[
+   {th:'📌 Affichages, registres & documents',items:[
+    {id:'reg',q:'Le registre unique du personnel est-il tenu et à jour (toutes les entrées/sorties, dans l’ordre d’embauche) ?',ref:'L.1221-13 C. trav.',fix:'Constituez vos fiches salariés et l’historique dans l’application (Parcours → fiche salarié).',go:'parcours'},
+    {id:'duerp',q:'Le DUERP (document unique d’évaluation des risques) est-il établi et mis à jour (au moins chaque année si ≥ 11 salariés), incluant le risque routier ?',ref:'R.4121-1 s. C. trav.',fix:'Établissez/actualisez le DUERP avec votre SPST — le risque routier est LE risque majeur du transport.'},
+    {id:'aff',q:'Les affichages/diffusions obligatoires sont-ils en place (coordonnées inspection du travail, SPST, secours, harcèlement — L.1152-4, égalité, interdiction de fumer) ?',ref:'D.1151-1 s., L.1152-4',fix:'Mettez à jour le panneau d’affichage ou la diffusion interne (intranet).'},
+    {id:'hor',q:'Les horaires collectifs / temps de service sont-ils affichés et transmis à l’inspection le cas échéant ?',ref:'D.3171-2 s. C. trav.',fix:'Affichez les horaires collectifs ; pour les roulants, tenez les relevés de temps de service.',go:'temps'},
+    {id:'ri',q:'Le règlement intérieur (obligatoire à partir de 50 salariés) est-il en vigueur : avis CSE, dépôt greffe, transmission inspection, publicité ?',ref:'L.1321-1 s. C. trav.',fix:'Générez et régularisez votre règlement intérieur transport.',go:'ri'}
+   ]},
+   {th:'📄 Contrats & paie',items:[
+    {id:'cdd2j',q:'Tous les contrats sont-ils écrits et signés — les CDD transmis au salarié dans les 2 jours ouvrables ?',ref:'L.1242-13 C. trav.',fix:'Générez des contrats conformes (mentions CDD obligatoires incluses).',go:'contrat'},
+    {id:'minima',q:'Les salaires respectent-ils les minima conventionnels du coefficient, et la GAR est-elle contrôlée en fin d’année ?',ref:'CCN IDCC 0016',fix:'Vérifiez taux horaires et GAR dans le module Rémunération.',go:'remuneration'},
+    {id:'frais',q:'Les frais de déplacement (repas, casse-croûte, découchers) sont-ils payés selon le protocole en vigueur (avenant n° 81, 01/01/2026) ?',ref:'Protocole frais CCN',fix:'Alignez vos indemnités sur le barème en vigueur (module Rémunération).',go:'remuneration'},
+    {id:'entpro',q:'Les entretiens professionnels sont-ils réalisés tous les 2 ans, avec l’état des lieux récapitulatif à 6 ans ?',ref:'L.6315-1 C. trav.',fix:'Planifiez les entretiens en retard : à défaut, abondement CPF de 3 000 € par salarié (entreprises ≥ 50).'},
+    {id:'dsn',q:'Bulletins de paie remis et conservés, DSN transmises dans les délais ?',ref:'L.3243-2 C. trav.',fix:'Vérifiez avec votre service paie / expert-comptable.'}
+   ]},
+   {th:'🚚 Conducteurs (spécifique transport)',items:[
+    {id:'valid',q:'Les validités de TOUS les conducteurs sont-elles suivies (permis, CQC, FCO, visite médicale renforcée, ADR, carte de conducteur) ?',ref:'Resp. pénale employeur — Cass. crim. 2003',fix:'Enregistrez chaque conducteur dans le Tableau de bord : alertes automatiques d’échéance.',go:'tableau-bord'},
+    {id:'tachy',q:'Les données tachygraphe sont-elles téléchargées dans les délais (carte conducteur ≤ 28 jours, mémoire véhicule ≤ 90 jours) et conservées 12 mois ?',ref:'Règl. UE 165/2014',fix:'Mettez en place un calendrier de téléchargement automatique et un archivage.'},
+    {id:'temps',q:'Les temps de conduite/repos et le temps de service sont-ils contrôlés, les dépassements analysés et traités ?',ref:'CE 561/2006 · Décret 83-40',fix:'Utilisez la calculatrice temps de conduite et la fiche hebdomadaire.',go:'temps'},
+    {id:'sir',q:'Les conducteurs bénéficient-ils du suivi individuel renforcé au SPST (examen d’aptitude AVANT affectation, périodicité renforcée) ?',ref:'R.4624-22 s. C. trav.',fix:'Déclarez les postes de conduite en suivi renforcé auprès de votre SPST.',go:'contrat'},
+    {id:'fimo',q:'Les FCO sont-elles planifiées et financées AVANT l’échéance des CQC ?',ref:'C. transports L.3314-1 s.',fix:'Générez les convocations FCO depuis le Parcours (étape 9) et suivez les échéances.',go:'tableau-bord'}
+   ]},
+   {th:'🗳️ Représentation du personnel',items:[
+    {id:'cse',q:'Si l’effectif atteint 11 salariés depuis 12 mois : le CSE est-il en place OU disposez-vous d’un PV de carence de moins de 4 ans ?',ref:'L.2311-2 C. trav.',fix:'Organisez les élections avec le module Élections CSE (calendrier, PAP, PV).',go:'cse'},
+    {id:'heures',q:'Les heures de délégation sont-elles payées et les réunions CSE tenues (BDESE si ≥ 50) ?',ref:'L.2315-7 s. C. trav.',fix:'Régularisez avec le module CSE (sièges et heures par effectif).',go:'cse'}
+   ]},
+   {th:'🩺 Santé & sécurité',items:[
+    {id:'spst',q:'L’adhésion au SPST est-elle à jour et les visites périodiques planifiées ?',ref:'L.4622-1 C. trav.',fix:'Régularisez l’adhésion et l’agenda des visites.'},
+    {id:'proto',q:'Les protocoles de sécurité chargement/déchargement sont-ils établis avec les entreprises d’accueil ?',ref:'R.4515-4 s. C. trav.',fix:'Formalisez un protocole écrit par site client régulier — obligation propre au transport.'},
+    {id:'dat',q:'La déclaration d’accident du travail (48 h) et le registre des accidents bénins sont-ils maîtrisés ?',ref:'L.441-2 C. séc. soc.',fix:'Formalisez la procédure interne AT (qui déclare, réserves motivées éventuelles).',go:'absences'},
+    {id:'alcool',q:'Le cadre alcool/stupéfiants (contrôles, taux, sanctions) est-il fixé par le règlement intérieur ?',ref:'R.4228-20 s. · RI',fix:'Complétez le règlement intérieur transport (alcool, stupéfiants, tachygraphe).',go:'ri'}
+   ]},
+   {th:'⚖️ Discipline & ruptures',items:[
+    {id:'presc',q:'Les procédures disciplinaires sont-elles engagées dans les 2 mois de la connaissance des faits ?',ref:'L.1332-4 C. trav.',fix:'Utilisez le module Discipline : vérification automatique de la prescription.',go:'disciplinaire'},
+    {id:'procd',q:'Les licenciements respectent-ils la procédure (convocation avec mentions, délais, notification motivée) ?',ref:'L.1232-2 s. C. trav.',fix:'Générez les documents conformes (convocation avec conseiller du salarié, lettres motivées).',go:'disciplinaire'},
+    {id:'findoc',q:'Les documents de fin de contrat sont-ils systématiquement remis (certificat, attestation France Travail, solde de tout compte, portabilité) ?',ref:'L.1234-19 s. · L.911-8 CSS',fix:'Générez le pack de fin de contrat depuis le Parcours (étape 26).',go:'parcours'}
+   ]}
+  ];
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};}}
+  function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}}
+  window.auditSet=function(id,v){var d=load();d[id]=v;save(d);};
+  window.auditRender=function(){
+    var host=document.getElementById('audit-list'); if(!host)return;
+    var d=load(),h='';
+    Q.forEach(function(g){
+      h+='<div style="font-weight:800;color:#e8c97a;font-size:13px;margin:14px 0 6px">'+g.th+'</div>';
+      g.items.forEach(function(it){
+        var v=d[it.id]||'';
+        h+='<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;margin-bottom:8px">'
+          +'<div style="font-size:13px;color:#fff;line-height:1.5;margin-bottom:4px">'+esc(it.q)+'</div>'
+          +'<div style="font-size:11px;color:#9a9585;margin-bottom:6px">📘 '+esc(it.ref)+'</div>'
+          +'<select onchange="auditSet(\''+it.id+'\',this.value)" style="padding:7px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:#12283b;color:#e8e4d8;font-size:12.5px">'
+          +'<option value=""'+(v===''?' selected':'')+'>— répondre —</option>'
+          +'<option value="oui"'+(v==='oui'?' selected':'')+'>✅ Oui</option>'
+          +'<option value="non"'+(v==='non'?' selected':'')+'>❌ Non</option>'
+          +'<option value="na"'+(v==='na'?' selected':'')+'>Non concerné</option>'
+          +'</select></div>';
+      });
+    });
+    host.innerHTML=h;
+  };
+  window.auditCalc=function(){
+    var d=load(),tot=0,oui=0,manq=[],nonRep=0;
+    Q.forEach(function(g){g.items.forEach(function(it){
+      var v=d[it.id]||'';
+      if(v==='na')return;
+      if(v==='')nonRep++;
+      tot++;
+      if(v==='oui')oui++;
+      else if(v==='non')manq.push(it);
+    });});
+    var sc=document.getElementById('audit-score'),plan=document.getElementById('audit-plan');
+    if(!tot){sc.style.display='none';plan.innerHTML='';return;}
+    var pct=Math.round(oui*100/tot);
+    var col=pct>=90?'#46b885':pct>=70?'#d4a017':'#e05c5c';
+    var verdict=pct>=90?'Très bonne conformité — maintenez le cap':pct>=70?'Conformité perfectible — traitez les points ci-dessous':'Risque élevé en cas de contrôle — plan d’action prioritaire';
+    sc.style.display='block';
+    sc.innerHTML='<div style="border:1.5px solid '+col+';border-radius:12px;padding:14px;text-align:center">'
+      +'<div style="font-size:34px;font-weight:800;color:'+col+'">'+pct+' %</div>'
+      +'<div style="font-size:13px;color:#e8e4d8;margin-top:2px">'+verdict+'</div>'
+      +'<div style="font-size:11px;color:#9a9585;margin-top:4px">'+oui+' conforme(s) · '+manq.length+' à corriger'+(nonRep?' · '+nonRep+' sans réponse':'')+'</div></div>';
+    var h='';
+    if(manq.length){
+      h+='<div class="ct" style="font-size:15px">🛠️ Plan d’action ('+manq.length+' point'+(manq.length>1?'s':'')+')</div>';
+      manq.forEach(function(it,i){
+        h+='<div style="border-left:3px solid #e05c5c;background:rgba(224,92,92,.07);border-radius:8px;padding:10px;margin-bottom:8px">'
+          +'<div style="font-size:13px;color:#fff;font-weight:600">'+(i+1)+'. '+esc(it.q)+'</div>'
+          +'<div style="font-size:12px;color:#cfc8b8;margin:4px 0">→ '+esc(it.fix)+'</div>'
+          +'<div style="font-size:11px;color:#9a9585">📘 '+esc(it.ref)+'</div>'
+          +(it.go?'<button class="btn-outline" style="margin-top:6px" onclick="goPage(\''+it.go+'\')">Ouvrir l’outil →</button>':'')
+          +'</div>';
+      });
+    } else if(!nonRep){ h+='<div class="al ok" style="font-size:13px">✅ Aucun point de non-conformité déclaré. Pensez à refaire ce contrôle régulièrement (trimestriel recommandé).</div>'; }
+    if(nonRep) h+='<div class="al warn" style="font-size:12px">'+nonRep+' question(s) sans réponse — répondez à tout pour un score fiable.</div>';
+    plan.innerHTML=h;
+    sc.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+  window.auditReset=function(){ if(confirm('Effacer toutes vos réponses ?')){save({});auditRender();document.getElementById('audit-score').style.display='none';document.getElementById('audit-plan').innerHTML='';} };
+  if(document.readyState!=='loading')auditRender();else document.addEventListener('DOMContentLoaded',auditRender);
 })();
 </script>
 
@@ -7725,7 +7853,52 @@ function ajouterConducteur(){
   });
 }
 
+/* ===== Alertes actives : calcul global + panneau d'accueil + badge ===== */
+function calcAlertesConducteurs(){
+  const SEUILS={permis:{orange:90,label:'Permis'},cqc:{orange:180,label:'CQC'},fco:{orange:180,label:'FCO'},visite:{orange:90,label:'Visite médicale'},adr:{orange:180,label:'ADR'},tachy:{orange:180,label:'Carte tachygraphe'}};
+  const out={red:[],orange:[]};
+  (typeof conducteurs!=='undefined'?conducteurs:[]).forEach(c=>{
+    Object.keys(SEUILS).forEach(k=>{
+      if(!c[k])return; const jr=joursRestants(c[k]); if(jr===null)return;
+      if(jr<=0) out.red.push({nom:c.nom,label:SEUILS[k].label,msg:'expiré depuis '+Math.abs(jr)+' j',jr});
+      else if(jr<=SEUILS[k].orange) out.orange.push({nom:c.nom,label:SEUILS[k].label,msg:'expire dans '+jr+' j',jr});
+    });
+  });
+  out.red.sort((a,b)=>a.jr-b.jr); out.orange.sort((a,b)=>a.jr-b.jr);
+  return out;
+}
+function homeAlertesRefresh(){
+  const host=document.getElementById('home-alertes'); if(!host)return;
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  const sec=window.CLIENT_SECTEUR||'';
+  if(sec && sec!=='transport'){host.style.display='none';return;}
+  const nb=(typeof conducteurs!=='undefined'?conducteurs.length:0);
+  const a=calcAlertesConducteurs();
+  const tot=a.red.length+a.orange.length;
+  // badge sur la barre du bas
+  const bn=document.getElementById('bn-home');
+  if(bn){let b=document.getElementById('bn-alert-badge');
+    if(!b){b=document.createElement('span');b.id='bn-alert-badge';b.style.cssText='position:absolute;top:2px;right:12px;background:#e05c5c;color:#fff;border-radius:10px;min-width:16px;height:16px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px';bn.style.position='relative';bn.appendChild(b);}
+    b.textContent=String(tot); b.style.display=tot?'flex':'none';}
+  if(!tot){
+    if(nb){host.style.display='block';host.innerHTML='<div style="border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.08);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12.5px;color:#8fd9b6;cursor:pointer" onclick="goPage(\'tableau-bord\')">✅ <b>Conformité conducteurs</b> : tous les documents suivis sont à jour ('+nb+' conducteur'+(nb>1?'s':'')+' suivi'+(nb>1?'s':'')+'). Ouvrir le tableau de bord ›</div>';}
+    else host.style.display='none';
+    return;
+  }
+  const col=a.red.length?'#e05c5c':'#d4a017';
+  let h='<div style="border:1.5px solid '+col+';background:rgba('+(a.red.length?'224,92,92':'212,160,23')+',.10);border-radius:12px;padding:12px 14px;margin-bottom:12px;cursor:pointer" onclick="goPage(\'tableau-bord\')">';
+  h+='<div style="font-weight:800;color:'+col+';font-size:13.5px;margin-bottom:6px">'+(a.red.length?'🔴':'🟡')+' Alertes conformité conducteurs — '
+    +(a.red.length?('<b>'+a.red.length+' document(s) EXPIRÉ(S)</b>'):'')
+    +(a.red.length&&a.orange.length?' · ':'')
+    +(a.orange.length?(a.orange.length+' à renouveler'):'')+'</div>';
+  const items=a.red.map(x=>({...x,t:'r'})).concat(a.orange.map(x=>({...x,t:'o'}))).slice(0,5);
+  items.forEach(x=>{h+='<div style="font-size:12px;color:#e8e4d8;padding:2px 0">'+(x.t==='r'?'⛔':'⏳')+' <b>'+esc(x.nom)+'</b> — '+x.label+' : '+x.msg+'</div>';});
+  if(tot>5)h+='<div style="font-size:11px;color:#9a9585;margin-top:4px">… et '+(tot-5)+' autre(s) alerte(s)</div>';
+  h+='<div style="font-size:11.5px;color:#e8c97a;margin-top:6px">Ouvrir le tableau de bord conducteurs ›</div></div>';
+  host.innerHTML=h; host.style.display='block';
+}
 function renderAlertes(){
+  try{homeAlertesRefresh();}catch(e){}
   const cont=document.getElementById('tb-alertes');
   if(!cont)return;
   if(!conducteurs.length){
@@ -8810,6 +8983,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       s.innerHTML='📅 Base juridique arrêtée au <b>'+JX_MAJ+'</b> — actualisée périodiquement ; vérifiez l\'actualité des textes, de la jurisprudence et de votre convention collective avant toute décision.';
       hd.appendChild(s);
     }
+    try{ setTimeout(function(){ if(typeof homeAlertesRefresh==='function')homeAlertesRefresh(); }, 700); }catch(e){}
   }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
