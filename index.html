@@ -356,7 +356,36 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.3';
+var JX_BUILD = 'v2026-07-11.4';
+// Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
+var JX_CHANGELOG = [
+ {v:'v2026-07-11.4', d:'11 juillet 2026', t:[
+   'Nouvelle page « Nouveautés » : historique complet des versions, accessible depuis l\'accueil et le menu.',
+   'Après chaque mise à jour automatique, un message s\'affiche sur l\'accueil avec le détail des nouveautés.'
+ ]},
+ {v:'v2026-07-11.3', d:'11 juillet 2026', t:[
+   'Mise à jour automatique et OBLIGATOIRE : l\'application vérifie la version en ligne (à l\'ouverture, toutes les 10 minutes et au retour au premier plan) et s\'actualise seule — plus aucune ancienne version en circulation.'
+ ]},
+ {v:'v2026-07-11.2', d:'11 juillet 2026', t:[
+   'Contrat de travail transport entièrement refondu : 12 articles numérotés, bloc CDD conforme (L.1242-12), garanties conventionnelles CCN transports.',
+   'Bouton « 🗒️ Vierge » sur chaque document : téléchargez la trame type vide la plus complète.',
+   'Libellés explicites sur tous les boutons de génération (promesse d\'embauche ≠ contrat de travail).',
+   'Numéro de version visible sur l\'accueil.'
+ ]},
+ {v:'v2026-07-10.x', d:'10 juillet 2026', t:[
+   'Alertes de conformité actives : échéances permis, visite médicale, CQC/FCO, ADR, tachygraphe (tableau de bord conducteurs).',
+   'Contrôle-minute : auto-audit de conformité sociale en 24 questions avec score et plan d\'action.',
+   'Barèmes transport 2026 vérifiés aux sources (frais de déplacement — avenant n° 81 du 02/12/2025, taux horaires).',
+   'Documents disciplinaires, absences et embauche refondus selon la loi, la CCN transports et la jurisprudence.'
+ ]},
+ {v:'v2026-07-09.x', d:'9 juillet 2026', t:[
+   'Parcours chronologique guidé 1 → 26 (de l\'embauche à la rupture) avec modèles pré-remplis.',
+   'Fiches salariés partagées entre tous les modules (sélection ou création en un clic), ancienneté calculée selon la règle légale exacte (années + mois complets).',
+   'Accès par secteur : chaque client ne voit que son secteur d\'activité, verrouillé par son code.',
+   'Application installable (PWA) sur PC et téléphone, utilisable hors ligne.',
+   'Charte RGPD : vos données restent sur votre appareil, rien n\'est transmis à une IA.'
+ ]}
+];
 // Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
 const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
 // Code d'accès temporaire (essai 3 jours) — expire le 06/07/2026 23:59
@@ -1863,6 +1892,7 @@ Exemple :<br>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
   <div class="mi" onclick="goPage('rgpd');closeMenu()"><span style="font-size:18px">🔒</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Charte RGPD / confidentialité</div></div></div>
+  <div class="mi" onclick="goPage('nouveautes');closeMenu()"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Nouveautés & mises à jour</div></div></div>
 </div>
 <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:#6b6660;line-height:1.5">Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</div>
 </div>
@@ -1957,6 +1987,20 @@ Exemple :<br>
 <div class="card">
   <div class="al warn" style="font-size:11.5px;margin:0">Version du 3 juillet 2026 · Charte informative adaptée au fonctionnement réel de l'application. Ne dispense pas l'éditeur de vérifier ses obligations propres (registre des traitements, mentions légales) au regard de son usage.</div>
 </div>
+<div style="height:20px"></div>
+</div>
+
+<!-- ═══ NOUVEAUTÉS & MISES À JOUR ═══ -->
+<div id="pg-nouveautes" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Nouveautés & mises à jour</div><div class="ts">Historique des versions · mise à jour automatique</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+  <div class="al ok" style="font-size:12.5px;line-height:1.7">🔄 <b>Mise à jour automatique et obligatoire.</b> Votre application vérifie elle-même la version en vigueur — à l'ouverture, toutes les 10 minutes et à chaque retour au premier plan. Dès qu'une nouvelle version est publiée, elle s'installe <b>automatiquement, sans aucune action de votre part</b>. Vous travaillez donc toujours avec la dernière base juridique et les derniers modèles.</div>
+</div>
+
+<div id="nouveautes-list"></div>
 <div style="height:20px"></div>
 </div>
 
@@ -9011,6 +9055,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       if(last && (Date.now()-last)<600000) return;   /* anti-boucle : 1 tentative / 10 min / version */
       sessionStorage.setItem(guard, String(Date.now()));
     }catch(e){}
+    try{ localStorage.setItem('jx_whatsnew', newBuild); }catch(e){}  /* bannière « nouveautés » après redémarrage */
     try{
       var ov=document.createElement('div');
       ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,16,26,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#e8e2d2;font-family:inherit;text-align:center;padding:24px';
@@ -9070,11 +9115,48 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var hd=document.querySelector('#pg-home .home-disclaimer');
     if(hd && hd.textContent.indexOf('Base juridique')<0){
       var s=document.createElement('div'); s.style.cssText='margin-top:6px;font-size:11px;color:#9a9585';
-      s.innerHTML='📅 Base juridique arrêtée au <b>'+JX_MAJ+'</b> — actualisée périodiquement ; vérifiez l\'actualité des textes, de la jurisprudence et de votre convention collective avant toute décision.<br>🔄 Version de l\'application : <b>'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'—')+'</b>';
+      s.innerHTML='📅 Base juridique arrêtée au <b>'+JX_MAJ+'</b> — actualisée périodiquement ; vérifiez l\'actualité des textes, de la jurisprudence et de votre convention collective avant toute décision.<br>🔄 Version de l\'application : <b>'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'—')+'</b> — mise à jour automatique · <a href="#" onclick="goPage(\'nouveautes\');return false" style="color:#e8c97a;font-weight:600">Voir les nouveautés →</a>';
       hd.appendChild(s);
     }
     try{ setTimeout(function(){ if(typeof homeAlertesRefresh==='function')homeAlertesRefresh(); }, 700); }catch(e){}
   }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+</script>
+
+<script>
+/* ===== Page Nouveautés (historique des versions) + bannière après mise à jour ===== */
+(function(){
+  function render(){
+    var box=document.getElementById('nouveautes-list');
+    if(!box || typeof JX_CHANGELOG==='undefined') return;
+    var h='';
+    JX_CHANGELOG.forEach(function(r,i){
+      h+='<div class="card">'
+        +'<div class="ct">'+(i===0?'🆕 ':'')+'Version '+r.v
+        +(i===0?' <span style="font-size:10px;background:rgba(94,181,122,.15);color:#5eb57a;border:1px solid rgba(94,181,122,.35);border-radius:20px;padding:2px 10px;vertical-align:middle;margin-left:6px">VERSION ACTUELLE</span>':'')
+        +'</div>'
+        +'<div style="font-size:11px;color:#9a9585;margin:-4px 0 8px">'+r.d+'</div>'
+        +'<ul style="margin:0;padding-left:18px;font-size:12.5px;color:#e8e4d8;line-height:1.8">'
+        +r.t.map(function(x){return '<li>'+x+'</li>';}).join('')
+        +'</ul></div>';
+    });
+    box.innerHTML=h;
+  }
+  function banner(){
+    var nb=null;
+    try{ nb=localStorage.getItem('jx_whatsnew'); }catch(e){}
+    if(!nb || typeof JX_BUILD==='undefined' || nb!==JX_BUILD) return;   /* n'afficher qu'une fois la nouvelle version réellement en place */
+    var home=document.getElementById('pg-home'); if(!home || document.getElementById('jx-whatsnew-banner')) return;
+    var d=document.createElement('div');
+    d.id='jx-whatsnew-banner';
+    d.style.cssText='margin:10px 4px;padding:12px 14px;border:1px solid rgba(94,181,122,.4);background:rgba(94,181,122,.1);border-radius:12px;font-size:12.5px;color:#e8e4d8;line-height:1.6;display:flex;align-items:center;gap:10px';
+    d.innerHTML='<span style="font-size:20px">✅</span><div style="flex:1"><b>Application mise à jour automatiquement</b> vers la version <b>'+JX_BUILD+'</b>.<br><a href="#" onclick="goPage(\'nouveautes\');document.getElementById(\'jx-whatsnew-banner\').remove();try{localStorage.removeItem(\'jx_whatsnew\')}catch(e){};return false" style="color:#5eb57a;font-weight:700">Découvrir les nouveautés →</a></div>'
+      +'<button onclick="this.parentNode.remove();try{localStorage.removeItem(\'jx_whatsnew\')}catch(e){}" style="background:none;border:none;color:#9a9585;font-size:16px;cursor:pointer;padding:4px">✕</button>';
+    var anchor=home.querySelector('.topbar');
+    if(anchor && anchor.nextSibling) home.insertBefore(d, anchor.nextSibling); else home.insertBefore(d, home.firstChild);
+  }
+  function init(){ render(); banner(); }
   if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
 })();
 </script>
