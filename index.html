@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.8';
+var JX_BUILD = 'v2026-07-11.9';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.9', d:'11 juillet 2026', t:[
+   'CORRECTIF module Discipline : les documents proposés suivent désormais la SANCTION choisie — un avertissement ne propose plus « convocation + lettre de licenciement » mais la lettre d\'avertissement.',
+   '5 nouvelles lettres : avertissement, blâme, notification de mise à pied disciplinaire (contrôle RI — Cass. 26/10/2010), proposition de rétrogradation (accord du salarié requis, droit de refus mentionné — Cass. 28/04/2011), licenciement pour faute lourde (intention de nuire, CP dus — Cons. const. 2015-523 QPC).',
+   'Procédure « rétrogradation » ajoutée aux étapes détaillées.'
+ ]},
  {v:'v2026-07-11.8', d:'11 juillet 2026', t:[
    'NOUVEAU — Assistant guidé « 🚪 Je veux rompre un contrat » : 8 voies de rupture couvertes. Rupture conventionnelle avec CALENDRIER DATÉ (signature → rétractation 15 j → TéléRC → homologation DREETS → date de rupture) et indemnité minimale CALCULÉE à partir de l\'ancienneté exacte ; CDD avant terme (5 cas légaux, sinon blocage : salaires dus jusqu\'au terme — L.1243-4) ; licenciement économique (PSE obligatoire détecté, CSP, critères d\'ordre) ; insuffisance professionnelle ; démission (préavis, abandon de poste) ; retraite (67/70 ans).',
    'L\'accueil devient un tableau d\'actions « Que voulez-vous faire ? » : 10 tuiles-intentions (j\'embauche, je sanctionne, je romps, absent/malade, je calcule, je vérifie un salaire, élections CSE, je vérifie un document, j\'ai une question, j\'ai un litige).',
@@ -4591,16 +4596,41 @@ function analyserSituation(){
   const juris=JURISPRUDENCE_DISCIPLINE[motif]||JURISPRUDENCE_DISCIPLINE['standard'];
   document.getElementById('disc-analyse-titre').textContent=juris.titre;
   document.getElementById('disc-juris-contenu').innerHTML=juris.analyse;
-  const docsMap={
-    'convocation':`<button class="btn-outline" onclick="genDocDisc('convocation')">📄 Convocation à entretien préalable →</button>`,
-    'map_conservatoire':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('map_conservatoire')">⚠ Mise à pied conservatoire →</button>`,
-    'lettre_fg':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_fg')">📋 Lettre de licenciement — Faute grave →</button>`,
-    'lettre_lic':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_lic')">📋 Lettre de licenciement — CRS →</button>`,
-    'lettre_inaptitude':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_inaptitude')">📋 Lettre de licenciement — Inaptitude →</button>`,
-    'reclassement':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('reclassement')">📝 Courrier de recherche de reclassement →</button>`,
-    'mise_demeure':`<button class="btn-outline" style="margin-top:6px" onclick="genDocAbsence('mise_demeure_abs')">📨 Mise en demeure →</button>`,
-  };
-  document.getElementById('disc-docs-liste').innerHTML=(juris.docs||['convocation']).map(d=>docsMap[d]||'').join('');
+  // La liste finale des documents dépend de la SANCTION choisie (rendue à l'étape suivante) ;
+  // tant qu'aucune sanction n'est choisie, on propose les documents types du motif.
+  renderDiscDocs(discDocsForSanction(gv('disc-sanction'))||juris.docs||['convocation']);
+}
+var DISC_DOCS_MAP={
+  'lettre_avertissement':`<button class="btn-outline" onclick="genDocDisc('lettre_avertissement')">📄 Lettre d'avertissement →</button>`,
+  'lettre_blame':`<button class="btn-outline" onclick="genDocDisc('lettre_blame')">📄 Lettre de blâme →</button>`,
+  'convocation':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('convocation')">📄 Convocation à entretien préalable →</button>`,
+  'map_conservatoire':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('map_conservatoire')">⚠ Mise à pied conservatoire →</button>`,
+  'lettre_map_disc':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_map_disc')">📋 Notification de mise à pied disciplinaire →</button>`,
+  'lettre_retrogradation':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_retrogradation')">📋 Proposition de rétrogradation disciplinaire →</button>`,
+  'lettre_fg':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_fg')">📋 Lettre de licenciement — Faute grave →</button>`,
+  'lettre_fl':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_fl')">📋 Lettre de licenciement — Faute lourde →</button>`,
+  'lettre_lic':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_lic')">📋 Lettre de licenciement — CRS →</button>`,
+  'lettre_inaptitude':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_inaptitude')">📋 Lettre de licenciement — Inaptitude →</button>`,
+  'reclassement':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('reclassement')">📝 Courrier de recherche de reclassement →</button>`,
+  'mise_demeure':`<button class="btn-outline" style="margin-top:6px" onclick="genDocAbsence('mise_demeure_abs')">📨 Mise en demeure →</button>`
+};
+// Documents adaptés à CHAQUE sanction : un avertissement n'entraîne ni entretien préalable ni lettre de licenciement
+function discDocsForSanction(s){
+  return {
+    'avertissement':['lettre_avertissement'],
+    'blame':['lettre_blame'],
+    'map_disc':['convocation','lettre_map_disc'],
+    'retrogradation':['convocation','lettre_retrogradation'],
+    'lic_crs':['convocation','lettre_lic'],
+    'lic_fg':['map_conservatoire','convocation','lettre_fg'],
+    'lic_fl':['map_conservatoire','convocation','lettre_fl'],
+    'lic_inaptitude_np':['reclassement','lettre_inaptitude'],
+    'lic_inaptitude_p':['reclassement','lettre_inaptitude']
+  }[s]||null;
+}
+function renderDiscDocs(list){
+  var el=document.getElementById('disc-docs-liste');
+  if(el&&list)el.innerHTML=list.map(function(d){return DISC_DOCS_MAP[d]||'';}).join('');
 }
 function calculerEtGenerer(){
   const sanction=gv('disc-sanction');
@@ -4617,6 +4647,7 @@ function calculerEtGenerer(){
     return;
   }
   calcIndemnites();
+  renderDiscDocs(discDocsForSanction(sanction)||['convocation']);
   show('disc-etape3');
 }
 
@@ -4626,6 +4657,7 @@ function updateSanction(){
   const infos={
     'avertissement':{txt:`Avertissement : notification écrite directe dans les 2 mois suivant la connaissance des faits.`,etapes:[`Rédiger et notifier l'avertissement`]},
     'blame':{txt:`Blâme : notification écrite directe.`,etapes:[`Rédiger et notifier le blâme`]},
+    'retrogradation':{txt:`Rétrogradation : modification du contrat — l'accord du salarié est requis ; en cas de refus, une autre sanction (y compris licenciement) peut être prononcée.`,etapes:[`Convoquer (5 jours ouvrables)`,`Tenir l'entretien`,`PROPOSER la rétrogradation par écrit avec délai de réponse`,`Si refus : reprendre la procédure pour une autre sanction`]},
     'map_disc':{txt:`Mise à pied disciplinaire : entretien préalable obligatoire.`,etapes:[`Convoquer (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier (2j ouvrables min., 1 mois max)`]},
     'lic_crs':{txt:`Licenciement pour cause réelle et sérieuse.`,etapes:[`Convoquer à entretien (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier le licenciement (2j ouvrables min., 1 mois max)`]},
     'lic_fg':{txt:`Faute grave : licenciement sans préavis ni indemnité. MAP conservatoire possible.`,etapes:[`Mettre à pied à titre conservatoire`,`Convoquer (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier le licenciement pour faute grave`]},
@@ -4637,6 +4669,7 @@ function updateSanction(){
   document.getElementById('sanction-info').textContent=inf.txt;
   document.getElementById('sanction-etapes').innerHTML=inf.etapes.map((e,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-txt">${e}</div></div>`).join('');
   show('sanction-procedure');
+  renderDiscDocs(discDocsForSanction(s));   // la liste des documents suit la sanction choisie
 }
 
 function calcIndemnites(){
@@ -4717,6 +4750,106 @@ ${docObjetEncadre('Convocation à entretien préalable à une sanction disciplin
 <p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
 ${docSignatureBloc()}
 ${docPiedPage('Art. L.1232-2, L.1232-4 et D.1232-5 C. trav. — Entretien : au moins 5 jours ouvrables PLEINS après la première présentation. Sanction : au plus tôt 2 jours ouvrables et au plus tard 1 mois après l’entretien (L.1332-2)')}
+</div>`;
+  } else if(type==='lettre_avertissement'||type==='lettre_blame'){
+    const sanctionNom=(type==='lettre_blame')?'blâme':'avertissement';
+    titre=(type==='lettre_blame')?`Lettre de blâme`:`Lettre d'avertissement`;
+    html=`<div style="${S}">
+${docEnTete()}
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<tr><td style="width:55%;vertical-align:top;padding-right:14px">
+<div style="border:1px solid #000;padding:10px;font-family:'Times New Roman',serif;font-size:11pt;color:#000">
+<strong>Destinataire :</strong><br>${nom}<br>[ADRESSE DU SALARIÉ]<br>[CODE POSTAL] [VILLE]
+</div></td>
+<td style="width:45%;vertical-align:top">${docLRAR()}</td></tr>
+</table>
+<p style="${S}text-align:right">${_docVille()}, le ${today}</p>
+${docObjetEncadre('Notification d\'un '+sanctionNom+' disciplinaire')}
+<p style="${S}">Monsieur / Madame ${nom},</p>
+<p style="${S}">En votre qualité de ${poste}, nous avons eu à déplorer de votre part les faits suivants, dont nous avons eu connaissance le ${dateConn} :</p>
+<p style="${S}"><strong>${faits}</strong> [préciser dates, lieux, circonstances — faits du ${dateFaits}]</p>
+<p style="${S}">Ces faits constituent un manquement à vos obligations professionnelles [préciser : contrat de travail, règlement intérieur, consignes]. Nous ne pouvons les tolérer.</p>
+<p style="${S}">En conséquence, nous vous notifions par la présente un <strong>${sanctionNom}</strong>, qui sera versé à votre dossier.</p>
+<p style="${S}">Nous vous demandons de veiller à l'avenir au strict respect de vos obligations. Nous attirons votre attention sur le fait que <strong>tout nouveau manquement</strong> de même nature nous conduirait à envisager une sanction plus sévère, pouvant aller jusqu'au licenciement.</p>
+<p style="${S}">[Si le salarié souhaite s'expliquer, nous restons à sa disposition.]</p>
+<p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
+${docSignatureBloc()}
+${docPiedPage('Art. L.1331-1 (définition de la sanction), L.1332-2 (l’avertissement, sans incidence sur la présence, la fonction, la carrière ou la rémunération, n’exige pas d’entretien préalable — sauf disposition contraire du règlement intérieur), L.1332-4 (prescription : 2 mois à compter de la connaissance des faits), L.1332-5 (aucune sanction antérieure de plus de 3 ans ne peut être invoquée). Cette sanction ne peut plus être invoquée au bout de 3 ans.')}
+</div>`;
+  } else if(type==='lettre_map_disc'){
+    titre=`Notification de mise à pied disciplinaire`;
+    html=`<div style="${S}">
+${docEnTete()}
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<tr><td style="width:55%;vertical-align:top;padding-right:14px">
+<div style="border:1px solid #000;padding:10px;font-family:'Times New Roman',serif;font-size:11pt;color:#000">
+<strong>Destinataire :</strong><br>${nom}<br>[ADRESSE DU SALARIÉ]<br>[CODE POSTAL] [VILLE]
+</div></td>
+<td style="width:45%;vertical-align:top">${docLRAR()}</td></tr>
+</table>
+<p style="${S}text-align:right">${_docVille()}, le ${today}</p>
+${docObjetEncadre('Notification d\'une mise à pied disciplinaire')}
+<p style="${S}">Monsieur / Madame ${nom},</p>
+<p style="${S}">À la suite de l'entretien préalable qui s'est tenu le [DATE DE L'ENTRETIEN — ou auquel vous ne vous êtes pas présenté(e)], et après réflexion, nous vous notifions une <strong>mise à pied disciplinaire de [NOMBRE] jour(s) ouvré(s)</strong>, qui prendra effet du [DATE DE DÉBUT] au [DATE DE FIN] inclus.</p>
+<p style="${S}">Cette sanction est motivée par les faits suivants, dont nous avons eu connaissance le ${dateConn} :</p>
+<p style="${S}"><strong>${faits}</strong> [faits du ${dateFaits} — préciser dates, lieux, circonstances]</p>
+<p style="${S}">Ces faits, dont vous n'avez pas fourni d'explication satisfaisante lors de l'entretien, constituent un manquement à vos obligations que nous ne pouvons tolérer.</p>
+<p style="${S}">Pendant cette période, votre contrat de travail sera suspendu et <strong>votre rémunération ne vous sera pas versée</strong> à due proportion.</p>
+<p style="${S}">Nous vous informons que tout nouveau manquement pourra entraîner une sanction plus grave, pouvant aller jusqu'au licenciement.</p>
+<p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
+${docSignatureBloc()}
+${docPiedPage('Art. L.1332-2 : notification au plus tôt 2 jours ouvrables et au plus tard 1 mois après l’entretien. ⚠️ La mise à pied disciplinaire n’est licite que si le règlement intérieur en fixe la durée MAXIMALE (Cass. soc. 26 octobre 2010, n° 09-42.740) — vérifiez votre RI avant de notifier.')}
+</div>`;
+  } else if(type==='lettre_retrogradation'){
+    titre=`Proposition de rétrogradation disciplinaire`;
+    html=`<div style="${S}">
+${docEnTete()}
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<tr><td style="width:55%;vertical-align:top;padding-right:14px">
+<div style="border:1px solid #000;padding:10px;font-family:'Times New Roman',serif;font-size:11pt;color:#000">
+<strong>Destinataire :</strong><br>${nom}<br>[ADRESSE DU SALARIÉ]<br>[CODE POSTAL] [VILLE]
+</div></td>
+<td style="width:45%;vertical-align:top">${docLRAR()}</td></tr>
+</table>
+<p style="${S}text-align:right">${_docVille()}, le ${today}</p>
+${docObjetEncadre('Proposition de rétrogradation à titre disciplinaire')}
+<p style="${S}">Monsieur / Madame ${nom},</p>
+<p style="${S}">À la suite de l'entretien préalable du [DATE], nous envisageons, à titre de sanction des faits suivants dont nous avons eu connaissance le ${dateConn} — <strong>${faits}</strong> —, votre rétrogradation dans les conditions suivantes :</p>
+<table style="width:90%;border-collapse:collapse;margin:14px auto;font-family:'Times New Roman',serif;font-size:11pt">
+<tr><td style="border:1px solid #000;padding:8px;width:40%"><strong>Nouveau poste</strong></td><td style="border:1px solid #000;padding:8px">[POSTE PROPOSÉ]</td></tr>
+<tr><td style="border:1px solid #000;padding:8px"><strong>Coefficient / groupe</strong></td><td style="border:1px solid #000;padding:8px">[NOUVEAU COEFFICIENT]</td></tr>
+<tr><td style="border:1px solid #000;padding:8px"><strong>Rémunération mensuelle brute</strong></td><td style="border:1px solid #000;padding:8px">[NOUVEAU SALAIRE] €</td></tr>
+<tr><td style="border:1px solid #000;padding:8px"><strong>Date d'effet envisagée</strong></td><td style="border:1px solid #000;padding:8px">[DATE]</td></tr>
+</table>
+<p style="${S}">Cette rétrogradation emportant modification de votre contrat de travail, <strong>elle ne peut vous être imposée : vous êtes en droit de la refuser</strong>. Nous vous remercions de nous faire connaître votre décision <strong>par écrit dans un délai de [15] jours</strong> à compter de la première présentation de la présente.</p>
+<p style="${S}">Nous attirons votre attention sur le fait qu'en cas de refus de votre part, nous pourrons prononcer, dans le respect de la procédure disciplinaire, une autre sanction en lieu et place de la rétrogradation refusée, <strong>pouvant aller jusqu'au licenciement</strong>.</p>
+<p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
+${docSignatureBloc()}
+${docPiedPage('La rétrogradation disciplinaire modifie le contrat : l’accord du salarié est requis et il doit être informé de sa faculté de refus (Cass. soc. 28 avril 2011, n° 09-70.619). En cas de refus, l’employeur peut prononcer une autre sanction, y compris un licenciement (Cass. soc. 15 juin 2000, n° 98-43.400) — nouvelle convocation à entretien préalable requise si licenciement envisagé (Cass. soc. 27 mars 2007).')}
+</div>`;
+  } else if(type==='lettre_fl'){
+    titre=`Lettre de licenciement — Faute lourde`;
+    html=`<div style="${S}">
+${docEnTete()}
+<table style="width:100%;border-collapse:collapse;margin:14px 0">
+<tr><td style="width:55%;vertical-align:top;padding-right:14px">
+<div style="border:1px solid #000;padding:10px;font-family:'Times New Roman',serif;font-size:11pt;color:#000">
+<strong>Destinataire :</strong><br>${nom}<br>[ADRESSE DU SALARIÉ]<br>[CODE POSTAL] [VILLE]
+</div></td>
+<td style="width:45%;vertical-align:top">${docLRAR()}</td></tr>
+</table>
+<p style="${S}text-align:right">${_docVille()}, le ${today}</p>
+${docObjetEncadre('Notification de licenciement pour faute lourde')}
+<p style="${S}">Monsieur / Madame ${nom},</p>
+<p style="${S}">À la suite de l'entretien préalable qui s'est tenu le [DATE DE L'ENTRETIEN — ou auquel vous ne vous êtes pas présenté(e)], nous vous notifions votre <strong>licenciement pour faute lourde</strong>, pour les motifs suivants :</p>
+<p style="${S}"><strong>${faits}</strong> [décrire précisément : dates, lieux, circonstances, éléments matériels — faits du ${dateFaits}, portés à notre connaissance le ${dateConn}]</p>
+<p style="${S}">Ces agissements caractérisent une <strong>intention de nuire à l'entreprise</strong> [préciser en quoi : volonté délibérée de porter préjudice, détournement, sabotage, concurrence déloyale pendant le contrat…], rendant impossible votre maintien même temporaire dans l'entreprise.</p>
+<p style="${S}">Votre licenciement prend effet <strong>immédiatement</strong>, sans préavis ni indemnité de licenciement. La période de mise à pied conservatoire du [DATE] au jour de la présente ne vous sera pas rémunérée.</p>
+<p style="${S}">Vous percevrez l'indemnité compensatrice de congés payés acquis. Nous tenons à votre disposition votre certificat de travail, votre reçu pour solde de tout compte et votre attestation France Travail.</p>
+<p style="${S}">Nous vous informons que vous pouvez demander des précisions sur les motifs du présent licenciement dans les 15 jours suivant sa notification (art. R.1232-13 C. trav.). Nous nous réservons par ailleurs le droit de demander réparation du préjudice subi.</p>
+<p style="${S}">Veuillez agréer, Monsieur / Madame, l'expression de nos salutations distinguées.</p>
+${docSignatureBloc()}
+${docPiedPage('Faute lourde = intention de nuire à l’employeur (Cass. soc. 22 octobre 2015, n° 14-11.291) — c’est à l’employeur de la prouver. Les congés payés restent dus (Cons. const., déc. n° 2015-523 QPC du 2 mars 2016). Seule la faute lourde permet d’engager la responsabilité pécuniaire du salarié.')}
 </div>`;
   } else if(type==='map_conservatoire'){
     titre=`Mise à pied conservatoire`;
