@@ -372,9 +372,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.10';
+var JX_BUILD = 'v2026-07-11.11';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.11', d:'11 juillet 2026', t:[
+   'Module Absences : le bouton « Analyser et générer » donne maintenant un retour visible (défilement vers le résultat + halo doré) et signale si le type d\'absence n\'est pas choisi.',
+   'Maladie avec moins d\'1 an d\'ancienneté : fini le « maintien 100 % pendant 0 jours » — le module explique désormais qu\'aucun maintien de salaire n\'est dû (L.1226-1 : 1 an requis) et que seules les IJSS s\'appliquent.'
+ ]},
  {v:'v2026-07-11.10', d:'11 juillet 2026', t:[
    'AUDIT COMPLET de l\'application, ligne par ligne : chaque bouton, chaque champ, chaque enchaînement question → réponse → document testé automatiquement (16 motifs disciplinaires, 9 sanctions, 11 lettres, 9 types d\'absence, 24 contrats, 12 modèles du parcours, 13 diagnostics de documents, 9 calculateurs, CSE, PSE, harcèlement, rémunération, temps de conduite, FAQ, alertes). Aucune incohérence restante.',
    'Alertes conducteurs : nouveau niveau URGENT — un document qui expire sous 15 jours passe en ROUGE (avant : rouge seulement une fois expiré).'
@@ -1803,7 +1807,7 @@ Exemple :<br>
 <div class="fg"><label class="fl">Le salarié est-il conducteur ?</label>
 <div class="rr"><div class="ro sel" id="abs-cond-oui" onclick="setAbsCond('oui')">Oui</div><div class="ro" id="abs-cond-non" onclick="setAbsCond('non')">Non</div></div></div>
 <div id="abs-result" class="hidden" style="margin-top:10px"></div>
-<button class="btn" onclick="analyserAbsence()" style="margin-top:6px">Analyser et générer les documents →</button>
+<button class="btn" onclick="analyserAbsence(true)" style="margin-top:6px">Analyser et générer les documents →</button>
 </div>
 
 <div class="card">
@@ -7887,12 +7891,12 @@ function importerSalariesRegistre(){
 // ═══════════════════════════════════════
 function setAbsCond(v){absCond=v;sa(['abs-cond-oui','abs-cond-non'],'abs-cond-'+v);if(document.getElementById('abs-type')&&gv('abs-type'))analyserAbsence();}
 
-function analyserAbsence(){
+function analyserAbsence(fromBtn){
   const type=gv('abs-type');
   const anc=gv('abs-anciennete');
   const duree=parseInt(gv('abs-duree'))||0;
   const isCond=absCond==='oui';
-  if(!type){return;}
+  if(!type){if(fromBtn===true)alert('Choisissez d\'abord le type d\'absence dans la liste.');return;}
   const res=document.getElementById('abs-result');
   if(!res)return;
   let html='';
@@ -7903,10 +7907,13 @@ function analyserAbsence(){
     html=`<div class="item">
 <div class="badge badge-blue">MALADIE ORDINAIRE</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
-<strong style="color:#e8c97a">Maintien de salaire CCN Transport (art. 10) :</strong><br>
+${m.p100>0
+? `<strong style="color:#e8c97a">Maintien de salaire CCN Transport (art. 10) :</strong><br>
 • 100% pendant ${m.p100} jours (après déduction IJSS)<br>
 • 75% pendant ${m.p75} jours supplémentaires<br>
-<strong style="color:#e8c97a">Délai de carence :</strong> 3 jours<br>
+<strong style="color:#e8c97a">Délai de carence maintien :</strong> selon barème conventionnel · <strong style="color:#e8c97a">carence IJSS :</strong> 3 jours<br>`
+: `<strong style="color:#e05c5c">Ancienneté inférieure à 1 an : AUCUN maintien de salaire obligatoire.</strong><br>
+La loi (art. L.1226-1 C. trav. — mensualisation) comme la CCN Transport exigent <b>1 an d'ancienneté</b> pour le complément employeur. Le salarié ne perçoit que les <b>IJSS de la Sécurité sociale</b> (50 % du salaire journalier de base, carence 3 jours). Vérifiez toutefois accord d'entreprise ou usage plus favorable.<br>`}
 ${isCond&&duree>60?'<strong style="color:#e05c5c">⚠ Durée > 60 jours — Visite médicale de reprise obligatoire auprès du médecin du travail (art. R.4624-31 C. trav.)</strong>':''}<br>
 ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite nécessite un avis médical d\'aptitude spécifique si l\'arrêt est lié à des problèmes de santé pouvant affecter la conduite.</strong>':''}
 </div></div>
@@ -7996,6 +8003,11 @@ ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Vi
   if(!html)html='<div class="al info" style="font-size:13px">Sélectionnez un type d\'absence pour afficher l\'analyse.</div>';
   res.innerHTML=html;
   res.classList.remove('hidden');
+  if(fromBtn===true){ // clic sur le bouton : montrer clairement le résultat
+    try{res.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){res.scrollIntoView();}
+    res.style.transition='box-shadow .3s';res.style.boxShadow='0 0 0 3px rgba(201,168,76,.65)';
+    setTimeout(function(){res.style.boxShadow='none';},1200);
+  }
 }
 
 function genDocAbsence(type){
