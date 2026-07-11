@@ -356,6 +356,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
+var JX_BUILD = 'v2026-07-11.2';
 // Verrouillage par code (barrière simple — le code n'est pas stocké en clair)
 const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb0cfb';
 // Code d'accès temporaire (essai 3 jours) — expire le 06/07/2026 23:59
@@ -9022,7 +9023,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var hd=document.querySelector('#pg-home .home-disclaimer');
     if(hd && hd.textContent.indexOf('Base juridique')<0){
       var s=document.createElement('div'); s.style.cssText='margin-top:6px;font-size:11px;color:#9a9585';
-      s.innerHTML='📅 Base juridique arrêtée au <b>'+JX_MAJ+'</b> — actualisée périodiquement ; vérifiez l\'actualité des textes, de la jurisprudence et de votre convention collective avant toute décision.';
+      s.innerHTML='📅 Base juridique arrêtée au <b>'+JX_MAJ+'</b> — actualisée périodiquement ; vérifiez l\'actualité des textes, de la jurisprudence et de votre convention collective avant toute décision.<br>🔄 Version de l\'application : <b>'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'—')+'</b>';
       hd.appendChild(s);
     }
     try{ setTimeout(function(){ if(typeof homeAlertesRefresh==='function')homeAlertesRefresh(); }, 700); }catch(e){}
