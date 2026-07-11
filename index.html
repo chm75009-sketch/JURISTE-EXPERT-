@@ -372,9 +372,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.11';
+var JX_BUILD = 'v2026-07-11.12';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.12', d:'11 juillet 2026', t:[
+   'Calculateurs d\'indemnités : nouveau bloc « 🔍 Détail du calcul » sous chaque résultat — la formule complète avec vos chiffres, étape par étape (licenciement ¼/⅓ par tranches, congés payés 1/10e vs maintien avec valeur du jour, barème Macron plancher/plafond, préavis, précarité 10 %/6 %, rupture conventionnelle, retraite). Le client peut vérifier chaque euro.'
+ ]},
  {v:'v2026-07-11.11', d:'11 juillet 2026', t:[
    'Module Absences : le bouton « Analyser et générer » donne maintenant un retour visible (défilement vers le résultat + halo doré) et signale si le type d\'absence n\'est pas choisi.',
    'Maladie avec moins d\'1 an d\'ancienneté : fini le « maintien 100 % pendant 0 jours » — le module explique désormais qu\'aucun maintien de salaire n\'est dû (L.1226-1 : 1 an requis) et que seules les IJSS s\'appliquent.'
@@ -3339,6 +3342,17 @@ function calcIndemXIV(){
   // indemnité légale de licenciement (dès 8 mois d'ancienneté)
   var leg = anc>=0.6667 ? (Math.min(anc,10)*0.25 + Math.max(anc-10,0)/3)*sal : 0;
   var html='';
+  function calcDetail(rows){
+    return '<div style="margin-top:10px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9"><b>🔍 Détail du calcul</b><br>'+rows.join('<br>')+'</div>';
+  }
+  // détail de l'indemnité légale (réutilisé : licenciement, rupture conventionnelle, mise à la retraite)
+  var _p1=Math.min(anc,10), _p2=Math.max(anc-10,0), _d1=_p1*0.25*sal, _d2=_p2/3*sal;
+  var LEGDET = anc>=0.6667 ? calcDetail([
+    'Ancienneté retenue : <b>'+String(anc).replace('.',',')+' ans</b> · Salaire de référence : <b>'+calcFmt(sal)+' €</b> <span style="opacity:.75">(moyenne la plus favorable : 12 ou 3 derniers mois — R.1234-4)</span>',
+    'Tranche jusqu\'à 10 ans : '+String(_p1).replace('.',',')+' an(s) × ¼ de mois × '+calcFmt(sal)+' € = <b>'+calcFmt(_d1)+' €</b>',
+    (_p2>0 ? 'Tranche au-delà de 10 ans : '+String(Math.round(_p2*100)/100).replace('.',',')+' an(s) × ⅓ de mois × '+calcFmt(sal)+' € = <b>'+calcFmt(_d2)+' €</b>' : 'Tranche au-delà de 10 ans : néant'),
+    '<b>Total = '+calcFmt(leg)+' €</b>'
+  ]) : '';
   function compareConv(legalAmount,legalLabel){
     if(conv>0){
       var ret=Math.max(legalAmount,conv); var favConv=(conv>legalAmount);
@@ -3358,6 +3372,11 @@ function calcIndemXIV(){
       + 'Indemnité en cas de licenciement <b>sans cause réelle et sérieuse</b> ('+ai+(ai>=30?'+':'')+' an'+(ai>1?'s':'')+' d\'ancienneté, entreprise '+(eff==='lt11'?'< 11':'≥ 11')+' salariés) :'
       + '<div class="pse-line"><span>Fourchette (mois)</span><span>'+mn+' à '+mx+' mois</span></div>'
       + '<div class="pse-line"><span>Fourchette (€)</span><span>'+calcFmt(mn*sal)+' € à '+calcFmt(mx*sal)+' €</span></div>'
+      + calcDetail([
+        'Ancienneté retenue : <b>'+ai+' année'+(ai>1?'s':'')+' complète'+(ai>1?'s':'')+'</b> (le barème ignore les mois) · Salaire brut : <b>'+calcFmt(sal)+' €</b>',
+        'Plancher : '+mn+' mois × '+calcFmt(sal)+' € = <b>'+calcFmt(mn*sal)+' €</b>',
+        'Plafond : '+mx+' mois × '+calcFmt(sal)+' € = <b>'+calcFmt(mx*sal)+' €</b>'
+      ])
       + '<p class="loi" style="margin-top:8px">Plancher/plafond fixés par l\'article L1235-3. En cas de licenciement <b>nul</b> (discrimination, harcèlement, grève, maternité…), le barème ne s\'applique pas : l\'indemnité est au minimum de 6 mois de salaire. Le juge peut écarter le barème dans certains cas (contrôle de conventionnalité). Barème indicatif — vérifier la table en vigueur.</p></div>';
 
   } else if(t==='cp'){
@@ -3366,6 +3385,12 @@ function calcIndemXIV(){
     html='<div class="pse-verdict ok"><b>Indemnité compensatrice de congés payés</b> ≈ <b>'+calcFmt(ret)+' €</b>'
       +'<div class="pse-line"><span>Règle du 1/10e</span><span>'+calcFmt(dix)+' €</span></div>'
       +'<div class="pse-line"><span>Règle du maintien de salaire</span><span>'+calcFmt(maint)+' €</span></div>'
+      +calcDetail([
+        'Salaire mensuel de référence : <b>'+calcFmt(sal)+' €</b> · Jours à indemniser : <b>'+(j||0)+' jour(s) ouvrable(s)</b>',
+        'Règle du 1/10e : rémunération annuelle ÷ 10 = ('+calcFmt(sal)+' × 12) ÷ 10 = '+calcFmt(sal*12/10)+' € pour 30 j ouvrables, soit '+calcFmt(sal/25)+' €/jour → × '+(j||0)+' j = <b>'+calcFmt(dix)+' €</b>',
+        'Règle du maintien : salaire ÷ 26 (jours ouvrables du mois) = '+calcFmt(sal/26)+' €/jour → × '+(j||0)+' j = <b>'+calcFmt(maint)+' €</b>',
+        '<b>Montant retenu (le plus favorable) = '+calcFmt(ret)+' €</b>'
+      ])
       +'<p class="loi" style="margin-top:8px">On retient le montant le plus favorable au salarié (C. trav. art. L3141-24). Estimation pour '+(j||0)+' jour(s) ouvrable(s) — la base 1/10e porte sur la rémunération brute totale de la période de référence ; le calcul exact dépend des éléments de salaire inclus. Due quelle que soit la cause de la rupture (sauf faute lourde, et encore : la jurisprudence l\'accorde). Vérifiez aussi les jours conventionnels/RTT non pris.</p></div>';
 
   } else if(t==='preavis'){
@@ -3376,7 +3401,8 @@ function calcIndemXIV(){
     html='<div class="pse-verdict ok"><b>Indemnité compensatrice de préavis</b>';
     if(dur){html+=' ≈ <b>'+calcFmt(dur*sal)+' €</b>'
       +'<div class="pse-line"><span>Durée légale (minimum)</span><span>'+dur+' mois</span></div>'
-      +'<div class="pse-line"><span>Montant ('+dur+' × salaire)</span><span>'+calcFmt(dur*sal)+' €</span></div>';}
+      +'<div class="pse-line"><span>Montant ('+dur+' × salaire)</span><span>'+calcFmt(dur*sal)+' €</span></div>'
+      +calcDetail(['Durée légale : <b>'+dur+' mois</b> (ancienneté '+String(anc).replace('.',',')+' ans — L.1234-1)','Montant : '+dur+' × '+calcFmt(sal)+' € = <b>'+calcFmt(dur*sal)+' €</b>']);}
     html+='<p class="loi" style="margin-top:8px">'+durTxt+' Durées légales minimales de l\'art. L1234-1. <b>La convention collective ('+ccnLabel+') prévoit souvent un préavis plus long</b> (ex. 3 mois pour les cadres) : c\'est elle qui s\'applique si elle est plus favorable. Due si l\'employeur dispense le salarié d\'exécuter le préavis ; non due en cas de faute grave ou lourde. À ne pas confondre avec le préavis de démission (souvent fixé par la CCN).</p></div>';
 
   } else if(t==='precarite'){
@@ -3385,11 +3411,17 @@ function calcIndemXIV(){
     html='<div class="pse-verdict ok"><b>Indemnité de fin de CDD (prime de précarité)</b> ≈ <b>'+calcFmt(p10)+' €</b>'
       +'<div class="pse-line"><span>Taux normal : 10%</span><span>'+calcFmt(p10)+' €</span></div>'
       +'<div class="pse-line"><span>Taux réduit éventuel : 6%</span><span>'+calcFmt(p6)+' €</span></div>'
+      +calcDetail([
+        'Rémunération brute TOTALE versée pendant le contrat (renouvellements compris) : <b>'+calcFmt(brut)+' €</b>',
+        'Taux normal : '+calcFmt(brut)+' € × 10 % = <b>'+calcFmt(p10)+' €</b>',
+        'Taux réduit (si accord de branche étendu avec contreparties formation) : '+calcFmt(brut)+' € × 6 % = <b>'+calcFmt(p6)+' €</b>'
+      ])
       +'<p class="loi" style="margin-top:8px">10% de la rémunération brute totale versée pendant le contrat (C. trav. art. L1243-8). Taux réductible à 6% par accord de branche étendu si des contreparties de formation sont offertes. <b>Non due</b> notamment : CDD saisonnier ou d\'usage, contrat avec un jeune pendant ses vacances scolaires, refus par le salarié d\'un CDI sur le même emploi, embauche en CDI à l\'issue, rupture anticipée pour faute grave ou force majeure. S\'ajoute à l\'indemnité de congés payés.</p></div>';
 
   } else if(t==='rupconv'){
     html='<div class="pse-verdict ok"><b>Indemnité spécifique de rupture conventionnelle</b>'
       + (anc>=0.6667 ? (' — minimum ≈ <b>'+calcFmt(leg)+' €</b> ('+(sal?(leg/sal).toFixed(2):'—')+' mois)') : ' : ancienneté < 8 mois, pas de plancher légal d\'indemnité de licenciement, mais une indemnité reste négociable.')
+      + LEGDET
       + '<p class="loi" style="margin-top:8px">L\'indemnité de rupture conventionnelle ne peut être inférieure à l\'indemnité légale de licenciement (¼ mois/an jusqu\'à 10 ans, ⅓ au-delà — C. trav. art. L1237-13). Si la convention collective prévoit une indemnité de licenciement plus favorable et lui est applicable, ce montant conventionnel sert de plancher. Le montant réel est <b>librement négocié</b> et peut être supérieur. Régime social/fiscal spécifique selon les seuils.</p></div>';
     html+=compareConv(leg,'Indemnité légale de licenciement (plancher)');
 
@@ -3398,6 +3430,7 @@ function calcIndemXIV(){
     if(mode==='mise'){
       html='<div class="pse-verdict ok"><b>Indemnité de mise à la retraite</b>'
         + ' — minimum ≈ <b>'+calcFmt(leg)+' €</b> ('+(sal?(leg/sal).toFixed(2):'—')+' mois)'
+        + LEGDET
         + '<p class="loi" style="margin-top:8px">À l\'initiative de l\'employeur : l\'indemnité ne peut être inférieure à l\'indemnité légale de licenciement (C. trav. art. L1237-7), sauf indemnité conventionnelle de mise à la retraite plus favorable. La mise à la retraite n\'est possible qu\'à partir de 70 ans sans accord du salarié ; entre l\'âge du taux plein et 70 ans, une procédure d\'interrogation annuelle est requise.</p></div>';
       html+=compareConv(leg,'Indemnité légale de licenciement (plancher)');
     } else {
@@ -3406,6 +3439,7 @@ function calcIndemXIV(){
       html='<div class="pse-verdict ok"><b>Indemnité de départ volontaire à la retraite</b>'
         + (dr>0 ? (' ≈ <b>'+calcFmt(dm)+' €</b> ('+dr+' mois)') : ' : ancienneté < 10 ans → pas d\'indemnité légale de départ.')
         + '<div class="pse-line"><span>Barème légal</span><span>'+dr+' mois</span></div>'
+        + (dr>0?calcDetail(['Ancienneté : <b>'+String(anc).replace('.',',')+' ans</b> → barème légal : <b>'+String(dr).replace('.',',')+' mois</b>','Montant : '+String(dr).replace('.',',')+' × '+calcFmt(sal)+' € = <b>'+calcFmt(dm)+' €</b>']):'')
         + '<p class="loi" style="margin-top:8px">Départ à l\'initiative du salarié (C. trav. art. L1237-9, D1237-1) : ½ mois après 10 ans, 1 mois après 15 ans, 1,5 mois après 20 ans, 2 mois après 30 ans. <b>La convention collective ('+ccnLabel+') prévoit souvent un barème plus favorable</b> : il s\'applique alors.</p></div>';
       html+=compareConv(dm,'Indemnité légale de départ à la retraite');
     }
@@ -3413,6 +3447,7 @@ function calcIndemXIV(){
   } else { // lic — indemnité de licenciement
     html='<div class="pse-verdict ok"><b>Indemnité légale de licenciement</b>'
       + (anc>=0.6667 ? (' ≈ <b>'+calcFmt(leg)+' €</b> ('+ (sal? (leg/sal).toFixed(2):'—') +' mois) — ¼ mois/an jusqu\'à 10 ans, ⅓ au-delà.') : ' : ancienneté < 8 mois → pas d\'indemnité légale.')
+      + LEGDET
       + '<p class="loi" style="margin-top:6px">Base de calcul = moyenne la plus favorable entre les 12 ou les 3 derniers mois (C. trav. art. R1234-4). Non due en cas de faute grave ou lourde.</p></div>';
     html+=compareConv(leg,'Indemnité légale de licenciement');
   }
