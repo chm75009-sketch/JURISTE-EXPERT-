@@ -3332,7 +3332,9 @@ let arretSal = 'non';
 let cseEtab = 'non';
 
 // Minima conventionnels CCN Transport IDCC 0016 (indicatifs — vérifier avenants en vigueur)
-const MINIMA = {'110':11.98,'115':12.15,'117':12.20,'117M':12.25,'120':12.40,'128':12.65,'128M':12.75,'138':13.25,'138M':13.35,'150':14.30,'200':16.20};
+// Grille embauche — accord du 11 octobre 2023 (effet 01/12/2023), NAO 2025 sans accord.
+// 110 et 150M CONFIRMÉS ; coefficients intermédiaires ESTIMÉS (interpolation) — à vérifier sur Légifrance.
+const MINIMA = {'110':12.09,'115':12.13,'117':12.15,'117M':12.16,'120':12.19,'128':12.26,'128M':12.28,'138':12.35,'138M':12.37,'150':12.43,'200':16.20};
 
 // GAR indicatifs (Garantie Annuelle de Rémunération)
 const GAR = {'110':21500,'117':22000,'128':23500,'138':25000,'150':28000,'200':35000};
@@ -3947,8 +3949,8 @@ function calcRem(){
   const montantHS1=Math.round(hs1*tauxAvecAnc*1.25*100)/100;
   const montantHS2=Math.round(hs2*tauxAvecAnc*1.50*100)/100;
   const majorNuit=Math.round(nuit*tauxAvecAnc*0.20*100)/100;
-  const indemRepas=repas*18; // ~18€/repas indicatif
-  const indemNuits=nuitsDep*45; // ~45€/nuit indicatif
+  const indemRepas=Math.round(repas*16.36*100)/100; // 16,36 € — avenant frais n°81 du 02/12/2025, effet 01/01/2026
+  const indemNuits=Math.round(nuitsDep*52.31*100)/100; // 52,31 € (1 repas + découcher) — avenant n°81, 01/01/2026
   const totalBrut=salBase+montantHS1+montantHS2+majorNuit+primeAcc;
   const res=document.getElementById('rem-result');
   if(!res)return;
@@ -3964,11 +3966,11 @@ ${nuit>0?`Majoration nuit ${nuit}h × +20% : + ${majorNuit.toFixed(2)} €<br>`:
 ${primeAcc>0?`Prime non-accident : + ${primeAcc.toFixed(2)} €<br>`:''}
 <strong style="color:#e8c97a;font-size:15px">Total brut : ${totalBrut.toFixed(2)} €</strong><br>
 ${repas>0||nuitsDep>0?`<br><em style="color:#9a9585;font-size:12px">Indemnités exonérées (hors salaire) :<br>
-${repas>0?`Repas (${repas} × ~18€) : ${indemRepas} €<br>`:''}
-${nuitsDep>0?`Découchers (${nuitsDep} × ~45€) : ${indemNuits} €<br>`:''}
+${repas>0?`Repas (${repas} × 16,36 €) : ${indemRepas} €<br>`:''}
+${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indemNuits} €<br>`:''}
 </em>`:''}
 </div>
-<div class="loi">⚠ Simulation indicative — barèmes de référence arrêtés à <b>janvier 2026</b>. Les minima conventionnels évoluent par avenant : vérifiez le dernier avenant salarial CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. SMIC pris en compte à titre indicatif.</div>
+<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — les NAO 2025 n'ont pas abouti) ; coefficients 110 et 150M confirmés, intermédiaires estimés. Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. SMIC pris en compte à titre indicatif.</div>
 </div>`;
 }
 
@@ -3982,7 +3984,7 @@ function calcGAR(){
     res.innerHTML=`<div class="ok al">✓ GAR respectée — Rémunération annuelle ${annuel.toLocaleString('fr-FR')} € ≥ GAR ${garMin.toLocaleString('fr-FR')} € (coeff. ${coeff})</div>`;
   } else {
     const complement=garMin-annuel;
-    res.innerHTML=`<div class="err al">⚠ GAR non respectée — Complément à verser en fin d'année : <strong>${complement.toLocaleString('fr-FR')} €</strong><br>Rémunération : ${annuel.toLocaleString('fr-FR')} € | GAR minimale : ${garMin.toLocaleString('fr-FR')} €</div><div class="loi" style="margin-top:6px">⚠ Valeurs GAR indicatives arrêtées à <b>janvier 2026</b> — vérifier le dernier avenant salarial CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a> ou auprès de votre organisation patronale.</div>`;
+    res.innerHTML=`<div class="err al">⚠ GAR non respectée — Complément à verser en fin d'année : <strong>${complement.toLocaleString('fr-FR')} €</strong><br>Rémunération : ${annuel.toLocaleString('fr-FR')} € | GAR minimale : ${garMin.toLocaleString('fr-FR')} €</div><div class="loi" style="margin-top:6px">⚠ Valeurs GAR indicatives <b>NON CONFIRMÉES</b> (les avenants GAR récents ne sont pas librement accessibles) — à vérifier impérativement avant usage sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a> ou auprès de votre organisation patronale.</div>`;
   }
 }
 
