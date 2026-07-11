@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.14';
+var JX_BUILD = 'v2026-07-11.15';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.15', d:'11 juillet 2026', t:[
+   'DONNÉES VÉRIFIÉES AUX SOURCES OFFICIELLES — SMIC : 12,02 € au 01/01/2026 puis 12,31 € au 01/06/2026 (info.gouv.fr) ; les NAO salaires TRM 2025/2026 ayant échoué (grille du 11/10/2023 inchangée), le SMIC dépasse les coefficients 110 à 128M : le plancher SMIC les relève automatiquement dans toute l\'application.',
+   'Maintien de salaire maladie entièrement réécrit selon l\'article 10 ter (accord du 16 juin 1961, ouvriers — vérifié Légifrance) : franchise 5 jours, 3 ans → 100 % du 6e au 40e jour puis 75 % du 41e au 70e ; 5 ans → 6e-70e / 71e-130e ; 10 ans → 6e-100e / 101e-190e ; hospitalisation TRM dès le 3e jour et périodes 75 % prolongées de 30 jours ; entre 1 et 3 ans : régime légal 90 %/66,66 % (carence 7 jours).',
+   'Nouvelle tranche « 10 ans et plus » dans le module Absences ; tableau récapitulatif corrigé (les anciennes durées 30/45/60/90 jours étaient inexactes).'
+ ]},
  {v:'v2026-07-11.14', d:'11 juillet 2026', t:[
    'CORRECTIONS JURIDIQUES (2e audit externe) — Seuils d\'heures conformes au décret 83-40 : grand routier 43 h/sem = 186,33 h/mois (et non 200 h), autres roulants 39 h = 169 h, messagerie/convoyeurs et sédentaires 35 h = 151,67 h (et non 152 h) — corrigés dans le contrat, la paie et les minima.',
    'Frais de déplacement de la fiche Rémunération alignés sur l\'avenant n° 81 (casse-croûte 8,87 €, repas 16,36 €, repas unique de nuit 10,07 €, grand déplacement 52,31 €/68,67 €, étranger +18 %).',
@@ -1822,7 +1827,8 @@ Exemple :<br>
   <option value="moins1">Moins d'1 an</option>
   <option value="1a3">1 à 3 ans</option>
   <option value="3a5">3 à 5 ans</option>
-  <option value="5plus">Plus de 5 ans</option>
+  <option value="5a10">5 à 10 ans</option>
+  <option value="10plus">10 ans et plus</option>
 </select></div>
 <div class="fg"><label class="fl">Date de début de l'absence</label><input type="date" id="abs-debut"/></div>
 <div class="fg"><label class="fl">Durée estimée (jours)</label><input type="number" id="abs-duree" placeholder="Ex : 30" oninput="analyserAbsence()"/></div>
@@ -1833,17 +1839,18 @@ Exemple :<br>
 </div>
 
 <div class="card">
-<div class="ct">Maintien de salaire — CCN Transport (art. 10)</div>
+<div class="ct">Maintien de salaire maladie — ouvriers (art. 10 ter, annexe I)</div>
 <div class="table-wrap">
 <table>
-<tr><th>Ancienneté</th><th>Durée maintien à 100%</th><th>Durée maintien à 75%</th></tr>
-<tr><td>1 à 3 ans</td><td>30 jours</td><td>30 jours</td></tr>
-<tr><td>3 à 5 ans</td><td>45 jours</td><td>45 jours</td></tr>
-<tr><td>5 à 10 ans</td><td>60 jours</td><td>60 jours</td></tr>
-<tr><td>Plus de 10 ans</td><td>90 jours</td><td>90 jours</td></tr>
+<tr><th>Ancienneté</th><th>100 % du salaire</th><th>75 % du salaire</th></tr>
+<tr><td>Moins d'1 an</td><td colspan="2">Aucun maintien obligatoire — IJSS seules (L.1226-1 : 1 an requis)</td></tr>
+<tr><td>1 à 3 ans</td><td colspan="2">Régime LÉGAL : 30 j à 90 % puis 30 j à 66,66 % (carence 7 j — L.1226-1, D.1226-1)</td></tr>
+<tr><td>3 à 5 ans</td><td>du 6e au 40e jour</td><td>du 41e au 70e jour</td></tr>
+<tr><td>5 à 10 ans</td><td>du 6e au 70e jour</td><td>du 71e au 130e jour</td></tr>
+<tr><td>10 ans et plus</td><td>du 6e au 100e jour</td><td>du 101e au 190e jour</td></tr>
 </table>
 </div>
-<div class="loi" style="margin-top:6px">Délai de carence conventionnel : 3 jours (comme Code du travail). Déduction des IJSS versées. Source : CCN Transports routiers IDCC 0016 art. 10.</div>
+<div class="loi" style="margin-top:6px">Art. 10 ter (accord du 16 juin 1961, ouvriers — vérifié Légifrance) : franchise de 5 jours (indemnisation dès le 6e jour à partir de 3 ans d'ancienneté) ; <b>hospitalisation</b> : dès le 3e jour dans le TRM, et périodes à 75 % prolongées de 30 jours. Déduction des IJSS. Condition : certificat médical + droit aux IJSS (contre-visite patronale possible). Le maintien inclut la part variable liée au travail, hors frais de déplacement. Carence IJSS Sécurité sociale : 3 jours (distincte). Employés/AM/cadres : barèmes propres des annexes II à IV.</div>
 </div>
 
 <div class="card">
@@ -3673,9 +3680,10 @@ let cseEtab = 'non';
 // 110 et 150M CONFIRMÉS ; coefficients intermédiaires ESTIMÉS (interpolation) — à vérifier sur Légifrance.
 const MINIMA = {'110':12.09,'115':12.13,'117':12.15,'117M':12.16,'120':12.19,'128':12.26,'128M':12.28,'138':12.35,'138M':12.37,'150':12.43,'200':16.20};
 // Plancher absolu : aucun taux conventionnel ne peut être inférieur au SMIC horaire en vigueur (L.3231-2).
-// SMIC_H à ACTUALISER à chaque revalorisation (valeur de référence : 11,88 € brut au 01/11/2024) —
-// si le SMIC dépasse un taux conventionnel, c'est le SMIC qui s'applique automatiquement partout ci-dessous.
-var SMIC_H = 11.88;
+// SMIC vérifié (info.gouv.fr) : 12,02 € au 01/01/2026 puis 12,31 € au 01/06/2026 — à ACTUALISER à chaque revalorisation.
+// Les NAO salaires TRM 2025/2026 ayant échoué (grille du 11/10/2023 inchangée), le SMIC dépasse les coefficients 110 à 128M :
+// le plancher ci-dessous les relève automatiquement.
+var SMIC_H = 12.31;
 Object.keys(MINIMA).forEach(function(k){ if(MINIMA[k] < SMIC_H) MINIMA[k] = SMIC_H; });
 
 // GAR indicatifs (Garantie Annuelle de Rémunération)
@@ -4315,7 +4323,7 @@ ${repas>0?`Repas (${repas} × 16,36 €) : ${indemRepas} €<br>`:''}
 ${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indemNuits} €<br>`:''}
 </em>`:''}
 </div>
-<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — les NAO 2025 n'ont pas abouti) ; coefficients 110 et 150M confirmés, intermédiaires estimés. Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher (valeur de référence chargée : 11,88 €, à jour au 01/11/2024) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
+<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — les NAO 2025 n'ont pas abouti) ; coefficients 110 et 150M confirmés, intermédiaires estimés. Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher SMIC de <b>12,31 €</b> (en vigueur au 01/06/2026 — les coefficients 110 à 128M sont donc portés au SMIC, les NAO 2025/2026 ayant échoué) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
 </div>`;
 }
 
@@ -7965,20 +7973,25 @@ function analyserAbsence(fromBtn){
   const res=document.getElementById('abs-result');
   if(!res)return;
   let html='';
-  const maintien={'moins1':{p100:0,p75:0},'1a3':{p100:30,p75:30},'3a5':{p100:45,p75:45},'5plus':{p100:60,p75:60}};
+  const maintien={'moins1':{p100:0,p75:0},'1a3':{legal:1},'3a5':{d1:6,f1:40,d2:41,f2:70},'5a10':{d1:6,f1:70,d2:71,f2:130},'10plus':{d1:6,f1:100,d2:101,f2:190}};
   const m=maintien[anc]||{p100:0,p75:0};
 
   if(type==='maladie'){
     html=`<div class="item">
 <div class="badge badge-blue">MALADIE ORDINAIRE</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
-${m.p100>0
-? `<strong style="color:#e8c97a">Maintien de salaire CCN Transport (art. 10) :</strong><br>
-• 100% pendant ${m.p100} jours (après déduction IJSS)<br>
-• 75% pendant ${m.p75} jours supplémentaires<br>
-<strong style="color:#e8c97a">Délai de carence maintien :</strong> selon barème conventionnel · <strong style="color:#e8c97a">carence IJSS :</strong> 3 jours<br>`
+${m.d1
+? `<strong style="color:#e8c97a">Maintien de salaire — CCN Transport, art. 10 ter (ouvriers) :</strong><br>
+• <b>100 %</b> du salaire du <b>${m.d1}e au ${m.f1}e jour</b> d'arrêt (après déduction des IJSS)<br>
+• <b>75 %</b> du <b>${m.d2}e au ${m.f2}e jour</b><br>
+<strong style="color:#e8c97a">Franchise conventionnelle :</strong> 5 jours — <b>hospitalisation : dès le 3e jour (TRM)</b> et périodes à 75 % prolongées de 30 jours · <strong style="color:#e8c97a">carence IJSS :</strong> 3 jours<br>`
+: m.legal
+? `<strong style="color:#e8c97a">Maintien LÉGAL (1 à 3 ans d'ancienneté — L.1226-1, D.1226-1) :</strong><br>
+• <b>90 %</b> du salaire brut pendant <b>30 jours</b>, puis <b>66,66 %</b> pendant <b>30 jours</b><br>
+• Carence : <b>7 jours</b> (maintien légal) · carence IJSS : 3 jours<br>
+<span style="font-size:11.5px;color:#9a9585">Le barème conventionnel art. 10 ter (plus favorable) ne s'ouvre qu'à 3 ans d'ancienneté.</span><br>`
 : `<strong style="color:#e05c5c">Ancienneté inférieure à 1 an : AUCUN maintien de salaire obligatoire.</strong><br>
-La loi (art. L.1226-1 C. trav. — mensualisation) comme la CCN Transport exigent <b>1 an d'ancienneté</b> pour le complément employeur. Le salarié ne perçoit que les <b>IJSS de la Sécurité sociale</b> (50 % du salaire journalier de base, carence 3 jours). Vérifiez toutefois accord d'entreprise ou usage plus favorable.<br>`}
+La loi (art. L.1226-1 C. trav. — mensualisation) exige <b>1 an d'ancienneté</b> pour le complément employeur. Le salarié ne perçoit que les <b>IJSS de la Sécurité sociale</b> (50 % du salaire journalier de base, carence 3 jours). Vérifiez toutefois accord d'entreprise ou usage plus favorable.<br>`}
 <strong style="color:#e8c97a">Congés payés :</strong> depuis la loi n° 2024-364 du 22 avril 2024, l'arrêt maladie ordinaire OUVRE des droits à congés : <b>2 jours ouvrables par mois d'absence</b> (au plus 24 j ouvrables par an) ; report possible sur <b>15 mois</b> ; à la reprise, vous devez <b>informer le salarié dans le mois</b> de ses droits acquis et de la date limite de prise (L.3141-19-3).<br>
 ${isCond&&duree>60?'<strong style="color:#e05c5c">⚠ Durée > 60 jours — Visite médicale de reprise obligatoire auprès du médecin du travail (art. R.4624-31 C. trav.)</strong>':''}<br>
 ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite nécessite un avis médical d\'aptitude spécifique si l\'arrêt est lié à des problèmes de santé pouvant affecter la conduite.</strong>':''}
