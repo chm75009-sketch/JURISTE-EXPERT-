@@ -67,6 +67,9 @@ textarea{resize:vertical;min-height:80px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-sm{background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:#e8c97a;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:inherit}
 .btn-outline{width:100%;background:transparent;border:1px solid rgba(201,168,76,0.4);color:#e8c97a;border-radius:10px;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;margin-top:6px;text-align:left}
+.seg{display:flex;gap:6px;background:rgba(255,255,255,0.05);border-radius:10px;padding:4px}
+.seg-b{flex:1;background:transparent;border:none;color:#9a9585;border-radius:8px;padding:10px 8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.seg-b.act{background:#c9a84c;color:#000}
 .al{border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.6}
 .info{background:rgba(91,155,213,0.1);border:1px solid rgba(91,155,213,0.2);color:#5b9bd5}
 .warn{background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.2);color:#d4a017}
@@ -372,9 +375,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.19';
+var JX_BUILD = 'v2026-07-12.20';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.20', d:'12 juillet 2026', t:[
+   '🚛 NOUVEAU MODULE « Parc & Contraventions » — deux angles morts du transport que les logiciels RH classiques ne couvrent pas.',
+   'Parc véhicules : échéancier automatique par camion (contrôle technique — 12 mois en marchandises / 6 mois en voyageurs, arrêté du 27/07/2004 ; chronotachygraphe — vérification tous les 2 ans, Règl. UE 165/2014 ; limiteur de vitesse ; assurance ; extincteur ; taxe à l\'essieu), avec le même système d\'alertes 🔴🟡🟢 que les conducteurs et un échéancier imprimable.',
+   'Contraventions & désignation du conducteur : obligation méconnue et coûteuse — quand un véhicule de la société est flashé, le dirigeant doit DÉSIGNER le conducteur dans les 45 jours (art. L.121-6 C. route), sous peine d\'une amende de 675 € (jusqu\'à 1 875 €) qu\'il paie personnellement. Le module enregistre l\'avis, décompte les 45 jours, et génère la LETTRE DE DÉSIGNATION prête à envoyer (ou à saisir sur antai.gouv.fr).',
+   'Accès depuis l\'accueil (« Pilotage & conformité ») et le menu. Données enregistrées localement sur l\'appareil.'
+ ]},
  {v:'v2026-07-12.19', d:'12 juillet 2026', t:[
    'Auto-audit du contrat de travail (relecture article par article) — CORRECTION de citation : l\'article « Avantages sociaux » citait la portabilité mutuelle/prévoyance sous « art. L.911-8 C. assurances ». Ce texte figure au Code de la SÉCURITÉ SOCIALE, pas au Code des assurances. Corrigé ; la remise de la notice est désormais rattachée à son vrai fondement (art. 12 de la loi Évin n° 89-1009 du 31/12/1989).',
    'Contrat : suppression d\'un paragraphe en DOUBLON — les obligations liées à l\'aptitude médicale et à l\'information de l\'employeur en cas de suspension de permis étaient écrites deux fois de suite. Fusionnées en une seule clause complète (permis, CQC, carte de conducteur).',
@@ -788,6 +797,11 @@ try{
       <div class="hcard" style="--accent:#e05c5c;grid-column:1/-1" onclick="goPage('tableau-bord')">
         <div class="hcard-ic">🔔</div>
         <div class="hcard-body"><div class="t">Alertes de conformité</div><div class="d">Surveillance automatique des échéances : permis, CQC/FCO, visites médicales, ADR, tachygraphe.</div><div class="m">Tableau de bord conducteurs</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#5b8def;grid-column:1/-1" onclick="goPage('parc')">
+        <div class="hcard-ic">🚛</div>
+        <div class="hcard-body"><div class="t">Parc &amp; contraventions</div><div class="d">Échéancier des véhicules (contrôle technique, tachygraphe, assurance…) + désignation du conducteur sous 45 jours (L.121-6, amende 675 €).</div><div class="m">Parc véhicules &amp; contraventions</div></div>
         <div class="chev">›</div>
       </div>
       <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('audit')">
@@ -2041,6 +2055,58 @@ Exemple :<br>
 </div>
 </div>
 
+<!-- ═══ PARC & CONTRAVENTIONS ═══ -->
+<div id="pg-parc" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Parc &amp; Contraventions</div><div class="ts">Échéancier véhicules · Désignation conducteur (45 j)</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+<div class="seg"><button id="seg-parc" class="seg-b act" onclick="parcTab('parc')">🚛 Parc véhicules</button><button id="seg-contra" class="seg-b" onclick="parcTab('contra')">🚨 Contraventions</button></div>
+</div>
+
+<!-- ── PARC VÉHICULES ── -->
+<div id="parc-sec-parc">
+<div class="card">
+<div class="al warn" style="font-size:11.5px;line-height:1.7;margin-bottom:10px">⚠️ <b>Un véhicule non conforme = immobilisation + amende + responsabilité pénale du dirigeant.</b> Contrôle technique : <b>tous les 12 mois</b> pour les poids lourds de marchandises (tous les 6 mois pour le transport de voyageurs) — arrêté du 27/07/2004. Chronotachygraphe : vérification périodique <b>tous les 2 ans</b> (Règl. UE 165/2014). Limiteur de vitesse : attestation à jour.</div>
+<div class="ct">Ajouter / mettre à jour un véhicule</div>
+<div class="fg"><label class="fl">Immatriculation</label><input id="v-immat" placeholder="Ex : AB-123-CD"/></div>
+<div class="fg"><label class="fl">Type de véhicule</label><select id="v-type"><option value="pl">Poids lourd marchandises (&gt; 3,5 t)</option><option value="spl">Ensemble articulé (SPL)</option><option value="vul">Véhicule utilitaire léger (&le; 3,5 t)</option><option value="car">Autocar / autobus (voyageurs)</option></select></div>
+<div class="fg"><label class="fl">Prochain contrôle technique</label><input type="date" id="v-ct"/></div>
+<div class="fg"><label class="fl">Prochaine vérification chronotachygraphe</label><input type="date" id="v-tachy"/></div>
+<div class="fg"><label class="fl">Vérification limiteur de vitesse</label><input type="date" id="v-limiteur"/></div>
+<div class="fg"><label class="fl">Échéance assurance</label><input type="date" id="v-assur"/></div>
+<div class="fg"><label class="fl">Vérification extincteur</label><input type="date" id="v-extinc"/></div>
+<div class="fg"><label class="fl">Paiement taxe à l'essieu (si &ge; 12 t)</label><input type="date" id="v-taxe"/></div>
+<button class="btn" onclick="ajouterVehicule()" style="margin-top:4px">Ajouter / Mettre à jour →</button>
+</div>
+<div class="card">
+<div class="ct">État du parc</div>
+<div id="parc-alertes"><div style="font-size:13px;color:#9a9585;text-align:center;padding:20px">Aucun véhicule enregistré — Ajoutez un véhicule ci-dessus</div></div>
+<button class="btn-outline" style="margin-top:8px" onclick="genRegistreVehicules()">📊 Générer l'échéancier du parc →</button>
+</div>
+</div>
+
+<!-- ── CONTRAVENTIONS ── -->
+<div id="parc-sec-contra" style="display:none">
+<div class="card">
+<div class="al err" style="font-size:11.5px;line-height:1.7;margin-bottom:10px">🚨 <b>Obligation de désignation (art. L.121-6 C. route).</b> Quand un véhicule de la société est flashé, le représentant légal doit <b>désigner le conducteur dans les 45 jours</b> (par lettre ou sur <b>antai.gouv.fr</b>). À défaut : amende forfaitaire de <b>675 €</b> (minorée 450 €, majorée 1&nbsp;875 €), <b>due personnellement par le dirigeant</b> — en plus de l'amende initiale. Ne pas désigner ne « protège » pas le salarié : cela coûte plus cher à l'entreprise.</div>
+<div class="ct">Enregistrer un avis de contravention</div>
+<div class="fg"><label class="fl">Véhicule concerné (immatriculation)</label><input id="k-immat" placeholder="Ex : AB-123-CD"/></div>
+<div class="fg"><label class="fl">Date de l'infraction</label><input type="date" id="k-date-infr"/></div>
+<div class="fg"><label class="fl">Date de réception de l'avis</label><input type="date" id="k-date-avis"/></div>
+<div class="fg"><label class="fl">Nature de l'infraction</label><select id="k-nature"><option value="Excès de vitesse">Excès de vitesse (radar)</option><option value="Non-respect d'un feu rouge">Feu rouge</option><option value="Franchissement de ligne continue">Ligne continue</option><option value="Usage du téléphone au volant">Téléphone au volant</option><option value="Stationnement gênant">Stationnement</option><option value="Circulation en zone interdite / Crit'Air">Zone interdite / Crit'Air</option><option value="Autre infraction">Autre</option></select></div>
+<div class="fg"><label class="fl">Conducteur au moment des faits</label><input id="k-conducteur" placeholder="Nom du conducteur (si connu)"/></div>
+<div class="fg"><label class="fl">N° de l'avis de contravention</label><input id="k-num" placeholder="Figurant sur l'avis"/></div>
+<button class="btn" onclick="ajouterContravention()" style="margin-top:4px">Enregistrer →</button>
+</div>
+<div class="card">
+<div class="ct">Contraventions en cours</div>
+<div id="contra-liste"><div style="font-size:13px;color:#9a9585;text-align:center;padding:20px">Aucune contravention enregistrée</div></div>
+</div>
+</div>
+</div>
+
 <!-- ═══ PARAMÉTRAGE ═══ -->
 <div id="pg-parametrage" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -2135,6 +2201,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Rémunération transport</div></div></div>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
+  <div class="mi" onclick="goPage('parc');closeMenu()"><span style="font-size:18px">🚛</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parc véhicules &amp; contraventions</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
   <div class="mi" onclick="goPage('rgpd');closeMenu()"><span style="font-size:18px">🔒</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Charte RGPD / confidentialité</div></div></div>
@@ -3997,6 +4064,7 @@ function validerInscription(){
   document.getElementById('pg-inscription').style.display='none';
   document.getElementById('pg-app').style.display='block';
   chargerConducteurs();
+  chargerParc();
   initFicheJours();
   showJuris('permis');
   goPage('home');
@@ -4014,6 +4082,7 @@ function initApp(){
       document.getElementById('pg-app').style.display='block';
       chargerParametres();
       chargerConducteurs();
+      chargerParc();
       initFicheJours();
       showJuris('permis');
       goPage('home');
@@ -8644,6 +8713,141 @@ ${lignes||'<tr><td colspan="7" style="border:1px solid #ccc;padding:8px;text-ali
 <p style="${S}font-size:8pt;font-style:italic;margin-top:10px">✓ = Valide · ⚠ = Expiré ou expiration imminente · — = Non renseigné<br>À conserver et mettre à jour régulièrement. Ne constitue pas un conseil juridique.</p>
 </div>`;
   showDoc('Registre qualifications conducteurs', html);
+}
+
+// ═══════════════════════════════════════
+// MODULE — PARC VÉHICULES & CONTRAVENTIONS
+// ═══════════════════════════════════════
+let vehicules = [];
+let contraventions = [];
+function _pesc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function chargerParc(){
+  try{const v=localStorage.getItem('jt_vehicules');if(v)vehicules=JSON.parse(v);}catch(e){}
+  try{const k=localStorage.getItem('jt_contraventions');if(k)contraventions=JSON.parse(k);}catch(e){}
+  renderVehicules();renderContraventions();
+}
+function sauvegarderParc(){
+  try{localStorage.setItem('jt_vehicules',JSON.stringify(vehicules));}catch(e){}
+  try{localStorage.setItem('jt_contraventions',JSON.stringify(contraventions));}catch(e){}
+}
+function parcTab(t){
+  var a=document.getElementById('parc-sec-parc'),b=document.getElementById('parc-sec-contra');
+  if(a)a.style.display=t==='parc'?'':'none'; if(b)b.style.display=t==='contra'?'':'none';
+  document.getElementById('seg-parc')?.classList.toggle('act',t==='parc');
+  document.getElementById('seg-contra')?.classList.toggle('act',t==='contra');
+}
+function ajouterVehicule(){
+  const immat=gv('v-immat');
+  if(!immat){alert('Veuillez saisir l\'immatriculation du véhicule.');return;}
+  const typeSel=document.getElementById('v-type');
+  const v={immat:immat.toUpperCase().trim(),type:gv('v-type')||'pl',typeLabel:typeSel?typeSel.options[typeSel.selectedIndex].text:'',
+    ct:gv('v-ct')||null,tachy:gv('v-tachy')||null,limiteur:gv('v-limiteur')||null,assur:gv('v-assur')||null,extinc:gv('v-extinc')||null,taxe:gv('v-taxe')||null};
+  const idx=vehicules.findIndex(x=>x.immat===v.immat);
+  if(idx>=0)vehicules[idx]=v;else vehicules.push(v);
+  sauvegarderParc();renderVehicules();
+  ['v-immat','v-ct','v-tachy','v-limiteur','v-assur','v-extinc','v-taxe'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+function supprimerVehicule(immat){vehicules=vehicules.filter(v=>v.immat!==immat);sauvegarderParc();renderVehicules();}
+var VEH_SEUILS={ct:{orange:60,label:'Contrôle technique'},tachy:{orange:90,label:'Chronotachygraphe'},limiteur:{orange:60,label:'Limiteur de vitesse'},assur:{orange:30,label:'Assurance'},extinc:{orange:60,label:'Extincteur'},taxe:{orange:30,label:'Taxe à l\'essieu'}};
+function renderVehicules(){
+  const cont=document.getElementById('parc-alertes');if(!cont)return;
+  if(!vehicules.length){cont.innerHTML='<div style="font-size:13px;color:#9a9585;text-align:center;padding:20px">Aucun véhicule enregistré — Ajoutez un véhicule ci-dessus</div>';return;}
+  let html='';
+  vehicules.forEach(v=>{
+    let al=[];
+    Object.keys(VEH_SEUILS).forEach(k=>{
+      if(!v[k])return;const jr=joursRestants(v[k]);if(jr===null)return;const s=VEH_SEUILS[k];
+      if(jr<=0)al.push({label:s.label,type:'red',msg:'Expiré depuis '+Math.abs(jr)+' j'});
+      else if(jr<=15)al.push({label:s.label,type:'red',msg:'Expire dans '+jr+' j — URGENT'});
+      else if(jr<=s.orange)al.push({label:s.label,type:'orange',msg:'Expire dans '+jr+' j ('+fmt(new Date(v[k]))+')'});
+    });
+    const statut=al.some(a=>a.type==='red')?'🔴':al.some(a=>a.type==='orange')?'🟡':'🟢';
+    const col=al.some(a=>a.type==='red')?'#e05c5c':al.some(a=>a.type==='orange')?'#d4a017':'#4caf7d';
+    html+='<div class="item" style="border-left:4px solid '+col+'"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><strong style="font-size:14px;color:#e8e4d8">'+statut+' '+_pesc(v.immat)+' <span style="font-size:11px;color:#9a9585">'+_pesc(v.typeLabel||'')+'</span></strong><button onclick="supprimerVehicule(\''+_pesc(v.immat)+'\')" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);color:#e05c5c;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer">Supprimer</button></div>'
+      +(al.length?al.map(a=>'<div class="alerte-item"><div class="alerte-dot '+(a.type==='red'?'dot-red':'dot-orange')+'"></div><div style="font-size:12px;color:#e8e4d8"><strong>'+a.label+' :</strong> '+a.msg+'</div></div>').join(''):'<div style="font-size:12px;color:#4caf7d">✓ Tous les documents du véhicule sont valides</div>')
+      +'</div>';
+  });
+  cont.innerHTML=html;
+}
+function genRegistreVehicules(){
+  const today=new Date().toLocaleDateString('fr-FR');
+  const S=`font-family:'Times New Roman',serif;font-size:10pt;color:#000;line-height:1.6;`;
+  const cell=(id)=>({html:''});
+  const lignes=vehicules.map(v=>{
+    const st=(id)=>v[id]?fmt(new Date(v[id])):'—';
+    const ok=(id)=>!v[id]?'—':joursRestants(v[id])>0?'✓':'⚠';
+    return `<tr><td style="border:1px solid #ccc;padding:5px"><strong>${_pesc(v.immat)}</strong><br><span style="font-size:8pt">${_pesc(v.typeLabel||'')}</span></td><td style="border:1px solid #ccc;padding:5px;text-align:center">${st('ct')} ${ok('ct')}</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${st('tachy')} ${ok('tachy')}</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${st('limiteur')} ${ok('limiteur')}</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${st('assur')} ${ok('assur')}</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${st('extinc')} ${ok('extinc')}</td></tr>`;
+  }).join('');
+  const html=`<div style="${S}">
+<h2 style="${S}font-size:12pt;text-align:center;text-decoration:underline">ÉCHÉANCIER DU PARC DE VÉHICULES</h2>
+<p style="${S}text-align:center"><strong>${E.nom||'[ENTREPRISE]'}</strong> · Édité le ${today}</p>
+<table style="width:100%;border-collapse:collapse;font-size:9pt;margin-top:10px">
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:5px">Véhicule</th><th style="border:1px solid #ccc;padding:5px">Contrôle tech.</th><th style="border:1px solid #ccc;padding:5px">Chronotachy.</th><th style="border:1px solid #ccc;padding:5px">Limiteur</th><th style="border:1px solid #ccc;padding:5px">Assurance</th><th style="border:1px solid #ccc;padding:5px">Extincteur</th></tr>
+${lignes||'<tr><td colspan="6" style="border:1px solid #ccc;padding:8px;text-align:center;color:#999">Aucun véhicule enregistré</td></tr>'}
+</table>
+<p style="${S}font-size:8pt;font-style:italic;margin-top:10px">✓ = Valide · ⚠ = Expiré ou imminent · — = Non renseigné<br>Contrôle technique : 12 mois (PL marchandises) / 6 mois (voyageurs) — arrêté du 27/07/2004. Chronotachygraphe : vérification tous les 2 ans (Règl. UE 165/2014). Ne constitue pas un conseil juridique.</p>
+</div>`;
+  showDoc('Échéancier du parc de véhicules', html);
+}
+function ajouterContravention(){
+  const immat=gv('k-immat'),dateAvis=gv('k-date-avis');
+  if(!immat||!dateAvis){alert('L\'immatriculation et la date de réception de l\'avis sont nécessaires : le délai de 45 jours se calcule à partir de la réception de l\'avis.');return;}
+  const natSel=document.getElementById('k-nature');
+  contraventions.push({immat:immat.toUpperCase().trim(),dateInfr:gv('k-date-infr')||null,dateAvis:dateAvis,
+    nature:natSel?natSel.options[natSel.selectedIndex].text:(gv('k-nature')||''),conducteur:gv('k-conducteur')||'',num:gv('k-num')||'',statut:'a_designer'});
+  sauvegarderParc();renderContraventions();
+  ['k-immat','k-date-infr','k-date-avis','k-conducteur','k-num'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+function supprimerContravention(i){contraventions.splice(i,1);sauvegarderParc();renderContraventions();}
+function marquerDesigne(i){if(contraventions[i]){contraventions[i].statut=contraventions[i].statut==='designe'?'a_designer':'designe';sauvegarderParc();renderContraventions();}}
+function renderContraventions(){
+  const cont=document.getElementById('contra-liste');if(!cont)return;
+  if(!contraventions.length){cont.innerHTML='<div style="font-size:13px;color:#9a9585;text-align:center;padding:20px">Aucune contravention enregistrée</div>';return;}
+  let html='';
+  contraventions.forEach((k,i)=>{
+    const deadline=new Date(k.dateAvis);deadline.setDate(deadline.getDate()+45);
+    const jr=joursRestants(deadline.toISOString().slice(0,10));
+    let badge,col;
+    if(k.statut==='designe'){badge='✅ Conducteur désigné';col='#4caf7d';}
+    else if(jr<0){badge='⛔ DÉLAI DÉPASSÉ ('+Math.abs(jr)+' j) — risque 675 €';col='#e05c5c';}
+    else if(jr<=10){badge='🔴 Plus que '+jr+' j pour désigner';col='#e05c5c';}
+    else{badge='🟡 '+jr+' j restants ('+fmt(deadline)+')';col='#d4a017';}
+    html+='<div class="item" style="border-left:4px solid '+col+'"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong style="font-size:14px;color:#e8e4d8">🚗 '+_pesc(k.immat)+'</strong><button onclick="supprimerContravention('+i+')" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);color:#e05c5c;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer">Supprimer</button></div>'
+      +'<div style="font-size:12px;color:#e8e4d8;line-height:1.7">'+_pesc(k.nature||'Infraction')+(k.dateInfr?' — le '+fmt(new Date(k.dateInfr)):'')+(k.conducteur?'<br>Conducteur : <strong>'+_pesc(k.conducteur)+'</strong>':'<br><em style="color:#d4a017">Conducteur non renseigné</em>')+'</div>'
+      +'<div style="font-size:12.5px;font-weight:700;color:'+col+';margin:6px 0">'+badge+'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn-outline" style="width:auto;margin:0;padding:8px 10px;font-size:12px" onclick="genDesignation('+i+')">📄 Lettre de désignation →</button>'
+      +'<button class="btn-outline" style="width:auto;margin:0;padding:8px 10px;font-size:12px" onclick="marquerDesigne('+i+')">'+(k.statut==='designe'?'↩︎ Annuler « désigné »':'✓ Marquer désigné')+'</button></div>'
+      +'</div>';
+  });
+  cont.innerHTML=html;
+}
+function genDesignation(i){
+  const k=contraventions[i];if(!k)return;
+  const today=new Date().toLocaleDateString('fr-FR');
+  const dInfr=k.dateInfr?fmt(new Date(k.dateInfr)):'[DATE DE L\'INFRACTION]';
+  const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
+  const html=`<div style="${S}">
+${docEnTete()}
+<table style="width:100%;border-collapse:collapse;margin:14px 0"><tr>
+<td style="width:55%;vertical-align:top;padding-right:14px"><div style="border:1px solid #000;padding:10px;${S}"><strong>Destinataire :</strong><br>Monsieur l'Officier du Ministère Public<br>C.A.C.I.R. — CS 41101<br>35911 RENNES CEDEX 9<br><span style="font-size:9pt;font-style:italic">(ou désignation en ligne sur www.antai.gouv.fr)</span></div></td>
+<td style="width:45%;vertical-align:top">${docLRAR()}</td></tr></table>
+<p style="${S}text-align:right">${_docVille()}, le ${today}</p>
+${docObjetEncadre('Désignation du conducteur — avis de contravention n° '+(_pesc(k.num)||'[N° DE L\'AVIS]'))}
+<p style="${S}">Monsieur l'Officier du Ministère Public,</p>
+<p style="${S}">En qualité de représentant légal de la société <strong>${E.nom||'[ENTREPRISE]'}</strong> (SIRET : ${E.siret||'[SIRET]'}), titulaire du certificat d'immatriculation du véhicule <strong>${_pesc(k.immat)}</strong>, et conformément à l'<strong>article L.121-6 du Code de la route</strong>, je vous désigne la personne physique qui conduisait ce véhicule lors de l'infraction relevée le <strong>${dInfr}</strong>${k.nature?' ('+_pesc(k.nature)+')':''}, objet de l'avis de contravention n° <strong>${_pesc(k.num)||'[N° DE L\'AVIS]'}</strong> :</p>
+<table style="width:92%;border-collapse:collapse;margin:12px auto;${S}">
+<tr><td style="border:1px solid #000;padding:7px;width:45%;background:#fff"><strong>Nom et prénom(s)</strong></td><td style="border:1px solid #000;padding:7px">${_pesc(k.conducteur)||'[NOM PRÉNOM DU CONDUCTEUR]'}</td></tr>
+<tr><td style="border:1px solid #000;padding:7px;background:#fff"><strong>Date et lieu de naissance</strong></td><td style="border:1px solid #000;padding:7px">[JJ/MM/AAAA à VILLE]</td></tr>
+<tr><td style="border:1px solid #000;padding:7px;background:#fff"><strong>Adresse complète</strong></td><td style="border:1px solid #000;padding:7px">[ADRESSE DU CONDUCTEUR]</td></tr>
+<tr><td style="border:1px solid #000;padding:7px;background:#fff"><strong>N° de permis de conduire</strong></td><td style="border:1px solid #000;padding:7px">[N° — délivré le JJ/MM/AAAA à VILLE]</td></tr>
+</table>
+<p style="${S}">Je vous prie de bien vouloir adresser l'avis de contravention correspondant à la personne ainsi désignée.</p>
+<p style="${S}"><em>[Le cas échéant, cochez sur l'avis le motif applicable : véhicule volé, prêté, cédé, ou conducteur non identifiable — joindre les justificatifs.]</em></p>
+<p style="${S}">Je vous prie d'agréer, Monsieur l'Officier du Ministère Public, l'expression de ma considération distinguée.</p>
+${docSignatureBloc()}
+${docPiedPage('Art. L.121-6 C. route — Désignation obligatoire dans les 45 jours de l\'envoi ou de la réception de l\'avis. À défaut : amende forfaitaire de 675 € (minorée 450 €, majorée 1 875 €) due par le représentant légal. La voie la plus sûre et la plus rapide est la désignation en ligne sur antai.gouv.fr (accusé de réception immédiat).')}
+</div>`;
+  showDoc('Désignation du conducteur — '+_pesc(k.immat), html);
 }
 
 // ═══════════════════════════════════════
