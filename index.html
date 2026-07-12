@@ -372,9 +372,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.10';
+var JX_BUILD = 'v2026-07-12.11';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.11', d:'12 juillet 2026', t:[
+   'Audit « Discipline » — Sanctions PÉCUNIAIRES interdites (art. L.1331-2) : alerte forte ajoutée au module Discipline et clause dans le règlement intérieur généré — interdiction de retenir sur salaire une casse, un accident, des dégâts, une amende routière, ou de supprimer la prime de non-accident à titre de sanction (nul, pénalement sanctionné ; responsabilité pécuniaire du salarié seulement en cas de faute lourde).'
+ ]},
  {v:'v2026-07-12.10', d:'12 juillet 2026', t:[
    'Période d\'essai : rappel du DÉLAI DE PRÉVENANCE de rupture ajouté au module Contrat (24 h / 48 h / 2 semaines / 1 mois selon la présence — L.1221-25 ; indemnité si non respecté) ; le modèle de lettre de rupture avec le tableau chiffré existait déjà dans le Parcours.',
    'Dédit-formation : piège transport mis en évidence — la FIMO et la FCO, obligatoires, ne peuvent PAS donner lieu à dédit (clause nulle) ; conditions de validité complètes rappelées (formation non obligatoire, signature avant le début, montant réel/dégressif, liberté de démissionner préservée — Cass. soc. 21/01/2004 et 05/06/2002).'
@@ -1496,6 +1499,7 @@ try{
 
 <div class="card">
 <div class="ct">Sanction envisagée et procédure</div>
+<div class="al err" style="font-size:12px;margin-bottom:12px;line-height:1.7">🚫 <b>Sanctions pécuniaires INTERDITES (art. L.1331-2 C. trav.)</b> — dans le transport, ne JAMAIS : retenir sur le salaire le coût d'une casse, d'un accident ou de dégâts au véhicule/à la marchandise ; faire payer au conducteur une <b>amende</b> routière (contraventions à la charge de l'employeur, sauf exceptions payées par le titulaire) ; <b>supprimer ou minorer la prime de non-accident</b> à titre de sanction. Ces pratiques sont nulles et pénalement sanctionnées (3 750 € d'amende). La responsabilité pécuniaire du salarié n'est engagée qu'en cas de <b>faute lourde</b> (intention de nuire).</div>
 <div class="fg"><label class="fl">Type de sanction envisagée</label>
 <select id="disc-sanction" onchange="updateSanction()">
   <option value="">Sélectionnez...</option>
@@ -4566,6 +4570,7 @@ ${dashcam?`<p style="${S}"><strong>Article — Caméra embarquée (dashcam)</str
 <p style="${S}"><strong>Article — Échelle des sanctions</strong></p>
 <p style="${S}">Les sanctions applicables dans l'entreprise, par ordre croissant de gravité, sont :</p>
 <p style="${S}" style="margin-left:20px">1. Avertissement (notification écrite)<br>2. Blâme<br>3. Mise à pied disciplinaire (durée maximale : ${mapDuree} jours)<br>4. Rétrogradation<br>5. Licenciement pour faute (simple, grave ou lourde)</p>
+<p style="${S}">Conformément à l'article L.1331-2 du code du travail, <strong>les amendes et autres sanctions pécuniaires sont interdites</strong> : aucune retenue sur salaire ne peut être opérée au titre d'une casse, d'un accident, de dégâts au véhicule ou à la marchandise, d'une contravention routière, ni au titre de la suppression d'une prime à caractère de sanction. Toute clause ou disposition contraire est réputée non écrite.</p>
 <p style="${S}"><strong>Article — Fautes spécifiques au transport</strong></p>
 <p style="${S}">Constituent des fautes graves pouvant justifier un licenciement immédiat sans préavis ni indemnité :<br>
 — Falsification ou manipulation du tachygraphe<br>
