@@ -372,9 +372,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.12';
+var JX_BUILD = 'v2026-07-12.13';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.13', d:'12 juillet 2026', t:[
+   'CORRECTIF paie : le simulateur de rémunération utilisait encore un plancher SMIC figé à 11,88 € — corrigé pour le SMIC en vigueur (SMIC_H = 12,31 €). Nouvelle alerte visible « Rattrapage SMIC » quand le taux conventionnel du coefficient (110 à 128M) est inférieur au SMIC : c\'est le SMIC qui s\'applique et sert de base à la prime d\'ancienneté (L.3231-2).',
+   'Vérifié déjà conforme (non modifié) : prime d\'ancienneté calculée sur le minimum conventionnel (2/4/6/8 % à 2/5/10/15 ans — barème recoupé), catégories différenciées par le seuil d\'heures (151,67 / 169 / 186,33), majorations heures sup +25 %/+50 %, majoration nuit +20 %, calculateur d\'amplitude avec alerte (≤ 12 h / ≤ 14 h / > 14 h), frais avenant n° 81.'
+ ]},
  {v:'v2026-07-12.12', d:'12 juillet 2026', t:[
    'Calculateur de précarité CDD : nouveau sélecteur de cas — la prime de 10 % est automatiquement mise à 0 (NON DUE) pour un CDD saisonnier, un CDD d\'usage (déménagement), un refus de CDI par le salarié, une poursuite en CDI, une rupture à l\'initiative du salarié/faute grave, ou un jeune en vacances scolaires (art. L.1243-10) — l\'indemnité de congés payés restant due.',
    'Calculateur de licenciement : rappel « inaptitude d\'origine professionnelle (AT/MP) = indemnité DOUBLÉE + préavis dû » (L.1226-14) affiché avec le montant doublé.',
@@ -3789,6 +3793,7 @@ const MINIMA = {'110':12.09,'115':12.09,'117':12.09,'117M':12.09,'118':12.09,'11
 // Les NAO salaires TRM 2025/2026 ayant échoué (grille du 11/10/2023 inchangée), le SMIC dépasse les coefficients 110 à 128M :
 // le plancher ci-dessous les relève automatiquement.
 var SMIC_H = 12.31;
+var MINIMA_RAW = Object.assign({}, MINIMA);   // grille conventionnelle brute (avant plancher), pour détecter le rattrapage SMIC
 Object.keys(MINIMA).forEach(function(k){ if(MINIMA[k] < SMIC_H) MINIMA[k] = SMIC_H; });
 
 // GAR indicatifs (Garantie Annuelle de Rémunération)
@@ -4407,8 +4412,11 @@ function calcRem(){
   const repas=parseInt(gv('rem-repas'))||0;
   const nuitsDep=parseInt(gv('rem-nuits-dep'))||0;
   const primeAcc=parseFloat(gv('rem-prime-acc'))||0;
-  const minCCN=MINIMA[coeff]||12.00;
-  const tauxBase=Math.max(minCCN,11.88); // SMIC indicatif
+  const smicH=(typeof SMIC_H!=='undefined'?SMIC_H:12.31);
+  const rawCCN=(typeof MINIMA_RAW!=='undefined'?MINIMA_RAW[coeff]:null);
+  const minCCN=MINIMA[coeff]||smicH;
+  const tauxBase=Math.max(minCCN,smicH);            // plancher SMIC en vigueur (L.3231-2)
+  const rattrapageSmic=(rawCCN!=null && rawCCN<smicH);
   const pctAnc=anc>=15?8:anc>=10?6:anc>=5?4:anc>=2?2:0;
   const tauxAvecAnc=tauxBase*(1+pctAnc/100);
   let salBase=Math.round(Math.min(heures,seuil)*tauxAvecAnc*100)/100;
@@ -4427,7 +4435,8 @@ function calcRem(){
 <div class="badge badge-gold">SIMULATION RÉMUNÉRATION — INDICATIF</div>
 <div style="font-size:13px;line-height:2;margin-top:8px;color:#e8e4d8">
 <strong style="color:#e8c97a">Coefficient ${coeff} — ${pctAnc>0?'Ancienneté '+pctAnc+'% — ':''}</strong><br>
-Taux horaire base : ${tauxAvecAnc.toFixed(2)} €/h<br>
+${rattrapageSmic?`<span style="display:block;background:#fff3cd;border:1px solid #e0a83a;border-radius:6px;padding:6px 8px;margin:4px 0;color:#7a5a12;font-size:12px">⚠️ <b>Rattrapage SMIC appliqué</b> : le taux conventionnel du coefficient ${coeff} (${rawCCN.toFixed(2).replace('.',',')} €) est inférieur au SMIC en vigueur (${smicH.toFixed(2).replace('.',',')} €). C'est le SMIC qui s'applique (L.3231-2). La prime d'ancienneté se calcule sur ce plancher.</span>`:''}
+Taux horaire (base = ${tauxBase.toFixed(2)} €${pctAnc>0?' + ancienneté '+pctAnc+'%':''}) : ${tauxAvecAnc.toFixed(2)} €/h<br>
 Salaire de base (${Math.min(heures,seuil)}h) : <strong>${salBase.toFixed(2)} €</strong><br>
 ${hs1>0?`Heures sup. 36e-43e (${hs1}h × +25%) : + ${montantHS1.toFixed(2)} €<br>`:''}
 ${hs2>0?`Heures sup. >43e (${hs2}h × +50%) : + ${montantHS2.toFixed(2)} €<br>`:''}
