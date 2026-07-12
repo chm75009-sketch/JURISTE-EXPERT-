@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.13';
+var JX_BUILD = 'v2026-07-12.14';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.14', d:'12 juillet 2026', t:[
+   'Contrôle-minute enrichi (audit externe CSE/DREAL) : 3 nouvelles questions transport — licence de transport + inscription au registre des transporteurs + capacité professionnelle du gestionnaire (Règl. CE 1071/2009) ; contrôle périodique du tachygraphe tous les 2 ans + limiteur de vitesse (Règl. UE 165/2014, R.317-24 C. route) ; documents de bord obligatoires (licence, lettre de voiture, assurance…). L\'audit passe de 24 à 27 points.',
+   'Tableau de bord conducteurs : rappel de la responsabilité PÉNALE de l\'employeur (conduite avec titre expiré — Cass. crim. 3/06/2003) et de la règle RGPD (suivre les dates de validité, ne PAS stocker le solde de points du permis).',
+   'Vérifié déjà conforme (non modifié) : CSE obligatoire à 11 salariés pendant 12 mois consécutifs (L.2311-2) ; barème des sièges R.2314-1 (1 siège 11-24, 2 sièges 25-49…) ; délai d\'invitation des syndicats 15 jours ; RGPD registre des traitements présent dans l\'audit.'
+ ]},
  {v:'v2026-07-12.13', d:'12 juillet 2026', t:[
    'CORRECTIF paie : le simulateur de rémunération utilisait encore un plancher SMIC figé à 11,88 € — corrigé pour le SMIC en vigueur (SMIC_H = 12,31 €). Nouvelle alerte visible « Rattrapage SMIC » quand le taux conventionnel du coefficient (110 à 128M) est inférieur au SMIC : c\'est le SMIC qui s\'applique et sert de base à la prime d\'ancienneté (L.3231-2).',
    'Vérifié déjà conforme (non modifié) : prime d\'ancienneté calculée sur le minimum conventionnel (2/4/6/8 % à 2/5/10/15 ans — barème recoupé), catégories différenciées par le seuil d\'heures (151,67 / 169 / 186,33), majorations heures sup +25 %/+50 %, majoration nuit +20 %, calculateur d\'amplitude avec alerte (≤ 12 h / ≤ 14 h / > 14 h), frais avenant n° 81.'
@@ -1963,6 +1968,7 @@ Exemple :<br>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
+<div class="al warn" style="font-size:11.5px;line-height:1.7;margin-bottom:10px">⚠️ <b>Responsabilité pénale :</b> laisser conduire un salarié dont le <b>permis, la CQC/FCO ou la visite médicale est expiré</b> engage votre responsabilité pénale en cas d'accident (Cass. crim. 3 juin 2003). Suspendez l'affectation à la conduite jusqu'à régularisation.<br>🔒 <b>RGPD :</b> ne suivez que les <b>dates de validité</b> des titres (finalité légitime). Ne stockez PAS le <b>solde de points</b> du permis : c'est une donnée que l'employeur n'a pas à conserver.</div>
 <div class="ct">Ajouter / mettre à jour un conducteur</div>
 <div class="fg"><label class="fl">Nom du conducteur</label><input id="tb-nom" placeholder="Ex : MARTIN Pierre"/></div>
 <div class="fg"><label class="fl">Date expiration permis</label><input type="date" id="tb-permis"/></div>
@@ -2640,7 +2646,10 @@ Exemple :<br>
     {id:'tachy',q:'Les données tachygraphe sont-elles téléchargées dans les délais (carte conducteur ≤ 28 jours, mémoire véhicule ≤ 90 jours) et conservées 12 mois ?',ref:'Règl. UE 165/2014',fix:'Mettez en place un calendrier de téléchargement automatique et un archivage.'},
     {id:'temps',q:'Les temps de conduite/repos et le temps de service sont-ils contrôlés, les dépassements analysés et traités ?',ref:'CE 561/2006 · Décret 83-40',fix:'Utilisez la calculatrice temps de conduite et la fiche hebdomadaire.',go:'temps'},
     {id:'sir',q:'Les conducteurs bénéficient-ils du suivi individuel renforcé au SPST (examen d’aptitude AVANT affectation, périodicité renforcée) ?',ref:'R.4624-22 s. C. trav.',fix:'Déclarez les postes de conduite en suivi renforcé auprès de votre SPST.',go:'contrat'},
-    {id:'fimo',q:'Les FCO sont-elles planifiées et financées AVANT l’échéance des CQC ?',ref:'C. transports L.3314-1 s.',fix:'Générez les convocations FCO depuis le Parcours (étape 9) et suivez les échéances.',go:'tableau-bord'}
+    {id:'fimo',q:'Les FCO sont-elles planifiées et financées AVANT l’échéance des CQC ?',ref:'C. transports L.3314-1 s.',fix:'Générez les convocations FCO depuis le Parcours (étape 9) et suivez les échéances.',go:'tableau-bord'},
+    {id:'licence',q:'La licence de transport (communautaire ou intérieure) est-elle valide, l’entreprise inscrite au registre des transporteurs et la capacité professionnelle du gestionnaire de transport assurée en permanence ?',ref:'C. transports L.3211-1 s. · Règl. CE 1071/2009',fix:'Vérifiez l’inscription au registre électronique (DREAL) et la présence effective d’un gestionnaire de transport titulaire de l’attestation de capacité.'},
+    {id:'tacho2',q:'Le tachygraphe fait-il l’objet du contrôle périodique obligatoire (vérification en atelier agréé tous les 2 ans) et le limiteur de vitesse est-il en état de fonctionnement ?',ref:'Règl. UE 165/2014 · art. R.317-24 C. route',fix:'Programmez le passage bisannuel en centre agréé et conservez les certificats de contrôle.'},
+    {id:'bord',q:'Les documents de bord obligatoires sont-ils présents dans chaque véhicule (copie de licence, lettre de voiture / document de transport, attestation d’assurance, carte grise, justificatif du conducteur) ?',ref:'C. transports · arrêté du 9/11/1999',fix:'Constituez une pochette « documents de bord » par véhicule et contrôlez-la périodiquement.'}
    ]},
    {th:'🗳️ Représentation du personnel',items:[
     {id:'cse',q:'Si l’effectif atteint 11 salariés depuis 12 mois : le CSE est-il en place OU disposez-vous d’un PV de carence de moins de 4 ans ?',ref:'L.2311-2 C. trav.',fix:'Organisez les élections avec le module Élections CSE (calendrier, PAP, PV).',go:'cse'},
