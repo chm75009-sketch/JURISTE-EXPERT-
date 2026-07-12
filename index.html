@@ -372,9 +372,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.6';
+var JX_BUILD = 'v2026-07-12.7';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.7', d:'12 juillet 2026', t:[
+   'Frais de déplacement — règle de NON-CUMUL ajoutée : casse-croûte et repas de nuit ne se cumulent pas avec l\'indemnité de grand déplacement (le forfait découcher couvre déjà les repas) ; référence Légifrance de l\'avenant n° 81 affichée. Barème 2026 recoupé une nouvelle fois (EDS, UNOSTRA, Juristique) : tous les montants confirmés.'
+ ]},
  {v:'v2026-07-12.6', d:'12 juillet 2026', t:[
    'Frais de repas — conditions d\'attribution intégrées (défense employeur) : Cass. soc. 7 janvier 2026, n° 24-19.424 — l\'indemnité de repas/repas unique n\'est due que si un déplacement contraint à manger hors domicile ET lieu de travail, apprécié JOUR PAR JOUR (un tableau global du salarié ne suffit pas) ; exclusions de l\'art. 8 du protocole (amplitude, coupure ≥ 1 h) et indemnité spéciale rappelées.',
    'Champ d\'application : la grande remise / VTC n\'est pas du transport routier de voyageurs au sens de la CCN — le 13e mois de l\'accord ARTT du 18/04/2002 ne s\'y applique pas (même arrêt).'
@@ -1337,7 +1340,8 @@ try{
 <strong style="color:#e8c97a">Grand déplacement — 2 repas + 1 découcher</strong> : <b>68,67 €</b><br>
 <strong style="color:#e8c97a">Étranger</strong> : majoration <b>+18 %</b> (soit 61,73 € et 81,03 €)<br>
 <span style="display:block;margin-top:8px;padding:8px 10px;border-left:3px solid #e0a83a;background:rgba(224,168,58,.08);border-radius:8px;font-size:11.5px;line-height:1.7">⚖️ <b>Cass. soc. 1er juillet 2026, n° 24-19.702 (publié au bulletin)</b> : l'indemnité de grand déplacement s'apprécie par rapport au <b>DOMICILE</b> du conducteur, pas au dépôt. Le retour quotidien au lieu d'affectation ne suffit PAS à l'écarter : elle est due si le déplacement impliqué par le service met le salarié dans l'<b>impossibilité de regagner son domicile pour son repos journalier</b> (protocole du 30/04/1974, art. 2 et 6). En l'espèce : conducteur courte distance affecté à 125 km de son domicile, service de nuit 19h15-3h30. ⚠️ Vérifiez vos affectations éloignées — rappels possibles sur 3 ans.</span><br>
-<span style="color:#9a9585;font-size:11px">Avenant n° 81 du 02/12/2025 (effet 01/01/2026)</span><br>
+<span style="color:#9a9585;font-size:11px">Avenant n° 81 du 02/12/2025 (effet 01/01/2026 — Légifrance : KALIARTI000053715771)</span><br>
+<span style="display:block;margin-top:6px;font-size:11.5px;color:#e8e4d8">🚫 <b>Non-cumul :</b> les indemnités de casse-croûte et de repas de nuit ne se cumulent PAS avec l'indemnité de grand déplacement (découcher) — le forfait grand déplacement couvre déjà le(s) repas.</span><br>
 <span style="color:#9a9585;font-size:11px">Ne constituent pas un salaire — compensent les frais liés à l'éloignement du domicile</span>
 </div>
 </div>
