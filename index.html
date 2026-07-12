@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.11';
+var JX_BUILD = 'v2026-07-12.12';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.12', d:'12 juillet 2026', t:[
+   'Calculateur de précarité CDD : nouveau sélecteur de cas — la prime de 10 % est automatiquement mise à 0 (NON DUE) pour un CDD saisonnier, un CDD d\'usage (déménagement), un refus de CDI par le salarié, une poursuite en CDI, une rupture à l\'initiative du salarié/faute grave, ou un jeune en vacances scolaires (art. L.1243-10) — l\'indemnité de congés payés restant due.',
+   'Calculateur de licenciement : rappel « inaptitude d\'origine professionnelle (AT/MP) = indemnité DOUBLÉE + préavis dû » (L.1226-14) affiché avec le montant doublé.',
+   'Vérifié déjà conforme (non modifié) : comparateur légal/conventionnel retenant le plus favorable (L.2251-1), barème Macron à jour (2 ans → 3 mois plancher), rupture conventionnelle contribution patronale 30 % + calendrier daté, CDD rompu avant terme = salaires dus jusqu\'au terme (L.1243-4).'
+ ]},
  {v:'v2026-07-12.11', d:'12 juillet 2026', t:[
    'Audit « Discipline » — Sanctions PÉCUNIAIRES interdites (art. L.1331-2) : alerte forte ajoutée au module Discipline et clause dans le règlement intérieur généré — interdiction de retenir sur salaire une casse, un accident, des dégâts, une amende routière, ou de supprimer la prime de non-accident à titre de sanction (nul, pénalement sanctionné ; responsabilité pécuniaire du salarié seulement en cas de faute lourde).'
  ]},
@@ -3023,6 +3028,7 @@ Exemple :<br>
   <div class="fg" id="cg-eff"><label class="fl">Effectif de l'entreprise</label><select id="calc-eff"><option value="ge11">11 salariés ou plus</option><option value="lt11">Moins de 11 salariés</option></select></div>
   <div class="fg" id="cg-cpjours"><label class="fl">Jours de congés payés acquis et non pris (jours ouvrables)</label><input id="calc-cpjours" type="number" min="0" step="0.5" value="0"></div>
   <div class="fg" id="cg-brut"><label class="fl">Rémunération brute totale perçue pendant tout le CDD (€)</label><input id="calc-brut" type="number" min="0" step="100" value="0"></div>
+  <div class="fg" id="cg-cddmotif"><label class="fl">Cas du CDD (détermine si la prime est due)</label><select id="calc-cddmotif"><option value="normal">CDD classique (remplacement, accroissement…) — prime due</option><option value="saisonnier">CDD saisonnier — prime NON due</option><option value="usage">CDD d'usage (déménagement) — prime NON due</option><option value="cdi-refus">Refus par le salarié d'un CDI sur le même emploi — NON due</option><option value="cdi-suite">Embauche en CDI à l'issue — NON due</option><option value="rupture-salarie">Rupture anticipée à l'initiative du salarié / faute grave — NON due</option><option value="jeune-vacances">Jeune pendant ses vacances scolaires/universitaires — NON due</option></select></div>
   <div class="fg" id="cg-retmode"><label class="fl">Situation de départ en retraite</label><select id="calc-retmode"><option value="mise">Mise à la retraite (à l'initiative de l'employeur)</option><option value="depart">Départ volontaire à la retraite (à l'initiative du salarié)</option></select></div>
   <div class="fg" id="cg-secteur"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="autre">Autre convention</option></select></div>
   <div id="calc-secteur-note" style="font-size:12px;color:#6b5a2e;background:#fff7e6;border:1px solid #e7d9b0;border-radius:8px;padding:8px;margin-bottom:8px;display:none"></div>
@@ -3432,11 +3438,11 @@ function statInit(){var id;try{id=localStorage.getItem('secteur_statut');}catch(
 var BAREME_GE11=[[0,1],[1,2],[3,3.5],[3,4],[3,5],[3,6],[3,7],[3,8],[3,8],[3,9],[3,10],[3,10.5],[3,11],[3,11.5],[3,12],[3,13],[3,13.5],[3,14],[3,14.5],[3,15],[3,15.5],[3,16],[3,16.5],[3,17],[3,17.5],[3,18],[3,18.5],[3,19],[3,19.5],[3,20],[3,20]];
 var BAREME_MIN_LT11=[0,0.5,0.5,1,1,1.5,1.5,2,2,2.5,2.5];
 function calcFmt(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-var CALC_VIS={lic:['anc','sal','eff','secteur','conv'],macron:['anc','sal','eff'],cp:['sal','cpjours'],preavis:['anc','sal','secteur'],precarite:['brut'],rupconv:['anc','sal','secteur','conv'],retraite:['anc','sal','retmode','secteur','conv']};
+var CALC_VIS={lic:['anc','sal','eff','secteur','conv'],macron:['anc','sal','eff'],cp:['sal','cpjours'],preavis:['anc','sal','secteur'],precarite:['brut','cddmotif'],rupconv:['anc','sal','secteur','conv'],retraite:['anc','sal','retmode','secteur','conv']};
 function calcTypeChange(){
   var t=(document.getElementById('calc-type')||{}).value||'lic';
   var vis=CALC_VIS[t]||[];
-  ['anc','sal','eff','cpjours','brut','retmode','secteur','conv'].forEach(function(g){
+  ['anc','sal','eff','cpjours','brut','cddmotif','retmode','secteur','conv'].forEach(function(g){
     var el=document.getElementById('cg-'+g); if(el)el.style.display=(vis.indexOf(g)>=0?'':'none');
   });
   if(vis.indexOf('secteur')<0){var n=document.getElementById('calc-secteur-note');if(n)n.style.display='none';}
@@ -3520,8 +3526,14 @@ function calcIndemXIV(){
 
   } else if(t==='precarite'){
     var brut=parseFloat((document.getElementById('calc-brut')||{}).value)||0;
-    var p10=brut*0.10, p6=brut*0.06;
-    html='<div class="pse-verdict ok"><b>Indemnité de fin de CDD (prime de précarité)</b> ≈ <b>'+calcFmt(p10)+' €</b>'
+    var cddm=(document.getElementById('calc-cddmotif')||{}).value||'normal';
+    var EXCL={saisonnier:'CDD saisonnier',usage:'CDD d\'usage (déménagement)','cdi-refus':'refus par le salarié d\'un CDI sur le même emploi ou un emploi similaire, à rémunération au moins équivalente','cdi-suite':'poursuite de la relation en CDI à l\'issue du CDD','rupture-salarie':'rupture anticipée à l\'initiative du salarié, à sa faute grave ou en cas de force majeure','jeune-vacances':'contrat conclu avec un jeune pour une période comprise dans ses vacances scolaires ou universitaires'};
+    if(EXCL[cddm]){
+      html='<div class="pse-verdict warn"><b>Indemnité de fin de CDD (précarité) : NON DUE</b> ≈ <b>0 €</b>'
+        +'<p class="loi" style="margin-top:8px">Dans ce cas — <b>'+EXCL[cddm]+'</b> — l\'indemnité de précarité de 10 % n\'est <b>pas due</b> (C. trav. art. L.1243-10). '+(cddm==='saisonnier'||cddm==='usage'?'⚠️ Sauf disposition plus favorable d\'une convention ou d\'un accord d\'entreprise. ':'')+'En revanche, l\'<b>indemnité compensatrice de congés payés reste due</b> dans tous les cas.</p></div>';
+    } else {
+      var p10=brut*0.10, p6=brut*0.06;
+      html='<div class="pse-verdict ok"><b>Indemnité de fin de CDD (prime de précarité)</b> ≈ <b>'+calcFmt(p10)+' €</b>'
       +'<div class="pse-line"><span>Taux normal : 10%</span><span>'+calcFmt(p10)+' €</span></div>'
       +'<div class="pse-line"><span>Taux réduit éventuel : 6%</span><span>'+calcFmt(p6)+' €</span></div>'
       +calcDetail([
@@ -3530,6 +3542,7 @@ function calcIndemXIV(){
         'Taux réduit (si accord de branche étendu avec contreparties formation) : '+calcFmt(brut)+' € × 6 % = <b>'+calcFmt(p6)+' €</b>'
       ])
       +'<p class="loi" style="margin-top:8px">10% de la rémunération brute totale versée pendant le contrat (C. trav. art. L1243-8). Taux réductible à 6% par accord de branche étendu si des contreparties de formation sont offertes. <b>Non due</b> notamment : CDD saisonnier ou d\'usage, contrat avec un jeune pendant ses vacances scolaires, refus par le salarié d\'un CDI sur le même emploi, embauche en CDI à l\'issue, rupture anticipée pour faute grave ou force majeure. S\'ajoute à l\'indemnité de congés payés.</p></div>';
+    }
 
   } else if(t==='rupconv'){
     html='<div class="pse-verdict ok"><b>Indemnité spécifique de rupture conventionnelle</b>'
@@ -3561,7 +3574,9 @@ function calcIndemXIV(){
     html='<div class="pse-verdict ok"><b>Indemnité légale de licenciement</b>'
       + (anc>=0.6667 ? (' ≈ <b>'+calcFmt(leg)+' €</b> ('+ (sal? (leg/sal).toFixed(2):'—') +' mois) — ¼ mois/an jusqu\'à 10 ans, ⅓ au-delà.') : ' : ancienneté < 8 mois → pas d\'indemnité légale.')
       + LEGDET
-      + '<p class="loi" style="margin-top:6px">Base de calcul = moyenne la plus favorable entre les 12 ou les 3 derniers mois (C. trav. art. R1234-4). Non due en cas de faute grave ou lourde.</p></div>';
+      + '<p class="loi" style="margin-top:6px">Base de calcul = moyenne la plus favorable entre les 12 ou les 3 derniers mois (C. trav. art. R1234-4). Non due en cas de faute grave ou lourde.</p>'
+      + (anc>=0.6667 ? '<div class="pse-line" style="background:#fff7e6;border:1px solid #e7d9b0;border-radius:8px;padding:8px;margin-top:8px;display:block"><b>🏥 Inaptitude d\'origine PROFESSIONNELLE (AT/MP) ?</b> L\'indemnité spéciale est <b>DOUBLÉE</b> (≈ <b>'+calcFmt(leg*2)+' €</b>) et le préavis est dû même non exécuté (C. trav. art. L.1226-14). Le module « Discipline » gère les deux origines d\'inaptitude.</div>' : '')
+      + '</div>';
     html+=compareConv(leg,'Indemnité légale de licenciement');
   }
   out.innerHTML=html;
