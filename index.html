@@ -375,9 +375,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.20';
+var JX_BUILD = 'v2026-07-12.21';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.21', d:'12 juillet 2026', t:[
+   'CORRECTION module « Analyse & conformité d\'un document » : le secteur d\'analyse pouvait rester bloqué sur « Syntec — IDCC 1486 » (une valeur de test mémorisée), contexte étranger à une entreprise de transport. Le module suit désormais TOUJOURS le secteur de votre entreprise — Transport routier IDCC 0016 par défaut — et le champ convention est verrouillé en conséquence.',
+   'La saisie du secteur/convention n\'est plus mémorisée d\'une session à l\'autre (elle est pilotée par votre secteur), ce qui supprime définitivement l\'affichage d\'une mauvaise convention. Le mode administrateur conserve le choix multi-secteurs.'
+ ]},
  {v:'v2026-07-12.20', d:'12 juillet 2026', t:[
    '🚛 NOUVEAU MODULE « Parc & Contraventions » — deux angles morts du transport que les logiciels RH classiques ne couvrent pas.',
    'Parc véhicules : échéancier automatique par camion (contrôle technique — 12 mois en marchandises / 6 mois en voyageurs, arrêté du 27/07/2004 ; chronotachygraphe — vérification tous les 2 ans, Règl. UE 165/2014 ; limiteur de vitesse ; assurance ; extincteur ; taxe à l\'essieu), avec le même système d\'alertes 🔴🟡🟢 que les conducteurs et un échéancier imprimable.',
@@ -4038,6 +4042,8 @@ function applyClientSector(retry){
     });
     // Jurisprudence : filtrer sur le secteur (pour ceux qui ont un onglet dédié)
     if(typeof jurSetSecteur==='function'){ var JC={transport:1,banque:1,assurances:1,syntec:1}; if(sec&&JC[sec])jurSetSecteur(sec); else if(!sec)jurSetSecteur('tous'); }
+    // Module Analyse & conformité : verrouiller son secteur (transport par défaut hors admin)
+    if(typeof diagLockSecteur==='function'){ try{ diagLockSecteur(); }catch(e){} }
   }catch(e){}
 }
 
@@ -9546,7 +9552,7 @@ auteurApply();
           <select id="diag-secteur" onchange="diagSecteur()" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px"></select>
         </label>
         <label style="font-size:12px;color:#555">Convention collective applicable
-          <input id="diag-ccn" placeholder="ex. IDCC 1486 Syntec" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
+          <input id="diag-ccn" placeholder="ex. IDCC 0016 Transports routiers" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
         </label>
         <label style="font-size:12px;color:#555">Effectif de l'entreprise
           <input id="diag-effectif" type="number" min="0" placeholder="ex. 48" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
@@ -9842,7 +9848,23 @@ if(r.ok.length){h+='<div style="font-weight:600;color:#1a7a3a;font-size:13px;mar
 if(r.re.length){h+='<div style="font-weight:600;color:#9a7b2e;font-size:13px;margin:10px 0 6px">📌 Recommandations &amp; points de vigilance</div>';r.re.forEach(function(k){h+='<div style="font-size:12.5px;color:#6b5a2e;padding:3px 0">• '+esc(k)+'</div>';});}
 h+='<div style="font-size:11px;color:#999;margin-top:12px;border-top:1px solid #eee;padding-top:8px">Réserve : éléments de diagnostic à vérifier et adapter ; ne remplace pas l’avis d’un professionnel.</div>';
 h+='</div>';R.innerHTML=h;R.scrollIntoView({behavior:'smooth',block:'start'});};
-window.diagInit=function(){var s=document.getElementById('diag-secteur');if(s&&!s.options.length){var h='<option value="">— choisir —</option>';SECT.forEach(function(z){h+='<option value="'+z.id+'">'+esc(z.nom)+'</option>';});s.innerHTML=h;}var ty=document.getElementById('diag-type');if(ty&&!ty.options.length){var h2='<option value="">— choisir —</option>';ORDER.forEach(function(k){h2+='<option value="'+k+'">'+esc(DOCS[k].nom)+'</option>';});ty.innerHTML=h2;}};
+window.diagInit=function(){var s=document.getElementById('diag-secteur');if(s&&!s.options.length){var h='<option value="">— choisir —</option>';SECT.forEach(function(z){h+='<option value="'+z.id+'">'+esc(z.nom)+'</option>';});s.innerHTML=h;}var ty=document.getElementById('diag-type');if(ty&&!ty.options.length){var h2='<option value="">— choisir —</option>';ORDER.forEach(function(k){h2+='<option value="'+k+'">'+esc(DOCS[k].nom)+'</option>';});ty.innerHTML=h2;}diagLockSecteur();};
+// Verrou de cohérence : produit transport → le secteur d'analyse suit le secteur du client.
+// Hors mode administrateur, on force et on VERROUILLE le secteur (transport par défaut si aucun code secteur),
+// pour ne jamais afficher un contexte étranger (ex. Syntec) dans une app transport.
+window.diagLockSecteur=function(){
+  var s=document.getElementById('diag-secteur');if(!s||!s.options.length)return;
+  var admin=false;try{admin=sessionStorage.getItem('jte_admin')==='1';}catch(e){}
+  var sec=(window.CLIENT_SECTEUR||'')||(admin?'':'transport');
+  if(!sec){s.disabled=false;s.style.opacity='';var cc0=document.getElementById('diag-ccn');if(cc0)cc0.readOnly=false;return;}
+  var has=[].some.call(s.options,function(o){return o.value===sec;});if(!has)return;
+  s.value=sec;
+  var o=SECT.filter(function(z){return z.id===sec;})[0];
+  var ccn=document.getElementById('diag-ccn');
+  if(o&&ccn){ccn.value=o.ccn||'';if(!admin){ccn.readOnly=true;ccn.style.opacity='0.9';}}
+  if(!admin){s.disabled=true;s.style.opacity='0.9';s.title='Secteur de votre entreprise (verrouillé)';}
+  else{s.disabled=false;s.style.opacity='';}
+};
 if(document.readyState!=='loading')diagInit();else document.addEventListener('DOMContentLoaded',diagInit);
 })();
 </script>
@@ -9851,8 +9873,8 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 /* ===== Sauvegarde automatique des saisies (survit à la fermeture) ===== */
 (function(){
   var KEY='jx_fields_v1';
-  var BLOCK={'lock-input':1};
-  var WL=['diag-secteur','diag-ccn','diag-effectif','diag-rep','diag-anc','diag-anc-unit','diag-type','diag-resume',
+  var BLOCK={'lock-input':1,'diag-secteur':1,'diag-ccn':1}; // secteur d'analyse piloté par le verrou client, jamais restauré
+  var WL=['diag-effectif','diag-rep','diag-anc','diag-anc-unit','diag-type','diag-resume',
     'calc-type','calc-anc','calc-sal','calc-eff','calc-cpjours','calc-brut','calc-retmode','calc-secteur','calc-conv',
     'disc-secteur','disc-motif','disc-faits','disc-date-faits','disc-date-connaissance','disc-protection',
     'disc-sal-nom','disc-ant-desc','disc-cse-exist',
