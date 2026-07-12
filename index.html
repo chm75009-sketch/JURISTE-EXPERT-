@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.18';
+var JX_BUILD = 'v2026-07-11.19';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-11.19', d:'12 juillet 2026', t:[
+   'GRILLES 100 % OFFICIELLES (tableaux de l\'accord du 11/10/2023 fournis en captures Légifrance) — Taux horaires ouvriers corrigés : 110M à 120M = 12,09 €, 128M = 12,12 €, 138M = 12,14 €, 150M = 12,43 € (+2 % après 2 ans) ; les valeurs intermédiaires estimées (12,13-12,37) sont remplacées ; le plancher SMIC (12,31 €) s\'applique par-dessus.',
+   'Vérificateur GAR entièrement reconstruit sur les grilles officielles : 4 catégories (ouvriers avec 3 bases d\'heures 151,67/169/200 h, employés, techniciens-AM, cadres RAG), ancienneté (embauche / 2 ou 3 ans / tranches cadres) — ex. 150M base 200 h : 33 108,30 € à l\'embauche, 33 770,47 € après 2 ans.',
+   'Coefficient « 117 » renommé en « 118 » (numérotation officielle de la CCN).'
+ ]},
  {v:'v2026-07-11.18', d:'11 juillet 2026', t:[
    'GAR : première valeur CERTIFIÉE intégrée — coefficient 150M (base 200 h) : 33 108 € brut/an à l\'embauche, jusqu\'à 35 757 € après 15 ans (accord du 11/10/2023, étendu par arrêté du 19/12/2023). Le vérificateur GAR distingue désormais valeur certifiée / valeurs indicatives et rappelle que la GAR dépend de la base d\'heures contractuelle.',
    'Le document CCN transmis (aperçu LegiSocial 2012, texte volontairement brouillé) confirme la règle du plancher : « c\'est le taux horaire du Smic qui s\'applique en lieu et place du taux conventionnel » — mécanisme déjà appliqué par l\'application.'
@@ -908,8 +913,8 @@ try{
     <option value="cd_128M" data-coeff="128M" data-pe="2" data-preavis="1" data-seuil="151.67">Régional — coeff. 128M</option>
     <option value="cd_128" data-coeff="128" data-pe="2" data-preavis="1" data-seuil="169">Régional — coeff. 128</option>
     <option value="cd_120" data-coeff="120" data-pe="1" data-preavis="1" data-seuil="169">Local qualifié — coeff. 120</option>
-    <option value="cd_117M" data-coeff="117M" data-pe="1" data-preavis="1" data-seuil="151.67">Local — coeff. 117M</option>
-    <option value="cd_117" data-coeff="117" data-pe="1" data-preavis="1" data-seuil="169">Local — coeff. 117</option>
+    <option value="cd_117M" data-coeff="118M" data-pe="1" data-preavis="1" data-seuil="151.67">Local — coeff. 118M</option>
+    <option value="cd_117" data-coeff="118" data-pe="1" data-preavis="1" data-seuil="169">Local — coeff. 118</option>
     <option value="cd_115" data-coeff="115" data-pe="1" data-preavis="1" data-seuil="169">Livreur qualifié — coeff. 115</option>
     <option value="cd_110" data-coeff="110" data-pe="1" data-preavis="1" data-seuil="169">Livreur — coeff. 110</option>
   </optgroup>
@@ -1234,8 +1239,8 @@ try{
 <select id="rem-coeff" onchange="calcRem()">
   <option value="110">110 — Conducteur livreur</option>
   <option value="115">115 — Conducteur livreur qualifié</option>
-  <option value="117">117 — Conducteur local</option>
-  <option value="117M">117M — Conducteur local</option>
+  <option value="118">118 — Conducteur local</option>
+  <option value="118M">118M — Conducteur local</option>
   <option value="120">120 — Conducteur local qualifié</option>
   <option value="128">128 — Conducteur régional</option>
   <option value="128M">128M — Conducteur régional</option>
@@ -1270,11 +1275,21 @@ try{
 <div class="ct">Garantie Annuelle de Rémunération (GAR)</div>
 <div class="al info" style="font-size:12px;margin-bottom:12px">La GAR est un minimum annuel garanti fixé par la CCN Transport. Si la rémunération annuelle réelle est inférieure, l'employeur doit verser un complément en fin d'année.</div>
 <div class="bloc">
-<div class="fg"><label class="fl">Coefficient</label>
-<select id="gar-coeff">
-  <option value="110">110</option><option value="117">117</option><option value="128">128</option>
-  <option value="138" selected>138</option><option value="150">150</option><option value="200">200</option>
+<div class="fg"><label class="fl">Catégorie de personnel</label>
+<select id="gar-cat" onchange="garBuild()">
+  <option value="ouv">Ouvriers (conducteurs, roulants & sédentaires)</option>
+  <option value="emp">Employés</option>
+  <option value="tam">Techniciens & agents de maîtrise</option>
+  <option value="cad">Ingénieurs & cadres (RAG)</option>
 </select></div>
+<div class="fg" id="gar-base-wrap"><label class="fl">Base d'heures mensuelle du contrat</label>
+<select id="gar-base" onchange="garBuild()">
+  <option value="151.67">151,67 h (35 h/sem — messagerie, sédentaires)</option>
+  <option value="169">169 h (39 h/sem — courte distance)</option>
+  <option value="200" selected>200 h (grands routiers — HS structurelles incluses)</option>
+</select></div>
+<div class="fg"><label class="fl">Coefficient</label><select id="gar-coeff"></select></div>
+<div class="fg"><label class="fl">Ancienneté</label><select id="gar-anc"></select></div>
 <div class="fg"><label class="fl">Rémunération annuelle brute perçue (€)</label><input type="number" id="gar-annuel" placeholder="Ex : 26000"/></div>
 <button class="btn-outline" style="margin-top:6px" onclick="calcGAR()">Vérifier la conformité GAR →</button>
 <div id="gar-result" style="margin-top:10px"></div>
@@ -3690,7 +3705,10 @@ let cseEtab = 'non';
 // Minima conventionnels CCN Transport IDCC 0016 (indicatifs — vérifier avenants en vigueur)
 // Grille embauche — accord du 11 octobre 2023 (effet 01/12/2023), NAO 2025 sans accord.
 // 110 et 150M CONFIRMÉS ; coefficients intermédiaires ESTIMÉS (interpolation) — à vérifier sur Légifrance.
-const MINIMA = {'110':12.09,'115':12.13,'117':12.15,'117M':12.16,'120':12.19,'128':12.26,'128M':12.28,'138':12.35,'138M':12.37,'150':12.43,'200':16.20};
+// Grille OFFICIELLE des taux horaires ouvriers (accord du 11/10/2023, tableaux Légifrance vérifiés) :
+// 110M/115M/118M/120M = 12,09 · 128M = 12,12 · 138M = 12,14 · 150M = 12,43 (à l'embauche ; +2 % après 2 ans).
+// TAM coeff 200 = 16,17. Clés 117/117M conservées comme alias de 118M (anciennes fiches).
+const MINIMA = {'110':12.09,'115':12.09,'117':12.09,'117M':12.09,'118':12.09,'118M':12.09,'120':12.09,'128':12.12,'128M':12.12,'138':12.14,'138M':12.14,'150':12.43,'200':16.17};
 // Plancher absolu : aucun taux conventionnel ne peut être inférieur au SMIC horaire en vigueur (L.3231-2).
 // SMIC vérifié (info.gouv.fr) : 12,02 € au 01/01/2026 puis 12,31 € au 01/06/2026 — à ACTUALISER à chaque revalorisation.
 // Les NAO salaires TRM 2025/2026 ayant échoué (grille du 11/10/2023 inchangée), le SMIC dépasse les coefficients 110 à 128M :
@@ -3699,11 +3717,18 @@ var SMIC_H = 12.31;
 Object.keys(MINIMA).forEach(function(k){ if(MINIMA[k] < SMIC_H) MINIMA[k] = SMIC_H; });
 
 // GAR indicatifs (Garantie Annuelle de Rémunération)
-const GAR = {'110':21500,'117':22000,'128':23500,'138':25000,'150':33108,'200':35000};
-// SEULE VALEUR CERTIFIÉE : coefficient 150M sur base 200 h/mois = 33 108 € brut/an à l'embauche
-// (jusqu'à 35 757 € après 15 ans) — accord du 11/10/2023 étendu par arrêté du 19/12/2023.
-// Les autres montants sont des ESTIMATIONS et la GAR dépend de la BASE D'HEURES contractuelle
-// (151,67 / 169 / 186,33 / 200 h) : vérifier la grille de l'accord sur Légifrance avant usage.
+// GAR / RAG OFFICIELLES — tableaux annexés à l'accord du 11 octobre 2023 (effet 01/12/2023,
+// toujours applicables : NAO 2025/2026 en échec). Source : Légifrance (captures vérifiées).
+const GARD={
+ ouv:{lab:'Ouvriers',anc:['À l’embauche','Après 2 ans'],bases:{
+  '151.67':{'110M / 115M / 118M / 120M':[22664.41,23117.70],'128M':[22720.65,23175.06],'138M':[22758.14,23213.31],'150M':[23301.79,23767.83]},
+  '169':{'115M / 118M / 120M':[25901.12,26419.14],'128M':[25965.39,26484.70],'138M':[26008.24,26528.40],'150M':[26629.52,27162.11]},
+  '200':{'115M / 118M / 120M':[32202.68,32846.74],'128M':[32282.59,32928.24],'138M':[32335.86,32982.58],'150M':[33108.30,33770.47]}}},
+ emp:{lab:'Employés (151,67 h)',anc:['À l’embauche','Après 3 ans'],rows:{'105 / 110 / 115 / 120':[22664.41,23344.34],'125':[22683.16,23363.65],'132,5':[22720.65,23402.27],'140':[22776.89,23460.20],'148,5':[23301.79,24000.84]}},
+ tam:{lab:'Techniciens & agents de maîtrise (151,67 h)',anc:['À l’embauche','Après 3 ans'],rows:{'150':[23620.48,24329.09],'157,5':[23864.18,24580.11],'165':[25007.71,25757.95],'175':[26563.67,27360.58],'185':[28007.14,28847.35],'200':[30312.95,31222.34],'215':[32562.52,33539.39],'225':[34137.22,35161.33]}},
+ cad:{lab:'Ingénieurs & cadres — RAG (151,67 h)',anc:['Jusqu’à 5 ans','5 à 10 ans','10 à 15 ans','Après 15 ans'],approx:1,rows:{'100':[34957,36705,38453,40200],'106,5':[37226,39087,40948,42809],'132':[46127,48432,50739,53045],'145':[50664,53198,55731,58264]}}
+};
+
 
 // ═══════════════════════════════════════
 // INIT ET NAVIGATION
@@ -4339,23 +4364,33 @@ ${repas>0?`Repas (${repas} × 16,36 €) : ${indemRepas} €<br>`:''}
 ${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indemNuits} €<br>`:''}
 </em>`:''}
 </div>
-<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — les NAO 2025 n'ont pas abouti) ; coefficients 110 et 150M confirmés, intermédiaires estimés. Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026, <b>étendu par arrêté du 3 février 2026</b> — JORFTEXT000053447794) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher SMIC de <b>12,31 €</b> (en vigueur au 01/06/2026 — les coefficients 110 à 128M sont donc portés au SMIC, les NAO 2025/2026 ayant échoué) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
+<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — NAO 2025/2026 en échec), <b>grille intégrale vérifiée sur les tableaux officiels Légifrance</b> : 110M-120M 12,09 € · 128M 12,12 € · 138M 12,14 € · 150M 12,43 € (+2 % après 2 ans). Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026, <b>étendu par arrêté du 3 février 2026</b> — JORFTEXT000053447794) — repas 16,36 €, repas unique 10,07 €, casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 %. Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher SMIC de <b>12,31 €</b> (en vigueur au 01/06/2026 — les coefficients 110 à 128M sont donc portés au SMIC, les NAO 2025/2026 ayant échoué) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
 </div>`;
 }
 
-function calcGAR(){
-  const coeff=gv('gar-coeff');
-  const annuel=parseFloat(gv('gar-annuel'))||0;
-  const garMin=GAR[coeff]||0;
-  const res=document.getElementById('gar-result');
-  if(!res||!annuel)return;
-  if(annuel>=garMin){
-    res.innerHTML=`<div class="ok al">✓ GAR respectée — Rémunération annuelle ${annuel.toLocaleString('fr-FR')} € ≥ GAR ${garMin.toLocaleString('fr-FR')} € (coeff. ${coeff})</div><div class="loi" style="margin-top:6px">${coeff==='150'?'✔️ Valeur CERTIFIÉE (base 200 h) : accord du 11/10/2023 étendu par arrêté du 19/12/2023 — 33 108 € à l\'embauche, jusqu\'à 35 757 € après 15 ans.':'⚠ Valeur indicative NON CONFIRMÉE pour ce coefficient — la GAR dépend aussi de la base d\'heures contractuelle (151,67 à 200 h). Vérifiez la grille de l\'accord du 11/10/2023 sur Légifrance.'}</div>`;
-  } else {
-    const complement=garMin-annuel;
-    res.innerHTML=`<div class="err al">⚠ GAR non respectée — Complément à verser en fin d'année : <strong>${complement.toLocaleString('fr-FR')} €</strong><br>Rémunération : ${annuel.toLocaleString('fr-FR')} € | GAR minimale : ${garMin.toLocaleString('fr-FR')} €</div><div class="loi" style="margin-top:6px">⚠ Valeurs GAR indicatives <b>NON CONFIRMÉES</b> (les avenants GAR récents ne sont pas librement accessibles) — à vérifier impérativement avant usage sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a> ou auprès de votre organisation patronale.</div>`;
-  }
+function garRows(){var c=gv('gar-cat')||'ouv';return c==='ouv'?(GARD.ouv.bases[gv('gar-base')||'200']||{}):GARD[c].rows;}
+function garBuild(){
+  var c=gv('gar-cat')||'ouv';
+  var bw=document.getElementById('gar-base-wrap'); if(bw)bw.style.display=(c==='ouv')?'':'none';
+  var rows=garRows(), cs=document.getElementById('gar-coeff'), as=document.getElementById('gar-anc');
+  if(cs)cs.innerHTML=Object.keys(rows).map(function(k){return '<option value="'+k+'">'+k+'</option>';}).join('');
+  if(as)as.innerHTML=GARD[c].anc.map(function(a,i){return '<option value="'+i+'">'+a+'</option>';}).join('');
 }
+function calcGAR(){
+  var c=gv('gar-cat')||'ouv', rows=garRows(), coeff=gv('gar-coeff'), ix=parseInt(gv('gar-anc'),10)||0;
+  var annuel=parseFloat(gv('gar-annuel'))||0, res=document.getElementById('gar-result');
+  if(!res)return;
+  var arr=rows[coeff];
+  if(!arr){res.innerHTML='<div class="warn al">Sélectionnez un coefficient.</div>';return;}
+  if(!annuel){res.innerHTML='<div class="warn al">Saisissez la rémunération annuelle brute réellement perçue.</div>';return;}
+  ix=Math.min(ix,arr.length-1);
+  var garMin=arr[ix];
+  var eu=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var src2='<div class="loi" style="margin-top:6px">✔️ Grille OFFICIELLE — tableaux annexés à l\'accord du 11 octobre 2023 (effet 01/12/2023, toujours applicable — NAO 2025/2026 en échec), vérifiés sur Légifrance.'+(GARD[c].approx?' Cadres : montants arrondis à l\'euro (centimes tronqués à l\'affichage source) — vérifier au centime sur Légifrance.':'')+' La GAR inclut salaire de base, heures supplémentaires structurelles et primes récurrentes, hors frais de déplacement ; elle s\'apprécie à durée de présence équivalente sur l\'année. Ne pas oublier le plancher SMIC horaire (12,31 € au 01/06/2026).</div>';
+  if(annuel>=garMin){res.innerHTML='<div class="ok al">✓ GAR respectée — '+eu(annuel)+' € ≥ '+eu(garMin)+' € (coeff. '+coeff+' — '+GARD[c].anc[ix]+')</div>'+src2;}
+  else{res.innerHTML='<div class="err al">⚠ GAR non respectée — Complément à verser en fin d\'année : <strong>'+eu(garMin-annuel)+' €</strong><br>Perçu : '+eu(annuel)+' € | GAR minimale : '+eu(garMin)+' €</div>'+src2;}
+}
+if(document.readyState!=='loading'){try{garBuild();}catch(e){}}else document.addEventListener('DOMContentLoaded',function(){try{garBuild();}catch(e){}});
 
 function genBulletinType(){
   const S=`font-family:'Times New Roman',serif;font-size:10pt;color:#000;line-height:1.7;`;
