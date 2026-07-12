@@ -372,9 +372,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.1';
+var JX_BUILD = 'v2026-07-12.2';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.2', d:'12 juillet 2026', t:[
+   'Estimateur de coût employeur : mention de la réforme 2026 des allègements de charges (fusion en une réduction générale unique, dégressive jusqu\'à 3 SMIC — LFSS).'
+ ]},
  {v:'v2026-07-12.1', d:'12 juillet 2026', t:[
    'Congés payés & maladie — jurisprudence 2025-2026 : maladie survenue PENDANT les congés = report des jours coïncidant avec l\'arrêt si notification à l\'employeur (Cass. soc. 10/09/2025, revirement) ; plafond de 24 jours apprécié par période de référence HORS jours reportés (Cass. soc. 21/01/2026) ; réclamations rétroactives forcloses depuis le 23/04/2026 pour les arrêts antérieurs au 22/04/2024.'
  ]},
@@ -9648,7 +9651,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +fg('Niveau de cotisations patronales (après réduction générale)','<select id="wz-ct-taux" onchange="wzCoutCalc()"><option value="13"'+(defT===13?' selected':'')+'>≈ 13 % — salaire proche du SMIC (réduction maximale)</option><option value="22"'+(defT===22?' selected':'')+'>≈ 22 % — jusqu’à ≈ 1,2 SMIC</option><option value="32"'+(defT===32?' selected':'')+'>≈ 32 % — jusqu’à ≈ 1,4 SMIC</option><option value="43"'+(defT===43?' selected':'')+'>≈ 43 % — ≥ 1,6 SMIC (plus de réduction générale)</option></select>')
       +(cond?fg('Jours avec indemnité repas / mois (route)',inp('wz-ct-repas','18','number','18'))+fg('Découchers / mois',inp('wz-ct-dec','0','number','0')):'')
       +'<div id="wz-cout-out" style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:6px"></div>'
-      +'<div style="font-size:10.5px;color:#9a9585;margin-top:8px;line-height:1.6">Estimation indicative (hors heures supplémentaires, primes, aides à l’embauche et taux AT/MP propres à l’entreprise). La réduction générale de cotisations est dégressive jusqu’à 1,6 SMIC. Chiffrage exact : votre expert-comptable ou le simulateur officiel URSSAF.</div>'
+      +'<div style="font-size:10.5px;color:#9a9585;margin-top:8px;line-height:1.6">Estimation indicative (hors heures supplémentaires, primes, aides à l’embauche et taux AT/MP propres à l’entreprise). ⚠️ Réforme 2026 des allègements : les anciens dispositifs fusionnent en une <b>réduction générale unique, dégressive jusqu’à 3 SMIC</b> (LFSS) — les niveaux proposés restent des ordres de grandeur. Chiffrage exact : votre expert-comptable ou le simulateur officiel URSSAF.</div>'
       +'</div>';
     h+='<div class="ct" style="margin-top:18px">📄 Vos documents</div><div style="display:grid;gap:8px">'
       +'<button class="btn" style="margin:0" onclick="wzDoc(\'contrat\')">📄 Générer le CONTRAT '+(cdd?'CDD':'CDI')+' complet →</button>'
