@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.16';
+var JX_BUILD = 'v2026-07-12.17';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.17', d:'12 juillet 2026', t:[
+   'Auto-audit des documents — DEUX PIÈCES OBLIGATOIRES DE FIN DE CONTRAT ajoutées : le Certificat de travail (art. L.1234-19, D.1234-6) et le Reçu pour solde de tout compte (art. L.1234-20, D.1234-7). Toutes nos lettres de licenciement et de rupture les mentionnaient (« remise du certificat de travail et du solde de tout compte ») mais l\'application ne les GÉNÉRAIT pas : c\'est corrigé.',
+   'Certificat de travail : dates d\'entrée/sortie, emplois occupés, mention de la portabilité mutuelle/prévoyance (L.911-8 CSS), rappel de son caractère quérable. Reçu pour solde de tout compte : inventaire chiffré des sommes, établi en double exemplaire, mention manuscrite du salarié, rappel du délai de dénonciation de 6 mois et de l\'effet libératoire (Cass. soc. 18/12/2013, n° 12-24.985).',
+   'Ces deux documents apparaissent automatiquement dans la liste après tout licenciement (cause réelle et sérieuse, faute grave, faute lourde, inaptitude) et dans le parcours Rupture conventionnelle, pré-remplis avec le nom du salarié et sa date d\'entrée.'
+ ]},
  {v:'v2026-07-12.16', d:'12 juillet 2026', t:[
    'Contrat de travail — article « Qualifications » enrichi (benchmark sources officielles IDCC 16) : les 3 vérifications clés du conducteur sont désormais RÉCAPITULÉES DANS UN TABLEAU avec numéros et dates de validité — permis (catégorie C/CE), carte de qualification CQC + FIMO/FCO, carte de conducteur (chronotachygraphe), + certificat ADR si concerné et avis d\'aptitude médicale. Ces données, jusqu\'ici collectées mais inutilisées, apparaissent maintenant dans le contrat.',
    'Clause de perte des titres : recherche de reclassement puis rupture possible, obligation d\'information immédiate (faute grave — Cass. soc. 3/05/2011), suivi individuel renforcé (R.4624-24).'
@@ -4894,7 +4899,9 @@ var DISC_DOCS_MAP={
   'lettre_lic':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_lic')">📋 Lettre de licenciement — CRS →</button>`,
   'lettre_inaptitude':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('lettre_inaptitude')">📋 Lettre de licenciement — Inaptitude →</button>`,
   'reclassement':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('reclassement')">📝 Courrier de recherche de reclassement →</button>`,
-  'mise_demeure':`<button class="btn-outline" style="margin-top:6px" onclick="genDocAbsence('mise_demeure_abs')">📨 Mise en demeure →</button>`
+  'mise_demeure':`<button class="btn-outline" style="margin-top:6px" onclick="genDocAbsence('mise_demeure_abs')">📨 Mise en demeure →</button>`,
+  'certificat_travail':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('certificat_travail')">📃 Certificat de travail →</button>`,
+  'solde_tout_compte':`<button class="btn-outline" style="margin-top:6px" onclick="genDocDisc('solde_tout_compte')">🧾 Reçu pour solde de tout compte →</button>`
 };
 // Documents adaptés à CHAQUE sanction : un avertissement n'entraîne ni entretien préalable ni lettre de licenciement
 function discDocsForSanction(s){
@@ -4903,11 +4910,11 @@ function discDocsForSanction(s){
     'blame':['lettre_blame'],
     'map_disc':['convocation','lettre_map_disc'],
     'retrogradation':['convocation','lettre_retrogradation'],
-    'lic_crs':['convocation','lettre_lic'],
-    'lic_fg':['map_conservatoire','convocation','lettre_fg'],
-    'lic_fl':['map_conservatoire','convocation','lettre_fl'],
-    'lic_inaptitude_np':['reclassement','lettre_inaptitude'],
-    'lic_inaptitude_p':['reclassement','lettre_inaptitude']
+    'lic_crs':['convocation','lettre_lic','certificat_travail','solde_tout_compte'],
+    'lic_fg':['map_conservatoire','convocation','lettre_fg','certificat_travail','solde_tout_compte'],
+    'lic_fl':['map_conservatoire','convocation','lettre_fl','certificat_travail','solde_tout_compte'],
+    'lic_inaptitude_np':['reclassement','lettre_inaptitude','certificat_travail','solde_tout_compte'],
+    'lic_inaptitude_p':['reclassement','lettre_inaptitude','certificat_travail','solde_tout_compte']
   }[s]||null;
 }
 function renderDiscDocs(list){
@@ -4982,8 +4989,10 @@ function calcIndemnites(){
 }
 
 function genDocDisc(type){
-  const nom=gv('disc-sal-nom')||'[NOM SALARIÉ]';
-  const poste=gv('disc-sal-poste')||'[POSTE]';
+  // _docCtx : contexte optionnel fourni par d'autres parcours (ex. rupture conventionnelle) pour pré-remplir nom/poste/entrée
+  const _ctx=(typeof window!=='undefined'&&window._docCtx)?window._docCtx:{};
+  const nom=_ctx.nom||gv('disc-sal-nom')||'[NOM SALARIÉ]';
+  const poste=_ctx.poste||gv('disc-sal-poste')||'[POSTE]';
   // Verrou : une lettre de sanction sans faits précisément décrits est juridiquement fragile — on bloque
   const LETTRES_SANCTION=['lettre_avertissement','lettre_blame','lettre_map_disc','lettre_retrogradation','lettre_fg','lettre_fl','lettre_lic'];
   if(LETTRES_SANCTION.indexOf(type)>=0 && (gv('disc-faits')||'').trim().length<15){
@@ -5260,6 +5269,56 @@ ${docObjetEncadre(`Recherche de reclassement — ${nom}`)}
 <p style="${S}"><em>L'offre doit être écrite, précise et conforme aux préconisations médicales (jurisprudence constante) — conserver la preuve de sa transmission.</em></p>
 ${docSignatureBloc()}
 ${docPiedPage('Art. L.1226-2 et L.1226-10 C. trav. — Obligation de recherche loyale')}
+</div>`;
+  } else if(type==='certificat_travail'){
+    // Document OBLIGATOIRE à remettre à la fin de TOUT contrat (L.1234-19, D.1234-6). Quérable : l'employeur ne l'envoie pas, le salarié vient le chercher.
+    const _entRaw=_ctx.entree||gv('disc-sal-entree');
+    const entree=_entRaw?new Date(_entRaw).toLocaleDateString('fr-FR'):'[DATE D\'ENTRÉE]';
+    titre=`Certificat de travail`;
+    html=`<div style="${S}">
+${docEnTete()}
+<p style="${S}text-align:center;font-size:14pt;font-weight:bold;text-decoration:underline;margin:18px 0">CERTIFICAT DE TRAVAIL</p>
+<p style="${S}">Je soussigné(e) <strong>${E.dirigeant||'[NOM DU DIRIGEANT]'}</strong>, agissant en qualité de ${E.qualite||'Gérant'} de la société <strong>${E.nom||'[ENTREPRISE]'}</strong>, dont le siège social est situé ${E.adresse||'[ADRESSE]'} (SIRET : ${E.siret||'[SIRET]'}),</p>
+<p style="${S}">certifie que <strong>Monsieur / Madame ${nom}</strong>, demeurant [ADRESSE DU SALARIÉ], a été employé(e) dans notre entreprise :</p>
+<table style="width:88%;border-collapse:collapse;margin:14px auto;font-family:'Times New Roman',serif;font-size:11pt">
+<tr><td style="border:1px solid #000;padding:8px;width:42%;background:#fff"><strong>Du (date d'entrée)</strong></td><td style="border:1px solid #000;padding:8px">${entree}</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>Au (date de sortie, fin du préavis)</strong></td><td style="border:1px solid #000;padding:8px">[DATE DE FIN DU CONTRAT — dernier jour du préavis, exécuté ou non]</td></tr>
+<tr><td style="border:1px solid #000;padding:8px;background:#fff"><strong>En qualité de</strong></td><td style="border:1px solid #000;padding:8px">${poste} [emploi(s) successif(s) et périodes s'il y a lieu]</td></tr>
+</table>
+<p style="${S}">À la date de sortie, l'intéressé(e) est <strong>libre de tout engagement</strong> envers notre entreprise.</p>
+<p style="${S}">Conformément à l'article L.911-8 du Code de la sécurité sociale, l'intéressé(e) bénéficie, sous réserve des conditions prévues par ce texte (notamment la prise en charge par l'assurance chômage) et sauf en cas de licenciement pour faute lourde, du <strong>maintien à titre gratuit des garanties de complémentaire santé et de prévoyance</strong> (portabilité) pendant une durée maximale de 12 mois.</p>
+<p style="${S}">Certificat établi pour servir et valoir ce que de droit.</p>
+${docSignatureBloc()}
+${docPiedPage('Art. L.1234-19 et D.1234-6 C. trav. — Le certificat de travail est quérable (le salarié vient le retirer) ; il doit être tenu à sa disposition dès la fin du contrat. Il comporte exclusivement les dates d’entrée et de sortie et la nature des emplois occupés ; la mention de la portabilité (L.911-8 CSS) y est d’usage.')}
+</div>`;
+  } else if(type==='solde_tout_compte'){
+    // Document remis à la fin de TOUT contrat (L.1234-20, D.1234-7). Effet libératoire si non dénoncé sous 6 mois.
+    const sortie='[DATE DE FIN DU CONTRAT]';
+    titre=`Reçu pour solde de tout compte`;
+    html=`<div style="${S}">
+${docEnTete()}
+<p style="${S}text-align:center;font-size:14pt;font-weight:bold;text-decoration:underline;margin:18px 0">REÇU POUR SOLDE DE TOUT COMPTE</p>
+<p style="${S}">Je soussigné(e) <strong>Monsieur / Madame ${nom}</strong>, demeurant [ADRESSE DU SALARIÉ], reconnais avoir reçu de la société <strong>${E.nom||'[ENTREPRISE]'}</strong> (SIRET : ${E.siret||'[SIRET]'}), pour solde de tout compte et à la date du ${sortie}, la somme correspondant à l'inventaire ci-dessous, en règlement de la totalité des salaires, accessoires de salaire et indemnités qui m'étaient dus au titre de l'exécution et de la rupture de mon contrat de travail :</p>
+<table style="width:92%;border-collapse:collapse;margin:14px auto;font-family:'Times New Roman',serif;font-size:11pt">
+<tr><td style="border:1px solid #000;padding:7px;width:70%;background:#fff"><strong>Nature des sommes (brut)</strong></td><td style="border:1px solid #000;padding:7px;text-align:right;background:#fff"><strong>Montant (€)</strong></td></tr>
+<tr><td style="border:1px solid #000;padding:7px">Salaire du mois en cours (jusqu'au dernier jour travaillé/de préavis)</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
+<tr><td style="border:1px solid #000;padding:7px">Indemnité compensatrice de préavis (le cas échéant)</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
+<tr><td style="border:1px solid #000;padding:7px">Indemnité compensatrice de congés payés</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
+<tr><td style="border:1px solid #000;padding:7px">Indemnité de licenciement / de rupture (le cas échéant)</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
+<tr><td style="border:1px solid #000;padding:7px">Heures supplémentaires, primes, RTT, autres (préciser)</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
+<tr><td style="border:1px solid #000;padding:7px;background:#f0f0f0"><strong>TOTAL NET versé</strong></td><td style="border:1px solid #000;padding:7px;text-align:right;background:#f0f0f0"><strong>______</strong></td></tr>
+</table>
+<p style="${S}">Ce reçu est établi en <strong>double exemplaire</strong>, dont l'un m'a été remis (art. D.1234-7 C. trav.).</p>
+<p style="${S}">Je reconnais avoir été informé(e) que le reçu pour solde de tout compte peut être <strong>dénoncé dans les 6 mois</strong> suivant sa signature, délai au-delà duquel il devient <strong>libératoire pour l'employeur</strong> pour les seules sommes qui y sont mentionnées (art. L.1234-20 C. trav.).</p>
+<table style="width:100%;border-collapse:collapse;margin:26px 0 10px 0;font-family:'Times New Roman',serif;font-size:11pt">
+<tr>
+<td style="width:50%;vertical-align:top;padding-right:14px">
+<strong>Le salarié</strong><br><span style="font-size:9pt;font-style:italic">(faire précéder la signature de la mention manuscrite « Reçu pour solde de tout compte »)</span><br><br>
+Fait à ____________, le ____________<br><br>Signature :<br>&nbsp;<br>....................................</td>
+<td style="width:50%;vertical-align:top">
+<strong>L'employeur</strong><br>Pour ${E.nom||'[ENTREPRISE]'},<br>${E.dirigeant||'[DIRIGEANT]'} — ${E.qualite||'Gérant'}<br><br>Fait à ${_docVille()}, le ${today}<br><br>Signature et cachet :<br>&nbsp;<br>....................................</td>
+</tr></table>
+${docPiedPage('Art. L.1234-20 et D.1234-7 C. trav. — Établi en double exemplaire ; l’absence de date ou l’imprécision des sommes prive le reçu de son effet libératoire (Cass. soc. 18 déc. 2013, n° 12-24.985). La dénonciation doit être motivée et adressée par LRAR.')}
 </div>`;
   }
   if(html) showDoc(titre, html);
@@ -9995,6 +10054,8 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     +'<div class="ct" style="margin-top:16px">📄 Vos documents</div><div style="display:grid;gap:8px">'
     +'<button class="btn" style="margin:0" onclick="wzrRcDoc(\'invitation\')">✉️ Invitation à l’entretien (trame) →</button>'
     +'<button class="btn-outline" style="margin:0" onclick="wzrRcDoc(\'convention\')">📄 Trame de convention de rupture →</button>'
+    +'<button class="btn-outline" style="margin:0" onclick="wzrRcDoc(\'certificat_travail\')">📃 Certificat de travail →</button>'
+    +'<button class="btn-outline" style="margin:0" onclick="wzrRcDoc(\'solde_tout_compte\')">🧾 Reçu pour solde de tout compte →</button>'
     +'<button class="btn-outline" style="margin:0" onclick="window.open(\'https://www.telerc.travail.gouv.fr\',\'_blank\')">🌐 TéléRC (site officiel) →</button></div>'
     +'<div class="al warn" style="font-size:11px;margin-top:12px">⚠ À faire valider par un avocat — outil d’information (loi n° 71-1130 du 31/12/1971).</div>'
     +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzrGo(\'rc-2\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzrGo(\'start\')">🔄 Autre rupture</button></div>');};
@@ -10002,6 +10063,10 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var S1='font-family:\'Times New Roman\',Times,serif;font-size:11pt;color:#000;line-height:1.8;';
     var euros=function(x){return x.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';};
     if(k==='invitation'){showDoc('Invitation à un entretien — rupture conventionnelle','<div style="'+S1+'"><p style="text-align:right">'+esc(E2.nom||'[ENTREPRISE]')+'<br>'+esc(E2.adresse||'[ADRESSE]')+'</p><p>À l’attention de '+esc(A.nom)+'<br>Remise en main propre contre décharge / LRAR</p><p>Objet : invitation à un entretien</p><p>Madame, Monsieur,</p><p>Nous vous proposons de nous rencontrer le ____ à ____ heures, dans les locaux de l’entreprise, afin d’échanger sur une éventuelle rupture conventionnelle de votre contrat de travail, dans les conditions prévues aux articles L.1237-11 et suivants du code du travail.</p><p>Nous vous précisons que vous pouvez vous faire assister lors de cet entretien par une personne de votre choix appartenant au personnel de l’entreprise ou, en l’absence d’institution représentative du personnel, par un conseiller du salarié choisi sur la liste consultable auprès de l’inspection du travail ou de la mairie. Si vous faites usage de cette faculté, nous vous remercions de nous en informer au préalable.</p><p>Cet entretien n’a aucun caractère disciplinaire et ne préjuge d’aucune décision : la rupture conventionnelle suppose le libre consentement de chacune des parties.</p><p>Veuillez agréer, Madame, Monsieur, l’expression de nos salutations distinguées.</p><p style="text-align:right">Fait à ____, le ____<br>'+esc(E2.dirigeant||'[SIGNATAIRE]')+'</p></div>');}
+    else if(k==='certificat_travail'||k==='solde_tout_compte'){
+      window._docCtx={nom:A.nom||'',poste:'',entree:A.emb||''};
+      try{genDocDisc(k);}finally{window._docCtx=null;}
+      return;}
     else{showDoc('Convention de rupture conventionnelle — trame','<div style="'+S1+'"><h2 style="text-align:center;text-decoration:underline">CONVENTION DE RUPTURE CONVENTIONNELLE</h2><p>(articles L.1237-11 à L.1237-16 du code du travail — homologation via TéléRC obligatoire)</p><p><strong>Entre</strong> '+esc(E2.nom||'[ENTREPRISE]')+', représentée par '+esc(E2.dirigeant||'[REPRÉSENTANT]')+', et <strong>'+esc(A.nom)+'</strong>, salarié(e) en CDI depuis le '+(A.emb?new Date(A.emb).toLocaleDateString('fr-FR'):'____')+'.</p><p><strong>Article 1 — Objet.</strong> Les parties conviennent de rompre d’un commun accord le contrat de travail, après entretien(s) tenu(s) le ____.</p><p><strong>Article 2 — Indemnité spécifique.</strong> Le salarié percevra une indemnité spécifique de rupture conventionnelle de <strong>'+euros(ind)+'</strong> minimum [montant convenu : ______ €], au moins égale à l’indemnité légale de licenciement (ancienneté retenue : '+String(dec).replace('.',',')+' ans ; salaire de référence : '+euros(A.sal)+').</p><p><strong>Article 3 — Date de rupture.</strong> Le contrat prendra fin le ______, au plus tôt le lendemain du jour de l’homologation par la DREETS (ou de l’autorisation de l’inspection du travail pour un salarié protégé).</p><p><strong>Article 4 — Rétractation.</strong> Chaque partie dispose d’un délai de 15 jours calendaires à compter du lendemain de la signature pour se rétracter, par lettre attestant de sa date de réception.</p><p><strong>Article 5 — Exemplaires.</strong> La présente convention est établie en deux exemplaires, dont un remis ce jour au salarié — à peine de nullité.</p><p>Fait à ____, le ____, en deux exemplaires.</p><table style="width:100%;border:none"><tr><td style="border:none">L’employeur<br>(signature précédée de « lu et approuvé »)</td><td style="border:none;text-align:right">Le salarié<br>(signature précédée de « lu et approuvé »)</td></tr></table></div>');}};
 
   /* ── Insuffisance professionnelle ── */
