@@ -372,9 +372,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.14';
+var JX_BUILD = 'v2026-07-12.15';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.15', d:'12 juillet 2026', t:[
+   'Contrat de travail ENRICHI (retour utilisateur) : le module Embauche demande désormais la durée hebdomadaire de service, la répartition sur les jours de la semaine et les horaires (mentions obligatoires — directive UE 2019/1152 / L.1221-5-1), et si le poste implique du travail de nuit habituel.',
+   'Nouvel article « Travail de nuit » généré quand le poste est concerné : période 21h-6h, statut de travailleur de nuit, contreparties (prime +20 %, repos compensateur 5 % si ≥ 50 h/mois, durée quotidienne limitée à 10 h, surveillance médicale renforcée — accord du 14/11/2001).',
+   'Frais de déplacement désormais CHIFFRÉS dans le contrat (avenant n° 81 : repas 16,36 €, casse-croûte 8,87 €, repas de nuit 9,81 €, indemnité spéciale 4,42 €, grand déplacement 52,31 €/68,87 €, +18 % étranger, règle de non-cumul).'
+ ]},
  {v:'v2026-07-12.14', d:'12 juillet 2026', t:[
    'Contrôle-minute enrichi (audit externe CSE/DREAL) : 3 nouvelles questions transport — licence de transport + inscription au registre des transporteurs + capacité professionnelle du gestionnaire (Règl. CE 1071/2009) ; contrôle périodique du tachygraphe tous les 2 ans + limiteur de vitesse (Règl. UE 165/2014, R.317-24 C. route) ; documents de bord obligatoires (licence, lettre de voiture, assurance…). L\'audit passe de 24 à 27 points.',
    'Tableau de bord conducteurs : rappel de la responsabilité PÉNALE de l\'employeur (conduite avec titre expiré — Cass. crim. 3/06/2003) et de la règle RGPD (suivre les dates de validité, ne PAS stocker le solde de points du permis).',
@@ -1084,6 +1089,18 @@ try{
 <div id="pe-fin-info" class="hint hidden"></div>
 <label class="chk"><input type="checkbox" id="c-pe-renouv"/> Prévoir le renouvellement (à proposer avant expiration — Cass. soc. 21/09/2017)</label>
 <div class="loi" style="margin-top:6px">⏳ <b>Rupture de l'essai : respectez le délai de prévenance</b> (L.1221-25) — 24 h (présence &lt; 8 j), 48 h (8 j à 1 mois), 2 semaines (après 1 mois), 1 mois (après 3 mois). Un préavis non respecté ouvre droit à une indemnité compensatrice. Modèle de lettre disponible dans le Parcours (étape « Période d'essai »).</div>
+</div>
+
+<div class="card">
+<div class="ct">Durée du travail, horaires &amp; travail de nuit</div>
+<div class="fg"><label class="fl">Durée hebdomadaire de service contractuelle (heures)</label>
+<select id="c-duree-hebdo"><option value="35">35 h/semaine (151,67 h/mois) — sédentaire, messagerie</option><option value="39">39 h/semaine (169 h/mois) — courte distance</option><option value="43" selected>43 h/semaine (186,33 h/mois) — grand routier (durée d'équivalence)</option><option value="autre">Autre — à préciser</option></select></div>
+<div class="fg"><label class="fl">Répartition sur la semaine (jours travaillés)</label><input id="c-jours-travail" placeholder="Ex : du lundi au vendredi ; selon les tournées et le planning d'exploitation"/></div>
+<div class="fg"><label class="fl">Horaires / plage indicative</label><input id="c-horaires" placeholder="Ex : selon planning ; prise de service au dépôt entre 5h et 8h"/></div>
+<label class="chk"><input type="checkbox" id="c-nuit" onchange="document.getElementById('c-nuit-det').classList.toggle('hidden',!this.checked)"/> Poste impliquant habituellement du travail de nuit (statut de travailleur de nuit)</label>
+<div id="c-nuit-det" class="hidden">
+<div class="loi">Nuit = 21h-6h (accord du 14/11/2001). <b>Travailleur de nuit</b> = ≥ 3 h de nuit ≥ 2 fois/semaine (ou seuil annuel). Contreparties : <b>prime horaire +20 %</b> du taux conventionnel ; <b>repos compensateur = 5 % du temps de nuit</b> si ≥ 50 h de nuit/mois ; durée quotidienne limitée à <b>10 h</b> ; surveillance médicale renforcée. Ces mentions seront intégrées au contrat.</div>
+</div>
 </div>
 
 <div class="card">
@@ -4118,6 +4135,12 @@ function genContrat(){
   const deditDuree=gv('c-dedit-duree')||'24';
   const geolocOk=document.getElementById('c-geoloc')?.checked;
   const vehicule=document.getElementById('c-vehicule')?.options[document.getElementById('c-vehicule').selectedIndex]?.text||'[VÉHICULE]';
+  const dureeHebdo=gv('c-duree-hebdo')||'43';
+  const dureeMoisMap={'35':'151,67','39':'169','43':'186,33'};
+  const dureeMois=dureeMoisMap[dureeHebdo]||('['+ (dureeHebdo==='autre'?'à préciser':dureeHebdo) +']');
+  const joursTravail=gv('c-jours-travail')||'du lundi au vendredi, selon les tournées et le planning d’exploitation';
+  const horaires=gv('c-horaires')||'selon le planning d’exploitation, dans le respect des durées maximales et des temps de repos réglementaires';
+  const nuitOk=document.getElementById('c-nuit')?.checked;
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
   let _n=1; const art=(t)=>'Article '+(_n++)+' — '+t;
   const html=`<div style="${S}">
@@ -4144,10 +4167,14 @@ ${deditOk?`<p style="${S}"><strong style="${S}">Clause de dédit-formation :</st
 <p style="${S}"><strong style="${S}">${art("Lieu de travail et déplacements")}</strong></p>
 <p style="${S}">Le salarié est rattaché au point d'attache de ${depot}. En raison de la nature de l'activité de transport routier, il est amené à effectuer des déplacements inhérents à ses fonctions sur le territoire national et, si applicable, à l'international.</p>
 ${mobOk?`<p style="${S}"><strong style="${S}">Clause de mobilité :</strong> Le lieu de rattachement pourra être modifié dans la zone géographique suivante : ${mobZone}, sous réserve d'un préavis de ${mobDelai} jours. Proportionnée à la nature de l'activité (art. L.1121-1 C. trav.) — Cass. soc. 7 juin 2006.</p>`:''}
-<p style="${S}"><strong style="${S}">${art("Durée du travail")}</strong></p>
-<p style="${S}">Le salarié est soumis aux dispositions du Décret n°83-40 du 26 janvier 1983, du Règlement CE n°561/2006 (temps de conduite et de repos) et de la Directive 2002/15/CE (durée du travail dans les transports routiers). La durée de référence mensuelle est de ${seuil} heures. Temps de conduite journalier max : 9h (10h autorisé 2×/semaine). Repos journalier min : 11h. Repos hebdomadaire min : 45h. Pause obligatoire : 45 min après 4h30 de conduite.</p>
+<p style="${S}"><strong style="${S}">${art("Durée du travail, horaires et répartition")}</strong></p>
+<p style="${S}">La durée hebdomadaire de service est fixée à <strong style="${S}">${dureeHebdo==='autre'?'[à préciser]':dureeHebdo+' heures'}</strong>${dureeMois.indexOf('[')<0?(', soit '+dureeMois+' heures par mois'):''} (durée de référence conventionnelle intégrant, le cas échéant, les heures d’équivalence propres au transport routier — décret n° 83-40 du 26 janvier 1983). Le travail est réparti <strong style="${S}">${joursTravail}</strong>. Les horaires sont les suivants : ${horaires}. Compte tenu de la nature itinérante de l’activité, les horaires peuvent varier selon les tournées ; le salarié en est informé dans un délai raisonnable.</p>
+<p style="${S}">Le salarié est soumis au Règlement CE n° 561/2006 (temps de conduite et de repos) et à la Directive 2002/15/CE. Rappels : temps de conduite journalier maximal 9 h (10 h deux fois par semaine) ; repos journalier minimal 11 h ; repos hebdomadaire minimal 45 h ; pause de 45 min après 4 h 30 de conduite ; amplitude et temps de service encadrés par la CCN. Les heures supplémentaires effectuées au-delà de la durée de référence donnent lieu aux majorations légales et conventionnelles.</p>
+${nuitOk?`<p style="${S}"><strong style="${S}">${art("Travail de nuit")}</strong></p>
+<p style="${S}">Le poste implique habituellement du travail de nuit. La période de nuit s’entend de <strong style="${S}">21 heures à 6 heures</strong> (accord de branche du 14 novembre 2001). Le salarié ayant la qualité de <strong style="${S}">travailleur de nuit</strong> (au moins 3 heures de travail de nuit au moins deux fois par semaine, ou le seuil annuel conventionnel), il bénéficie des contreparties suivantes : <strong style="${S}">prime horaire égale à 20 % du taux horaire conventionnel</strong> pour les heures de nuit ; <strong style="${S}">repos compensateur égal à 5 % du temps de travail de nuit</strong> lorsqu’il accomplit au moins 50 heures de travail de nuit sur le mois ; limitation de la durée quotidienne de travail à <strong style="${S}">10 heures</strong> ; <strong style="${S}">surveillance médicale renforcée</strong> auprès du service de prévention et de santé au travail. Le repos compensateur ne peut être remplacé par une compensation financière (disposition d’ordre public).</p>`:''}
 <p style="${S}"><strong style="${S}">${art("Rémunération")}</strong></p>
-<p style="${S}">Salaire mensuel brut : <strong style="${S}">${sal} €</strong> pour ${seuil} heures de référence. Ce taux est au moins égal au minimum conventionnel CCN Transport IDCC 0016 pour le coefficient ${coeff}. Il sera ajusté en cas de revalorisation de la grille conventionnelle. Les heures supplémentaires au-delà du seuil conventionnel sont majorées de 25% (36e à 43e heure) et 50% (au-delà de la 43e heure) conformément à la CCN Transport. La majoration de nuit (21h-6h) est de 20% (accord du 14/11/2001). Les indemnités de déplacement (repas, découchers) sont versées conformément aux barèmes de l'organisation patronale applicable, dans les limites d'exonération URSSAF.</p>
+<p style="${S}">Salaire mensuel brut : <strong style="${S}">${sal} €</strong> pour ${seuil} heures de référence. Ce taux est au moins égal au minimum conventionnel CCN Transport IDCC 0016 pour le coefficient ${coeff}. Il sera ajusté en cas de revalorisation de la grille conventionnelle. Les heures supplémentaires au-delà du seuil conventionnel sont majorées de 25% (36e à 43e heure) et 50% (au-delà de la 43e heure) conformément à la CCN Transport. La majoration des heures de nuit (21h-6h) est de 20% du taux horaire conventionnel (accord du 14/11/2001).</p>
+<p style="${S}">Les indemnités forfaitaires de déplacement sont versées conformément au protocole du 30 avril 1974 et à l’avenant n° 81 du 2 décembre 2025 (en vigueur au 1er janvier 2026, étendu par arrêté du 3 février 2026), dans les limites d’exonération URSSAF. Barème applicable : <strong style="${S}">repas 16,36 €</strong> ; repas unique 10,07 € ; repas unique de nuit 9,81 € ; casse-croûte 8,87 € ; indemnité spéciale 4,42 € ; grand déplacement (1 repas + 1 découcher) 52,31 €, (2 repas + 1 découcher) 68,87 € ; majoration de 18 % à l’étranger. Ces montants suivent les revalorisations conventionnelles ultérieures. Les indemnités de casse-croûte et de repas de nuit ne se cumulent pas avec l’indemnité de grand déplacement.</p>
 <p style="${S}">Le salarié bénéficie de la majoration conventionnelle d’ancienneté calculée sur le taux horaire minimum de son coefficient : pour le personnel ouvrier, <strong style="${S}">2 % après 2 ans, 4 % après 5 ans, 6 % après 10 ans et 8 % après 15 ans</strong> de présence dans l’entreprise (barème conventionnel — CCN transports routiers, annexe I). Pour les autres catégories, le barème de l’annexe applicable s’applique.</p>
 <p style="${S}">Le salarié bénéficie de la garantie annuelle de rémunération (GAR) attachée à son coefficient, ainsi que des indemnités de déplacement (repas, repas unique, casse-croûte, découcher) prévues par le protocole conventionnel relatif aux frais de déplacement, selon les barèmes en vigueur à la date du paiement.</p>
 
