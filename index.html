@@ -371,10 +371,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
-var JX_MAJ = '10 juillet 2026';
-var JX_BUILD = 'v2026-07-11.19';
+var JX_MAJ = '12 juillet 2026';
+var JX_BUILD = 'v2026-07-12.1';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.1', d:'12 juillet 2026', t:[
+   'Congés payés & maladie — jurisprudence 2025-2026 : maladie survenue PENDANT les congés = report des jours coïncidant avec l\'arrêt si notification à l\'employeur (Cass. soc. 10/09/2025, revirement) ; plafond de 24 jours apprécié par période de référence HORS jours reportés (Cass. soc. 21/01/2026) ; réclamations rétroactives forcloses depuis le 23/04/2026 pour les arrêts antérieurs au 22/04/2024.'
+ ]},
  {v:'v2026-07-11.19', d:'12 juillet 2026', t:[
    'GRILLES 100 % OFFICIELLES (tableaux de l\'accord du 11/10/2023 fournis en captures Légifrance) — Taux horaires ouvriers corrigés : 110M à 120M = 12,09 €, 128M = 12,12 €, 138M = 12,14 €, 150M = 12,43 € (+2 % après 2 ans) ; les valeurs intermédiaires estimées (12,13-12,37) sont remplacées ; le plancher SMIC (12,31 €) s\'applique par-dessus.',
    'Vérificateur GAR entièrement reconstruit sur les grilles officielles : 4 catégories (ouvriers avec 3 bases d\'heures 151,67/169/200 h, employés, techniciens-AM, cadres RAG), ancienneté (embauche / 2 ou 3 ans / tranches cadres) — ex. 150M base 200 h : 33 108,30 € à l\'embauche, 33 770,47 € après 2 ans.',
@@ -3444,7 +3447,7 @@ function calcIndemXIV(){
         'Règle du maintien : salaire ÷ 26 (jours ouvrables du mois) = '+calcFmt(sal/26)+' €/jour → × '+(j||0)+' j = <b>'+calcFmt(maint)+' €</b>',
         '<b>Montant retenu (le plus favorable) = '+calcFmt(ret)+' €</b>'
       ])
-      +'<p class="loi" style="margin-top:8px">On retient le montant le plus favorable au salarié (C. trav. art. L3141-24). Estimation pour '+(j||0)+' jour(s) ouvrable(s) — la base 1/10e porte sur la rémunération brute totale de la période de référence ; le calcul exact dépend des éléments de salaire inclus. Due quelle que soit la cause de la rupture (sauf faute lourde, et encore : la jurisprudence l\'accorde). Vérifiez aussi les jours conventionnels/RTT non pris. <b>⚠️ Depuis la loi n° 2024-364 du 22/04/2024, les arrêts maladie comptent pour l\'acquisition</b> : 2 j ouvrables/mois en maladie ordinaire (max 24 j/an), 2,5 j/mois en AT/MP — intégrez ces jours dans le total à indemniser au solde de tout compte.</p></div>';
+      +'<p class="loi" style="margin-top:8px">On retient le montant le plus favorable au salarié (C. trav. art. L3141-24). Estimation pour '+(j||0)+' jour(s) ouvrable(s) — la base 1/10e porte sur la rémunération brute totale de la période de référence ; le calcul exact dépend des éléments de salaire inclus. Due quelle que soit la cause de la rupture (sauf faute lourde, et encore : la jurisprudence l\'accorde). Vérifiez aussi les jours conventionnels/RTT non pris. <b>⚠️ Depuis la loi n° 2024-364 du 22/04/2024, les arrêts maladie comptent pour l\'acquisition</b> : 2 j ouvrables/mois en maladie ordinaire (max 24 j/période, hors jours reportés — Cass. 21/01/2026), 2,5 j/mois en AT/MP — intégrez ces jours dans le total à indemniser au solde de tout compte. Maladie PENDANT les congés : jours coïncidents reportés si l\'arrêt a été notifié (Cass. soc. 10/09/2025).</p></div>';
 
   } else if(t==='preavis'){
     var dur, durTxt;
@@ -8044,7 +8047,8 @@ ${m.d1
 <span style="font-size:11.5px;color:#9a9585">Le barème conventionnel art. 10 ter (plus favorable) ne s'ouvre qu'à 3 ans d'ancienneté.</span><br>`
 : `<strong style="color:#e05c5c">Ancienneté inférieure à 1 an : AUCUN maintien de salaire obligatoire.</strong><br>
 La loi (art. L.1226-1 C. trav. — mensualisation) exige <b>1 an d'ancienneté</b> pour le complément employeur. Le salarié ne perçoit que les <b>IJSS de la Sécurité sociale</b> (50 % du salaire journalier de base, carence 3 jours). Vérifiez toutefois accord d'entreprise ou usage plus favorable.<br>`}
-<strong style="color:#e8c97a">Congés payés :</strong> depuis la loi n° 2024-364 du 22 avril 2024, l'arrêt maladie ordinaire OUVRE des droits à congés : <b>2 jours ouvrables par mois d'absence</b> (au plus 24 j ouvrables par an) ; report possible sur <b>15 mois</b> ; à la reprise, vous devez <b>informer le salarié dans le mois</b> de ses droits acquis et de la date limite de prise (L.3141-19-3).<br>
+<strong style="color:#e8c97a">Congés payés :</strong> depuis la loi n° 2024-364 du 22 avril 2024, l'arrêt maladie ordinaire OUVRE des droits à congés : <b>2 jours ouvrables par mois d'absence</b> (au plus 24 j ouvrables par période de référence — plafond apprécié <b>hors jours reportés</b> des années précédentes : Cass. soc. 21/01/2026) ; report possible sur <b>15 mois</b> ; à la reprise, vous devez <b>informer le salarié dans le mois</b> de ses droits acquis et de la date limite de prise (L.3141-19-3).<br>
+<strong style="color:#e8c97a">Maladie PENDANT les congés :</strong> revirement — le salarié tombé malade pendant ses congés payés a droit au report des jours coïncidant avec l'arrêt, à condition de l'avoir notifié à l'employeur (Cass. soc. 10/09/2025). Réclamations rétroactives : forcloses depuis le 23/04/2026 pour les arrêts antérieurs au 22/04/2024.<br>
 ${isCond&&duree>60?'<strong style="color:#e05c5c">⚠ Durée > 60 jours — Visite médicale de reprise obligatoire auprès du médecin du travail (art. R.4624-31 C. trav.)</strong>':''}<br>
 ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite nécessite un avis médical d\'aptitude spécifique si l\'arrêt est lié à des problèmes de santé pouvant affecter la conduite.</strong>':''}
 </div></div>
