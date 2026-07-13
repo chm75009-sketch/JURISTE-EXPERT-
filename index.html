@@ -375,9 +375,16 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.23';
+var JX_BUILD = 'v2026-07-12.24';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.24', d:'12 juillet 2026', t:[
+   'Module « Analyse » BEAUCOUP plus intelligent sur les lettres de licenciement et de sanction — nouvelle « Analyse approfondie » qui ne se contente plus de vérifier la présence de mentions :',
+   'PRESCRIPTION DES FAITS : le module lit les DATES du texte et alerte si des faits reprochés remontent à plus de 2 mois avant la procédure (art. L.1332-4) — cas typique d\'un fait ancien qui rend le licenciement sans cause réelle et sérieuse.',
+   'FAUTE GRAVE INCOHÉRENTE : si la lettre invoque une faute grave/lourde tout en visant des faits anciens tolérés, le module signale l\'incompatibilité (la faute grave suppose une réaction immédiate).',
+   'MOTIFS VAGUES : détection des formulations systématiquement sanctionnées (« de manière générale », « manque de professionnalisme », « comportement inadapté », « à plusieurs reprises » sans dates…) qui ne constituent pas une cause réelle et sérieuse (L.1232-6, L.1235-1).',
+   'Rappel automatique que l\'indemnité de congés payés reste due même en cas de faute grave/lourde si la lettre ne la mentionne pas.'
+ ]},
  {v:'v2026-07-12.23', d:'12 juillet 2026', t:[
    'Module « Analyse » — CORRECTION : on peut enfin JOINDRE UN FICHIER. L\'ancien bouton forçait l\'appareil photo (attribut « capture ») et empêchait de choisir un PDF dans ses fichiers sur iPhone. Remplacé par un vrai bouton « 📎 Joindre / importer un fichier » qui ouvre le sélecteur complet (Fichiers, Photos, Appareil photo).',
    'Le fichier joint est maintenant EXPLOITÉ : un PDF « texte » et un fichier .txt voient leur texte extrait automatiquement et inséré dans la zone d\'analyse, prêt à être vérifié. Une photo ou un PDF scanné (image) affiche un message clair invitant à coller/dicter le texte (pas de reconnaissance d\'image sans serveur).',
@@ -9897,6 +9904,37 @@ var MENTIONS={
  ]
 };
 
+// ── Analyse SUBSTANTIELLE du texte (au-delà de la simple présence de mentions) ──
+// Extraction des dates françaises (numériques + « mois année ») pour détecter la prescription des faits.
+function diagParseDatesFR(txt){
+  var MO={janvier:0,'février':1,fevrier:1,mars:2,avril:3,mai:4,juin:5,juillet:6,'août':7,aout:7,septembre:8,octobre:9,novembre:10,'décembre':11,decembre:11};
+  var res=[],m;
+  var re1=/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})\b/g;
+  while((m=re1.exec(txt))){var y=parseInt(m[3],10);if(y<100)y+=2000;var mo=parseInt(m[2],10)-1,da=parseInt(m[1],10);if(mo>=0&&mo<12&&da>=1&&da<=31){var d=new Date(y,mo,da);if(!isNaN(d))res.push(d);}}
+  var re2=/\b(\d{1,2}\s+)?(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)\s+(\d{4})\b/gi;
+  while((m=re2.exec(txt))){var k=m[2].toLowerCase();if(!(k in MO))continue;var day=m[1]?parseInt(m[1],10):1;var y2=parseInt(m[3],10);var d2=new Date(y2,MO[k],day);if(!isNaN(d2))res.push(d2);}
+  return res;
+}
+function diagDatesInfo(txt){
+  var ds=diagParseDatesFR(txt);if(ds.length<2)return null;
+  ds.sort(function(a,b){return a-b;});
+  var oldest=ds[0],newest=ds[ds.length-1];
+  return {oldest:oldest,newest:newest,gapMonths:(newest-oldest)/(1000*60*60*24*30.44)};
+}
+function diagFdate(d){return d.toLocaleDateString('fr-FR',{year:'numeric',month:'long'});}
+// Formulations vagues systématiquement sanctionnées (motif non matériellement vérifiable)
+var DIAG_VAGUE=[
+ {re:/de\s+mani[èe]re\s+g[ée]n[ée]rale/i,l:'« de manière générale »'},
+ {re:/manque\s+de\s+professionnalisme/i,l:'« manque de professionnalisme »'},
+ {re:/mauvais(e)?\s+(esprit|attitude|[ée]tat\s+d[’'\s]esprit|volont[ée])/i,l:'« mauvais esprit / mauvaise attitude »'},
+ {re:/ne\s+correspond(ent|ait)?\s+pas\s+aux\s+attentes/i,l:'« ne correspond pas aux attentes »'},
+ {re:/comportement\s+(inadapt|inappropri|g[ée]n[ée]ral|probl[ée]matique)/i,l:'« comportement inadapté » (sans fait daté)'},
+ {re:/attitude\s+(g[ée]n[ée]rale|d[ée]sinvolte|n[ée]gative)/i,l:'« attitude générale »'},
+ {re:/insubordination(?!.{0,40}(du|le|refus|ordre|consigne))/i,l:'« insubordination » sans ordre précis rapporté'},
+ {re:/[àa]\s+plusieurs\s+reprises(?![^.]{0,40}\d)/i,l:'« à plusieurs reprises » sans dates'},
+ {re:/\bnotamment\b/i,l:'« notamment » (énumération non limitative — or la lettre fixe les limites du litige)'}
+];
+
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
 function diagStatus(msg,color){var s=document.getElementById('diag-file-status');if(s){s.innerHTML=msg;s.style.color=color||'#555';}}
 function diagInsertText(txt,src){var t=(txt||'').replace(/ /g,'').trim();var ta=document.getElementById('diag-resume');if(!ta)return;if(!t){diagStatus('⚠️ Aucun texte extractible ('+src+') — document probablement scanné (image). Collez ou dictez le texte.','#b26b00');return;}ta.value=t;try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}diagStatus('✅ Texte extrait de '+esc(src)+' ('+t.length+' caractères) et inséré ci-dessus. Choisissez le type de document puis « Analyser ».','#1a7a3a');try{ta.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}}
@@ -9931,6 +9969,30 @@ if(MENTIONS[t]){
     h+='<div style="font-size:11px;color:#999;margin-top:4px">Détection automatique par mots-clés dans le texte collé : une mention signalée « non détectée » peut exister sous une autre formulation — vérifiez-la avant de conclure.</div>';
   } else {
     h+='<div style="background:#eef3fb;border-radius:8px;padding:8px 10px;margin:12px 0;font-size:12px;color:#345">🔍 <b>Pour analyser le CONTENU du document</b>, collez son texte dans le champ « 📋 Collez ici le texte du document » ci-dessus : le module vérifiera automatiquement les mentions obligatoires ('+MENTIONS[t].length+' points pour ce type de document).</div>';
+  }
+}
+// ── Analyse substantielle (prescription des faits + motifs vagues) sur les documents disciplinaires ──
+if((t==='licenciement'||t==='sanction')&&texteNet.length>=30){
+  var deep=[];
+  var di=diagDatesInfo(texte);
+  var fauteGrave=/faute\s+grave/i.test(texte),fauteLourde=/faute\s+lourde/i.test(texte);
+  if(di&&di.gapMonths>2){
+    deep.push('<b>Prescription des faits (art. L.1332-4)</b> — le texte évoque des faits datant de <b>'+esc(diagFdate(di.oldest))+'</b> alors que la procédure/notification se situe vers <b>'+esc(diagFdate(di.newest))+'</b> (~'+Math.round(di.gapMonths)+' mois d\'écart). Aucune sanction ne peut être engagée plus de <b>2 mois</b> après que l\'employeur a eu connaissance des faits : si la connaissance remonte à cette date, la prescription est acquise et le licenciement est <b>sans cause réelle et sérieuse</b>. Vérifiez impérativement la date de connaissance des faits.');
+    if(fauteGrave||fauteLourde){
+      deep.push('<b>Faute grave/lourde incompatible avec des faits anciens</b> — la faute grave suppose l\'<b>impossibilité de maintenir le salarié</b>, donc une réaction <b>immédiate</b>. Des faits tolérés pendant ~'+Math.round(di.gapMonths)+' mois ne peuvent en principe justifier un licenciement <b>sans préavis ni indemnité</b> pour faute grave (Cass. soc. — appréciation de la gravité).');
+    }
+  }
+  var vagues=DIAG_VAGUE.filter(function(v){return v.re.test(texte);});
+  if(vagues.length){
+    deep.push('<b>Motif(s) potentiellement imprécis</b> — expressions repérées : '+vagues.map(function(v){return v.l;}).join(', ')+'. La lettre doit énoncer des <b>faits précis, datés et matériellement vérifiables</b> (art. L.1232-6, L.1235-1) ; un grief formulé en termes vagues ou de « comportement général » ne constitue <b>pas</b> une cause réelle et sérieuse et fragilise toute la lettre.');
+  }
+  if((fauteGrave||fauteLourde)&&!/cong[ée]s\s+pay[ée]s/i.test(texte)){
+    deep.push('<b>Indemnité de congés payés</b> — même en cas de faute grave ou lourde, l\'<b>indemnité compensatrice de congés payés reste due</b> (Cons. const. 2015-523 QPC). Le texte ne semble pas la mentionner.');
+  }
+  if(deep.length){
+    h+='<div style="font-weight:700;color:#8a1a1a;font-size:13.5px;margin:14px 0 6px">🧠 Analyse approfondie — risques majeurs détectés</div>';
+    deep.forEach(function(d){h+='<div style="background:#fdecec;border-left:4px solid #c0392b;border-radius:6px;padding:9px 11px;margin:6px 0;font-size:12.5px;color:#5a1a1a;line-height:1.55">⚠️ '+d+'</div>';});
+    h+='<div style="font-size:11px;color:#999;margin-top:4px">Analyse fondée sur les dates et formulations repérées dans le texte : à recouper avec le dossier (date exacte de connaissance des faits, preuves).</div>';
   }
 }
 if(r.re.length){h+='<div style="font-weight:600;color:#9a7b2e;font-size:13px;margin:10px 0 6px">📌 Recommandations &amp; points de vigilance</div>';r.re.forEach(function(k){h+='<div style="font-size:12.5px;color:#6b5a2e;padding:3px 0">• '+esc(k)+'</div>';});}
