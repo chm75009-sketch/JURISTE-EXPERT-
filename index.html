@@ -375,9 +375,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.24';
+var JX_BUILD = 'v2026-07-12.25';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.25', d:'12 juillet 2026', t:[
+   'Module « Analyse » — INSÉRER UN DOCUMENT SUFFIT MAINTENANT. Dès que vous importez un PDF « texte » ou un .txt, l\'application : (1) extrait le texte, (2) RECONNAÎT automatiquement le type de document (licenciement, convocation, sanction, CDD, rupture conventionnelle, règlement intérieur…), (3) récupère les DATES (entretien, notification, faits) et (4) LANCE l\'analyse toute seule. Vous voyez le diagnostic sans rien remplir.',
+   'Les dates détectées pré-remplissent le questionnaire (à vérifier d\'un coup d\'œil) ; vous pouvez toujours corriger le type ou les champs et relancer « Analyser ».',
+   'Rappel de transparence : ceci fonctionne sur un PDF « texte » ou un mail/Word copié ; une photo ou un PDF scanné (image) ne peut pas être lu automatiquement — l\'app vous le dit et vous invite à coller le texte.'
+ ]},
  {v:'v2026-07-12.24', d:'12 juillet 2026', t:[
    'Module « Analyse » BEAUCOUP plus intelligent sur les lettres de licenciement et de sanction — nouvelle « Analyse approfondie » qui ne se contente plus de vérifier la présence de mentions :',
    'PRESCRIPTION DES FAITS : le module lit les DATES du texte et alerte si des faits reprochés remontent à plus de 2 mois avant la procédure (art. L.1332-4) — cas typique d\'un fait ancien qui rend le licenciement sans cause réelle et sérieuse.',
@@ -9936,8 +9941,51 @@ var DIAG_VAGUE=[
 ];
 
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
+// Reconnaissance automatique du type de document d'après le texte
+function diagAutoType(txt){var s=(txt||'').toLowerCase();
+  if(/rupture\s+conventionnelle/.test(s))return 'rupconv';
+  if(/notif\w*[^.]{0,40}licenciement|licenciement\s+(immédiat|pour\s+(faute|cause|motif|insuffisance))|proc[ée]der\s+[àa]\s+votre\s+licenciement|vous\s+notifions\s+votre\s+licenciement/.test(s))return 'licenciement';
+  if(/(convocation|nous\s+vous\s+convoquons|convoqu[ée]\s+[àa]\s+un\s+entretien|invit[ée]?\s+[àa]\s+un\s+entretien)/.test(s)&&!/notif\w*[^.]{0,40}licenciement|votre\s+licenciement\s+prend/.test(s))return 'convocation';
+  if(/avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation|mutation\s+disciplinaire/.test(s))return 'sanction';
+  if(/contrat\s+[àa]\s+dur[ée]e\s+d[ée]termin[ée]e|\bcdd\b/.test(s))return 'cdd';
+  if(/r[èe]glement\s+int[ée]rieur/.test(s))return 'ri';
+  if(/inaptitude|m[ée]decin\s+du\s+travail/.test(s))return 'inaptitude';
+  if(/arr[êe]t\s+(de\s+travail|maladie)/.test(s))return 'arretmaladie';
+  return '';
+}
+function diagToISO(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function diagDateNear(txt,kw){var idx=txt.toLowerCase().indexOf(kw);if(idx<0)return null;var a=txt.slice(Math.max(0,idx-70),idx+70);var ds=diagParseDatesFR(a);return ds.length?ds[0]:null;}
+function diagAutoFill(type,txt){
+  function setV(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!=='')e.value=v;}
+  var all=diagParseDatesFR(txt);all.sort(function(a,b){return a-b;});
+  var newest=all.length?all[all.length-1]:null,oldest=all.length?all[0]:null;
+  if(type==='licenciement'){
+    var ent=diagDateNear(txt,'entretien');if(ent)setV('dq-de',diagToISO(ent));
+    if(newest)setV('dq-dl',diagToISO(newest));
+    setV('dq-type',/[ée]conomique/i.test(txt)?'Économique':(/faute|disciplinaire|grief|repro/i.test(txt)?'Disciplinaire':'Personnel non disciplinaire'));
+    if(/faute\s+(grave|lourde)/i.test(txt))setV('dq-fg','oui');
+  }else if(type==='convocation'){
+    var ent2=diagDateNear(txt,'entretien');if(ent2)setV('dq-de',diagToISO(ent2));
+    if(newest)setV('dq-dp',diagToISO(newest));
+    setV('dq-obj',/licenciement|sanction/i.test(txt)?'oui':'');
+    setV('dq-ass',/assist/i.test(txt)?'oui':'non');
+  }else if(type==='sanction'){
+    if(oldest)setV('dq-df',diagToISO(oldest));
+    if(newest)setV('dq-ds',diagToISO(newest));
+    setV('dq-nat',/avertissement|bl[âa]me/i.test(txt)?'Avertissement / blâme':(/mise\s+[àa]\s+pied/i.test(txt)?'Mise à pied disciplinaire':(/r[ée]trograd/i.test(txt)?'Rétrogradation':'')));
+  }
+}
+function diagAutoAnalyse(txt){
+  var ty=document.getElementById('diag-type');var guess=diagAutoType(txt);
+  if(guess&&ty){ty.value=guess;if(typeof window.diagRender==='function')window.diagRender();try{diagAutoFill(guess,txt);}catch(e){}}
+  if(typeof window.diagAnalyser==='function')window.diagAnalyser();
+  return guess&&DOCS[guess]?DOCS[guess].nom:null;
+}
 function diagStatus(msg,color){var s=document.getElementById('diag-file-status');if(s){s.innerHTML=msg;s.style.color=color||'#555';}}
-function diagInsertText(txt,src){var t=(txt||'').replace(/ /g,'').trim();var ta=document.getElementById('diag-resume');if(!ta)return;if(!t){diagStatus('⚠️ Aucun texte extractible ('+src+') — document probablement scanné (image). Collez ou dictez le texte.','#b26b00');return;}ta.value=t;try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}diagStatus('✅ Texte extrait de '+esc(src)+' ('+t.length+' caractères) et inséré ci-dessus. Choisissez le type de document puis « Analyser ».','#1a7a3a');try{ta.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}}
+function diagInsertText(txt,src){var t=(txt||'').replace(/ /g,'').trim();var ta=document.getElementById('diag-resume');if(!ta)return;if(!t){diagStatus('⚠️ Aucun texte extractible ('+src+') — document probablement scanné (image). Collez ou dictez le texte.','#b26b00');return;}ta.value=t;try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}
+  var lab=null;try{lab=diagAutoAnalyse(t);}catch(e){}
+  if(lab)diagStatus('✅ Texte extrait de '+esc(src)+' — document reconnu : « '+esc(lab)+' ». Analyse automatique effectuée ci-dessous (vérifiez les dates détectées).','#1a7a3a');
+  else diagStatus('✅ Texte extrait de '+esc(src)+' ('+t.length+' car.) — type non reconnu automatiquement : choisissez-le ci-dessus puis « Analyser ».','#1a7a3a');}
 function loadPdfJs(cb){if(window.pdfjsLib){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=function(){try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}catch(e){}cb();};s.onerror=function(){cb('err');};document.head.appendChild(s);}
 function diagExtractPdf(f){diagStatus('⏳ Lecture du PDF…','#555');loadPdfJs(function(err){if(err||!window.pdfjsLib){diagStatus('⚠️ Lecture PDF indisponible (hors ligne ?). Ouvrez le PDF, sélectionnez tout, copiez, puis collez le texte ci-dessus.','#b26b00');return;}var fr=new FileReader();fr.onload=function(){try{window.pdfjsLib.getDocument({data:new Uint8Array(fr.result)}).promise.then(function(pdf){var n=Math.min(pdf.numPages,25);var pages=[];var chain=Promise.resolve();for(var i=1;i<=n;i++){(function(i){chain=chain.then(function(){return pdf.getPage(i).then(function(pg){return pg.getTextContent().then(function(tc){pages.push(tc.items.map(function(it){return it.str;}).join(' '));});});});})(i);}chain.then(function(){diagInsertText(pages.join('\n'),'PDF « '+f.name+' »');}).catch(function(){diagStatus('⚠️ Impossible d\'extraire le texte de ce PDF. Copiez-collez le texte.','#b26b00');});}).catch(function(){diagStatus('⚠️ Impossible d\'ouvrir ce PDF. Copiez-collez le texte.','#b26b00');});}catch(e){diagStatus('⚠️ Erreur de lecture du PDF. Copiez-collez le texte.','#b26b00');}};fr.onerror=function(){diagStatus('⚠️ Lecture du fichier impossible.','#b26b00');};fr.readAsArrayBuffer(f);});}
 window.diagPreview=function(){var f=document.getElementById('diag-file').files[0];var p=document.getElementById('diag-preview');if(!f){p.innerHTML='';diagStatus('');return;}var name=f.name||'';var ext=(name.split('.').pop()||'').toLowerCase();p.innerHTML='';
