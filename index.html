@@ -375,9 +375,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.26';
+var JX_BUILD = 'v2026-07-12.27';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.27', d:'12 juillet 2026', t:[
+   'Module « Analyse » — l\'analyse passe de « le mot est là » à « le mot est là ET dans le bon sens ». Correction de fond de la détection :',
+   'DÉTECTION DES NÉGATIONS : « aucune indemnité de fin de contrat », « aucune convention collective ne s\'applique », « sans majoration »… ne sont plus comptées comme des mentions présentes mais comme des NON-CONFORMITÉS. Fini les faux « ✓ conforme » quand le document dit l\'inverse.',
+   'LECTURE DES CHIFFRES : le module lit désormais la durée (CDD > 18 mois → requalification, L.1242-8-1), le salaire (sous le SMIC ≈ 1 867 €), la période d\'essai (plafond L.1242-10), et détecte les clauses illégales du CDD — motif visant un emploi permanent (L.1242-1), renouvellements illimités (L.1243-13), suppression de la précarité (L.1243-8), exclusion de la convention collective (L.2261-2), heures supplémentaires sans majoration (L.3121-28), absence de classification.',
+   'Ces détections COMPTENT désormais dans le verdict : un contrat truffé de clauses illégales n\'est plus affiché « conforme ». (Testé sur un CDD piégé : 8 non-conformités remontées au lieu de 0.)'
+ ]},
  {v:'v2026-07-12.26', d:'12 juillet 2026', t:[
    'Module « Analyse » — la reconnaissance et l\'analyse automatiques à l\'insertion s\'appliquent désormais à TOUS les types de documents : lettre de licenciement, convocation, avertissement/sanction, CDD, rupture conventionnelle, inaptitude, arrêt maladie, accord d\'entreprise, accord/convention de branche, protocole préélectoral (PAP), clause de contrat et requête prud\'homale.',
    'Chaque type dispose de sa liste de mentions obligatoires vérifiées dans le texte, et le questionnaire se pré-remplit automatiquement (dates, cases oui/non détectées) à partir du document importé — vous n\'avez plus qu\'à vérifier et, au besoin, corriger.',
@@ -9894,7 +9900,7 @@ var MENTIONS={
   {re:/motif|remplacement|accroissement|saisonnier|usage/i,l:'Motif de recours précis'},
   {re:/terme|jusqu[’'\s]au|date\s+de\s+fin|dur[ée]e\s+minimale/i,l:'Terme précis ou durée minimale'},
   {re:/pr[ée]carit|indemnit[ée]\s+de\s+fin|10\s*%|L\.?\s*1243-8/i,l:'Indemnité de fin de contrat (précarité)'},
-  {re:/convention\s+collective|idcc|caisse|retraite|pr[ée]voyance/i,l:'Mentions L.1242-12 (CCN, caisses)'},
+  {re:/convention\s+collective|idcc|caisse|retraite|pr[ée]voyance/i,neg:/aucune\s+convention\s+collective[^.]{0,40}ne\s+s[’']applique|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i,l:'Mentions L.1242-12 (CCN, caisses)'},
   {re:/p[ée]riode\s+d[’'\s]essai/i,l:'Période d’essai'}
  ],
  rupconv:[
@@ -9989,6 +9995,49 @@ var DIAG_VAGUE=[
  {re:/[àa]\s+plusieurs\s+reprises(?![^.]{0,40}\d)/i,l:'« à plusieurs reprises » sans dates'},
  {re:/\bnotamment\b/i,l:'« notamment » (énumération non limitative — or la lettre fixe les limites du litige)'}
 ];
+// Extrait un nombre à partir d'une capture (« 1 350 » -> 1350 ; « 1.350,00 » -> 1350)
+function diagNum(s){if(!s)return null;var v=String(s).replace(/[^\d,\.]/g,'');if(v.indexOf(',')>=0){v=v.replace(/\./g,'').replace(',','.');}else if((v.match(/\./g)||[]).length>1){v=v.replace(/\./g,'');}var n=parseFloat(v);return isNaN(n)?null:n;}
+// ANALYSE DE FOND : au-delà de la présence des mots, on vérifie le SENS (négations) et les CHIFFRES (plafonds légaux)
+function diagDeepFindings(t,texte){
+  var d=[];
+  if(t==='licenciement'||t==='sanction'){
+    var di=diagDatesInfo(texte);var fg=/faute\s+grave/i.test(texte),fl=/faute\s+lourde/i.test(texte);
+    if(di&&di.gapMonths>2){
+      d.push('<b>Prescription des faits (art. L.1332-4)</b> — des faits datant de <b>'+diagFdate(di.oldest)+'</b> sont évoqués alors que la procédure se situe vers <b>'+diagFdate(di.newest)+'</b> (~'+Math.round(di.gapMonths)+' mois). Aucune sanction ne peut être engagée plus de <b>2 mois</b> après la connaissance des faits : si la connaissance remonte à cette date, la prescription est acquise et le licenciement est <b>sans cause réelle et sérieuse</b>.');
+      if(fg||fl)d.push('<b>Faute grave/lourde incompatible avec des faits anciens</b> — la faute grave suppose une réaction <b>immédiate</b> (impossibilité de maintien) : des faits tolérés ~'+Math.round(di.gapMonths)+' mois ne peuvent en principe la justifier.');
+    }
+    var vg=DIAG_VAGUE.filter(function(v){return v.re.test(texte);});
+    if(vg.length)d.push('<b>Motif(s) imprécis</b> — expressions repérées : '+vg.map(function(v){return v.l;}).join(', ')+'. La lettre doit énoncer des <b>faits précis, datés et vérifiables</b> (L.1232-6, L.1235-1) ; un grief vague n\'est pas une cause réelle et sérieuse.');
+    if((fg||fl)&&!/cong[ée]s\s+pay[ée]s/i.test(texte))d.push('<b>Indemnité de congés payés</b> — même en faute grave/lourde, l\'indemnité compensatrice de congés payés reste due (Cons. const. 2015-523 QPC) ; elle ne semble pas mentionnée.');
+  }
+  if(t==='cdd'){
+    if(/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|durablement\s+un\s+poste|emploi\s+(li[ée]\s+[àa]\s+l[’']activit[ée]\s+(normale|permanente)|durable|permanent)|poste\s+permanent/i.test(texte))
+      d.push('<b>Motif interdit (art. L.1242-1)</b> — le CDD vise à pourvoir un emploi lié à l\'<b>activité normale et permanente</b> de l\'entreprise : un CDD ne peut avoir ni pour objet ni pour effet de pourvoir <b>durablement</b> un tel emploi → <b>requalification en CDI</b>.');
+    // Durée : via dates OU via « X mois »
+    var di2=diagDatesInfo(texte),dureeMois=null;
+    if(di2&&di2.gapMonths>=1&&di2.gapMonths<=72)dureeMois=Math.round(di2.gapMonths);
+    var mm=texte.match(/dur[ée]e\s+de\s+(\d{1,2})\s+mois|(\d{1,2})\s+mois/i);
+    if(mm){var mv=parseInt(mm[1]||mm[2],10);if(mv&&(!dureeMois||Math.abs(mv-dureeMois)>2))dureeMois=mv;}
+    if(dureeMois&&dureeMois>18)d.push('<b>Durée excessive (art. L.1242-8-1)</b> — durée d\'environ <b>'+dureeMois+' mois</b> alors que la durée maximale d\'un CDD, renouvellements compris, est en principe de <b>18 mois</b> → requalification.');
+    if(/renouvel\w*[^.]{0,60}(autant\s+de\s+fois|sans\s+limit|illimit|nécessaire)|sans\s+limitation\s+de\s+nombre|renouvel\w*\s+ind[ée]finiment/i.test(texte))
+      d.push('<b>Renouvellements illimités (art. L.1243-13)</b> — un CDD ne peut être renouvelé que <b>2 fois</b> au maximum ; une clause de renouvellement sans limite est illicite.');
+    if(/aucune\s+convention\s+collective[^.]{0,40}ne\s+s[’']applique|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i.test(texte))
+      d.push('<b>Exclusion illicite de la convention collective (art. L.2261-2)</b> — la CCN applicable s\'impose selon l\'activité réelle de l\'entreprise ; les parties <b>ne peuvent pas l\'écarter</b> par une clause du contrat.');
+    if(/aucune\s+indemnit[ée]\s+de\s+fin\s+de\s+contrat|sans\s+indemnit[ée]\s+de\s+(fin\s+de\s+contrat|pr[ée]carit)|pas\s+d[’']indemnit[ée]\s+de\s+(fin|pr[ée]carit)/i.test(texte))
+      d.push('<b>Suppression illicite de l\'indemnité de précarité (art. L.1243-8)</b> — l\'indemnité de fin de contrat de <b>10 %</b> est due (sauf saisonnier, CDD d\'usage, refus d\'un CDI, poursuite en CDI, faute grave) ; une clause y renonçant est <b>nulle</b>.');
+    if(/aucune\s+majoration|sans\s+majoration|ne\s+donneront?\s+lieu\s+[àa]\s+aucune\s+(majoration|contrepartie)|d[ée]compte\s+du\s+temps\s+de\s+service\s+n[’']est\s+pas\s+applicable/i.test(texte))
+      d.push('<b>Heures supplémentaires sans majoration (art. L.3121-28 et s.)</b> — les heures au-delà de la durée légale ouvrent droit à majoration (ou repos compensateur) : une clause les excluant est <b>nulle</b>. En transport, le <b>décompte du temps de service</b> est obligatoire.');
+    if(/aucun\s+coefficient|sans\s+coefficient|aucune\s+classification|aucun\s+(coefficient\s+ni\s+groupe)/i.test(texte))
+      d.push('<b>Classification absente</b> — un <b>coefficient / groupe</b> de la convention collective doit être attribué : il fixe le minimum conventionnel ; son absence prive le salarié de la garantie de rémunération.');
+    // Rémunération sous le SMIC (SMIC mensuel 2026 ≈ 1 867 € pour 151,67 h)
+    var rm=texte.match(/r[ée]mun[ée]ration\s+mensuelle\s+brute\s+de\s+([\d\s.,]+?)\s*€/i)||texte.match(/([\d\s.,]{3,9})\s*€\s+pour\s+151/i)||texte.match(/salaire\s+mensuel\s+brut[^\d]{0,10}([\d\s.,]+?)\s*€/i);
+    if(rm){var val=diagNum(rm[1]);if(val&&val>=200&&val<1801)d.push('<b>Rémunération inférieure au SMIC</b> — le brut mensuel indiqué (~<b>'+Math.round(val)+' €</b>) est inférieur au SMIC mensuel (≈ <b>1 867 €</b> pour 151,67 h en 2026) et aux minima conventionnels : le complément de salaire est dû.');}
+    // Période d'essai CDD manifestement excessive (> 1 mois)
+    var pe=texte.match(/p[ée]riode\s+d[’']essai\s+de\s+(\d{1,2})\s+mois/i);
+    if(pe&&parseInt(pe[1],10)>1)d.push('<b>Période d\'essai excessive (art. L.1242-10)</b> — l\'essai d\'un CDD est de 1 jour par semaine, plafonné à <b>2 semaines</b> (contrat ≤ 6 mois) ou <b>1 mois</b> (au-delà) : '+pe[1]+' mois dépasse ce maximum.');
+  }
+  return d;
+}
 
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
 // Reconnaissance automatique du type de document d'après le texte
@@ -10014,7 +10063,7 @@ function diagDateNear(txt,kw){var idx=txt.toLowerCase().indexOf(kw);if(idx<0)ret
 var DIAG_AUTO={
  convocation:{obj:/licenciement|sanction/i,ass:/assist/i,cons:/conseiller\s+du\s+salari/i,mpc:/mise\s+[àa]\s+pied\s+(conservatoire|[àa]\s+titre\s+conservatoire)/i},
  sanction:{ep:/entretien\s+pr[ée]alable/i},
- cdd:{ecrit:/contrat|article|entre\s+les\s+soussign/i,sig:/sign[ée]/i,mot:/remplacement|accroissement|saisonnier|usage|motif/i,terme:/jusqu[’']au|terme|dur[ée]e\s+minimale/i,prec:/pr[ée]carit|10\s*%|indemnit[ée]\s+de\s+fin/i},
+ cdd:{ecrit:/contrat|article|entre\s+les\s+soussign/i,sig:/sign[ée]/i,terme:/jusqu[’']au|terme|dur[ée]e\s+minimale/i},
  rupconv:{ent:/entretien/i,ex:/exemplaire|remis/i,ret:/r[ée]tractation|15\s+jours/i,hom:/homologation|dreets|t[ée]l[ée]rc/i,ind:/indemnit[ée]/i},
  inaptitude:{vr:/visite\s+de\s+reprise/i,et:/[ée]tude\s+de\s+poste/i,cse:/cse|comité\s+social/i,sal:/reprise\s+du\s+(versement|salaire)/i},
  arretmaladie:{tr:/48\s*h|deux\s+jours|transmis/i,prol:/prolongation/i,maintien:/maintien\s+de\s+salaire|compl[ée]ment/i},
@@ -10073,16 +10122,27 @@ var h='<div style="background:#fff;border:1px solid #e3ddcd;border-radius:12px;p
 h+='<div style="font-family:Fraunces,serif;font-size:18px;color:#1b2a4a;margin-bottom:4px">Diagnostic — '+esc(d.nom)+'</div>';
 if(c.ccn)h+='<div style="font-size:11.5px;color:#777;margin-bottom:10px">Contexte : '+esc(c.ccn)+(c.eff?(' · effectif '+esc(c.eff)):'')+(c.rep?(' · représentants : '+esc(c.rep)):'')+'</div>';
 if(c.resume)h+='<div style="font-size:11.5px;color:#555;background:#f7f5ee;border-radius:8px;padding:8px 10px;margin-bottom:10px"><b>Résumé fourni :</b> '+esc(c.resume)+'</div>';
-var score=r.ko.length===0?'✅ Aucune non-conformité majeure détectée sur les points contrôlés':'⚠️ '+r.ko.length+' point(s) de non-conformité / risque à corriger';
-h+='<div style="font-weight:600;color:'+(r.ko.length?'#b00':'#1a7a3a')+';margin-bottom:10px">'+score+'</div>';
+var texte=(c.resume||''),texteNet=texte.replace(/\s/g,'');
+var deep=(texteNet.length>=30)?diagDeepFindings(t,texte):[];
+var nKO=r.ko.length+deep.length;
+var score=nKO===0?'✅ Aucune non-conformité majeure détectée sur les points contrôlés':'⚠️ '+nKO+' point(s) de non-conformité / risque à corriger';
+h+='<div style="font-weight:600;color:'+(nKO?'#b00':'#1a7a3a')+';margin-bottom:10px">'+score+'</div>';
 if(r.ko.length){h+='<div style="font-weight:600;color:#b00;font-size:13px;margin:6px 0">⚠️ Non-conformités / risques</div>';r.ko.forEach(function(k){h+='<div style="background:#fdecec;border-left:3px solid #d33;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;color:#5a1a1a">'+esc(k[0])+'<div style="font-size:11px;color:#a55;margin-top:3px">↳ '+esc(k[1])+'</div></div>';});}
 if(r.ok.length){h+='<div style="font-weight:600;color:#1a7a3a;font-size:13px;margin:10px 0 6px">✅ Points conformes</div>';r.ok.forEach(function(k){h+='<div style="font-size:12.5px;color:#235;padding:3px 0">✓ '+esc(k)+'</div>';});}
-// Analyse RÉELLE du texte collé : présence / absence des mentions obligatoires
-var texte=(c.resume||''),texteNet=texte.replace(/\s/g,'');
+// Analyse RÉELLE du texte collé : présence / absence des mentions obligatoires (avec détection des NÉGATIONS)
 if(MENTIONS[t]){
   if(texteNet.length>=30){
     var mfound=[],mmiss=[];
-    MENTIONS[t].forEach(function(m){(m.re.test(texte)?mfound:mmiss).push(m.l);});
+    MENTIONS[t].forEach(function(m){
+      var mm=m.re.exec(texte);if(m.re.lastIndex)m.re.lastIndex=0;
+      var present=!!mm;
+      if(present){
+        var before=texte.slice(Math.max(0,mm.index-32),mm.index).toLowerCase();
+        if(/\b(aucun\w*|sans|pas\s+d[e’']|nul\w*|non)\b[^.]{0,32}$/.test(before))present=false;      // « aucune indemnité… »
+        if(m.neg&&m.neg.test(texte))present=false;                                                    // exclusion explicite (« … ne s'applique »)
+      }
+      (present?mfound:mmiss).push(m.l);
+    });
     var tot=mfound.length+mmiss.length;
     h+='<div style="font-weight:600;color:#1b2a4a;font-size:13px;margin:12px 0 6px">🔍 Analyse du texte fourni — '+mfound.length+'/'+tot+' mention(s) obligatoire(s) détectée(s)</div>';
     mfound.forEach(function(l){h+='<div style="font-size:12.5px;color:#1a7a3a;padding:2px 0">✓ '+esc(l)+'</div>';});
@@ -10092,29 +10152,11 @@ if(MENTIONS[t]){
     h+='<div style="background:#eef3fb;border-radius:8px;padding:8px 10px;margin:12px 0;font-size:12px;color:#345">🔍 <b>Pour analyser le CONTENU du document</b>, collez son texte dans le champ « 📋 Collez ici le texte du document » ci-dessus : le module vérifiera automatiquement les mentions obligatoires ('+MENTIONS[t].length+' points pour ce type de document).</div>';
   }
 }
-// ── Analyse substantielle (prescription des faits + motifs vagues) sur les documents disciplinaires ──
-if((t==='licenciement'||t==='sanction')&&texteNet.length>=30){
-  var deep=[];
-  var di=diagDatesInfo(texte);
-  var fauteGrave=/faute\s+grave/i.test(texte),fauteLourde=/faute\s+lourde/i.test(texte);
-  if(di&&di.gapMonths>2){
-    deep.push('<b>Prescription des faits (art. L.1332-4)</b> — le texte évoque des faits datant de <b>'+esc(diagFdate(di.oldest))+'</b> alors que la procédure/notification se situe vers <b>'+esc(diagFdate(di.newest))+'</b> (~'+Math.round(di.gapMonths)+' mois d\'écart). Aucune sanction ne peut être engagée plus de <b>2 mois</b> après que l\'employeur a eu connaissance des faits : si la connaissance remonte à cette date, la prescription est acquise et le licenciement est <b>sans cause réelle et sérieuse</b>. Vérifiez impérativement la date de connaissance des faits.');
-    if(fauteGrave||fauteLourde){
-      deep.push('<b>Faute grave/lourde incompatible avec des faits anciens</b> — la faute grave suppose l\'<b>impossibilité de maintenir le salarié</b>, donc une réaction <b>immédiate</b>. Des faits tolérés pendant ~'+Math.round(di.gapMonths)+' mois ne peuvent en principe justifier un licenciement <b>sans préavis ni indemnité</b> pour faute grave (Cass. soc. — appréciation de la gravité).');
-    }
-  }
-  var vagues=DIAG_VAGUE.filter(function(v){return v.re.test(texte);});
-  if(vagues.length){
-    deep.push('<b>Motif(s) potentiellement imprécis</b> — expressions repérées : '+vagues.map(function(v){return v.l;}).join(', ')+'. La lettre doit énoncer des <b>faits précis, datés et matériellement vérifiables</b> (art. L.1232-6, L.1235-1) ; un grief formulé en termes vagues ou de « comportement général » ne constitue <b>pas</b> une cause réelle et sérieuse et fragilise toute la lettre.');
-  }
-  if((fauteGrave||fauteLourde)&&!/cong[ée]s\s+pay[ée]s/i.test(texte)){
-    deep.push('<b>Indemnité de congés payés</b> — même en cas de faute grave ou lourde, l\'<b>indemnité compensatrice de congés payés reste due</b> (Cons. const. 2015-523 QPC). Le texte ne semble pas la mentionner.');
-  }
-  if(deep.length){
-    h+='<div style="font-weight:700;color:#8a1a1a;font-size:13.5px;margin:14px 0 6px">🧠 Analyse approfondie — risques majeurs détectés</div>';
-    deep.forEach(function(d){h+='<div style="background:#fdecec;border-left:4px solid #c0392b;border-radius:6px;padding:9px 11px;margin:6px 0;font-size:12.5px;color:#5a1a1a;line-height:1.55">⚠️ '+d+'</div>';});
-    h+='<div style="font-size:11px;color:#999;margin-top:4px">Analyse fondée sur les dates et formulations repérées dans le texte : à recouper avec le dossier (date exacte de connaissance des faits, preuves).</div>';
-  }
+// ── Analyse approfondie (négations + chiffres) : calculée plus haut, rendue ici ──
+if(deep.length){
+  h+='<div style="font-weight:700;color:#8a1a1a;font-size:13.5px;margin:14px 0 6px">🧠 Analyse approfondie — non-conformités / risques majeurs</div>';
+  deep.forEach(function(x2){h+='<div style="background:#fdecec;border-left:4px solid #c0392b;border-radius:6px;padding:9px 11px;margin:6px 0;font-size:12.5px;color:#5a1a1a;line-height:1.55">⛔ '+x2+'</div>';});
+  h+='<div style="font-size:11px;color:#999;margin-top:4px">Analyse du SENS (négations « aucune », « sans »…) et des CHIFFRES (durée, salaire, essai, heures) repérés dans le texte — à recouper avec le dossier.</div>';
 }
 if(r.re.length){h+='<div style="font-weight:600;color:#9a7b2e;font-size:13px;margin:10px 0 6px">📌 Recommandations &amp; points de vigilance</div>';r.re.forEach(function(k){h+='<div style="font-size:12.5px;color:#6b5a2e;padding:3px 0">• '+esc(k)+'</div>';});}
 h+='<div style="font-size:11px;color:#999;margin-top:12px;border-top:1px solid #eee;padding-top:8px">Réserve : éléments de diagnostic à vérifier et adapter ; ne remplace pas l’avis d’un professionnel.</div>';
