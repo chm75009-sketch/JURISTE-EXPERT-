@@ -375,9 +375,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.27';
+var JX_BUILD = 'v2026-07-12.28';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.28', d:'12 juillet 2026', t:[
+   'Module « Analyse » — trois corrections décisives demandées par les tests utilisateur :',
+   'VERDICT COHÉRENT : dès qu\'un élément obligatoire manque, qu\'une clause est illégale ou qu\'une négation est détectée, le bandeau passe en ROUGE « document NON conforme ». Fini le vert « aucune non-conformité » affiché alors qu\'un problème était signalé juste en dessous (cas de la non-concurrence sans contrepartie).',
+   'NOUVEAU TYPE « Contrat de travail (CDI) » : un CDI n\'était analysé que comme une simple clause. Il est désormais reconnu et passé au crible en entier — période d\'essai (2/3/4 mois max, L.1221-19), salaire sous le SMIC, heures supplémentaires sans majoration, clause de mobilité sans zone géographique (nulle — Cass. 7/6/2006), clause d\'exclusivité disproportionnée (L.1121-1), clause de non-concurrence sans contrepartie (nulle — Cass. 10/7/2002), exclusion de la convention collective (L.2261-2), classification absente.',
+   'Ces vérifications de fond sont communes au CDI et au CDD. Testé sur un CDI piégé : 10 non-conformités remontées, verdict rouge (au lieu de « conforme »).'
+ ]},
  {v:'v2026-07-12.27', d:'12 juillet 2026', t:[
    'Module « Analyse » — l\'analyse passe de « le mot est là » à « le mot est là ET dans le bon sens ». Correction de fond de la détection :',
    'DÉTECTION DES NÉGATIONS : « aucune indemnité de fin de contrat », « aucune convention collective ne s\'applique », « sans majoration »… ne sont plus comptées comme des mentions présentes mais comme des NON-CONFORMITÉS. Fini les faux « ✓ conforme » quand le document dit l\'inverse.',
@@ -9696,6 +9702,20 @@ var DOCS={
    re.push('La sanction doit être proportionnée à la faute ; le règlement intérieur et la CCN peuvent prévoir une échelle des sanctions et des garanties (commission de discipline) qui s’imposent (art. L1321-1, L2251-1).');
    return {ok:ok,ko:ko,re:re};}},
 
+ contrat:{nom:'Contrat de travail (CDI)',q:[
+   {id:'poste',l:'Le poste, la qualification et le coefficient/groupe sont-ils précisés ?',t:'on'},
+   {id:'rem',l:'La rémunération atteint-elle le SMIC et le minimum conventionnel ?',t:'on'},
+   {id:'ccn',l:'La convention collective applicable est-elle visée ?',t:'on'},
+   {id:'essai',l:'La période d’essai respecte-t-elle les maxima (2/3/4 mois) ?',t:'on'},
+   {id:'sign',l:'Le contrat est-il signé des deux parties ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.poste==='non')ko.push(['Poste, qualification ou coefficient non précisés : la classification conventionnelle détermine le salaire minimum — son absence est irrégulière.','CCN IDCC 0016 · C. trav. art. L1221-5-1']);else if(x.poste==='oui')ok.push('Poste et classification précisés.');
+   if(x.rem==='non')ko.push(['Rémunération inférieure au SMIC ou au minimum conventionnel : un rappel de salaire est dû.','C. trav. art. L3231-2, L2251-1']);else if(x.rem==='oui')ok.push('Rémunération conforme aux minima.');
+   if(x.ccn==='non')ko.push(['Convention collective non visée : elle s’impose selon l’activité réelle et doit être portée à la connaissance du salarié.','C. trav. art. L2261-2, L1221-5-1']);else if(x.ccn==='oui')ok.push('Convention collective visée.');
+   if(x.essai==='non')ko.push(['Période d’essai dépassant les maxima légaux (2 mois ouvriers/employés, 3 mois AM/techniciens, 4 mois cadres) : l’excédent est nul.','C. trav. art. L1221-19 à L1221-24']);else if(x.essai==='oui')ok.push('Période d’essai conforme.');
+   if(x.sign==='oui')ok.push('Contrat signé des deux parties.');
+   re.push('Clauses sensibles (mobilité, exclusivité, non-concurrence, forfait-jours) : voir l’analyse approfondie ci-dessous — elles obéissent à des conditions strictes de validité.');
+   return {ok:ok,ko:ko,re:re};}},
  cdd:{nom:'Contrat à durée déterminée (CDD)',q:[
    {id:'ecrit',l:'Le CDD est-il établi par écrit ?',t:'on'},
    {id:'sig',l:'Est-il signé par le salarié et transmis dans les 2 jours ouvrables ?',t:'on'},
@@ -9867,7 +9887,7 @@ var DOCS={
    re.push('Depuis 2016, le principe d’unicité de l’instance est supprimé : plusieurs instances successives sont possibles. La représentation par avocat ou défenseur syndical est facultative en première instance, obligatoire en appel.');
    return {ok:ok,ko:ko,re:re};}}
 };
-var ORDER=['convocation','licenciement','sanction','cdd','rupconv','inaptitude','arretmaladie','accordent','accordbranche','pap','ri','clause','saisine'];
+var ORDER=['contrat','cdd','convocation','licenciement','sanction','rupconv','inaptitude','arretmaladie','accordent','accordbranche','pap','ri','clause','saisine'];
 
 // Analyse RÉELLE du texte collé : présence des mentions obligatoires par type de document.
 // Détection par mots-clés (une mention absente peut exister sous une autre formulation → signalée, pas affirmée).
@@ -9917,6 +9937,14 @@ var MENTIONS={
   {re:/d[ée]fense|entretien\s+pr[ée]alable|proc[ée]dure\s+disciplinaire/i,l:'Garanties de la défense (procédure disciplinaire)'},
   {re:/harc[èe]lement|agissements\s+sexistes/i,l:'Harcèlement / agissements sexistes'},
   {re:/L\.?\s*1321|inspection\s+du\s+travail|greffe|conseil\s+de\s+prud/i,l:'Formalités (dépôt / publicité)'}
+ ],
+ contrat:[
+  {re:/engag[ée]|qualit[ée]\s+de|fonction/i,l:'Engagement / fonctions'},
+  {re:/coefficient|classification|groupe|niveau/i,neg:/aucun\s+coefficient|sans\s+coefficient|sans\s+indication\s+de\s+coefficient|aucune\s+classification/i,l:'Qualification / coefficient'},
+  {re:/r[ée]mun[ée]ration|salaire\s+mensuel|brut/i,l:'Rémunération'},
+  {re:/dur[ée]e\s+du\s+travail|heures?\s+hebdomadaires?|151/i,l:'Durée du travail'},
+  {re:/convention\s+collective|idcc/i,neg:/aucune\s+convention\s+collective[^.]{0,40}(ne\s+s[’']applique|n[’']est\s+vis[ée]e)|aucune\s+convention\s+collective\s+n[’']est/i,l:'Convention collective visée'},
+  {re:/p[ée]riode\s+d[’']essai/i,l:'Période d’essai'}
  ],
  inaptitude:[
   {re:/visite\s+de\s+reprise|reprise\s+du\s+travail/i,l:'Visite de reprise (médecin du travail)'},
@@ -9998,6 +10026,26 @@ var DIAG_VAGUE=[
 // Extrait un nombre à partir d'une capture (« 1 350 » -> 1350 ; « 1.350,00 » -> 1350)
 function diagNum(s){if(!s)return null;var v=String(s).replace(/[^\d,\.]/g,'');if(v.indexOf(',')>=0){v=v.replace(/\./g,'').replace(',','.');}else if((v.match(/\./g)||[]).length>1){v=v.replace(/\./g,'');}var n=parseFloat(v);return isNaN(n)?null:n;}
 // ANALYSE DE FOND : au-delà de la présence des mots, on vérifie le SENS (négations) et les CHIFFRES (plafonds légaux)
+function diagMoisFR(s){if(s==null)return null;var w={un:1,une:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10,douze:12,quinze:15,dixhuit:18,vingt:20,'vingt-quatre':24};var k=String(s).toLowerCase().replace(/\s/g,'');if(/^\d+$/.test(k))return parseInt(k,10);return w[k]!=null?w[k]:null;}
+// Vérifications COMMUNES à tout contrat de travail (CDI comme CDD)
+function diagContractChecks(texte){
+  var d=[];
+  if(/aucun\s+coefficient|sans\s+coefficient|aucune\s+classification|sans\s+indication\s+de\s+coefficient|aucun\s+coefficient\s+ni\s+groupe/i.test(texte))
+    d.push('<b>Classification absente</b> — un <b>coefficient / groupe</b> de la convention collective doit être attribué : il fixe le minimum conventionnel ; son absence prive le salarié de la garantie de rémunération.');
+  if(/aucune\s+majoration|sans\s+majoration|ne\s+(feront|donneront?)\s+(l[’']objet\s+d[’']|lieu\s+[àa]\s+)aucune\s+(majoration|contrepartie)|d[ée]compte\s+du\s+temps\s+de\s+service\s+n[’']est\s+pas\s+applicable/i.test(texte))
+    d.push('<b>Heures supplémentaires sans majoration (L.3121-28 et s.)</b> — les heures au-delà de la durée légale ouvrent droit à majoration (ou repos compensateur) : une clause les excluant est <b>nulle</b>. En transport, le <b>décompte du temps de service</b> est obligatoire.');
+  var rm=texte.match(/r[ée]mun[ée]ration\s+mensuelle\s+brute\s+de\s+([\d\s.,]+?)\s*€/i)||texte.match(/([\d\s.,]{3,9})\s*€\s+pour\s+151/i)||texte.match(/salaire\s+mensuel\s+brut[^\d]{0,12}([\d\s.,]+?)\s*€/i);
+  if(rm){var val=diagNum(rm[1]);if(val&&val>=200&&val<1801)d.push('<b>Rémunération inférieure au SMIC</b> — le brut mensuel indiqué (~<b>'+Math.round(val)+' €</b>) est inférieur au SMIC mensuel (≈ <b>1 867 €</b> pour 151,67 h en 2026) et aux minima conventionnels : le complément de salaire est dû.');}
+  if(/aucune\s+convention\s+collective[^.]{0,40}(ne\s+s[’']applique|n[’']est\s+vis[ée]e)|aucune\s+convention\s+collective\s+n[’']est|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i.test(texte))
+    d.push('<b>Exclusion illicite de la convention collective (L.2261-2)</b> — la CCN s\'impose selon l\'activité réelle de l\'entreprise ; les parties ne peuvent pas l\'écarter, et un contrat de transport ne peut pas être « sans convention collective ».');
+  if(/clause\s+de\s+mobilit/i.test(texte)&&/sans\s+limitation\s+g[ée]ographique|en\s+tout\s+lieu|tout\s+le\s+territoire|n[’']importe\s+quel\s+lieu|sur\s+l[’']ensemble\s+du\s+territoire/i.test(texte))
+    d.push('<b>Clause de mobilité sans zone précise = nulle</b> — la clause doit définir précisément sa <b>zone géographique</b> ; l\'employeur ne peut en étendre unilatéralement la portée (Cass. soc. 7 juin 2006, n° 04-45.846). « Sans limitation géographique » la rend inopposable.');
+  if(/exclusivit[ée]/i.test(texte)&&/r[ée]mun[ée]r[ée]e?\s+ou\s+non|toute\s+autre\s+activit/i.test(texte))
+    d.push('<b>Clause d\'exclusivité trop large (L.1121-1)</b> — l\'exclusivité n\'est licite que si elle est indispensable à la protection des intérêts de l\'entreprise, justifiée par la nature de la tâche et proportionnée. Interdire « toute autre activité, rémunérée ou non » est excessif et fragilise la clause.');
+  if(/non-concurrence/i.test(texte)&&/aucune\s+contrepartie|sans\s+contrepartie|ne\s+donne\s+lieu\s+[àa]\s+aucune\s+contrepartie|pas\s+de\s+contrepartie/i.test(texte))
+    d.push('<b>Clause de non-concurrence NULLE (Cass. soc. 10 juillet 2002)</b> — sans <b>contrepartie financière</b>, la clause de non-concurrence est nulle. Vérifiez aussi qu\'elle est limitée dans le temps et l\'espace et tient compte des spécificités de l\'emploi (une interdiction « transport, 2 ans, territoire national » est en outre disproportionnée).');
+  return d;
+}
 function diagDeepFindings(t,texte){
   var d=[];
   if(t==='licenciement'||t==='sanction'){
@@ -10013,28 +10061,27 @@ function diagDeepFindings(t,texte){
   if(t==='cdd'){
     if(/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|durablement\s+un\s+poste|emploi\s+(li[ée]\s+[àa]\s+l[’']activit[ée]\s+(normale|permanente)|durable|permanent)|poste\s+permanent/i.test(texte))
       d.push('<b>Motif interdit (art. L.1242-1)</b> — le CDD vise à pourvoir un emploi lié à l\'<b>activité normale et permanente</b> de l\'entreprise : un CDD ne peut avoir ni pour objet ni pour effet de pourvoir <b>durablement</b> un tel emploi → <b>requalification en CDI</b>.');
-    // Durée : via dates OU via « X mois »
     var di2=diagDatesInfo(texte),dureeMois=null;
     if(di2&&di2.gapMonths>=1&&di2.gapMonths<=72)dureeMois=Math.round(di2.gapMonths);
-    var mm=texte.match(/dur[ée]e\s+de\s+(\d{1,2})\s+mois|(\d{1,2})\s+mois/i);
-    if(mm){var mv=parseInt(mm[1]||mm[2],10);if(mv&&(!dureeMois||Math.abs(mv-dureeMois)>2))dureeMois=mv;}
+    var mm=texte.match(/dur[ée]e\s+de\s+([\wà-ÿ-]+)\s+mois|([\wà-ÿ-]+)\s+mois/i);
+    if(mm){var mv=diagMoisFR(mm[1]||mm[2]);if(mv&&(!dureeMois||Math.abs(mv-dureeMois)>2))dureeMois=mv;}
     if(dureeMois&&dureeMois>18)d.push('<b>Durée excessive (art. L.1242-8-1)</b> — durée d\'environ <b>'+dureeMois+' mois</b> alors que la durée maximale d\'un CDD, renouvellements compris, est en principe de <b>18 mois</b> → requalification.');
     if(/renouvel\w*[^.]{0,60}(autant\s+de\s+fois|sans\s+limit|illimit|nécessaire)|sans\s+limitation\s+de\s+nombre|renouvel\w*\s+ind[ée]finiment/i.test(texte))
       d.push('<b>Renouvellements illimités (art. L.1243-13)</b> — un CDD ne peut être renouvelé que <b>2 fois</b> au maximum ; une clause de renouvellement sans limite est illicite.');
-    if(/aucune\s+convention\s+collective[^.]{0,40}ne\s+s[’']applique|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i.test(texte))
-      d.push('<b>Exclusion illicite de la convention collective (art. L.2261-2)</b> — la CCN applicable s\'impose selon l\'activité réelle de l\'entreprise ; les parties <b>ne peuvent pas l\'écarter</b> par une clause du contrat.');
     if(/aucune\s+indemnit[ée]\s+de\s+fin\s+de\s+contrat|sans\s+indemnit[ée]\s+de\s+(fin\s+de\s+contrat|pr[ée]carit)|pas\s+d[’']indemnit[ée]\s+de\s+(fin|pr[ée]carit)/i.test(texte))
       d.push('<b>Suppression illicite de l\'indemnité de précarité (art. L.1243-8)</b> — l\'indemnité de fin de contrat de <b>10 %</b> est due (sauf saisonnier, CDD d\'usage, refus d\'un CDI, poursuite en CDI, faute grave) ; une clause y renonçant est <b>nulle</b>.');
-    if(/aucune\s+majoration|sans\s+majoration|ne\s+donneront?\s+lieu\s+[àa]\s+aucune\s+(majoration|contrepartie)|d[ée]compte\s+du\s+temps\s+de\s+service\s+n[’']est\s+pas\s+applicable/i.test(texte))
-      d.push('<b>Heures supplémentaires sans majoration (art. L.3121-28 et s.)</b> — les heures au-delà de la durée légale ouvrent droit à majoration (ou repos compensateur) : une clause les excluant est <b>nulle</b>. En transport, le <b>décompte du temps de service</b> est obligatoire.');
-    if(/aucun\s+coefficient|sans\s+coefficient|aucune\s+classification|aucun\s+(coefficient\s+ni\s+groupe)/i.test(texte))
-      d.push('<b>Classification absente</b> — un <b>coefficient / groupe</b> de la convention collective doit être attribué : il fixe le minimum conventionnel ; son absence prive le salarié de la garantie de rémunération.');
-    // Rémunération sous le SMIC (SMIC mensuel 2026 ≈ 1 867 € pour 151,67 h)
-    var rm=texte.match(/r[ée]mun[ée]ration\s+mensuelle\s+brute\s+de\s+([\d\s.,]+?)\s*€/i)||texte.match(/([\d\s.,]{3,9})\s*€\s+pour\s+151/i)||texte.match(/salaire\s+mensuel\s+brut[^\d]{0,10}([\d\s.,]+?)\s*€/i);
-    if(rm){var val=diagNum(rm[1]);if(val&&val>=200&&val<1801)d.push('<b>Rémunération inférieure au SMIC</b> — le brut mensuel indiqué (~<b>'+Math.round(val)+' €</b>) est inférieur au SMIC mensuel (≈ <b>1 867 €</b> pour 151,67 h en 2026) et aux minima conventionnels : le complément de salaire est dû.');}
-    // Période d'essai CDD manifestement excessive (> 1 mois)
-    var pe=texte.match(/p[ée]riode\s+d[’']essai\s+de\s+(\d{1,2})\s+mois/i);
-    if(pe&&parseInt(pe[1],10)>1)d.push('<b>Période d\'essai excessive (art. L.1242-10)</b> — l\'essai d\'un CDD est de 1 jour par semaine, plafonné à <b>2 semaines</b> (contrat ≤ 6 mois) ou <b>1 mois</b> (au-delà) : '+pe[1]+' mois dépasse ce maximum.');
+    var peC=texte.match(/p[ée]riode\s+d[’']essai\s+de\s+([\wà-ÿ-]+)\s+mois/i);
+    if(peC){var pv=diagMoisFR(peC[1]);if(pv&&pv>1)d.push('<b>Période d\'essai excessive (art. L.1242-10)</b> — l\'essai d\'un CDD est de 1 jour par semaine, plafonné à <b>2 semaines</b> (≤ 6 mois) ou <b>1 mois</b> (au-delà) : '+pv+' mois dépasse ce maximum.');}
+    d=d.concat(diagContractChecks(texte));
+  }
+  if(t==='contrat'){
+    var peI=texte.match(/p[ée]riode\s+d[’']essai\s+de\s+([\wà-ÿ-]+)\s+mois/i);
+    if(peI){var pvi=diagMoisFR(peI[1]);if(pvi&&pvi>4)d.push('<b>Période d\'essai illégale (art. L.1221-19)</b> — l\'essai initial d\'un CDI est plafonné à <b>2 mois</b> (ouvriers/employés), <b>3 mois</b> (agents de maîtrise/techniciens) ou <b>4 mois</b> (cadres) : '+pvi+' mois est illégal. Un conducteur relève des ouvriers/employés → <b>2 mois maximum</b> (4 mois avec renouvellement si un accord de branche le prévoit).');
+      else if(pvi&&pvi>2)d.push('<b>Période d\'essai probablement excessive (art. L.1221-19)</b> — '+pvi+' mois : un conducteur relève des ouvriers/employés, dont l\'essai est plafonné à <b>2 mois</b> (renouvellement éventuel jusqu\'à 4 mois si accord de branche). Vérifiez la catégorie et l\'accord applicable.');}
+    d=d.concat(diagContractChecks(texte));
+  }
+  if(t==='clause'){
+    d=d.concat(diagContractChecks(texte));
   }
   return d;
 }
@@ -10047,6 +10094,7 @@ function diagAutoType(txt){var s=(txt||'').toLowerCase();
   if(/(convocation|nous\s+vous\s+convoquons|convoqu[ée]\s+[àa]\s+un\s+entretien|invit[ée]?\s+[àa]\s+un\s+entretien)/.test(s)&&!/notif\w*[^.]{0,40}licenciement|votre\s+licenciement\s+prend/.test(s))return 'convocation';
   if(/avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation|mutation\s+disciplinaire/.test(s))return 'sanction';
   if(/contrat\s+[àa]\s+dur[ée]e\s+d[ée]termin[ée]e|\bcdd\b/.test(s))return 'cdd';
+  if(/[àa]\s+dur[ée]e\s+ind[ée]termin[ée]e|\bcdi\b/.test(s))return 'contrat';
   if(/r[èe]glement\s+int[ée]rieur/.test(s))return 'ri';
   if(/protocole\s+d[’']accord\s+pr[eé]{1,2}lectoral|pr[eé]{1,2}lectoral|\bpap\b/.test(s))return 'pap';
   if(/clause\s+de\s+(non-concurrence|mobilit[ée]|d[ée]dit|exclusivit[ée])|convention\s+de\s+forfait|forfait[- ]jours/.test(s))return 'clause';
@@ -10123,31 +10171,34 @@ h+='<div style="font-family:Fraunces,serif;font-size:18px;color:#1b2a4a;margin-b
 if(c.ccn)h+='<div style="font-size:11.5px;color:#777;margin-bottom:10px">Contexte : '+esc(c.ccn)+(c.eff?(' · effectif '+esc(c.eff)):'')+(c.rep?(' · représentants : '+esc(c.rep)):'')+'</div>';
 if(c.resume)h+='<div style="font-size:11.5px;color:#555;background:#f7f5ee;border-radius:8px;padding:8px 10px;margin-bottom:10px"><b>Résumé fourni :</b> '+esc(c.resume)+'</div>';
 var texte=(c.resume||''),texteNet=texte.replace(/\s/g,'');
+// Mentions obligatoires (avec détection des NÉGATIONS) — calculées AVANT le verdict pour qu'elles comptent
+var mfound=[],mmiss=[],mentApplic=(MENTIONS[t]&&texteNet.length>=30);
+if(mentApplic){
+  MENTIONS[t].forEach(function(m){
+    var mm=m.re.exec(texte);if(m.re.lastIndex)m.re.lastIndex=0;
+    var present=!!mm;
+    if(present){
+      var before=texte.slice(Math.max(0,mm.index-32),mm.index).toLowerCase();
+      if(/\b(aucun\w*|sans|pas\s+d[e’']|nul\w*|non)\b[^.]{0,32}$/.test(before))present=false;      // « aucune indemnité… »
+      if(m.neg&&m.neg.test(texte))present=false;                                                    // exclusion explicite (« … ne s'applique »)
+    }
+    (present?mfound:mmiss).push(m.l);
+  });
+}
 var deep=(texteNet.length>=30)?diagDeepFindings(t,texte):[];
-var nKO=r.ko.length+deep.length;
-var score=nKO===0?'✅ Aucune non-conformité majeure détectée sur les points contrôlés':'⚠️ '+nKO+' point(s) de non-conformité / risque à corriger';
-h+='<div style="font-weight:600;color:'+(nKO?'#b00':'#1a7a3a')+';margin-bottom:10px">'+score+'</div>';
+// VERDICT : rouge dès qu'un point KO, une clause illégale (deep) OU une mention obligatoire manque
+var nKO=r.ko.length+deep.length+mmiss.length;
+var score=nKO===0?'✅ Aucune non-conformité majeure détectée sur les points contrôlés':'⛔ '+nKO+' non-conformité(s) / point(s) à corriger — document NON conforme en l’état';
+h+='<div style="font-weight:700;color:'+(nKO?'#b00':'#1a7a3a')+';margin-bottom:10px">'+score+'</div>';
 if(r.ko.length){h+='<div style="font-weight:600;color:#b00;font-size:13px;margin:6px 0">⚠️ Non-conformités / risques</div>';r.ko.forEach(function(k){h+='<div style="background:#fdecec;border-left:3px solid #d33;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12.5px;color:#5a1a1a">'+esc(k[0])+'<div style="font-size:11px;color:#a55;margin-top:3px">↳ '+esc(k[1])+'</div></div>';});}
 if(r.ok.length){h+='<div style="font-weight:600;color:#1a7a3a;font-size:13px;margin:10px 0 6px">✅ Points conformes</div>';r.ok.forEach(function(k){h+='<div style="font-size:12.5px;color:#235;padding:3px 0">✓ '+esc(k)+'</div>';});}
-// Analyse RÉELLE du texte collé : présence / absence des mentions obligatoires (avec détection des NÉGATIONS)
+// Analyse RÉELLE du texte collé : mentions obligatoires (présence tenant compte des NÉGATIONS)
 if(MENTIONS[t]){
-  if(texteNet.length>=30){
-    var mfound=[],mmiss=[];
-    MENTIONS[t].forEach(function(m){
-      var mm=m.re.exec(texte);if(m.re.lastIndex)m.re.lastIndex=0;
-      var present=!!mm;
-      if(present){
-        var before=texte.slice(Math.max(0,mm.index-32),mm.index).toLowerCase();
-        if(/\b(aucun\w*|sans|pas\s+d[e’']|nul\w*|non)\b[^.]{0,32}$/.test(before))present=false;      // « aucune indemnité… »
-        if(m.neg&&m.neg.test(texte))present=false;                                                    // exclusion explicite (« … ne s'applique »)
-      }
-      (present?mfound:mmiss).push(m.l);
-    });
+  if(mentApplic){
     var tot=mfound.length+mmiss.length;
     h+='<div style="font-weight:600;color:#1b2a4a;font-size:13px;margin:12px 0 6px">🔍 Analyse du texte fourni — '+mfound.length+'/'+tot+' mention(s) obligatoire(s) détectée(s)</div>';
     mfound.forEach(function(l){h+='<div style="font-size:12.5px;color:#1a7a3a;padding:2px 0">✓ '+esc(l)+'</div>';});
-    mmiss.forEach(function(l){h+='<div style="background:#fff4e5;border-left:3px solid #d98b00;border-radius:6px;padding:6px 9px;margin:4px 0;font-size:12.5px;color:#6b4e12">⚠️ Mention non détectée dans le texte : <b>'+esc(l)+'</b></div>';});
-    h+='<div style="font-size:11px;color:#999;margin-top:4px">Détection automatique par mots-clés dans le texte collé : une mention signalée « non détectée » peut exister sous une autre formulation — vérifiez-la avant de conclure.</div>';
+    mmiss.forEach(function(l){h+='<div style="background:#fdecec;border-left:3px solid #d33;border-radius:6px;padding:6px 9px;margin:4px 0;font-size:12.5px;color:#5a1a1a">⛔ Élément obligatoire non trouvé : <b>'+esc(l)+'</b> — s’il manque réellement, le document est non conforme (une mention peut toutefois exister sous une autre formulation : vérifiez).</div>';});
   } else {
     h+='<div style="background:#eef3fb;border-radius:8px;padding:8px 10px;margin:12px 0;font-size:12px;color:#345">🔍 <b>Pour analyser le CONTENU du document</b>, collez son texte dans le champ « 📋 Collez ici le texte du document » ci-dessus : le module vérifiera automatiquement les mentions obligatoires ('+MENTIONS[t].length+' points pour ce type de document).</div>';
   }
