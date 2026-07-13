@@ -375,9 +375,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.25';
+var JX_BUILD = 'v2026-07-12.26';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.26', d:'12 juillet 2026', t:[
+   'Module « Analyse » — la reconnaissance et l\'analyse automatiques à l\'insertion s\'appliquent désormais à TOUS les types de documents : lettre de licenciement, convocation, avertissement/sanction, CDD, rupture conventionnelle, inaptitude, arrêt maladie, accord d\'entreprise, accord/convention de branche, protocole préélectoral (PAP), clause de contrat et requête prud\'homale.',
+   'Chaque type dispose de sa liste de mentions obligatoires vérifiées dans le texte, et le questionnaire se pré-remplit automatiquement (dates, cases oui/non détectées) à partir du document importé — vous n\'avez plus qu\'à vérifier et, au besoin, corriger.',
+   'Détection plus robuste (tolérance aux accents manquants, distinction accord d\'entreprise / requête prud\'homale même quand le texte cite le conseil de prud\'hommes).'
+ ]},
  {v:'v2026-07-12.25', d:'12 juillet 2026', t:[
    'Module « Analyse » — INSÉRER UN DOCUMENT SUFFIT MAINTENANT. Dès que vous importez un PDF « texte » ou un .txt, l\'application : (1) extrait le texte, (2) RECONNAÎT automatiquement le type de document (licenciement, convocation, sanction, CDD, rupture conventionnelle, règlement intérieur…), (3) récupère les DATES (entretien, notification, faits) et (4) LANCE l\'analyse toute seule. Vous voyez le diagnostic sans rien remplir.',
    'Les dates détectées pré-remplissent le questionnaire (à vérifier d\'un coup d\'œil) ; vous pouvez toujours corriger le type ou les champs et relancer « Analyser ».',
@@ -9906,6 +9911,51 @@ var MENTIONS={
   {re:/d[ée]fense|entretien\s+pr[ée]alable|proc[ée]dure\s+disciplinaire/i,l:'Garanties de la défense (procédure disciplinaire)'},
   {re:/harc[èe]lement|agissements\s+sexistes/i,l:'Harcèlement / agissements sexistes'},
   {re:/L\.?\s*1321|inspection\s+du\s+travail|greffe|conseil\s+de\s+prud/i,l:'Formalités (dépôt / publicité)'}
+ ],
+ inaptitude:[
+  {re:/visite\s+de\s+reprise|reprise\s+du\s+travail/i,l:'Visite de reprise (médecin du travail)'},
+  {re:/inaptitude|inapte/i,l:'Constat d’inaptitude'},
+  {re:/m[ée]decin\s+du\s+travail|avis\s+(médical|d’inaptitude)/i,l:'Avis du médecin du travail'},
+  {re:/reclassement/i,l:'Recherche / offre de reclassement'},
+  {re:/cse|comité\s+social/i,l:'Consultation du CSE'},
+  {re:/impossibilit[ée]\s+de\s+reclassement|dispense|pr[ée]judiciable\s+[àa]\s+(sa|votre)\s+sant/i,l:'Motif (impossibilité ou dispense de reclassement)'}
+ ],
+ arretmaladie:[
+  {re:/arr[êe]t\s+(de\s+travail|maladie)|accident\s+du\s+travail|maladie\s+professionnelle/i,l:'Nature de l’arrêt'},
+  {re:/48\s*h|quarante-huit\s+heures|deux\s+jours/i,l:'Délai de transmission (48 h)'},
+  {re:/maintien\s+de\s+salaire|compl[ée]ment|ijss|indemnit[ée]s?\s+journali/i,l:'Maintien de salaire / IJSS'},
+  {re:/prolongation|reprise/i,l:'Prolongation / reprise (le cas échéant)'}
+ ],
+ accordent:[
+  {re:/accord\s+d’entreprise|accord\s+collectif/i,l:'Nature : accord d’entreprise'},
+  {re:/sign[ée]|signataires|syndicat|d[ée]l[ée]gu[ée]\s+syndical|majorit[ée]|50\s*%|30\s*%|référendum/i,l:'Conditions de signature / majorité'},
+  {re:/objet|dur[ée]e\s+du\s+travail|r[ée]mun[ée]ration|[ée]galit[ée]|forfait/i,l:'Objet de l’accord'},
+  {re:/d[ée]p[ôo]t|t[ée]l[ée]accords|greffe/i,l:'Dépôt (TéléAccords + greffe)'}
+ ],
+ accordbranche:[
+  {re:/convention\s+collective|accord\s+de\s+branche|idcc/i,l:'Convention / accord de branche identifié'},
+  {re:/champ\s+d’application|activit[ée]\s+principale/i,l:'Champ d’application'},
+  {re:/[ée]tendu|arr[êe]t[ée]\s+d’extension|extension/i,l:'Extension (arrêté)'},
+  {re:/minima|classification|pr[ée]voyance|[ée]galit[ée]|p[ée]nibilit/i,l:'Domaine (bloc de branche)'}
+ ],
+ pap:[
+  {re:/protocole\s+d[’']accord\s+pr[eé]{1,2}lectoral|pr[eé]{1,2}lectoral|\bpap\b/i,l:'Nature : protocole préélectoral (PAP)'},
+  {re:/organisations?\s+syndicales?|invit/i,l:'Invitation des organisations syndicales'},
+  {re:/coll[èe]ge/i,l:'Répartition par collèges'},
+  {re:/[ée]quilibr[ée]e|femmes[- ]hommes|proportion/i,l:'Représentation équilibrée femmes-hommes'},
+  {re:/double\s+majorit[ée]|majorit[ée]/i,l:'Condition de majorité'}
+ ],
+ clause:[
+  {re:/non-concurrence|mobilit[ée]|exclusivit[ée]|forfait|d[ée]dit/i,l:'Type de clause identifié'},
+  {re:/contrepartie\s+financi|indemnit[ée]/i,l:'Contrepartie financière (non-concurrence)'},
+  {re:/dur[ée]e|zone|g[ée]ographique|espace/i,l:'Limitation dans le temps / l’espace'},
+  {re:/sign[ée]|accept[ée]|avenant|contrat/i,l:'Écrit accepté (contrat / avenant)'}
+ ],
+ saisine:[
+  {re:/conseil\s+de\s+prud’hommes|prud’hom/i,l:'Juridiction (conseil de prud’hommes)'},
+  {re:/objet|demande|rappel\s+de\s+salaire|licenciement|requalification|harc[èe]lement/i,l:'Objet / chefs de demande'},
+  {re:/pi[èe]ces|bordereau/i,l:'Bordereau de pièces'},
+  {re:/prescription|d[ée]lai/i,l:'Respect des délais de prescription'}
  ]
 };
 
@@ -9949,31 +9999,54 @@ function diagAutoType(txt){var s=(txt||'').toLowerCase();
   if(/avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation|mutation\s+disciplinaire/.test(s))return 'sanction';
   if(/contrat\s+[àa]\s+dur[ée]e\s+d[ée]termin[ée]e|\bcdd\b/.test(s))return 'cdd';
   if(/r[èe]glement\s+int[ée]rieur/.test(s))return 'ri';
+  if(/protocole\s+d[’']accord\s+pr[eé]{1,2}lectoral|pr[eé]{1,2}lectoral|\bpap\b/.test(s))return 'pap';
+  if(/clause\s+de\s+(non-concurrence|mobilit[ée]|d[ée]dit|exclusivit[ée])|convention\s+de\s+forfait|forfait[- ]jours/.test(s))return 'clause';
+  if(/requ[êe]te\s+(introductive|aux\s+fins)|saisine\s+du\s+conseil\s+de\s+prud|bureau\s+de\s+conciliation\s+et\s+d[’']orientation|nous\s+saisissons\s+le\s+conseil/.test(s))return 'saisine';
+  if(/accord\s+de\s+branche|convention\s+collective\s+de\s+branche|arr[êe]t[ée]\s+d[’']extension/.test(s))return 'accordbranche';
+  if(/accord\s+d[’']entreprise|accord\s+collectif|t[ée]l[ée]accords/.test(s))return 'accordent';
   if(/inaptitude|m[ée]decin\s+du\s+travail/.test(s))return 'inaptitude';
-  if(/arr[êe]t\s+(de\s+travail|maladie)/.test(s))return 'arretmaladie';
+  if(/arr[êe]t\s+(de\s+travail|maladie)|accident\s+du\s+travail|maladie\s+professionnelle/.test(s))return 'arretmaladie';
   return '';
 }
 function diagToISO(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
 function diagDateNear(txt,kw){var idx=txt.toLowerCase().indexOf(kw);if(idx<0)return null;var a=txt.slice(Math.max(0,idx-70),idx+70);var ds=diagParseDatesFR(a);return ds.length?ds[0]:null;}
+// Détection « présent → oui » pour les questions oui/non de chaque type (jamais « non » auto : on n'affirme pas une absence)
+var DIAG_AUTO={
+ convocation:{obj:/licenciement|sanction/i,ass:/assist/i,cons:/conseiller\s+du\s+salari/i,mpc:/mise\s+[àa]\s+pied\s+(conservatoire|[àa]\s+titre\s+conservatoire)/i},
+ sanction:{ep:/entretien\s+pr[ée]alable/i},
+ cdd:{ecrit:/contrat|article|entre\s+les\s+soussign/i,sig:/sign[ée]/i,mot:/remplacement|accroissement|saisonnier|usage|motif/i,terme:/jusqu[’']au|terme|dur[ée]e\s+minimale/i,prec:/pr[ée]carit|10\s*%|indemnit[ée]\s+de\s+fin/i},
+ rupconv:{ent:/entretien/i,ex:/exemplaire|remis/i,ret:/r[ée]tractation|15\s+jours/i,hom:/homologation|dreets|t[ée]l[ée]rc/i,ind:/indemnit[ée]/i},
+ inaptitude:{vr:/visite\s+de\s+reprise/i,et:/[ée]tude\s+de\s+poste/i,cse:/cse|comité\s+social/i,sal:/reprise\s+du\s+(versement|salaire)/i},
+ arretmaladie:{tr:/48\s*h|deux\s+jours|transmis/i,prol:/prolongation/i,maintien:/maintien\s+de\s+salaire|compl[ée]ment/i},
+ ri:{cse:/cse|comité\s+social|avis\s+du\s+comité/i,it:/inspection\s+du\s+travail|greffe/i,aff:/affich|port[ée]\s+[àa]\s+la\s+connaissance/i},
+ pap:{inv:/invit|organisations?\s+syndicales?/i,col:/coll[èe]ge/i,par:/[ée]quilibr|femmes[- ]hommes|proportion/i},
+ clause:{ecrit:/sign[ée]|accept[ée]|avenant|contrat/i},
+ saisine:{ment:/pi[èe]ces|bordereau|chefs?\s+de\s+demande/i,comp:/comp[ée]tent|ressort/i}
+};
 function diagAutoFill(type,txt){
   function setV(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!=='')e.value=v;}
   var all=diagParseDatesFR(txt);all.sort(function(a,b){return a-b;});
   var newest=all.length?all[all.length-1]:null,oldest=all.length?all[0]:null;
+  // Dates + listes déroulantes spécifiques (les plus fiables)
   if(type==='licenciement'){
     var ent=diagDateNear(txt,'entretien');if(ent)setV('dq-de',diagToISO(ent));
     if(newest)setV('dq-dl',diagToISO(newest));
     setV('dq-type',/[ée]conomique/i.test(txt)?'Économique':(/faute|disciplinaire|grief|repro/i.test(txt)?'Disciplinaire':'Personnel non disciplinaire'));
-    if(/faute\s+(grave|lourde)/i.test(txt))setV('dq-fg','oui');
+    if(/faute\s+(grave|lourde)/i.test(txt))setV('dq-fg','oui'); // dq-mot laissé vide volontairement (la précision des motifs est jugée par l'analyse approfondie)
   }else if(type==='convocation'){
     var ent2=diagDateNear(txt,'entretien');if(ent2)setV('dq-de',diagToISO(ent2));
     if(newest)setV('dq-dp',diagToISO(newest));
-    setV('dq-obj',/licenciement|sanction/i.test(txt)?'oui':'');
-    setV('dq-ass',/assist/i.test(txt)?'oui':'non');
+    setV('dq-mode',/recommand/i.test(txt)?'Lettre recommandée avec AR':(/main\s+propre|d[ée]charge/i.test(txt)?'Remise en main propre contre décharge':''));
   }else if(type==='sanction'){
     if(oldest)setV('dq-df',diagToISO(oldest));
     if(newest)setV('dq-ds',diagToISO(newest));
     setV('dq-nat',/avertissement|bl[âa]me/i.test(txt)?'Avertissement / blâme':(/mise\s+[àa]\s+pied/i.test(txt)?'Mise à pied disciplinaire':(/r[ée]trograd/i.test(txt)?'Rétrogradation':'')));
+  }else if(type==='rupconv'){
+    if(oldest)setV('dq-sig','');
   }
+  // Questions oui/non : « oui » si le texte contient l'élément (jamais « non » automatique)
+  var A=DIAG_AUTO[type];
+  if(A&&DOCS[type]){DOCS[type].q.forEach(function(q){if(q.t==='on'&&A[q.id]&&A[q.id].test(txt))setV('dq-'+q.id,'oui');});}
 }
 function diagAutoAnalyse(txt){
   var ty=document.getElementById('diag-type');var guess=diagAutoType(txt);
