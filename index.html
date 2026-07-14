@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.42';
+var JX_BUILD = 'v2026-07-12.43';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -944,6 +944,7 @@ async function verifierCode(){
 }
 // ===== Accueil public (vitrine) : affiché avant le code, sauf si déjà déverrouillé =====
 var ABO_EMAIL = 'r.t.h@orange.fr'; // adresse qui reçoit les demandes d'abonnement
+var WEB3_KEY = 'c6f1d9e3-470a-4176-a5f7-46c3ffc20744'; // clé Web3Forms (envoi des demandes → ABO_EMAIL)
 function _accueilHideAll(){
   ['accueil-screen','lock-screen','abo-screen'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
 }
@@ -980,10 +981,6 @@ function aboSubmit(){
   if(!nom||!ent||!sec||!mail){ if(err) err.textContent='Merci de renseigner les champs obligatoires (*).'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ if(err) err.textContent='Adresse email invalide.'; return; }
   if(err) err.textContent='';
-  var btn=document.querySelector('#abo-form .a-btn');
-  if(btn){ btn.disabled=true; btn.dataset._t=btn.textContent; btn.textContent='Envoi en cours…'; btn.style.opacity='.7'; }
-  var payload={ Nom:nom, Entreprise:ent, Secteur:(SECL_ABO[sec]||sec), Email:mail, 'Téléphone':(tel||'—'),
-    _subject:'Demande d\'accès Juris Expert MCH — '+ent, _template:'table', _captcha:'false', _replyto:mail };
   var show=function(ic,h2,p){
     var f=document.getElementById('abo-form'); if(f) f.style.display='none';
     var eic=document.getElementById('abo-ok-ic'); if(eic) eic.textContent=ic;
@@ -991,34 +988,36 @@ function aboSubmit(){
     var ep=document.getElementById('abo-ok-p'); if(ep) ep.innerHTML=p;
     var k=document.getElementById('abo-ok'); if(k) k.style.display='block'; try{ window.scrollTo(0,0); }catch(e){}
   };
-  var fail=function(){
-    if(btn){ btn.disabled=false; btn.textContent=btn.dataset._t||'Envoyer ma demande →'; btn.style.opacity=''; }
-    if(err){ err.innerHTML='Envoi impossible (pas de connexion ?). Vous pouvez nous écrire directement : <a href="'+_aboMailtoFallback(nom,ent,sec,mail,tel)+'" style="color:#1f5a49;font-weight:700">ouvrir un email</a>.'; }
+  var btn=document.querySelector('#abo-form .a-btn');
+  if(btn){ btn.disabled=true; btn.dataset._t=btn.textContent; btn.textContent='Envoi en cours…'; btn.style.opacity='.7'; }
+  var relance=function(){ if(btn){ btn.disabled=false; btn.textContent=btn.dataset._t||'Envoyer ma demande →'; btn.style.opacity=''; } };
+  var link=_aboMailtoFallback(nom,ent,sec,mail,tel);
+  var bstyle='display:inline-block;margin-top:6px;background:#1f5a49;color:#f3ead4;border-radius:11px;padding:12px 18px;font-weight:700;text-decoration:none';
+  // Envoi automatique via Web3Forms → boîte r.t.h@orange.fr (aucune activation, sans quitter l'app).
+  var payload={
+    access_key: WEB3_KEY,
+    subject: 'Demande d\'accès Juris Expert MCH — '+ent,
+    from_name: 'Juris Expert MCH — Abonnement',
+    replyto: mail,
+    'Nom': nom, 'Entreprise': ent, 'Secteur': (SECL_ABO[sec]||sec), 'Email du client': mail, 'Téléphone': (tel||'—')
   };
-  var esc=function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
-  var mkBody=function(){ var b=new URLSearchParams(); Object.keys(payload).forEach(function(k){ b.append(k, payload[k]); }); return b; };
-  // Envoi "aveugle" à l'endpoint standard (mode no-cors) : atteint TOUJOURS le serveur.
-  // 1er envoi → déclenche l'email d'ACTIVATION ; après activation → DÉLIVRE la demande.
-  var declencherActivation=function(){ try{ fetch('https://formsubmit.co/'+ABO_EMAIL, {method:'POST', mode:'no-cors', body:mkBody()}); }catch(e){} };
   try{
-    fetch('https://formsubmit.co/ajax/'+ABO_EMAIL, {
-      method:'POST', headers:{'Accept':'application/json'}, body:mkBody()
-    }).then(function(r){ return r.text().then(function(t){ return {status:r.status, text:t}; }); })
-      .then(function(o){
-        var j=null; try{ j=JSON.parse(o.text); }catch(e){}
-        var msg = (j && j.message) ? String(j.message) : '';
-        var succ = j && (j.success===true || j.success==='true' || (o.status===200 && /sent|success/i.test(msg)));
-        if(succ){
-          show('✅','Demande envoyée','Merci. Votre demande a été transmise. Vous recevrez votre <b>mot de passe</b> par email. Vous pourrez alors le saisir via « J\'ai déjà un code ».');
+    fetch('https://api.web3forms.com/submit', {
+      method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)
+    }).then(function(r){ return r.json().catch(function(){ return null; }); })
+      .then(function(j){
+        if(j && (j.success===true || j.success==='true')){
+          show('✅','Demande envoyée','Merci. Votre demande a bien été transmise. Vous recevrez votre <b>mot de passe</b> par email, que vous pourrez saisir via « J\'ai déjà un code ».');
         } else {
-          // Non abouti (typiquement HTTP 500 « Server Error » = adresse pas encore activée) :
-          // on déclenche l'email d'activation en tâche de fond, sans quitter l'app.
-          declencherActivation();
-          show('📧','Demande transmise — 1 activation à faire','Votre demande est partie. <b>S\'il s\'agit du tout premier envoi</b>, un email d\'<b>activation</b> vient d\'arriver sur l\'adresse de réception : il suffit de <b>cliquer son lien une seule fois</b> (pensez aux spams). Ensuite, toutes les demandes sont délivrées automatiquement.');
+          relance();
+          show('📧','Demande à confirmer','L\'envoi automatique n\'a pas abouti. Vous pouvez nous adresser votre demande directement :<br><br><a href="'+link+'" style="'+bstyle+'">Envoyer par email &rsaquo;</a>');
         }
       })
-      .catch(function(){ declencherActivation(); fail(); });
-  }catch(e){ fail(); }
+      .catch(function(){
+        relance();
+        show('📧','Pas de connexion ?','L\'envoi automatique a échoué. Vous pouvez nous adresser votre demande directement :<br><br><a href="'+link+'" style="'+bstyle+'">Envoyer par email &rsaquo;</a>');
+      });
+  }catch(e){ relance(); show('📧','Demande à confirmer','<a href="'+link+'" style="'+bstyle+'">Envoyer par email &rsaquo;</a>'); }
 }
 // Contrôle-minute = seul module gratuit (sans code)
 function accueilTrial(){
