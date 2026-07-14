@@ -369,15 +369,196 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       onkeydown="if(event.key==='Enter')verifierCode()"/>
     <button onclick="verifierCode()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#d4a017;color:#000;font-weight:700;font-size:15px;cursor:pointer">Déverrouiller</button>
     <div id="lock-error" style="color:#e05c5c;font-size:12px;margin-top:10px;min-height:16px"></div>
+    <div style="margin-top:16px"><a href="#" onclick="accueilShow();return false" style="color:#9a9585;font-size:12px;text-decoration:none">← Retour à l'accueil</a></div>
+  </div>
+</div>
+
+<!-- ═══ PAGE D'ACCUEIL PUBLIQUE (vitrine — avant le code) ═══ -->
+<style>
+  #accueil-screen{position:fixed;inset:0;z-index:99990;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;
+    --paper:#f4efe4;--paper2:#ece4d4;--card:#fffdf7;--ink:#23282b;--ink2:#454d50;--muted:#807b6f;
+    --green:#1f5a49;--green-d:#163f33;--green-l:#2c6f5b;--brass:#b0863a;--brass-l:#d5ad5c;--cream:#f3ead4;
+    --line:#e6dcc6;--line-soft:#efe7d6;--ok:#3f8f6c;--warn:#b9852b;--alert:#c0564d;--r:16px;
+    --sh:0 1px 2px rgba(60,48,24,.05),0 14px 30px -20px rgba(60,48,24,.28);--sh-green:0 18px 38px -18px rgba(20,55,44,.55);
+    background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  #accueil-screen *{box-sizing:border-box}
+  #accueil-screen .col{max-width:520px;margin:0 auto;padding:0 16px 42px}
+  #accueil-screen .serif{font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
+  #accueil-screen header{padding:18px 2px 14px;display:flex;align-items:center;justify-content:space-between}
+  #accueil-screen .brand{display:flex;align-items:center;gap:11px}
+  #accueil-screen .mono{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;
+    background:linear-gradient(150deg,var(--green-l),var(--green-d));color:var(--brass-l);
+    font-family:Georgia,serif;font-weight:700;font-size:13.5px;letter-spacing:.5px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.12)}
+  #accueil-screen .brand-t .n{font-family:Georgia,serif;font-size:18px;font-weight:700;line-height:1.05}
+  #accueil-screen .brand-t .s{font-size:10.5px;color:var(--muted);letter-spacing:.6px;margin-top:2px;text-transform:uppercase}
+  #accueil-screen .menu{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--card);color:var(--ink2);display:grid;place-items:center;font-size:16px;cursor:pointer}
+  #accueil-screen .hact{display:flex;align-items:center;gap:8px}
+  #accueil-screen .login{font-size:12px;font-weight:700;color:var(--green);background:var(--card);border:1px solid color-mix(in srgb,var(--green) 34%,transparent);
+    border-radius:100px;padding:8px 13px;text-decoration:none;white-space:nowrap;cursor:pointer}
+  #accueil-screen .heroband{position:relative;border-radius:22px;overflow:hidden;color:var(--cream);
+    background:radial-gradient(120% 130% at 85% 0%,var(--green-l) 0%,var(--green) 42%,var(--green-d) 100%);box-shadow:var(--sh-green);padding:26px 22px 24px;margin-top:2px}
+  #accueil-screen .heroband::after{content:"⚖";position:absolute;right:-14px;bottom:-30px;font-size:150px;line-height:1;color:rgba(255,255,255,.055);pointer-events:none;font-family:Georgia,serif}
+  #accueil-screen .heroband::before{content:"";position:absolute;inset:0;border-radius:22px;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(213,173,92,.16)}
+  #accueil-screen .kick{display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--brass-l);border:1px solid rgba(213,173,92,.32);border-radius:100px;padding:5px 11px;margin-bottom:15px}
+  #accueil-screen .kick .dot{width:6px;height:6px;border-radius:50%;background:var(--brass-l);box-shadow:0 0 0 3px rgba(213,173,92,.2)}
+  #accueil-screen .heroband h1{font-family:Georgia,serif;font-weight:700;font-size:30px;line-height:1.14;margin:0;letter-spacing:-.3px;text-wrap:balance}
+  #accueil-screen .heroband h1 em{font-style:italic;color:var(--brass-l)}
+  #accueil-screen .heroband p{color:rgba(243,234,212,.82);font-size:13.5px;line-height:1.6;margin:12px 0 0;max-width:46ch}
+  #accueil-screen .secrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
+  #accueil-screen .sec{font-size:11px;color:var(--cream);background:rgba(255,255,255,.09);border:1px solid rgba(243,234,212,.16);border-radius:100px;padding:5px 11px}
+  #accueil-screen .sec.on{color:var(--green-d);background:var(--brass-l);border-color:var(--brass-l);font-weight:700}
+  #accueil-screen .access{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:14px;padding:11px 14px;background:var(--card);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh);font-size:11.5px}
+  #accueil-screen .access .af{color:var(--green);font-weight:700}
+  #accueil-screen .access .sep{width:1px;height:14px;background:var(--line)}
+  #accueil-screen .access .lk{color:var(--muted)}
+  #accueil-screen .lab{display:flex;align-items:center;gap:11px;margin:28px 2px 13px}
+  #accueil-screen .lab h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;margin:0;color:var(--brass)}
+  #accueil-screen .lab .rule{height:1px;flex:1;background:linear-gradient(90deg,var(--line),transparent)}
+  #accueil-screen .feat{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);padding:18px 17px;position:relative;overflow:hidden}
+  #accueil-screen .feat::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--green),var(--brass))}
+  #accueil-screen .feat .top{display:flex;align-items:center;gap:13px}
+  #accueil-screen .feat .fic{width:50px;height:50px;border-radius:14px;flex:none;display:grid;place-items:center;font-size:23px;background:linear-gradient(155deg,var(--green-l),var(--green-d));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+  #accueil-screen .feat .ft{font-family:Georgia,serif;font-size:19px;font-weight:700;line-height:1.1}
+  #accueil-screen .feat .star{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--brass);background:color-mix(in srgb,var(--brass) 12%,transparent);border:1px solid color-mix(in srgb,var(--brass) 30%,transparent);border-radius:100px;padding:3px 9px;margin-top:6px}
+  #accueil-screen .feat .fp{font-size:12.5px;color:var(--ink2);line-height:1.55;margin:13px 0 0}
+  #accueil-screen .steps{display:flex;margin:16px 0 2px;overflow-x:auto;padding-bottom:5px}
+  #accueil-screen .steps .st{flex:none;text-align:center;min-width:58px;position:relative}
+  #accueil-screen .steps .st .d{width:11px;height:11px;border-radius:50%;background:var(--green);margin:0 auto 6px;position:relative;z-index:1;box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 16%,transparent)}
+  #accueil-screen .steps .st:not(:last-child)::after{content:"";position:absolute;top:5px;left:50%;width:100%;height:2px;background:var(--line)}
+  #accueil-screen .steps .st .j{font-size:9.5px;font-weight:700;color:var(--green);letter-spacing:.2px}
+  #accueil-screen .steps .st .n{font-size:9px;color:var(--muted);margin-top:2px;line-height:1.25}
+  #accueil-screen .docgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}
+  #accueil-screen .doc{font-size:10.5px;color:var(--ink2);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:4px 9px}
+  #accueil-screen .statline{display:flex;gap:9px;margin-top:14px}
+  #accueil-screen .stat{flex:1;text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:11px 6px}
+  #accueil-screen .stat .sv{font-family:Georgia,serif;font-size:18px;font-weight:700;color:var(--green);line-height:1}
+  #accueil-screen .stat .sk{font-size:9.5px;color:var(--muted);margin-top:5px;line-height:1.25}
+  #accueil-screen .feat .legal{font-size:11px;color:var(--muted);line-height:1.5;margin-top:13px;border-top:1px solid var(--line-soft);padding-top:11px}
+  #accueil-screen .feat .legal b{color:var(--ink2)}
+  #accueil-screen .cta{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:15px;background:var(--green);color:var(--cream);border-radius:12px;padding:13px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;box-shadow:0 10px 20px -12px rgba(20,55,44,.6)}
+  #accueil-screen .flag{display:flex;flex-direction:column;gap:11px}
+  #accueil-screen .fc{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);text-decoration:none;color:inherit;cursor:pointer;transition:transform .16s ease,border-color .16s ease}
+  #accueil-screen .fc:hover{transform:translateY(-1px);border-color:var(--brass)}
+  #accueil-screen .fc .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:color-mix(in srgb,var(--c,var(--green)) 12%,transparent);border:1px solid color-mix(in srgb,var(--c,var(--green)) 28%,transparent)}
+  #accueil-screen .fc .tt{font-family:Georgia,serif;font-size:15.5px;font-weight:700}
+  #accueil-screen .fc .dd{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}
+  #accueil-screen .fc .chev{color:var(--brass);font-size:19px;flex:none}
+  #accueil-screen .chip{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.3px;padding:3px 9px;border-radius:100px;margin-top:8px;background:color-mix(in srgb,var(--c) 12%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 28%,transparent)}
+  #accueil-screen .chip .pt{width:6px;height:6px;border-radius:50%;background:var(--c)}
+  #accueil-screen .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  #accueil-screen .tile{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px 14px;text-decoration:none;color:inherit;min-height:120px;display:flex;flex-direction:column;box-shadow:var(--sh);cursor:pointer;transition:transform .16s ease,border-color .16s ease}
+  #accueil-screen .tile:hover{transform:translateY(-2px);border-color:var(--brass)}
+  #accueil-screen .tile .badge{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;margin-bottom:auto;background:color-mix(in srgb,var(--green) 9%,transparent);border:1px solid color-mix(in srgb,var(--green) 22%,transparent)}
+  #accueil-screen .tile .tn{font-family:Georgia,serif;font-weight:700;font-size:14.5px;line-height:1.2;margin-top:12px}
+  #accueil-screen .tile .td{font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px}
+  #accueil-screen .tile .go{position:absolute;top:14px;right:13px;color:var(--brass);font-size:15px;opacity:.75}
+  #accueil-screen .trust{margin-top:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 16px;display:flex;flex-direction:column;gap:9px;box-shadow:var(--sh)}
+  #accueil-screen .trust .row{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.45}
+  #accueil-screen .trust .row .k{color:var(--green);flex:none;font-weight:700}
+  #accueil-screen .trust .row b{color:var(--ink)} #accueil-screen .trust .row span{color:var(--muted)}
+  #accueil-screen footer{margin-top:22px;text-align:center;color:var(--muted);font-size:11px;line-height:1.7}
+  #accueil-screen footer b{color:var(--brass);font-weight:600}
+  @media (max-width:360px){#accueil-screen .heroband h1{font-size:26px}}
+</style>
+<div id="accueil-screen">
+  <div class="col">
+    <header>
+      <div class="brand">
+        <div class="mono">MCH</div>
+        <div class="brand-t"><div class="n">Juris Expert MCH</div><div class="s">Droit du travail · Tous secteurs</div></div>
+      </div>
+      <div class="hact"><a class="login" onclick="accueilShowLock();return false">Se connecter</a><div class="menu" onclick="accueilShowLock()">☰</div></div>
+    </header>
+
+    <section class="heroband">
+      <span class="kick"><span class="dot"></span>Base à jour au 12 juillet 2026</span>
+      <h1 class="serif">Votre juriste du travail, <em>dans la poche.</em></h1>
+      <p>Embauche, rupture, discipline, paie, représentation du personnel : chaque situation devient une suite de questions simples — et les bons documents sortent, prêts à signer.</p>
+      <div class="secrow">
+        <span class="sec on">Transport</span><span class="sec">Banque</span><span class="sec">Assurances</span>
+        <span class="sec">Syntec</span><span class="sec">Enseignement</span><span class="sec">+ autres</span>
+      </div>
+    </section>
+
+    <div class="access">
+      <span class="af">🔓 Contrôle-minute <b>gratuit</b>, sans code</span>
+      <span class="sep"></span>
+      <span class="lk">🔒 Autres modules réservés aux abonnés — code communiqué à l'inscription</span>
+    </div>
+
+    <div class="lab"><h2>Les modules phares</h2><div class="rule"></div></div>
+
+    <div class="feat">
+      <div class="top"><div class="fic">🗳️</div><div><div class="ft serif">Élections du CSE, de A à Z</div></div></div>
+      <p class="fp">De l'obligation à 11 salariés jusqu'au procès-verbal : l'application déroule tout le calendrier légal, calcule les délais à rebours et génère chaque pièce — sans rien oublier.</p>
+      <div class="steps">
+        <div class="st"><div class="d"></div><div class="j">J−90</div><div class="n">Info personnel</div></div>
+        <div class="st"><div class="d"></div><div class="j">J−78</div><div class="n">Invit. syndicats</div></div>
+        <div class="st"><div class="d"></div><div class="j">J−60</div><div class="n">Négo PAP</div></div>
+        <div class="st"><div class="d"></div><div class="j">J−15</div><div class="n">Candidatures</div></div>
+        <div class="st"><div class="d"></div><div class="j">J−7</div><div class="n">Convocations</div></div>
+        <div class="st"><div class="d"></div><div class="j">J 0</div><div class="n">1ᵉʳ tour</div></div>
+        <div class="st"><div class="d"></div><div class="j">J+15</div><div class="n">2ᵉ tour</div></div>
+      </div>
+      <div class="docgrid">
+        <span class="doc">Calendrier rétroplanning</span><span class="doc">Invitation OSR</span><span class="doc">Note d'info</span>
+        <span class="doc">Protocole PAP</span><span class="doc">Convocations</span><span class="doc">Bulletins</span>
+        <span class="doc">Émargement</span><span class="doc">PV 1ᵉʳ tour</span><span class="doc">PV 2ᵉ tour</span>
+        <span class="doc">PV de carence</span><span class="doc">Affichage</span><span class="doc">+ 4 autres</span>
+      </div>
+      <div class="legal">Tout est calculé : <b>quorum sur les votants</b> (L.2314-29), <b>répartition des sièges</b> (R.2314-1), <b>parité femmes-hommes</b> (L.2314-30), <b>double majorité du PAP</b>, <b>transmission au CTEP</b> sous 15 jours.</div>
+      <a class="cta" onclick="accueilShowLock();return false">Ouvrir le module Élections CSE →</a>
+    </div>
+
+    <div class="feat" style="margin-top:12px">
+      <div class="top"><div class="fic">🔎</div><div><div class="ft serif">Lecture &amp; analyse de documents</div><span class="star">★ Anti-contentieux</span></div></div>
+      <p class="fp">Importez un contrat, une lettre, un CDD, un accord : l'application lit le texte et vérifie ce qui déclenche les litiges — mentions obligatoires, <b>délais</b>, <b>prescriptions</b>, régularité des procédures — puis signale chaque piège <b>avant</b> la signature.</p>
+      <div class="statline">
+        <div class="stat"><div class="sv">1&nbsp;300+</div><div class="sk">questions de contrôle</div></div>
+        <div class="stat"><div class="sv">Délais</div><div class="sk">&amp; prescriptions</div></div>
+        <div class="stat"><div class="sv">Pièges</div><div class="sk">clauses nulles détectées</div></div>
+      </div>
+      <div class="legal">Repère les <b>négations</b> (« aucune indemnité de fin de contrat… »), les <b>faits hors délai</b> (prescription 2 mois — L.1332-4), les <b>clauses nulles</b> (non-concurrence sans contrepartie…) et les <b>salaires sous le minimum</b>.</div>
+      <a class="cta" onclick="accueilShowLock();return false">Analyser un document →</a>
+    </div>
+
+    <div class="lab"><h2>Pilotage &amp; conformité</h2><div class="rule"></div></div>
+    <div class="flag">
+      <a class="fc" style="--c:var(--ok)" onclick="accueilTrial();return false"><div class="ic">🎯</div><div><div class="tt">Contrôle-minute</div><div class="dd">Prêt pour un contrôle URSSAF ou inspection ? Questions ciblées, score de conformité, plan d'action.</div><span class="chip"><span class="pt"></span>Essai gratuit · sans code</span></div><div class="chev">›</div></a>
+      <a class="fc" style="--c:var(--alert)" onclick="accueilShowLock();return false"><div class="ic">🔔</div><div><div class="tt">Alertes d'échéances</div><div class="dd">Titres, habilitations, visites médicales : les dates limites de vos salariés, surveillées.</div><span class="chip"><span class="pt"></span>3 à renouveler</span></div><div class="chev">🔒</div></a>
+    </div>
+
+    <div class="lab"><h2>Que voulez-vous faire&nbsp;?</h2><div class="rule"></div></div>
+    <div class="grid">
+      <a class="tile" onclick="accueilShowLock();return false"><span class="go">🔒</span><div class="badge">🧑‍💼</div><div class="tn">J'embauche</div><div class="td">CDI, CDD, apprentissage — le bon contrat, guidé.</div></a>
+      <a class="tile" onclick="accueilShowLock();return false"><span class="go">🔒</span><div class="badge">🚪</div><div class="tn">Je romps un contrat</div><div class="td">Licenciement, rupture conv., inaptitude, CDD.</div></a>
+      <a class="tile" onclick="accueilShowLock();return false"><span class="go">🔒</span><div class="badge">⚖️</div><div class="tn">Discipline</div><div class="td">La sanction juste, la procédure, les lettres.</div></a>
+      <a class="tile" onclick="accueilShowLock();return false"><span class="go">🔒</span><div class="badge">🧮</div><div class="tn">Calculs</div><div class="td">Rémunération, indemnités, coût employeur.</div></a>
+      <a class="tile" onclick="accueilShowLock();return false"><span class="go">🔒</span><div class="badge">📋</div><div class="tn">Contrats &amp; modèles</div><div class="td">DPAE, fiche de poste, règlement intérieur…</div></a>
+      <a class="tile" onclick="accueilShowLock();return false"><span class="go">🔒</span><div class="badge">📚</div><div class="tn">FAQ &amp; jurisprudence</div><div class="td">Vos droits et obligations, expliqués.</div></a>
+    </div>
+
+    <div class="trust">
+      <div class="row"><span class="k">✓</span><div><b>Multisectoriel.</b> <span>Votre convention collective (transport, banque, assurances, Syntec…) pilote chaque réponse et chaque document.</span></div></div>
+      <div class="row"><span class="k">✓</span><div><b>Sources officielles.</b> <span>Code du travail, conventions collectives, jurisprudence de la Cour de cassation — vérifiées sur Légifrance.</span></div></div>
+    </div>
+
+    <footer>Conçu par <b>Mounir CHIKHAOUI</b><br>Outil d'aide à la décision — ne constitue pas un conseil juridique (loi n° 71-1130 du 31/12/1971).</footer>
   </div>
 </div>
 
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.34';
+var JX_BUILD = 'v2026-07-12.35';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.35', d:'14 juillet 2026', t:[
+   'NOUVELLE PAGE D\'ACCUEIL (vitrine publique). À l\'ouverture, l\'application présente désormais une page de présentation multisectorielle — modules phares (Élections du CSE de A à Z ; Lecture & analyse de documents, 1 300+ questions anti-contentieux), secteurs couverts (transport, banque, assurances, Syntec, enseignement…), et gages de sérieux (sources officielles, Légifrance).',
+   'ACCÈS FREEMIUM. Le « Contrôle-minute » (auto-audit de conformité) reste GRATUIT et accessible sans code depuis la vitrine. Tous les autres modules sont réservés aux abonnés : un clic ouvre l\'écran de code (inchangé), puis l\'application complète.',
+   'Mise à jour automatique : l\'application installée bascule d\'elle-même sur la nouvelle présentation, sans réinstallation.'
+ ]},
  {v:'v2026-07-12.32', d:'12 juillet 2026', t:[
    'Revue exhaustive (2/…) — LOGIQUE & CALCULS.',
    'CSE — calcul du quorum corrigé : il se calcule sur les VOTANTS (bulletins dans l\'urne, blancs et nuls compris), et non sur les suffrages exprimés. Le champ et le résultat parlent désormais de « votants » (L.2314-29).',
@@ -643,20 +824,24 @@ async function verifierCode(){
   const err = document.getElementById('lock-error');
   const h = await _sha256(inp.value);
   if(h === _ADMIN_HASH){
-    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); }catch(e){}
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
+    var _a0=document.getElementById('accueil-screen'); if(_a0) _a0.style.display='none';
   } else if(_SECTOR_CODES[h]){
-    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _SECTOR_CODES[h]); sessionStorage.removeItem('jte_admin'); }catch(e){}
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _SECTOR_CODES[h]); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
+    var _a1=document.getElementById('accueil-screen'); if(_a1) _a1.style.display='none';
     try{ var _s=_SECTOR_CODES[h], _sel=document.getElementById('ins-secteur'); if(_sel){ _sel.value=_s; _sel.disabled=true; } }catch(e){}
     try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
   } else if(h === _CODE_HASH){
-    try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
+    var _a2=document.getElementById('accueil-screen'); if(_a2) _a2.style.display='none';
   } else if(h === _TEMP_HASH){
     if(Date.now() <= _TEMP_EXPIRY){
-      try{ sessionStorage.setItem('jte_ok','1'); }catch(e){}
+      try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.removeItem('jte_trial'); }catch(e){}
       document.getElementById('lock-screen').style.display = 'none';
+      var _a3=document.getElementById('accueil-screen'); if(_a3) _a3.style.display='none';
     } else {
       err.textContent = 'Code temporaire expiré';
       inp.value = ''; inp.focus();
@@ -667,11 +852,34 @@ async function verifierCode(){
     inp.focus();
   }
 }
+// ===== Accueil public (vitrine) : affiché avant le code, sauf si déjà déverrouillé =====
+function accueilShow(){
+  var a=document.getElementById('accueil-screen'); if(a) a.style.display='block';
+  var l=document.getElementById('lock-screen'); if(l) l.style.display='none';
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+function accueilShowLock(){
+  var a=document.getElementById('accueil-screen'); if(a) a.style.display='none';
+  var l=document.getElementById('lock-screen'); if(l) l.style.display='flex';
+  setTimeout(function(){ var i=document.getElementById('lock-input'); if(i) i.focus(); }, 80);
+}
+// Contrôle-minute = seul module gratuit (sans code)
+function accueilTrial(){
+  try{ sessionStorage.setItem('jte_trial','1'); }catch(e){}
+  var a=document.getElementById('accueil-screen'); if(a) a.style.display='none';
+  var l=document.getElementById('lock-screen'); if(l) l.style.display='none';
+  try{ var ins=document.getElementById('pg-inscription'); if(ins) ins.style.display='none'; }catch(e){}
+  try{ var app=document.getElementById('pg-app'); if(app) app.style.display='block'; }catch(e){}
+  try{ goPage('audit'); }catch(e){}
+}
 try{
   if(sessionStorage.getItem('jte_ok') === '1'){
     document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('accueil-screen').style.display = 'none';
   } else {
-    setTimeout(() => { const i = document.getElementById('lock-input'); if(i) i.focus(); }, 100);
+    // Visiteur non abonné : on présente la vitrine (pas l'écran de code directement)
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('accueil-screen').style.display = 'block';
   }
 }catch(e){}
 </script>
@@ -4030,6 +4238,14 @@ function addMois(ds,n){if(!ds)return null;const d=new Date(ds);d.setMonth(d.getM
 function joursRestants(ds){if(!ds)return null;return Math.round((new Date(ds)-new Date())/(1000*60*60*24));}
 
 function goPage(id){
+  // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
+  try{
+    if(sessionStorage.getItem('jte_ok') !== '1'){
+      if(id==='home'){ if(typeof accueilShow==='function'){ accueilShow(); return; } }
+      var _free={audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1};
+      if(!_free[id]){ if(typeof accueilShowLock==='function'){ accueilShowLock(); return; } }
+    }
+  }catch(e){}
   sauvegarderEtat();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.getElementById('pg-'+id)?.classList.add('act');
