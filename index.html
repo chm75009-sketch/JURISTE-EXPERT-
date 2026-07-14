@@ -619,11 +619,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
           <a onclick="accueilShow()">← Accueil</a>
           <a class="strong" onclick="accueilShowLock()">J'ai déjà un code →</a>
         </div>
+        <div id="abo-stamp" style="text-align:center;font-size:10px;color:#b3ab99;margin-top:14px"></div>
       </div>
       <div id="abo-ok" class="a-ok">
-        <div class="ic">✅</div>
-        <h2>Demande envoyée</h2>
-        <p>Merci. Votre demande a été transmise. Vous recevrez votre <b>mot de passe</b> par email. Vous pourrez alors le saisir via « J'ai déjà un code ».</p>
+        <div class="ic" id="abo-ok-ic">✅</div>
+        <h2 id="abo-ok-h2">Demande envoyée</h2>
+        <p id="abo-ok-p">Merci. Votre demande a été transmise. Vous recevrez votre <b>mot de passe</b> par email. Vous pourrez alors le saisir via « J'ai déjà un code ».</p>
         <div class="a-links" style="justify-content:center;gap:22px;margin-top:18px">
           <a onclick="accueilShow()">← Retour à l'accueil</a>
           <a class="strong" onclick="accueilShowLock()">Saisir mon code →</a>
@@ -636,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.39';
+var JX_BUILD = 'v2026-07-12.40';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -961,6 +962,7 @@ function accueilShowAbo(){
   _accueilHideAll();
   var f=document.getElementById('abo-form'); if(f) f.style.display='';
   var k=document.getElementById('abo-ok'); if(k) k.style.display='none';
+  var st=document.getElementById('abo-stamp'); if(st){ try{ st.textContent=(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+' · envoi → '+ABO_EMAIL; }catch(e){} }
   var a=document.getElementById('abo-screen'); if(a) a.style.display='block';
   try{ window.scrollTo(0,0); }catch(e){}
   setTimeout(function(){ var i=document.getElementById('abo-nom'); if(i) i.focus(); }, 80);
@@ -982,8 +984,13 @@ function aboSubmit(){
   if(btn){ btn.disabled=true; btn.dataset._t=btn.textContent; btn.textContent='Envoi en cours…'; btn.style.opacity='.7'; }
   var payload={ Nom:nom, Entreprise:ent, Secteur:(SECL_ABO[sec]||sec), Email:mail, 'Téléphone':(tel||'—'),
     _subject:'Demande d\'accès Juris Expert MCH — '+ent, _template:'table', _captcha:'false', _replyto:mail };
-  var done=function(){ var f=document.getElementById('abo-form'); if(f) f.style.display='none';
-    var k=document.getElementById('abo-ok'); if(k) k.style.display='block'; try{ window.scrollTo(0,0); }catch(e){} };
+  var show=function(ic,h2,p){
+    var f=document.getElementById('abo-form'); if(f) f.style.display='none';
+    var eic=document.getElementById('abo-ok-ic'); if(eic) eic.textContent=ic;
+    var eh=document.getElementById('abo-ok-h2'); if(eh) eh.textContent=h2;
+    var ep=document.getElementById('abo-ok-p'); if(ep) ep.innerHTML=p;
+    var k=document.getElementById('abo-ok'); if(k) k.style.display='block'; try{ window.scrollTo(0,0); }catch(e){}
+  };
   var fail=function(){
     if(btn){ btn.disabled=false; btn.textContent=btn.dataset._t||'Envoyer ma demande →'; btn.style.opacity=''; }
     if(err){ err.innerHTML='Envoi impossible (pas de connexion ?). Vous pouvez nous écrire directement : <a href="'+_aboMailtoFallback(nom,ent,sec,mail,tel)+'" style="color:#1f5a49;font-weight:700">ouvrir un email</a>.'; }
@@ -991,8 +998,19 @@ function aboSubmit(){
   try{
     fetch('https://formsubmit.co/ajax/'+ABO_EMAIL, {
       method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)
-    }).then(function(r){ return r.json().catch(function(){ return {success:true}; }); })
-      .then(function(j){ if(j && (j.success===true || j.success==='true' || String(j.message||'').toLowerCase().indexOf('sent')>=0 || String(j.message||'').toLowerCase().indexOf('confirm')>=0)) done(); else done(); })
+    }).then(function(r){ return r.json().catch(function(){ return null; }); })
+      .then(function(j){
+        var succ = j && (j.success===true || j.success==='true');
+        var msg = (j && j.message) ? String(j.message) : '';
+        if(succ){
+          show('✅','Demande envoyée','Merci. Votre demande a été transmise. Vous recevrez votre <b>mot de passe</b> par email. Vous pourrez alors le saisir via « J\'ai déjà un code ».');
+        } else if(/activ|confirm|enable/i.test(msg)){
+          // Première demande : FormSubmit envoie un email d'activation au propriétaire du service
+          show('📧','Activation requise','Réponse du service d\'envoi : <i>'+msg+'</i><br><br>Un email d\'activation vient d\'être envoyé à l\'adresse de réception. Une fois le lien cliqué (une seule fois), les demandes seront délivrées.');
+        } else {
+          show('⚠️','Réponse du serveur', msg ? ('<i>'+msg+'</i>') : 'Réponse inattendue du service d\'envoi. Réessayez, ou utilisez « ouvrir un email ».');
+        }
+      })
       .catch(fail);
   }catch(e){ fail(); }
 }
