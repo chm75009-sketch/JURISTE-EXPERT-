@@ -568,8 +568,10 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   #abo-screen .a-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--green),var(--brass))}
   #abo-screen label{display:block;font-size:11.5px;font-weight:700;color:var(--ink2);margin:13px 0 5px;letter-spacing:.2px}
   #abo-screen label .req{color:var(--alert)}
-  #abo-screen input,#abo-screen select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font-size:15px;font-family:inherit}
-  #abo-screen input:focus,#abo-screen select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 14%,transparent)}
+  #abo-screen input,#abo-screen select{width:100%!important;padding:12px 13px!important;border:1px solid #bbb!important;border-radius:8px!important;background:#fff!important;color:#111!important;font-size:15px!important;font-family:inherit!important;letter-spacing:normal!important;text-align:left!important;box-shadow:none!important;-webkit-appearance:none;appearance:none;-webkit-text-fill-color:#111!important}
+  #abo-screen input::placeholder{color:#999!important;-webkit-text-fill-color:#999!important}
+  #abo-screen select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23666' d='M1 1l5 5 5-5'/></svg>")!important;background-repeat:no-repeat!important;background-position:right 13px center!important;padding-right:34px!important}
+  #abo-screen input:focus,#abo-screen select:focus{outline:none!important;border-color:#666!important;box-shadow:none!important}
   #abo-screen .a-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
   #abo-screen .a-btn{width:100%;margin-top:16px;background:var(--green);color:var(--cream);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 10px 20px -12px rgba(20,55,44,.6)}
   #abo-screen .a-err{color:var(--alert);font-size:12.5px;font-weight:600;margin-top:10px;min-height:16px;text-align:center}
@@ -634,7 +636,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.36';
+var JX_BUILD = 'v2026-07-12.37';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
