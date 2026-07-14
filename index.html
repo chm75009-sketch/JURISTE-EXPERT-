@@ -375,9 +375,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.29';
+var JX_BUILD = 'v2026-07-12.30';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.30', d:'12 juillet 2026', t:[
+   'CORRECTION GRAVE du générateur de contrat (module Embauche) : le contrat certifiait systématiquement « ce taux est au moins égal au minimum conventionnel » — même pour un salaire manifestement sous le SMIC (ex. 1 400 € pour 186,33 h). C\'était une fausse certification, dangereuse.',
+   'Désormais le générateur CALCULE le minimum réel (le plus élevé du SMIC horaire 12,31 € et du minimum conventionnel du coefficient × le nombre d\'heures de référence). Si le salaire saisi est inférieur : le contrat n\'affiche PLUS la mention « conforme » mais un AVERTISSEMENT en rouge « SALAIRE NON CONFORME — montant illégal, à corriger », et une alerte s\'affiche à la génération. Si le salaire est suffisant, rien ne change.'
+ ]},
  {v:'v2026-07-12.29', d:'12 juillet 2026', t:[
    'Module « Analyse » — la page repart désormais À ZÉRO à chaque entrée : le document précédent, son résultat et l\'aperçu ne restent plus affichés quand on quitte la page puis on revient (ni après un rechargement). Le contexte de l\'entreprise (effectif, ancienneté) est conservé.'
  ]},
@@ -4261,6 +4265,18 @@ function genContrat(){
   const sel=document.getElementById('c-cat-poste');
   const seuil=sel?.options[sel.selectedIndex]?.dataset?.seuil||'169';
   const preavis=sel?.options[sel.selectedIndex]?.dataset?.preavis||'1';
+  // Contrôle de conformité du salaire : jamais certifier « conforme » un salaire sous le SMIC ou le minimum conventionnel
+  const _salNum=parseFloat(String(sal).replace(/\s/g,'').replace(',','.'));
+  const _seuilNum=parseFloat(String(seuil).replace(',','.'))||169;
+  const _smicH=(typeof SMIC_H!=='undefined'?SMIC_H:12.31);
+  const _tauxMin=Math.max(_smicH,(typeof MINIMA!=='undefined'&&MINIMA[coeff]!=null?MINIMA[coeff]:0));
+  const _miniMensuel=Math.round(_tauxMin*_seuilNum*100)/100;
+  const _eur=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  const _salConforme=!(isFinite(_salNum)&&_salNum>0&&_salNum<_miniMensuel-1);
+  const _remClause=_salConforme
+    ? `Salaire mensuel brut : <strong>${sal} €</strong> pour ${seuil} heures de référence. Ce taux est au moins égal au minimum conventionnel CCN Transport IDCC 0016 pour le coefficient ${coeff}. Il sera ajusté en cas de revalorisation de la grille conventionnelle.`
+    : `Salaire mensuel brut : <strong>${sal} €</strong> pour ${seuil} heures de référence. <strong style="color:#b00020">⚠ SALAIRE NON CONFORME : ce montant est INFÉRIEUR au minimum applicable — environ ${_eur(_miniMensuel)} € pour ${seuil} h (taux horaire minimum ${_eur(_tauxMin)} € = le plus élevé du SMIC et du minimum conventionnel du coefficient ${coeff}). Un salaire inférieur au SMIC et au minimum conventionnel est ILLÉGAL (rappel de salaire, sanctions pénales). Corrigez le salaire avant toute signature.</strong>`;
+  if(!_salConforme){try{alert('⚠ Salaire non conforme\n\nLe salaire saisi ('+sal+' €) est INFÉRIEUR au minimum applicable pour '+seuil+' h (≈ '+_eur(_miniMensuel)+' €, taux horaire minimum '+_eur(_tauxMin)+' €).\n\nUn salaire sous le SMIC / minimum conventionnel est illégal. Corrigez-le avant d\'utiliser ce contrat.\n\nLe contrat est tout de même généré, avec un avertissement bien visible dans l\'article Rémunération.');}catch(e){}}
   const typeLabel={'cdi':'DURÉE INDÉTERMINÉE','cdd':'DURÉE DÉTERMINÉE','cddi':'DURÉE DÉTERMINÉE SAISONNIER'}[contratType];
   const mobOk=document.getElementById('c-mobilite')?.checked;
   const mobZone=gv('c-mob-zone')||'[ZONE]';
@@ -4325,7 +4341,7 @@ ${mobOk?`<p style="${S}"><strong style="${S}">Clause de mobilité :</strong> Le 
 ${nuitOk?`<p style="${S}"><strong style="${S}">${art("Travail de nuit")}</strong></p>
 <p style="${S}">Le poste implique habituellement du travail de nuit. La période de nuit s’entend de <strong style="${S}">21 heures à 6 heures</strong> (accord de branche du 14 novembre 2001). Le salarié ayant la qualité de <strong style="${S}">travailleur de nuit</strong> (au moins 3 heures de travail de nuit au moins deux fois par semaine, ou le seuil annuel conventionnel), il bénéficie des contreparties suivantes : <strong style="${S}">prime horaire égale à 20 % du taux horaire conventionnel</strong> pour les heures de nuit ; <strong style="${S}">repos compensateur égal à 5 % du temps de travail de nuit</strong> lorsqu’il accomplit au moins 50 heures de travail de nuit sur le mois ; limitation de la durée quotidienne de travail à <strong style="${S}">10 heures</strong> ; <strong style="${S}">surveillance médicale renforcée</strong> auprès du service de prévention et de santé au travail. Le repos compensateur ne peut être remplacé par une compensation financière (disposition d’ordre public).</p>`:''}
 <p style="${S}"><strong style="${S}">${art("Rémunération")}</strong></p>
-<p style="${S}">Salaire mensuel brut : <strong style="${S}">${sal} €</strong> pour ${seuil} heures de référence. Ce taux est au moins égal au minimum conventionnel CCN Transport IDCC 0016 pour le coefficient ${coeff}. Il sera ajusté en cas de revalorisation de la grille conventionnelle. Les heures supplémentaires au-delà du seuil conventionnel sont majorées de 25% (36e à 43e heure) et 50% (au-delà de la 43e heure) conformément à la CCN Transport. La majoration des heures de nuit (21h-6h) est de 20% du taux horaire conventionnel (accord du 14/11/2001).</p>
+<p style="${S}">${_remClause} Les heures supplémentaires au-delà du seuil conventionnel sont majorées de 25% (36e à 43e heure) et 50% (au-delà de la 43e heure) conformément à la CCN Transport. La majoration des heures de nuit (21h-6h) est de 20% du taux horaire conventionnel (accord du 14/11/2001).</p>
 <p style="${S}">Les indemnités forfaitaires de déplacement sont versées conformément au protocole du 30 avril 1974 et à l’avenant n° 81 du 2 décembre 2025 (en vigueur au 1er janvier 2026, étendu par arrêté du 3 février 2026), dans les limites d’exonération URSSAF. Barème applicable : <strong style="${S}">repas 16,36 €</strong> ; repas unique 10,07 € ; repas unique de nuit 9,81 € ; casse-croûte 8,87 € ; indemnité spéciale 4,42 € ; grand déplacement (1 repas + 1 découcher) 52,31 €, (2 repas + 1 découcher) 68,87 € ; majoration de 18 % à l’étranger. Ces montants suivent les revalorisations conventionnelles ultérieures. Les indemnités de casse-croûte et de repas de nuit ne se cumulent pas avec l’indemnité de grand déplacement.</p>
 <p style="${S}">Le salarié bénéficie de la majoration conventionnelle d’ancienneté calculée sur le taux horaire minimum de son coefficient : pour le personnel ouvrier, <strong style="${S}">2 % après 2 ans, 4 % après 5 ans, 6 % après 10 ans et 8 % après 15 ans</strong> de présence dans l’entreprise (barème conventionnel — CCN transports routiers, annexe I). Pour les autres catégories, le barème de l’annexe applicable s’applique.</p>
 <p style="${S}">Le salarié bénéficie de la garantie annuelle de rémunération (GAR) attachée à son coefficient, ainsi que des indemnités de déplacement (repas, repas unique, casse-croûte, découcher) prévues par le protocole conventionnel relatif aux frais de déplacement, selon les barèmes en vigueur à la date du paiement.</p>
