@@ -375,9 +375,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.30';
+var JX_BUILD = 'v2026-07-12.31';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.31', d:'12 juillet 2026', t:[
+   'Revue exhaustive (1/…) — CONTRAT DE TRAVAIL, corrections vérifiées sur source officielle (Code du travail numérique / Légifrance, IDCC 16) :',
+   'PÉRIODE D\'ESSAI du personnel de conduite CORRIGÉE : elle était de 2 à 3 mois selon les catégories roulantes ; le bon chiffre conventionnel est 1 MOIS pour tout conducteur (accord du 16 juin 1961, annexe I « ouvriers », art. 3), NON renouvelable. Toutes les catégories grand routier et régional passent à 1 mois.',
+   'PRÉAVIS du conducteur précisé selon le vrai barème : licenciement 1 semaine (< 6 mois), 1 mois (6 mois-2 ans), 2 mois (≥ 2 ans) ; démission 1 semaine. Avant, un « à titre indicatif : 3 mois » erroné pouvait apparaître.',
+   'Signature du contrat : la ville (« Fait à … ») est désormais renseignée automatiquement depuis l\'adresse de l\'entreprise (elle restait « [VILLE] »).'
+ ]},
  {v:'v2026-07-12.30', d:'12 juillet 2026', t:[
    'CORRECTION GRAVE du générateur de contrat (module Embauche) : le contrat certifiait systématiquement « ce taux est au moins égal au minimum conventionnel » — même pour un salaire manifestement sous le SMIC (ex. 1 400 € pour 186,33 h). C\'était une fausse certification, dangereuse.',
    'Désormais le générateur CALCULE le minimum réel (le plus élevé du SMIC horaire 12,31 € et du minimum conventionnel du coefficient × le nombre d\'heures de référence). Si le salaire saisi est inférieur : le contrat n\'affiche PLUS la mention « conforme » mais un AVERTISSEMENT en rouge « SALAIRE NON CONFORME — montant illégal, à corriger », et une alerte s\'affiche à la génération. Si le salaire est suffisant, rien ne change.'
@@ -1047,13 +1053,13 @@ try{
 <div class="fg"><label class="fl">Catégorie du poste</label>
 <select id="c-cat-poste" onchange="updateCatPoste()">
   <optgroup label="Personnel roulant — Grand routier">
-    <option value="gr_150" data-coeff="150" data-pe="3" data-preavis="3" data-seuil="186.33">GR qualifié — coeff. 150 (>150km habituel)</option>
-    <option value="gr_138M" data-coeff="138M" data-pe="2" data-preavis="1" data-seuil="151.67">GR messagerie — coeff. 138M</option>
-    <option value="gr_138" data-coeff="138" data-pe="2" data-preavis="1" data-seuil="186.33">GR — coeff. 138</option>
+    <option value="gr_150" data-coeff="150" data-pe="1" data-preavis="2" data-seuil="186.33">GR qualifié — coeff. 150 (>150km habituel)</option>
+    <option value="gr_138M" data-coeff="138M" data-pe="1" data-preavis="1" data-seuil="151.67">GR messagerie — coeff. 138M</option>
+    <option value="gr_138" data-coeff="138" data-pe="1" data-preavis="1" data-seuil="186.33">GR — coeff. 138</option>
   </optgroup>
   <optgroup label="Personnel roulant — Courte distance">
-    <option value="cd_128M" data-coeff="128M" data-pe="2" data-preavis="1" data-seuil="151.67">Régional — coeff. 128M</option>
-    <option value="cd_128" data-coeff="128" data-pe="2" data-preavis="1" data-seuil="169">Régional — coeff. 128</option>
+    <option value="cd_128M" data-coeff="128M" data-pe="1" data-preavis="1" data-seuil="151.67">Régional — coeff. 128M</option>
+    <option value="cd_128" data-coeff="128" data-pe="1" data-preavis="1" data-seuil="169">Régional — coeff. 128</option>
     <option value="cd_120" data-coeff="120" data-pe="1" data-preavis="1" data-seuil="169">Local qualifié — coeff. 120</option>
     <option value="cd_117M" data-coeff="118M" data-pe="1" data-preavis="1" data-seuil="151.67">Local — coeff. 118M</option>
     <option value="cd_117" data-coeff="118" data-pe="1" data-preavis="1" data-seuil="169">Local — coeff. 118</option>
@@ -4265,6 +4271,12 @@ function genContrat(){
   const sel=document.getElementById('c-cat-poste');
   const seuil=sel?.options[sel.selectedIndex]?.dataset?.seuil||'169';
   const preavis=sel?.options[sel.selectedIndex]?.dataset?.preavis||'1';
+  const estRoulant=/^(gr_|cd_)/.test((sel&&sel.value)||'');
+  // Période d'essai : le personnel de conduite (ouvriers roulants) est à 1 mois NON renouvelable (accord du 16 juin 1961)
+  const _essaiClause=(pe==='0')?'Aucune période d\'essai.'
+    :(estRoulant
+      ? 'Période d\'essai de '+pe+' mois — durée conventionnelle du personnel de conduite (accord du 16 juin 1961, annexe I « ouvriers », art. 3). Pour les ouvriers, elle n\'est PAS renouvelable. Délais de prévenance de rupture : < 8 jours de présence : 24 h | 8 jours-1 mois : 48 h (art. L.1221-25 C. trav.). Rupture possible à tout moment pendant l\'essai.'
+      : 'Période d\'essai de '+pe+' mois. Renouvellement éventuel uniquement si un accord de branche étendu le prévoit et si le contrat le stipule ; il doit être proposé avant l\'expiration et accepté par écrit (Cass. soc. 21/09/2017). Délais de prévenance : < 8 jours : 24h | 8j-1 mois : 48h | 1-3 mois : 2 semaines | > 3 mois : 1 mois (art. L.1221-25 C. trav.).');
   // Contrôle de conformité du salaire : jamais certifier « conforme » un salaire sous le SMIC ou le minimum conventionnel
   const _salNum=parseFloat(String(sal).replace(/\s/g,'').replace(',','.'));
   const _seuilNum=parseFloat(String(seuil).replace(',','.'))||169;
@@ -4318,7 +4330,7 @@ function genContrat(){
 <p style="${S}">${E.nom} engage ${civ} ${nom} à compter du ${debut} en qualité de <strong style="${S}">${poste}</strong>, coefficient <strong style="${S}">${coeff}</strong> de la CCN Transports Routiers IDCC 0016. Véhicule conduit : ${vehicule}. Point d'attache : ${depot}.</p>
 <p style="${S}">Le présent contrat est régi par la CCN Transports Routiers IDCC 0016, le Décret n°83-40 du 26 janvier 1983, l'accord de branche du 20 avril 2021, et les Règlements CE n°561/2006 et UE n°165/2014. Le salarié reconnaît avoir été informé de la convention collective et du règlement intérieur applicables (art. R.1221-34 C. trav.).</p>
 <p style="${S}"><strong style="${S}">${art("Période d'essai")}</strong></p>
-<p style="${S}">${pe==='0'?'Aucune période d\'essai.':'Période d\'essai de '+pe+' mois, conformément à l\'art. 5 de la CCN Transports Routiers IDCC 0016. Le renouvellement doit être proposé avant l\'expiration et accepté par écrit par les deux parties (Cass. soc. 21/09/2017). Délais de prévenance : < 8 jours : 24h | 8j-1 mois : 48h | 1-3 mois : 2 semaines | > 3 mois : 1 mois (art. L.1221-25 C. trav.).'} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>
+<p style="${S}">${_essaiClause} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>
 ${contratType!=='cdi'?('<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat (CDD — mentions obligatoires)')+'</strong></p>'+'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+(({remplacement:'pour le remplacement d’un salarié absent','remplacement-tp':'pour le remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'dans l’attente de l’entrée en service effective du salarié recruté par contrat à durée indéterminée appelé à le remplacer (durée maximale : 9 mois — art. L.1242-8-1)','depart-definitif':'pour le remplacement d’un salarié ayant quitté définitivement l’entreprise, dans l’attente de la suppression de son poste de travail (durée maximale : 24 mois — art. L.1242-8-1)',accroissement:'pour accroissement temporaire de l’activité de l’entreprise',saisonnier:'pour un emploi à caractère saisonnier',usage:'pour un emploi à caractère temporaire pour lequel il est d’usage constant de ne pas recourir au CDI — activité de déménagement (art. D.1242-1)'})[gv('c-cdd-motif')]||'[MOTIF PRÉCIS À COMPLÉTER]')+(['remplacement','remplacement-tp','attente-cdi','depart-definitif'].indexOf(gv('c-cdd-motif'))>=0?(' — salarié remplacé : <strong style="'+S+'">'+(gv('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '+(gv('c-remplace-motif')||'[motif de l’absence]')+', qualification : '+(gv('c-remplace-qualif')||'[QUALIFICATION DU REMPLACÉ]')):'')+'.</p>'+'<p style="'+S+'">Il court du <strong style="'+S+'">'+(gv('c-cdd-debut')?fmt(new Date(gv('c-cdd-debut'))):debut)+'</strong> au <strong style="'+S+'">'+(gv('c-cdd-fin')?fmt(new Date(gv('c-cdd-fin'))):'[DATE DE FIN — à défaut de terme précis : durée minimale ______]')+'</strong>'+(gv('c-cdd-renouv')==='1'?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)':(gv('c-cdd-renouv')==='2'?', renouvelable deux fois (maximum légal) par avenant conclu avant le terme (art. L.1243-13)':''))+'. Période d’essai du CDD : 1 jour par semaine, dans la limite de 2 semaines (contrat ≤ 6 mois) ou d’un mois (au-delà) — art. L.1242-10.</p>'+'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à 10 % de la rémunération totale brute (art. L.1243-8)'+(contratType==='cddi'?' — sous réserve de l’exclusion applicable aux emplois à caractère saisonnier':'')+', ainsi que l’indemnité compensatrice de congés payés.</p>'+'<p style="'+S+'">Caisse de retraite complémentaire : CARCEPT (groupe KLESIA) — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter selon les organismes de l’entreprise] (mentions requises par l’art. L.1242-12).</p>'):''}
 
 <p style="${S}"><strong style="${S}">${art("Qualifications professionnelles et aptitude médicale")}</strong></p>
@@ -4353,7 +4365,7 @@ ${geolocOk?`<p style="${S}"><strong style="${S}">${art("Géolocalisation")}</str
 <p style="${S}"><strong style="${S}">${art("Congés payés")}</strong></p>
 <p style="${S}">Le salarié bénéficie de 2,5 jours ouvrables de congés payés par mois de travail effectif (soit 5 semaines par an), ainsi que des congés conventionnels éventuels (ancienneté, événements familiaux) prévus par la CCN.</p>
 <p style="${S}"><strong style="${S}">${art("Rupture du contrat — préavis")}</strong></p>
-<p style="${S}">${contratType==='cdi'?('En cas de rupture, chaque partie respecte le préavis prévu par la CCN Transports (IDCC 0016) pour la catégorie du salarié — à titre indicatif : '+preavis+' mois — sauf faute grave ou lourde, et sans préjudice des dispositions légales applicables (licenciement, démission, rupture conventionnelle).'):('Le contrat prend fin de plein droit à l’arrivée de son terme. Sa rupture anticipée n’est possible que dans les cas limitativement prévus par la loi : accord des parties, faute grave, force majeure, inaptitude constatée par le médecin du travail, ou embauche du salarié en contrat à durée indéterminée (art. L.1243-1 et s.).')}</p>
+<p style="${S}">${contratType==='cdi'?(estRoulant?('En cas de rupture (hors faute grave ou lourde), le préavis du personnel de conduite (CCN IDCC 0016) est le suivant. <strong>Licenciement</strong> : 1 semaine si moins de 6 mois d\'ancienneté, 1 mois de 6 mois à 2 ans, 2 mois à partir de 2 ans. <strong>Démission</strong> : 1 semaine quelle que soit l\'ancienneté (sauf usage ou accord plus favorable).'):('En cas de rupture, chaque partie respecte le préavis prévu par la CCN Transports (IDCC 0016) pour la catégorie du salarié — à titre indicatif : '+preavis+' mois — sauf faute grave ou lourde, et sans préjudice des dispositions légales applicables (licenciement, démission, rupture conventionnelle).')):('Le contrat prend fin de plein droit à l’arrivée de son terme. Sa rupture anticipée n’est possible que dans les cas limitativement prévus par la loi : accord des parties, faute grave, force majeure, inaptitude constatée par le médecin du travail, ou embauche du salarié en contrat à durée indéterminée (art. L.1243-1 et s.).')}</p>
 <p style="${S}"><strong style="${S}">${art("Avantages sociaux — prévoyance, mutuelle, retraite complémentaire")}</strong></p>
 <p style="${S}">Le salarié bénéficie des régimes de prévoyance et de mutuelle collective de l'entreprise conformément à la CCN Transport IDCC 0016. Une notice d'information établie par l'organisme assureur lui est remise (art. 12 de la loi n° 89-1009 du 31 décembre 1989, dite loi Évin). Portabilité des garanties en cas de rupture ouvrant droit au chômage (art. L.911-8 du Code de la sécurité sociale).</p>
 <p style="${S}">Retraite complémentaire : CARCEPT (groupe KLESIA), institution de la branche des transports — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter si l’entreprise relève d’autres organismes].</p>
@@ -4365,7 +4377,7 @@ ${geolocOk?`<p style="${S}"><strong style="${S}">${art("Géolocalisation")}</str
 <p style="${S}"><strong style="${S}">${art("Informations et documents remis au salarié")}</strong></p>
 <p style="${S}">Conformément aux articles L.1221-5-1 et R.1221-34 et suivants du code du travail (décret n° 2023-1004 du 30 octobre 2023), les informations sur les éléments principaux de la relation de travail sont communiquées par écrit au salarié. Lui sont notamment remis ou tenus à disposition : la notice des régimes de prévoyance et de frais de santé, l’information sur la convention collective applicable (consultable dans l’entreprise et sur Légifrance), le règlement intérieur le cas échéant, et la copie de la DPAE sur demande.</p>
 <hr style="border:none;border-top:1px solid #000;margin:20px 0">
-<p style="${S}">Fait en deux exemplaires à [VILLE], le ${today}</p>
+<p style="${S}">Fait en deux exemplaires à ${(typeof _docVille==='function'?_docVille():'[VILLE]')}, le ${today}</p>
 <table style="width:100%;font-family:'Times New Roman',serif;font-size:11pt;color:#000;margin-top:20px">
 <tr><td style="width:50%;vertical-align:top"><strong>Pour l'employeur</strong><br>${E.nom}<br>${E.dirigeant} — ${E.qualite}<br><br><br><br>(Signature et cachet)</td>
 <td style="width:50%;vertical-align:top"><strong>Le salarié</strong><br>${civ} ${nom}<br><em>« Lu et approuvé »</em><br><br><br><br>(Signature)</td></tr>
