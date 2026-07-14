@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.43';
+var JX_BUILD = 'v2026-07-12.44';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -903,7 +903,7 @@ const _TEMP_EXPIRY = 1783382399000;
 // Code administrateur (accès total, tous secteurs — pour vérifier l'application)
 const _ADMIN_HASH = '82d12a0cbcf1b775ae391064930ebde991ebd1849d56cb80317c37b5fedd1c92';
 // Codes par secteur : le code détermine et verrouille le secteur (T=transport, B=banque, A=assurances, S=syntec, E=enseignement, F=formation, I=indépendant)
-const _SECTOR_CODES = {"c6093bd2b22e6f77d3979071c6572f4bfa53fdc63d747609203b21cd01053278":"transport","2f976a836e23b83190bd24c4cd66ab27c4a4b61c5b3896ecc35f4c61cebbc158":"banque","7e670d78f5a3df680ef735ca5aeb0a05cd3fe8897eb93f47fb8c9d309323c928":"assurances","16b2c3fd3757888d98f1c7e17e1dfa18e235a98e7bfcbb37ea13dd5532832b89":"syntec","f4bef4a348a86c8ad0bc32c8580c811c4df8e2fca53081bc16c84729119c7de8":"enseignement","3728336f3afec77a935392cc91294b60b05f76deb88f7323d493c72b19ab0b8f":"formation","e2cd6de73fe088dc9fd5ca0d8fd1cd6bf3724cc7b262c59c95e616dc0e5927ce":"ensindep"};
+const _SECTOR_CODES = {"c0aba59c6b3120b6ede955c871d36cad8b258ebfd24cc41887b01a882b327ae3":"transport","70f95bf097ed0c27e5d46642922bd704bb5832ea6c90d889b1aab751eb933d8b":"banque","f562fd8713471e493861668795799d0f6ff9f5009b31f2bb9c8ffa3383d94893":"assurances","0bb18b6c44a68dd6c2febbe14b45eb4d47bcf47407a2651da336cec4e63ec2eb":"syntec","37a7145e00a4a6123836972446df8d7dfbaa4fd2d6ffb978ee3137518cb7b8c3":"enseignement","49f481c669f740a11c49cfc83be79452d60c4413b9b378b57a832a73b52091a8":"formation","9ed142a0915c2d7e1b764effbb9f2b6a5911faa760f97d09d93ca527713f6fee":"ensindep"};
 async function _sha256(txt){
   const data = new TextEncoder().encode(txt);
   const buf = await crypto.subtle.digest('SHA-256', data);
