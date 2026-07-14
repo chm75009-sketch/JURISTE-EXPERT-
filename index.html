@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.44';
+var JX_BUILD = 'v2026-07-12.45';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -903,11 +903,51 @@ const _TEMP_EXPIRY = 1783382399000;
 // Code administrateur (accès total, tous secteurs — pour vérifier l'application)
 const _ADMIN_HASH = '82d12a0cbcf1b775ae391064930ebde991ebd1849d56cb80317c37b5fedd1c92';
 // Codes par secteur : le code détermine et verrouille le secteur (T=transport, B=banque, A=assurances, S=syntec, E=enseignement, F=formation, I=indépendant)
-const _SECTOR_CODES = {"c0aba59c6b3120b6ede955c871d36cad8b258ebfd24cc41887b01a882b327ae3":"transport","70f95bf097ed0c27e5d46642922bd704bb5832ea6c90d889b1aab751eb933d8b":"banque","f562fd8713471e493861668795799d0f6ff9f5009b31f2bb9c8ffa3383d94893":"assurances","0bb18b6c44a68dd6c2febbe14b45eb4d47bcf47407a2651da336cec4e63ec2eb":"syntec","37a7145e00a4a6123836972446df8d7dfbaa4fd2d6ffb978ee3137518cb7b8c3":"enseignement","49f481c669f740a11c49cfc83be79452d60c4413b9b378b57a832a73b52091a8":"formation","9ed142a0915c2d7e1b764effbb9f2b6a5911faa760f97d09d93ca527713f6fee":"ensindep"};
+const _SECTOR_CODES = {}; // codes partagés désactivés — on utilise désormais des codes CLIENTS uniques (générateur admin)
 async function _sha256(txt){
   const data = new TextEncoder().encode(txt);
   const buf = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+// ===== Codes clients UNIQUES (générés par l'admin, validés par signature interne) =====
+// Format : 2 chiffres (secteur) + 4 chiffres (série) + 3 chiffres (signature) = 9 chiffres.
+const _KEYGEN_SECRET = 'MCH-JE-2026-r7Q9x2';
+const _SEC_IDX = {transport:'01',banque:'02',assurances:'03',syntec:'04',enseignement:'05',formation:'06',ensindep:'07'};
+const _IDX_SEC = {'01':'transport','02':'banque','03':'assurances','04':'syntec','05':'enseignement','06':'formation','07':'ensindep'};
+async function _codeSign(idx, serial){
+  const hh = await _sha256(_KEYGEN_SECRET + '|' + idx + '|' + serial);
+  return String(parseInt(hh.slice(0,6),16) % 1000).padStart(3,'0');
+}
+async function _validAlgoCode(code){
+  code = String(code||'').replace(/\D/g,'');
+  if(!/^\d{9}$/.test(code)) return null;
+  const idx = code.slice(0,2), serial = code.slice(2,6), sig = code.slice(6,9);
+  if(!_IDX_SEC[idx]) return null;
+  const good = await _codeSign(idx, serial);
+  return (sig === good) ? _IDX_SEC[idx] : null;
+}
+var SECTEUR_LAB_CG={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
+async function cgGenerer(){
+  var s=document.getElementById('cg-secteur').value;
+  var res=document.getElementById('cg-result');
+  if(!s){ if(res) res.style.display='none'; alert('Choisissez d\'abord le secteur du client.'); return; }
+  var idx=_SEC_IDX[s];
+  var serial=String(Math.floor(Math.random()*9000)+1000);
+  var sig=await _codeSign(idx, serial);
+  var code=idx+serial+sig;
+  document.getElementById('cg-code').textContent=code;
+  document.getElementById('cg-sec').textContent='Secteur : '+(SECTEUR_LAB_CG[s]||s);
+  var cp=document.getElementById('cg-copied'); if(cp) cp.textContent='';
+  if(res) res.style.display='block';
+}
+function cgCopier(){
+  var code=document.getElementById('cg-code').textContent||'';
+  var cp=document.getElementById('cg-copied');
+  var okmsg=function(){ if(cp) cp.textContent='✓ Code copié'; };
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(okmsg, function(){ if(cp) cp.textContent='Copie impossible — notez : '+code; }); }
+    else { if(cp) cp.textContent='Notez le code : '+code; }
+  }catch(e){ if(cp) cp.textContent='Notez le code : '+code; }
 }
 async function verifierCode(){
   const inp = document.getElementById('lock-input');
@@ -937,9 +977,19 @@ async function verifierCode(){
       inp.value = ''; inp.focus();
     }
   } else {
-    err.textContent = 'Code incorrect';
-    inp.value = '';
-    inp.focus();
+    // Code client unique (généré par l'admin)
+    var _algoSec = await _validAlgoCode(inp.value);
+    if(_algoSec){
+      try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _algoSec); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_trial'); }catch(e){}
+      document.getElementById('lock-screen').style.display = 'none';
+      var _a4=document.getElementById('accueil-screen'); if(_a4) _a4.style.display='none';
+      try{ var _sel2=document.getElementById('ins-secteur'); if(_sel2){ _sel2.value=_algoSec; _sel2.disabled=true; } }catch(e){}
+      try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
+    } else {
+      err.textContent = 'Code incorrect';
+      inp.value = '';
+      inp.focus();
+    }
   }
 }
 // ===== Accueil public (vitrine) : affiché avant le code, sauf si déjà déverrouillé =====
@@ -1160,6 +1210,28 @@ try{
       <option value="formation">Organismes de formation</option>
       <option value="ensindep">Enseignement privé indépendant</option>
     </select>
+
+    <div style="margin-top:14px;padding:12px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;background:rgba(201,168,76,.06)">
+      <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
+      <select id="cg-secteur" style="width:100%;margin-bottom:8px">
+        <option value="">— Secteur du client —</option>
+        <option value="transport">Transport routier</option>
+        <option value="banque">Banque</option>
+        <option value="assurances">Assurances</option>
+        <option value="syntec">Syntec (conseil, informatique)</option>
+        <option value="enseignement">Enseignement privé (EPNL)</option>
+        <option value="formation">Organismes de formation</option>
+        <option value="ensindep">Enseignement privé indépendant</option>
+      </select>
+      <button onclick="cgGenerer()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#c9a84c;color:#1a1a1a;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer">Générer le code</button>
+      <div id="cg-result" style="display:none;margin-top:12px;text-align:center">
+        <div id="cg-code" style="font-size:30px;font-weight:800;letter-spacing:5px;color:#e8c97a;font-variant-numeric:tabular-nums"></div>
+        <div id="cg-sec" style="font-size:11px;color:#9a9585;margin-top:2px"></div>
+        <button onclick="cgCopier()" style="margin-top:8px;padding:7px 16px;border:1px solid rgba(201,168,76,.5);border-radius:8px;background:transparent;color:#e8c97a;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">📋 Copier le code</button>
+        <div id="cg-copied" style="font-size:11px;color:#5eb57a;margin-top:5px;min-height:14px"></div>
+      </div>
+      <div style="font-size:10.5px;color:#8a8578;line-height:1.5;margin-top:9px">Chaque appui génère un code <b>différent</b>, valable pour ce secteur. Envoyez-le au client : il l'entre via « J'ai déjà un code ».</div>
+    </div>
   </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
