@@ -1,5 +1,5 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v3';
+const CACHE = 'jem-v4';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -27,9 +27,14 @@ self.addEventListener('fetch', e => {
   if (url.pathname.indexOf('version.json') >= 0) { e.respondWith(fetch(req)); return; }
   // Navigation : réseau d'abord (mises à jour), cache en secours hors ligne
   if (req.mode === 'navigate') {
+    const isApp = (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'));
     e.respondWith(
-      fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); return r; })
-        .catch(() => caches.match(req).then(m => m || caches.match('./index.html')))
+      fetch(req).then(r => {
+        // On ne met en cache "./index.html" QUE pour l'app elle-même — pas pour les autres pages
+        // (sinon ouvrir maquette-accueil.html écrasait l'app en cache).
+        if (isApp) { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); }
+        return r;
+      }).catch(() => caches.match(req).then(m => m || (isApp ? caches.match('./index.html') : undefined)))
     );
     return;
   }
