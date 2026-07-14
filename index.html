@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.40';
+var JX_BUILD = 'v2026-07-12.41';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -995,20 +995,26 @@ function aboSubmit(){
     if(btn){ btn.disabled=false; btn.textContent=btn.dataset._t||'Envoyer ma demande →'; btn.style.opacity=''; }
     if(err){ err.innerHTML='Envoi impossible (pas de connexion ?). Vous pouvez nous écrire directement : <a href="'+_aboMailtoFallback(nom,ent,sec,mail,tel)+'" style="color:#1f5a49;font-weight:700">ouvrir un email</a>.'; }
   };
+  var esc=function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  // form-urlencoded = requête "simple" (pas de pré-vol CORS), plus robuste que JSON
+  var body=new URLSearchParams();
+  Object.keys(payload).forEach(function(k){ body.append(k, payload[k]); });
   try{
     fetch('https://formsubmit.co/ajax/'+ABO_EMAIL, {
-      method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)
-    }).then(function(r){ return r.json().catch(function(){ return null; }); })
-      .then(function(j){
-        var succ = j && (j.success===true || j.success==='true');
+      method:'POST', headers:{'Accept':'application/json'}, body:body
+    }).then(function(r){ return r.text().then(function(t){ return {status:r.status, text:t}; }); })
+      .then(function(o){
+        var j=null; try{ j=JSON.parse(o.text); }catch(e){}
+        var succ = j && (j.success===true || j.success==='true' || o.status===200 && j && /sent|success/i.test(String(j.message||'')));
         var msg = (j && j.message) ? String(j.message) : '';
         if(succ){
           show('✅','Demande envoyée','Merci. Votre demande a été transmise. Vous recevrez votre <b>mot de passe</b> par email. Vous pourrez alors le saisir via « J\'ai déjà un code ».');
-        } else if(/activ|confirm|enable/i.test(msg)){
-          // Première demande : FormSubmit envoie un email d'activation au propriétaire du service
-          show('📧','Activation requise','Réponse du service d\'envoi : <i>'+msg+'</i><br><br>Un email d\'activation vient d\'être envoyé à l\'adresse de réception. Une fois le lien cliqué (une seule fois), les demandes seront délivrées.');
+        } else if(/activ|confirm|enable|verify/i.test(msg)){
+          show('📧','Activation requise','Réponse du service d\'envoi : <i>'+esc(msg)+'</i><br><br>Un email d\'activation vient d\'être envoyé à l\'adresse de réception. Une fois le lien cliqué (une seule fois), les demandes seront délivrées.');
         } else {
-          show('⚠️','Réponse du serveur', msg ? ('<i>'+msg+'</i>') : 'Réponse inattendue du service d\'envoi. Réessayez, ou utilisez « ouvrir un email ».');
+          // Diagnostic : on affiche la réponse brute pour lever le doute
+          var raw = msg ? esc(msg) : (o.text ? esc(o.text).slice(0,240) : '(vide)');
+          show('⚠️','Réponse du serveur','Code HTTP '+o.status+'.<br><i>'+raw+'</i><br><br>Vous pouvez aussi nous écrire directement : <a href="'+_aboMailtoFallback(nom,ent,sec,mail,tel)+'" style="color:#1f5a49;font-weight:700">ouvrir un email</a>.');
         }
       })
       .catch(fail);
