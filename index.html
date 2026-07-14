@@ -636,7 +636,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.37';
+var JX_BUILD = 'v2026-07-12.38';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -965,6 +965,12 @@ function accueilShowAbo(){
   try{ window.scrollTo(0,0); }catch(e){}
   setTimeout(function(){ var i=document.getElementById('abo-nom'); if(i) i.focus(); }, 80);
 }
+var SECL_ABO={transport:'Transport routier (IDCC 16)',banque:'Banque (IDCC 2120)',assurances:'Assurances (IDCC 1672)',syntec:'Syntec (IDCC 1486)',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation (IDCC 1516)',ensindep:'Enseignement privé indépendant',autre:'Autre secteur'};
+function _aboMailtoFallback(nom,ent,sec,mail,tel){
+  var sujet='Demande d\'accès Juris Expert MCH — '+ent;
+  var corps='Nom : '+nom+'\nEntreprise : '+ent+'\nSecteur : '+(SECL_ABO[sec]||sec)+'\nEmail : '+mail+'\nTéléphone : '+(tel||'—');
+  return 'mailto:'+ABO_EMAIL+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps);
+}
 function aboSubmit(){
   var g=function(id){ var e=document.getElementById(id); return e?e.value.trim():''; };
   var nom=g('abo-nom'), ent=g('abo-ent'), sec=g('abo-sec'), mail=g('abo-mail'), tel=g('abo-tel');
@@ -972,15 +978,23 @@ function aboSubmit(){
   if(!nom||!ent||!sec||!mail){ if(err) err.textContent='Merci de renseigner les champs obligatoires (*).'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ if(err) err.textContent='Adresse email invalide.'; return; }
   if(err) err.textContent='';
-  var SECL={transport:'Transport routier (IDCC 16)',banque:'Banque (IDCC 2120)',assurances:'Assurances (IDCC 1672)',syntec:'Syntec (IDCC 1486)',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation (IDCC 1516)',ensindep:'Enseignement privé indépendant',autre:'Autre secteur'};
-  var sujet='Demande d\'accès Juris Expert MCH — '+ent;
-  var corps='Nouvelle demande d\'abonnement à Juris Expert MCH\n\n'
-    +'Nom : '+nom+'\nEntreprise : '+ent+'\nSecteur : '+(SECL[sec]||sec)+'\nEmail : '+mail+'\nTéléphone : '+(tel||'—')+'\n\n'
-    +'→ Communiquer à ce client le code d\'accès correspondant à son secteur.';
-  try{ window.location.href='mailto:'+ABO_EMAIL+'?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps); }catch(e){}
-  var f=document.getElementById('abo-form'); if(f) f.style.display='none';
-  var k=document.getElementById('abo-ok'); if(k) k.style.display='block';
-  try{ window.scrollTo(0,0); }catch(e){}
+  var btn=document.querySelector('#abo-form .a-btn');
+  if(btn){ btn.disabled=true; btn.dataset._t=btn.textContent; btn.textContent='Envoi en cours…'; btn.style.opacity='.7'; }
+  var payload={ Nom:nom, Entreprise:ent, Secteur:(SECL_ABO[sec]||sec), Email:mail, 'Téléphone':(tel||'—'),
+    _subject:'Demande d\'accès Juris Expert MCH — '+ent, _template:'table', _captcha:'false', _replyto:mail };
+  var done=function(){ var f=document.getElementById('abo-form'); if(f) f.style.display='none';
+    var k=document.getElementById('abo-ok'); if(k) k.style.display='block'; try{ window.scrollTo(0,0); }catch(e){} };
+  var fail=function(){
+    if(btn){ btn.disabled=false; btn.textContent=btn.dataset._t||'Envoyer ma demande →'; btn.style.opacity=''; }
+    if(err){ err.innerHTML='Envoi impossible (pas de connexion ?). Vous pouvez nous écrire directement : <a href="'+_aboMailtoFallback(nom,ent,sec,mail,tel)+'" style="color:#1f5a49;font-weight:700">ouvrir un email</a>.'; }
+  };
+  try{
+    fetch('https://formsubmit.co/ajax/'+ABO_EMAIL, {
+      method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify(payload)
+    }).then(function(r){ return r.json().catch(function(){ return {success:true}; }); })
+      .then(function(j){ if(j && (j.success===true || j.success==='true' || String(j.message||'').toLowerCase().indexOf('sent')>=0 || String(j.message||'').toLowerCase().indexOf('confirm')>=0)) done(); else done(); })
+      .catch(fail);
+  }catch(e){ fail(); }
 }
 // Contrôle-minute = seul module gratuit (sans code)
 function accueilTrial(){
