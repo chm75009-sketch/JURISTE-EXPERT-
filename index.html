@@ -375,9 +375,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.28';
+var JX_BUILD = 'v2026-07-12.29';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.29', d:'12 juillet 2026', t:[
+   'Module « Analyse » — la page repart désormais À ZÉRO à chaque entrée : le document précédent, son résultat et l\'aperçu ne restent plus affichés quand on quitte la page puis on revient (ni après un rechargement). Le contexte de l\'entreprise (effectif, ancienneté) est conservé.'
+ ]},
  {v:'v2026-07-12.28', d:'12 juillet 2026', t:[
    'Module « Analyse » — trois corrections décisives demandées par les tests utilisateur :',
    'VERDICT COHÉRENT : dès qu\'un élément obligatoire manque, qu\'une clause est illégale ou qu\'une négation est détectée, le bandeau passe en ROUGE « document NON conforme ». Fini le vert « aucune non-conformité » affiché alors qu\'un problème était signalé juste en dessous (cas de la non-concurrence sans contrepartie).',
@@ -4019,6 +4022,8 @@ function goPage(id){
   // Bouton retour flottant : visible sur toutes les pages sauf accueil
   const btnFixe = document.getElementById('btn-retour-fixe');
   if(btnFixe) btnFixe.style.display = (id==='home') ? 'none' : 'block';
+  // Le module Analyse repart à zéro à chaque entrée (pas de résultat/document résiduel)
+  if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
 }
 
 function retourAuto(){
@@ -10229,6 +10234,18 @@ window.diagLockSecteur=function(){
   if(!admin){s.disabled=true;s.style.opacity='0.9';s.title='Secteur de votre entreprise (verrouillé)';}
   else{s.disabled=false;s.style.opacity='';}
 };
+// Réinitialise l'analyse (document, résultat, aperçu) — appelé à chaque entrée sur la page ; conserve le contexte entreprise (effectif, ancienneté…)
+window.diagReset=function(){
+  var ta=document.getElementById('diag-resume');if(ta)ta.value='';
+  var res=document.getElementById('diag-result');if(res)res.innerHTML='';
+  var st=document.getElementById('diag-file-status');if(st){st.innerHTML='';st.style.color='';}
+  var pv=document.getElementById('diag-preview');if(pv)pv.innerHTML='';
+  var f=document.getElementById('diag-file');if(f)f.value='';
+  var ty=document.getElementById('diag-type');if(ty)ty.value='';
+  var q=document.getElementById('diag-questions');if(q){q.style.display='none';q.innerHTML='';}
+  // purge la sauvegarde du document/type/questions pour qu'ils ne reviennent pas au rechargement
+  try{var KEY='jx_fields_v1',dd=JSON.parse(localStorage.getItem(KEY)||'{}');delete dd['diag-resume'];delete dd['diag-type'];Object.keys(dd).forEach(function(k){if(k.indexOf('dq-')===0)delete dd[k];});localStorage.setItem(KEY,JSON.stringify(dd));}catch(e){}
+};
 if(document.readyState!=='loading')diagInit();else document.addEventListener('DOMContentLoaded',diagInit);
 })();
 </script>
@@ -10237,8 +10254,8 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 /* ===== Sauvegarde automatique des saisies (survit à la fermeture) ===== */
 (function(){
   var KEY='jx_fields_v1';
-  var BLOCK={'lock-input':1,'diag-secteur':1,'diag-ccn':1}; // secteur d'analyse piloté par le verrou client, jamais restauré
-  var WL=['diag-effectif','diag-rep','diag-anc','diag-anc-unit','diag-type','diag-resume',
+  var BLOCK={'lock-input':1,'diag-secteur':1,'diag-ccn':1,'diag-resume':1,'diag-type':1}; // secteur piloté par le verrou ; document/type jamais restaurés (page Analyse repart à zéro)
+  var WL=['diag-effectif','diag-rep','diag-anc','diag-anc-unit',
     'calc-type','calc-anc','calc-sal','calc-eff','calc-cpjours','calc-brut','calc-retmode','calc-secteur','calc-conv',
     'disc-secteur','disc-motif','disc-faits','disc-date-faits','disc-date-connaissance','disc-protection',
     'disc-sal-nom','disc-ant-desc','disc-cse-exist',
