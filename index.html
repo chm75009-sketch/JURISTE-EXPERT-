@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.50';
+var JX_BUILD = 'v2026-07-12.51';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.51', d:'15 juillet 2026', t:[
+   'Module « Analyse » — LES FICHIERS WORD (.docx) SONT MAINTENANT LUS DIRECTEMENT. Vous joignez un .docx : l\'application le décompresse, en extrait le texte, reconnaît le type de document et lance l\'analyse toute seule — comme pour un PDF « texte » ou un copier-coller. Plus besoin d\'ouvrir Word pour copier le contenu.',
+   'Technique : décompression native du navigateur (aucune donnée envoyée à un serveur). L\'ancien format .doc (binaire) reste à convertir en .docx ou à copier-coller ; une photo/scan (image) n\'est toujours pas lue automatiquement (pas de reconnaissance de caractères).'
+ ]},
  {v:'v2026-07-12.49', d:'15 juillet 2026', t:[
    'Revue exhaustive (suite) — CALCULATEURS D\'INDEMNITÉS & PROCÉDURE : contrôle ligne à ligne des formules et barèmes, tout vérifié CONFORME aux sources officielles.',
    'Barème « Macron » (L.1235-3) : les 31 valeurs (0 à 30 ans et +) recoupées une à une, entreprises ≥ 11 salariés ET minima réduits < 11 salariés (0 à 10 ans). Indemnité légale de licenciement : ¼ mois/an jusqu\'à 10 ans, ⅓ au-delà (R.1234-2).',
@@ -10714,11 +10718,61 @@ function diagInsertText(txt,src){var t=(txt||'').replace(/ /g,'').trim();var ta=
   else diagStatus('✅ Texte extrait de '+esc(src)+' ('+t.length+' car.) — type non reconnu automatiquement : choisissez-le ci-dessus puis « Analyser ».','#1a7a3a');}
 function loadPdfJs(cb){if(window.pdfjsLib){cb();return;}var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=function(){try{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}catch(e){}cb();};s.onerror=function(){cb('err');};document.head.appendChild(s);}
 function diagExtractPdf(f){diagStatus('⏳ Lecture du PDF…','#555');loadPdfJs(function(err){if(err||!window.pdfjsLib){diagStatus('⚠️ Lecture PDF indisponible (hors ligne ?). Ouvrez le PDF, sélectionnez tout, copiez, puis collez le texte ci-dessus.','#b26b00');return;}var fr=new FileReader();fr.onload=function(){try{window.pdfjsLib.getDocument({data:new Uint8Array(fr.result)}).promise.then(function(pdf){var n=Math.min(pdf.numPages,25);var pages=[];var chain=Promise.resolve();for(var i=1;i<=n;i++){(function(i){chain=chain.then(function(){return pdf.getPage(i).then(function(pg){return pg.getTextContent().then(function(tc){pages.push(tc.items.map(function(it){return it.str;}).join(' '));});});});})(i);}chain.then(function(){diagInsertText(pages.join('\n'),'PDF « '+f.name+' »');}).catch(function(){diagStatus('⚠️ Impossible d\'extraire le texte de ce PDF. Copiez-collez le texte.','#b26b00');});}).catch(function(){diagStatus('⚠️ Impossible d\'ouvrir ce PDF. Copiez-collez le texte.','#b26b00');});}catch(e){diagStatus('⚠️ Erreur de lecture du PDF. Copiez-collez le texte.','#b26b00');}};fr.onerror=function(){diagStatus('⚠️ Lecture du fichier impossible.','#b26b00');};fr.readAsArrayBuffer(f);});}
+// ===== Lecture des fichiers Word .docx (archive ZIP + XML) — sans bibliothèque externe =====
+function _u8ToStr(u8){ try{ return new TextDecoder('utf-8').decode(u8); }catch(e){ var s='';for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return s; } }
+function _inflateRaw(bytes){
+  if(typeof DecompressionStream==='undefined') return Promise.reject(new Error('no-DecompressionStream'));
+  var ds=new DecompressionStream('deflate-raw');
+  return new Response(new Response(bytes).body.pipeThrough(ds)).arrayBuffer().then(function(ab){return new Uint8Array(ab);});
+}
+function _docxXmlToText(xml){
+  var t=xml.replace(/<w:tab\b[^>]*\/?>/g,'\t').replace(/<w:br\b[^>]*\/?>/g,'\n').replace(/<\/w:p>/g,'\n').replace(/<[^>]+>/g,'');
+  t=t.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&');
+  return t.replace(/\n{3,}/g,'\n\n').trim();
+}
+function _docxExtractText(bytes){
+  return new Promise(function(resolve,reject){
+    try{
+      var dv=new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      var eocd=-1, lo=Math.max(0,bytes.length-22-65557);
+      for(var i=bytes.length-22;i>=lo;i--){ if(dv.getUint32(i,true)===0x06054b50){ eocd=i; break; } }
+      if(eocd<0){ reject(new Error('not-zip')); return; }
+      var cdOff=dv.getUint32(eocd+16,true), cdCount=dv.getUint16(eocd+10,true), p=cdOff, target=null;
+      for(var e=0;e<cdCount;e++){
+        if(dv.getUint32(p,true)!==0x02014b50) break;
+        var method=dv.getUint16(p+10,true), compSize=dv.getUint32(p+20,true);
+        var nameLen=dv.getUint16(p+28,true), extraLen=dv.getUint16(p+30,true), commLen=dv.getUint16(p+32,true), localOff=dv.getUint32(p+42,true);
+        var nm=_u8ToStr(bytes.subarray(p+46,p+46+nameLen));
+        if(nm==='word/document.xml'){ target={method:method,compSize:compSize,localOff:localOff}; break; }
+        p+=46+nameLen+extraLen+commLen;
+      }
+      if(!target){ reject(new Error('no-document')); return; }
+      var lfn=dv.getUint16(target.localOff+26,true), lex=dv.getUint16(target.localOff+28,true);
+      var start=target.localOff+30+lfn+lex, comp=bytes.subarray(start,start+target.compSize);
+      if(target.method===0){ resolve(_docxXmlToText(_u8ToStr(comp))); return; }
+      if(target.method===8){ _inflateRaw(comp).then(function(x){ resolve(_docxXmlToText(_u8ToStr(x))); }).catch(reject); return; }
+      reject(new Error('method-'+target.method));
+    }catch(err){ reject(err); }
+  });
+}
+function diagExtractDocx(f){
+  diagStatus('⏳ Lecture du document Word…','#555');
+  var fr=new FileReader();
+  fr.onload=function(){
+    _docxExtractText(new Uint8Array(fr.result)).then(function(txt){
+      if(txt && txt.trim().length>1){ diagInsertText(txt,'document « '+f.name+' »'); }
+      else { diagStatus('⚠️ Aucun texte trouvé dans ce fichier Word. Ouvrez-le, copiez le texte, puis collez-le ci-dessus.','#b26b00'); }
+    }).catch(function(){ diagStatus('⚠️ Lecture du .docx impossible sur cet appareil. Ouvrez le document, copiez tout, puis collez le texte ci-dessus.','#b26b00'); });
+  };
+  fr.onerror=function(){ diagStatus('⚠️ Lecture du fichier impossible.','#b26b00'); };
+  fr.readAsArrayBuffer(f);
+}
 window.diagPreview=function(){var f=document.getElementById('diag-file').files[0];var p=document.getElementById('diag-preview');if(!f){p.innerHTML='';diagStatus('');return;}var name=f.name||'';var ext=(name.split('.').pop()||'').toLowerCase();p.innerHTML='';
   if(f.type.indexOf('image')===0||['jpg','jpeg','png','heic','webp','gif'].indexOf(ext)>=0){var u=URL.createObjectURL(f);p.innerHTML='<img src="'+u+'" style="max-width:100%;max-height:260px;border-radius:8px;border:1px solid #ddd">';diagStatus('📷 '+esc(name)+' joint — une image n\'est PAS lue automatiquement (pas de reconnaissance de texte). Pour l\'analyser, collez ou dictez le texte ci-dessus.','#b26b00');return;}
   if(ext==='txt'||f.type==='text/plain'){var fr=new FileReader();fr.onload=function(){diagInsertText(String(fr.result||''),'fichier « '+name+' »');};fr.onerror=function(){diagStatus('⚠️ Lecture du fichier impossible.','#b26b00');};fr.readAsText(f);return;}
   if(ext==='pdf'||f.type==='application/pdf'){diagExtractPdf(f);return;}
-  if(ext==='doc'||ext==='docx'){diagStatus('📄 '+esc(name)+' joint — les fichiers Word ne sont pas lus directement. Ouvrez le document, sélectionnez tout, copiez, puis collez le texte ci-dessus.','#b26b00');return;}
+  if(ext==='docx'||f.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'){diagExtractDocx(f);return;}
+  if(ext==='doc'){diagStatus('📄 '+esc(name)+' joint — ancien format Word (.doc) non lisible automatiquement. Enregistrez-le en .docx, ou ouvrez-le, copiez tout et collez le texte ci-dessus.','#b26b00');return;}
   diagStatus('📎 '+esc(name)+' joint ('+Math.round(f.size/1024)+' Ko) — format non lu automatiquement. Collez le texte ci-dessus pour l\'analyse.','#b26b00');};
 window.diagRender=function(){var t=document.getElementById('diag-type').value;var box=document.getElementById('diag-questions');if(!t||!DOCS[t]){box.style.display='none';box.innerHTML='';return;}var d=DOCS[t];var h='<div style="font-weight:600;color:#1b2a4a;margin-bottom:8px">3 · Questions — '+esc(d.nom)+'</div>';d.q.forEach(function(q){h+='<div style="margin-bottom:10px"><label style="font-size:12.5px;color:#444;display:block;margin-bottom:3px">'+esc(q.l)+'</label>';if(q.t==='date')h+='<input id="dq-'+q.id+'" type="date" style="padding:7px;border:1px solid #ccc;border-radius:8px">';else if(q.t==='on')h+='<select id="dq-'+q.id+'" style="padding:7px;border:1px solid #ccc;border-radius:8px"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select>';else if(q.t==='sel'){h+='<select id="dq-'+q.id+'" style="padding:7px;border:1px solid #ccc;border-radius:8px"><option value="">—</option>';q.o.forEach(function(op){h+='<option>'+esc(op)+'</option>';});h+='</select>';}h+='</div>';});box.innerHTML=h;box.style.display='block';};
 window.diagAnalyser=function(){var t=document.getElementById('diag-type').value;var R=document.getElementById('diag-result');if(!t||!DOCS[t]){R.innerHTML='<div style="color:#b00;font-size:13px">Choisissez d’abord un type de document.</div>';return;}var d=DOCS[t];var x={};d.q.forEach(function(q){var el=document.getElementById('dq-'+q.id);x[q.id]=el?el.value:'';});var resumeEl=document.getElementById('diag-resume');var c={rep:document.getElementById('diag-rep').value,eff:document.getElementById('diag-effectif').value,ccn:document.getElementById('diag-ccn').value,anc:document.getElementById('diag-anc').value,resume:resumeEl?resumeEl.value.trim():''};var r=d.a(x,c);
