@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.49';
+var JX_BUILD = 'v2026-07-12.50';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.49', d:'15 juillet 2026', t:[
@@ -938,7 +938,7 @@ function _regSave(a){ try{ localStorage.setItem('je_registre', JSON.stringify(a)
 function _escReg(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function _regDate(t){ try{ return new Date(t).toLocaleDateString('fr-FR'); }catch(e){ return ''; } }
 async function cgGenerer(){
-  var s=document.getElementById('cg-secteur').value;
+  var s=document.getElementById('cg-gensecteur').value;
   var res=document.getElementById('cg-result');
   if(!s){ if(res) res.style.display='none'; alert('Choisissez d\'abord le secteur du client.'); return; }
   var client=(document.getElementById('cg-client')||{}).value||'';
@@ -1266,7 +1266,7 @@ try{
       <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
       <input id="cg-client" placeholder="Client — nom ou entreprise" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <input id="cg-contact" placeholder="Email / téléphone (facultatif)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <select id="cg-secteur" style="width:100%;margin-bottom:8px">
+      <select id="cg-gensecteur" style="width:100%;margin-bottom:8px">
         <option value="">— Secteur du client —</option>
         <option value="transport">Transport routier</option>
         <option value="banque">Banque</option>
