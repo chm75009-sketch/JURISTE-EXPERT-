@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.45';
+var JX_BUILD = 'v2026-07-12.46';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -901,7 +901,7 @@ const _CODE_HASH = 'e37d4b8af9e720ee28ad9fdb31c8c07a3ff4e85d15b0b93a37fdda2bfedb
 const _TEMP_HASH = '83292184a5ee893afc29574dc7581852de7fd71a225fd2414ff631927edb5e57';
 const _TEMP_EXPIRY = 1783382399000;
 // Code administrateur (accès total, tous secteurs — pour vérifier l'application)
-const _ADMIN_HASH = '82d12a0cbcf1b775ae391064930ebde991ebd1849d56cb80317c37b5fedd1c92';
+const _ADMIN_HASH = 'deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367';
 // Codes par secteur : le code détermine et verrouille le secteur (T=transport, B=banque, A=assurances, S=syntec, E=enseignement, F=formation, I=indépendant)
 const _SECTOR_CODES = {}; // codes partagés désactivés — on utilise désormais des codes CLIENTS uniques (générateur admin)
 async function _sha256(txt){
@@ -957,6 +957,7 @@ async function verifierCode(){
     try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
     var _a0=document.getElementById('accueil-screen'); if(_a0) _a0.style.display='none';
+    try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
   } else if(_SECTOR_CODES[h]){
     try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _SECTOR_CODES[h]); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
