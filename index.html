@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.47';
+var JX_BUILD = 'v2026-07-12.48';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -927,10 +927,16 @@ async function _validAlgoCode(code){
   return (sig === good) ? _IDX_SEC[idx] : null;
 }
 var SECTEUR_LAB_CG={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
+function _regLoad(){ try{ return JSON.parse(localStorage.getItem('je_registre')||'[]'); }catch(e){ return []; } }
+function _regSave(a){ try{ localStorage.setItem('je_registre', JSON.stringify(a)); }catch(e){} }
+function _escReg(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _regDate(t){ try{ return new Date(t).toLocaleDateString('fr-FR'); }catch(e){ return ''; } }
 async function cgGenerer(){
   var s=document.getElementById('cg-secteur').value;
   var res=document.getElementById('cg-result');
   if(!s){ if(res) res.style.display='none'; alert('Choisissez d\'abord le secteur du client.'); return; }
+  var client=(document.getElementById('cg-client')||{}).value||'';
+  var contact=(document.getElementById('cg-contact')||{}).value||'';
   var idx=_SEC_IDX[s];
   var serial=String(Math.floor(Math.random()*9000)+1000);
   var sig=await _codeSign(idx, serial);
@@ -939,6 +945,44 @@ async function cgGenerer(){
   document.getElementById('cg-sec').textContent='Secteur : '+(SECTEUR_LAB_CG[s]||s);
   var cp=document.getElementById('cg-copied'); if(cp) cp.textContent='';
   if(res) res.style.display='block';
+  // Enregistrement au registre local
+  var reg=_regLoad();
+  reg.unshift({ t:Date.now(), code:code, sec:s, client:client.trim(), contact:contact.trim(), susp:false });
+  _regSave(reg);
+  var ci=document.getElementById('cg-client'); if(ci) ci.value='';
+  var cc=document.getElementById('cg-contact'); if(cc) cc.value='';
+  cgRenderRegistre();
+}
+function cgRenderRegistre(){
+  var box=document.getElementById('cg-registre'); if(!box) return;
+  var reg=_regLoad();
+  var cnt=document.getElementById('cg-reg-count'); if(cnt) cnt.textContent=reg.length? (reg.length+' client'+(reg.length>1?'s':'')):'';
+  if(!reg.length){ box.innerHTML='<div style="color:#8a8578;font-size:11.5px">Aucun code émis pour l\'instant.</div>'; return; }
+  var h='';
+  for(var i=0;i<reg.length;i++){
+    var r=reg[i];
+    var susp=r.susp;
+    h+='<div style="padding:8px 0;border-top:1px solid rgba(255,255,255,.07)'+(i===0?';border-top:none':'')+';'+(susp?'opacity:.55':'')+'">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'
+      +'<span style="font-weight:700;color:#e8c97a;font-variant-numeric:tabular-nums;letter-spacing:1px">'+_escReg(r.code)+'</span>'
+      +'<span style="font-size:10px;color:#8a8578">'+_regDate(r.t)+'</span></div>'
+      +'<div style="font-size:12px;color:#e8e4d8;margin-top:2px">'+(_escReg(r.client)||'<i style="color:#8a8578">sans nom</i>')+(susp?' <span style="color:#e88;font-size:10px;font-weight:700">• SUSPENDU (note)</span>':'')+'</div>'
+      +'<div style="font-size:10.5px;color:#9a9585">'+_escReg(SECTEUR_LAB_CG[r.sec]||r.sec)+(r.contact?(' · '+_escReg(r.contact)):'')+'</div>'
+      +'<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">'
+      +'<button onclick="cgRegSuspend('+i+')" style="font-size:11px;padding:4px 9px;border:1px solid rgba(224,168,58,.4);border-radius:7px;background:transparent;color:#e0a83a;cursor:pointer">'+(susp?'Réactiver (note)':'Suspendre (note)')+'</button>'
+      +'<button onclick="cgRegEdit('+i+')" style="font-size:11px;padding:4px 9px;border:1px solid rgba(255,255,255,.2);border-radius:7px;background:transparent;color:#cfc8b8;cursor:pointer">Modifier</button>'
+      +'<button onclick="cgRegDelete('+i+')" style="font-size:11px;padding:4px 9px;border:1px solid rgba(224,92,92,.4);border-radius:7px;background:transparent;color:#e88;cursor:pointer">Supprimer</button>'
+      +'</div></div>';
+  }
+  box.innerHTML=h;
+}
+function cgRegSuspend(i){ var reg=_regLoad(); if(reg[i]){ reg[i].susp=!reg[i].susp; _regSave(reg); cgRenderRegistre(); } }
+function cgRegDelete(i){ var reg=_regLoad(); if(reg[i]){ if(!confirm('Supprimer cette fiche du registre ?')) return; reg.splice(i,1); _regSave(reg); cgRenderRegistre(); } }
+function cgRegEdit(i){
+  var reg=_regLoad(); if(!reg[i]) return;
+  var nom=prompt('Client (nom / entreprise) :', reg[i].client||''); if(nom===null) return;
+  var ct=prompt('Email / téléphone :', reg[i].contact||''); if(ct===null) return;
+  reg[i].client=nom.trim(); reg[i].contact=ct.trim(); _regSave(reg); cgRenderRegistre();
 }
 function cgCopier(){
   var code=document.getElementById('cg-code').textContent||'';
@@ -1214,6 +1258,8 @@ try{
 
     <div style="margin-top:14px;padding:12px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;background:rgba(201,168,76,.06)">
       <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
+      <input id="cg-client" placeholder="Client — nom ou entreprise" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-contact" placeholder="Email / téléphone (facultatif)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <select id="cg-secteur" style="width:100%;margin-bottom:8px">
         <option value="">— Secteur du client —</option>
         <option value="transport">Transport routier</option>
@@ -1232,6 +1278,15 @@ try{
         <div id="cg-copied" style="font-size:11px;color:#5eb57a;margin-top:5px;min-height:14px"></div>
       </div>
       <div style="font-size:10.5px;color:#8a8578;line-height:1.5;margin-top:9px">Chaque appui génère un code <b>différent</b>, valable pour ce secteur. Envoyez-le au client : il l'entre via « J'ai déjà un code ».</div>
+    </div>
+
+    <div style="margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.03)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <label style="font-size:11px;color:#e8c97a;font-weight:700">📇 Registre des codes émis</label>
+        <span id="cg-reg-count" style="font-size:10px;color:#8a8578"></span>
+      </div>
+      <div id="cg-registre" style="font-size:12px;color:#cfc8b8"></div>
+      <div style="font-size:10px;color:#8a8578;line-height:1.5;margin-top:8px">⚠️ Registre <b>local à cet appareil</b>. « Suspendu » est une <b>note personnelle</b> : sans serveur, elle ne coupe pas l'accès d'un code déjà remis.</div>
     </div>
   </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
@@ -4543,6 +4598,7 @@ function applyClientSector(retry){
     var badge=document.getElementById('client-secteur-badge');
     if(badge){ badge.textContent = admin ? (sec?('👑 Admin — verrouillé sur : '+(SECTEUR_LAB[sec]||sec)):'👑 Mode administrateur — tous secteurs') : (sec?('🏷️ Secteur : '+(SECTEUR_LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
     var apw=document.getElementById('admin-secteur-wrap'); if(apw)apw.style.display=admin?'block':'none';
+    if(admin){ try{ if(typeof cgRenderRegistre==='function') cgRenderRegistre(); }catch(e){} }
     var ap=document.getElementById('admin-secteur'); if(ap && ap.value!==(sec||''))ap.value=sec||'';
     // Sélecteur d'accueil : inutile pour un client verrouillé (badge) ou un admin (son propre sélecteur)
     var hsw=document.getElementById('home-secteur-wrap'); if(hsw)hsw.style.display=(admin||sec)?'none':'';
