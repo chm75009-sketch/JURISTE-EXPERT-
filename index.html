@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.46';
+var JX_BUILD = 'v2026-07-12.47';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.36', d:'14 juillet 2026', t:[
@@ -2709,6 +2709,7 @@ Exemple :<br>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Actions guidées</div>
   <div class="mi" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start');closeMenu()"><span style="font-size:18px">🧑‍💼</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">J'embauche un salarié (assistant)</div></div></div>
   <div class="mi" onclick="goPage('rupture');if(typeof wzrGo==='function')wzrGo('start');closeMenu()"><span style="font-size:18px">🚪</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Je veux rompre un contrat (assistant)</div></div></div>
+  <div style="margin:12px 4px 4px"><button onclick="deconnexion()" style="width:100%;padding:12px;border:1px solid rgba(224,92,92,.5);border-radius:10px;background:rgba(224,92,92,.12);color:#e88;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">🔒 Se déconnecter</button></div>
 </div>
 <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:#6b6660;line-height:1.5">Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</div>
 </div>
@@ -4507,6 +4508,14 @@ function homeToggle(head){
 }
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
+function deconnexion(){
+  try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_trial'); }catch(e){}
+  try{ window.CLIENT_SECTEUR=''; }catch(e){}
+  try{ closeMenu(); }catch(e){}
+  try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
+  // Retour à la vitrine publique (comme un nouveau visiteur)
+  if(typeof accueilShow==='function'){ accueilShow(); } else { try{ location.reload(); }catch(e){} }
+}
 
 /* ===== Cadrage par secteur : le client ne voit que son secteur (admin = tout) ===== */
 var SECTEUR_LAB={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant'};
