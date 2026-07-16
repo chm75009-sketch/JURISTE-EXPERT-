@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.54';
+var JX_BUILD = 'v2026-07-12.55';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.54', d:'15 juillet 2026', t:[
@@ -11143,7 +11143,7 @@ var DIAG_AUTO={
  cse_convoc:{pres:/pr[ée]sident|employeur/i,oj:/ordre\s+du\s+jour/i},
  cse_oj:{conj:/conjoint|secr[ée]taire/i,pv:/proc[èe]s[- ]verbal|approbation/i},
  cse_pv:{sec:/secr[ée]taire/i,cont:/d[ée]lib[ée]r|d[ée]cision\s+motiv/i},
- pse:{eff:/au\s+moins\s+50|plus\s+de\s+(cinquante|50)|effectif[^.]{0,20}\b(5\d|[1-9]\d{2,})\b/i,recl:/reclassement/i,crit:/crit[èe]res?\s+d[’']ordre/i,cse:/cse|comit[ée]\s+social|consultation/i,adm:/dreets|validation|homologation/i}
+ pse:{eff:/au\s+moins\s+50\s+salari|plus\s+de\s+(cinquante|50)\s+salari|(emploie|effectif|compte|comptant|employant)[^.]{0,25}\b([5-9]\d|[1-9]\d{2,})\s*salari/i,recl:/reclassement/i,crit:/crit[èe]res?\s+d[’']ordre/i,cse:/cse|comit[ée]\s+social|consultation/i,adm:/dreets|validation|homologation/i}
 };
 function diagAutoFill(type,txt){
   function setV(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!=='')e.value=v;}
@@ -11163,6 +11163,11 @@ function diagAutoFill(type,txt){
     if(oldest)setV('dq-df',diagToISO(oldest));
     if(newest)setV('dq-ds',diagToISO(newest));
     setV('dq-nat',/avertissement|bl[âa]me/i.test(txt)?'Avertissement / blâme':(/mise\s+[àa]\s+pied/i.test(txt)?'Mise à pied disciplinaire':(/r[ée]trograd/i.test(txt)?'Rétrogradation':'')));
+  }else if(type==='pse'){
+    var mnb=txt.match(/(?:licenciement|licencier|suppression|supprim\w*|d[ée]part)[^.]{0,30}?(\d{1,4})\s*(?:postes?|emplois?|salari|licenciement|d[ée]part)/i);
+    var nb=mnb?parseInt(mnb[1],10):null;
+    if(nb==null){var m2=txt.match(/(\d{1,4})\s+(?:licenciements?|suppressions?|d[ée]parts?\s+contraint)/i);if(m2)nb=parseInt(m2[1],10);}
+    if(nb!=null)setV('dq-nb', nb>=250?'250 et plus':(nb>=100?'100 à 249':(nb>=10?'10 à 99':'1 à 9')));
   }
   // Questions oui/non : « oui » si le texte contient l'élément (jamais « non » automatique)
   var A=DIAG_AUTO[type];
