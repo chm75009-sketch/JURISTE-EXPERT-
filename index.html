@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.57';
+var JX_BUILD = 'v2026-07-12.58';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.58', d:'16 juillet 2026', t:[
+   'Analyse PSE encore affinée : le CSP n\'est signalé manquant que si l\'effectif détecté est INFÉRIEUR à 1 000 salariés (au-delà, le congé de reclassement est le bon dispositif) — fin d\'un faux positif.',
+   'Nouveaux pièges détectés dans un plan de licenciement : critère d\'ordre fondé sur la RÉSIDENCE / la proximité (risque de discrimination, hors L.1233-5) ; qualités professionnelles appréciées « librement » (doivent être objectives, par catégorie) ; périmètre d\'application des critères réduit à un « site » (ne peut être inférieur à la zone d\'emploi dans un document unilatéral).'
+ ]},
  {v:'v2026-07-12.57', d:'16 juillet 2026', t:[
    'Analyse PSE / plan de licenciement APPROFONDIE : l\'application détecte désormais deux pièges fréquents qu\'un simple contrôle de mentions laissait passer —',
    '① Réunions du CSE trop rapprochées : les 2 réunions de consultation doivent être espacées d\'au moins 15 jours (L.1233-30) ; l\'app lit les dates des réunions et alerte si l\'écart est plus court.',
@@ -11090,11 +11094,27 @@ function diagDeepFindings(t,texte){
     if(dcse.length>=2){ dcse.sort(function(a,b){return a-b;}); var gap=Math.round((dcse[1]-dcse[0])/86400000);
       if(gap>=0&&gap<15) d.push('<b>Réunions du CSE trop rapprochées (art. L.1233-30)</b> — les deux réunions de consultation semblent espacées d\'environ <b>'+gap+' jours</b> ('+diagFdate(dcse[0])+' → '+diagFdate(dcse[1])+'), alors qu\'un <b>minimum de 15 jours</b> est requis entre les deux. Décalez la seconde réunion : à défaut, la consultation est irrégulière.');
     }
+    // Effectif détecté dans le texte (« 1 200 salariés », « effectif : 180 »)
+    var _effN=null,_arr=[],_rE=/(\d[\d\s.  ]{0,7}\d|\d)\s*salari[ée]/gi,_me;
+    while((_me=_rE.exec(texte))){var _n=parseInt(String(_me[1]).replace(/[\s.  ]/g,''),10);if(!isNaN(_n))_arr.push(_n);}
+    if(_arr.length)_effN=Math.max.apply(null,_arr);
+    var _congeR=/cong[ée]\s+de\s+reclassement/i.test(texte), _csp=/(s[ée]curisation\s+professionnelle|\bcsp\b)/i.test(texte);
     // Dispositif de reclassement selon l'effectif : CSP (< 1000) vs congé de reclassement (≥ 1000)
-    if(/cong[ée]\s+de\s+reclassement/i.test(texte)&&!/(s[ée]curisation\s+professionnelle|\bcsp\b)/i.test(texte))
-      d.push('<b>Contrat de sécurisation professionnelle (CSP) non mentionné</b> — dans une entreprise de <b>moins de 1 000 salariés</b>, l\'employeur DOIT proposer le CSP à chaque salarié licencié pour motif économique (art. L.1233-65 s.). Le document propose un <b>congé de reclassement</b>, dispositif réservé aux entreprises de <b>1 000 salariés et plus</b> (L.1233-71) : il ne remplace pas l\'obligation de proposer le CSP.');
+    if(_effN!=null && _effN<1000 && _congeR && !_csp)
+      d.push('<b>Contrat de sécurisation professionnelle (CSP) non mentionné</b> — dans une entreprise de <b>moins de 1 000 salariés</b> ('+_effN+' ici), l\'employeur DOIT proposer le CSP à chaque salarié licencié pour motif économique (art. L.1233-65 s.). Le document propose un <b>congé de reclassement</b>, dispositif réservé aux entreprises de <b>1 000 salariés et plus</b> (L.1233-71) : il ne remplace pas l\'obligation de proposer le CSP.');
+    else if(_effN!=null && _effN<1000 && !_congeR && !_csp)
+      d.push('<b>Contrat de sécurisation professionnelle (CSP) à proposer</b> — entreprise de moins de 1 000 salariés ('+_effN+') : le CSP doit être proposé à chaque salarié licencié pour motif économique (L.1233-65). Il ne semble pas mentionné.');
+    // Critère d'ordre fondé sur la résidence / la proximité = risque de discrimination
+    if(/(bonification|points?|crit[èe]re|avantage)[^.]{0,90}(r[ée]sid|domicile|proximit[ée]|commune\s+du\s+si[èe]ge|km\b)/i.test(texte) || /r[ée]sid\w+[^.]{0,45}(moins\s+de\s+\d+\s*km|proximit[ée]|commune\s+du\s+si[èe]ge)/i.test(texte))
+      d.push('<b>Critère d\'ordre fondé sur la résidence / la proximité = risque de discrimination</b> — avantager ou pénaliser les salariés selon leur <b>lieu de résidence</b> ne figure pas parmi les critères légaux (L.1233-5) et constitue un critère <b>potentiellement discriminatoire</b>. Le 3ᵉ critère vise les caractéristiques sociales rendant la réinsertion difficile (handicap, âge), pas la distance au siège.');
+    // Qualités professionnelles appréciées « librement » / discrétionnairement
+    if(/qualit[ée]s?\s+professionnelles?[^.]{0,80}(librement|libre\s+appr[ée]ciation|discr[ée]tion|discr[ée]tionnaire|selon\s+la\s+(seule\s+)?direction|par\s+la\s+direction)/i.test(texte))
+      d.push('<b>Qualités professionnelles appréciées « librement »</b> — la loi (L.1233-5, 4°) exige une appréciation <b>par catégorie</b> reposant sur des <b>éléments objectifs et vérifiables</b> (Cass. soc.). Une évaluation « libre » ou discrétionnaire de la direction est contestable et peut faire annuler l\'ordre des licenciements.');
+    // Périmètre d'application des critères d'ordre : pas plus petit que la zone d'emploi
+    if(/crit[èe]res?\s+d[’']ordre/i.test(texte) && /(au\s+niveau\s+de\s+chaque\s+site|au\s+niveau\s+du\s+site|par\s+site\b|au\s+niveau\s+de\s+chaque\s+[ée]tablissement)/i.test(texte) && !/accord\s+(collectif|d[’']entreprise|majoritaire)/i.test(texte))
+      d.push('<b>Périmètre des critères d\'ordre trop restreint (L.1233-5)</b> — les critères semblent appliqués au niveau du « site » / de l\'établissement. Dans un <b>document unilatéral</b>, ce périmètre <b>ne peut être inférieur à la zone d\'emploi</b> ; le restreindre à un site permet de cibler des salariés précis et est irrégulier (sauf accord collectif le prévoyant).');
     // Motif économique
-    if(!/(sauvegarde\s+de\s+la\s+comp[ée]titivit|difficult[ée]s\s+[ée]conomiques|mutations\s+technologiques|cessation\s+d[’']activit)/i.test(texte))
+    if(!/(sauvegarde\s+de\s+la\s+comp[ée]titivit|difficult[ée]s\s+[ée]conomiques|mutations\s+technologiques|cessation\s+d[’']activit|baisse\s+.{0,20}(chiffre|commandes|activit))/i.test(texte))
       d.push('<b>Motif économique à caractériser</b> — le document doit établir un motif économique réel et sérieux (difficultés économiques, mutations technologiques, sauvegarde de la compétitivité ou cessation d\'activité — L.1233-3).');
   }
   if(t==='cdd'){
