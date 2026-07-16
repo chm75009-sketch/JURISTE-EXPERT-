@@ -637,9 +637,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.56';
+var JX_BUILD = 'v2026-07-12.57';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.57', d:'16 juillet 2026', t:[
+   'Analyse PSE / plan de licenciement APPROFONDIE : l\'application détecte désormais deux pièges fréquents qu\'un simple contrôle de mentions laissait passer —',
+   '① Réunions du CSE trop rapprochées : les 2 réunions de consultation doivent être espacées d\'au moins 15 jours (L.1233-30) ; l\'app lit les dates des réunions et alerte si l\'écart est plus court.',
+   '② Dispositif de reclassement inadapté : si le plan propose un « congé de reclassement » (réservé aux entreprises ≥ 1000 salariés — L.1233-71) sans mentionner le « contrat de sécurisation professionnelle » (CSP), pourtant obligatoire en dessous de 1000 salariés (L.1233-65), l\'app le signale.',
+   'Le seuil « PSE obligatoire » n\'est plus compté comme une non-conformité lorsque le document analysé EST déjà un PSE (il devient un point conforme). Le lecteur de dates reconnaît désormais les formats ordinaux (« 1er septembre 2026 »).'
+ ]},
  {v:'v2026-07-12.54', d:'15 juillet 2026', t:[
    'MODULE ANALYSE — NOUVEAUX DOCUMENTS CSE. Vous pouvez désormais importer et faire diagnostiquer : un PLAN DE LICENCIEMENT / PSE, un PROCÈS-VERBAL de réunion du CSE, un ORDRE DU JOUR et une CONVOCATION de réunion. L\'application reconnaît automatiquement le type et vérifie mentions obligatoires, délais et conformité.',
    'PSE : contrôle du seuil (≥ 10 licenciements/30 j + ≥ 50 salariés → PSE obligatoire, L.1233-61), des mesures de reclassement (L.1233-62), des critères d\'ordre (L.1233-5), de la consultation du CSE (2 réunions espacées de 15 j — L.1233-30) et de la validation/homologation DREETS (15 j / 21 j — L.1233-57-4).',
@@ -10853,7 +10859,7 @@ var DOCS={
    var gros=(x.nb&&x.nb!=='1 à 9');
    if(x.nb==='1 à 9')re.push('Moins de 10 licenciements sur 30 jours : pas de PSE obligatoire, mais la consultation du CSE et les critères d’ordre restent requis (licenciement collectif de moins de 10 — L.1233-8 s.). ⚠️ Fractionner un projet pour passer sous le seuil (« saucissonnage ») est sanctionné (L.1233-26).');
    if(gros){
-     if(x.eff==='oui')ko.push(['Au moins 10 licenciements sur 30 jours dans une entreprise d’au moins 50 salariés : un PLAN DE SAUVEGARDE DE L’EMPLOI (PSE) est OBLIGATOIRE. À défaut, la procédure est nulle et les licenciements privés d’effet.','C. trav. art. L.1233-61']);
+     if(x.eff==='oui')ok.push('Seuil du PSE atteint (≥ 10 licenciements sur 30 jours, ≥ 50 salariés) : un plan de sauvegarde de l’emploi est obligatoire (L.1233-61) — le présent document en est un. La conformité dépend de son contenu, contrôlé ci-dessous.');
      else if(x.eff==='non')re.push('Au moins 10 licenciements mais moins de 50 salariés : pas de PSE obligatoire, mais procédure de licenciement collectif (consultation CSE, notification DREETS, critères d’ordre, plan de reclassement).');
    }
    if(x.recl==='non')ko.push(['Un PSE DOIT comporter des mesures concrètes de reclassement interne, de formation/adaptation, de mobilité et de reclassement externe ; un plan sans mesures sérieuses est insuffisant (contrôle DREETS, risque d’annulation).','C. trav. art. L.1233-61, L.1233-62']);else if(x.recl==='oui')ok.push('Mesures de reclassement / formation présentes.');
@@ -11011,11 +11017,14 @@ function diagParseDatesCtx(txt){
   var res=[],m;
   var re1=/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})\b/g;
   while((m=re1.exec(txt))){var y=parseInt(m[3],10);if(y<100)y+=2000;var d=_diagMkDate(y,parseInt(m[2],10)-1,parseInt(m[1],10));if(d)res.push({d:d,ctx:txt.slice(Math.max(0,m.index-30),m.index).toLowerCase()});}
-  var re2=/\b(\d{1,2}\s+)?(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)\s+(\d{4})\b/gi;
+  // « 1er septembre 2026 », « 15 Septembre 2026 » (gère l'ordinal er/ère/ème et le jour optionnel)
+  var re2=/\b(?:(\d{1,2})(?:er|ère|ere|ème|eme|e|ᵉʳ|ᵉ)?\s+)?(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)\s+(\d{4})\b/gi;
   while((m=re2.exec(txt))){var k=m[2].toLowerCase();if(!(k in MO))continue;var d2=_diagMkDate(parseInt(m[3],10),MO[k],m[1]?parseInt(m[1],10):1);if(d2)res.push({d:d2,ctx:txt.slice(Math.max(0,m.index-30),m.index).toLowerCase()});}
   return res;
 }
 function diagParseDatesFR(txt){ return diagParseDatesCtx(txt).map(function(o){return o.d;}); }
+// Dates dont le CONTEXTE (30 car. avant) correspond à un mot-clé (ex. dates de réunions CSE)
+function diagDatesNearKw(txt,kwRe){ return diagParseDatesCtx(txt).filter(function(o){return kwRe.test(o.ctx);}).map(function(o){return o.d;}); }
 // Contexte qui DISQUALIFIE une date comme « date des faits » (embauche, naissance, ancienneté…)
 var _DIAG_DATE_EXCL=/n[ée]\(?e?\)?\s+le|naissance|engag[ée]|embauch|recrut|depuis\s+le|anciennet[ée]|entr[ée]e\s+(en\s+fonction|dans\s+l|au\s+service)|contrat\s+(conclu|sign[ée]|[àa]\s+dur[ée]e)|prise\s+d[’']effet|date\s+d[’']effet/;
 function diagDatesInfo(txt){
@@ -11074,6 +11083,19 @@ function diagDeepFindings(t,texte){
     var vg=DIAG_VAGUE.filter(function(v){return v.re.test(texte);});
     if(vg.length)d.push('<b>Motif(s) imprécis</b> — expressions repérées : '+vg.map(function(v){return v.l;}).join(', ')+'. La lettre doit énoncer des <b>faits précis, datés et vérifiables</b> (L.1232-6, L.1235-1) ; un grief vague n\'est pas une cause réelle et sérieuse.');
     if((fg||fl)&&!/cong[ée]s\s+pay[ée]s/i.test(texte))d.push('<b>Indemnité de congés payés</b> — même en faute grave/lourde, l\'indemnité compensatrice de congés payés reste due (Cons. const. 2015-523 QPC) ; elle ne semble pas mentionnée.');
+  }
+  if(t==='pse'){
+    // Espacement des 2 réunions de consultation du CSE : au moins 15 jours (L.1233-30)
+    var dcse=diagDatesNearKw(texte,/r[ée]union|consultation|\bcse\b|comit[ée]\s+social|\br\s?1\b|\br\s?2\b/i);
+    if(dcse.length>=2){ dcse.sort(function(a,b){return a-b;}); var gap=Math.round((dcse[1]-dcse[0])/86400000);
+      if(gap>=0&&gap<15) d.push('<b>Réunions du CSE trop rapprochées (art. L.1233-30)</b> — les deux réunions de consultation semblent espacées d\'environ <b>'+gap+' jours</b> ('+diagFdate(dcse[0])+' → '+diagFdate(dcse[1])+'), alors qu\'un <b>minimum de 15 jours</b> est requis entre les deux. Décalez la seconde réunion : à défaut, la consultation est irrégulière.');
+    }
+    // Dispositif de reclassement selon l'effectif : CSP (< 1000) vs congé de reclassement (≥ 1000)
+    if(/cong[ée]\s+de\s+reclassement/i.test(texte)&&!/(s[ée]curisation\s+professionnelle|\bcsp\b)/i.test(texte))
+      d.push('<b>Contrat de sécurisation professionnelle (CSP) non mentionné</b> — dans une entreprise de <b>moins de 1 000 salariés</b>, l\'employeur DOIT proposer le CSP à chaque salarié licencié pour motif économique (art. L.1233-65 s.). Le document propose un <b>congé de reclassement</b>, dispositif réservé aux entreprises de <b>1 000 salariés et plus</b> (L.1233-71) : il ne remplace pas l\'obligation de proposer le CSP.');
+    // Motif économique
+    if(!/(sauvegarde\s+de\s+la\s+comp[ée]titivit|difficult[ée]s\s+[ée]conomiques|mutations\s+technologiques|cessation\s+d[’']activit)/i.test(texte))
+      d.push('<b>Motif économique à caractériser</b> — le document doit établir un motif économique réel et sérieux (difficultés économiques, mutations technologiques, sauvegarde de la compétitivité ou cessation d\'activité — L.1233-3).');
   }
   if(t==='cdd'){
     if(/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|durablement\s+un\s+poste|emploi\s+(li[ée]\s+[àa]\s+l[’']activit[ée]\s+(normale|permanente)|durable|permanent)|poste\s+permanent/i.test(texte))
