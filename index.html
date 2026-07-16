@@ -637,9 +637,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.52';
+var JX_BUILD = 'v2026-07-12.53';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.53', d:'15 juillet 2026', t:[
+   'NOUVEAU — « FONCTIONNEMENT DU CSE » : une page complète sur la vie du CSE une fois élu, en plus des élections. Accessible depuis le module CSE et le menu.',
+   'Couvre TOUT, vérifié aux sources officielles (Légifrance / service-public / URSSAF) : attributions selon l\'effectif (11-49 / ≥50) ; rôles et bureau (président, secrétaire, trésorier, référent harcèlement) et commissions obligatoires (CSSCT ≥300, économique ≥1000…) ; réunions (périodicité, SSCT ≥4/an, extraordinaires, visioconférence) ; convocation et ordre du jour conjoint ; procès-verbal (délais 15 j / 3 j / 1 j, approbation, diffusion) ; les 3 consultations récurrentes + BDESE ; consultations ponctuelles et délais d\'avis (1/2/3 mois, avis réputé négatif) ; expertises et leur financement (100 % ou 80/20) ; budgets (fonctionnement 0,20 %/0,22 %, ASC, transfert 10 %, assiette masse salariale brute) ; comptabilité (seuils 153 000 € / commissaire aux comptes) ; heures de délégation (report, mutualisation) ; droits d\'alerte ; moyens, formation, statut protégé ; délit d\'entrave (7 500 € / 37 500 €) ; jurisprudence clé.',
+   'Deux CALCULATEURS : périodicité des réunions selon l\'effectif, et budget de fonctionnement (masse salariale × taux). Quatre DOCUMENTS générés : convocation à réunion, ordre du jour, procès-verbal (trame) et règlement intérieur du CSE.'
+ ]},
  {v:'v2026-07-12.52', d:'15 juillet 2026', t:[
    'REVUE EXHAUSTIVE (module par module, ligne par ligne) — corrections vérifiées aux sources officielles (Légifrance, Code du travail, ameli) :',
    'CONGÉ DÉCÈS D\'UN ENFANT corrigé : 12 jours ouvrables (14 si l\'enfant a moins de 25 ans ou était parent) + congé de deuil de 8 jours (art. L.3142-4 et L.3142-1-1) — l\'application indiquait encore 7 jours. Congé « annonce handicap / pathologie chronique / cancer d\'un enfant » : 5 jours (loi du 19/07/2023) partout.',
@@ -2209,6 +2214,7 @@ try{
     <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option>
 </select></div>
 <div class="al info" style="font-size:12px"><b>À noter :</b> la procédure d'élection du CSE relève du <b>Code du travail</b> (seuils, collèges, PAP, délais) — identique quel que soit le secteur. La convention choisie sert de référence dans les documents générés.<br>Convention retenue : <b id="cse-cc-label">—</b></div>
+<button class="btn" style="margin-top:10px;background:#355d8a;color:#fff" onclick="goPage('csefonc')">⚙️ Fonctionnement du CSE (budgets, réunions, consultations, PV…) →</button>
 </div>
 
 <div class="card">
@@ -2516,6 +2522,225 @@ Exemple :<br>
 </div>
 </div>
 
+<!-- ═══ FONCTIONNEMENT DU CSE ═══ -->
+<div id="pg-csefonc" class="page">
+<div class="topbar"><button onclick="goPage('cse')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← CSE</button>
+<div style="flex:1"><div class="tt">Fonctionnement du CSE</div><div class="ts">Attributions · budgets · réunions · consultations · PV — Code du travail</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+<div class="al info" style="font-size:12px;line-height:1.7">Cette page couvre la <b>vie du CSE une fois élu</b> : ses attributions, son budget, ses réunions, ses consultations, ses expertises et ses documents. Règles du <b>Code du travail</b> (à jour 2026). Beaucoup sont <b>supplétives</b> : un <b>accord d'entreprise majoritaire</b> peut les aménager (périodicité jusqu'à 3 ans, contenu de la BDESE, délais). Les <b>seuils et sanctions</b>, eux, sont d'ordre public.</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+<button class="btn-outline" onclick="genCseFonc('convocation')">✉️ Convocation à réunion</button>
+<button class="btn-outline" onclick="genCseFonc('ordre_du_jour')">📋 Ordre du jour</button>
+<button class="btn-outline" onclick="genCseFonc('pv')">📜 Procès-verbal (trame)</button>
+<button class="btn-outline" onclick="genCseFonc('reglement_interieur')">📕 Règlement intérieur du CSE</button>
+</div>
+</div>
+
+<!-- 1. ATTRIBUTIONS -->
+<div class="card">
+<div class="ct">1 · Attributions selon l'effectif</div>
+<div class="table-wrap"><table>
+<tr><th>CSE de 11 à 49 salariés (L.2312-5)</th><th>CSE d'au moins 50 salariés (L.2312-8 s.)</th></tr>
+<tr><td>Présenter les <b>réclamations</b> individuelles et collectives (salaires, application du Code du travail, conventions).</td><td>Tout ce qui précède <b>+</b> expression collective des salariés dans les décisions économiques et d'organisation.</td></tr>
+<tr><td>Promouvoir la <b>santé, la sécurité</b> et l'amélioration des conditions de travail ; enquêtes AT/MP.</td><td>Consultations sur la <b>marche générale</b> de l'entreprise (effectifs, durée du travail, nouvelles technologies, projets importants, <b>conséquences environnementales</b> — loi Climat 2021).</td></tr>
+<tr><td><b>2 droits d'alerte</b> : atteinte aux droits (L.2312-59), danger grave et imminent (L.2312-60).</td><td><b>Gestion des activités sociales et culturelles</b> (ASC — L.2312-78), personnalité civile, budgets, BDESE, 3 consultations récurrentes, expertises, alertes économique et sociale.</td></tr>
+<tr><td>Saisir l'inspection du travail. Pas de budget ni de personnalité civile.</td><td>Réunions plus fréquentes, expertises financées, statut renforcé.</td></tr>
+</table></div>
+</div>
+
+<!-- 2. RÔLES -->
+<div class="card">
+<div class="ct">2 · Rôles, bureau &amp; commissions</div>
+<div class="table-wrap"><table>
+<tr><th>Fonction</th><th>Rôle</th><th>Obligation</th></tr>
+<tr><td><b>Président</b></td><td>L'employeur ou son représentant, assisté au plus de 3 collaborateurs (voix consultative). Ne vote pas quand il consulte le CSE (L.2315-23).</td><td>Toujours</td></tr>
+<tr><td><b>Secrétaire</b></td><td>Élu titulaire ; établit l'ordre du jour <b>conjointement</b> avec le président (L.2315-29) et rédige/diffuse le <b>PV</b> (L.2315-34).</td><td>≥ 50 salariés</td></tr>
+<tr><td><b>Trésorier</b></td><td>Élu titulaire ; gère les 2 budgets, tient la comptabilité, arrête les comptes (L.2315-64 s.).</td><td>≥ 50 salariés</td></tr>
+<tr><td><b>Référent harcèlement</b></td><td>Désigné parmi les membres, lutte contre le harcèlement sexuel et les agissements sexistes (L.2314-1).</td><td><b>Tout CSE</b></td></tr>
+<tr><td><b>Suppléants</b></td><td>Assistent aux réunions <b>seulement en l'absence du titulaire</b> (L.2314-1) ; reçoivent convocation et OJ à titre informatif.</td><td>—</td></tr>
+</table></div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:8px;line-height:1.7"><b>Commissions obligatoires selon l'effectif :</b><br>• <b>CSSCT</b> (santé, sécurité, conditions de travail) : ≥ <b>300</b> salariés — et quel que soit l'effectif en site SEVESO/nucléaire/mines (L.2315-36).<br>• Commissions <b>formation</b>, <b>logement</b>, <b>égalité professionnelle</b> : ≥ <b>300</b> (L.2315-49 s.).<br>• Commission <b>économique</b> : ≥ <b>1 000</b> (L.2315-46).<br>• Commission des <b>marchés</b> : CSE dépassant 2 des 3 seuils comptables (L.2315-44-1).</div>
+</div>
+
+<!-- 3. RÉUNIONS -->
+<div class="card">
+<div class="ct">3 · Réunions — périodicité</div>
+<div class="fg"><label class="fl">Effectif de l'entreprise</label><input type="number" id="csf-eff" min="0" placeholder="Ex : 150" oninput="cseFoncReunions()"/></div>
+<div id="csf-reunions-result" style="margin-top:6px"></div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:10px;line-height:1.8">
+• <b>CSE &lt; 50</b> : au moins <b>1 réunion par mois</b> (L.2315-21). Demande écrite 2 j ouvrables avant, réponse ≤ 6 j ouvrables (L.2315-22).<br>
+• <b>CSE ≥ 50</b> : nombre fixé par <b>accord</b> (≥ 6/an — L.2312-19). À défaut : <b>tous les 2 mois si &lt; 300</b> salariés, <b>tous les mois si ≥ 300</b> (L.2315-28).<br>
+• <b>≥ 4 réunions/an</b> portent sur la <b>SSCT</b> (santé, sécurité — L.2315-27). Calendrier confirmé 15 j avant à l'inspection du travail, au médecin et à la CARSAT.<br>
+• <b>Réunion SSCT extraordinaire</b> obligatoire après un accident grave (ou risque), ou à la demande motivée de <b>2 membres</b>.<br>
+• <b>Visioconférence</b> : par accord ; à défaut, limitée à <b>3 réunions/an</b> (L.2315-4), vote à bulletin secret garanti.
+</div>
+</div>
+
+<!-- 4. CONVOCATION & OJ -->
+<div class="card">
+<div class="ct">4 · Convocation &amp; ordre du jour</div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8">
+• <b>Convocation</b> par le <b>président</b> (employeur), à tous les titulaires (+ suppléants à titre informatif) et aux représentants syndicaux.<br>
+• <b>Ordre du jour établi conjointement</b> par le président ET le secrétaire (L.2315-29). Les <b>consultations obligatoires</b> y sont inscrites <b>de plein droit</b> par l'un ou l'autre en cas de désaccord.<br>
+• <b>Communication de l'OJ ≥ 3 jours</b> avant la réunion (8 jours pour le CSE central) — aussi à l'inspection du travail et à l'agent de prévention Sécu (L.2315-30).<br>
+• La <b>signature conjointe</b> de l'OJ n'est pas exigée : l'accord peut se prouver par tout moyen (Cass. soc. 25/04/2007).
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
+<button class="btn-outline" onclick="genCseFonc('convocation')">✉️ Convocation à réunion →</button>
+<button class="btn-outline" onclick="genCseFonc('ordre_du_jour')">📋 Ordre du jour →</button>
+</div>
+</div>
+
+<!-- 5. PV -->
+<div class="card">
+<div class="ct">5 · Procès-verbal</div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8">
+• Rédigé par le <b>secrétaire</b> (L.2315-34). Contenu minimal : résumé des délibérations + décision motivée de l'employeur (D.2315-26).<br>
+• <b>Transmission à l'employeur</b> (délai supplétif, sauf accord) :</div>
+<div class="table-wrap" style="margin-top:6px"><table>
+<tr><th>Situation</th><th>Délai</th><th>Réf.</th></tr>
+<tr><td>Cas général</td><td><b>15 jours</b> (ou avant la réunion suivante si &lt; 15 j)</td><td>R.2315-25</td></tr>
+<tr><td>Consultation PSE / licenciement éco.</td><td><b>3 jours</b></td><td>R.2315-25</td></tr>
+<tr><td>Redressement / liquidation judiciaire</td><td><b>1 jour</b></td><td>R.2315-25</td></tr>
+</table></div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8;margin-top:6px">• <b>Approbation</b> à la réunion suivante, puis le secrétaire peut l'<b>afficher/diffuser</b> (L.2315-35). Enregistrement/sténographie possible (frais à la charge de qui le décide — D.2315-27).</div>
+<button class="btn-outline" style="margin-top:8px" onclick="genCseFonc('pv')">📜 Procès-verbal (trame) →</button>
+</div>
+
+<!-- 6. CONSULTATIONS RÉCURRENTES -->
+<div class="card">
+<div class="ct">6 · Consultations récurrentes (≥ 50)</div>
+<div class="table-wrap"><table>
+<tr><th>Consultation</th><th>Objet</th><th>Réf.</th></tr>
+<tr><td><b>Orientations stratégiques</b></td><td>Stratégie, emploi, métiers/compétences, GEPP, recours sous-traitance/intérim/CDD, formation.</td><td>L.2312-24</td></tr>
+<tr><td><b>Situation économique et financière</b></td><td>Comptes, R&amp;D, CIR/CICE.</td><td>L.2312-25</td></tr>
+<tr><td><b>Politique sociale, conditions de travail, emploi</b></td><td>Emploi, formation, durée du travail, congés, égalité F/H, handicap, conditions de travail.</td><td>L.2312-26</td></tr>
+</table></div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:8px;line-height:1.7"><b>Périodicité :</b> tous les <b>ans</b> par défaut, jusqu'à <b>3 ans</b> par accord (L.2312-19). S'appuient sur la <b>BDESE</b> (base de données économiques, sociales et environnementales — L.2312-18) ; sa mise à jour <b>vaut communication</b> au CSE.</div>
+</div>
+
+<!-- 7. CONSULTATIONS PONCTUELLES + DÉLAIS -->
+<div class="card">
+<div class="ct">7 · Consultations ponctuelles &amp; délais d'avis</div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8">Le CSE ≥ 50 est aussi consulté <b>ponctuellement</b> : moyens de contrôle des salariés (L.2312-38), <b>restructuration / compression d'effectifs</b> (L.2312-39), <b>licenciement collectif éco / PSE</b> (L.2312-40, L.1233-28 s.), concentration (L.2312-41), OPA, sauvegarde/redressement/liquidation, modification importante de l'organisation, nouvelles technologies, aménagement du temps de travail.</div>
+<div class="al info" style="font-size:12px;margin-top:8px"><b>Délai pour rendre l'avis</b> (à défaut d'accord — R.2312-6) : <b>1 mois</b> ; <b>2 mois</b> avec expert ; <b>3 mois</b> si expertise CSE central + établissements. <b>À l'expiration sans avis, le CSE est réputé avoir rendu un avis négatif.</b> ⚠️ Mettre en œuvre une décision <b>avant</b> l'avis = délit d'entrave.</div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:6px">Autonomie : une consultation ponctuelle n'est pas subordonnée à celle sur les orientations stratégiques (Cass. soc. 21/09/2022, n° 20-23.660).</div>
+</div>
+
+<!-- 8. EXPERTISES -->
+<div class="card">
+<div class="ct">8 · Expertises &amp; financement</div>
+<div class="table-wrap"><table>
+<tr><th>Expertise</th><th>Financement</th><th>Réf.</th></tr>
+<tr><td>Situation économique et financière</td><td><b>100 % employeur</b></td><td>L.2315-88</td></tr>
+<tr><td>Politique sociale, conditions de travail</td><td><b>100 % employeur</b></td><td>L.2315-91</td></tr>
+<tr><td>Orientations stratégiques</td><td><b>80 % employeur / 20 % CSE</b></td><td>L.2315-87</td></tr>
+<tr><td>Risque grave (santé/sécurité)</td><td><b>100 % employeur</b></td><td>L.2315-94</td></tr>
+<tr><td>Projet important (conditions de travail)</td><td><b>80 % / 20 %</b></td><td>L.2315-94</td></tr>
+<tr><td>Licenciement collectif / PSE</td><td><b>100 % employeur</b></td><td>L.1233-34</td></tr>
+<tr><td>Expertise « libre »</td><td><b>100 % CSE</b> (budget fonctionnement)</td><td>L.2315-81</td></tr>
+</table></div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:8px;line-height:1.7"><b>Clause de sauvegarde :</b> si la part CSE (20 %) dépasse son budget de fonctionnement et qu'aucun transfert vers les ASC n'a eu lieu depuis 3 ans, l'employeur paie la <b>totalité</b> (L.2315-61). <b>Contestation employeur : 10 jours</b> devant le tribunal judiciaire (L.2315-86).</div>
+</div>
+
+<!-- 9. BUDGETS -->
+<div class="card">
+<div class="ct">9 · Budgets du CSE (≥ 50)</div>
+<div class="fg"><label class="fl">Masse salariale brute annuelle (€) — gains soumis à cotisations, hors indemnités de rupture</label><input type="number" id="csf-masse" min="0" placeholder="Ex : 3 000 000" oninput="cseFoncBudget()"/></div>
+<div class="fg"><label class="fl">Effectif</label><input type="number" id="csf-eff2" min="0" placeholder="Ex : 150" oninput="cseFoncBudget()"/></div>
+<div id="csf-budget-result" style="margin-top:6px"></div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:10px;line-height:1.8">
+• <b>Budget de fonctionnement (AEP)</b> : <b>0,20 %</b> de la masse salariale brute (50 à &lt; 2 000 sal.) ou <b>0,22 %</b> (≥ 2 000) — L.2315-61.<br>
+• <b>Budget des activités sociales et culturelles (ASC)</b> : <b>pas de taux légal</b>, fixé par accord/usage ; son rapport à la masse salariale <b>ne peut baisser</b> d'une année sur l'autre (effet de cliquet — L.2312-81). Prestations <b>sans discrimination</b> ; le critère d'ancienneté est prohibé (Cass. soc. 3/04/2024 ; mise en conformité URSSAF au 31/12/2026).<br>
+• <b>Assiette (identique aux 2 budgets)</b> : masse salariale brute = gains soumis à cotisations (art. L.242-1 CSS), <b>hors indemnités de rupture du CDI</b> (Cass. soc. 7/02/2018, n° 16-24.231 &amp; 16-16.086).<br>
+• <b>Transfert</b> : jusqu'à <b>10 % de l'excédent annuel</b> d'un budget vers l'autre (fonctionnement→ASC : R.2315-31-1 ; ASC→fonctionnement ou associations : L.2312-84).
+</div>
+</div>
+
+<!-- 10. COMPTABILITÉ -->
+<div class="card">
+<div class="ct">10 · Obligations comptables</div>
+<div class="table-wrap"><table>
+<tr><th>Taille (ressources annuelles)</th><th>Obligations</th></tr>
+<tr><td><b>Petit CSE</b> — ≤ 153 000 €</td><td>Comptabilité <b>ultra-simplifiée</b> : livre chronologique des recettes/dépenses + état de synthèse annuel simplifié (L.2315-65).</td></tr>
+<tr><td><b>CSE moyen</b> — &gt; 153 000 € et ≤ 2 des 3 seuils</td><td>Comptes annuels <b>simplifiés</b> + recours obligatoire à un <b>expert-comptable</b> (sur budget de fonctionnement — L.2315-67).</td></tr>
+<tr><td><b>Grand CSE</b> — &gt; 2 des 3 seuils : 50 sal. / 3,1 M€ ressources / 1,55 M€ bilan</td><td>Comptes annuels <b>complets</b> + <b>commissaire aux comptes</b> distinct de celui de l'entreprise (L.2315-73).</td></tr>
+</table></div>
+<div style="font-size:12px;color:#cfc8b8;margin-top:8px;line-height:1.7"><b>Commun :</b> arrêté des comptes par le trésorier, <b>approbation en séance plénière dédiée</b> (L.2315-68), <b>rapport de gestion</b> (L.2315-69), publicité aux salariés, conservation des pièces <b>10 ans</b>. <b>Dévolution des biens</b> en fin d'activité : au profit d'un autre CSE ou d'une institution d'intérêt général, <b>jamais partagés entre salariés</b> (L.2312-83).</div>
+</div>
+
+<!-- 11. HEURES DE DÉLÉGATION -->
+<div class="card">
+<div class="ct">11 · Heures de délégation</div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8">
+• Crédit mensuel <b>par titulaire</b> selon l'effectif (barème R.2314-1) : 10 h (11-49), 18 h (50-74), 19 h (75-99), 21 h (100-199), 22 h (200-499), 24 h (500-1499)… jusqu'à <b>34 h</b>. <span style="color:#9a9585">(Voir aussi l'onglet Élections pour le barème complet sièges + heures.)</span><br>
+• <b>Report</b> d'un mois sur l'autre sur <b>12 mois</b>, sans dépasser <b>1,5 ×</b> le crédit mensuel (R.2315-5).<br>
+• <b>Mutualisation</b> entre titulaires et avec suppléants, même plafond de 1,5 × (R.2315-6). Dans les 2 cas : <b>information écrite de l'employeur 8 jours avant</b>.<br>
+• Heures <b>présumées utilisées conformément au mandat</b> et <b>payées comme temps de travail</b> (L.2315-10) — contestation seulement après paiement.
+</div>
+</div>
+
+<!-- 12. DROITS D'ALERTE -->
+<div class="card">
+<div class="ct">12 · Droits d'alerte</div>
+<div class="table-wrap"><table>
+<tr><th>Alerte</th><th>Déclenchement / procédure</th><th>CSE</th></tr>
+<tr><td><b>Atteinte aux droits</b> (L.2312-59)</td><td>Atteinte aux droits/libertés, santé, harcèlement, discrimination → enquête conjointe ; à défaut, saisine du CPH en référé.</td><td>≥ 11</td></tr>
+<tr><td><b>Danger grave et imminent</b> (L.2312-60)</td><td>Consignation au registre DGI → enquête immédiate → à défaut, réunion sous 24 h + inspection du travail.</td><td>≥ 11</td></tr>
+<tr><td><b>Alerte économique</b> (L.2312-63)</td><td>Faits préoccupants → explications de l'employeur → rapport → expert-comptable possible (100 % employeur).</td><td>≥ 50</td></tr>
+<tr><td><b>Alerte sociale</b> (L.2312-70)</td><td>Recours abusif aux CDD/intérim → saisine employeur puis inspection du travail.</td><td>≥ 50</td></tr>
+</table></div>
+</div>
+
+<!-- 13. MOYENS & PROTECTION -->
+<div class="card">
+<div class="ct">13 · Moyens, formation &amp; protection</div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8">
+• <b>Local</b> aménagé et <b>matériel</b> fournis par l'employeur (L.2315-25 ; L.2315-20 pour &lt; 50), <b>panneaux d'affichage</b>, <b>liberté de déplacement</b> (L.2315-14).<br>
+• <b>Formation SSCT</b> : <b>5 jours</b> au 1er mandat, <b>3 jours</b> au renouvellement (5 pour la CSSCT) — financée par l'employeur (L.2315-18), pour tous les élus.<br>
+• <b>Formation économique</b> : <b>5 jours</b> pour les titulaires ≥ 50 (financée par le CSE — L.2315-63).<br>
+• <b>Statut protégé</b> : élus, RS et candidats — licenciement soumis à <b>autorisation de l'inspection du travail</b> (L.2411-1 s.).
+</div>
+</div>
+
+<!-- 14. DÉLIT D'ENTRAVE -->
+<div class="card">
+<div class="ct">14 · Délit d'entrave (L.2317-1)</div>
+<div class="al warn" style="font-size:12px;line-height:1.7">
+• <b>Entrave au fonctionnement</b> (défaut de convocation, de réunion, de consultation, d'information, de communication de la BDESE) : <b>7 500 €</b> d'amende — <b>× 5 = 37 500 €</b> pour une personne morale (art. 131-38 C. pénal).<br>
+• <b>Entrave à la constitution</b> du CSE ou à la libre désignation des membres : <b>1 an d'emprisonnement + 7 500 €</b>.<br>
+• Caractérisée dès que le CSE est privé d'un avis <b>utile et préalable</b> à la décision de l'employeur.
+</div>
+</div>
+
+<!-- 15. JURISPRUDENCE -->
+<div class="card">
+<div class="ct">⚖️ Jurisprudence clé</div>
+<div style="font-size:12px;color:#cfc8b8;line-height:1.8">
+• <b>Assiette des budgets</b> = masse salariale brute (cotisations SS), hors indemnités de rupture : Cass. soc. 7/02/2018, n° 16-24.231 &amp; 16-16.086.<br>
+• <b>ASC &amp; ancienneté</b> : réserver une prestation sous condition d'ancienneté est une discrimination — Cass. soc. 3/04/2024, n° 22-16.812.<br>
+• <b>Consultations ponctuelles autonomes</b> des orientations stratégiques : Cass. soc. 21/09/2022, n° 20-23.660.<br>
+• <b>Ordre du jour</b> : accord président/secrétaire prouvable par tout moyen — Cass. soc. 25/04/2007, n° 05-44.903.<br>
+• <b>Quorum</b> sur les suffrages valablement exprimés (hors blancs/nuls) — Cass. soc. 22/07/1975, n° 75-60.117.
+</div>
+</div>
+
+<!-- 16. DOCS -->
+<div class="card">
+<div class="ct">📦 Documents du fonctionnement — prêts à adapter</div>
+<div style="display:grid;grid-template-columns:1fr;gap:6px">
+<button class="btn-outline" onclick="genCseFonc('convocation')" style="background:rgba(91,155,213,0.12);border-color:rgba(91,155,213,0.5);color:#8fc0ea">✉️ Convocation à une réunion du CSE</button>
+<button class="btn-outline" onclick="genCseFonc('ordre_du_jour')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📋 Ordre du jour (établi conjointement)</button>
+<button class="btn-outline" onclick="genCseFonc('pv')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📜 Procès-verbal de réunion (trame)</button>
+<button class="btn-outline" onclick="genCseFonc('reglement_interieur')" style="background:rgba(46,184,46,0.1);border-color:rgba(46,184,46,0.4);color:#2eb82e">📕 Règlement intérieur du CSE (trame)</button>
+</div>
+<div class="al warn" style="font-size:11px;margin-top:10px">Trames à adapter à votre entreprise et à votre accord de fonctionnement. Ne remplacent pas un accord collectif ni un avocat.</div>
+</div>
+
+</div>
+
 <!-- ═══ MODULE VII — ABSENCES ═══ -->
 <div id="pg-absences" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -2770,6 +2995,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
+  <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
   <div class="mi" onclick="goPage('audit');closeMenu()"><span style="font-size:18px">🎯</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Contrôle-minute (audit)</div></div></div>
   <div class="mi" onclick="goPage('temps');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de conduite &amp; repos</div></div></div>
@@ -6203,6 +6429,105 @@ function cseQuorum(){
       ?'✓ Quorum ATTEINT — les sièges pourvus le sont définitivement au 1er tour (réservé aux listes syndicales).'
       :'✗ Quorum NON atteint — un 2nd tour doit être organisé dans les 15 jours (art. L.2314-29), ouvert aux candidatures libres (non syndiquées).')
     +'</div><div style="font-size:11px;color:#9a9585;margin-top:4px">Le quorum s\'apprécie collège par collège ; renseignez les inscrits/exprimés du collège concerné pour un résultat précis.</div>';
+}
+// ===== Fonctionnement du CSE : calculateurs =====
+function cseFoncReunions(){
+  var eff=parseInt((document.getElementById('csf-eff')||{}).value,10)||0;
+  var out=document.getElementById('csf-reunions-result'); if(!out)return;
+  if(eff<=0){out.innerHTML='';return;}
+  var h;
+  if(eff<11){ h='<div class="al info" style="font-size:12px">Effectif &lt; 11 — pas de CSE obligatoire (L.2311-2).</div>'; }
+  else if(eff<50){ h='<div class="al ok" style="font-size:12px"><b>CSE de 11 à 49 salariés</b> — au moins <b>1 réunion par mois</b> avec l\'employeur (L.2315-21). Pas de consultations récurrentes ni de budget obligatoires.</div>'; }
+  else {
+    var periode=(eff<300)?'au moins <b>une fois tous les 2 mois</b> (soit ≥ 6/an)':'au moins <b>une fois par mois</b>';
+    h='<div class="al ok" style="font-size:12px"><b>CSE d\'au moins 50 salariés '+(eff<300?'(&lt; 300)':'(≥ 300)')+'</b><br>'
+      +'• Périodicité fixée par accord (≥ 6 réunions/an) ; à défaut : '+periode+' (L.2315-28).<br>'
+      +'• <b>≥ 4 réunions/an</b> portant sur la santé-sécurité (SSCT — L.2315-27).<br>'
+      +(eff>=300?'• <b>CSSCT obligatoire</b> (commission SSCT) et commissions formation/logement/égalité (L.2315-36 s.).<br>':'')
+      +(eff>=1000?'• <b>Commission économique obligatoire</b> (≥ 1 000 — L.2315-46).<br>':'')
+      +'</div>';
+  }
+  out.innerHTML=h;
+}
+function cseFoncBudget(){
+  var masse=parseFloat((document.getElementById('csf-masse')||{}).value)||0;
+  var eff=parseInt((document.getElementById('csf-eff2')||{}).value,10)||0;
+  var out=document.getElementById('csf-budget-result'); if(!out)return;
+  if(masse<=0){out.innerHTML='';return;}
+  if(eff>0&&eff<50){ out.innerHTML='<div class="al info" style="font-size:12px">Effectif &lt; 50 — pas de budget de fonctionnement ni ASC légalement obligatoires.</div>'; return; }
+  var taux=(eff>=2000)?0.0022:0.0020;
+  var fct=Math.round(masse*taux*100)/100;
+  var transfert=Math.round(fct*0.10*100)/100;
+  var _e=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  out.innerHTML='<div class="al ok" style="font-size:12px">'
+    +'Budget de <b>fonctionnement (AEP)</b> = '+(taux*100).toString().replace('.',',')+' % × '+_e(masse)+' € = <b>'+_e(fct)+' € / an</b>'
+    +' <span style="color:#9a9585">('+(eff>=2000?'≥ 2 000 salariés → 0,22 %':'50 à &lt; 2 000 salariés → 0,20 %')+')</span><br>'
+    +'Transfert possible vers les ASC : jusqu\'à 10 % de l\'<b>excédent</b> annuel (ordre de grandeur sur le budget : ≈ '+_e(transfert)+' €).<br>'
+    +'<span style="font-size:11px;color:#9a9585">Budget ASC : pas de taux légal (accord/usage) — assiette identique (masse salariale brute hors indemnités de rupture, L.2315-61 ; Cass. soc. 7/02/2018).</span></div>';
+}
+// ===== Fonctionnement du CSE : documents =====
+function _csfEnt(){ try{ return (typeof E!=='undefined'&&E)?E:{}; }catch(e){ return {}; } }
+function genCseFonc(type){
+  var E0=_csfEnt(); var ent=E0.nom||'[ENTREPRISE]'; var adr=E0.adresse||'[ADRESSE]'; var dir=E0.dirigeant||'[REPRÉSENTANT LÉGAL]';
+  var S="font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.7;";
+  var today=(function(){try{return new Date().toLocaleDateString('fr-FR');}catch(e){return '[DATE]';}})();
+  var head='<p style="'+S+'"><strong>'+ent+'</strong> — '+adr+'<br>Comité social et économique (CSE)</p>';
+  var titre='', html='';
+  if(type==='convocation'){
+    titre='Convocation à une réunion du CSE';
+    html='<div style="'+S+'">'+head
+      +'<p style="'+S+'text-align:right">Le '+today+'</p>'
+      +'<p style="'+S+'"><strong>Objet : convocation à la réunion '+'[ordinaire / extraordinaire]'+' du CSE du [DATE], à [HEURE], [LIEU / visioconférence]</strong></p>'
+      +'<p style="'+S+'">Madame, Monsieur,</p>'
+      +'<p style="'+S+'">En qualité de président du comité social et économique, j\'ai l\'honneur de vous convoquer à la prochaine réunion du CSE, qui se tiendra le <strong>[DATE]</strong> à <strong>[HEURE]</strong>, [au siège / en visioconférence].</p>'
+      +'<p style="'+S+'">L\'ordre du jour, arrêté conjointement avec le secrétaire, vous est communiqué en pièce jointe (art. L.2315-30 — au moins 3 jours avant la réunion).</p>'
+      +'<p style="'+S+'">Sont convoqués : les membres titulaires ; les membres suppléants (qui siègent en l\'absence du titulaire — L.2314-1) et les représentants syndicaux, destinataires de la présente à titre d\'information. [Pour les points santé-sécurité : le médecin du travail, l\'agent de l\'inspection du travail et l\'agent de prévention de la CARSAT sont informés/invités.]</p>'
+      +'<p style="'+S+'">Je vous prie d\'agréer, Madame, Monsieur, l\'expression de mes salutations distinguées.</p>'
+      +'<p style="'+S+'text-align:right;margin-top:30px">'+dir+'<br>Président du CSE</p></div>';
+  } else if(type==='ordre_du_jour'){
+    titre='Ordre du jour — réunion du CSE';
+    html='<div style="'+S+'">'+head
+      +'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline;margin:14px 0">ORDRE DU JOUR — RÉUNION DU CSE DU [DATE]</p>'
+      +'<p style="'+S+'font-style:italic">Établi conjointement par le président et le secrétaire (art. L.2315-29). Les consultations rendues obligatoires par la loi ou un accord y sont inscrites de plein droit.</p>'
+      +'<ol style="'+S+'">'
+      +'<li>Approbation du procès-verbal de la réunion précédente du [DATE].</li>'
+      +'<li>Informations de l\'employeur sur la marche générale de l\'entreprise.</li>'
+      +'<li>[Consultation sur … — le cas échéant : orientations stratégiques / situation économique / politique sociale / projet ponctuel].</li>'
+      +'<li>Points santé, sécurité et conditions de travail (SSCT) : [accidents, risques, actions de prévention].</li>'
+      +'<li>Réclamations individuelles et collectives transmises par les membres.</li>'
+      +'<li>Activités sociales et culturelles (le cas échéant).</li>'
+      +'<li>Questions diverses.</li></ol>'
+      +'<table style="width:100%;border-collapse:collapse;margin-top:20px;'+S+'"><tr>'
+      +'<td style="width:50%;border-top:1px solid #000;padding-top:6px">Le Président<br>'+dir+'</td>'
+      +'<td style="width:50%;border-top:1px solid #000;padding-top:6px">Le Secrétaire du CSE<br>[NOM]</td></tr></table></div>';
+  } else if(type==='pv'){
+    titre='Procès-verbal de réunion du CSE (trame)';
+    html='<div style="'+S+'">'+head
+      +'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline;margin:14px 0">PROCÈS-VERBAL DE LA RÉUNION DU CSE DU [DATE]</p>'
+      +'<p style="'+S+'"><strong>Présents :</strong> [président + collaborateurs] ; [titulaires] ; [suppléants remplaçant un titulaire] ; [représentants syndicaux]. <strong>Absents excusés :</strong> [NOMS]. <strong>Début de séance :</strong> [HEURE].</p>'
+      +'<p style="'+S+'"><strong>1. Approbation du PV précédent</strong> — Le procès-verbal de la réunion du [DATE] est approuvé [à l\'unanimité / par … voix pour, … contre, … abstentions].</p>'
+      +'<p style="'+S+'"><strong>2. [Point / consultation]</strong> — Exposé : […]. Débats : […]. <em>Avis du CSE</em> (le cas échéant) : rendu par [… voix pour / contre / abstentions]. Rappel : à défaut d\'avis dans le délai (1 mois ; 2 mois avec expert), l\'avis est réputé rendu (négatif) — R.2312-6.</p>'
+      +'<p style="'+S+'"><strong>3. Santé, sécurité et conditions de travail</strong> — […].</p>'
+      +'<p style="'+S+'"><strong>4. Réclamations</strong> — […] ; réponses de l\'employeur : […].</p>'
+      +'<p style="'+S+'"><strong>5. Décision motivée de l\'employeur</strong> sur les propositions de la réunion précédente (L.2315-34) : […].</p>'
+      +'<p style="'+S+'"><strong>Questions diverses / prochaine réunion :</strong> [DATE]. <strong>Fin de séance :</strong> [HEURE].</p>'
+      +'<p style="'+S+'font-size:9pt;font-style:italic;margin-top:10px">PV établi par le secrétaire et transmis à l\'employeur dans les 15 jours (3 jours en cas de PSE ; 1 jour en redressement/liquidation — R.2315-25). Après approbation, il peut être affiché/diffusé par le secrétaire (L.2315-35).</p>'
+      +'<p style="'+S+'text-align:right;margin-top:24px">Le Secrétaire du CSE<br>[NOM]</p></div>';
+  } else if(type==='reglement_interieur'){
+    titre='Règlement intérieur du CSE (trame)';
+    html='<div style="'+S+'">'+head
+      +'<p style="'+S+'text-align:center;font-weight:bold;text-decoration:underline;margin:14px 0">RÈGLEMENT INTÉRIEUR DU CSE</p>'
+      +'<p style="'+S+'font-style:italic">Obligatoire pour les CSE d\'au moins 50 salariés (art. L.2315-24). Il fixe les modalités de fonctionnement du comité et de ses rapports avec les salariés, sans imposer à l\'employeur d\'obligations non prévues par la loi sans son accord.</p>'
+      +'<p style="'+S+'"><strong>Art. 1 — Composition et bureau.</strong> Le CSE comprend le président (employeur) et [N] titulaires / [N] suppléants. Bureau : secrétaire [NOM], trésorier [NOM], [adjoints], référent harcèlement [NOM] (L.2314-1).</p>'
+      +'<p style="'+S+'"><strong>Art. 2 — Réunions.</strong> Périodicité : [mensuelle / bimestrielle / selon accord du …]. Convocation par le président ; ordre du jour arrêté conjointement avec le secrétaire et communiqué ≥ 3 jours avant (L.2315-29, L.2315-30). Recours à la visioconférence : [oui/non], dans la limite de 3/an à défaut d\'accord (L.2315-4).</p>'
+      +'<p style="'+S+'"><strong>Art. 3 — Procès-verbaux.</strong> Rédigés par le secrétaire, transmis à l\'employeur dans [15] jours (R.2315-25), approuvés à la réunion suivante, puis affichés/diffusés selon [modalités].</p>'
+      +'<p style="'+S+'"><strong>Art. 4 — Budgets et comptabilité.</strong> Budget de fonctionnement (0,20 % / 0,22 % de la masse salariale brute — L.2315-61) et budget ASC gérés par le trésorier. Arrêté et approbation des comptes en séance dédiée (L.2315-68) ; rapport de gestion (L.2315-69). Transfert d\'excédent ≤ 10 % (R.2315-31-1 / L.2312-84).</p>'
+      +'<p style="'+S+'"><strong>Art. 5 — Commissions.</strong> [CSSCT / formation / logement / égalité / économique — selon effectif].</p>'
+      +'<p style="'+S+'"><strong>Art. 6 — Moyens.</strong> Local, matériel, affichage, heures de délégation (report 12 mois et mutualisation avec information de l\'employeur 8 jours avant — R.2315-5, R.2315-6).</p>'
+      +'<p style="'+S+'"><strong>Art. 7 — Adoption et révision.</strong> Adopté à la majorité des membres présents le [DATE] ; révisable dans les mêmes conditions.</p>'
+      +'<p style="'+S+'text-align:right;margin-top:24px">Adopté le [DATE] — Le Secrétaire [NOM] · Le Président '+dir+'</p></div>';
+  }
+  if(typeof showDoc==='function') showDoc(titre, html);
 }
 function calcCSE(eff){
   if(eff===undefined || isNaN(eff)) eff=0;
