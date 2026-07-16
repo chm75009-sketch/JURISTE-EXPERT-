@@ -637,9 +637,14 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.59';
+var JX_BUILD = 'v2026-07-12.60';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.60', d:'17 juillet 2026', t:[
+   'Analyse PSE — 4 nouveaux pièges « niveau expert » détectés : ① priorité de réembauche réduite (le document fixe 6 mois au lieu du 1 an obligatoire — L.1233-45) ; ② offres de reclassement irrégulières (postes à l\'étranger affichés sur un panneau, à candidater dans la langue du pays — les offres doivent être écrites, personnalisées, sur le territoire national et en français — L.1233-4) ; ③ mise à l\'écart UNILATÉRALE d\'un accord collectif en vigueur (l\'employeur ne peut écarter seul un accord d\'établissement qui fixe le périmètre des critères d\'ordre — L.2261-9) ; ④ critère du handicap restreint arbitrairement à un taux d\'incapacité ≥ 50 % (la RQTH suffit — L.1233-5, 3°).',
+   'Délai de consultation du CSE clarifié : au-delà du plancher de 15 jours entre les deux réunions, l\'app vérifie désormais la fenêtre GLOBALE de consultation (2 / 3 / 4 mois selon le nombre de licenciements — L.1233-30) et alerte si le calendrier la comprime, surtout quand un expert-comptable est désigné (rapport dû 15 j avant la fin — L.1233-35).',
+   'Vérifié à la source : le congé de reclassement de 4 mois à 65 % est au PLANCHER légal (R.1233-31 / R.1233-32) — ce n\'est donc PAS une non-conformité.'
+ ]},
  {v:'v2026-07-12.59', d:'16 juillet 2026', t:[
    'CHECK-LISTS DE CONFORMITÉ partout : chaque analyse de document affiche désormais la LISTE COMPLÈTE des points obligatoires (avec l\'article de loi) et coche automatiquement ✅ ceux détectés dans le texte, ⚠️ ceux non repérés (à vérifier), ◽ ceux qui relèvent d\'un contrôle humain. Couvre convocation, lettre de licenciement, sanction, inaptitude, rupture conventionnelle, PSE / licenciement économique, CDD, contrat CDI, convocation / ordre du jour / PV du CSE.',
    'Positionnement clarifié : l\'outil DÉTECTE les erreurs fréquentes et GUIDE la mise en conformité — il ne garantit pas à lui seul la conformité juridique d\'un document. Réserve d\'usage mise à jour en ce sens.'
@@ -11233,6 +11238,31 @@ function diagDeepFindings(t,texte){
     // Motif économique
     if(!/(sauvegarde\s+de\s+la\s+comp[ée]titivit|difficult[ée]s\s+[ée]conomiques|mutations\s+technologiques|cessation\s+d[’']activit|baisse\s+.{0,20}(chiffre|commandes|activit))/i.test(texte))
       d.push('<b>Motif économique à caractériser</b> — le document doit établir un motif économique réel et sérieux (difficultés économiques, mutations technologiques, sauvegarde de la compétitivité ou cessation d\'activité — L.1233-3).');
+    // Nombre de licenciements → fenêtre de consultation applicable (L.1233-30 : 2 / 3 / 4 mois)
+    var _nl=null,_nla=[],_rL=/(\d{1,4})\s*(?:suppressions?\s+de\s+)?(?:postes?|emplois?|licenciements?)\b/gi,_ml;
+    while((_ml=_rL.exec(texte))){var _ln=parseInt(_ml[1],10);if(!isNaN(_ln))_nla.push(_ln);}
+    if(_nla.length)_nl=Math.max.apply(null,_nla);
+    var _win=(_nl!=null)?(_nl>=250?4:(_nl>=100?3:2)):null;
+    var _expert=/expert[- ]?comptable|expertise/i.test(texte);
+    // Fenêtre globale de consultation : le calendrier compressé prive le CSE (et l'expert) du délai légal
+    if(dcse.length>=2 && _win){
+      var _span=Math.round((dcse[dcse.length-1]-dcse[0])/86400000);
+      if(_span>=0 && _span < _win*30 - 10)
+        d.push('<b>Délai global de consultation insuffisant (art. L.1233-30)</b> — avec <b>'+(_nl!=null?_nl+' licenciements':'ce nombre de licenciements')+'</b>, le CSE dispose d\'un délai maximal de consultation de <b>'+_win+' mois</b> à compter de la 1ʳᵉ réunion pour rendre ses deux avis. Le calendrier proposé le comprime à ~<b>'+_span+' jours</b>'+(_expert?', alors qu\'un <b>expert-comptable</b> est désigné et que son rapport doit être remis au plus tard <b>15 jours avant la fin</b> de la consultation (L.1233-35)':'')+'. Un tel calendrier ne laisse pas au comité le temps utile d\'examen : risque de <b>délit d\'entrave</b> et d\'irrégularité de la procédure. Le minimum de 15 jours entre les deux réunions n\'est qu\'un plancher, non le délai global.');
+    }
+    // Priorité de réembauche : durée légale = 1 an (L.1233-45) — une durée plus courte est illégale
+    var _pr=/priorit[ée]\s+de\s+r[ée]embauche[^.]{0,140}?(\d{1,2})\s*mois/i.exec(texte);
+    if(_pr && parseInt(_pr[1],10)<12)
+      d.push('<b>Priorité de réembauche réduite illégalement (art. L.1233-45)</b> — le document limite la priorité de réembauche à <b>'+_pr[1]+' mois</b>. La loi la fixe à <b>1 an (12 mois)</b> à compter de la rupture du contrat : toute durée inférieure est <b>illégale</b> et prive le salarié d\'un droit d\'ordre public.');
+    // Reclassement : offres écrites, précises, personnalisées, sur le territoire NATIONAL et en français (L.1233-4)
+    if(/reclassement/i.test(texte) && (/(filiales?|postes?|offres?|opportunit[ée]s?)[^.]{0,80}(allemand|polonais|[ée]tranger|espagn|italien|britann|pays[- ]bas|belge)/i.test(texte) || /langue\s+du\s+pays|dans\s+la\s+langue\s+(du|de\s+la)/i.test(texte) || /(affich[ée]e?|panneau|intranet)[^.]{0,60}(postes?|offres?|reclassement)/i.test(texte)))
+      d.push('<b>Offres de reclassement irrégulières (art. L.1233-4)</b> — les offres doivent être <b>écrites, précises, personnalisées</b>, porter en priorité sur des emplois situés sur le <b>territoire national</b> et être <b>rédigées en français</b>. Un simple <b>affichage</b> de postes à l\'étranger (filiales allemandes / polonaises) à pourvoir <b>dans la langue du pays</b> ne satisfait pas l\'obligation de reclassement : recherche déloyale → licenciements sans cause réelle et sérieuse.');
+    // Écarter unilatéralement un accord collectif en vigueur
+    if(/(écart\w+|d[ée]rog\w+|ignor\w+|ne\s+pas\s+appliquer|s[’']affranchir)[^.]{0,70}accord/i.test(texte) && /unilat[ée]ral/i.test(texte))
+      d.push('<b>Mise à l\'écart unilatérale d\'un accord collectif</b> — l\'employeur ne peut, par une décision <b>unilatérale</b>, écarter ou déroger à un <b>accord collectif en vigueur</b> (accord d\'établissement/d\'entreprise). Tant qu\'il n\'est pas régulièrement dénoncé ou révisé, l\'accord s\'impose (L.2261-9 s.) : ici le périmètre des critères d\'ordre reste celui fixé par l\'accord (région Grand Est), pas le seul site.');
+    // Critère du handicap arbitrairement restreint à un taux d'incapacité
+    if(/(handicap|travailleurs?\s+handicap|\brqth\b)[^.]{0,160}(taux\s+d[’']incapacit[ée]|incapacit[ée]\s+permanente|taux)[^.]{0,70}\d{1,3}\s*%/i.test(texte) || /(taux\s+d[’']incapacit[ée]|incapacit[ée]\s+permanente)[^.]{0,70}\d{1,3}\s*%[^.]{0,80}(handicap|travailleurs?\s+handicap|\brqth\b)/i.test(texte))
+      d.push('<b>Critère du handicap restreint arbitrairement (art. L.1233-5, 3°)</b> — le 3ᵉ critère légal vise les salariés dont les caractéristiques sociales rendent la réinsertion difficile, <b>notamment les travailleurs handicapés</b>. Le réserver à un <b>taux d\'incapacité minimal</b> (ex. ≥ 50 %) ajoute une condition non prévue par la loi : la reconnaissance de la qualité de travailleur handicapé (RQTH) suffit à ouvrir le bénéfice du critère.');
   }
   if(t==='cdd'){
     if(/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|durablement\s+un\s+poste|emploi\s+(li[ée]\s+[àa]\s+l[’']activit[ée]\s+(normale|permanente)|durable|permanent)|poste\s+permanent/i.test(texte))
