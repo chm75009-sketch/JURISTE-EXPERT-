@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.58';
+var JX_BUILD = 'v2026-07-12.59';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.59', d:'16 juillet 2026', t:[
+   'CHECK-LISTS DE CONFORMITÉ partout : chaque analyse de document affiche désormais la LISTE COMPLÈTE des points obligatoires (avec l\'article de loi) et coche automatiquement ✅ ceux détectés dans le texte, ⚠️ ceux non repérés (à vérifier), ◽ ceux qui relèvent d\'un contrôle humain. Couvre convocation, lettre de licenciement, sanction, inaptitude, rupture conventionnelle, PSE / licenciement économique, CDD, contrat CDI, convocation / ordre du jour / PV du CSE.',
+   'Positionnement clarifié : l\'outil DÉTECTE les erreurs fréquentes et GUIDE la mise en conformité — il ne garantit pas à lui seul la conformité juridique d\'un document. Réserve d\'usage mise à jour en ce sens.'
+ ]},
  {v:'v2026-07-12.58', d:'16 juillet 2026', t:[
    'Analyse PSE encore affinée : le CSP n\'est signalé manquant que si l\'effectif détecté est INFÉRIEUR à 1 000 salariés (au-delà, le congé de reclassement est le bon dispositif) — fin d\'un faux positif.',
    'Nouveaux pièges détectés dans un plan de licenciement : critère d\'ordre fondé sur la RÉSIDENCE / la proximité (risque de discrimination, hors L.1233-5) ; qualités professionnelles appréciées « librement » (doivent être objectives, par catégorie) ; périmètre d\'application des critères réduit à un « site » (ne peut être inférieur à la zone d\'emploi dans un document unilatéral).'
@@ -10502,7 +10506,7 @@ auteurApply();
     <h1 style="font-family:Fraunces,serif;color:#1b2a4a;margin:0 0 4px">⚖️ Analyse &amp; conformité d'un document</h1>
     <div style="font-size:13px;color:#9a7b2e;margin-bottom:10px">Diagnostic guidé · loi · convention collective · jurisprudence</div>
     <div style="background:#fff7e6;border:1px solid #e7d9b0;border-radius:10px;padding:10px 12px;font-size:12px;color:#6b5a2e;margin-bottom:16px">
-      ⚠️ <b>Réserve d'usage.</b> Cet outil fournit des <b>éléments de diagnostic</b> à vérifier et à adapter à votre situation ; il ne lit pas automatiquement le fichier joint (application sans serveur) et ne remplace pas l'avis d'un professionnel. Les délais en jours fériés mobiles (Pâques, Ascension, Pentecôte) sont calculés mais à recontrôler.
+      ⚠️ <b>Réserve d'usage.</b> Cet outil <b>détecte les erreurs fréquentes et guide la mise en conformité</b> — il affiche, pour chaque document, une <b>check-list des points obligatoires</b> (avec l'article) et coche ceux qu'il repère dans le texte. Il fournit des <b>éléments de diagnostic</b> à vérifier et adapter ; il <b>ne garantit pas</b> à lui seul la conformité d'un document, ne remplace pas l'avis d'un professionnel, et ne lit pas automatiquement le fichier joint (application sans serveur). Les délais en jours fériés mobiles (Pâques, Ascension, Pentecôte) sont calculés mais à recontrôler.
     </div>
 
     <div style="background:#f5f3ec;border-radius:12px;padding:14px;margin-bottom:14px">
@@ -10874,6 +10878,119 @@ var DOCS={
    return {ok:ok,ko:ko,re:re};}}
 };
 var ORDER=['contrat','cdd','convocation','licenciement','sanction','rupconv','inaptitude','arretmaladie','pse','cse_convoc','cse_oj','cse_pv','accordent','accordbranche','pap','ri','clause','saisine'];
+// ── CHECK-LIST DE CONFORMITÉ (transparence) ────────────────────────────────────────────────
+// Pour chaque type, la LISTE COMPLÈTE des points de contrôle obligatoires (avec l'article).
+// L'app coche ✅ ceux qu'elle DÉTECTE dans le texte (re), signale ⚠️ ceux qu'elle ne trouve
+// PAS (« à vérifier » — une formulation différente peut exister), et ◽ ceux qu'elle ne peut
+// PAS lire automatiquement (re:null → contrôle humain). C'est un GUIDE des erreurs fréquentes,
+// PAS une garantie de conformité. Non compté dans le verdict (transparence uniquement).
+// {t:libellé, a:article/source, re:RegExp|null, opt:true = recommandé/selon le cas}
+var CHECKLIST={
+ convocation:[
+  {t:'Convocation écrite — LRAR ou remise en main propre contre décharge',a:'L.1232-2',re:/recommand|\bA\.?R\.?\b|accus[ée]\s+de\s+r[ée]ception|d[ée]charge|remise\s+en\s+main\s+propre/i},
+  {t:'Objet : un licenciement est envisagé',a:'L.1232-2',re:/licenciement|sanction/i},
+  {t:'Date, heure et lieu précis de l’entretien',a:'L.1232-2',re:/\d{1,2}\s*h(?:eures|\d{2})?|à\s+\d{1,2}\s*h|lieu|adresse|dans\s+nos\s+locaux|bureau/i},
+  {t:'Mention de la faculté d’assistance du salarié',a:'L.1232-4',re:/assist(er|ance|é)/i},
+  {t:'Sans IRP : conseiller du salarié + adresses (mairie / inspection du travail) où consulter la liste',a:'L.1232-4, D.1232-4',re:/conseiller\s+du\s+salari/i,opt:true},
+  {t:'Délai ≥ 5 jours ouvrables entre présentation de la convocation et l’entretien',a:'L.1232-2',re:null},
+  {t:'Le cas échéant : mise à pied conservatoire notifiée comme telle (non disciplinaire)',a:'L.1332-3',re:/mise\s+[àa]\s+pied\s+(conservatoire|[àa]\s+titre\s+conservatoire)/i,opt:true}
+ ],
+ licenciement:[
+  {t:'Notification par lettre recommandée avec AR',a:'L.1232-6',re:/recommand|\bA\.?R\.?\b|accus[ée]\s+de\s+r[ée]ception/i},
+  {t:'Énoncé précis, objectif et matériellement vérifiable des motifs (la lettre fixe les limites du litige)',a:'L.1232-6',re:null},
+  {t:'Signature de l’employeur ou d’une personne habilitée',a:'jurisprudence',re:null},
+  {t:'Indication du préavis et de sa durée (sauf dispense/inaptitude)',a:'L.1234-1',re:/pr[ée]avis/i},
+  {t:'Remise des documents de fin de contrat (certificat, solde de tout compte, attestation France Travail)',a:'L.1234-19, D.1234-6',re:/certificat\s+de\s+travail|solde\s+de\s+tout\s+compte|attestation/i},
+  {t:'Information sur la portabilité mutuelle / prévoyance',a:'L.911-8 CSS',re:/portabilit|mutuelle|pr[ée]voyance/i,opt:true},
+  {t:'Délai ≥ 2 jours ouvrables après l’entretien (et ≤ 1 mois si motif disciplinaire)',a:'L.1232-6, L.1332-2',re:null}
+ ],
+ sanction:[
+  {t:'Sanction fondée sur une faute et proportionnée',a:'L.1331-1, L.1333-2',re:null},
+  {t:'Notification écrite ET motivée de la sanction',a:'L.1332-1',re:null},
+  {t:'Entretien préalable si la sanction a une incidence (mise à pied, rétrogradation, mutation)',a:'L.1332-2',re:/entretien\s+pr[ée]alable/i,opt:true},
+  {t:'Respect de l’échelle des sanctions du règlement intérieur',a:'L.1321-1',re:/r[èe]glement\s+int[ée]rieur/i,opt:true},
+  {t:'Aucune sanction pécuniaire / amende / retenue disciplinaire (interdite et nulle)',a:'L.1331-2',re:null},
+  {t:'Faits non prescrits : ≤ 2 mois entre leur connaissance et l’engagement des poursuites',a:'L.1332-4',re:null},
+  {t:'Notification entre 2 jours ouvrables et 1 mois après l’entretien',a:'L.1332-2',re:null},
+  {t:'Pas de double sanction pour les mêmes faits (non bis in idem)',a:'L.1333-2',re:null}
+ ],
+ inaptitude:[
+  {t:'Avis d’inaptitude régulier du médecin du travail',a:'L.4624-4, R.4624-42',re:/inaptitude|m[ée]decin\s+du\s+travail/i},
+  {t:'Recherche sérieuse et loyale de reclassement (ou dispense expresse de l’avis médical)',a:'L.1226-2 / L.1226-10',re:/reclassement/i},
+  {t:'Consultation du CSE sur le reclassement (obligatoire, inaptitude pro ET non pro)',a:'L.1226-2 / L.1226-10',re:/cse|comit[ée]\s+social|repr[ée]sentants\s+du\s+personnel/i},
+  {t:'Entretien préalable au licenciement',a:'L.1232-2',re:/entretien\s+pr[ée]alable/i},
+  {t:'Lettre motivée : inaptitude ET impossibilité de reclassement (ou dispense)',a:'L.1226-2/-12',re:null},
+  {t:'Inaptitude professionnelle : indemnité spéciale = double de l’indemnité légale + indemnité de préavis',a:'L.1226-14',re:null,opt:true},
+  {t:'Reprise du versement du salaire si ni reclassé ni licencié dans le mois de l’avis',a:'L.1226-4 / L.1226-11',re:null}
+ ],
+ rupconv:[
+  {t:'Un ou plusieurs entretiens entre les parties',a:'L.1237-12',re:/entretien/i},
+  {t:'Information du salarié sur sa faculté d’assistance',a:'L.1237-12',re:/assist(er|ance|é)/i},
+  {t:'Convention écrite (formulaire CERFA n° 14598)',a:'L.1237-13',re:/convention|cerfa|14598/i},
+  {t:'Indemnité spécifique ≥ indemnité légale de licenciement (ou plancher conventionnel)',a:'L.1237-13',re:/indemnit[ée]/i},
+  {t:'Remise effective d’un exemplaire signé au salarié (à peine de nullité)',a:'Cass. soc. 3 juil. 2019',re:/exemplaire/i},
+  {t:'Délai de rétractation de 15 jours calendaires (chaque partie)',a:'L.1237-13',re:/r[ée]tractation/i},
+  {t:'Homologation DREETS après rétractation (ou autorisation de l’inspecteur si salarié protégé)',a:'L.1237-14 / L.1237-15',re:/homologation|dreets|direccte|inspecteur\s+du\s+travail|t[ée]l[ée]rc/i}
+ ],
+ pse:[
+  {t:'Motif économique réel et sérieux caractérisé',a:'L.1233-3',re:/difficult[ée]s\s+[ée]conomiques|mutations\s+technologiques|sauvegarde\s+de\s+la\s+comp[ée]titivit|cessation\s+d[’']activit/i},
+  {t:'Définition des catégories professionnelles (fonctions de même nature)',a:'L.1233-5',re:/cat[ée]gories?\s+professionnelles?/i},
+  {t:'Critères d’ordre des licenciements : les 4 critères légaux pris en compte',a:'L.1233-5',re:/crit[èe]res?\s+d[’']ordre/i},
+  {t:'Périmètre des critères ≥ zone d’emploi (document unilatéral)',a:'L.1233-5',re:null},
+  {t:'Consultation du CSE : ≥ 2 réunions espacées d’au moins 15 jours',a:'L.1233-30',re:null},
+  {t:'Possibilité pour le CSE de recourir à un expert (coût 100 % employeur)',a:'L.1233-34',re:/expert/i,opt:true},
+  {t:'Obligation de reclassement : offres écrites, précises, personnalisées (France + groupe)',a:'L.1233-4',re:/reclassement/i},
+  {t:'CSP (< 1 000 salariés) OU congé de reclassement (≥ 1 000 salariés)',a:'L.1233-65 / L.1233-71',re:/s[ée]curisation\s+professionnelle|\bcsp\b|cong[ée]\s+de\s+reclassement/i},
+  {t:'Validation (accord, 15 j) ou homologation (document unilatéral, 21 j) par la DREETS',a:'L.1233-57-4',re:/dreets|direccte|homologation|validation/i},
+  {t:'Notification des licenciements APRÈS la décision de la DREETS uniquement',a:'L.1233-39',re:null},
+  {t:'Mention de la priorité de réembauche (1 an) dans la lettre',a:'L.1233-45',re:/priorit[ée]\s+de\s+r[ée]embauche/i}
+ ],
+ cdd:[
+  {t:'Contrat écrit et transmis au salarié dans les 2 jours ouvrables',a:'L.1242-13',re:null},
+  {t:'Motif précis du recours (remplacement, accroissement temporaire, saisonnier, usage)',a:'L.1242-12',re:/remplacement|accroissement\s+temporaire|saisonnier|usage|surcro[îi]t/i},
+  {t:'Terme précis (date) ou durée minimale + événement',a:'L.1242-12',re:/jusqu[’']au|\bterme\b|dur[ée]e\s+minimale|\bà\s+compter\s+du/i},
+  {t:'Nom et qualification du salarié remplacé (si remplacement)',a:'L.1242-12',re:null,opt:true},
+  {t:'Désignation du poste de travail',a:'L.1242-12',re:/poste|emploi|fonction/i},
+  {t:'Intitulé de la convention collective applicable',a:'L.1242-12',re:/convention\s+collective/i},
+  {t:'Durée de la période d’essai',a:'L.1242-10',re:/essai/i,opt:true},
+  {t:'Montant de la rémunération et de ses composantes',a:'L.1242-12',re:/r[ée]mun[ée]ration|salaire|\b€|euros/i},
+  {t:'Caisse de retraite complémentaire et organisme de prévoyance',a:'L.1242-12',re:null,opt:true},
+  {t:'Indemnité de fin de contrat (précarité) 10 %',a:'L.1243-8',re:/pr[ée]carit[ée]|fin\s+de\s+contrat|10\s*%/i,opt:true},
+  {t:'Ne pas pourvoir un emploi lié à l’activité normale et permanente',a:'L.1242-1',re:null}
+ ],
+ contrat:[
+  {t:'Identité des parties (employeur / salarié)',a:'R.1221-34',re:null},
+  {t:'Intitulé du poste / description des fonctions',a:'R.1221-34',re:/poste|fonction|emploi|qualification/i},
+  {t:'Date d’embauche / de prise de fonction',a:'R.1221-34',re:/date\s+d[’']embauche|prise\s+de\s+fonction|\bà\s+compter\s+du|d[ée]but\s+du\s+contrat/i},
+  {t:'Lieu de travail',a:'R.1221-34',re:/lieu\s+de\s+travail|situ[ée]\s+[àa]/i,opt:true},
+  {t:'Rémunération (montant, périodicité, composantes)',a:'R.1221-34',re:/r[ée]mun[ée]ration|salaire|\b€|euros|brut/i},
+  {t:'Durée du travail (hebdomadaire / horaires)',a:'R.1221-34',re:/dur[ée]e\s+du\s+travail|heures|temps\s+de\s+travail|35\s*h|forfait/i},
+  {t:'Convention collective applicable',a:'R.1221-34',re:/convention\s+collective/i},
+  {t:'Période d’essai (durée conforme au plafond légal)',a:'L.1221-19',re:/essai/i,opt:true},
+  {t:'Congés payés et durée de préavis',a:'R.1221-34',re:/cong[ée]s\s+pay[ée]s|pr[ée]avis/i,opt:true},
+  {t:'Caisse de retraite complémentaire / organisme de prévoyance',a:'R.1221-34',re:null,opt:true}
+ ],
+ cse_convoc:[
+  {t:'Objet : convocation à la réunion du CSE',a:'L.2315-27',re:/convocation|convoqu/i},
+  {t:'Date, heure et lieu de la réunion',a:'L.2315-27',re:/\d{1,2}\s*h(?:eures|\d{2})?|à\s+\d{1,2}\s*h|lieu/i},
+  {t:'Ordre du jour joint à la convocation',a:'L.2315-30',re:/ordre\s+du\s+jour/i},
+  {t:'Envoi ≥ 3 jours avant la réunion',a:'L.2315-30',re:null},
+  {t:'Signature du président (employeur) ou de son représentant',a:'L.2315-27',re:null}
+ ],
+ cse_oj:[
+  {t:'Ordre du jour établi conjointement président / secrétaire',a:'L.2315-29',re:null},
+  {t:'Consultations/informations obligatoires inscrites de plein droit',a:'L.2315-29',re:/consultation|information|d[ée]lib[ée]ration|avis/i},
+  {t:'Communiqué aux membres ≥ 3 jours avant la réunion',a:'L.2315-30',re:null},
+  {t:'Points de consultation clairement énoncés',a:'L.2312-8',re:null,opt:true}
+ ],
+ cse_pv:[
+  {t:'Procès-verbal établi par le secrétaire du CSE',a:'L.2315-34',re:null},
+  {t:'Contenu : délibérations, avis rendus, réponses motivées de l’employeur',a:'L.2315-34',re:/d[ée]lib[ée]ration|avis|r[ée]ponse/i},
+  {t:'Résultats des votes (pour / contre / abstention)',a:'D.2315-25',re:/vote|pour|contre|abstention|unanimit[ée]/i},
+  {t:'Transmis à l’employeur dans les délais (15 j, ou 3 j / 1 j si urgence)',a:'L.2315-35',re:null},
+  {t:'Adopté (approuvé) lors d’une réunion suivante',a:'L.2315-34',re:null}
+ ]
+};
 
 // Analyse RÉELLE du texte collé : présence des mentions obligatoires par type de document.
 // Détection par mots-clés (une mention absente peut exister sous une autre formulation → signalée, pas affirmée).
@@ -11337,6 +11454,22 @@ if(deep.length){
   h+='<div style="font-weight:700;color:#8a1a1a;font-size:13.5px;margin:14px 0 6px">🧠 Analyse approfondie — non-conformités / risques majeurs</div>';
   deep.forEach(function(x2){h+='<div style="background:#fdecec;border-left:4px solid #c0392b;border-radius:6px;padding:9px 11px;margin:6px 0;font-size:12.5px;color:#5a1a1a;line-height:1.55">⛔ '+x2+'</div>';});
   h+='<div style="font-size:11px;color:#999;margin-top:4px">Analyse du SENS (négations « aucune », « sans »…) et des CHIFFRES (durée, salaire, essai, heures) repérés dans le texte — à recouper avec le dossier.</div>';
+}
+// ── CHECK-LIST DE CONFORMITÉ (transparence — guide, non compté dans le verdict) ──
+if(CHECKLIST[t]){
+  var cl=CHECKLIST[t], clHasText=(texteNet.length>=30);
+  var nOk=0,nMiss=0,nMan=0;
+  cl.forEach(function(it){ if(!it.re){nMan++;} else if(clHasText&&it.re.test(texte)){nOk++;} else {nMiss++;} });
+  h+='<div style="font-weight:700;color:#1b2a4a;font-size:13.5px;margin:16px 0 4px">📋 Check-list de conformité — '+cl.length+' point(s) de contrôle</div>';
+  h+='<div style="font-size:11px;color:#888;margin-bottom:8px">Liste des éléments obligatoires attendus pour ce document. '+(clHasText?('✅ détecté&nbsp;·&nbsp;⚠️ non repéré (à vérifier)&nbsp;·&nbsp;◽ contrôle manuel'):'Collez le texte du document ci-dessus pour que l’app coche automatiquement les points détectés.')+'</div>';
+  cl.forEach(function(it){
+    var st,ic,bg,bd,col;
+    if(!it.re){ st='man'; ic='◽'; bg='#f4f5f7'; bd='#c8ccd4'; col='#495'; }
+    else if(clHasText&&it.re.test(texte)){ st='ok'; ic='✅'; bg='#eefaf1'; bd='#3a9b5c'; col='#1a5c34'; }
+    else { st='miss'; ic='⚠️'; bg='#fff7e6'; bd='#e0a83a'; col='#6b5320'; }
+    h+='<div style="background:'+bg+';border-left:3px solid '+bd+';border-radius:6px;padding:6px 9px;margin:3px 0;font-size:12.5px;color:'+col+'">'+ic+' '+esc(it.t)+(it.opt?' <span style="font-size:10.5px;color:#999">(selon le cas)</span>':'')+' <span style="font-size:10.5px;color:#999">— '+esc(it.a)+'</span>'+(st==='miss'?'<div style="font-size:10.5px;color:#a08030;margin-top:2px">↳ non repéré automatiquement : vérifiez sa présence (il peut figurer sous une autre formulation).</div>':'')+'</div>';
+  });
+  h+='<div style="font-size:11px;color:#999;margin-top:6px">Cette check-list aide à repérer les erreurs fréquentes et guide la mise en conformité ; elle <b>ne garantit pas</b> à elle seule la conformité juridique du document.</div>';
 }
 if(r.re.length){h+='<div style="font-weight:600;color:#9a7b2e;font-size:13px;margin:10px 0 6px">📌 Recommandations &amp; points de vigilance</div>';r.re.forEach(function(k){h+='<div style="font-size:12.5px;color:#6b5a2e;padding:3px 0">• '+esc(k)+'</div>';});}
 h+='<div style="font-size:11px;color:#999;margin-top:12px;border-top:1px solid #eee;padding-top:8px">Réserve : éléments de diagnostic à vérifier et adapter ; ne remplace pas l’avis d’un professionnel.</div>';
