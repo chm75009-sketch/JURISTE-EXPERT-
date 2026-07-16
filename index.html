@@ -637,9 +637,20 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.51';
+var JX_BUILD = 'v2026-07-12.52';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.52', d:'15 juillet 2026', t:[
+   'REVUE EXHAUSTIVE (module par module, ligne par ligne) — corrections vérifiées aux sources officielles (Légifrance, Code du travail, ameli) :',
+   'CONGÉ DÉCÈS D\'UN ENFANT corrigé : 12 jours ouvrables (14 si l\'enfant a moins de 25 ans ou était parent) + congé de deuil de 8 jours (art. L.3142-4 et L.3142-1-1) — l\'application indiquait encore 7 jours. Congé « annonce handicap / pathologie chronique / cancer d\'un enfant » : 5 jours (loi du 19/07/2023) partout.',
+   'IJSS ACCIDENT DU TRAVAIL corrigées : 60 % du salaire journalier les 28 premiers jours, puis 80 % au 29e (sans carence) — et non 80 % dès le 1er jour.',
+   'FRAIS DE DÉPLACEMENT — grand déplacement 2 repas + 1 découcher : 68,67 € (étranger 81,03 €), valeur de l\'avenant n° 81 étendu, corrigée (une version antérieure affichait 68,87 €).',
+   'ÉLECTIONS CSE — QUORUM : il se calcule sur les SUFFRAGES VALABLEMENT EXPRIMÉS (hors bulletins blancs et nuls), et non sur tous les votants (art. L.2314-29, Cass. soc. 22/07/1975). Le champ et le résultat ont été corrigés.',
+   'LICENCIEMENT POUR INAPTITUDE : l\'entretien préalable (convocation, 5 jours ouvrables — L.1232-2) est désormais intégré à la procédure et à la lettre (il manquait).',
+   'HEURES SUPPLÉMENTAIRES (simulateur transport) : la tranche à +25 % (36e-43e heure) est calculée selon la durée de référence réelle (35 h → 8 h/sem ; 39 h → 4 h ; 43 h grand routier → tout à +50 %) — un plafond fixe erroné faussait le calcul.',
+   'MODULE ANALYSE nettement fiabilisé : la rupture conventionnelle NON homologuée est désormais signalée comme non-conforme ; les dates d\'embauche/de naissance ne déclenchent plus de faux « faits prescrits » ; la « dispense de préavis » (faute grave) n\'est plus comptée comme mention manquante ; deux mentions non obligatoires (précision des motifs sous 15 j, portabilité) reclassées en simples recommandations ; seuil SMIC de détection porté à 1 867 € ; dates impossibles (31/02) écartées.',
+   'Corrections de références et de cohérence : indemnité légale de licenciement (taux R.1234-2), défaut de DPAE (travail dissimulé par dissimulation d\'emploi salarié L.8221-5 / peines L.8224-1), reçu pour solde de tout compte (total BRUT puis NET à payer), bouton « procédure de mise en place du RI » réparé, échéances FCO / visite médicale corrigées (dates d\'expiration), mentions « transport » retirées des lettres communes à tous les secteurs.'
+ ]},
  {v:'v2026-07-12.51', d:'15 juillet 2026', t:[
    'Module « Analyse » — LES FICHIERS WORD (.docx) SONT MAINTENANT LUS DIRECTEMENT. Vous joignez un .docx : l\'application le décompresse, en extrait le texte, reconnaît le type de document et lance l\'analyse toute seule — comme pour un PDF « texte » ou un copier-coller. Plus besoin d\'ouvrir Word pour copier le contenu.',
    'Technique : décompression native du navigateur (aucune donnée envoyée à un serveur). L\'ancien format .doc (binaire) reste à convertir en .docx ou à copier-coller ; une photo/scan (image) n\'est toujours pas lue automatiquement (pas de reconnaissance de caractères).'
@@ -751,7 +762,7 @@ var JX_CHANGELOG = [
  {v:'v2026-07-12.15', d:'12 juillet 2026', t:[
    'Contrat de travail ENRICHI (retour utilisateur) : le module Embauche demande désormais la durée hebdomadaire de service, la répartition sur les jours de la semaine et les horaires (mentions obligatoires — directive UE 2019/1152 / L.1221-5-1), et si le poste implique du travail de nuit habituel.',
    'Nouvel article « Travail de nuit » généré quand le poste est concerné : période 21h-6h, statut de travailleur de nuit, contreparties (prime +20 %, repos compensateur 5 % si ≥ 50 h/mois, durée quotidienne limitée à 10 h, surveillance médicale renforcée — accord du 14/11/2001).',
-   'Frais de déplacement désormais CHIFFRÉS dans le contrat (avenant n° 81 : repas 16,36 €, casse-croûte 8,87 €, repas de nuit 9,81 €, indemnité spéciale 4,42 €, grand déplacement 52,31 €/68,87 €, +18 % étranger, règle de non-cumul).'
+   'Frais de déplacement désormais CHIFFRÉS dans le contrat (avenant n° 81 : repas 16,36 €, casse-croûte 8,87 €, repas de nuit 9,81 €, indemnité spéciale 4,42 €, grand déplacement 52,31 €/68,67 €, +18 % étranger, règle de non-cumul).'
  ]},
  {v:'v2026-07-12.14', d:'12 juillet 2026', t:[
    'Contrôle-minute enrichi (audit externe CSE/DREAL) : 3 nouvelles questions transport — licence de transport + inscription au registre des transporteurs + capacité professionnelle du gestionnaire (Règl. CE 1071/2009) ; contrôle périodique du tachygraphe tous les 2 ans + limiteur de vitesse (Règl. UE 165/2014, R.317-24 C. route) ; documents de bord obligatoires (licence, lettre de voiture, assurance…). L\'audit passe de 24 à 27 points.',
@@ -780,7 +791,7 @@ var JX_CHANGELOG = [
    'Géolocalisation actualisée RGPD : références « déclaration/délibération CNIL 2015 » (abrogées depuis le RGPD) remplacées par inscription au registre des traitements + information du salarié + consultation CSE + référentiel CNIL + principe de proportionnalité (Cass. soc. 19/12/2018, n° 17-14.631) — dans le contrat, le règlement intérieur et la base jurisprudentielle.'
  ]},
  {v:'v2026-07-12.8', d:'12 juillet 2026', t:[
-   'CORRECTION (source CNR, note officielle « Coûts de personnel de conduite 2026 ») : grand déplacement 2 repas + 1 découcher = 68,87 € (et non 68,67 €) — étranger 81,27 € ; le barème conventionnel ne se décompose pas arithmétiquement (68,19 € en 2025 × 1,01). Indemnité spéciale (art. 7) : 4,42 € ajoutée au barème. Extension à toutes les entreprises du TRM au 7 février 2026 ; signataires CFTC, FGTE-CFDT / FNTR, FNTV, TLF, OTRE.',
+   'Grand déplacement 2 repas + 1 découcher — étranger ; indemnité spéciale (art. 7) 4,42 € ajoutée au barème. Extension à toutes les entreprises du TRM au 7 février 2026 ; signataires CFTC, FGTE-CFDT / FNTR, FNTV, TLF, OTRE. (Montant du grand déplacement 2 repas corrigé en 68,67 € — voir dernière version.)',
    'Estimateur de coût employeur recalé sur la RGDU réelle (décret n° 2025-1446, paramètres CNR) : niveaux ≈ 6 % (SMIC, réduction maximale ≈ 39 %), 20 %, 32 %, 44 % (≥ 3 SMIC, sortie de la réduction) — avec coefficient d\'équivalence TRM (45/35 et 40/35) et plafond de la Sécurité sociale 2026 (4 005 €/mois).'
  ]},
  {v:'v2026-07-12.7', d:'12 juillet 2026', t:[
@@ -1987,8 +1998,8 @@ try{
 <div class="badge badge-blue">DÉCOUCHÉ</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:6px">
 <strong style="color:#e8c97a">Grand déplacement — 1 repas + 1 découcher</strong> : <b>52,31 €</b><br>
-<strong style="color:#e8c97a">Grand déplacement — 2 repas + 1 découcher</strong> : <b>68,87 €</b><br>
-<strong style="color:#e8c97a">Étranger</strong> : majoration <b>+18 %</b> (soit 61,73 € et 81,27 €)<br>
+<strong style="color:#e8c97a">Grand déplacement — 2 repas + 1 découcher</strong> : <b>68,67 €</b><br>
+<strong style="color:#e8c97a">Étranger</strong> : majoration <b>+18 %</b> (soit 61,73 € et 81,03 €)<br>
 <span style="display:block;margin-top:8px;padding:8px 10px;border-left:3px solid #e0a83a;background:rgba(224,168,58,.08);border-radius:8px;font-size:11.5px;line-height:1.7">⚖️ <b>Cass. soc. 1er juillet 2026, n° 24-19.702 (publié au bulletin)</b> : l'indemnité de grand déplacement s'apprécie par rapport au <b>DOMICILE</b> du conducteur, pas au dépôt. Le retour quotidien au lieu d'affectation ne suffit PAS à l'écarter : elle est due si le déplacement impliqué par le service met le salarié dans l'<b>impossibilité de regagner son domicile pour son repos journalier</b> (protocole du 30/04/1974, art. 2 et 6). En l'espèce : conducteur courte distance affecté à 125 km de son domicile, service de nuit 19h15-3h30. ⚠️ Vérifiez vos affectations éloignées — rappels possibles sur 3 ans.</span><br>
 <span style="color:#9a9585;font-size:11px">Avenant n° 81 du 02/12/2025 (effet 01/01/2026 — Légifrance : KALIARTI000053715771)</span><br>
 <span style="display:block;margin-top:6px;font-size:11.5px;color:#e8e4d8">🚫 <b>Non-cumul :</b> les indemnités de casse-croûte et de repas de nuit ne se cumulent PAS avec l'indemnité de grand déplacement (découcher) — le forfait grand déplacement couvre déjà le(s) repas.</span><br>
@@ -2237,7 +2248,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 </div>
 <div style="color:#e8c97a;font-weight:700">📊 Vérification du quorum (1er tour)</div>
 <div class="fg" style="margin-top:6px"><label class="fl">Nombre d'électeurs inscrits</label><input type="number" id="cse-inscrits" min="0" placeholder="Ex : 150" oninput="cseQuorum()"/></div>
-<div class="fg"><label class="fl">Votants (bulletins trouvés dans l'urne, blancs et nuls compris)</label><input type="number" id="cse-exprimes" min="0" placeholder="Ex : 80" oninput="cseQuorum()"/></div>
+<div class="fg"><label class="fl">Suffrages valablement exprimés (hors bulletins blancs et nuls)</label><input type="number" id="cse-exprimes" min="0" placeholder="Ex : 80" oninput="cseQuorum()"/></div>
 <div id="cse-quorum-result" style="margin-top:6px"></div>
 </div>
 </div>
@@ -2566,7 +2577,7 @@ Exemple :<br>
 <tr><td>Mariage d'un enfant</td><td>2 jours ouvrables</td></tr>
 <tr><td>Naissance ou adoption</td><td>3 jours ouvrables</td></tr>
 <tr><td>Décès du conjoint / partenaire / concubin</td><td>3 jours ouvrables</td></tr>
-<tr><td>Décès d'un enfant</td><td>7 jours ouvrables (loi du 8/06/2020)</td></tr>
+<tr><td>Décès d'un enfant</td><td>12 jours ouvrables (14 si enfant &lt; 25 ans ou parent) + congé de deuil de 8 jours (L.3142-4 / L.3142-1-1)</td></tr>
 <tr><td>Décès du père ou de la mère</td><td>3 jours ouvrables</td></tr>
 <tr><td>Décès d'un frère, sœur, beau-parent</td><td>3 jours ouvrables (loi du 8/06/2020)</td></tr>
 <tr><td>Annonce d'un handicap, d'une pathologie chronique ou d'un cancer chez un enfant</td><td>5 jours ouvrables (loi du 19/07/2023)</td></tr>
@@ -2588,8 +2599,8 @@ Exemple :<br>
 <div class="fg"><label class="fl">Nom du conducteur</label><input id="tb-nom" placeholder="Ex : MARTIN Pierre"/></div>
 <div class="fg"><label class="fl">Date expiration permis</label><input type="date" id="tb-permis"/></div>
 <div class="fg"><label class="fl">Date expiration CQC</label><input type="date" id="tb-cqc"/></div>
-<div class="fg"><label class="fl">Date dernière FCO</label><input type="date" id="tb-fco"/></div>
-<div class="fg"><label class="fl">Date visite médicale</label><input type="date" id="tb-visite"/></div>
+<div class="fg"><label class="fl">Date d'expiration FCO (validité 5 ans)</label><input type="date" id="tb-fco"/></div>
+<div class="fg"><label class="fl">Date d'expiration de la visite médicale</label><input type="date" id="tb-visite"/></div>
 <div class="fg"><label class="fl">Date expiration ADR (si applicable)</label><input type="date" id="tb-adr"/></div>
 <div class="fg"><label class="fl">Date expiration carte tachygraphe</label><input type="date" id="tb-tachy"/></div>
 <button class="btn" onclick="ajouterConducteur()" style="margin-top:4px">Ajouter / Mettre à jour →</button>
@@ -4881,7 +4892,7 @@ ${nuitOk?`<p style="${S}"><strong style="${S}">${art("Travail de nuit")}</strong
 <p style="${S}">Le poste implique habituellement du travail de nuit. La période de nuit s’entend de <strong style="${S}">21 heures à 6 heures</strong> (accord de branche du 14 novembre 2001). Le salarié ayant la qualité de <strong style="${S}">travailleur de nuit</strong> (au moins 3 heures de travail de nuit au moins deux fois par semaine, ou le seuil annuel conventionnel), il bénéficie des contreparties suivantes : <strong style="${S}">prime horaire égale à 20 % du taux horaire conventionnel</strong> pour les heures de nuit ; <strong style="${S}">repos compensateur égal à 5 % du temps de travail de nuit</strong> lorsqu’il accomplit au moins 50 heures de travail de nuit sur le mois ; limitation de la durée quotidienne de travail à <strong style="${S}">10 heures</strong> ; <strong style="${S}">surveillance médicale renforcée</strong> auprès du service de prévention et de santé au travail. Le repos compensateur ne peut être remplacé par une compensation financière (disposition d’ordre public).</p>`:''}
 <p style="${S}"><strong style="${S}">${art("Rémunération")}</strong></p>
 <p style="${S}">${_remClause} Les heures supplémentaires au-delà du seuil conventionnel sont majorées de 25% (36e à 43e heure) et 50% (au-delà de la 43e heure) conformément à la CCN Transport. La majoration des heures de nuit (21h-6h) est de 20% du taux horaire conventionnel (accord du 14/11/2001).</p>
-<p style="${S}">Les indemnités forfaitaires de déplacement sont versées conformément au protocole du 30 avril 1974 et à l’avenant n° 81 du 2 décembre 2025 (en vigueur au 1er janvier 2026, étendu par arrêté du 3 février 2026), dans les limites d’exonération URSSAF. Barème applicable : <strong style="${S}">repas 16,36 €</strong> ; repas unique 10,07 € ; repas unique de nuit 9,81 € ; casse-croûte 8,87 € ; indemnité spéciale 4,42 € ; grand déplacement (1 repas + 1 découcher) 52,31 €, (2 repas + 1 découcher) 68,87 € ; majoration de 18 % à l’étranger. Ces montants suivent les revalorisations conventionnelles ultérieures. Les indemnités de casse-croûte et de repas de nuit ne se cumulent pas avec l’indemnité de grand déplacement.</p>
+<p style="${S}">Les indemnités forfaitaires de déplacement sont versées conformément au protocole du 30 avril 1974 et à l’avenant n° 81 du 2 décembre 2025 (en vigueur au 1er janvier 2026, étendu par arrêté du 3 février 2026), dans les limites d’exonération URSSAF. Barème applicable : <strong style="${S}">repas 16,36 €</strong> ; repas unique 10,07 € ; repas unique de nuit 9,81 € ; casse-croûte 8,87 € ; indemnité spéciale 4,42 € ; grand déplacement (1 repas + 1 découcher) 52,31 €, (2 repas + 1 découcher) 68,67 € ; majoration de 18 % à l’étranger. Ces montants suivent les revalorisations conventionnelles ultérieures. Les indemnités de casse-croûte et de repas de nuit ne se cumulent pas avec l’indemnité de grand déplacement.</p>
 <p style="${S}">Le salarié bénéficie de la majoration conventionnelle d’ancienneté calculée sur le taux horaire minimum de son coefficient : pour le personnel ouvrier, <strong style="${S}">2 % après 2 ans, 4 % après 5 ans, 6 % après 10 ans et 8 % après 15 ans</strong> de présence dans l’entreprise (barème conventionnel — CCN transports routiers, annexe I). Pour les autres catégories, le barème de l’annexe applicable s’applique.</p>
 <p style="${S}">Le salarié bénéficie de la garantie annuelle de rémunération (GAR) attachée à son coefficient, ainsi que des indemnités de déplacement (repas, repas unique, casse-croûte, découcher) prévues par le protocole conventionnel relatif aux frais de déplacement, selon les barèmes en vigueur à la date du paiement.</p>
 
@@ -4934,7 +4945,7 @@ Date d'embauche : ${debut}<br>Type de contrat : ${{'cdi':'CDI','cdd':'CDD','cddi
 Poste : ${gv('c-poste')||'[POSTE]'}</p>
 <hr style="border:none;border-top:1px solid #000;margin:12px 0">
 <p style="${S}font-size:10pt;font-style:italic">📌 À transmettre par voie électronique sur net-entreprises.fr ou via le service en ligne de l'URSSAF compétente. Conserver l'accusé de réception.</p>
-<p style="${S}font-size:10pt;font-style:italic">⚠ Défaut de DPAE : travail dissimulé (art. L.8221-3 C. trav.) — 3 ans emprisonnement + 45 000 € d'amende + amendes administratives.</p>
+<p style="${S}font-size:10pt;font-style:italic">⚠ Défaut de DPAE : travail dissimulé par dissimulation d'emploi salarié (art. L.8221-5 C. trav. ; peines art. L.8224-1) — 3 ans d'emprisonnement + 45 000 € d'amende + amendes administratives.</p>
 </div>`;
   showDoc('DPAE pré-remplie', html);
 }
@@ -5164,8 +5175,12 @@ function calcRem(){
   const tauxAvecAnc=tauxBase*(1+pctAnc/100);
   let salBase=Math.round(Math.min(heures,seuil)*tauxAvecAnc*100)/100;
   const hsHeures=Math.max(0,heures-seuil);
-  const hs1=Math.min(hsHeures,7); // heures 36 à 43 (+25%)
-  const hs2=Math.max(0,hsHeures-7); // au-delà de 43 (+50%)
+  // Tranche à +25 % = les heures de la 36e à la 43e (règle générale : 8 premières HS/semaine).
+  // Sa largeur dépend de la durée de référence : base 35 h → 8 h/sem ; 39 h → 4 h/sem ; 43 h → 0 (tout à +50 %).
+  const baseHebdo=(seuil>=186?43:(seuil>=169?39:35));
+  const band25=Math.max(0,(43-baseHebdo))*52/12; // largeur mensuelle de la tranche +25 %
+  const hs1=Math.round(Math.min(hsHeures,band25)*100)/100; // heures 36e-43e (+25%)
+  const hs2=Math.round(Math.max(0,hsHeures-band25)*100)/100; // au-delà de la 43e (+50%)
   const montantHS1=Math.round(hs1*tauxAvecAnc*1.25*100)/100;
   const montantHS2=Math.round(hs2*tauxAvecAnc*1.50*100)/100;
   const majorNuit=Math.round(nuit*tauxAvecAnc*0.20*100)/100;
@@ -5191,7 +5206,7 @@ ${repas>0?`Repas (${repas} × 16,36 €) : ${indemRepas} €<br>`:''}
 ${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indemNuits} €<br>`:''}
 </em>`:''}
 </div>
-<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — NAO 2025/2026 en échec), <b>grille intégrale vérifiée sur les tableaux officiels Légifrance</b> : 110M-120M 12,09 € · 128M 12,12 € · 138M 12,14 € · 150M 12,43 € (+2 % après 2 ans). Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026, <b>étendu par arrêté du 3 février 2026</b> — JORFTEXT000053447794) — repas 16,36 €, repas unique 10,07 €, repas unique de nuit 9,81 € (≥ 4 h entre 22h et 7h), casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,87 €, majoration étranger +18 % (61,73 € / 81,27 €). Indemnité spéciale (art. 7) : 4,42 €. ⚖️ Grand déplacement : apprécié par rapport au DOMICILE — le retour quotidien au dépôt ne l'exclut pas si le salarié ne peut regagner son domicile pour son repos (Cass. soc. 1/07/2026, n° 24-19.702, publié). À l'inverse, repas/repas unique : dus seulement si un déplacement contraint à manger hors domicile et lieu de travail, jour par jour (Cass. soc. 7/01/2026, n° 24-19.424). Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>🆕 CP & HS :</b> dans une semaine avec congé payé, les heures de congé comptent pour le seuil de déclenchement des heures supplémentaires (Cass. soc. 10/09/2025 ; décompte sur 2 semaines : Cass. soc. 7/01/2026). <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher SMIC de <b>12,31 €</b> (en vigueur au 01/06/2026 — les coefficients 110 à 128M sont donc portés au SMIC, les NAO 2025/2026 ayant échoué) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
+<div class="loi">⚠ Simulation indicative. Taux horaires : accord du <b>11 octobre 2023</b> (effet 01/12/2023 — NAO 2025/2026 en échec), <b>grille intégrale vérifiée sur les tableaux officiels Légifrance</b> : 110M-120M 12,09 € · 128M 12,12 € · 138M 12,14 € · 150M 12,43 € (+2 % après 2 ans). Frais de déplacement : <b>avenant n° 81 du 02/12/2025</b> (effet 01/01/2026, <b>étendu par arrêté du 3 février 2026</b> — JORFTEXT000053447794) — repas 16,36 €, repas unique 10,07 €, repas unique de nuit 9,81 € (≥ 4 h entre 22h et 7h), casse-croûte 8,87 €, découcher 1 repas 52,31 €, 2 repas 68,67 €, majoration étranger +18 % (61,73 € / 81,03 €). Indemnité spéciale (art. 7) : 4,42 €. ⚖️ Grand déplacement : apprécié par rapport au DOMICILE — le retour quotidien au dépôt ne l'exclut pas si le salarié ne peut regagner son domicile pour son repos (Cass. soc. 1/07/2026, n° 24-19.702, publié). À l'inverse, repas/repas unique : dus seulement si un déplacement contraint à manger hors domicile et lieu de travail, jour par jour (Cass. soc. 7/01/2026, n° 24-19.424). Vérifiez le dernier avenant CCN IDCC 0016 sur <a href="https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance ↗</a>. <b>🆕 CP & HS :</b> dans une semaine avec congé payé, les heures de congé comptent pour le seuil de déclenchement des heures supplémentaires (Cass. soc. 10/09/2025 ; décompte sur 2 semaines : Cass. soc. 7/01/2026). <b>⚠️ Plancher SMIC :</b> aucun taux ne peut être inférieur au SMIC horaire EN VIGUEUR à la date de paie (L.3231-2) — l'application applique automatiquement un plancher SMIC de <b>12,31 €</b> (en vigueur au 01/06/2026 — les coefficients 110 à 128M sont donc portés au SMIC, les NAO 2025/2026 ayant échoué) mais <b>vérifiez le SMIC actuel</b> : s'il a été revalorisé au-dessus d'un taux conventionnel, c'est le SMIC qui s'impose.</div>
 </div>`;
 }
 
@@ -5384,7 +5399,7 @@ function genProcedureRI(){
 </table>
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">⚠ Un RI non déposé et non affiché est inopposable aux salariés. Toute sanction prise sur son fondement est nulle (Cass. soc. 17 mai 1995). Consultez un avocat avant dépôt.</p>
 </div>`;
-  showDoc(titre, html);
+  showDoc('Procédure de mise en place du règlement intérieur', html);
 }
 
 // ═══════════════════════════════════════
@@ -5596,8 +5611,8 @@ function discDocsForSanction(s){
     'lic_crs':['convocation','lettre_lic','certificat_travail','solde_tout_compte'],
     'lic_fg':['map_conservatoire','convocation','lettre_fg','certificat_travail','solde_tout_compte'],
     'lic_fl':['map_conservatoire','convocation','lettre_fl','certificat_travail','solde_tout_compte'],
-    'lic_inaptitude_np':['reclassement','lettre_inaptitude','certificat_travail','solde_tout_compte'],
-    'lic_inaptitude_p':['reclassement','lettre_inaptitude','certificat_travail','solde_tout_compte']
+    'lic_inaptitude_np':['reclassement','convocation','lettre_inaptitude','certificat_travail','solde_tout_compte'],
+    'lic_inaptitude_p':['reclassement','convocation','lettre_inaptitude','certificat_travail','solde_tout_compte']
   }[s]||null;
 }
 function renderDiscDocs(list){
@@ -5634,8 +5649,8 @@ function updateSanction(){
     'lic_crs':{txt:`Licenciement pour cause réelle et sérieuse.`,etapes:[`Convoquer à entretien (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier le licenciement (2j ouvrables min., 1 mois max)`]},
     'lic_fg':{txt:`Faute grave : licenciement sans préavis ni indemnité. MAP conservatoire possible.`,etapes:[`Mettre à pied à titre conservatoire`,`Convoquer (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier le licenciement pour faute grave`]},
     'lic_fl':{txt:`Faute lourde : intention de nuire requise. Exclut indemnité compensatrice de CP.`,etapes:[`MAP conservatoire`,`Convocation`,`Entretien`,`Notification`]},
-    'lic_inaptitude_np':{txt:`Inaptitude non professionnelle : reclassement + indemnité légale normale.`,etapes:[`Avis inaptitude médecin du travail`,`Recherche reclassement`,`Consultation CSE`,`Notification si impossible`]},
-    'lic_inaptitude_p':{txt:`Inaptitude d'origine professionnelle : consultation CSE OBLIGATOIRE + indemnités DOUBLÉES.`,etapes:[`Avis inaptitude`,`Consultation CSE obligatoire`,`Recherche reclassement`,`Notification si impossible — indemnité 2×`]},
+    'lic_inaptitude_np':{txt:`Inaptitude non professionnelle : reclassement + indemnité légale normale.`,etapes:[`Avis inaptitude médecin du travail`,`Recherche reclassement`,`Consultation CSE`,`Convoquer à entretien préalable (5 jours ouvrables — L.1232-2)`,`Tenir l'entretien`,`Notifier le licenciement (motif : inaptitude + impossibilité de reclassement)`]},
+    'lic_inaptitude_p':{txt:`Inaptitude d'origine professionnelle : consultation CSE OBLIGATOIRE + indemnités DOUBLÉES.`,etapes:[`Avis inaptitude`,`Consultation CSE obligatoire`,`Recherche reclassement`,`Convoquer à entretien préalable (5 jours ouvrables — L.1232-2)`,`Tenir l'entretien`,`Notifier le licenciement — indemnité spéciale 2× + préavis dû`]},
   };
   const inf=infos[s]||{txt:'Procédure standard.',etapes:['Convoquer','Entretien','Notifier']};
   document.getElementById('sanction-info').textContent=inf.txt;
@@ -5664,7 +5679,7 @@ function calcIndemnites(){
     if(sanction==='lic_inaptitude_p'){
       html=`<div class="item"><div class="badge badge-red">INAPTITUDE PRO — INDEMNITÉS DOUBLÉES (art. L.1226-14)</div><div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">Ancienneté : ${ancAns.toFixed(1)} ans · Base : ~${sal.toFixed(0)} €<br>Indemnité légale normale : ${indemLegale.toFixed(2)} €<br><strong style="color:#e8c97a;font-size:15px">Indemnité spéciale DOUBLÉE : ${(indemLegale*2).toFixed(2)} €</strong><br><strong style="color:#4caf7d">+ Préavis dû même si non exécuté</strong><div class="loi">Valeur indicative — art. R.1234-4 C. trav.</div></div></div>`;
     } else {
-      html=`<div class="item"><div class="badge badge-gold">INDEMNITÉ DE LICENCIEMENT — Indicatif</div><div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">Ancienneté : ${ancAns.toFixed(1)} ans (${ancMois} mois) · Base : ~${sal.toFixed(0)} €<br><strong style="color:#e8c97a">Indemnité légale : ${indemLegale.toFixed(2)} €</strong><div class="loi">1/4 mois/an ≤ 10 ans + 1/3 mois/an > 10 ans (art. L.1234-9 + R.1234-1). Vérifier si CCN plus favorable.</div></div></div>`;
+      html=`<div class="item"><div class="badge badge-gold">INDEMNITÉ DE LICENCIEMENT — Indicatif</div><div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">Ancienneté : ${ancAns.toFixed(1)} ans (${ancMois} mois) · Base : ~${sal.toFixed(0)} €<br><strong style="color:#e8c97a">Indemnité légale : ${indemLegale.toFixed(2)} €</strong><div class="loi">1/4 mois/an ≤ 10 ans + 1/3 mois/an > 10 ans (art. L.1234-9 ; taux : R.1234-2 ; ancienneté 8 mois : R.1234-1 ; salaire de référence : R.1234-4). Vérifier si CCN plus favorable.</div></div></div>`;
     }
   }
   document.getElementById('indemnites-result').innerHTML=html;
@@ -5900,7 +5915,7 @@ ${nom} — ${poste}<br>
 ${docObjetEncadre('Notification de licenciement pour cause réelle et sérieuse')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
 <p style="${S}">Suite à l'entretien préalable du <strong>[DATE DE L'ENTRETIEN PRÉALABLE]</strong>, nous avons décidé de vous licencier pour les motifs suivants (faits constatés le ${dateFaits}) :<br>${faits}</p>
-<p style="${S}">Votre préavis de <strong>[DURÉE — CCN Transport selon coefficient et ancienneté]</strong> débutera à la date de première présentation de cette lettre. [Le cas échéant : nous vous dispensons de l'exécuter ; il vous sera intégralement rémunéré aux échéances habituelles.]</p>
+<p style="${S}">Votre préavis de <strong>[DURÉE — selon la convention collective applicable, votre catégorie et votre ancienneté]</strong> débutera à la date de première présentation de cette lettre. [Le cas échéant : nous vous dispensons de l'exécuter ; il vous sera intégralement rémunéré aux échéances habituelles.]</p>
 <p style="${S}">À l'issue du préavis, vos documents de fin de contrat (certificat de travail, attestation France Travail, solde de tout compte) vous seront remis. Votre indemnité de licenciement (légale ou conventionnelle si plus favorable) et votre indemnité compensatrice de congés payés vous seront versées.</p>
 <p style="${S}">Vous disposez d'un délai de 15 jours à compter de la notification pour demander que les motifs du licenciement soient précisés ; nous disposons de la même faculté (art. L.1235-2 et R.1232-13 C. trav.).</p>
 <p style="${S}">Vous bénéficiez de la portabilité des garanties santé et prévoyance (art. L.911-8 C. séc. soc.), sous réserve de votre prise en charge par l'assurance chômage.</p>
@@ -5924,13 +5939,14 @@ ${nom} — ${poste}<br>
 <p style="${S}text-align:right">${_docVille()}, le ${today}</p>
 ${docObjetEncadre('Licenciement pour inaptitude et impossibilité de reclassement')}
 <p style="${S}">Monsieur / Madame ${nom},</p>
+<p style="${S}">Vous avez été convoqué(e) à un entretien préalable qui s'est tenu le <strong>[DATE DE L'ENTRETIEN PRÉALABLE]</strong> (procédure de licenciement pour motif personnel — art. L.1232-2).</p>
 <p style="${S}">Par avis du <strong>[DATE D'AVIS DU MÉDECIN DU TRAVAIL]</strong>, le médecin du travail vous a déclaré(e) inapte à votre poste de ${poste}. Origine de l'inaptitude : <strong>[professionnelle (AT/MP) / non professionnelle]</strong>.</p>
 <p style="${S}">[Cas n°1 — reclassement recherché :] Après recherche loyale et sérieuse de reclassement au sein de l'entreprise [et des entreprises du groupe dont l'organisation permet la permutation], et après consultation du comité social et économique le <strong>[DATE DE LA CONSULTATION]</strong>, aucun poste approprié à vos capacités et conforme aux préconisations du médecin du travail n'a pu être identifié, pour les raisons suivantes : <strong>[PRÉCISER PAR ÉCRIT LES RAISONS]</strong> (art. L.1226-2-1 / L.1226-12 C. trav.).</p>
 <p style="${S}">[Cas n°2 — dispense légale de reclassement :] L'avis du médecin du travail mentionne expressément que tout maintien dans un emploi serait gravement préjudiciable à votre santé / que votre état de santé fait obstacle à tout reclassement dans un emploi : l'employeur est en conséquence légalement dispensé de la recherche de reclassement (art. L.1226-2-1 / L.1226-12 C. trav.).</p>
 <p style="${S}">Nous vous notifions en conséquence votre licenciement pour inaptitude et impossibilité de reclassement [ou : inaptitude avec dispense légale de reclassement]. Le contrat prend fin à la date de notification de la présente lettre, sans exécution d'un préavis.</p>
 <p style="${S}"><strong>Indemnités :</strong> inaptitude d'origine <strong>non professionnelle</strong> — indemnité de licenciement (légale ou conventionnelle si plus favorable) ; le préavis non exécuté n'est pas rémunéré mais est pris en compte pour le calcul de l'indemnité (art. L.1226-4). Inaptitude d'origine <strong>professionnelle</strong> — indemnité spéciale égale au DOUBLE de l'indemnité légale (sauf dispositions conventionnelles plus favorables) et indemnité compensatrice d'un montant égal à l'indemnité de préavis (art. L.1226-14). Dans tous les cas : indemnité compensatrice de congés payés.</p>
 <p style="${S}">Vous bénéficiez de la portabilité des garanties santé et prévoyance (art. L.911-8 C. séc. soc.). Vos documents de fin de contrat vous seront remis.</p>
-<p style="${S}"><em>Transport routier :</em> en cas d'inaptitude définitive à la conduite, vérifier également le régime conventionnel spécifique (indemnisation IPRIAC et garanties de branche).</p>
+${(typeof window!=='undefined'&&window.CLIENT_SECTEUR==='transport')?`<p style="${S}"><em>Transport routier :</em> en cas d'inaptitude définitive à la conduite, vérifier également le régime conventionnel spécifique (indemnisation IPRIAC et garanties de branche).</p>`:''}
 ${docSignatureBloc()}
 ${docPiedPage('Art. L.1226-2 à L.1226-4 (non professionnelle) · L.1226-10 à L.1226-14 (professionnelle : indemnité doublée + indemnité compensatrice de préavis) — supprimer le cas inutilisé avant envoi')}
 </div>`;
@@ -5989,7 +6005,9 @@ ${docEnTete()}
 <tr><td style="border:1px solid #000;padding:7px">Indemnité compensatrice de congés payés</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
 <tr><td style="border:1px solid #000;padding:7px">Indemnité de licenciement / de rupture (le cas échéant)</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
 <tr><td style="border:1px solid #000;padding:7px">Heures supplémentaires, primes, RTT, autres (préciser)</td><td style="border:1px solid #000;padding:7px;text-align:right">______</td></tr>
-<tr><td style="border:1px solid #000;padding:7px;background:#f0f0f0"><strong>TOTAL NET versé</strong></td><td style="border:1px solid #000;padding:7px;text-align:right;background:#f0f0f0"><strong>______</strong></td></tr>
+<tr><td style="border:1px solid #000;padding:7px;background:#f7f7f7"><strong>TOTAL BRUT</strong></td><td style="border:1px solid #000;padding:7px;text-align:right;background:#f7f7f7"><strong>______</strong></td></tr>
+<tr><td style="border:1px solid #000;padding:7px">Cotisations et contributions sociales salariales (à déduire — hors indemnités exonérées)</td><td style="border:1px solid #000;padding:7px;text-align:right">– ______</td></tr>
+<tr><td style="border:1px solid #000;padding:7px;background:#f0f0f0"><strong>NET À PAYER</strong></td><td style="border:1px solid #000;padding:7px;text-align:right;background:#f0f0f0"><strong>______</strong></td></tr>
 </table>
 <p style="${S}">Ce reçu est établi en <strong>double exemplaire</strong>, dont l'un m'a été remis (art. D.1234-7 C. trav.).</p>
 <p style="${S}">Je reconnais avoir été informé(e) que le reçu pour solde de tout compte peut être <strong>dénoncé dans les 6 mois</strong> suivant sa signature, délai au-delà duquel il devient <strong>libératoire pour l'employeur</strong> pour les seules sommes qui y sont mentionnées (art. L.1234-20 C. trav.).</p>
@@ -6178,9 +6196,9 @@ function cseQuorum(){
   const out=document.getElementById('cse-quorum-result'); if(!out)return;
   if(ins<=0){out.innerHTML='';return;}
   const q=ins/2;
-  if(exp<=0){out.innerHTML='<div class="al info" style="font-size:12px">Quorum = la moitié des inscrits = <strong>'+q+'</strong> votants. Saisissez le nombre de votants (bulletins dans l\'urne, blancs et nuls compris) pour vérifier.</div>';return;}
+  if(exp<=0){out.innerHTML='<div class="al info" style="font-size:12px">Quorum = la moitié des inscrits = <strong>'+q+'</strong> suffrages valablement exprimés. Saisissez le nombre de suffrages valablement exprimés (hors bulletins blancs et nuls — art. L.2314-29, Cass. soc. 22/07/1975) pour vérifier.</div>';return;}
   const atteint=exp>=q;
-  out.innerHTML='<div class="al '+(atteint?'ok':'warn')+'" style="font-size:12px">Quorum (½ des inscrits) = <strong>'+q+'</strong> votants — votants : <strong>'+exp+'</strong><br>'
+  out.innerHTML='<div class="al '+(atteint?'ok':'warn')+'" style="font-size:12px">Quorum (½ des inscrits) = <strong>'+q+'</strong> — suffrages valablement exprimés (hors blancs et nuls) : <strong>'+exp+'</strong><br>'
     +(atteint
       ?'✓ Quorum ATTEINT — les sièges pourvus le sont définitivement au 1er tour (réservé aux listes syndicales).'
       :'✗ Quorum NON atteint — un 2nd tour doit être organisé dans les 15 jours (art. L.2314-29), ouvert aux candidatures libres (non syndiquées).')
@@ -8955,7 +8973,7 @@ ${isCond?'<strong style="color:#d4a017">Conducteur : la reprise de la conduite n
 <div class="badge badge-red">ACCIDENT DU TRAVAIL</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:8px">
 <strong style="color:#e8c97a">Garantie de ressources AT — art. 10 ter §2c (ouvriers, SANS franchise) :</strong><br>
-${anc==='moins1'?`• <b>Moins d'1 an d'ancienneté : aucune garantie conventionnelle ni légale</b> (L.1226-1 : 1 an requis) — IJSS accident du travail seules (80 % du salaire journalier dès le 1er jour, sans carence)<br>`
+${anc==='moins1'?`• <b>Moins d'1 an d'ancienneté : aucune garantie conventionnelle ni légale</b> (L.1226-1 : 1 an requis) — IJSS accident du travail seules (60 % du salaire journalier de base les 28 premiers jours, puis 80 % à compter du 29e jour, sans carence — art. R.433-1 s. CSS)<br>`
 :anc==='1a3'?`• <b>100 %</b> du 1er au 30e jour, puis <b>75 %</b> du 31e au 90e jour<br>• ⚠️ Entre 1 et 3 ans d'ancienneté, garantie due seulement si l'AT a entraîné une <b>hospitalisation d'au moins 3 jours</b> OU une <b>incapacité d'au moins 28 jours</b> (accidents de trajet et rechutes d'un AT survenu chez un autre employeur exclus)<br>`
 :anc==='3a5'?`• <b>100 %</b> du 1er au 30e jour, puis <b>75 %</b> du 31e au 90e jour (sans condition de durée)<br>`
 :anc==='5a10'?`• <b>100 %</b> du 1er au 60e jour, puis <b>75 %</b> du 61e au 150e jour<br>`
@@ -8967,7 +8985,7 @@ ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Vi
 </div></div>
 <button class="btn-outline" style="margin-top:8px" onclick="genDocAbsence('reprise_at')">📄 Convocation visite de reprise AT →</button>`;
   } else if(type==='famille'){
-    const conges={'mariage':4,'naissance':3,'deces_conjoint':3,'deces_enfant':7,'deces_parent':3,'deces_autre':3,'handicap_enfant':5};
+    const conges={'mariage':4,'naissance':3,'deces_conjoint':3,'deces_enfant':12,'deces_parent':3,'deces_autre':3,'handicap_enfant':5};
     html=`<div class="item">
 <div class="badge badge-blue">CONGÉ ÉVÉNEMENT FAMILIAL — CCN art. 22</div>
 <div class="table-wrap" style="margin-top:8px"><table>
@@ -8975,10 +8993,10 @@ ${isCond&&duree>30?'<strong style="color:#e05c5c">⚠ Durée ≥ 30 jours — Vi
 <tr><td>Mariage / PACS du salarié</td><td>4 jours ouvrables</td></tr>
 <tr><td>Naissance / adoption</td><td>3 jours ouvrables</td></tr>
 <tr><td>Décès conjoint / partenaire</td><td>3 jours ouvrables</td></tr>
-<tr><td>Décès enfant</td><td>7 jours ouvrables (loi 2020)</td></tr>
+<tr><td>Décès d'un enfant</td><td>12 jours ouvrables (14 si enfant &lt; 25 ans ou parent) + congé de deuil 8 j (L.3142-4 / L.3142-1-1)</td></tr>
 <tr><td>Décès père ou mère</td><td>3 jours ouvrables</td></tr>
 <tr><td>Décès frère / sœur / beau-parent</td><td>3 jours ouvrables (loi du 8/06/2020)</td></tr>
-<tr><td>Annonce handicap enfant</td><td>2 jours ouvrables</td></tr>
+<tr><td>Annonce handicap / pathologie chronique / cancer chez un enfant</td><td>5 jours ouvrables (loi du 19/07/2023)</td></tr>
 </table></div></div>`;
   } else if(type==='injustifiee'){
     html=`<div class="item">
@@ -10302,7 +10320,7 @@ var DOCS={
    if(x.ex==='non')ko.push(['Aucun exemplaire de la convention remis au salarié : la rupture est NULLE (elle prive de la possibilité d’exercer le droit de rétractation en connaissance de cause). La preuve de la remise incombe à l’employeur.','C. trav. art. L1237-11, L1237-13 ; Cass. soc. 3 juill. 2019 n° 18-14.414']);else if(x.ex==='oui')ok.push('Exemplaire remis au salarié.');
    if(x.ent==='non')ko.push(['Absence d’entretien : cause de nullité de la convention.','C. trav. art. L1237-12']);else if(x.ent==='oui')ok.push('Entretien réalisé.');
    if(x.ret==='non')ko.push(['Délai de rétractation de 15 jours calendaires non respecté.','C. trav. art. L1237-13']);else if(x.ret==='oui')ok.push('Délai de rétractation respecté (15 jours calendaires, à compter du lendemain de la signature ; la rétractation s’apprécie à l’envoi).');
-   if(x.hom==='non')re.push('Sans homologation par la DREETS (ou autorisation de l’inspection du travail pour un salarié protégé), la rupture ne produit pas effet.');
+   if(x.hom==='non')ko.push(['Sans homologation par la DREETS (ou autorisation de l’inspection du travail pour un salarié protégé), la rupture ne produit PAS effet : elle est privée d’efficacité (le contrat n’est pas valablement rompu).','C. trav. art. L1237-14']);else if(x.hom==='oui')ok.push('Homologation (ou autorisation) obtenue.');
    if(x.ind==='non')ko.push(['Indemnité inférieure au minimum légal : le salarié peut réclamer un complément (sans annuler la convention). Vérifiez aussi l’indemnité conventionnelle si elle est plus favorable (ANI 2008).','C. trav. art. L1237-13']);else if(x.ind==='oui')ok.push('Indemnité au moins égale au minimum légal.');
    re.push('Un contexte de harcèlement ou de violence morale peut vicier le consentement et entraîner la nullité (Cass. soc.).');
    return {ok:ok,ko:ko,re:re};}},
@@ -10464,10 +10482,10 @@ var MENTIONS={
  licenciement:[
   {re:/entretien\s+pr[ée]alable/i,l:'Référence à l’entretien préalable'},
   {re:/motif|repro|grief|faute|insuffisance|cause\s+r[ée]elle/i,l:'Énoncé des motifs (la lettre fixe les limites du litige)'},
-  {re:/pr[ée]avis/i,l:'Préavis (ou dispense)'},
+  {re:/pr[ée]avis/i,l:'Préavis (ou dispense)',disp:true},
   {re:/cong[ée]s\s+pay[ée]s|solde\s+de\s+tout\s+compte|certificat\s+de\s+travail|france\s+travail|p[ôo]le\s+emploi/i,l:'Documents et soldes de fin de contrat'},
-  {re:/15\s+jours|pr[ée]ciser\s+(les|ses)\s+motifs/i,l:'Faculté de précision des motifs (15 jours — L.1235-2)'},
-  {re:/portabilit|911-8|pr[ée]voyance|mutuelle/i,l:'Portabilité prévoyance / mutuelle'}
+  {re:/15\s+jours|pr[ée]ciser\s+(les|ses)\s+motifs/i,l:'Faculté de précision des motifs (15 jours — L.1235-2)',opt:true},
+  {re:/portabilit|911-8|pr[ée]voyance|mutuelle/i,l:'Portabilité prévoyance / mutuelle',opt:true}
  ],
  sanction:[
   {re:/avertissement|bl[âa]me|mise\s+[àa]\s+pied|r[ée]trograd|mutation/i,l:'Nature de la sanction précisée'},
@@ -10555,17 +10573,26 @@ var MENTIONS={
 
 // ── Analyse SUBSTANTIELLE du texte (au-delà de la simple présence de mentions) ──
 // Extraction des dates françaises (numériques + « mois année ») pour détecter la prescription des faits.
-function diagParseDatesFR(txt){
+// Construit une date FR en REJETANT les jours impossibles (« 31/02 » ne doit pas basculer au 2 mars)
+function _diagMkDate(y,mo,da){ if(mo<0||mo>11||da<1||da>31) return null; var d=new Date(y,mo,da); return (d.getFullYear()===y&&d.getMonth()===mo&&d.getDate()===da)?d:null; }
+// Renvoie les dates avec leur CONTEXTE (30 caractères précédents) pour pouvoir écarter les dates hors-sujet
+function diagParseDatesCtx(txt){
   var MO={janvier:0,'février':1,fevrier:1,mars:2,avril:3,mai:4,juin:5,juillet:6,'août':7,aout:7,septembre:8,octobre:9,novembre:10,'décembre':11,decembre:11};
   var res=[],m;
   var re1=/\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})\b/g;
-  while((m=re1.exec(txt))){var y=parseInt(m[3],10);if(y<100)y+=2000;var mo=parseInt(m[2],10)-1,da=parseInt(m[1],10);if(mo>=0&&mo<12&&da>=1&&da<=31){var d=new Date(y,mo,da);if(!isNaN(d))res.push(d);}}
+  while((m=re1.exec(txt))){var y=parseInt(m[3],10);if(y<100)y+=2000;var d=_diagMkDate(y,parseInt(m[2],10)-1,parseInt(m[1],10));if(d)res.push({d:d,ctx:txt.slice(Math.max(0,m.index-30),m.index).toLowerCase()});}
   var re2=/\b(\d{1,2}\s+)?(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)\s+(\d{4})\b/gi;
-  while((m=re2.exec(txt))){var k=m[2].toLowerCase();if(!(k in MO))continue;var day=m[1]?parseInt(m[1],10):1;var y2=parseInt(m[3],10);var d2=new Date(y2,MO[k],day);if(!isNaN(d2))res.push(d2);}
+  while((m=re2.exec(txt))){var k=m[2].toLowerCase();if(!(k in MO))continue;var d2=_diagMkDate(parseInt(m[3],10),MO[k],m[1]?parseInt(m[1],10):1);if(d2)res.push({d:d2,ctx:txt.slice(Math.max(0,m.index-30),m.index).toLowerCase()});}
   return res;
 }
+function diagParseDatesFR(txt){ return diagParseDatesCtx(txt).map(function(o){return o.d;}); }
+// Contexte qui DISQUALIFIE une date comme « date des faits » (embauche, naissance, ancienneté…)
+var _DIAG_DATE_EXCL=/n[ée]\(?e?\)?\s+le|naissance|engag[ée]|embauch|recrut|depuis\s+le|anciennet[ée]|entr[ée]e\s+(en\s+fonction|dans\s+l|au\s+service)|contrat\s+(conclu|sign[ée]|[àa]\s+dur[ée]e)|prise\s+d[’']effet|date\s+d[’']effet/;
 function diagDatesInfo(txt){
-  var ds=diagParseDatesFR(txt);if(ds.length<2)return null;
+  var all=diagParseDatesCtx(txt);
+  // On écarte les dates manifestement hors-sujet (embauche/naissance) pour ne pas fausser prescription/durée
+  var ds=all.filter(function(o){return !_DIAG_DATE_EXCL.test(o.ctx);}).map(function(o){return o.d;});
+  if(ds.length<2)return null;
   ds.sort(function(a,b){return a-b;});
   var oldest=ds[0],newest=ds[ds.length-1];
   return {oldest:oldest,newest:newest,gapMonths:(newest-oldest)/(1000*60*60*24*30.44)};
@@ -10579,7 +10606,7 @@ var DIAG_VAGUE=[
  {re:/ne\s+correspond(ent|ait)?\s+pas\s+aux\s+attentes/i,l:'« ne correspond pas aux attentes »'},
  {re:/comportement\s+(inadapt|inappropri|g[ée]n[ée]ral|probl[ée]matique)/i,l:'« comportement inadapté » (sans fait daté)'},
  {re:/attitude\s+(g[ée]n[ée]rale|d[ée]sinvolte|n[ée]gative)/i,l:'« attitude générale »'},
- {re:/insubordination(?!.{0,40}(du|le|refus|ordre|consigne))/i,l:'« insubordination » sans ordre précis rapporté'},
+ {re:/insubordination(?!.{0,40}(refus|ordre|consigne|directive|demande|instruction))/i,l:'« insubordination » sans ordre précis rapporté'},
  {re:/[àa]\s+plusieurs\s+reprises(?![^.]{0,40}\d)/i,l:'« à plusieurs reprises » sans dates'},
  {re:/\bnotamment\b/i,l:'« notamment » (énumération non limitative — or la lettre fixe les limites du litige)'}
 ];
@@ -10595,7 +10622,7 @@ function diagContractChecks(texte){
   if(/aucune\s+majoration|sans\s+majoration|ne\s+(feront|donneront?)\s+(l[’']objet\s+d[’']|lieu\s+[àa]\s+)aucune\s+(majoration|contrepartie)|d[ée]compte\s+du\s+temps\s+de\s+service\s+n[’']est\s+pas\s+applicable/i.test(texte))
     d.push('<b>Heures supplémentaires sans majoration (L.3121-28 et s.)</b> — les heures au-delà de la durée légale ouvrent droit à majoration (ou repos compensateur) : une clause les excluant est <b>nulle</b>. En transport, le <b>décompte du temps de service</b> est obligatoire.');
   var rm=texte.match(/r[ée]mun[ée]ration\s+mensuelle\s+brute\s+de\s+([\d\s.,]+?)\s*€/i)||texte.match(/([\d\s.,]{3,9})\s*€\s+pour\s+151/i)||texte.match(/salaire\s+mensuel\s+brut[^\d]{0,12}([\d\s.,]+?)\s*€/i);
-  if(rm){var val=diagNum(rm[1]);if(val&&val>=200&&val<1801)d.push('<b>Rémunération inférieure au SMIC</b> — le brut mensuel indiqué (~<b>'+Math.round(val)+' €</b>) est inférieur au SMIC mensuel (≈ <b>1 867 €</b> pour 151,67 h en 2026) et aux minima conventionnels : le complément de salaire est dû.');}
+  if(rm){var val=diagNum(rm[1]);if(val&&val>=200&&val<1867)d.push('<b>Rémunération inférieure au SMIC</b> — le brut mensuel indiqué (~<b>'+Math.round(val)+' €</b>) est inférieur au SMIC mensuel (≈ <b>1 867 €</b> pour 151,67 h en 2026) et aux minima conventionnels : le complément de salaire est dû.');}
   if(/aucune\s+convention\s+collective[^.]{0,40}(ne\s+s[’']applique|n[’']est\s+vis[ée]e)|aucune\s+convention\s+collective\s+n[’']est|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i.test(texte))
     d.push('<b>Exclusion illicite de la convention collective (L.2261-2)</b> — la CCN s\'impose selon l\'activité réelle de l\'entreprise ; les parties ne peuvent pas l\'écarter, et un contrat de transport ne peut pas être « sans convention collective ».');
   if(/clause\s+de\s+mobilit/i.test(texte)&&/sans\s+limitation\s+g[ée]ographique|en\s+tout\s+lieu|tout\s+le\s+territoire|n[’']importe\s+quel\s+lieu|sur\s+l[’']ensemble\s+du\s+territoire/i.test(texte))
@@ -10623,8 +10650,8 @@ function diagDeepFindings(t,texte){
       d.push('<b>Motif interdit (art. L.1242-1)</b> — le CDD vise à pourvoir un emploi lié à l\'<b>activité normale et permanente</b> de l\'entreprise : un CDD ne peut avoir ni pour objet ni pour effet de pourvoir <b>durablement</b> un tel emploi → <b>requalification en CDI</b>.');
     var di2=diagDatesInfo(texte),dureeMois=null;
     if(di2&&di2.gapMonths>=1&&di2.gapMonths<=72)dureeMois=Math.round(di2.gapMonths);
-    var mm=texte.match(/dur[ée]e\s+de\s+([\wà-ÿ-]+)\s+mois|([\wà-ÿ-]+)\s+mois/i);
-    if(mm){var mv=diagMoisFR(mm[1]||mm[2]);if(mv&&(!dureeMois||Math.abs(mv-dureeMois)>2))dureeMois=mv;}
+    var mm=texte.match(/dur[ée]e\s+(?:minimale\s+)?(?:de\s+|d[’']\s*)?([\wà-ÿ-]+)\s+mois/i);
+    if(mm){var mv=diagMoisFR(mm[1]);if(mv&&(!dureeMois||Math.abs(mv-dureeMois)>2))dureeMois=mv;}
     if(dureeMois&&dureeMois>18)d.push('<b>Durée excessive (art. L.1242-8-1)</b> — durée d\'environ <b>'+dureeMois+' mois</b> alors que la durée maximale d\'un CDD, renouvellements compris, est en principe de <b>18 mois</b> → requalification.');
     if(/renouvel\w*[^.]{0,60}(autant\s+de\s+fois|sans\s+limit|illimit|nécessaire)|sans\s+limitation\s+de\s+nombre|renouvel\w*\s+ind[ée]finiment/i.test(texte))
       d.push('<b>Renouvellements illimités (art. L.1243-13)</b> — un CDD ne peut être renouvelé que <b>2 fois</b> au maximum ; une clause de renouvellement sans limite est illicite.');
@@ -10698,8 +10725,6 @@ function diagAutoFill(type,txt){
     if(oldest)setV('dq-df',diagToISO(oldest));
     if(newest)setV('dq-ds',diagToISO(newest));
     setV('dq-nat',/avertissement|bl[âa]me/i.test(txt)?'Avertissement / blâme':(/mise\s+[àa]\s+pied/i.test(txt)?'Mise à pied disciplinaire':(/r[ée]trograd/i.test(txt)?'Rétrogradation':'')));
-  }else if(type==='rupconv'){
-    if(oldest)setV('dq-sig','');
   }
   // Questions oui/non : « oui » si le texte contient l'élément (jamais « non » automatique)
   var A=DIAG_AUTO[type];
@@ -10782,17 +10807,25 @@ if(c.ccn)h+='<div style="font-size:11.5px;color:#777;margin-bottom:10px">Context
 if(c.resume)h+='<div style="font-size:11.5px;color:#555;background:#f7f5ee;border-radius:8px;padding:8px 10px;margin-bottom:10px"><b>Résumé fourni :</b> '+esc(c.resume)+'</div>';
 var texte=(c.resume||''),texteNet=texte.replace(/\s/g,'');
 // Mentions obligatoires (avec détection des NÉGATIONS) — calculées AVANT le verdict pour qu'elles comptent
-var mfound=[],mmiss=[],mentApplic=(MENTIONS[t]&&texteNet.length>=30);
+var mfound=[],mmiss=[],mrec=[],mentApplic=(MENTIONS[t]&&texteNet.length>=30);
 if(mentApplic){
   MENTIONS[t].forEach(function(m){
-    var mm=m.re.exec(texte);if(m.re.lastIndex)m.re.lastIndex=0;
-    var present=!!mm;
-    if(present){
+    // On teste TOUTES les occurrences (pas seulement la première) : la mention est « présente »
+    // dès qu'UNE occurrence n'est pas niée. Pour les mentions « disp » (ex. préavis), la négation
+    // « sans préavis » est une modalité VALIDE (dispense) → la simple présence du mot suffit.
+    var re=new RegExp(m.re.source, m.re.flags.replace('g','')+'g');
+    var anyMatch=false, anyPositive=false, mm, guard=0;
+    while(guard++<300 && (mm=re.exec(texte))!==null){
+      if(re.lastIndex===mm.index) re.lastIndex++;
+      anyMatch=true;
       var before=texte.slice(Math.max(0,mm.index-32),mm.index).toLowerCase();
-      if(/\b(aucun\w*|sans|pas\s+d[e’']|nul\w*|non)\b[^.]{0,32}$/.test(before))present=false;      // « aucune indemnité… »
-      if(m.neg&&m.neg.test(texte))present=false;                                                    // exclusion explicite (« … ne s'applique »)
+      if(!/\b(aucun\w*|sans|pas\s+d[e’']|nul\w*|non)\b[^.]{0,32}$/.test(before)) anyPositive=true;
     }
-    (present?mfound:mmiss).push(m.l);
+    var present = m.disp ? anyMatch : anyPositive;
+    if(m.neg && m.neg.test(texte)) present=false;                                                    // exclusion explicite (« … ne s'applique »)
+    if(present) mfound.push(m.l);
+    else if(m.opt) mrec.push(m.l);                                                                   // recommandé, NON compté dans le verdict
+    else mmiss.push(m.l);
   });
 }
 var deep=(texteNet.length>=30)?diagDeepFindings(t,texte):[];
@@ -10809,6 +10842,7 @@ if(MENTIONS[t]){
     h+='<div style="font-weight:600;color:#1b2a4a;font-size:13px;margin:12px 0 6px">🔍 Analyse du texte fourni — '+mfound.length+'/'+tot+' mention(s) obligatoire(s) détectée(s)</div>';
     mfound.forEach(function(l){h+='<div style="font-size:12.5px;color:#1a7a3a;padding:2px 0">✓ '+esc(l)+'</div>';});
     mmiss.forEach(function(l){h+='<div style="background:#fdecec;border-left:3px solid #d33;border-radius:6px;padding:6px 9px;margin:4px 0;font-size:12.5px;color:#5a1a1a">⛔ Élément obligatoire non trouvé : <b>'+esc(l)+'</b> — s’il manque réellement, le document est non conforme (une mention peut toutefois exister sous une autre formulation : vérifiez).</div>';});
+    mrec.forEach(function(l){h+='<div style="background:#fff7e6;border-left:3px solid #e0a83a;border-radius:6px;padding:6px 9px;margin:4px 0;font-size:12.5px;color:#6b5a2e">💡 Mention <b>recommandée</b> (non obligatoire) absente : <b>'+esc(l)+'</b> — utile mais son absence ne rend pas le document non conforme.</div>';});
   } else {
     h+='<div style="background:#eef3fb;border-radius:8px;padding:8px 10px;margin:12px 0;font-size:12px;color:#345">🔍 <b>Pour analyser le CONTENU du document</b>, collez son texte dans le champ « 📋 Collez ici le texte du document » ci-dessus : le module vérifiera automatiquement les mentions obligatoires ('+MENTIONS[t].length+' points pour ce type de document).</div>';
   }
