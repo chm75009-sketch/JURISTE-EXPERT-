@@ -637,9 +637,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.53';
+var JX_BUILD = 'v2026-07-12.54';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.54', d:'15 juillet 2026', t:[
+   'MODULE ANALYSE — NOUVEAUX DOCUMENTS CSE. Vous pouvez désormais importer et faire diagnostiquer : un PLAN DE LICENCIEMENT / PSE, un PROCÈS-VERBAL de réunion du CSE, un ORDRE DU JOUR et une CONVOCATION de réunion. L\'application reconnaît automatiquement le type et vérifie mentions obligatoires, délais et conformité.',
+   'PSE : contrôle du seuil (≥ 10 licenciements/30 j + ≥ 50 salariés → PSE obligatoire, L.1233-61), des mesures de reclassement (L.1233-62), des critères d\'ordre (L.1233-5), de la consultation du CSE (2 réunions espacées de 15 j — L.1233-30) et de la validation/homologation DREETS (15 j / 21 j — L.1233-57-4).',
+   'Convocation / ordre du jour : délai de communication ≥ 3 jours (L.2315-30), élaboration conjointe président-secrétaire (L.2315-29). PV : rédaction par le secrétaire, délai de transmission (15 j / 3 j en PSE / 1 j en redressement — R.2315-25), contenu minimal (D.2315-26).',
+   'Accès direct depuis « Fonctionnement du CSE » : bouton « Analyser un document CSE reçu ».'
+ ]},
  {v:'v2026-07-12.53', d:'15 juillet 2026', t:[
    'NOUVEAU — « FONCTIONNEMENT DU CSE » : une page complète sur la vie du CSE une fois élu, en plus des élections. Accessible depuis le module CSE et le menu.',
    'Couvre TOUT, vérifié aux sources officielles (Légifrance / service-public / URSSAF) : attributions selon l\'effectif (11-49 / ≥50) ; rôles et bureau (président, secrétaire, trésorier, référent harcèlement) et commissions obligatoires (CSSCT ≥300, économique ≥1000…) ; réunions (périodicité, SSCT ≥4/an, extraordinaires, visioconférence) ; convocation et ordre du jour conjoint ; procès-verbal (délais 15 j / 3 j / 1 j, approbation, diffusion) ; les 3 consultations récurrentes + BDESE ; consultations ponctuelles et délais d\'avis (1/2/3 mois, avis réputé négatif) ; expertises et leur financement (100 % ou 80/20) ; budgets (fonctionnement 0,20 %/0,22 %, ASC, transfert 10 %, assiette masse salariale brute) ; comptabilité (seuils 153 000 € / commissaire aux comptes) ; heures de délégation (report, mutualisation) ; droits d\'alerte ; moyens, formation, statut protégé ; délit d\'entrave (7 500 € / 37 500 €) ; jurisprudence clé.',
@@ -2536,6 +2542,8 @@ Exemple :<br>
 <button class="btn-outline" onclick="genCseFonc('pv')">📜 Procès-verbal (trame)</button>
 <button class="btn-outline" onclick="genCseFonc('reglement_interieur')">📕 Règlement intérieur du CSE</button>
 </div>
+<button class="btn" style="margin-top:10px;background:#7a3d8f;color:#fff" onclick="goPage('diag')">🔎 Analyser un document CSE reçu (PSE / plan de licenciement, PV, ordre du jour, convocation) →</button>
+<div style="font-size:11px;color:#9a9585;margin-top:4px">Importez le document (PDF, Word, texte) dans le module Analyse : l'application reconnaît le type et vérifie mentions obligatoires, délais et conformité.</div>
 </div>
 
 <!-- 1. ATTRIBUTIONS -->
@@ -10788,13 +10796,110 @@ var DOCS={
    else re.push('Phase de conciliation : l’affaire passe en principe d’abord devant le bureau de conciliation et d’orientation (BCO) avant, à défaut d’accord, le bureau de jugement.');
    if(n==='Harcèlement / discrimination')re.push('Harcèlement / discrimination : le salarié présente des éléments laissant supposer l’existence des faits ; il appartient ensuite à l’employeur de prouver que ses décisions sont justifiées par des éléments objectifs étrangers (aménagement de la charge de la preuve, C. trav. art. L1134-1 et L1154-1).');
    re.push('Depuis 2016, le principe d’unicité de l’instance est supprimé : plusieurs instances successives sont possibles. La représentation par avocat ou défenseur syndical est facultative en première instance, obligatoire en appel.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ cse_convoc:{nom:'Convocation à une réunion du CSE',q:[
+   {id:'dr',l:'Date de la réunion',t:'date'},
+   {id:'dc',l:'Date d’envoi / de communication de la convocation',t:'date'},
+   {id:'pres',l:'La convocation émane-t-elle du président (employeur) ?',t:'on'},
+   {id:'oj',l:'L’ordre du jour est-il joint ou annoncé ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.pres==='non')ko.push(['La convocation à la réunion du CSE est adressée par le président — l’employeur ou son représentant.','C. trav. art. L.2315-23, L.2315-27']);else if(x.pres==='oui')ok.push('Convocation émanant du président.');
+   var g=(pd(x.dc)&&pd(x.dr))?Math.round((pd(x.dr)-pd(x.dc))/86400000):null;
+   if(g!==null){if(g<3)ko.push(['Délai trop court : la convocation et l’ordre du jour doivent être communiqués au moins 3 jours avant la réunion ('+g+' jour(s) ici ; 8 jours pour un CSE central).','C. trav. art. L.2315-30']);else ok.push('Délai d’au moins 3 jours respecté ('+g+' jours).');}
+   else re.push('Renseignez les deux dates pour vérifier le délai de 3 jours.');
+   if(x.oj==='non')ko.push(['L’ordre du jour, établi conjointement par le président et le secrétaire, doit accompagner la convocation.','C. trav. art. L.2315-29, L.2315-30']);else if(x.oj==='oui')ok.push('Ordre du jour joint/annoncé.');
+   re.push('Rappel : titulaires convoqués ; suppléants et représentants syndicaux destinataires à titre informatif (les suppléants ne siègent qu’en l’absence du titulaire — L.2314-1). Pour les points SSCT : informer médecin du travail, inspection du travail et agent CARSAT.');
+   return {ok:ok,ko:ko,re:re};}},
+
+ cse_oj:{nom:'Ordre du jour du CSE',q:[
+   {id:'dr',l:'Date de la réunion',t:'date'},
+   {id:'dc',l:'Date de communication de l’ordre du jour',t:'date'},
+   {id:'conj',l:'L’ordre du jour a-t-il été établi conjointement (président + secrétaire) ?',t:'on'},
+   {id:'pv',l:'Comporte-t-il l’approbation du PV de la réunion précédente ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.conj==='non')ko.push(['L’ordre du jour est arrêté CONJOINTEMENT par le président et le secrétaire (les consultations rendues obligatoires par un texte ou un accord y sont toutefois inscrites de plein droit par l’un ou l’autre).','C. trav. art. L.2315-29']);else if(x.conj==='oui')ok.push('Ordre du jour établi conjointement.');
+   var g=(pd(x.dc)&&pd(x.dr))?Math.round((pd(x.dr)-pd(x.dc))/86400000):null;
+   if(g!==null){if(g<3)ko.push(['Communication tardive : au moins 3 jours avant la réunion (8 jours pour le CSE central).','C. trav. art. L.2315-30']);else ok.push('Communication ≥ 3 jours avant la réunion ('+g+' jours).');}
+   else re.push('Renseignez les deux dates pour vérifier le délai de 3 jours.');
+   if(x.pv==='non')re.push('Pensez à inscrire l’approbation du procès-verbal de la réunion précédente.');else if(x.pv==='oui')ok.push('Approbation du PV précédent inscrite.');
+   re.push('La signature conjointe n’est pas une condition de validité : l’accord président/secrétaire peut se prouver par tout moyen (Cass. soc. 25/04/2007, n° 05-44.903).');
+   return {ok:ok,ko:ko,re:re};}},
+
+ cse_pv:{nom:'Procès-verbal du CSE',q:[
+   {id:'dr',l:'Date de la réunion',t:'date'},
+   {id:'dt',l:'Date de transmission du PV à l’employeur',t:'date'},
+   {id:'sec',l:'Le PV est-il établi par le secrétaire ?',t:'on'},
+   {id:'cont',l:'Contient-il le résumé des délibérations et la décision motivée de l’employeur ?',t:'on'},
+   {id:'ctx',l:'Contexte',t:'sel',o:['Réunion ordinaire','Consultation PSE / licenciement économique','Entreprise en redressement / liquidation']}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   if(x.sec==='non')ko.push(['Le procès-verbal est établi par le secrétaire du CSE.','C. trav. art. L.2315-34']);else if(x.sec==='oui')ok.push('PV établi par le secrétaire.');
+   var lim=x.ctx==='Consultation PSE / licenciement économique'?3:(x.ctx==='Entreprise en redressement / liquidation'?1:15);
+   var g=(pd(x.dr)&&pd(x.dt))?Math.round((pd(x.dt)-pd(x.dr))/86400000):null;
+   if(g!==null){if(g>lim)ko.push(['Transmission tardive : le PV doit être transmis à l’employeur dans '+lim+' jour(s) ('+g+' ici) — délai supplétif, sauf accord.','C. trav. art. R.2315-25']);else ok.push('Délai de transmission respecté ('+g+' ≤ '+lim+' jours).');}
+   else re.push('Renseignez les deux dates pour vérifier le délai de transmission ('+lim+' jours).');
+   if(x.cont==='non')ko.push(['Contenu minimal insuffisant : le PV comporte au moins le résumé des délibérations du comité et la décision motivée de l’employeur sur les propositions antérieures.','C. trav. art. D.2315-26, L.2315-34']);else if(x.cont==='oui')ok.push('Contenu minimal présent.');
+   re.push('Après approbation (à la réunion suivante), le PV peut être affiché ou diffusé par le secrétaire (L.2315-35).');
+   return {ok:ok,ko:ko,re:re};}},
+
+ pse:{nom:'Plan de licenciement / PSE',q:[
+   {id:'nb',l:'Nombre de licenciements envisagés (sur 30 jours)',t:'sel',o:['1 à 9','10 à 99','100 à 249','250 et plus']},
+   {id:'eff',l:'L’entreprise compte-t-elle au moins 50 salariés ?',t:'on'},
+   {id:'recl',l:'Le plan comporte-t-il des mesures de reclassement / formation / mobilité ?',t:'on'},
+   {id:'crit',l:'Les critères d’ordre des licenciements sont-ils définis ?',t:'on'},
+   {id:'cse',l:'Le CSE a-t-il été (ou sera-t-il) consulté au cours de 2 réunions ?',t:'on'},
+   {id:'adm',l:'Une validation (accord) ou homologation (document unilatéral) par la DREETS est-elle prévue ?',t:'on'}
+ ],a:function(x,c){var ok=[],ko=[],re=[];
+   var gros=(x.nb&&x.nb!=='1 à 9');
+   if(x.nb==='1 à 9')re.push('Moins de 10 licenciements sur 30 jours : pas de PSE obligatoire, mais la consultation du CSE et les critères d’ordre restent requis (licenciement collectif de moins de 10 — L.1233-8 s.). ⚠️ Fractionner un projet pour passer sous le seuil (« saucissonnage ») est sanctionné (L.1233-26).');
+   if(gros){
+     if(x.eff==='oui')ko.push(['Au moins 10 licenciements sur 30 jours dans une entreprise d’au moins 50 salariés : un PLAN DE SAUVEGARDE DE L’EMPLOI (PSE) est OBLIGATOIRE. À défaut, la procédure est nulle et les licenciements privés d’effet.','C. trav. art. L.1233-61']);
+     else if(x.eff==='non')re.push('Au moins 10 licenciements mais moins de 50 salariés : pas de PSE obligatoire, mais procédure de licenciement collectif (consultation CSE, notification DREETS, critères d’ordre, plan de reclassement).');
+   }
+   if(x.recl==='non')ko.push(['Un PSE DOIT comporter des mesures concrètes de reclassement interne, de formation/adaptation, de mobilité et de reclassement externe ; un plan sans mesures sérieuses est insuffisant (contrôle DREETS, risque d’annulation).','C. trav. art. L.1233-61, L.1233-62']);else if(x.recl==='oui')ok.push('Mesures de reclassement / formation présentes.');
+   if(x.crit==='non')ko.push(['Les critères d’ordre des licenciements (charges de famille, ancienneté, situation rendant la réinsertion difficile — handicap, âge —, qualités professionnelles) doivent être fixés, par catégorie professionnelle.','C. trav. art. L.1233-5']);else if(x.crit==='oui')ok.push('Critères d’ordre définis.');
+   if(x.cse==='non')ko.push(['Le CSE doit être informé et consulté au cours d’au moins 2 réunions espacées d’au moins 15 jours ; il peut désigner un expert-comptable (100 % employeur). Durée maximale de la consultation : 2 mois (10-99 licenciements), 3 mois (100-249), 4 mois (≥ 250).','C. trav. art. L.1233-30']);else if(x.cse==='oui')ok.push('Consultation du CSE prévue (2 réunions).');
+   if(x.adm==='non')ko.push(['Le PSE fait l’objet d’une VALIDATION par la DREETS s’il résulte d’un accord collectif majoritaire (délai 15 jours) ou d’une HOMOLOGATION s’il s’agit d’un document unilatéral (délai 21 jours). Aucun licenciement ne peut être notifié avant cette décision.','C. trav. art. L.1233-57-4']);else if(x.adm==='oui')ok.push('Validation / homologation DREETS prévue.');
+   re.push('À vérifier aussi : catégories professionnelles et périmètre d’application des critères d’ordre ; calendrier ; priorité de réembauche pendant 1 an (L.1233-45) ; contrat de sécurisation professionnelle (CSP, &lt; 1000 salariés) ou congé de reclassement (≥ 1000) ; motif économique réel et sérieux (L.1233-3).');
    return {ok:ok,ko:ko,re:re};}}
 };
-var ORDER=['contrat','cdd','convocation','licenciement','sanction','rupconv','inaptitude','arretmaladie','accordent','accordbranche','pap','ri','clause','saisine'];
+var ORDER=['contrat','cdd','convocation','licenciement','sanction','rupconv','inaptitude','arretmaladie','pse','cse_convoc','cse_oj','cse_pv','accordent','accordbranche','pap','ri','clause','saisine'];
 
 // Analyse RÉELLE du texte collé : présence des mentions obligatoires par type de document.
 // Détection par mots-clés (une mention absente peut exister sous une autre formulation → signalée, pas affirmée).
 var MENTIONS={
+ cse_convoc:[
+  {re:/convocation|convoqu/i,l:'Objet : convocation'},
+  {re:/cse|comit[ée]\s+social|comit[ée]\s+d[’']entreprise/i,l:'Référence au CSE'},
+  {re:/r[ée]union/i,l:'Réunion visée'},
+  {re:/\b\d{1,2}[\/.\s-]\d{1,2}[\/.\s-]\d{2,4}\b|\b\d{1,2}\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)/i,l:'Date de la réunion'},
+  {re:/ordre\s+du\s+jour/i,l:'Ordre du jour joint'},
+  {re:/lieu|adresse|si[èe]ge|visioconf/i,l:'Lieu (ou visioconférence)',opt:true}
+ ],
+ cse_oj:[
+  {re:/ordre\s+du\s+jour/i,l:'Intitulé « ordre du jour »'},
+  {re:/cse|comit[ée]\s+social|r[ée]union/i,l:'Référence au CSE / à la réunion'},
+  {re:/secr[ée]taire|conjoint/i,l:'Élaboration conjointe (secrétaire)'},
+  {re:/consultation|information|point/i,l:'Points d’information / de consultation'},
+  {re:/proc[èe]s[- ]verbal|approbation\s+du\s+pv|pv\s+pr[ée]c[ée]dent/i,l:'Approbation du PV précédent',opt:true}
+ ],
+ cse_pv:[
+  {re:/proc[èe]s[- ]verbal|\bpv\b/i,l:'Intitulé « procès-verbal »'},
+  {re:/pr[ée]sent|absent|[ée]margement/i,l:'Présents / absents'},
+  {re:/d[ée]lib[ée]r|avis|vote|contre|abstention|adopt[ée]/i,l:'Délibérations / avis / vote'},
+  {re:/secr[ée]taire/i,l:'Secrétaire (rédacteur)'},
+  {re:/\b\d{1,2}[\/.\s-]\d{1,2}[\/.\s-]\d{2,4}\b|\b\d{1,2}\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)/i,l:'Date de la réunion'}
+ ],
+ pse:[
+  {re:/plan\s+de\s+sauvegarde\s+de\s+l[’']emploi|\bpse\b/i,l:'Intitulé « plan de sauvegarde de l’emploi »'},
+  {re:/reclassement/i,l:'Mesures de reclassement'},
+  {re:/formation|adaptation|mobilit[ée]|reconversion/i,l:'Formation / adaptation / mobilité'},
+  {re:/crit[èe]res?\s+d[’']ordre|charges?\s+de\s+famille|anciennet[ée]|qualit[ée]s?\s+professionnelles/i,l:'Critères d’ordre des licenciements'},
+  {re:/cat[ée]gories?\s+professionnelles?/i,l:'Catégories professionnelles'},
+  {re:/cse|comit[ée]\s+social|consultation/i,l:'Consultation du CSE'},
+  {re:/dreets|direccte|validation|homologation/i,l:'Validation / homologation DREETS'},
+  {re:/priorit[ée]\s+de\s+r[ée]embauch/i,l:'Priorité de réembauche',opt:true}
+ ],
  convocation:[
   {re:/entretien\s+pr[ée]alable/i,l:'Objet : « entretien préalable »'},
   {re:/licenciement|sanction/i,l:'Mesure envisagée (licenciement / sanction)'},
@@ -11001,6 +11106,10 @@ function diagDeepFindings(t,texte){
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
 // Reconnaissance automatique du type de document d'après le texte
 function diagAutoType(txt){var s=(txt||'').toLowerCase();
+  if(/plan\s+de\s+sauvegarde\s+de\s+l[’']emploi|\bpse\b|licenciement\s+(collectif|[ée]conomique)[^.]{0,80}(reclassement|dreets|homologation|crit[èe]res?\s+d[’']ordre)/.test(s))return 'pse';
+  if(/proc[èe]s[- ]verbal[^.]{0,60}(cse|comit[ée]\s+social|r[ée]union)|r[ée]union\s+du\s+(cse|comit[ée]\s+social)[^.]{0,120}(pr[ée]sent|d[ée]lib[ée]r|ordre\s+du\s+jour)/.test(s))return 'cse_pv';
+  if(/ordre\s+du\s+jour[^.]{0,80}(cse|comit[ée]\s+social|r[ée]union\s+du)/.test(s))return 'cse_oj';
+  if(/convocation[^.]{0,80}(r[ée]union\s+du\s+(cse|comit)|cse|comit[ée]\s+social)/.test(s))return 'cse_convoc';
   if(/rupture\s+conventionnelle/.test(s))return 'rupconv';
   if(/notif\w*[^.]{0,40}licenciement|licenciement\s+(immédiat|pour\s+(faute|cause|motif|insuffisance))|proc[ée]der\s+[àa]\s+votre\s+licenciement|vous\s+notifions\s+votre\s+licenciement/.test(s))return 'licenciement';
   if(/(convocation|nous\s+vous\s+convoquons|convoqu[ée]\s+[àa]\s+un\s+entretien|invit[ée]?\s+[àa]\s+un\s+entretien)/.test(s)&&!/notif\w*[^.]{0,40}licenciement|votre\s+licenciement\s+prend/.test(s))return 'convocation';
@@ -11030,7 +11139,11 @@ var DIAG_AUTO={
  ri:{cse:/cse|comité\s+social|avis\s+du\s+comité/i,it:/inspection\s+du\s+travail|greffe/i,aff:/affich|port[ée]\s+[àa]\s+la\s+connaissance/i},
  pap:{inv:/invit|organisations?\s+syndicales?/i,col:/coll[èe]ge/i,par:/[ée]quilibr|femmes[- ]hommes|proportion/i},
  clause:{ecrit:/sign[ée]|accept[ée]|avenant|contrat/i},
- saisine:{ment:/pi[èe]ces|bordereau|chefs?\s+de\s+demande/i,comp:/comp[ée]tent|ressort/i}
+ saisine:{ment:/pi[èe]ces|bordereau|chefs?\s+de\s+demande/i,comp:/comp[ée]tent|ressort/i},
+ cse_convoc:{pres:/pr[ée]sident|employeur/i,oj:/ordre\s+du\s+jour/i},
+ cse_oj:{conj:/conjoint|secr[ée]taire/i,pv:/proc[èe]s[- ]verbal|approbation/i},
+ cse_pv:{sec:/secr[ée]taire/i,cont:/d[ée]lib[ée]r|d[ée]cision\s+motiv/i},
+ pse:{eff:/au\s+moins\s+50|plus\s+de\s+(cinquante|50)|effectif[^.]{0,20}\b(5\d|[1-9]\d{2,})\b/i,recl:/reclassement/i,crit:/crit[èe]res?\s+d[’']ordre/i,cse:/cse|comit[ée]\s+social|consultation/i,adm:/dreets|validation|homologation/i}
 };
 function diagAutoFill(type,txt){
   function setV(id,v){var e=document.getElementById(id);if(e&&v!=null&&v!=='')e.value=v;}
