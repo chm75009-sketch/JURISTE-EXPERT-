@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.55';
+var JX_BUILD = 'v2026-07-12.56';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.54', d:'15 juillet 2026', t:[
@@ -10528,7 +10528,7 @@ auteurApply();
         </label>
         <div style="font-size:11px;color:#8a7a4e;margin-top:6px;background:#fbf7e8;border-radius:8px;padding:7px 9px">ℹ️ <b>Astuce :</b> joignez un <b>PDF « texte »</b> ou un fichier <b>.txt</b> ci-dessous → son texte est <b>extrait automatiquement</b> et inséré dans la zone d'analyse. Une <b>photo</b> ou un <b>PDF scanné (image)</b> ne peut pas être lu automatiquement (pas de reconnaissance d'image) : collez ou dictez le texte.</div>
         <div style="margin-top:10px">
-          <button type="button" onclick="document.getElementById('diag-file').click()" style="width:100%;padding:12px;background:#1b2a4a;color:#fff;border:0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">📎 Joindre / importer un fichier (PDF, .txt, photo)</button>
+          <button type="button" onclick="document.getElementById('diag-file').click()" style="width:100%;padding:12px;background:#1b2a4a;color:#fff;border:0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">📎 Joindre / importer un fichier (PDF, Word .docx, texte)</button>
           <input id="diag-file" type="file" accept=".pdf,.txt,.doc,.docx,image/*,application/pdf,text/plain" onchange="diagPreview()" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
           <div id="diag-file-status" style="font-size:11.5px;color:#555;margin-top:6px"></div>
           <div id="diag-preview" style="margin-top:8px"></div>
