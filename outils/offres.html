@@ -241,6 +241,28 @@
     <div id="jobResults" class="hidden" style="margin-top:16px"></div>
   </div>
 
+  <!-- ===== Lettre de motivation ===== -->
+  <div class="card">
+    <h2>✍️ Générer une lettre de motivation</h2>
+    <p class="hint" style="margin-top:-6px">Construite à partir des missions/mots-clés des offres analysées et du CV ci-dessus. Structure : besoin identifié · vos atouts (offre de service) · invitation à l'entretien. <em>À personnaliser ensuite.</em></p>
+    <div class="grid form-grid">
+      <div class="field" style="margin:0"><label for="ltPoste">Poste visé</label><input type="text" id="ltPoste" placeholder="ex. Juriste en droit social" /></div>
+      <div class="field" style="margin:0"><label for="ltEntreprise">Entreprise (optionnel)</label><input type="text" id="ltEntreprise" placeholder="ex. Cabinet X" /></div>
+    </div>
+    <div class="row-actions" style="margin-top:10px">
+      <button class="btn" id="ltBtn">Générer la lettre</button>
+      <span id="ltStatus" class="hint"></span>
+    </div>
+    <div id="ltWrap" class="hidden" style="margin-top:14px">
+      <textarea id="ltText" style="width:100%;min-height:290px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.6;color:var(--ink);resize:vertical"></textarea>
+      <div class="row-actions" style="margin-top:8px">
+        <button class="btn btn-ghost" id="ltCopy">📋 Copier</button>
+        <button class="btn btn-ghost" id="ltDl">⭳ Télécharger (.txt)</button>
+        <span id="ltCopyStatus" class="hint"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- Résultats -->
   <div id="results" class="hidden">
 
@@ -953,6 +975,48 @@ $("jobBtn").addEventListener("click", ()=>{
      <h3 style="font-family:Inter;font-size:14px;margin:6px 0 10px">📊 Tableau comparatif — annonce vs CV</h3>
      ${jtable}`;
   $("jobResults").classList.remove("hidden");
+});
+
+/* --- Générateur de lettre de motivation --- */
+$("ltBtn").addEventListener("click", ()=>{
+  if(!lastOffers.length){ $("ltStatus").textContent="Lance d'abord une recherche d'offres."; return; }
+  $("ltStatus").textContent="";
+  const poste = $("ltPoste").value.trim() || "le poste visé";
+  const ent = $("ltEntreprise").value.trim();
+  const chez = ent ? ("au sein de "+ent) : "au sein de votre structure";
+  const cv = $("cvText").value.trim();
+  const cvSet = new Set(tok(cv));
+  const skills = offerSkills(lastOffers).map(s=>s.label);
+  const missions = bigrams(lastOffers).filter(x=>x.value>=3).slice(0,3).map(x=>x.label);
+  const topDemanded = skills.slice(0,6);
+  const strengths = (cv ? topDemanded.filter(s=>inCV(s,cvSet)) : topDemanded).slice(0,5);
+  const missionsPhrase = (missions.length?missions:topDemanded.slice(0,3)).join(", ");
+  const strengthsPhrase = (strengths.length?strengths:topDemanded.slice(0,4)).join(", ");
+
+  const L =
+`Objet : Candidature au poste de ${poste}${ent?(" — "+ent):""}
+
+Madame, Monsieur,
+
+Actuellement en recherche active d'un poste de ${poste}, je souhaite mettre mon expertise ${chez}. Les principales missions attendues sur ce type de poste — ${missionsPhrase} — correspondent précisément à mon parcours et à mes compétences.
+
+Au fil de mon expérience, j'ai développé une maîtrise concrète de : ${strengthsPhrase}. J'attache une attention particulière à la rigueur, à la qualité du conseil et à l'obtention de résultats mesurables, autant d'atouts que je souhaite mettre au service de vos enjeux.
+
+Je serais ravi(e) de vous rencontrer lors d'un entretien afin de vous présenter concrètement ce que je peux vous apporter. Je me tiens à votre disposition pour convenir d'un rendez-vous.
+
+Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.`;
+
+  $("ltText").value = L;
+  $("ltWrap").classList.remove("hidden");
+});
+$("ltCopy").addEventListener("click", async ()=>{
+  try{ await navigator.clipboard.writeText($("ltText").value); $("ltCopyStatus").textContent=" Copié ✓"; }
+  catch(e){ $("ltCopyStatus").textContent=" (copie impossible)"; }
+  setTimeout(()=>{ if($("ltCopyStatus")) $("ltCopyStatus").textContent=""; }, 2000);
+});
+$("ltDl").addEventListener("click", ()=>{
+  const blob=new Blob([$("ltText").value],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="lettre-motivation.txt"; a.click(); URL.revokeObjectURL(a.href);
 });
 </script>
 </body>
