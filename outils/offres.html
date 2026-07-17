@@ -462,12 +462,15 @@ async function runSearch(){
   const mots = $("motsCles").value.trim();
   const words = mots.split(/[\s,]+/).filter(w=>w.length>=2);
   const variants=[];
-  if(mots) variants.push(mots);
   if(words.length>1){
-    variants.push(words.join(","));                              // ET entre les mots
-    variants.push([...words].sort((a,b)=>b.length-a.length)[0]); // mot principal seul
+    variants.push(words.join(","));                              // 1) toutes les offres contenant ces mots (large, proche du site)
+    variants.push(mots);                                         // 2) expression exacte (secours)
+    variants.push([...words].sort((a,b)=>b.length-a.length)[0]); // 3) mot principal seul (dernier recours)
+  } else if(mots){
+    variants.push(mots);
+  } else {
+    variants.push("");
   }
-  if(!variants.length) variants.push("");
   const uniq=[...new Set(variants)];
 
   $("searchBtn").disabled = true;
@@ -498,8 +501,8 @@ async function runSearch(){
       if(m) totalDispo = parseInt(m[1],10);
       analyse(offers, totalDispo);
       $("results").classList.remove("hidden");
-      if(usedIndex>0){
-        $("searchStatus").innerHTML = '↔︎ Rien pour « '+esc(mots)+' » en expression exacte — recherche élargie sur « '+esc(uniq[usedIndex])+' » ('+offers.length+' offres).';
+      if(uniq[usedIndex] && uniq[usedIndex] !== mots){
+        $("searchStatus").innerHTML = '↔︎ Recherche élargie « '+esc(uniq[usedIndex].replace(/,/g," + "))+' » — '+totalDispo.toLocaleString("fr-FR")+' offres au total.';
       } else {
         $("searchStatus").textContent = "";
       }
