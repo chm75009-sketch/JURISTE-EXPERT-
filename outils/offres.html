@@ -214,8 +214,14 @@
   <!-- ===== Adapter le CV ===== -->
   <div class="card">
     <h2>🎯 Adapter un CV aux offres</h2>
-    <p class="hint" style="margin-top:-6px">Colle un CV (ou une liste de compétences) ci-dessous. L'outil le compare aux offres analysées plus haut : score de correspondance, <strong>mots-clés à ajouter au CV</strong>, et offres les plus adaptées au profil. <em>Lance d'abord une recherche d'offres.</em></p>
-    <textarea id="cvText" placeholder="Colle ici le contenu du CV ou la liste des compétences…" style="width:100%;min-height:130px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;color:var(--ink);resize:vertical"></textarea>
+    <p class="hint" style="margin-top:-6px">Importe un fichier CV <strong>ou</strong> colle le texte ci-dessous. L'outil le compare aux offres analysées plus haut : score de correspondance, <strong>mots-clés à ajouter au CV</strong>, et offres les plus adaptées au profil. <em>Lance d'abord une recherche d'offres.</em></p>
+    <div class="row-actions" style="margin-bottom:10px">
+      <label class="btn btn-ghost" style="cursor:pointer">📎 Importer un fichier CV (PDF, Word, texte)
+        <input type="file" id="cvFile" accept=".pdf,.doc,.docx,.txt,.rtf" style="display:none" />
+      </label>
+      <span id="cvFileStatus" class="hint"></span>
+    </div>
+    <textarea id="cvText" placeholder="…ou colle ici le contenu du CV / la liste des compétences" style="width:100%;min-height:130px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;color:var(--ink);resize:vertical"></textarea>
     <div class="row-actions" style="margin-top:10px">
       <button class="btn" id="cvBtn">Analyser le CV</button>
       <span id="cvStatus" class="hint"></span>
@@ -630,6 +636,56 @@ function chips(items, color, bg){
   return '<div style="display:flex;flex-wrap:wrap;gap:6px">'+items.map(t=>
     `<span style="font-size:12px;font-weight:600;color:${color};background:${bg};padding:4px 9px;border-radius:7px">${esc(t)}</span>`).join('')+'</div>';
 }
+
+/* --- Import d'un fichier CV (PDF / Word / texte) --- */
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if([...document.scripts].some(s=>s.src===src)) return res();
+    const el=document.createElement("script"); el.src=src;
+    el.onload=()=>res(); el.onerror=()=>rej(new Error("Impossible de charger "+src));
+    document.head.appendChild(el);
+  });
+}
+async function extractPdf(file){
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const buf=await file.arrayBuffer();
+  const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;
+  let out="";
+  for(let i=1;i<=pdf.numPages;i++){ const pg=await pdf.getPage(i); const tc=await pg.getTextContent(); out+=tc.items.map(it=>it.str).join(" ")+"\n"; }
+  return out;
+}
+async function extractDocx(file){
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js");
+  const buf=await file.arrayBuffer();
+  const r=await window.mammoth.extractRawText({arrayBuffer:buf});
+  return r.value||"";
+}
+function readAsText(file){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsText(file); }); }
+function stripRtf(s){ return (s||"").replace(/\\'[0-9a-f]{2}/gi," ").replace(/\\[a-z]+-?\d* ?/gi," ").replace(/[{}]/g," ").replace(/\s+/g," ").trim(); }
+
+$("cvFile").addEventListener("change", async (e)=>{
+  const file=e.target.files && e.target.files[0]; if(!file) return;
+  const name=file.name.toLowerCase();
+  $("cvFileStatus").innerHTML='<span class="spinner"></span> Lecture de '+esc(file.name)+'…';
+  try{
+    let text="";
+    if(name.endsWith(".pdf")) text=await extractPdf(file);
+    else if(name.endsWith(".docx")) text=await extractDocx(file);
+    else if(name.endsWith(".rtf")) text=stripRtf(await readAsText(file));
+    else if(name.endsWith(".txt")) text=await readAsText(file);
+    else if(name.endsWith(".doc")) throw new Error("Le format .doc (ancien Word) n'est pas lisible ici — enregistre le CV en PDF ou .docx, ou colle le texte.");
+    else text=await readAsText(file);
+    text=(text||"").replace(/ /g,"").replace(/\s+\n/g,"\n").trim();
+    if(!text){ throw new Error("Aucun texte extrait (CV scanné en image ?). Utilise un PDF contenant du texte, ou colle le contenu."); }
+    $("cvText").value=text;
+    $("cvFileStatus").textContent="✓ "+file.name+" importé ("+text.length+" caractères). Clique « Analyser le CV ».";
+  }catch(err){
+    $("cvFileStatus").textContent="❌ "+(err && err.message ? err.message : err);
+  }finally{
+    e.target.value="";
+  }
+});
 
 /* --- Analyse du CV vs les offres --- */
 $("cvBtn").addEventListener("click", ()=>{
