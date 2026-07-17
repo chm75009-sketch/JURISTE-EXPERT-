@@ -186,6 +186,30 @@
     </div>
   </div>
 
+  <!-- ===== Adapter le CV ===== -->
+  <div class="card">
+    <h2>🎯 Adapter un CV aux offres</h2>
+    <p class="hint" style="margin-top:-6px">Colle un CV (ou une liste de compétences) ci-dessous. L'outil le compare aux offres analysées plus haut : score de correspondance, <strong>mots-clés à ajouter au CV</strong>, et offres les plus adaptées au profil. <em>Lance d'abord une recherche d'offres.</em></p>
+    <textarea id="cvText" placeholder="Colle ici le contenu du CV ou la liste des compétences…" style="width:100%;min-height:130px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;color:var(--ink);resize:vertical"></textarea>
+    <div class="row-actions" style="margin-top:10px">
+      <button class="btn" id="cvBtn">Analyser le CV</button>
+      <span id="cvStatus" class="hint"></span>
+    </div>
+    <div id="cvResults" class="hidden" style="margin-top:16px"></div>
+  </div>
+
+  <!-- ===== Analyse d'une fiche de poste ===== -->
+  <div class="card">
+    <h2>📄 Analyser une fiche de poste précise</h2>
+    <p class="hint" style="margin-top:-6px">Colle le texte d'une annonce. L'outil liste les mots-clés de l'annonce <strong>absents du CV</strong> ci-dessus (à ajouter pour postuler à cette offre).</p>
+    <textarea id="jobText" placeholder="Colle ici le texte de l'annonce…" style="width:100%;min-height:110px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;color:var(--ink);resize:vertical"></textarea>
+    <div class="row-actions" style="margin-top:10px">
+      <button class="btn" id="jobBtn">Comparer au CV</button>
+      <span id="jobStatus" class="hint"></span>
+    </div>
+    <div id="jobResults" class="hidden" style="margin-top:16px"></div>
+  </div>
+
   <!-- Résultats -->
   <div id="results" class="hidden">
 
@@ -547,6 +571,113 @@ $("exportBtn").addEventListener("click",()=>{
   a.download = "offres-emploi.csv";
   a.click();
   URL.revokeObjectURL(a.href);
+});
+
+/* ============================================================
+   ADAPTER LE CV / FICHE DE POSTE
+   ============================================================ */
+const STOP = new Set(("au aux avec ce ces dans de des du elle en et eux il je la le les leur lui ma "+
+"mais me meme mes moi mon ne nos notre nous on ont ou par pas pour qu que qui sa se ses son sur ta te tes toi ton "+
+"tu un une vos votre vous etre avoir fait faire plus tres sans sous entre vers chez afin dont cette cet ceux celle "+
+"selon lors donc car ni or aussi ainsi tout tous toute toutes chaque son ses new the of and to for with your les "+
+"poste profil mission missions candidat candidate recherche recherchons offre emploi cdi cdd h f").split(" "));
+function norm(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+function tok(s){ return norm(s).split(" ").filter(w=>w.length>=3 && !STOP.has(w)); }
+function inCV(phrase, cvSet){
+  const t=tok(phrase); if(!t.length) return false;
+  const h=t.filter(w=>cvSet.has(w)).length;
+  return h >= Math.ceil(t.length/2);
+}
+function offerSkills(offers){
+  const m=new Map();
+  offers.forEach(o=>{ new Set((o.competences||[]).map(c=>c&&c.libelle).filter(Boolean)).forEach(k=>m.set(k,(m.get(k)||0)+1)); });
+  return [...m.entries()].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);
+}
+function offerWords(offers){
+  const m=new Map();
+  offers.forEach(o=>{ new Set(tok([o.intitule].concat((o.competences||[]).map(c=>c&&c.libelle)).join(" "))).forEach(w=>m.set(w,(m.get(w)||0)+1)); });
+  return [...m.entries()].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);
+}
+function chips(items, color, bg){
+  if(!items.length) return '<div class="muted" style="font-size:13px">—</div>';
+  return '<div style="display:flex;flex-wrap:wrap;gap:6px">'+items.map(t=>
+    `<span style="font-size:12px;font-weight:600;color:${color};background:${bg};padding:4px 9px;border-radius:7px">${esc(t)}</span>`).join('')+'</div>';
+}
+
+/* --- Analyse du CV vs les offres --- */
+$("cvBtn").addEventListener("click", ()=>{
+  if(!lastOffers.length){ $("cvStatus").textContent="Lance d'abord une recherche d'offres (plus haut)."; return; }
+  const cv=$("cvText").value.trim();
+  if(!cv){ $("cvStatus").textContent="Colle d'abord un CV."; return; }
+  $("cvStatus").textContent="";
+  const cvSet=new Set(tok(cv));
+
+  // Vocabulaire demandé : compétences si dispo, sinon mots fréquents
+  let demanded = offerSkills(lastOffers).slice(0,40);
+  let mode="compétences";
+  if(demanded.length < 8){ demanded = offerWords(lastOffers).slice(0,40); mode="mots-clés"; }
+
+  const present = demanded.filter(d=>inCV(d.label, cvSet));
+  const missing = demanded.filter(d=>!inCV(d.label, cvSet));
+  const score = demanded.length ? Math.round(present.length/demanded.length*100) : 0;
+
+  // Offres les mieux adaptées au CV
+  const ranked = lastOffers.map(o=>{
+    const comps=(o.competences||[]).map(c=>c&&c.libelle).filter(Boolean);
+    const base = comps.length ? comps : [...new Set(tok(o.intitule))];
+    if(!base.length) return null;
+    const hit = base.filter(c=>inCV(c, cvSet)).length;
+    return {o, score:Math.round(hit/base.length*100)};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,10);
+
+  const offersHtml = ranked.map(r=>{
+    const url=(r.o.origineOffre&&r.o.origineOffre.urlOrigine)||("https://candidat.francetravail.fr/offres/recherche/detail/"+(r.o.id||""));
+    const col = r.score>=60?'var(--ok)':(r.score>=30?'var(--warn)':'var(--danger)');
+    return `<div class="offer"><h3><a href="${esc(url)}" target="_blank" rel="noopener">${esc(r.o.intitule||"Offre")}</a> `+
+      `<span style="float:right;font-weight:700;color:${col}">${r.score}%</span></h3>`+
+      `<div class="meta"><span>${esc((r.o.entreprise&&r.o.entreprise.nom)||"—")}</span><span>📍 ${esc((r.o.lieuTravail&&r.o.lieuTravail.libelle)||"—")}</span></div></div>`;
+  }).join("");
+
+  $("cvResults").innerHTML =
+    `<div class="grid kpis" style="margin-bottom:14px">
+       <div class="kpi"><div class="val">${score}%</div><div class="lab">correspondance globale au marché</div></div>
+       <div class="kpi"><div class="val">${present.length}</div><div class="lab">${mode} du marché présents dans le CV</div></div>
+       <div class="kpi"><div class="val">${missing.length}</div><div class="lab">${mode} à ajouter</div></div>
+     </div>
+     <h3 style="font-family:Inter;font-size:14px;margin:6px 0 8px">🔑 Mots-clés à ajouter au CV (demandés par le marché, absents du CV)</h3>
+     ${chips(missing.map(m=>m.label), "#b45309", "#fff7ed")}
+     <h3 style="font-family:Inter;font-size:14px;margin:16px 0 8px">✅ Déjà présents dans le CV</h3>
+     ${chips(present.map(m=>m.label), "#0f7b57", "#ecfdf5")}
+     <h3 style="font-family:Inter;font-size:14px;margin:18px 0 6px">🎯 Offres les plus adaptées à ce CV</h3>
+     ${offersHtml||'<div class="muted" style="font-size:13px">Compétences non renseignées dans ces offres.</div>'}
+     <div class="hint" style="margin-top:10px">Analyse par correspondance de mots-clés (heuristique) — un appui, pas un jugement définitif.</div>`;
+  $("cvResults").classList.remove("hidden");
+});
+
+/* --- Analyse d'une fiche de poste vs le CV --- */
+$("jobBtn").addEventListener("click", ()=>{
+  const job=$("jobText").value.trim();
+  const cv=$("cvText").value.trim();
+  if(!job){ $("jobStatus").textContent="Colle le texte d'une annonce."; return; }
+  if(!cv){ $("jobStatus").textContent="Colle aussi un CV dans la case du dessus."; return; }
+  $("jobStatus").textContent="";
+  const cvSet=new Set(tok(cv));
+  const freq=new Map(); tok(job).forEach(w=>freq.set(w,(freq.get(w)||0)+1));
+  const ranked=[...freq.entries()].map(([w,f])=>({w,f})).sort((a,b)=>b.f-a.f).slice(0,40);
+  const missing=ranked.filter(x=>!cvSet.has(x.w)).map(x=>x.w).slice(0,30);
+  const present=ranked.filter(x=>cvSet.has(x.w)).map(x=>x.w).slice(0,30);
+  const tot=missing.length+present.length;
+  const score = tot ? Math.round(present.length/tot*100) : 0;
+  $("jobResults").innerHTML =
+    `<div class="grid kpis" style="margin-bottom:14px">
+       <div class="kpi"><div class="val">${score}%</div><div class="lab">correspondance CV / annonce</div></div>
+       <div class="kpi"><div class="val">${missing.length}</div><div class="lab">mots-clés à ajouter</div></div>
+     </div>
+     <h3 style="font-family:Inter;font-size:14px;margin:6px 0 8px">🔑 Mots-clés de l'annonce absents du CV</h3>
+     ${chips(missing, "#b45309", "#fff7ed")}
+     <h3 style="font-family:Inter;font-size:14px;margin:16px 0 8px">✅ Mots-clés déjà couverts</h3>
+     ${chips(present, "#0f7b57", "#ecfdf5")}`;
+  $("jobResults").classList.remove("hidden");
 });
 </script>
 </body>
