@@ -1494,6 +1494,15 @@ try{
         <div class="hcard-body"><div class="t">Plan de Sauvegarde de l’Emploi (PSE)</div><div class="d">Licenciement économique collectif (≥ 50 salariés) — procédure pas-à-pas, DREETS, jurisprudence.</div><div class="m">Économique</div></div>
         <div class="chev">›</div>
       </div>
+      <!-- [OUTIL OFFRES] Recherche d'emploi & reclassement (ajout) -->
+      <div class="hcard" id="hcardOffres" style="--accent:#3b6fe0;grid-column:1/-1;display:none" onclick="event.stopPropagation();location.href='outils/offres.html'">
+        <div class="hcard-ic">🔎</div>
+        <div class="hcard-body"><div class="t">Recherche d'emploi &amp; reclassement</div><div class="d">Offres réelles France Travail : compétences demandées, salaires, entreprises qui recrutent — appui au reclassement.</div><div class="m">Reclassement</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div id="offresAdminToggle" style="display:none;grid-column:1/-1;margin:2px 4px 8px;font-size:12.5px;opacity:.85">
+        <label style="cursor:pointer;display:inline-flex;gap:7px;align-items:center"><input type="checkbox" id="offresVisibleChk"> Rendre cet outil visible aux utilisateurs (sinon : visible par l'admin uniquement)</label>
+      </div>
       <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('calc')">
         <div class="hcard-ic">🧮</div>
         <div class="hcard-body"><div class="t">Calculateurs d’indemnités</div><div class="d">Licenciement, barème Macron, congés payés, préavis, précarité, rupture conventionnelle, retraite.</div><div class="m">Calculs</div></div>
@@ -12231,5 +12240,27 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 })();
 </script>
 
+
+<!-- [OUTIL OFFRES] logique d'affichage -->
+<script>
+(function(){
+  function apply(){try{
+    var admin=sessionStorage.getItem('jte_admin')==='1';
+    var visible=localStorage.getItem('offres_visible')==='1';
+    var card=document.getElementById('hcardOffres');
+    var tog=document.getElementById('offresAdminToggle');
+    var chk=document.getElementById('offresVisibleChk');
+    if(card) card.style.display=(admin||visible)?'':'none';
+    if(tog) tog.style.display=admin?'block':'none';
+    if(chk && document.activeElement!==chk) chk.checked=visible;
+  }catch(e){}}
+  document.addEventListener('DOMContentLoaded',function(){
+    apply();
+    var chk=document.getElementById('offresVisibleChk');
+    if(chk) chk.addEventListener('change',function(){localStorage.setItem('offres_visible',chk.checked?'1':'0');apply();});
+  });
+  setInterval(apply,2000);
+})();
+</script>
 </body>
 </html>
