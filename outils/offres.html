@@ -246,6 +246,11 @@
 
     <div class="grid kpis" id="kpis" style="margin-bottom:18px"></div>
 
+    <div class="card">
+      <h2>☁️ Nuage de mots-clés du métier</h2>
+      <div id="cloud" style="line-height:2.1;text-align:center;padding:6px 0"></div>
+    </div>
+
     <div class="two-col">
       <div class="card">
         <h2>Compétences les plus demandées</h2>
@@ -379,6 +384,7 @@ CONTRATS.forEach(c=>{
    RECHERCHE
    ============================================================ */
 let lastOffers = [];
+let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
 
@@ -470,6 +476,22 @@ function bars(el, data, top, totalForPct){
   });
 }
 
+function renderCloud(elId, data, top){
+  const box=$(elId); if(!box) return; box.innerHTML="";
+  const slice=(data||[]).slice(0, top||30);
+  if(!slice.length){ box.innerHTML='<div class="muted" style="font-size:13px">Compétences non renseignées dans ces offres.</div>'; return; }
+  const max=slice[0].value, min=slice[slice.length-1].value;
+  const palette=["#4f46e5","#3b6fe0","#0f7b57","#b45309","#7c3aed","#0e7490","#be185d"];
+  slice.forEach((d,i)=>{
+    const t=(max===min)?1:(d.value-min)/(max-min);
+    const size=13+Math.round(t*24);
+    const s=document.createElement("span");
+    s.textContent=d.label; s.title=d.value+" offres";
+    s.style.cssText="display:inline-block;margin:3px 10px;font-weight:"+(t>0.6?700:600)+";font-size:"+size+"px;color:"+palette[i%palette.length]+";opacity:"+(0.55+t*0.45).toFixed(2);
+    box.appendChild(s);
+  });
+}
+
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 function analyse(offers, totalDispo){
@@ -478,6 +500,7 @@ function analyse(offers, totalDispo){
   /* --- Compétences --- */
   const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
   bars("chartComp", comp, 15, n);
+  renderCloud("cloud", comp, 30);
 
   /* --- Métiers ROME --- */
   const rome = countBy(offers, o => o.romeLibelle || o.appellationlibelle);
@@ -679,6 +702,7 @@ $("cvFile").addEventListener("change", async (e)=>{
     text=(text||"").replace(/ /g,"").replace(/\s+\n/g,"\n").trim();
     if(!text){ throw new Error("Aucun texte extrait (CV scanné en image ?). Utilise un PDF contenant du texte, ou colle le contenu."); }
     $("cvText").value=text;
+    cvFileMeta = { name:file.name, ext:name.split(".").pop(), chars:text.length };
     $("cvFileStatus").textContent="✓ "+file.name+" importé ("+text.length+" caractères). Clique « Analyser le CV ».";
   }catch(err){
     $("cvFileStatus").textContent="❌ "+(err && err.message ? err.message : err);
@@ -686,6 +710,7 @@ $("cvFile").addEventListener("change", async (e)=>{
     e.target.value="";
   }
 });
+$("cvText").addEventListener("input", ()=>{ cvFileMeta=null; }); // saisie manuelle : on oublie le format fichier
 
 /* --- Analyse du CV vs les offres --- */
 $("cvBtn").addEventListener("click", ()=>{
@@ -703,6 +728,57 @@ $("cvBtn").addEventListener("click", ()=>{
   const present = demanded.filter(d=>inCV(d.label, cvSet));
   const missing = demanded.filter(d=>!inCV(d.label, cvSet));
   const score = demanded.length ? Math.round(present.length/demanded.length*100) : 0;
+
+  /* ===== Rapport ATS + détection des rubriques ===== */
+  const cvNorm = norm(cv);
+  const emailPhone = /@/.test(cv) || /(\d[\s.]?){9,}/.test(cv);
+  const titleWords = offerWords(lastOffers).slice(0,15).map(w=>w.label);
+  const RUB = [
+    {k:"Coordonnées (email / téléphone)", ok: emailPhone},
+    {k:"Titre / intitulé de poste", ok: titleWords.some(w=>cvNorm.includes(w))},
+    {k:"Accroche / profil", ok: /(accroche|profil|a propos|presentation|resume)/.test(cvNorm)},
+    {k:"Expérience professionnelle", ok: /experi/.test(cvNorm)},
+    {k:"Compétences", ok: /competenc|savoir faire|savoir etre/.test(cvNorm)},
+    {k:"Formation / Diplômes", ok: /formation|diplom|licence|master|\bbac\b|etudes/.test(cvNorm)},
+    {k:"Langues", ok: /langue|anglais|espagnol|allemand|bilingue|toeic|toefl/.test(cvNorm)},
+    {k:"Informatique / outils", ok: /informatique|bureautique|excel|word|logiciel|pack office|sap|erp/.test(cvNorm)}
+  ];
+  const rubOk = RUB.filter(r=>r.ok).length;
+
+  let fmtScore, fmtNote, fmtLbl;
+  if(cvFileMeta){
+    const ext=cvFileMeta.ext; fmtLbl=ext.toUpperCase();
+    if(ext==="pdf"||ext==="docx"){ fmtScore=5; fmtNote="Format natif lisible par les ATS."; }
+    else { fmtScore=3; fmtNote="Lisible, mais un PDF ou Word natif est préférable."; }
+    if(cvFileMeta.chars<250){ fmtScore=1; fmtNote="Très peu de texte extrait : CV en image / PDF plat ? Les ATS ne pourront pas le lire."; }
+  } else { fmtScore=3; fmtLbl="texte collé"; fmtNote="Vérifie que ton fichier réel est un PDF / Word natif (pas une image)."; }
+
+  const titleScore = RUB[1].ok ? 5 : 2;
+  const structScore = Math.max(1, Math.round(rubOk/RUB.length*5));
+  const kwScore = Math.max(1, Math.round(score/100*5));
+  const atsItems = [
+    {k:"Titre / intitulé de poste clair", n:titleScore, c: RUB[1].ok?"Un intitulé proche du marché est présent.":"Ajoute en haut un titre reprenant l'intitulé visé (ex. « Juriste en droit social »)."},
+    {k:"Format du fichier", n:fmtScore, c:fmtNote+" (fichier : "+fmtLbl+")"},
+    {k:"Rubriques / structure", n:structScore, c:rubOk+"/"+RUB.length+" rubriques détectées (voir ci-dessous)."},
+    {k:"Couverture des 40 mots-clés du marché", n:kwScore, c:present.length+"/"+demanded.length+" présents, "+missing.length+" à ajouter."}
+  ];
+  const atsGlobal = (atsItems.reduce((a,b)=>a+b.n,0)/atsItems.length).toFixed(1);
+  const stars = n => "★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n);
+  const atsHtml =
+    `<div style="display:flex;align-items:baseline;gap:10px;margin:2px 0 12px">
+       <span style="font-family:Fraunces,serif;font-size:30px;font-weight:600">${atsGlobal}/5</span>
+       <span class="muted">score ATS global</span></div>
+     <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+       <thead><tr style="text-align:left;border-bottom:2px solid var(--line)">
+         <th style="padding:8px 8px">Critère</th><th style="padding:8px 8px;white-space:nowrap">Note</th><th style="padding:8px 8px">Commentaire</th></tr></thead><tbody>`+
+       atsItems.map(it=>`<tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 8px">${esc(it.k)}</td>`+
+         `<td style="padding:7px 8px;color:#d4a017;white-space:nowrap" title="${it.n}/5">${stars(it.n)}</td>`+
+         `<td style="padding:7px 8px" class="muted">${esc(it.c)}</td></tr>`).join('')+
+     `</tbody></table></div>
+     <h3 style="font-family:Inter;font-size:14px;margin:16px 0 8px">🗂️ Rubriques détectées dans le CV</h3>
+     <div style="display:flex;flex-wrap:wrap;gap:6px">`+
+       RUB.map(r=>`<span style="font-size:12px;font-weight:600;color:${r.ok?'#0f7b57':'#b45309'};background:${r.ok?'#ecfdf5':'#fff7ed'};padding:4px 9px;border-radius:7px">${r.ok?'✓':'✗'} ${esc(r.k)}</span>`).join('')+
+     `</div>`;
 
   // Offres les mieux adaptées au CV
   const ranked = lastOffers.map(o=>{
@@ -738,7 +814,10 @@ $("cvBtn").addEventListener("click", ()=>{
     `</tbody></table></div>`;
 
   $("cvResults").innerHTML =
-    `<div class="grid kpis" style="margin-bottom:14px">
+    `<h3 style="font-family:Inter;font-size:15px;margin:2px 0 8px">🧪 Rapport ATS du CV</h3>
+     ${atsHtml}
+     <hr style="border:none;border-top:1px solid var(--line);margin:20px 0">
+     <div class="grid kpis" style="margin-bottom:14px">
        <div class="kpi"><div class="val">${score}%</div><div class="lab">correspondance globale au marché</div></div>
        <div class="kpi"><div class="val">${present.length}</div><div class="lab">${mode} du marché présents dans le CV</div></div>
        <div class="kpi"><div class="val">${missing.length}</div><div class="lab">${mode} à ajouter</div></div>
