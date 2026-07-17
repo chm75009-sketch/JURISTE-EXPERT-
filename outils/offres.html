@@ -150,7 +150,32 @@
         <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
       </div>
       <div class="field" style="margin:0">
-        <label for="departement">Département (code)</label>
+        <label for="region">Région</label>
+        <select id="region">
+          <option value="">Toutes les régions</option>
+          <option value="84">Auvergne-Rhône-Alpes</option>
+          <option value="27">Bourgogne-Franche-Comté</option>
+          <option value="53">Bretagne</option>
+          <option value="24">Centre-Val de Loire</option>
+          <option value="94">Corse</option>
+          <option value="44">Grand Est</option>
+          <option value="32">Hauts-de-France</option>
+          <option value="11">Île-de-France</option>
+          <option value="28">Normandie</option>
+          <option value="75">Nouvelle-Aquitaine</option>
+          <option value="76">Occitanie</option>
+          <option value="52">Pays de la Loire</option>
+          <option value="93">Provence-Alpes-Côte d'Azur</option>
+          <option value="01">Guadeloupe</option>
+          <option value="02">Martinique</option>
+          <option value="03">Guyane</option>
+          <option value="04">La Réunion</option>
+          <option value="06">Mayotte</option>
+        </select>
+        <div class="hint">Région entière. (Prioritaire sur le champ département.)</div>
+      </div>
+      <div class="field" style="margin:0">
+        <label for="departement">Département(s)</label>
         <input type="text" id="departement" placeholder="ex. 75 ou 75,92,93" />
         <div class="hint">Vide = toute la France. Plusieurs codes séparés par des virgules.</div>
       </div>
@@ -361,8 +386,10 @@ async function runSearch(){
   const p = new URLSearchParams();
   const mots = $("motsCles").value.trim();
   if(mots) p.set("motsCles", mots);
+  const region = $("region").value;
   const dep = $("departement").value.trim().replace(/\s/g,"");
-  if(dep) p.set("departement", dep);
+  if(region){ p.set("region", region); }      // la région est prioritaire
+  else if(dep){ p.set("departement", dep); }
   const exp = $("experience").value;
   if(exp) p.set("experience", exp);
   const contrats = [...contratsEl.querySelectorAll("input:checked")].map(c=>c.value);
