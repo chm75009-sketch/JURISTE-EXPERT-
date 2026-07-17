@@ -284,6 +284,23 @@
       </div>
     </div>
 
+    <div class="two-col">
+      <div class="card">
+        <h2>🎓 Formations / diplômes demandés</h2>
+        <div id="tblFormation"></div>
+      </div>
+      <div class="card">
+        <h2>🤝 Qualités professionnelles demandées</h2>
+        <div id="tblQual"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Missions les plus citées dans les annonces</h2>
+      <div id="tblMissions"></div>
+      <div class="hint" style="margin-top:8px">Expressions les plus fréquentes dans le texte des annonces (repère heuristique des missions récurrentes).</div>
+    </div>
+
     <div class="card">
       <h2>Salaires</h2>
       <div id="salaireBox"></div>
@@ -492,6 +509,18 @@ function renderCloud(elId, data, top){
   });
 }
 
+function tbl(elId, data, itemHead){
+  const box=$(elId); if(!box) return;
+  const slice=(data||[]).slice(0,12);
+  if(!slice.length){ box.innerHTML='<div class="muted" style="font-size:13px">Non renseigné dans ces offres.</div>'; return; }
+  box.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'+
+    '<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:7px 8px">'+esc(itemHead)+
+    '</th><th style="padding:7px 8px;text-align:center;white-space:nowrap">Occurrences</th></tr></thead><tbody>'+
+    slice.map(d=>'<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px 8px">'+esc(d.label)+
+      '</td><td style="padding:6px 8px;text-align:center;font-variant-numeric:tabular-nums">'+d.value+'</td></tr>').join('')+
+    '</tbody></table></div>';
+}
+
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 function analyse(offers, totalDispo){
@@ -521,6 +550,11 @@ function analyse(offers, totalDispo){
   /* --- Entreprises --- */
   const ent = countBy(offers, o => o.entreprise && o.entreprise.nom);
   bars("chartEnt", ent, 10, n);
+
+  /* --- Profil recherché + missions --- */
+  tbl("tblFormation", countBy(offers, o=>(o.formations||[]).map(f=>[f.niveauLibelle,f.domaineLibelle].filter(Boolean).join(" — "))), "Formation / diplôme");
+  tbl("tblQual", countBy(offers, o=>(o.qualitesProfessionnelles||[]).map(q=>q&&q.libelle)), "Qualité professionnelle");
+  tbl("tblMissions", bigrams(offers).filter(x=>x.value>=3), "Expression (mission) fréquente");
 
   /* --- Salaires --- */
   const sal = analyseSalaires(offers);
@@ -653,6 +687,14 @@ function offerWords(offers){
   const m=new Map();
   offers.forEach(o=>{ new Set(tok([o.intitule].concat((o.competences||[]).map(c=>c&&c.libelle)).join(" "))).forEach(w=>m.set(w,(m.get(w)||0)+1)); });
   return [...m.entries()].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);
+}
+function bigrams(offers){
+  const m=new Map();
+  offers.forEach(o=>{
+    const t=tok(o.description||o.intitule||"");
+    for(let i=0;i<t.length-1;i++){ const bg=t[i]+" "+t[i+1]; m.set(bg,(m.get(bg)||0)+1); }
+  });
+  return [...m.entries()].map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value);
 }
 function chips(items, color, bg){
   if(!items.length) return '<div class="muted" style="font-size:13px">—</div>';
