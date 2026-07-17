@@ -463,9 +463,8 @@ async function runSearch(){
   const words = mots.split(/[\s,]+/).filter(w=>w.length>=2);
   const variants=[];
   if(words.length>1){
-    variants.push(words.join(","));                              // 1) toutes les offres contenant ces mots (large, proche du site)
-    variants.push(mots);                                         // 2) expression exacte (secours)
-    variants.push([...words].sort((a,b)=>b.length-a.length)[0]); // 3) mot principal seul (dernier recours)
+    variants.push(words.join(","));   // ramène large (offres contenant ces mots)
+    variants.push(mots);              // secours : expression telle que saisie
   } else if(mots){
     variants.push(mots);
   } else {
@@ -487,25 +486,34 @@ async function runSearch(){
         if(res.offers.length){ offers=res.offers; range=res.range; usedIndex=i; break; }
       }catch(e){ lastErr=e; }  // ex. 502 (relais pas encore corrigé) quand une variante ne renvoie rien : on tente la suivante
     }
+    // Pertinence : ne garder que les offres contenant RÉELLEMENT les mots recherchés
+    // (le mot le plus court seul, ex. « opérationnel », ramenait des offres hors sujet).
+    if(words.length>1 && offers.length){
+      const np = norm(mots);
+      const scored = offers.map(o=>{
+        const t = norm(o.intitule||"");
+        const hay = t + " " + norm(o.description||"");
+        let s = 0;
+        if(t.includes(np)) s = 3;                                  // phrase dans le titre
+        else if(hay.includes(np)) s = 2;                           // phrase dans l'annonce
+        else if(words.every(w=>hay.includes(norm(w)))) s = 1;      // tous les mots présents
+        return {o,s};
+      });
+      const kept = scored.filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+      offers = kept.map(x=>x.o);
+    }
     lastOffers = offers;
     if(!offers.length){
       $("emptyState").textContent = lastErr
         ? ("Aucune offre exploitable. Détail technique : "+lastErr.message)
-        : "Aucune offre trouvée, même en élargissant. Retire un filtre (expérience, contrat, département) ou essaie un autre mot-clé.";
+        : "Aucune offre ne contient réellement « "+mots+" ». Essaie un terme plus simple (souvent le métier : « juriste », « risk manager »…) ou retire un filtre.";
       $("emptyState").classList.remove("hidden");
       $("searchStatus").textContent = "";
     } else {
-      // total dispo dans l'en-tête FT : "offres 0-149/3456"
-      let totalDispo = offers.length;
-      const m = range.match(/\/(\d+)/);
-      if(m) totalDispo = parseInt(m[1],10);
+      const totalDispo = offers.length;
       analyse(offers, totalDispo);
       $("results").classList.remove("hidden");
-      if(uniq[usedIndex] && uniq[usedIndex] !== mots){
-        $("searchStatus").innerHTML = '↔︎ Recherche élargie « '+esc(uniq[usedIndex].replace(/,/g," + "))+' » — '+totalDispo.toLocaleString("fr-FR")+' offres au total.';
-      } else {
-        $("searchStatus").textContent = "";
-      }
+      $("searchStatus").innerHTML = '<b>'+totalDispo+'</b> offre'+(totalDispo>1?'s':'')+' correspondant à « '+esc(mots||'tous métiers')+' ».';
     }
   }catch(e){
     $("searchStatus").textContent = "❌ "+e.message;
