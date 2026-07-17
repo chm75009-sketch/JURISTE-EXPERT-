@@ -665,20 +665,44 @@ $("cvBtn").addEventListener("click", ()=>{
       `<div class="meta"><span>${esc((r.o.entreprise&&r.o.entreprise.nom)||"—")}</span><span>📍 ${esc((r.o.lieuTravail&&r.o.lieuTravail.libelle)||"—")}</span></div></div>`;
   }).join("");
 
+  // Tableau comparatif : mot-clé demandé / fréquence / présent dans le CV
+  const rows = demanded.map(d=>({label:d.label, count:d.count, inCv:inCV(d.label, cvSet)}));
+  const tableHtml =
+    `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="text-align:left;border-bottom:2px solid var(--line)">
+        <th style="padding:8px 8px">Mot-clé / compétence (${mode})</th>
+        <th style="padding:8px 8px;text-align:center;white-space:nowrap">Demandé<br><span class="muted" style="font-weight:400">(nb offres)</span></th>
+        <th style="padding:8px 8px;white-space:nowrap">Dans le CV ?</th>
+      </tr></thead><tbody>`+
+      rows.map(r=>`<tr style="border-bottom:1px solid var(--line);${r.inCv?'':'background:#fff7ed'}">
+        <td style="padding:7px 8px">${esc(r.label)}</td>
+        <td style="padding:7px 8px;text-align:center;font-variant-numeric:tabular-nums">${r.count}</td>
+        <td style="padding:7px 8px;font-weight:600;color:${r.inCv?'var(--ok)':'var(--danger)'};white-space:nowrap">${r.inCv?'✓ présent':'✗ à ajouter'}</td>
+      </tr>`).join('')+
+    `</tbody></table></div>`;
+
   $("cvResults").innerHTML =
     `<div class="grid kpis" style="margin-bottom:14px">
        <div class="kpi"><div class="val">${score}%</div><div class="lab">correspondance globale au marché</div></div>
        <div class="kpi"><div class="val">${present.length}</div><div class="lab">${mode} du marché présents dans le CV</div></div>
        <div class="kpi"><div class="val">${missing.length}</div><div class="lab">${mode} à ajouter</div></div>
      </div>
-     <h3 style="font-family:Inter;font-size:14px;margin:6px 0 8px">🔑 Mots-clés à ajouter au CV (demandés par le marché, absents du CV)</h3>
-     ${chips(missing.map(m=>m.label), "#b45309", "#fff7ed")}
-     <h3 style="font-family:Inter;font-size:14px;margin:16px 0 8px">✅ Déjà présents dans le CV</h3>
-     ${chips(present.map(m=>m.label), "#0f7b57", "#ecfdf5")}
+     <h3 style="font-family:Inter;font-size:14px;margin:6px 0 10px">📊 Tableau comparatif — CV vs marché</h3>
+     ${tableHtml}
+     <button class="btn btn-ghost" id="cvCopyBtn" style="margin-top:12px">📋 Copier les mots-clés à ajouter</button>
+     <span id="cvCopyStatus" class="hint"></span>
      <h3 style="font-family:Inter;font-size:14px;margin:18px 0 6px">🎯 Offres les plus adaptées à ce CV</h3>
      ${offersHtml||'<div class="muted" style="font-size:13px">Compétences non renseignées dans ces offres.</div>'}
      <div class="hint" style="margin-top:10px">Analyse par correspondance de mots-clés (heuristique) — un appui, pas un jugement définitif.</div>`;
   $("cvResults").classList.remove("hidden");
+
+  const copyBtn=$("cvCopyBtn");
+  if(copyBtn) copyBtn.addEventListener("click", async ()=>{
+    const txt=missing.map(m=>m.label).join(", ");
+    try{ await navigator.clipboard.writeText(txt); $("cvCopyStatus").textContent=" Copié ✓"; }
+    catch(e){ $("cvCopyStatus").textContent=" (copie impossible)"; }
+    setTimeout(()=>{ if($("cvCopyStatus")) $("cvCopyStatus").textContent=""; }, 2500);
+  });
 });
 
 /* --- Analyse d'une fiche de poste vs le CV --- */
@@ -695,15 +719,27 @@ $("jobBtn").addEventListener("click", ()=>{
   const present=ranked.filter(x=>cvSet.has(x.w)).map(x=>x.w).slice(0,30);
   const tot=missing.length+present.length;
   const score = tot ? Math.round(present.length/tot*100) : 0;
+  const jrows = ranked.map(x=>({w:x.w, f:x.f, inCv:cvSet.has(x.w)}));
+  const jtable =
+    `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="text-align:left;border-bottom:2px solid var(--line)">
+        <th style="padding:8px 8px">Mot-clé de l'annonce</th>
+        <th style="padding:8px 8px;text-align:center">Fréquence</th>
+        <th style="padding:8px 8px">Dans le CV ?</th>
+      </tr></thead><tbody>`+
+      jrows.map(r=>`<tr style="border-bottom:1px solid var(--line);${r.inCv?'':'background:#fff7ed'}">
+        <td style="padding:7px 8px">${esc(r.w)}</td>
+        <td style="padding:7px 8px;text-align:center;font-variant-numeric:tabular-nums">${r.f}</td>
+        <td style="padding:7px 8px;font-weight:600;color:${r.inCv?'var(--ok)':'var(--danger)'};white-space:nowrap">${r.inCv?'✓ présent':'✗ à ajouter'}</td>
+      </tr>`).join('')+
+    `</tbody></table></div>`;
   $("jobResults").innerHTML =
     `<div class="grid kpis" style="margin-bottom:14px">
        <div class="kpi"><div class="val">${score}%</div><div class="lab">correspondance CV / annonce</div></div>
        <div class="kpi"><div class="val">${missing.length}</div><div class="lab">mots-clés à ajouter</div></div>
      </div>
-     <h3 style="font-family:Inter;font-size:14px;margin:6px 0 8px">🔑 Mots-clés de l'annonce absents du CV</h3>
-     ${chips(missing, "#b45309", "#fff7ed")}
-     <h3 style="font-family:Inter;font-size:14px;margin:16px 0 8px">✅ Mots-clés déjà couverts</h3>
-     ${chips(present, "#0f7b57", "#ecfdf5")}`;
+     <h3 style="font-family:Inter;font-size:14px;margin:6px 0 10px">📊 Tableau comparatif — annonce vs CV</h3>
+     ${jtable}`;
   $("jobResults").classList.remove("hidden");
 });
 </script>
