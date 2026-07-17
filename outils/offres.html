@@ -449,28 +449,15 @@ async function runSearch(){
   const base = new URLSearchParams();
   const region = $("region").value;
   const dep = $("departement").value.trim().replace(/\s/g,"");
-  if(region){ base.set("region", region); }     // la région est prioritaire
+  if(region){ base.set("region", region); }     // la region est prioritaire
   else if(dep){ base.set("departement", dep); }
   const exp = $("experience").value;
   if(exp) base.set("experience", exp);
   const contrats = [...contratsEl.querySelectorAll("input:checked")].map(c=>c.value);
   if(contrats.length) base.set("typeContrat", contrats.join(","));
   base.set("range", $("taille").value);
-  base.set("sort","1"); // tri par date décroissante
-
-  // Élargissement progressif des mots-clés : expression exacte → mots en ET → mot principal
+  base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
-  const words = mots.split(/[\s,]+/).filter(w=>w.length>=2);
-  const variants=[];
-  if(words.length>1){
-    variants.push(words.join(","));   // ramène large (offres contenant ces mots)
-    variants.push(mots);              // secours : expression telle que saisie
-  } else if(mots){
-    variants.push(mots);
-  } else {
-    variants.push("");
-  }
-  const uniq=[...new Set(variants)];
 
   $("searchBtn").disabled = true;
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
@@ -478,42 +465,21 @@ async function runSearch(){
   $("emptyState").classList.add("hidden");
 
   try{
-    let offers=[], range="", usedIndex=-1, lastErr=null;
-    for(let i=0;i<uniq.length;i++){
-      try{
-        const res = await fetchOffres(proxy, base, uniq[i]);
-        range = res.range || range;
-        if(res.offers.length){ offers=res.offers; range=res.range; usedIndex=i; break; }
-      }catch(e){ lastErr=e; }  // ex. 502 (relais pas encore corrigé) quand une variante ne renvoie rien : on tente la suivante
-    }
-    // Pertinence : ne garder que les offres contenant RÉELLEMENT les mots recherchés
-    // (le mot le plus court seul, ex. « opérationnel », ramenait des offres hors sujet).
-    if(words.length>1 && offers.length){
-      const np = norm(mots);
-      const scored = offers.map(o=>{
-        const t = norm(o.intitule||"");
-        const hay = t + " " + norm(o.description||"");
-        let s = 0;
-        if(t.includes(np)) s = 3;                                  // phrase dans le titre
-        else if(hay.includes(np)) s = 2;                           // phrase dans l'annonce
-        else if(words.every(w=>hay.includes(norm(w)))) s = 1;      // tous les mots présents
-        return {o,s};
-      });
-      const kept = scored.filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
-      offers = kept.map(x=>x.o);
-    }
+    // On envoie la recherche telle que saisie (comportement previsible, proche du site).
+    const res = await fetchOffres(proxy, base, mots);
+    const offers = res.offers;
     lastOffers = offers;
     if(!offers.length){
-      $("emptyState").textContent = lastErr
-        ? ("Aucune offre exploitable. Détail technique : "+lastErr.message)
-        : "Aucune offre ne contient réellement « "+mots+" ». Essaie un terme plus simple (souvent le métier : « juriste », « risk manager »…) ou retire un filtre.";
+      $("emptyState").innerHTML = 'Aucune offre pour « '+esc(mots||"ces criteres")+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
       $("emptyState").classList.remove("hidden");
       $("searchStatus").textContent = "";
     } else {
-      const totalDispo = offers.length;
+      let totalDispo = offers.length;
+      const m = res.range.match(/\/(\d+)/);
+      if(m) totalDispo = parseInt(m[1],10);
       analyse(offers, totalDispo);
       $("results").classList.remove("hidden");
-      $("searchStatus").innerHTML = '<b>'+totalDispo+'</b> offre'+(totalDispo>1?'s':'')+' correspondant à « '+esc(mots||'tous métiers')+' ».';
+      $("searchStatus").innerHTML = '<b>'+totalDispo.toLocaleString("fr-FR")+'</b> offre'+(totalDispo>1?"s":"")+' trouvee'+(totalDispo>1?"s":"")+'.';
     }
   }catch(e){
     $("searchStatus").textContent = "❌ "+e.message;
