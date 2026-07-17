@@ -446,6 +446,11 @@ let lastOffers = [];
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
+$("rome").addEventListener("change", function(){
+  var on = !!$("rome").value;
+  $("motsCles").disabled = on;
+  $("motsCles").placeholder = on ? "(ignore : un metier est selectionne)" : "ex. responsable qualite HACCP";
+});
 
 async function fetchOffres(proxy, base, motsCles){
   const p = new URLSearchParams(base);
@@ -478,7 +483,8 @@ async function runSearch(){
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
   const codeRome = $("rome").value;
-  if(codeRome) base.set("codeROME", codeRome); // recherche par metier (referentiel ROME)
+  const romeLabel = codeRome ? (($("rome").selectedOptions[0]||{}).text || "ce metier") : "";
+  if(codeRome) base.set("codeROME", codeRome); // metier ROME prioritaire : on ignore les mots-cles
 
   $("searchBtn").disabled = true;
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
@@ -487,11 +493,11 @@ async function runSearch(){
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
-    const res = await fetchOffres(proxy, base, mots);
+    const res = await fetchOffres(proxy, base, codeRome ? "" : mots);
     const offers = res.offers;
     lastOffers = offers;
     if(!offers.length){
-      $("emptyState").innerHTML = 'Aucune offre pour « '+esc(mots||(codeRome?"ce metier":"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
+      $("emptyState").innerHTML = 'Aucune offre pour « '+esc(codeRome?romeLabel:(mots||"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
       $("emptyState").classList.remove("hidden");
       $("searchStatus").textContent = "";
     } else {
