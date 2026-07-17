@@ -428,21 +428,41 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
 
+async function fetchOffres(proxy, base, motsCles){
+  const p = new URLSearchParams(base);
+  if(motsCles) p.set("motsCles", motsCles);
+  const r = await fetch(proxy+"/offres?"+p.toString());
+  const range = r.headers.get("X-FT-Content-Range")||"";
+  if(!r.ok){ const t = await r.text(); throw new Error("Erreur "+r.status+" : "+String(t).slice(0,200)); }
+  const data = await r.json();
+  return { offers:(data&&data.resultats)?data.resultats:[], range };
+}
+
 async function runSearch(){
   const proxy = (localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
-  const p = new URLSearchParams();
-  const mots = $("motsCles").value.trim();
-  if(mots) p.set("motsCles", mots);
+  const base = new URLSearchParams();
   const region = $("region").value;
   const dep = $("departement").value.trim().replace(/\s/g,"");
-  if(region){ p.set("region", region); }      // la région est prioritaire
-  else if(dep){ p.set("departement", dep); }
+  if(region){ base.set("region", region); }     // la région est prioritaire
+  else if(dep){ base.set("departement", dep); }
   const exp = $("experience").value;
-  if(exp) p.set("experience", exp);
+  if(exp) base.set("experience", exp);
   const contrats = [...contratsEl.querySelectorAll("input:checked")].map(c=>c.value);
-  if(contrats.length) p.set("typeContrat", contrats.join(","));
-  p.set("range", $("taille").value);
-  p.set("sort","1"); // tri par date décroissante
+  if(contrats.length) base.set("typeContrat", contrats.join(","));
+  base.set("range", $("taille").value);
+  base.set("sort","1"); // tri par date décroissante
+
+  // Élargissement progressif des mots-clés : expression exacte → mots en ET → mot principal
+  const mots = $("motsCles").value.trim();
+  const words = mots.split(/[\s,]+/).filter(w=>w.length>=2);
+  const variants=[];
+  if(mots) variants.push(mots);
+  if(words.length>1){
+    variants.push(words.join(","));                              // ET entre les mots
+    variants.push([...words].sort((a,b)=>b.length-a.length)[0]); // mot principal seul
+  }
+  if(!variants.length) variants.push("");
+  const uniq=[...new Set(variants)];
 
   $("searchBtn").disabled = true;
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
@@ -450,18 +470,17 @@ async function runSearch(){
   $("emptyState").classList.add("hidden");
 
   try{
-    const r = await fetch(proxy+"/offres?"+p.toString());
-    const range = r.headers.get("X-FT-Content-Range")||"";
-    if(!r.ok){
-      const t = await r.text();
-      throw new Error("Erreur "+r.status+" : "+t.slice(0,200));
+    let offers=[], range="", usedIndex=-1;
+    for(let i=0;i<uniq.length;i++){
+      const res = await fetchOffres(proxy, base, uniq[i]);
+      range = res.range || range;
+      if(res.offers.length){ offers=res.offers; range=res.range; usedIndex=i; break; }
     }
-    const data = await r.json();
-    const offers = (data && data.resultats) ? data.resultats : [];
     lastOffers = offers;
     if(!offers.length){
-      $("emptyState").textContent = "Aucune offre trouvée pour ces critères. Élargis la recherche (retire un filtre, un département…).";
+      $("emptyState").textContent = "Aucune offre trouvée, même en élargissant. Retire un filtre (expérience, contrat, département) ou essaie un autre mot-clé.";
       $("emptyState").classList.remove("hidden");
+      $("searchStatus").textContent = "";
     } else {
       // total dispo dans l'en-tête FT : "offres 0-149/3456"
       let totalDispo = offers.length;
@@ -469,8 +488,12 @@ async function runSearch(){
       if(m) totalDispo = parseInt(m[1],10);
       analyse(offers, totalDispo);
       $("results").classList.remove("hidden");
+      if(usedIndex>0){
+        $("searchStatus").innerHTML = '↔︎ Rien pour « '+esc(mots)+' » en expression exacte — recherche élargie sur « '+esc(uniq[usedIndex])+' » ('+offers.length+' offres).';
+      } else {
+        $("searchStatus").textContent = "";
+      }
     }
-    $("searchStatus").textContent = "";
   }catch(e){
     $("searchStatus").textContent = "❌ "+e.message;
   }finally{
