@@ -764,10 +764,41 @@ $("cvBtn").addEventListener("click", ()=>{
   ];
   const atsGlobal = (atsItems.reduce((a,b)=>a+b.n,0)/atsItems.length).toFixed(1);
   const stars = n => "★★★★★".slice(0,n)+"☆☆☆☆☆".slice(0,5-n);
+
+  /* ---- Conformité ATS (règles clés du plan APEC) ---- */
+  const chars = cv.length;
+  const wordsN = (cvNorm.match(/[a-z0-9]+/g)||[]).length;
+  const capsN = (cv.match(/\b[A-ZÉÈÀÂÊÎÔÛÇ]{3,}\b/g)||[]).length;
+  const capsRatio = wordsN ? capsN/wordsN : 0;
+  const mk=(k,st,msg)=>({k,st,msg});
+  const checks = [
+    mk("Format machine-lisible (texte extractible, pas une image)",
+       cvFileMeta ? (cvFileMeta.chars>=250?"ok":"fail") : (chars>=250?"warn":"fail"),
+       cvFileMeta ? (cvFileMeta.chars>=250?"Texte bien extrait du fichier importé.":"Très peu de texte : CV en image / PDF plat — un ATS ne pourra pas le lire.")
+                  : "CV collé en texte : vérifie que ton fichier réel est un PDF ou Word natif (pas une image/scan)."),
+    mk("Coordonnées détectables (email / téléphone)", emailPhone?"ok":"warn",
+       emailPhone?"Email et/ou téléphone présents en texte.":"Aucun email/téléphone détecté — un ATS a besoin de tes coordonnées en texte (pas dans une image)."),
+    mk("Titre / intitulé de poste présent", RUB[1].ok?"ok":"warn",
+       RUB[1].ok?"Un intitulé proche du marché est présent.":"Ajoute en haut un titre reprenant l'intitulé visé (ex. « Juriste en droit social »)."),
+    mk("Rubriques structurées (sections claires)", rubOk>=5?"ok":(rubOk>=3?"warn":"fail"),
+       rubOk+"/"+RUB.length+" rubriques détectées. Vise au moins : Titre, Expérience, Compétences, Formation."),
+    mk("Longueur de contenu suffisante", chars>=1200?"ok":"warn",
+       chars>=1200?"Contenu suffisant pour être analysé.":"CV un peu court : détaille les missions et ajoute des résultats chiffrés."),
+    mk("Couverture des mots-clés du marché", score>=60?"ok":(score>=35?"warn":"fail"),
+       score+"% des mots-clés du marché présents — "+missing.length+" à ajouter (voir tableau ci-dessous)."),
+    mk("Pas d'abréviations / majuscules à l'excès", capsRatio<0.15?"ok":"warn",
+       capsRatio<0.15?"Aucun excès repéré.":"Beaucoup de sigles/majuscules : explicite les abréviations, un ATS peut ne pas les reconnaître.")
+  ];
+  const hasFail=checks.some(c=>c.st==="fail"), hasWarn=checks.some(c=>c.st==="warn");
+  const verdict = hasFail ? {t:"Non conforme — à corriger", bg:"#fef2f2", col:"#b91c1c", bd:"#fecaca"}
+               : hasWarn ? {t:"Partiellement conforme — améliorable", bg:"#fffbeb", col:"#92400e", bd:"#fde68a"}
+                         : {t:"Conforme aux bonnes pratiques ATS", bg:"#ecfdf5", col:"#0f7b57", bd:"#a7f3d0"};
+  const ico={ok:"✅",warn:"⚠️",fail:"❌"};
+
   const atsHtml =
-    `<div style="display:flex;align-items:baseline;gap:10px;margin:2px 0 12px">
-       <span style="font-family:Fraunces,serif;font-size:30px;font-weight:600">${atsGlobal}/5</span>
-       <span class="muted">score ATS global</span></div>
+    `<div style="border:1px solid ${verdict.bd};background:${verdict.bg};color:${verdict.col};border-radius:10px;padding:12px 14px;margin-bottom:16px;font-weight:700">
+       Conformité ATS : ${verdict.t}<br><span style="font-weight:500;font-size:13px">Score global ${atsGlobal}/5</span>
+     </div>
      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
        <thead><tr style="text-align:left;border-bottom:2px solid var(--line)">
          <th style="padding:8px 8px">Critère</th><th style="padding:8px 8px;white-space:nowrap">Note</th><th style="padding:8px 8px">Commentaire</th></tr></thead><tbody>`+
@@ -775,7 +806,11 @@ $("cvBtn").addEventListener("click", ()=>{
          `<td style="padding:7px 8px;color:#d4a017;white-space:nowrap" title="${it.n}/5">${stars(it.n)}</td>`+
          `<td style="padding:7px 8px" class="muted">${esc(it.c)}</td></tr>`).join('')+
      `</tbody></table></div>
-     <h3 style="font-family:Inter;font-size:14px;margin:16px 0 8px">🗂️ Rubriques détectées dans le CV</h3>
+     <h3 style="font-family:Inter;font-size:14px;margin:18px 0 8px">✅ Conformité ATS — règles clés</h3>
+     <div style="display:flex;flex-direction:column;gap:8px">`+
+       checks.map(c=>`<div style="display:flex;gap:9px;font-size:13px;align-items:flex-start"><span style="flex:none">${ico[c.st]}</span><span><strong>${esc(c.k)}</strong> — <span class="muted">${esc(c.msg)}</span></span></div>`).join('')+
+     `</div>
+     <h3 style="font-family:Inter;font-size:14px;margin:18px 0 8px">🗂️ Rubriques détectées dans le CV</h3>
      <div style="display:flex;flex-wrap:wrap;gap:6px">`+
        RUB.map(r=>`<span style="font-size:12px;font-weight:600;color:${r.ok?'#0f7b57':'#b45309'};background:${r.ok?'#ecfdf5':'#fff7ed'};padding:4px 9px;border-radius:7px">${r.ok?'✓':'✗'} ${esc(r.k)}</span>`).join('')+
      `</div>`;
