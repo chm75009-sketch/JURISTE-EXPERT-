@@ -52,7 +52,7 @@ Il se compose de **2 morceaux** :
 ## Étape 2 — Utiliser la page
 
 1. Va sur : `https://chm75009-sketch.github.io/JURISTE-EXPERT-/outils/offres.html`
-2. Saisis le **code d'accès** (par défaut : `offres-admin-2026` — voir plus bas pour le changer).
+2. Saisis le **code d'accès** : `826700` (identique au code admin de l'application — voir plus bas pour le changer).
 3. Clique **⚙︎ Configuration**, colle l'**URL de ton relais Cloudflare**, **Enregistrer**,
    puis **Tester la connexion** (doit afficher « Relais joignable ✓ »).
 4. Lance une recherche (mots-clés, département, contrat…) → **Analyser les offres**.
