@@ -150,6 +150,25 @@
         <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
       </div>
       <div class="field" style="margin:0">
+        <label for="rome">Métier (liste ROME)</label>
+        <select id="rome">
+          <option value="">— recherche par mots-clés —</option>
+          <option value="K1903">Juriste / conseil juridique</option>
+          <option value="K1902">Assistant / collaborateur juridique</option>
+          <option value="M1503">Responsable ressources humaines</option>
+          <option value="M1501">Assistant ressources humaines</option>
+          <option value="M1502">Chargé de recrutement / dév. RH</option>
+          <option value="M1402">Consultant organisation / management</option>
+          <option value="M1202">Audit / contrôle / risques</option>
+          <option value="M1204">Contrôle de gestion</option>
+          <option value="M1205">Direction administrative et financière</option>
+          <option value="M1203">Comptable</option>
+          <option value="H1502">Responsable qualité (industrie)</option>
+          <option value="N4101">Conducteur routier (marchandises)</option>
+        </select>
+        <div class="hint">Récupère toutes les offres rattachées à ce métier (comme le site). Vide = recherche par mots-clés.</div>
+      </div>
+      <div class="field" style="margin:0">
         <label for="region">Région</label>
         <select id="region">
           <option value="">Toutes les régions</option>
@@ -458,6 +477,8 @@ async function runSearch(){
   base.set("range", $("taille").value);
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
+  const codeRome = $("rome").value;
+  if(codeRome) base.set("codeROME", codeRome); // recherche par metier (referentiel ROME)
 
   $("searchBtn").disabled = true;
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
@@ -470,7 +491,7 @@ async function runSearch(){
     const offers = res.offers;
     lastOffers = offers;
     if(!offers.length){
-      $("emptyState").innerHTML = 'Aucune offre pour « '+esc(mots||"ces criteres")+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
+      $("emptyState").innerHTML = 'Aucune offre pour « '+esc(mots||(codeRome?"ce metier":"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
       $("emptyState").classList.remove("hidden");
       $("searchStatus").textContent = "";
     } else {
