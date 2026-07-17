@@ -121,9 +121,12 @@ export default {
         });
 
         const text = await r.text();
-        // 204 = aucune offre ; 206 = résultats partiels (normal avec Range)
-        const status = r.status === 206 ? 200 : r.status;
-        return new Response(text || '{"resultats":[]}', {
+        // Statuts sans corps autorisé (204 = aucune offre, etc.) → liste vide en 200.
+        // 206 = résultats partiels (normal avec Range) → 200.
+        const noBody = r.status === 204 || r.status === 205 || r.status === 304 || r.status === 101;
+        const status = (r.status === 206 || noBody) ? 200 : r.status;
+        const outBody = noBody ? '{"resultats":[]}' : (text || '{"resultats":[]}');
+        return new Response(outBody, {
           status,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
