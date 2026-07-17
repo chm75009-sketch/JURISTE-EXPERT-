@@ -351,6 +351,8 @@
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
+// Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
+const DEFAULT_PROXY = "https://france-travail-proxy.chm75009.workers.dev";
 
 const $ = (id) => document.getElementById(id);
 
@@ -363,8 +365,7 @@ async function sha256(str){
 function showApp(){
   $("gate").classList.add("hidden");
   $("app").classList.remove("hidden");
-  $("proxyUrl").value = localStorage.getItem(LS_PROXY) || "";
-  if(!localStorage.getItem(LS_PROXY)){ $("cfgCard").classList.remove("hidden"); }
+  $("proxyUrl").value = localStorage.getItem(LS_PROXY) || DEFAULT_PROXY;
 }
 async function tryGate(){
   const v = $("pass").value.trim();
@@ -392,7 +393,7 @@ $("saveCfg").addEventListener("click",()=>{
   setTimeout(()=> $("cfgStatus").textContent="",2000);
 });
 $("testCfg").addEventListener("click", async ()=>{
-  const u = ($("proxyUrl").value.trim()||localStorage.getItem(LS_PROXY)||"").replace(/\/+$/,"");
+  const u = ($("proxyUrl").value.trim()||localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
   if(!u){ $("cfgStatus").textContent="Renseigne d'abord l'URL du relais."; return; }
   $("cfgStatus").innerHTML='<span class="spinner"></span> Test…';
   try{
@@ -428,12 +429,7 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 $("searchBtn").addEventListener("click", runSearch);
 
 async function runSearch(){
-  const proxy = (localStorage.getItem(LS_PROXY)||"").replace(/\/+$/,"");
-  if(!proxy){
-    $("cfgCard").classList.remove("hidden");
-    $("searchStatus").textContent = "Configure d'abord l'URL du relais Cloudflare (⚙︎).";
-    return;
-  }
+  const proxy = (localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
   const p = new URLSearchParams();
   const mots = $("motsCles").value.trim();
   if(mots) p.set("motsCles", mots);
