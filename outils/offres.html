@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Analyse des offres d'emploi — Espace admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#ffffff; --ink:#1c2333; --muted:#6b7280;
+    --line:#e7e4de; --accent:#3b3f8f; --accent-soft:#ecebf7;
+    --bar:#4f46e5; --bar-soft:#e0e0fb; --ok:#0f7b57; --warn:#b45309; --danger:#b91c1c;
+    --radius:14px; --shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;margin:0;letter-spacing:-.01em}
+  a{color:var(--accent)}
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 20px 64px}
+
+  /* ---- Écran de garde (accès) ---- */
+  .gate{max-width:420px;margin:12vh auto;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:32px}
+  .gate h1{font-size:24px;margin-bottom:6px}
+  .gate p{color:var(--muted);font-size:14px;margin:0 0 20px}
+  .badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px;margin-bottom:16px}
+
+  input,select,button{font-family:inherit;font-size:15px}
+  input[type=text],input[type=password],input[type=url],select{
+    width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin:0 0 6px}
+  .field{margin-bottom:14px}
+  .btn{background:var(--accent);color:#fff;border:none;padding:11px 18px;border-radius:10px;
+    font-weight:600;cursor:pointer;transition:filter .15s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn-ghost{background:#fff;color:var(--accent);border:1px solid var(--line)}
+  .err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
+
+  /* ---- En-tête ---- */
+  header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+    margin-bottom:22px;flex-wrap:wrap}
+  header.top h1{font-size:26px}
+  header.top .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .topbtns{display:flex;gap:8px;flex-wrap:wrap}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
+  .card h2{font-size:18px;margin-bottom:14px}
+  .grid{display:grid;gap:14px}
+  .form-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);
+    border-radius:999px;padding:7px 12px;font-size:13px;cursor:pointer;background:#fff;user-select:none}
+  .chip input{margin:0}
+  .chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .hint{font-size:12px;color:var(--muted);margin-top:5px}
+
+  /* ---- KPIs ---- */
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .kpi .val{font-family:Fraunces,serif;font-size:28px;font-weight:600;line-height:1}
+  .kpi .lab{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* ---- Barres ---- */
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar-row{display:grid;grid-template-columns:1fr;gap:3px}
+  .bar-top{display:flex;justify-content:space-between;font-size:13px;gap:10px}
+  .bar-top .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-top .vv{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
+  .bar-track{height:10px;background:var(--bar-soft);border-radius:6px;overflow:hidden}
+  .bar-fill{height:100%;background:var(--bar);border-radius:6px;transition:width .4s ease}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.two-col{grid-template-columns:1fr}}
+
+  /* ---- Liste offres ---- */
+  .offer{border-top:1px solid var(--line);padding:14px 0}
+  .offer:first-child{border-top:none}
+  .offer h3{font-family:Inter,sans-serif;font-size:15px;font-weight:600;margin-bottom:4px}
+  .offer .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px}
+  .tag{display:inline-block;font-size:11px;font-weight:600;background:var(--accent-soft);
+    color:var(--accent);padding:2px 8px;border-radius:6px}
+  .muted{color:var(--muted)}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--bar-soft);
+    border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hidden{display:none!important}
+  .notice{font-size:13px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;
+    padding:12px 14px;border-radius:10px}
+  .row-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  details.cfg{margin-top:10px}
+  details.cfg summary{cursor:pointer;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- ===================== ÉCRAN D'ACCÈS ===================== -->
+<div id="gate" class="gate">
+  <span class="badge">Espace réservé</span>
+  <h1>Analyse des offres d'emploi</h1>
+  <p>Outil interne. Saisis le code d'accès pour continuer.</p>
+  <div class="field">
+    <label for="pass">Code d'accès</label>
+    <input type="password" id="pass" autocomplete="off" placeholder="••••••••" />
+  </div>
+  <button class="btn" id="gateBtn" style="width:100%">Entrer</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<!-- ===================== APPLICATION ===================== -->
+<div id="app" class="wrap hidden">
+  <header class="top">
+    <div>
+      <h1>Analyse des offres d'emploi</h1>
+      <div class="sub">Données France Travail (API officielle Offres d'emploi v2) · outil interne</div>
+    </div>
+    <div class="topbtns">
+      <button class="btn btn-ghost" id="cfgBtn">⚙︎ Configuration</button>
+      <button class="btn btn-ghost" id="logoutBtn">Quitter</button>
+    </div>
+  </header>
+
+  <!-- Configuration du relais -->
+  <div class="card hidden" id="cfgCard">
+    <h2>Configuration</h2>
+    <div class="field">
+      <label for="proxyUrl">URL du relais Cloudflare</label>
+      <input type="url" id="proxyUrl" placeholder="https://mon-relais.mon-compte.workers.dev" />
+      <div class="hint">L'adresse de ton Worker Cloudflare (celle qui se termine par <code>.workers.dev</code> ou ton domaine). Elle est enregistrée dans ce navigateur uniquement.</div>
+    </div>
+    <div class="row-actions">
+      <button class="btn" id="saveCfg">Enregistrer</button>
+      <button class="btn btn-ghost" id="testCfg">Tester la connexion</button>
+      <span id="cfgStatus" class="hint"></span>
+    </div>
+  </div>
+
+  <!-- Formulaire de recherche -->
+  <div class="card">
+    <h2>Rechercher des offres</h2>
+    <div class="grid form-grid">
+      <div class="field" style="margin:0">
+        <label for="motsCles">Mots-clés / métier</label>
+        <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
+      </div>
+      <div class="field" style="margin:0">
+        <label for="departement">Département (code)</label>
+        <input type="text" id="departement" placeholder="ex. 75 ou 75,92,93" />
+        <div class="hint">Vide = toute la France. Plusieurs codes séparés par des virgules.</div>
+      </div>
+      <div class="field" style="margin:0">
+        <label for="experience">Expérience</label>
+        <select id="experience">
+          <option value="">Indifférent</option>
+          <option value="1">Moins d'1 an</option>
+          <option value="2">1 à 3 ans</option>
+          <option value="3">Plus de 3 ans</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0">
+        <label for="taille">Nombre d'offres à analyser</label>
+        <select id="taille">
+          <option value="0-49">50</option>
+          <option value="0-99">100</option>
+          <option value="0-149" selected>150 (max/appel)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:14px">
+      <label>Type de contrat</label>
+      <div class="chips" id="contrats">
+        <!-- rempli par JS -->
+      </div>
+    </div>
+
+    <div class="row-actions" style="margin-top:6px">
+      <button class="btn" id="searchBtn">Analyser les offres</button>
+      <span id="searchStatus" class="hint"></span>
+    </div>
+  </div>
+
+  <!-- Résultats -->
+  <div id="results" class="hidden">
+
+    <div class="grid kpis" id="kpis" style="margin-bottom:18px"></div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Compétences les plus demandées</h2>
+        <div class="bars" id="chartComp"></div>
+      </div>
+      <div class="card">
+        <h2>Métiers (référentiel ROME)</h2>
+        <div class="bars" id="chartRome"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Type de contrat</h2>
+        <div class="bars" id="chartContrat"></div>
+      </div>
+      <div class="card">
+        <h2>Expérience demandée</h2>
+        <div class="bars" id="chartExp"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h2>Localisation (top)</h2>
+        <div class="bars" id="chartLieu"></div>
+      </div>
+      <div class="card">
+        <h2>Entreprises qui recrutent (top)</h2>
+        <div class="bars" id="chartEnt"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Salaires</h2>
+      <div id="salaireBox"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <h2 style="margin:0">Offres (<span id="offCount">0</span>)</h2>
+        <button class="btn btn-ghost" id="exportBtn">⭳ Exporter en CSV</button>
+      </div>
+      <div id="offerList" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <div id="emptyState" class="notice hidden"></div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   CONFIG & ACCÈS
+   ============================================================ */
+// Hash SHA-256 du code d'accès. Défaut = "offres-admin-2026".
+// Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
+//   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
+const PASS_HASH = "800a867735820f97311e157f621c0b13d4285a1a78e4936e360f9ccaf40d79a1";
+const LS_PROXY = "ft_proxy_url";
+const LS_AUTH  = "ft_admin_ok";
+
+const $ = (id) => document.getElementById(id);
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+/* ---- Écran d'accès ---- */
+function showApp(){
+  $("gate").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("proxyUrl").value = localStorage.getItem(LS_PROXY) || "";
+  if(!localStorage.getItem(LS_PROXY)){ $("cfgCard").classList.remove("hidden"); }
+}
+async function tryGate(){
+  const v = $("pass").value.trim();
+  if(!v){ return; }
+  const h = await sha256(v);
+  if(h === PASS_HASH){
+    sessionStorage.setItem(LS_AUTH,"1");
+    showApp();
+  } else {
+    $("gateErr").textContent = "Code incorrect.";
+  }
+}
+$("gateBtn").addEventListener("click", tryGate);
+$("pass").addEventListener("keydown", e=>{ if(e.key==="Enter") tryGate(); });
+if(sessionStorage.getItem(LS_AUTH)==="1"){ showApp(); }
+
+$("logoutBtn").addEventListener("click",()=>{ sessionStorage.removeItem(LS_AUTH); location.reload(); });
+$("cfgBtn").addEventListener("click",()=> $("cfgCard").classList.toggle("hidden"));
+
+/* ---- Configuration du relais ---- */
+$("saveCfg").addEventListener("click",()=>{
+  const u = $("proxyUrl").value.trim().replace(/\/+$/,"");
+  localStorage.setItem(LS_PROXY,u);
+  $("cfgStatus").textContent = "Enregistré ✓";
+  setTimeout(()=> $("cfgStatus").textContent="",2000);
+});
+$("testCfg").addEventListener("click", async ()=>{
+  const u = ($("proxyUrl").value.trim()||localStorage.getItem(LS_PROXY)||"").replace(/\/+$/,"");
+  if(!u){ $("cfgStatus").textContent="Renseigne d'abord l'URL du relais."; return; }
+  $("cfgStatus").innerHTML='<span class="spinner"></span> Test…';
+  try{
+    const r = await fetch(u+"/health");
+    const j = await r.json();
+    $("cfgStatus").textContent = j.ok ? "Relais joignable ✓" : "Réponse inattendue.";
+  }catch(e){ $("cfgStatus").textContent = "Échec : "+e.message; }
+});
+
+/* ============================================================
+   TYPES DE CONTRAT (chips)
+   ============================================================ */
+const CONTRATS = [
+  {code:"CDI",lib:"CDI"},{code:"CDD",lib:"CDD"},{code:"MIS",lib:"Intérim"},
+  {code:"SAI",lib:"Saisonnier"},{code:"CCE",lib:"Profession libérale"},
+  {code:"LIB",lib:"Franchise"},{code:"DDI",lib:"CDD Insertion"}
+];
+const contratsEl = $("contrats");
+CONTRATS.forEach(c=>{
+  const l = document.createElement("label");
+  l.className="chip"; l.innerHTML=`<input type="checkbox" value="${c.code}"> ${c.lib}`;
+  const cb = l.querySelector("input");
+  cb.addEventListener("change",()=> l.classList.toggle("on", cb.checked));
+  contratsEl.appendChild(l);
+});
+
+/* ============================================================
+   RECHERCHE
+   ============================================================ */
+let lastOffers = [];
+
+$("searchBtn").addEventListener("click", runSearch);
+
+async function runSearch(){
+  const proxy = (localStorage.getItem(LS_PROXY)||"").replace(/\/+$/,"");
+  if(!proxy){
+    $("cfgCard").classList.remove("hidden");
+    $("searchStatus").textContent = "Configure d'abord l'URL du relais Cloudflare (⚙︎).";
+    return;
+  }
+  const p = new URLSearchParams();
+  const mots = $("motsCles").value.trim();
+  if(mots) p.set("motsCles", mots);
+  const dep = $("departement").value.trim().replace(/\s/g,"");
+  if(dep) p.set("departement", dep);
+  const exp = $("experience").value;
+  if(exp) p.set("experience", exp);
+  const contrats = [...contratsEl.querySelectorAll("input:checked")].map(c=>c.value);
+  if(contrats.length) p.set("typeContrat", contrats.join(","));
+  p.set("range", $("taille").value);
+  p.set("sort","1"); // tri par date décroissante
+
+  $("searchBtn").disabled = true;
+  $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
+  $("results").classList.add("hidden");
+  $("emptyState").classList.add("hidden");
+
+  try{
+    const r = await fetch(proxy+"/offres?"+p.toString());
+    const range = r.headers.get("X-FT-Content-Range")||"";
+    if(!r.ok){
+      const t = await r.text();
+      throw new Error("Erreur "+r.status+" : "+t.slice(0,200));
+    }
+    const data = await r.json();
+    const offers = (data && data.resultats) ? data.resultats : [];
+    lastOffers = offers;
+    if(!offers.length){
+      $("emptyState").textContent = "Aucune offre trouvée pour ces critères. Élargis la recherche (retire un filtre, un département…).";
+      $("emptyState").classList.remove("hidden");
+    } else {
+      // total dispo dans l'en-tête FT : "offres 0-149/3456"
+      let totalDispo = offers.length;
+      const m = range.match(/\/(\d+)/);
+      if(m) totalDispo = parseInt(m[1],10);
+      analyse(offers, totalDispo);
+      $("results").classList.remove("hidden");
+    }
+    $("searchStatus").textContent = "";
+  }catch(e){
+    $("searchStatus").textContent = "❌ "+e.message;
+  }finally{
+    $("searchBtn").disabled = false;
+  }
+}
+
+/* ============================================================
+   ANALYSE
+   ============================================================ */
+function countBy(items, keyFn){
+  const map = new Map();
+  items.forEach(it=>{
+    const keys = keyFn(it);
+    (Array.isArray(keys)?keys:[keys]).forEach(k=>{
+      if(k===undefined||k===null||k==="") return;
+      map.set(k,(map.get(k)||0)+1);
+    });
+  });
+  return [...map.entries()].map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value);
+}
+
+function bars(el, data, top, totalForPct){
+  const box = $(el); box.innerHTML="";
+  if(!data.length){ box.innerHTML='<div class="muted" style="font-size:13px">Donnée non renseignée dans ces offres.</div>'; return; }
+  const slice = data.slice(0,top);
+  const max = slice[0].value;
+  slice.forEach(d=>{
+    const pct = Math.round((d.value/max)*100);
+    const share = totalForPct ? " · "+Math.round((d.value/totalForPct)*100)+"%" : "";
+    const row = document.createElement("div");
+    row.className="bar-row";
+    row.innerHTML =
+      `<div class="bar-top"><span class="lb" title="${esc(d.label)}">${esc(d.label)}</span>`+
+      `<span class="vv">${d.value}${share}</span></div>`+
+      `<div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>`;
+    box.appendChild(row);
+  });
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function analyse(offers, totalDispo){
+  const n = offers.length;
+
+  /* --- Compétences --- */
+  const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
+  bars("chartComp", comp, 15, n);
+
+  /* --- Métiers ROME --- */
+  const rome = countBy(offers, o => o.romeLibelle || o.appellationlibelle);
+  bars("chartRome", rome, 10, n);
+
+  /* --- Type de contrat --- */
+  const contrat = countBy(offers, o => o.typeContratLibelle || o.typeContrat);
+  bars("chartContrat", contrat, 8, n);
+
+  /* --- Expérience --- */
+  const exp = countBy(offers, o => o.experienceLibelle);
+  bars("chartExp", exp, 8, n);
+
+  /* --- Lieu --- */
+  const lieu = countBy(offers, o => o.lieuTravail && o.lieuTravail.libelle);
+  bars("chartLieu", lieu, 10, n);
+
+  /* --- Entreprises --- */
+  const ent = countBy(offers, o => o.entreprise && o.entreprise.nom);
+  bars("chartEnt", ent, 10, n);
+
+  /* --- Salaires --- */
+  const sal = analyseSalaires(offers);
+
+  /* --- KPIs --- */
+  const withSal = offers.filter(o=>o.salaire && o.salaire.libelle).length;
+  const cdi = offers.filter(o=>(o.typeContrat||"")==="CDI").length;
+  const kpis = [
+    {val: n.toLocaleString("fr-FR"), lab:"offres analysées"},
+    {val: totalDispo.toLocaleString("fr-FR"), lab:"offres disponibles au total"},
+    {val: Math.round(withSal/n*100)+"%", lab:"offres avec salaire indiqué"},
+    {val: Math.round(cdi/n*100)+"%", lab:"part de CDI"},
+    {val: sal.median ? sal.median.toLocaleString("fr-FR")+" €" : "—", lab:"salaire mensuel brut médian (est.)"},
+  ];
+  $("kpis").innerHTML = kpis.map(k=>`<div class="kpi"><div class="val">${k.val}</div><div class="lab">${k.lab}</div></div>`).join("");
+
+  /* --- Salaire box --- */
+  let salHtml = "";
+  if(sal.count){
+    salHtml = `<div class="grid kpis" style="margin-bottom:14px">
+      <div class="kpi"><div class="val">${sal.min?sal.min.toLocaleString("fr-FR")+" €":"—"}</div><div class="lab">plancher (est.)</div></div>
+      <div class="kpi"><div class="val">${sal.median?sal.median.toLocaleString("fr-FR")+" €":"—"}</div><div class="lab">médiane (est.)</div></div>
+      <div class="kpi"><div class="val">${sal.max?sal.max.toLocaleString("fr-FR")+" €":"—"}</div><div class="lab">plafond (est.)</div></div>
+      <div class="kpi"><div class="val">${sal.count}</div><div class="lab">offres avec salaire chiffré</div></div>
+    </div>
+    <div class="hint">Estimation en <strong>brut mensuel</strong> à partir des libellés France Travail (annuel ÷ 12, horaire × 151,67 h). Les fourchettes annoncées « à débattre » ou « selon profil » ne sont pas comptées. À prendre comme un ordre de grandeur.</div>`;
+  } else {
+    salHtml = `<div class="muted" style="font-size:14px">Aucun salaire chiffré exploitable dans cet échantillon.</div>`;
+  }
+  $("salaireBox").innerHTML = salHtml;
+
+  /* --- Liste des offres --- */
+  renderOffers(offers);
+}
+
+/* Extraction numérique des salaires (best-effort) */
+function analyseSalaires(offers){
+  const vals = [];
+  offers.forEach(o=>{
+    const lib = o.salaire && o.salaire.libelle;
+    if(!lib) return;
+    const nums = (lib.match(/(\d+[.,]?\d*)/g)||[]).map(x=>parseFloat(x.replace(",",".")));
+    if(!nums.length) return;
+    const low = Math.min(...nums); // borne basse de la fourchette
+    let monthly = null;
+    if(/annuel/i.test(lib)) monthly = low/12;
+    else if(/mensuel/i.test(lib)) monthly = low;
+    else if(/horaire/i.test(lib)) monthly = low*151.67;
+    if(monthly && monthly>200 && monthly<60000) vals.push(Math.round(monthly));
+  });
+  if(!vals.length) return {count:0};
+  vals.sort((a,b)=>a-b);
+  const median = vals[Math.floor(vals.length/2)];
+  return {count:vals.length, min:vals[0], max:vals[vals.length-1], median};
+}
+
+function renderOffers(offers){
+  $("offCount").textContent = offers.length;
+  const box = $("offerList"); box.innerHTML="";
+  offers.forEach(o=>{
+    const url = (o.origineOffre && o.origineOffre.urlOrigine)
+      || ("https://candidat.francetravail.fr/offres/recherche/detail/"+ (o.id||""));
+    const lieu = (o.lieuTravail && o.lieuTravail.libelle) || "—";
+    const ent = (o.entreprise && o.entreprise.nom) || "Entreprise non précisée";
+    const contrat = o.typeContratLibelle || o.typeContrat || "";
+    const sal = (o.salaire && o.salaire.libelle) ? " · "+o.salaire.libelle : "";
+    const d = o.dateCreation ? new Date(o.dateCreation).toLocaleDateString("fr-FR") : "";
+    const el = document.createElement("div");
+    el.className="offer";
+    el.innerHTML =
+      `<h3><a href="${esc(url)}" target="_blank" rel="noopener">${esc(o.intitule||"Offre")}</a></h3>`+
+      `<div class="meta"><span>${esc(ent)}</span><span>📍 ${esc(lieu)}</span>`+
+      (contrat?`<span class="tag">${esc(contrat)}</span>`:"")+
+      (d?`<span>${d}</span>`:"")+
+      (sal?`<span class="muted">${esc(sal)}</span>`:"")+`</div>`;
+    box.appendChild(el);
+  });
+}
+
+/* ============================================================
+   EXPORT CSV
+   ============================================================ */
+$("exportBtn").addEventListener("click",()=>{
+  if(!lastOffers.length) return;
+  const head = ["Intitulé","Entreprise","Lieu","Type de contrat","Expérience","Salaire","Compétences","Date","Lien"];
+  const rows = lastOffers.map(o=>[
+    o.intitule||"",
+    (o.entreprise&&o.entreprise.nom)||"",
+    (o.lieuTravail&&o.lieuTravail.libelle)||"",
+    o.typeContratLibelle||o.typeContrat||"",
+    o.experienceLibelle||"",
+    (o.salaire&&o.salaire.libelle)||"",
+    (o.competences||[]).map(c=>c.libelle).join(" | "),
+    o.dateCreation?new Date(o.dateCreation).toLocaleDateString("fr-FR"):"",
+    (o.origineOffre&&o.origineOffre.urlOrigine)||("https://candidat.francetravail.fr/offres/recherche/detail/"+(o.id||""))
+  ]);
+  const csv = [head,...rows].map(r=>r.map(cell=>{
+    const s = String(cell).replace(/"/g,'""');
+    return /[";\n]/.test(s) ? '"'+s+'"' : s;
+  }).join(";")).join("\r\n");
+  const blob = new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "offres-emploi.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>
