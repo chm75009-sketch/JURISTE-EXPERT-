@@ -707,6 +707,17 @@ function analyse(offers, totalDispo){
     RCATS.forEach(function(c){ var v=by[c]||0; h+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 8px">'+c+'</td><td style="padding:7px 8px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums">'+v+'</td><td style="padding:7px 8px;text-align:center">'+pct(v)+'%</td></tr>'; });
     h+='<tr style="border-top:2px solid var(--line);font-weight:700"><td style="padding:7px 8px">Total \u00e9tudi\u00e9</td><td style="padding:7px 8px;text-align:center">'+n+'</td><td style="padding:7px 8px;text-align:center">100%</td></tr>';
     h+='</tbody></table></div>';
+    // Tableau croisé : type d'offre x taille d'entreprise
+    var SZ=[["TPE","TPE (<10)"],["PME","PME (10-249)"],["ETI","ETI/GG (250+)"],["NP","Non pr\u00e9c."]];
+    var mat={}; RCATS.forEach(function(c){ mat[c]={TPE:0,PME:0,ETI:0,NP:0}; });
+    offers.forEach(function(o){ var c=classifyRel(o); var k=effectifKey(o); if(mat[c]) mat[c][k]=(mat[c][k]||0)+1; });
+    h+='<h3 style="font-size:13px;margin:16px 0 8px;font-weight:700">Crois\u00e9 avec la taille d\'entreprise</h3>';
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">';
+    h+='<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px">Type d\'offre</th>';
+    SZ.forEach(function(z){ h+='<th style="padding:6px;text-align:center">'+z[1]+'</th>'; });
+    h+='<th style="padding:6px;text-align:center">Total</th></tr></thead><tbody>';
+    RCATS.forEach(function(c){ var tot=0; var row='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px">'+c+'</td>'; SZ.forEach(function(z){ var v=mat[c][z[0]]||0; tot+=v; row+='<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+v+'</td>'; }); row+='<td style="padding:6px;text-align:center;font-weight:700">'+tot+'</td></tr>'; h+=row; });
+    h+='</tbody></table></div>';
     var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
     var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
     var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%).";
