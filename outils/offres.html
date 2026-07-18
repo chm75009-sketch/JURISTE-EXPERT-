@@ -764,9 +764,26 @@ function inCV(phrase, cvSet){
   const h=t.filter(w=>cvSet.has(w)).length;
   return h >= Math.ceil(t.length/2);
 }
+const EXTRA_NOISE = new Set(("alternance alternant stage stagiaire cdd cdi interim mois ans annee annees "+
+"poste postes mission missions recherche recherchons recrute recrutons candidat candidate profil "+
+"apporter appliquer assurer realiser participer gerer suivre effectuer temps plein partiel "+
+"debutant confirme senior junior groupe societe entreprise agence cabinet").split(" "));
+function offerNoise(offers){
+  const n=new Set(EXTRA_NOISE);
+  offers.forEach(o=>{
+    tok((o.lieuTravail&&o.lieuTravail.libelle)||"").forEach(w=>n.add(w));
+    tok((o.entreprise&&o.entreprise.nom)||"").forEach(w=>n.add(w));
+  });
+  return n;
+}
 function offerSkills(offers){
   const m=new Map();
-  offers.forEach(o=>{ new Set((o.competences||[]).map(c=>c&&c.libelle).filter(Boolean)).forEach(k=>m.set(k,(m.get(k)||0)+1)); });
+  offers.forEach(o=>{
+    const seen=new Set();
+    (o.competences||[]).forEach(c=>{ if(c&&c.libelle) seen.add(c.libelle.trim()); });
+    (o.qualitesProfessionnelles||[]).forEach(q=>{ if(q&&q.libelle) seen.add(q.libelle.trim()); });
+    seen.forEach(k=>m.set(k,(m.get(k)||0)+1));
+  });
   return [...m.entries()].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);
 }
 function offerWords(offers){
@@ -851,7 +868,7 @@ $("cvBtn").addEventListener("click", ()=>{
   // Vocabulaire demandé : compétences si dispo, sinon mots fréquents
   let demanded = offerSkills(lastOffers).slice(0,40);
   let mode="compétences";
-  if(demanded.length < 8){ demanded = offerWords(lastOffers).slice(0,40); mode="mots-clés"; }
+  if(demanded.length < 8){ demanded = (function(){ const nz=offerNoise(lastOffers); return offerWords(lastOffers).filter(function(w){ return !nz.has(w.label) && w.label.length>=4; }); })().slice(0,40); mode="mots-clés"; }
 
   const present = demanded.filter(d=>inCV(d.label, cvSet));
   const missing = demanded.filter(d=>!inCV(d.label, cvSet));
