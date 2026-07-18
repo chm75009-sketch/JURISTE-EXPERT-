@@ -233,6 +233,10 @@
       <span id="cvStatus" class="hint"></span>
     </div>
     <div id="cvResults" class="hidden" style="margin-top:16px"></div>
+    <div id="cvExport" class="row-actions hidden" style="margin-top:12px">
+      <button class="btn btn-ghost" id="cvWord">⭳ Word (.doc)</button>
+      <button class="btn btn-ghost" id="cvPdf">🖨 PDF / Imprimer</button>
+    </div>
   </div>
 
   <!-- ===== Analyse d'une fiche de poste ===== -->
@@ -984,6 +988,7 @@ $("cvBtn").addEventListener("click", ()=>{
      ${offersHtml||'<div class="muted" style="font-size:13px">Compétences non renseignées dans ces offres.</div>'}
      <div class="hint" style="margin-top:10px">Analyse par correspondance de mots-clés (heuristique) — un appui, pas un jugement définitif.</div>`;
   $("cvResults").classList.remove("hidden");
+  $("cvExport").classList.remove("hidden");
 
   const copyBtn=$("cvCopyBtn");
   if(copyBtn) copyBtn.addEventListener("click", async ()=>{
@@ -1111,6 +1116,36 @@ $("exportXlsx").addEventListener("click", async ()=>{
     XLSX.writeFile(wb,"offres-emploi.xlsx");
   }catch(e){ alert("Export Excel impossible : "+(e&&e.message?e.message:e)); }
   finally{ b.textContent=old; b.disabled=false; }
+});
+
+/* --- Export de l analyse CV en Word / PDF --- */
+function buildCvReport(){
+  const body=$("cvResults").innerHTML;
+  const css="body{font-family:Arial,Helvetica,sans-serif;color:#1c2333;margin:24px;line-height:1.5}"
+    +"h1{font-size:20px;margin:0 0 4px}h3{font-size:14px;margin:16px 0 6px}"
+    +"table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}"
+    +"th,td{border-bottom:1px solid #e0e0e0;padding:6px 8px;text-align:left;vertical-align:top}"
+    +".kpis{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}"
+    +".kpi{border:1px solid #ddd;border-radius:8px;padding:10px 12px;min-width:130px}"
+    +".kpi .val{font-size:20px;font-weight:bold}.kpi .lab{font-size:11px;color:#666}"
+    +".offer{border-top:1px solid #eee;padding:8px 0}.muted{color:#666}.hint{font-size:11px;color:#888}";
+  return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Analyse CV</title><style>"+css+"</style></head><body>"
+    +"<h1>Rapport d analyse de CV</h1>"
+    +"<p style=\"color:#666;font-size:12px;margin:0 0 10px\">Recherche d emploi &amp; reclassement — genere le "+new Date().toLocaleDateString("fr-FR")+"</p>"
+    +body+"</body></html>";
+}
+$("cvWord").addEventListener("click", function(){
+  if($("cvResults").classList.contains("hidden")) return;
+  const blob=new Blob(["\ufeff"+buildCvReport()],{type:"application/msword"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="analyse-cv.doc"; a.click(); URL.revokeObjectURL(a.href);
+});
+$("cvPdf").addEventListener("click", function(){
+  if($("cvResults").classList.contains("hidden")) return;
+  const w=window.open("","_blank");
+  if(!w){ alert("Autorise les pop-ups pour generer le PDF, ou utilise le bouton Word."); return; }
+  w.document.write(buildCvReport());
+  w.document.close(); w.focus();
+  setTimeout(function(){ try{ w.print(); }catch(e){} }, 500);
 });
 </script>
 </body>
