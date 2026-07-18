@@ -547,10 +547,10 @@ function relIndScore(o){
 }
 function classifyRel(o){
   const sc=relIndScore(o);
-  if(sc.ind===0 && sc.col===0) return "Non précisé";
-  if(sc.ind>sc.col) return "Relations individuelles";
-  if(sc.col>sc.ind) return "Relations collectives";
-  return "Mixte (individuel + collectif)";
+  if(sc.ind>0 && sc.col===0) return "Exclusivement individuel";
+  if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
+  if(sc.ind>0 && sc.col>0) return "Les deux (individuel + collectif)";
+  return "Non précisé";
 }
 async function fetchOffres(proxy, base, motsCles){
   const p = new URLSearchParams(base);
@@ -698,17 +698,18 @@ function analyse(offers, totalDispo){
   const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
   bars("chartComp", comp, 15, n);
   renderCloud("cloud", comp, 30);
-  const relCount = countBy(offers, function(o){ return classifyRel(o); });
-  bars("chartRatio", relCount, 5, n);
   (function(){
-    function g(pred){ const fnd=relCount.find(pred); return fnd?fnd.value:0; }
-    const ind=g(function(x){return x.label==="Relations individuelles";});
-    const col=g(function(x){return x.label==="Relations collectives";});
-    const mix=g(function(x){return x.label.indexOf("Mixte")===0;});
-    const nd=g(function(x){return x.label==="Non précisé";});
+    const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)","Non précisé"];
+    const by={}; offers.forEach(function(o){ const c=classifyRel(o); by[c]=(by[c]||0)+1; });
     const pct=function(v){ return n?Math.round(v/n*100):0; };
-    const el=$("ratioNote");
-    if(el) el.innerHTML="Sur <b>"+n+"</b> offres analysées : <b>"+pct(ind+mix)+"%</b> touchent aux <b>relations individuelles</b> ("+pct(ind)+"% purement individuel + "+pct(mix)+"% mixte) — contre <b>"+pct(col)+"%</b> à dominante <b>collective</b>"+(nd?(" ("+pct(nd)+"% non déterminé)"):"")+".";
+    var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px">';
+    h+='<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:8px">Type d\'offre</th><th style="padding:8px;text-align:center">Nb offres</th><th style="padding:8px;text-align:center">%</th></tr></thead><tbody>';
+    RCATS.forEach(function(c){ var v=by[c]||0; h+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:7px 8px">'+c+'</td><td style="padding:7px 8px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums">'+v+'</td><td style="padding:7px 8px;text-align:center">'+pct(v)+'%</td></tr>'; });
+    h+='<tr style="border-top:2px solid var(--line);font-weight:700"><td style="padding:7px 8px">Total \u00e9tudi\u00e9</td><td style="padding:7px 8px;text-align:center">'+n+'</td><td style="padding:7px 8px;text-align:center">100%</td></tr>';
+    h+='</tbody></table></div>';
+    var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
+    var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
+    var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%).";
   })();
 
   /* --- Métiers ROME --- */
