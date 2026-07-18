@@ -338,6 +338,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
         <h2 style="margin:0">Offres (<span id="offCount">0</span>)</h2>
         <button class="btn btn-ghost" id="exportBtn">⭳ Exporter en CSV</button>
+        <button class="btn btn-ghost" id="exportXlsx">⭳ Exporter en Excel (.xlsx)</button>
       </div>
       <div id="offerList" style="margin-top:12px"></div>
     </div>
@@ -1071,6 +1072,45 @@ $("ltCopy").addEventListener("click", async ()=>{
 $("ltDl").addEventListener("click", ()=>{
   const blob=new Blob([$("ltText").value],{type:"text/plain;charset=utf-8"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="lettre-motivation.txt"; a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* --- Export Excel (.xlsx) via SheetJS --- */
+$("exportXlsx").addEventListener("click", async ()=>{
+  if(!lastOffers.length) return;
+  const b=$("exportXlsx"); const old=b.textContent; b.textContent="⏳ Generation…"; b.disabled=true;
+  try{
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+    const XLSX=window.XLSX;
+    const head=["Intitule","Entreprise","Lieu","Departement","Type de contrat","Experience","Salaire","Competences","Date de publication","Lien"];
+    const rows=lastOffers.map(function(o){
+      const lieu=(o.lieuTravail&&o.lieuTravail.libelle)||"";
+      const dep=lieu.indexOf(" - ")>=0?lieu.split(" - ")[0]:(((o.lieuTravail&&o.lieuTravail.codePostal)||"")+"").slice(0,2);
+      const url=(o.origineOffre&&o.origineOffre.urlOrigine)||("https://candidat.francetravail.fr/offres/recherche/detail/"+(o.id||""));
+      return [o.intitule||"", (o.entreprise&&o.entreprise.nom)||"", lieu, dep,
+        o.typeContratLibelle||o.typeContrat||"", o.experienceLibelle||"",
+        (o.salaire&&o.salaire.libelle)||"", (o.competences||[]).map(function(c){return c.libelle;}).join(" | "),
+        o.dateCreation?new Date(o.dateCreation).toLocaleDateString("fr-FR"):"", url];
+    });
+    const ws=XLSX.utils.aoa_to_sheet([head].concat(rows));
+    ws["!cols"]=[{wch:46},{wch:26},{wch:24},{wch:11},{wch:16},{wch:16},{wch:30},{wch:60},{wch:16},{wch:52}];
+    ws["!autofilter"]={ref:"A1:J1"};
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Offres");
+    const syn=[];
+    syn.push(["SYNTHESE DE LA RECHERCHE"]);
+    syn.push(["Offres analysees", lastOffers.length]);
+    syn.push([]);
+    function sec(title,data,top){ syn.push([title,"Occurrences"]); data.slice(0,top||20).forEach(function(d){ syn.push([d.label,d.value]); }); syn.push([]); }
+    sec("Competences les plus demandees", countBy(lastOffers,function(o){return (o.competences||[]).map(function(c){return c.libelle;});}),20);
+    sec("Types de contrat", countBy(lastOffers,function(o){return o.typeContratLibelle||o.typeContrat;}),10);
+    sec("Experience demandee", countBy(lastOffers,function(o){return o.experienceLibelle;}),10);
+    sec("Entreprises qui recrutent", countBy(lastOffers,function(o){return o.entreprise&&o.entreprise.nom;}),20);
+    sec("Localisation", countBy(lastOffers,function(o){return o.lieuTravail&&o.lieuTravail.libelle;}),20);
+    const ws2=XLSX.utils.aoa_to_sheet(syn); ws2["!cols"]=[{wch:46},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws2,"Synthese");
+    XLSX.writeFile(wb,"offres-emploi.xlsx");
+  }catch(e){ alert("Export Excel impossible : "+(e&&e.message?e.message:e)); }
+  finally{ b.textContent=old; b.disabled=false; }
 });
 </script>
 </body>
