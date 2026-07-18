@@ -223,9 +223,9 @@
     <div class="field" style="margin-top:12px">
       <label style="display:inline-flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:600">
         <input type="checkbox" id="relInd" style="width:auto;margin-top:3px" />
-        <span>⚖️ Spécialité « relations individuelles » — écarter les offres orientées collectif (CSE, IRP, négociation, dialogue social, PSE…)</span>
+        <span>⚖️ UNIQUEMENT les offres <b>exclusivement relations individuelles</b> (aucune mission collective : CSE, IRP, négociation, PSE, dialogue social)</span>
       </label>
-      <div class="hint">Utile surtout avec un métier « Juriste ». Garde les postes centrés sur le contrat, le licenciement, la discipline, l'inaptitude, le contentieux individuel.</div>
+      <div class="hint">Strict : ne garde que les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes) ET <b>aucun</b> marqueur collectif. Peu d'offres passeront — l'individuel « pur » est un créneau étroit.</div>
     </div>
     <div class="row-actions" style="margin-top:6px">
       <button class="btn" id="searchBtn">Analyser les offres</button>
@@ -602,7 +602,7 @@ async function runSearch(){
     let offers = res.offers;
     if($("relInd") && $("relInd").checked && offers.length){
       const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, d:sc.ind-sc.col, col:sc.col, ind:sc.ind}; });
-      offers = scored.filter(function(x){ return !(x.col>x.ind && x.col>=1); }).sort(function(a,b){ return b.d-a.d; }).map(function(x){ return x.o; });
+      offers = scored.filter(function(x){ return x.ind>0 && x.col===0; }).sort(function(a,b){ return b.ind-a.ind; }).map(function(x){ return x.o; });
     }
     if(taillesEl && offers.length){
       const tk=[].slice.call(taillesEl.querySelectorAll("input:checked")).map(function(c){return c.value;});
