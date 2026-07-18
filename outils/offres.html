@@ -298,6 +298,11 @@
       <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span></h2>
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
+      <div style="margin-top:12px">
+        <button type="button" class="btn btn-ghost" id="enrichBtn">🔎 Compléter les effectifs « non précisé » (annuaire officiel des entreprises)</button>
+        <div class="hint" id="enrichNote" style="margin-top:8px"></div>
+        <div class="hint" style="margin-top:4px;opacity:.75">Source : recherche-entreprises.api.gouv.fr — données INSEE/Sirene. On recherche chaque employeur par son nom pour récupérer sa tranche d'effectif salarié.</div>
+      </div>
     </div>
 
     <div class="card">
@@ -464,6 +469,7 @@ CONTRATS.forEach(c=>{
    ============================================================ */
 /* --- Taille d'entreprise (effectif etablissement) --- */
 function effectifKey(o){
+  if(o&&o._eff) return o._eff;            // effectif complété via l'annuaire des entreprises (INSEE)
   const t=(o&&o.trancheEffectifEtab)||"";
   if(!t) return "NP";
   const n=parseInt(((t.replace(/\s/g,"").match(/\d+/))||["0"])[0],10);
@@ -471,6 +477,89 @@ function effectifKey(o){
 }
 const TAILLE_LAB={TPE:"TPE (<10)",PME:"PME (10-249)",ETI:"ETI / Grand groupe (250+)",NP:"Non précisé"};
 function effectifLabel(o){ return TAILLE_LAB[effectifKey(o)]; }
+
+/* --- Enrichissement de l'effectif via l'annuaire officiel des entreprises ---
+   API publique gratuite recherche-entreprises.api.gouv.fr (données INSEE/Sirene, CORS ouvert).
+   On complète, à partir du NOM de l'employeur, les offres dont la taille est "non précisé". */
+const EFF_API = "https://recherche-entreprises.api.gouv.fr/search";
+function inseeEffToBucket(code){
+  if(code===null||code===undefined||code===""||code==="NN") return "";
+  const n = parseInt(code,10);
+  if(isNaN(n)) return "";
+  if(n<=3) return "TPE";   // 00-03 : 0 à 9 salariés
+  if(n<=31) return "PME";  // 11-31 : 10 à 249 salariés
+  return "ETI";            // 32-53 : 250 salariés et plus
+}
+const effCache = {};
+try{ Object.assign(effCache, JSON.parse(localStorage.getItem("eff_cache_v1")||"{}")); }catch(e){}
+function saveEffCache(){ try{ localStorage.setItem("eff_cache_v1", JSON.stringify(effCache)); }catch(e){} }
+function normEnt(name){
+  return (name||"").toLowerCase()
+    .replace(/\b(sas|sasu|sarl|sa|eurl|snc|selarl|selas|scp|sci|groupe|holding|france|international)\b/g," ")
+    .replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim();
+}
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+async function lookupEffectif(name){
+  const key = normEnt(name);
+  if(!key) return "";
+  if(Object.prototype.hasOwnProperty.call(effCache,key)) return effCache[key];
+  let bucket = "";
+  try{
+    const url = EFF_API + "?q=" + encodeURIComponent(name) + "&page=1&per_page=1";
+    const r = await fetch(url);
+    if(r.ok){
+      const j = await r.json();
+      const res = (j && j.results && j.results[0]) || null;
+      if(res){
+        let code = res.tranche_effectif_salarie;
+        if((code===null||code===undefined||code==="") && res.siege) code = res.siege.tranche_effectif_salarie;
+        bucket = inseeEffToBucket(code);
+      }
+    }
+  }catch(e){ bucket = ""; }
+  effCache[key] = bucket;
+  return bucket;
+}
+async function enrichEffectifs(){
+  const btn = $("enrichBtn"), note = $("enrichNote");
+  if(!lastOffers.length){ if(note) note.textContent = "Fais d'abord une recherche."; return; }
+  const uniq = {}, noName = [];
+  lastOffers.forEach(function(o){
+    if(effectifKey(o)!=="NP") return;
+    const nom = o.entreprise && o.entreprise.nom;
+    if(!nom){ noName.push(o); return; }
+    const k = normEnt(nom); if(!k) return;
+    (uniq[k]=uniq[k]||[]).push(o);
+  });
+  const names = Object.keys(uniq);
+  if(!names.length){
+    if(note) note.innerHTML = "Aucune société à compléter — les « non précisé » restants sont des offres <b>sans nom d'employeur</b>"+(noName.length?" ("+noName.length+" offre(s) anonymisée(s))":"")+".";
+    return;
+  }
+  if(btn) btn.disabled = true;
+  let done=0, found=0;
+  const queue = names.slice();
+  async function worker(){
+    while(queue.length){
+      const k = queue.shift();
+      const bucket = await lookupEffectif(uniq[k][0].entreprise.nom);
+      if(bucket){ uniq[k].forEach(function(o){ o._eff = bucket; }); found++; }
+      done++;
+      if(note) note.textContent = "Complément en cours… "+done+"/"+names.length+" sociétés interrogées · "+found+" effectifs trouvés.";
+      await sleep(280);
+    }
+  }
+  try{
+    await Promise.all([worker(),worker()]);   // 2 requêtes en parallèle : reste sous la limite de l'API
+  }catch(e){}
+  saveEffCache();
+  if(btn) btn.disabled = false;
+  analyse(lastOffers, lastTotal||lastOffers.length);
+  const remainNP = lastOffers.filter(function(o){ return effectifKey(o)==="NP"; }).length;
+  if(note) note.innerHTML = "✅ <b>"+found+"</b> société(s) complétée(s) via l'annuaire des entreprises (INSEE). "
+    + "Il reste <b>"+remainNP+"</b> offre(s) « non précisé » — employeur anonymisé"
+    + (noName.length?" ("+noName.length+" offre(s))":"")+" ou effectif non déclaré à l'INSEE.";
+}
 const TAILLES=[{key:"TPE"},{key:"PME"},{key:"ETI"},{key:"NP"}];
 const taillesEl=$("tailles");
 if(taillesEl){ TAILLES.forEach(function(t){
@@ -481,9 +570,11 @@ if(taillesEl){ TAILLES.forEach(function(t){
   taillesEl.appendChild(l);
 }); }
 let lastOffers = [];
+let lastTotal = 0;
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
+if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 /* Liste + recherche des metiers ROME (combobox) */
 const METIERS_SEED = [
   {code:"K1903", libelle:"Juriste / conseil juridique"},
@@ -692,6 +783,7 @@ function tbl(elId, data, itemHead){
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 function analyse(offers, totalDispo){
+  lastTotal = totalDispo;
   const n = offers.length;
 
   /* --- Compétences --- */
@@ -1221,7 +1313,7 @@ $("exportXlsx").addEventListener("click", async ()=>{
       const lieu=(o.lieuTravail&&o.lieuTravail.libelle)||"";
       const dep=lieu.indexOf(" - ")>=0?lieu.split(" - ")[0]:(((o.lieuTravail&&o.lieuTravail.codePostal)||"")+"").slice(0,2);
       const url=(o.origineOffre&&o.origineOffre.urlOrigine)||("https://candidat.francetravail.fr/offres/recherche/detail/"+(o.id||""));
-      return [o.intitule||"", (o.entreprise&&o.entreprise.nom)||"", o.trancheEffectifEtab||"", lieu, dep,
+      return [o.intitule||"", (o.entreprise&&o.entreprise.nom)||"", effectifLabel(o), lieu, dep,
         o.typeContratLibelle||o.typeContrat||"", o.experienceLibelle||"",
         (o.salaire&&o.salaire.libelle)||"", (o.competences||[]).map(function(c){return c.libelle;}).join(" | "),
         o.dateCreation?new Date(o.dateCreation).toLocaleDateString("fr-FR"):"", url];
