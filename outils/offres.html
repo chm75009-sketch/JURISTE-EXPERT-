@@ -212,6 +212,10 @@
       </div>
     </div>
 
+    <div class="field" style="margin-top:14px">
+      <label>Taille d'entreprise (décoche pour exclure)</label>
+      <div class="chips" id="tailles"></div>
+    </div>
     <div class="field" style="margin-top:12px">
       <label style="display:inline-flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:600">
         <input type="checkbox" id="relInd" style="width:auto;margin-top:3px" />
@@ -322,6 +326,12 @@
         <h2>Entreprises qui recrutent (top)</h2>
         <div class="bars" id="chartEnt"></div>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>👥 Taille des entreprises qui recrutent</h2>
+      <div class="bars" id="chartTaille"></div>
+      <div class="hint" style="margin-top:8px">Effectif de l'établissement (source France Travail). La forme juridique n'est pas fournie par l'API.</div>
     </div>
 
     <div class="two-col">
@@ -442,6 +452,24 @@ CONTRATS.forEach(c=>{
 /* ============================================================
    RECHERCHE
    ============================================================ */
+/* --- Taille d'entreprise (effectif etablissement) --- */
+function effectifKey(o){
+  const t=(o&&o.trancheEffectifEtab)||"";
+  if(!t) return "NP";
+  const n=parseInt(((t.replace(/\s/g,"").match(/\d+/))||["0"])[0],10);
+  if(n>=250) return "ETI"; if(n>=10) return "PME"; return "TPE";
+}
+const TAILLE_LAB={TPE:"TPE (<10)",PME:"PME (10-249)",ETI:"ETI / Grand groupe (250+)",NP:"Non précisé"};
+function effectifLabel(o){ return TAILLE_LAB[effectifKey(o)]; }
+const TAILLES=[{key:"TPE"},{key:"PME"},{key:"ETI"},{key:"NP"}];
+const taillesEl=$("tailles");
+if(taillesEl){ TAILLES.forEach(function(t){
+  const l=document.createElement("label"); l.className="chip on";
+  l.innerHTML='<input type="checkbox" value="'+t.key+'" checked> '+TAILLE_LAB[t.key];
+  const cb=l.querySelector("input");
+  cb.addEventListener("change",function(){ l.classList.toggle("on", cb.checked); });
+  taillesEl.appendChild(l);
+}); }
 let lastOffers = [];
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
@@ -541,6 +569,10 @@ async function runSearch(){
     if($("relInd") && $("relInd").checked && offers.length){
       const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, d:sc.ind-sc.col, col:sc.col, ind:sc.ind}; });
       offers = scored.filter(function(x){ return !(x.col>x.ind && x.col>=1); }).sort(function(a,b){ return b.d-a.d; }).map(function(x){ return x.o; });
+    }
+    if(taillesEl && offers.length){
+      const tk=[].slice.call(taillesEl.querySelectorAll("input:checked")).map(function(c){return c.value;});
+      if(tk.length && tk.length<TAILLES.length) offers = offers.filter(function(o){ return tk.indexOf(effectifKey(o))>=0; });
     }
     lastOffers = offers;
     if(!offers.length){
@@ -652,6 +684,7 @@ function analyse(offers, totalDispo){
   /* --- Entreprises --- */
   const ent = countBy(offers, o => o.entreprise && o.entreprise.nom);
   bars("chartEnt", ent, 10, n);
+  bars("chartTaille", countBy(offers, function(o){return effectifLabel(o);}), 8, n);
 
   /* --- Profil recherché + missions --- */
   tbl("tblFormation", countBy(offers, o=>(o.formations||[]).map(f=>[f.niveauLibelle,f.domaineLibelle].filter(Boolean).join(" — "))), "Formation / diplôme");
@@ -729,6 +762,7 @@ function renderOffers(offers){
     el.innerHTML =
       `<h3><a href="${esc(url)}" target="_blank" rel="noopener">${esc(o.intitule||"Offre")}</a></h3>`+
       `<div class="meta"><span>${esc(ent)}</span><span>📍 ${esc(lieu)}</span>`+
+      (o.trancheEffectifEtab?`<span>👥 ${esc(o.trancheEffectifEtab)}</span>`:"")+
       (contrat?`<span class="tag">${esc(contrat)}</span>`:"")+
       (d?`<span>${d}</span>`:"")+
       (sal?`<span class="muted">${esc(sal)}</span>`:"")+`</div>`;
@@ -1124,19 +1158,19 @@ $("exportXlsx").addEventListener("click", async ()=>{
   try{
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
     const XLSX=window.XLSX;
-    const head=["Intitule","Entreprise","Lieu","Departement","Type de contrat","Experience","Salaire","Competences","Date de publication","Lien"];
+    const head=["Intitule","Entreprise","Effectif","Lieu","Departement","Type de contrat","Experience","Salaire","Competences","Date de publication","Lien"];
     const rows=lastOffers.map(function(o){
       const lieu=(o.lieuTravail&&o.lieuTravail.libelle)||"";
       const dep=lieu.indexOf(" - ")>=0?lieu.split(" - ")[0]:(((o.lieuTravail&&o.lieuTravail.codePostal)||"")+"").slice(0,2);
       const url=(o.origineOffre&&o.origineOffre.urlOrigine)||("https://candidat.francetravail.fr/offres/recherche/detail/"+(o.id||""));
-      return [o.intitule||"", (o.entreprise&&o.entreprise.nom)||"", lieu, dep,
+      return [o.intitule||"", (o.entreprise&&o.entreprise.nom)||"", o.trancheEffectifEtab||"", lieu, dep,
         o.typeContratLibelle||o.typeContrat||"", o.experienceLibelle||"",
         (o.salaire&&o.salaire.libelle)||"", (o.competences||[]).map(function(c){return c.libelle;}).join(" | "),
         o.dateCreation?new Date(o.dateCreation).toLocaleDateString("fr-FR"):"", url];
     });
     const ws=XLSX.utils.aoa_to_sheet([head].concat(rows));
-    ws["!cols"]=[{wch:46},{wch:26},{wch:24},{wch:11},{wch:16},{wch:16},{wch:30},{wch:60},{wch:16},{wch:52}];
-    ws["!autofilter"]={ref:"A1:J1"};
+    ws["!cols"]=[{wch:46},{wch:26},{wch:18},{wch:24},{wch:11},{wch:16},{wch:16},{wch:30},{wch:60},{wch:16},{wch:52}];
+    ws["!autofilter"]={ref:"A1:K1"};
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,"Offres");
     const syn=[];
