@@ -516,6 +516,11 @@ async function runSearch(){
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
   $("results").classList.add("hidden");
   $("emptyState").classList.add("hidden");
+  // Réinitialise les analyses liées à la recherche précédente (elles deviennent obsolètes)
+  $("cvResults").innerHTML = ""; $("cvResults").classList.add("hidden");
+  $("cvExport").classList.add("hidden");
+  $("jobResults").innerHTML = ""; $("jobResults").classList.add("hidden");
+  $("cvStatus").textContent = ""; $("jobStatus").textContent = "";
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
