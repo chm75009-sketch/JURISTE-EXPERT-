@@ -154,6 +154,8 @@
         <select id="rome">
           <option value="">— recherche par mots-clés —</option>
           <option value="K1903">Juriste / conseil juridique</option>
+          <option value="K1903|droit social">Juriste en droit social</option>
+          <option value="K1903|droit du travail">Juriste en droit du travail</option>
           <option value="K1902">Assistant / collaborateur juridique</option>
           <option value="M1503">Responsable ressources humaines</option>
           <option value="M1501">Assistant ressources humaines</option>
@@ -484,9 +486,12 @@ async function runSearch(){
   base.set("range", $("taille").value);
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
-  const codeRome = $("rome").value;
+  const romeVal = $("rome").value;
+  const romeParts = romeVal ? romeVal.split("|") : [];
+  const codeRome = romeParts[0] || "";
+  const romeKw = romeParts[1] || "";  // spécialité éventuelle (ex. "droit social")
   const romeLabel = codeRome ? (($("rome").selectedOptions[0]||{}).text || "ce metier") : "";
-  if(codeRome) base.set("codeROME", codeRome); // metier ROME prioritaire : on ignore les mots-cles
+  if(codeRome) base.set("codeROME", codeRome); // metier ROME prioritaire
 
   $("searchBtn").disabled = true;
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
@@ -495,7 +500,7 @@ async function runSearch(){
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
-    const res = await fetchOffres(proxy, base, codeRome ? "" : mots);
+    const res = await fetchOffres(proxy, base, codeRome ? romeKw : mots);
     const offers = res.offers;
     lastOffers = offers;
     if(!offers.length){
