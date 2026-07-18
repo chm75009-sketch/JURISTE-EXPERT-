@@ -150,9 +150,10 @@
         <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
       </div>
       <div class="field" style="margin:0">
-        <label for="metierInput">Métier (tape pour chercher)</label>
-        <input list="metiersList" id="metierInput" autocomplete="off" placeholder="ex. juriste, data analyst, boulanger…" />
-        <datalist id="metiersList"></datalist>
+        <label for="rome">Métier (liste ROME)</label>
+        <select id="rome">
+          <option value="">— recherche par mots-clés —</option>
+        </select>
         <div class="hint">Tape un métier et choisis dans la liste (référentiel France Travail). Tu peux affiner avec un mot-clé ci-dessus. Vide = recherche par mots-clés.</div>
       </div>
       <div class="field" style="margin:0">
@@ -438,7 +439,7 @@ let lastOffers = [];
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
-/* Autocompletion des metiers (referentiel France Travail, avec repli integre) */
+/* Liste des metiers ROME : suggeres + liste complete (referentiel France Travail) */
 const METIERS_SEED = [
   {code:"K1903", libelle:"Juriste / conseil juridique"},
   {code:"K1902", libelle:"Assistant / collaborateur juridique"},
@@ -450,29 +451,25 @@ const METIERS_SEED = [
   {code:"M1204", libelle:"Controle de gestion"},
   {code:"M1205", libelle:"Direction administrative et financiere"},
   {code:"M1203", libelle:"Comptable"},
-  {code:"M1403", libelle:"Data analyst / charge d\x27etudes"},
+  {code:"M1403", libelle:"Data analyst / charge d'etudes"},
   {code:"M1805", libelle:"Developpeur / etudes informatiques"},
   {code:"H1502", libelle:"Responsable qualite (industrie)"},
   {code:"N4101", libelle:"Conducteur routier (marchandises)"}
 ];
-let METIERS_MAP = new Map();
-function seedMetiers(list){
-  const dl=$("metiersList"); if(!dl) return;
-  list.forEach(function(m){
-    if(!m || !m.libelle || !m.code) return;
-    const k = norm(m.libelle);
-    if(METIERS_MAP.has(k)) return;
-    METIERS_MAP.set(k, m.code);
-    const o=document.createElement("option"); o.value=m.libelle; dl.appendChild(o);
-  });
-}
+function addOpt(parent, code, libelle){ const o=document.createElement("option"); o.value=code; o.textContent=libelle; parent.appendChild(o); }
 async function loadMetiers(){
-  seedMetiers(METIERS_SEED);
-  const proxy=(localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
+  const sel=$("rome"); if(!sel) return;
+  const g1=document.createElement("optgroup"); g1.label="Suggeres";
+  METIERS_SEED.forEach(function(m){ addOpt(g1,m.code,m.libelle); });
+  sel.appendChild(g1);
   try{
+    const proxy=(localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
     const r=await fetch(proxy+"/metiers"); if(!r.ok) return;
-    const arr=await r.json();
-    if(Array.isArray(arr)) seedMetiers(arr.map(function(m){ return {code:m.code, libelle:(m.libelle||m.label)}; }));
+    const arr=await r.json(); if(!Array.isArray(arr)||!arr.length) return;
+    arr.sort(function(a,b){ return (a.libelle||"").localeCompare(b.libelle||""); });
+    const g2=document.createElement("optgroup"); g2.label="Tous les metiers (A-Z)";
+    arr.forEach(function(m){ if(m&&m.code&&m.libelle) addOpt(g2,m.code,m.libelle); });
+    sel.appendChild(g2);
   }catch(e){}
 }
 loadMetiers();
@@ -507,9 +504,8 @@ async function runSearch(){
   base.set("range", $("taille").value);
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
-  const metierTxt = $("metierInput").value.trim();
-  const codeRome = METIERS_MAP.get(norm(metierTxt)) || "";
-  const romeLabel = codeRome ? metierTxt : "";
+  const codeRome = $("rome").value;
+  const romeLabel = codeRome ? (($("rome").selectedOptions[0]||{}).text || "ce metier") : "";
   if(codeRome) base.set("codeROME", codeRome);
 
   $("searchBtn").disabled = true;
@@ -524,7 +520,7 @@ async function runSearch(){
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
-    const res = await fetchOffres(proxy, base, mots || (codeRome ? "" : metierTxt));
+    const res = await fetchOffres(proxy, base, mots);
     const offers = res.offers;
     lastOffers = offers;
     if(!offers.length){
