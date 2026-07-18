@@ -290,6 +290,12 @@
 
     <div class="grid kpis" id="kpis" style="margin-bottom:18px"></div>
 
+    <div class="card" style="border-left:4px solid var(--accent)">
+      <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span></h2>
+      <div class="bars" id="chartRatio"></div>
+      <div class="hint" id="ratioNote" style="margin-top:10px"></div>
+    </div>
+
     <div class="card">
       <h2>☁️ Nuage de mots-clés du métier</h2>
       <div id="cloud" style="line-height:2.1;text-align:center;padding:6px 0"></div>
@@ -518,6 +524,13 @@ function relIndScore(o){
   COL_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) col++; });
   return {ind:ind, col:col};
 }
+function classifyRel(o){
+  const sc=relIndScore(o);
+  if(sc.ind===0 && sc.col===0) return "Non précisé";
+  if(sc.ind>sc.col) return "Relations individuelles";
+  if(sc.col>sc.ind) return "Relations collectives";
+  return "Mixte (individuel + collectif)";
+}
 async function fetchOffres(proxy, base, motsCles){
   const p = new URLSearchParams(base);
   if(motsCles) p.set("motsCles", motsCles);
@@ -664,6 +677,18 @@ function analyse(offers, totalDispo){
   const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
   bars("chartComp", comp, 15, n);
   renderCloud("cloud", comp, 30);
+  const relCount = countBy(offers, function(o){ return classifyRel(o); });
+  bars("chartRatio", relCount, 5, n);
+  (function(){
+    function g(pred){ const fnd=relCount.find(pred); return fnd?fnd.value:0; }
+    const ind=g(function(x){return x.label==="Relations individuelles";});
+    const col=g(function(x){return x.label==="Relations collectives";});
+    const mix=g(function(x){return x.label.indexOf("Mixte")===0;});
+    const nd=g(function(x){return x.label==="Non précisé";});
+    const pct=function(v){ return n?Math.round(v/n*100):0; };
+    const el=$("ratioNote");
+    if(el) el.innerHTML="Sur <b>"+n+"</b> offres analysées : <b>"+pct(ind+mix)+"%</b> touchent aux <b>relations individuelles</b> ("+pct(ind)+"% purement individuel + "+pct(mix)+"% mixte) — contre <b>"+pct(col)+"%</b> à dominante <b>collective</b>"+(nd?(" ("+pct(nd)+"% non déterminé)"):"")+".";
+  })();
 
   /* --- Métiers ROME --- */
   const rome = countBy(offers, o => o.romeLibelle || o.appellationlibelle);
