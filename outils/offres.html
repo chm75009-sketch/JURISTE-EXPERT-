@@ -150,28 +150,10 @@
         <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
       </div>
       <div class="field" style="margin:0">
-        <label for="rome">Métier (liste ROME)</label>
-        <select id="rome">
-          <option value="">— recherche par mots-clés —</option>
-          <option value="K1903">Juriste / conseil juridique</option>
-          <option value="K1903|droit social">Juriste en droit social</option>
-          <option value="K1903|droit du travail">Juriste en droit du travail</option>
-          <option value="K1902">Assistant / collaborateur juridique</option>
-          <option value="M1503">Responsable ressources humaines</option>
-          <option value="M1501">Assistant ressources humaines</option>
-          <option value="M1502">Chargé de recrutement / dév. RH</option>
-          <option value="M1402">Consultant organisation / management</option>
-          <option value="M1202">Audit / contrôle / risques</option>
-          <option value="M1202,M1402|risque">Gestion des risques / risque opérationnel</option>
-          <option value="M1204">Contrôle de gestion</option>
-          <option value="M1205">Direction administrative et financière</option>
-          <option value="M1203">Comptable</option>
-          <option value="M1403">Data analyst / chargé d'études</option>
-          <option value="M1805">Développeur / études informatiques</option>
-          <option value="H1502">Responsable qualité (industrie)</option>
-          <option value="N4101">Conducteur routier (marchandises)</option>
-        </select>
-        <div class="hint">Récupère toutes les offres rattachées à ce métier (comme le site). Vide = recherche par mots-clés.</div>
+        <label for="metierInput">Métier (tape pour chercher)</label>
+        <input list="metiersList" id="metierInput" autocomplete="off" placeholder="ex. juriste, data analyst, boulanger…" />
+        <datalist id="metiersList"></datalist>
+        <div class="hint">Tape un métier et choisis dans la liste (référentiel France Travail). Tu peux affiner avec un mot-clé ci-dessus. Vide = recherche par mots-clés.</div>
       </div>
       <div class="field" style="margin:0">
         <label for="region">Région</label>
@@ -451,11 +433,44 @@ let lastOffers = [];
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
-$("rome").addEventListener("change", function(){
-  var on = !!$("rome").value;
-  $("motsCles").disabled = on;
-  $("motsCles").placeholder = on ? "(ignore : un metier est selectionne)" : "ex. responsable qualite HACCP";
-});
+/* Autocompletion des metiers (referentiel France Travail, avec repli integre) */
+const METIERS_SEED = [
+  {code:"K1903", libelle:"Juriste / conseil juridique"},
+  {code:"K1902", libelle:"Assistant / collaborateur juridique"},
+  {code:"M1503", libelle:"Responsable ressources humaines"},
+  {code:"M1501", libelle:"Assistant ressources humaines"},
+  {code:"M1502", libelle:"Charge de recrutement / developpement RH"},
+  {code:"M1402", libelle:"Consultant organisation / management"},
+  {code:"M1202", libelle:"Audit / controle / risques"},
+  {code:"M1204", libelle:"Controle de gestion"},
+  {code:"M1205", libelle:"Direction administrative et financiere"},
+  {code:"M1203", libelle:"Comptable"},
+  {code:"M1403", libelle:"Data analyst / charge d\x27etudes"},
+  {code:"M1805", libelle:"Developpeur / etudes informatiques"},
+  {code:"H1502", libelle:"Responsable qualite (industrie)"},
+  {code:"N4101", libelle:"Conducteur routier (marchandises)"}
+];
+let METIERS_MAP = new Map();
+function seedMetiers(list){
+  const dl=$("metiersList"); if(!dl) return;
+  list.forEach(function(m){
+    if(!m || !m.libelle || !m.code) return;
+    const k = norm(m.libelle);
+    if(METIERS_MAP.has(k)) return;
+    METIERS_MAP.set(k, m.code);
+    const o=document.createElement("option"); o.value=m.libelle; dl.appendChild(o);
+  });
+}
+async function loadMetiers(){
+  seedMetiers(METIERS_SEED);
+  const proxy=(localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
+  try{
+    const r=await fetch(proxy+"/metiers"); if(!r.ok) return;
+    const arr=await r.json();
+    if(Array.isArray(arr)) seedMetiers(arr.map(function(m){ return {code:m.code, libelle:(m.libelle||m.label)}; }));
+  }catch(e){}
+}
+loadMetiers();
 
 async function fetchOffres(proxy, base, motsCles){
   const p = new URLSearchParams(base);
@@ -487,12 +502,10 @@ async function runSearch(){
   base.set("range", $("taille").value);
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
-  const romeVal = $("rome").value;
-  const romeParts = romeVal ? romeVal.split("|") : [];
-  const codeRome = romeParts[0] || "";
-  const romeKw = romeParts[1] || "";  // spécialité éventuelle (ex. "droit social")
-  const romeLabel = codeRome ? (($("rome").selectedOptions[0]||{}).text || "ce metier") : "";
-  if(codeRome) base.set("codeROME", codeRome); // metier ROME prioritaire
+  const metierTxt = $("metierInput").value.trim();
+  const codeRome = METIERS_MAP.get(norm(metierTxt)) || "";
+  const romeLabel = codeRome ? metierTxt : "";
+  if(codeRome) base.set("codeROME", codeRome);
 
   $("searchBtn").disabled = true;
   $("searchStatus").innerHTML = '<span class="spinner"></span> Recherche en cours…';
@@ -501,7 +514,7 @@ async function runSearch(){
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
-    const res = await fetchOffres(proxy, base, codeRome ? romeKw : mots);
+    const res = await fetchOffres(proxy, base, mots || (codeRome ? "" : metierTxt));
     const offers = res.offers;
     lastOffers = offers;
     if(!offers.length){

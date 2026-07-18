@@ -25,6 +25,8 @@ const TOKEN_URL =
   'https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire';
 const SEARCH_URL =
   'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search';
+const METIERS_URL =
+  'https://api.francetravail.io/partenaire/offresdemploi/v2/referentiel/metiers';
 const SCOPE = 'api_offresdemploiv2 o2dsoffre';
 
 // Cache mémoire du jeton (best-effort, par isolate)
@@ -96,6 +98,22 @@ export default {
 
     if (url.pathname === '/health') {
       return json({ ok: true, service: 'france-travail-proxy' }, 200, cors);
+    }
+
+    if (url.pathname === '/metiers') {
+      try {
+        const token = await getToken(env);
+        const r = await fetch(METIERS_URL, {
+          headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
+        });
+        const text = await r.text();
+        return new Response(text || '[]', {
+          status: r.ok ? 200 : r.status,
+          headers: { 'Content-Type': 'application/json; charset=utf-8', ...cors },
+        });
+      } catch (e) {
+        return json({ error: String(e && e.message ? e.message : e) }, 502, cors);
+      }
     }
 
     if (url.pathname === '/offres' || url.pathname === '/') {
