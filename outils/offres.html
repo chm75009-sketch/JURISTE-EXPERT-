@@ -96,6 +96,10 @@
   .row-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   details.cfg{margin-top:10px}
   details.cfg summary{cursor:pointer;font-size:13px;color:var(--muted)}
+  .metier-sug{border:1px solid var(--line);border-radius:10px;margin-top:4px;max-height:240px;overflow:auto;background:#fff}
+  .metier-sug div{padding:9px 12px;font-size:14px;cursor:pointer;border-top:1px solid var(--line)}
+  .metier-sug div:first-child{border-top:none}
+  .metier-sug div:hover{background:var(--accent-soft)}
 </style>
 </head>
 <body>
@@ -150,10 +154,10 @@
         <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
       </div>
       <div class="field" style="margin:0">
-        <label for="rome">Métier (liste ROME)</label>
-        <select id="rome">
-          <option value="">— recherche par mots-clés —</option>
-        </select>
+        <label for="metierSearch">Métier (tape pour chercher)</label>
+        <input type="text" id="metierSearch" autocomplete="off" placeholder="ex. juriste, data, comptable…" />
+        <input type="hidden" id="rome" value="" />
+        <div id="metierSug" class="metier-sug hidden"></div>
         <div class="hint">Tape un métier et choisis dans la liste (référentiel France Travail). Tu peux affiner avec un mot-clé ci-dessus. Vide = recherche par mots-clés.</div>
       </div>
       <div class="field" style="margin:0">
@@ -480,7 +484,7 @@ let lastOffers = [];
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
-/* Liste des metiers ROME : suggeres + liste complete (referentiel France Travail) */
+/* Liste + recherche des metiers ROME (combobox) */
 const METIERS_SEED = [
   {code:"K1903", libelle:"Juriste / conseil juridique"},
   {code:"K1902", libelle:"Assistant / collaborateur juridique"},
@@ -497,23 +501,40 @@ const METIERS_SEED = [
   {code:"H1502", libelle:"Responsable qualite (industrie)"},
   {code:"N4101", libelle:"Conducteur routier (marchandises)"}
 ];
-function addOpt(parent, code, libelle){ const o=document.createElement("option"); o.value=code; o.textContent=libelle; parent.appendChild(o); }
+let METIERS_ALL = METIERS_SEED.slice();
+function normM(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
 async function loadMetiers(){
-  const sel=$("rome"); if(!sel) return;
-  const g1=document.createElement("optgroup"); g1.label="Suggeres";
-  METIERS_SEED.forEach(function(m){ addOpt(g1,m.code,m.libelle); });
-  sel.appendChild(g1);
+  const proxy=(localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
   try{
-    const proxy=(localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
     const r=await fetch(proxy+"/metiers"); if(!r.ok) return;
-    const arr=await r.json(); if(!Array.isArray(arr)||!arr.length) return;
-    arr.sort(function(a,b){ return (a.libelle||"").localeCompare(b.libelle||""); });
-    const g2=document.createElement("optgroup"); g2.label="Tous les metiers (A-Z)";
-    arr.forEach(function(m){ if(m&&m.code&&m.libelle) addOpt(g2,m.code,m.libelle); });
-    sel.appendChild(g2);
+    const arr=await r.json(); if(!Array.isArray(arr)) return;
+    const seen={}; METIERS_SEED.forEach(function(m){ seen[m.code]=1; });
+    arr.forEach(function(m){ if(m&&m.code&&m.libelle&&!seen[m.code]){ seen[m.code]=1; METIERS_ALL.push({code:m.code,libelle:m.libelle}); } });
   }catch(e){}
 }
 loadMetiers();
+(function(){
+  const inp=$("metierSearch"), sug=$("metierSug"), hid=$("rome");
+  if(!inp||!sug||!hid) return;
+  function render(list){
+    if(!list.length){ sug.classList.add("hidden"); sug.innerHTML=""; return; }
+    sug.innerHTML=list.slice(0,15).map(function(m){ return '<div data-code="'+m.code+'">'+esc(m.libelle)+'</div>'; }).join("");
+    sug.classList.remove("hidden");
+  }
+  inp.addEventListener("input", function(){
+    hid.value="";
+    const q=normM(inp.value.trim());
+    if(!q){ render(METIERS_SEED); return; }
+    render(METIERS_ALL.filter(function(m){ return normM(m.libelle).indexOf(q)>=0; }));
+  });
+  inp.addEventListener("focus", function(){ if(!inp.value.trim()) render(METIERS_SEED); });
+  sug.addEventListener("click", function(e){
+    var d=e.target; while(d && d!==sug && !d.getAttribute("data-code")) d=d.parentNode;
+    if(!d || d===sug) return;
+    hid.value=d.getAttribute("data-code"); inp.value=d.textContent; sug.classList.add("hidden");
+  });
+  document.addEventListener("click", function(e){ if(!sug.contains(e.target) && e.target!==inp) sug.classList.add("hidden"); });
+})();
 
 const IND_TERMS = ["relations individuelles","relation individuelle","contentieux individuel","contrat de travail","contrats de travail","licenciement","rupture conventionnelle","discipline","disciplinaire","inaptitude","prud","sanction","embauche","droit individuel","gestion des contentieux","rupture du contrat"];
 const COL_TERMS = ["relations collectives","relation collective","cse","comite social","comite d entreprise","irp","instances representatives","representants du personnel","negociation collective","accord collectif","accords collectifs","dialogue social","elections professionnelles","election professionnelle","nao","pse","greve","syndical","syndicat","delegue du personnel"];
@@ -562,7 +583,7 @@ async function runSearch(){
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
   const codeRome = $("rome").value;
-  const romeLabel = codeRome ? (($("rome").selectedOptions[0]||{}).text || "ce metier") : "";
+  const romeLabel = codeRome ? (($("metierSearch")||{}).value || "ce metier") : "";
   if(codeRome) base.set("codeROME", codeRome);
 
   $("searchBtn").disabled = true;
@@ -577,7 +598,7 @@ async function runSearch(){
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
-    const res = await fetchOffres(proxy, base, mots);
+    const res = await fetchOffres(proxy, base, mots || (codeRome ? "" : (($("metierSearch")||{}).value||"").trim()));
     let offers = res.offers;
     if($("relInd") && $("relInd").checked && offers.length){
       const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, d:sc.ind-sc.col, col:sc.col, ind:sc.ind}; });
