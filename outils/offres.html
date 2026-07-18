@@ -212,6 +212,13 @@
       </div>
     </div>
 
+    <div class="field" style="margin-top:12px">
+      <label style="display:inline-flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:600">
+        <input type="checkbox" id="relInd" style="width:auto;margin-top:3px" />
+        <span>⚖️ Spécialité « relations individuelles » — écarter les offres orientées collectif (CSE, IRP, négociation, dialogue social, PSE…)</span>
+      </label>
+      <div class="hint">Utile surtout avec un métier « Juriste ». Garde les postes centrés sur le contrat, le licenciement, la discipline, l'inaptitude, le contentieux individuel.</div>
+    </div>
     <div class="row-actions" style="margin-top:6px">
       <button class="btn" id="searchBtn">Analyser les offres</button>
       <span id="searchStatus" class="hint"></span>
@@ -474,6 +481,15 @@ async function loadMetiers(){
 }
 loadMetiers();
 
+const IND_TERMS = ["relations individuelles","relation individuelle","contentieux individuel","contrat de travail","contrats de travail","licenciement","rupture conventionnelle","discipline","disciplinaire","inaptitude","prud","sanction","embauche","droit individuel","gestion des contentieux","rupture du contrat"];
+const COL_TERMS = ["relations collectives","relation collective","cse","comite social","comite d entreprise","irp","instances representatives","representants du personnel","negociation collective","accord collectif","accords collectifs","dialogue social","elections professionnelles","election professionnelle","nao","pse","greve","syndical","syndicat","delegue du personnel"];
+function relIndScore(o){
+  const hay=norm((o.intitule||"")+" "+(o.description||""));
+  let ind=0,col=0;
+  IND_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) ind++; });
+  COL_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) col++; });
+  return {ind:ind, col:col};
+}
 async function fetchOffres(proxy, base, motsCles){
   const p = new URLSearchParams(base);
   if(motsCles) p.set("motsCles", motsCles);
@@ -521,7 +537,11 @@ async function runSearch(){
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
     const res = await fetchOffres(proxy, base, mots);
-    const offers = res.offers;
+    let offers = res.offers;
+    if($("relInd") && $("relInd").checked && offers.length){
+      const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, d:sc.ind-sc.col, col:sc.col, ind:sc.ind}; });
+      offers = scored.filter(function(x){ return !(x.col>x.ind && x.col>=1); }).sort(function(a,b){ return b.d-a.d; }).map(function(x){ return x.o; });
+    }
     lastOffers = offers;
     if(!offers.length){
       $("emptyState").innerHTML = 'Aucune offre pour « '+esc(codeRome?romeLabel:(mots||"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
