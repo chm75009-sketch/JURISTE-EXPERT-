@@ -637,9 +637,15 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.63';
+var JX_BUILD = 'v2026-07-19.64';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.64', d:'19 juillet 2026', t:[
+   'Élections CSE — import du registre : correction d\'un défaut qui faussait les COLLÈGES. Avec le modèle vierge (colonne « Emploi/Qualification » + colonne « Statut »), l\'app lisait le statut dans la mauvaise colonne et classait tout le monde en 1er collège. Désormais le statut (Ouvrier/Employé/TAM/Cadre) est lu dans la bonne colonne → 2ᵉ et 3ᵉ collèges corrects.',
+   'La colonne « Sexe » du fichier est maintenant prise en compte : l\'app affiche la répartition femmes/hommes par collège (base des listes paritaires — L.2314-13/-30).',
+   'Barème des sièges de la synthèse unifié avec le calcul principal (corrige aussi les grandes tranches d\'effectif au-delà de 3 500 salariés).',
+   'Vérifié de bout en bout : import du modèle → effectif, électeurs/éligibles, collèges, sièges, F/H, puis tous les exports (listes, justificatif, synthèse, pack documents) fonctionnent.'
+ ]},
  {v:'v2026-07-12.62', d:'19 juillet 2026', t:[
    'ÉLECTIONS CSE — audit exhaustif vérifié à la source (Légifrance / code.travail.gouv.fr) et corrections : (1) barème des sièges/heures R.2314-1 corrigé pour les grandes entreprises (au-delà de 3 500 salariés, les heures et les tranches étaient erronées — désormais exactes jusqu\'à 10 000+ : 35 titulaires / 34 h) ;',
    '(2) apprentis et CDD de remplacement : exclus de l\'effectif (L.1111-3) mais rétablis comme ÉLECTEURS/éligibles s\'ils remplissent les conditions d\'âge et d\'ancienneté (L.2314-18) ;',
@@ -8206,6 +8212,7 @@ function refreshNomTable(){
     return;
   }
   let html = '', totalEff = 0, nbElect = 0, nbElig = 0, col1 = 0, col2 = 0, nbCadres = 0;
+  let fCol1 = 0, hCol1 = 0, fCol2 = 0, hCol2 = 0, sansSexe = 0;
   salariesNom.forEach((s, i) => {
     const r = calcSalarieNom(s, dateScrutin);
     html += renderSalarieLine(s, i, r);
@@ -8216,6 +8223,10 @@ function refreshNomTable(){
       // Répartition des collèges = nombre d'électeurs par collège (cohérent avec le total électeurs)
       if(r.electeur){
         if(r.college === 1) col1++; else col2++;
+        // Répartition F/H par collège (base des listes paritaires — L.2314-13/-30)
+        if(s.sexe === 'F'){ if(r.college === 1) fCol1++; else fCol2++; }
+        else if(s.sexe === 'M'){ if(r.college === 1) hCol1++; else hCol2++; }
+        else sansSexe++;
       }
       if(s.statut === 'cadre' && r.effectif > 0) nbCadres++;
     }
@@ -8229,9 +8240,19 @@ function refreshNomTable(){
   }
   const effArr = Math.floor(totalEff);
   const sousSeuil = effArr < 11;
-  // Nombre de sièges (titulaires) — table art. R.2314-1 C. trav.
-  const SIEGES_TBL=[[24,1,10],[49,2,10],[74,4,18],[99,5,19],[124,6,21],[149,7,21],[174,8,21],[199,9,21],[249,10,22],[299,11,22],[399,11,22],[499,12,22],[599,13,24],[699,14,24],[799,14,24],[899,15,24],[999,16,24],[1249,17,24],[1499,18,24],[1749,20,26],[1999,21,26],[2249,22,26],[2499,23,26],[2999,24,26],[3499,25,26],[3999,26,26]];
-  let sg=[35,26]; for(const row of SIEGES_TBL){ if(effArr<=row[0]){ sg=[row[1],row[2]]; break; } }
+  // Nombre de sièges (titulaires) + heures — barème art. R.2314-1 (source unique : cseBareme)
+  const _bm = (typeof cseBareme === 'function') ? cseBareme(effArr) : {sieges:0, heures:0};
+  let sg = [_bm.sieges, _bm.heures];
+  // Répartition F/H par collège (parité — L.2314-13/-30)
+  const _fh = (c1f,c1h,c2f,c2h)=>`<strong>1er collège :</strong> ${c1f} F / ${c1h} H${col2>0?` · <strong>2e collège :</strong> ${c2f} F / ${c2h} H`:''}`;
+  let fhLigne = '';
+  if(nbElect > 0){
+    if(sansSexe >= nbElect){
+      fhLigne = `<br><span style="color:#9a9585;font-size:11px">Répartition femmes/hommes : renseignez la colonne « Sexe » du fichier pour calculer la proportion F/H par collège (obligatoire pour les listes paritaires — L.2314-30).</span>`;
+    } else {
+      fhLigne = `<br>Répartition femmes/hommes (électeurs) : ${_fh(fCol1,hCol1,fCol2,hCol2)}${sansSexe>0?` <span style="color:#d4a017;font-size:11px">(${sansSexe} sans sexe renseigné)</span>`:''}`;
+    }
+  }
   synth.innerHTML = `${sousSeuil ? `<div style="background:rgba(224,92,92,0.15);border:2px solid #e05c5c;border-radius:10px;padding:12px;margin-bottom:10px;color:#e05c5c">
 <div style="font-size:14px;font-weight:700;margin-bottom:6px">⛔ Pas d'élections CSE obligatoires</div>
 <div style="font-size:12px;color:#e8e4d8;line-height:1.6">L'obligation d'organiser des élections CSE ne s'applique qu'à partir de <strong>11 salariés atteints pendant 12 mois consécutifs</strong> (art. L.2311-2 C. trav.). Avec un effectif retenu de <strong>${effArr}</strong>, l'entreprise n'a pas cette obligation. Les exports d'élections sont désactivés.</div>
@@ -8242,7 +8263,7 @@ Effectif décompté : <strong>${totalEff.toFixed(2)}</strong> → retenu <strong
 ${!sousSeuil ? `Nombre de sièges à pourvoir : <strong style="color:#e8c97a;font-size:15px"><u>${sg[0]}</u> titulaire(s)</strong> + <strong>${sg[0]} suppléant(s)</strong> · ${sg[1]} h de délégation/mois (art. R.2314-1)<br>` : ''}
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
-Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>
+Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>${fhLigne}
 ${nbCadres >= 25 ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → 3e collège <strong>obligatoire</strong>, quel que soit l\'effectif (art. L.2314-11) — non supprimable, même par accord unanime (L.2314-12)</span>' : ''}
 </div></div>`;
   // Mémoriser pour usage dans les documents générés
@@ -8307,10 +8328,15 @@ function _mapperColonnes(entete){
     else if(map.entree === undefined && /entree|embauche|debut|arrivee/.test(c)){ map.entree = idx; reconnu++; }
     else if(map.sortie === undefined && /sortie|depart|fin.*contrat|date.*fin/.test(c)){ map.sortie = idx; reconnu++; }
     else if(map.contrat === undefined && /contrat|nature|type.*cont/.test(c)){ map.contrat = idx; reconnu++; }
-    else if(map.statut === undefined && /statut|categorie|csp|qualif|emploi|fonction|poste/.test(c)){ map.statut = idx; reconnu++; }
+    else if(map.statut === undefined && /statut|categorie|\bcsp\b|college/.test(c)){ map.statut = idx; reconnu++; }
+    else if(map.sexe === undefined && /sexe|genre|civilit/.test(c)){ map.sexe = idx; reconnu++; }
+    else if(map.emploi === undefined && /emploi|qualif|fonction|poste|metier/.test(c)){ map.emploi = idx; reconnu++; }
     else if(map.temps === undefined && /temps|heures|duree|quotite/.test(c)){ map.temps = idx; reconnu++; }
     else if(map.obs === undefined && /observ|remarq|note|commentaire/.test(c)){ map.obs = idx; reconnu++; }
   });
+  // Le statut (collège) se lit dans la colonne « Statut/Catégorie » ; à défaut seulement,
+  // on se rabat sur la colonne « Emploi/Qualification » (évite que « Emploi » vole le mappage du statut).
+  if(map.statut === undefined && map.emploi !== undefined) map.statut = map.emploi;
   map._reconnu = reconnu;
   return map;
 }
@@ -8355,6 +8381,8 @@ function _extraireSalarie(champs, map){
     dateSortie,
     contrat: contratFinal,
     statut: normaliseStatut(map.statut !== undefined ? (champs[map.statut]||'') : ''),
+    sexe: _normSexe(map.sexe !== undefined ? (champs[map.sexe]||'') : ''),
+    emploi: map.emploi !== undefined ? (champs[map.emploi]||'').toString().trim() : '',
     heures,
     debutContrat: contratsDD.includes(contratFinal) ? dateEntree : '',
     finContrat: contratsDD.includes(contratFinal) ? dateSortie : '',
@@ -8362,6 +8390,14 @@ function _extraireSalarie(champs, map){
     adresse: '',
     observations: map.obs !== undefined ? (champs[map.obs]||'') : ''
   };
+}
+// Normalise le sexe (pour la répartition F/H — parité, art. L.2314-13/-30)
+function _normSexe(s){
+  const t = (s||'').toString().trim().toLowerCase();
+  if(!t) return '';
+  if(/^f|femme|f[ée]min/.test(t)) return 'F';
+  if(/^m|^h|homme|masculin|monsieur/.test(t)) return 'M';
+  return '';
 }
 
 function importFichierNom(input){
