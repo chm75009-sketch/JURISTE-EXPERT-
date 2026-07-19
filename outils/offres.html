@@ -1006,19 +1006,35 @@ function analyse(offers, totalDispo){
   renderOffers(offers);
 }
 
-/* Extraction numérique des salaires (best-effort) */
+/* Extraction numérique des salaires (best-effort) — gère les fourchettes « X à Y € sur 12 mois » */
 function analyseSalaires(offers){
   const vals = [];
   offers.forEach(o=>{
     const lib = o.salaire && o.salaire.libelle;
     if(!lib) return;
-    const nums = (lib.match(/(\d+[.,]?\d*)/g)||[]).map(x=>parseFloat(x.replace(",",".")));
+    // 1) On retire d'abord la DURÉE (« sur 12 mois », « 12.0 mois », « x13 mois ») pour ne pas la confondre avec un montant,
+    //    puis on recolle les milliers (« 40 000 » -> « 40000 »).
+    const s = lib
+      .replace(/(sur\s+)?\d+([.,]\d+)?\s*mois/gi, " ")
+      .replace(/x\s*\d+([.,]\d+)?/gi, " ")
+      .replace(/(\d)\s+(\d{3})\b/g, "$1$2");
+    const nums = (s.match(/\d+([.,]\d+)?/g) || []).map(x=>parseFloat(x.replace(",",".")));
     if(!nums.length) return;
-    const low = Math.min(...nums); // borne basse de la fourchette
+    const isHoraire=/horaire/i.test(lib), isMensuel=/mensuel/i.test(lib), isAnnuel=/annuel/i.test(lib);
+    // 2) On ne garde que des montants plausibles selon le mode déclaré.
+    const cands = nums.filter(function(v){
+      if(isHoraire) return v>=8 && v<=200;        // taux horaire
+      if(isMensuel) return v>=500 && v<=60000;    // brut mensuel
+      if(isAnnuel)  return v>=8000 && v<=600000;  // brut annuel
+      return v>=8 && v<=600000;                    // mode non précisé
+    });
+    if(!cands.length) return;
+    const low = Math.min.apply(null, cands); // borne basse de la fourchette
     let monthly = null;
-    if(/annuel/i.test(lib)) monthly = low/12;
-    else if(/mensuel/i.test(lib)) monthly = low;
-    else if(/horaire/i.test(lib)) monthly = low*151.67;
+    if(isAnnuel) monthly = low/12;
+    else if(isMensuel) monthly = low;
+    else if(isHoraire) monthly = low*151.67;
+    else monthly = (low>=8000) ? low/12 : (low<=200 ? low*151.67 : low); // devine : grand=annuel, petit=horaire
     if(monthly && monthly>200 && monthly<60000) vals.push(Math.round(monthly));
   });
   if(!vals.length) return {count:0};
