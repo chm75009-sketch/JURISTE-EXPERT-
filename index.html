@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.79';
+var JX_BUILD = 'v2026-07-19.80';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.80', d:'20 juillet 2026', t:[
+   'AIGUILLAGE — un « licenciement pour inaptitude » est désormais reconnu comme relevant de la grille INAPTITUDE (et non de la grille disciplinaire) : si le type choisi est « Licenciement » alors que le texte parle d\'inaptitude et de médecin du travail, l\'app affiche l\'alerte « le texte ressemble plutôt à Inaptitude » pour appliquer le bon référentiel (reclassement, CSE, reprise du salaire, indemnité AT/MP…).'
+ ]},
  {v:'v2026-07-19.79', d:'20 juillet 2026', t:[
    'INAPTITUDE — analyse de fond dédiée : licenciement fondé sur l\'état de santé / l\'absence (motif discriminatoire, nullité — L.1132-1) au lieu de l\'inaptitude + impossibilité de reclassement ; recherche de reclassement insuffisante (L.1226-2 / L.1226-10) ; reclassement imposé d\'office sans accord du salarié ; consultation du CSE omise (obligatoire, origine pro ET non pro) ; reprise du salaire non effectuée après 1 mois (L.1226-4 / L.1226-11) ; inaptitude professionnelle mal qualifiée en non professionnelle — indemnité spéciale doublée et préavis (L.1226-14) ; préavis illégalement retenu sur le solde de tout compte.'
  ]},
@@ -11651,6 +11654,8 @@ function diagAutoType(txt){var s=(txt||'').toLowerCase();
   if(/ordre\s+du\s+jour[^.]{0,80}(cse|comit[ée]\s+social|r[ée]union\s+du)/.test(s))return 'cse_oj';
   if(/convocation[^.]{0,80}(r[ée]union\s+du\s+(cse|comit)|cse|comit[ée]\s+social)/.test(s))return 'cse_convoc';
   if(/rupture\s+conventionnelle/.test(s))return 'rupconv';
+  // Inaptitude prioritaire : un « licenciement pour inaptitude » relève de la grille inaptitude, pas de la grille disciplinaire
+  if(/inaptitude/.test(s) && /(m[ée]decin\s+du\s+travail|reclassement|visite\s+de\s+reprise|avis\s+d[’']inaptitude|inapte|l\.?\s?1226)/.test(s))return 'inaptitude';
   if(/notif\w*[^.]{0,40}licenciement|licenciement\s+(immédiat|pour\s+(faute|cause|motif|insuffisance))|proc[ée]der\s+[àa]\s+votre\s+licenciement|vous\s+notifions\s+votre\s+licenciement/.test(s))return 'licenciement';
   if(/(convocation|nous\s+vous\s+convoquons|convoqu[ée]\s+[àa]\s+un\s+entretien|invit[ée]?\s+[àa]\s+un\s+entretien)/.test(s)&&!/notif\w*[^.]{0,40}licenciement|votre\s+licenciement\s+prend/.test(s))return 'convocation';
   if(/avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation|mutation\s+disciplinaire/.test(s))return 'sanction';
