@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.67';
+var JX_BUILD = 'v2026-07-19.68';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.68', d:'20 juillet 2026', t:[
+   'Élections CSE — import : les dates en toutes lettres (« 1er mars 2018 », « 15 janvier 2020 ») sont désormais reconnues (avant, elles bloquaient le salarié concerné, exclu à tort).',
+   'Panneau « Points à vérifier » enrichi : détecte aussi les liens familiaux avec l'employeur (conjoint, PACS, concubin, ascendant/descendant, allié) → électeur mais NON éligible (L.2314-19).'
+ ]},
  {v:'v2026-07-19.66', d:'20 juillet 2026', t:[
    'Élections CSE — effectif : un salarié dont la date d\'entrée est POSTÉRIEURE au scrutin n\'est plus compté dans l\'effectif (il n\'est pas encore présent). Corrige un dernier écart révélé en test (embauche future comptée à tort).'
  ]},
@@ -8227,6 +8231,7 @@ function _cseVigilance(list, dateScrutin){
   list.forEach(s => {
     const txt = ((s.emploi||'')+' '+(s.observations||''));
     if(reRep.test(txt)) w.push('« '+(s.nom||'?')+' » ('+(s.emploi||'poste de direction')+') : vérifiez s\'il <b>représente l\'employeur</b> ou détient une <b>délégation écrite d\'autorité</b> → dans ce cas il n\'est PAS <b>éligible</b>, mais il <b>reste électeur</b> (depuis la loi du 21/12/2022, suite QPC n° 2021-947 — art. L.2314-18 et L.2314-19). Retirez-le manuellement des <b>éligibles</b> le cas échéant.');
+    if(/conjoint|[ée]poux|[ée]pouse|concubin|\bpacs\b|partenaire|proche\s+de\s+l[’']employeur/i.test(txt)) w.push('« '+(s.nom||'?')+' » : lien familial possible avec l\'employeur (conjoint, PACS, concubin, ascendant/descendant, frère/sœur, allié) → <b>électeur mais NON éligible</b> (art. L.2314-19). Retirez-le des éligibles s\'il est confirmé.');
   });
   // Dates aberrantes / incohérentes
   if(scr) list.forEach(s => {
@@ -8344,6 +8349,13 @@ function normaliseDate(s){
   // Format AAAA/MM/JJ (parfois sortie Excel)
   m = s.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
   if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  // Date en toutes lettres FR : « 1er mars 2018 », « 15 janvier 2020 »
+  m = s.toLowerCase().replace(/\s+/g,' ').trim().match(/^(\d{1,2})\s*(?:er|ère|ere|ème|eme|e)?\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)\s+(\d{4})$/);
+  if(m){
+    const mois={janvier:1,'février':2,fevrier:2,mars:3,avril:4,mai:5,juin:6,juillet:7,'août':8,aout:8,septembre:9,octobre:10,novembre:11,'décembre':12,decembre:12};
+    const mo=mois[m[2]];
+    if(mo) return `${m[3]}-${String(mo).padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  }
   return '';
 }
 function normaliseContrat(s){
