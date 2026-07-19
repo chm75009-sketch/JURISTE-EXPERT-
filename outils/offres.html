@@ -303,6 +303,11 @@
         <div class="hint" id="enrichNote" style="margin-top:8px"></div>
         <div class="hint" style="margin-top:4px;opacity:.75">Source : recherche-entreprises.api.gouv.fr — données INSEE/Sirene. On recherche chaque employeur par son nom pour récupérer sa tranche d'effectif salarié.</div>
       </div>
+      <div style="margin-top:12px">
+        <button type="button" class="btn btn-ghost" id="unclassBtn" style="display:none"></button>
+        <button type="button" class="btn btn-ghost" id="unclassCopy" style="display:none">📋 Copier 4 exemples pour analyse</button>
+        <div id="unclassList" class="hidden" style="margin-top:8px"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -571,10 +576,21 @@ if(taillesEl){ TAILLES.forEach(function(t){
 }); }
 let lastOffers = [];
 let lastTotal = 0;
+let lastUnclass = [];
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
+if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
+if($("unclassCopy")) $("unclassCopy").addEventListener("click", function(){
+  var ex = lastUnclass.slice(0,4).map(function(o,i){
+    return "OFFRE "+(i+1)+" — "+(o.intitule||"")+"\nEntreprise : "+((o.entreprise&&o.entreprise.nom)||"non précisé")+"\n"+((o.description||"(pas de description)").replace(/\s+/g," ").trim());
+  }).join("\n\n----------\n\n");
+  var txt = "Voici "+Math.min(4,lastUnclass.length)+" offres non classées (individuel/collectif) :\n\n"+ex;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ $("unclassCopy").textContent="✅ Copié — colle-le dans la conversation"; }, function(){ prompt("Copie ce texte :", txt); });
+  } else { prompt("Copie ce texte :", txt); }
+});
 /* Liste + recherche des metiers ROME (combobox) */
 const METIERS_SEED = [
   {code:"K1903", libelle:"Juriste / conseil juridique"},
@@ -627,10 +643,37 @@ loadMetiers();
   document.addEventListener("click", function(e){ if(!sug.contains(e.target) && e.target!==inp) sug.classList.add("hidden"); });
 })();
 
-const IND_TERMS = ["relations individuelles","relation individuelle","contentieux individuel","contrat de travail","contrats de travail","licenciement","rupture conventionnelle","discipline","disciplinaire","inaptitude","prud","sanction","embauche","droit individuel","gestion des contentieux","rupture du contrat"];
-const COL_TERMS = ["relations collectives","relation collective","cse","comite social","comite d entreprise","irp","instances representatives","representants du personnel","negociation collective","accord collectif","accords collectifs","dialogue social","elections professionnelles","election professionnelle","nao","pse","greve","syndical","syndicat","delegue du personnel"];
+const IND_TERMS = [
+  // relation individuelle de travail (employeur / un salarié)
+  "relations individuelles","relation individuelle","contentieux individuel","droit du travail individuel","droit social individuel","droit individuel",
+  "contrat de travail","contrats de travail","rupture du contrat","rupture conventionnelle","licenciement","demission","fin de contrat","solde de tout compte","avenant","avenants","periode d essai",
+  "discipline","disciplinaire","sanction","sanctions","procedure disciplinaire","faute grave","faute lourde","mise a pied",
+  "inaptitude","medecine du travail","accident du travail","maladie professionnelle","arret de travail","absences","gestion des absences","invalidite",
+  "prud","conseil de prud","contentieux prud",
+  "embauche","duree du travail","temps de travail","heures supplementaires","conges payes","conges","rtt","forfait jours",
+  "paie","gestion de la paie","bulletin de paie","administration du personnel","gestion administrative du personnel","gestion du personnel","adp","onboarding",
+  "harcelement","discrimination","conseil aux operationnels","conseil rh","gestion des contentieux","contentieux social","mobilite","expatriation","detachement","mutuelle","prevoyance"
+];
+const COL_TERMS = [
+  // relation collective de travail (représentants, syndicats, négociation)
+  "relations collectives","relation collective","droit du travail collectif","droit social collectif",
+  "cse","comite social et economique","comite social","comite d entreprise","comite d etablissement","cssct","chsct","commission sante securite",
+  "irp","instances representatives","instance representative","representants du personnel","representant du personnel","representation du personnel",
+  "negociation collective","negociations collectives","accord collectif","accords collectifs","accord d entreprise","accords d entreprise","protocole d accord","protocole preelectoral",
+  "dialogue social","relations sociales","climat social","conflit collectif",
+  "elections professionnelles","election professionnelle","elections cse",
+  "nao","negociation annuelle","gpec","rupture conventionnelle collective","pse","plan de sauvegarde de l emploi","plan social",
+  "greve","syndical","syndicat","syndicats","delegue syndical","delegues syndicaux","delegue du personnel",
+  "bdes","base de donnees economiques","consultation du cse","reunion cse","reunions cse","expertise cse","droit d alerte"
+];
+function relText(o){
+  var parts=[o.intitule||"", o.description||"", o.appellationlibelle||o.appellationLibelle||""];
+  (o.competences||[]).forEach(function(c){ if(c&&c.libelle) parts.push(c.libelle); });
+  (o.qualitesProfessionnelles||[]).forEach(function(q){ if(q&&q.libelle) parts.push(q.libelle); });
+  return norm(parts.join(" "));
+}
 function relIndScore(o){
-  const hay=norm((o.intitule||"")+" "+(o.description||""));
+  const hay=" "+relText(o)+" ";
   let ind=0,col=0;
   IND_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) ind++; });
   COL_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) col++; });
@@ -813,6 +856,23 @@ function analyse(offers, totalDispo){
     var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
     var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
     var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%).";
+    // Offres non class\u00e9es (aucun mot-cl\u00e9 individuel ni collectif) -> inspection
+    lastUnclass = offers.filter(function(o){ return classifyRel(o)==="Non pr\u00e9cis\u00e9"; });
+    var ub=$("unclassBtn"), ucp=$("unclassCopy"), ubox=$("unclassList");
+    if(ub){ ub.style.display = lastUnclass.length? "" : "none"; ub.textContent = "\ud83d\udd0d Voir les "+lastUnclass.length+" offre(s) non class\u00e9es (individuel / collectif)"; }
+    if(ucp){ ucp.style.display = lastUnclass.length? "" : "none"; }
+    if(ubox){
+      ubox.innerHTML = lastUnclass.slice(0,80).map(function(o){
+        var t=esc(o.intitule||"\u2014");
+        var e=esc((o.entreprise&&o.entreprise.nom)||"employeur non pr\u00e9cis\u00e9");
+        var d=esc(((o.description||"").replace(/\s+/g," ").slice(0,320)));
+        var url=o.id? ("https://candidat.francetravail.fr/offres/recherche/detail/"+encodeURIComponent(o.id)) : "";
+        return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0">'
+          +'<div style="font-weight:700">'+t+'</div>'
+          +'<div class="muted" style="font-size:12px;margin:2px 0 6px">'+e+(url?' \u00b7 <a href="'+url+'" target="_blank" rel="noopener">voir l\'offre \u2197</a>':'')+'</div>'
+          +'<div style="font-size:12.5px;opacity:.85">'+(d||"(pas de description)")+(d.length>=320?"\u2026":"")+'</div></div>';
+      }).join("") || '<div class="hint">Aucune offre non class\u00e9e \ud83c\udf89</div>';
+    }
   })();
 
   /* --- Métiers ROME --- */
