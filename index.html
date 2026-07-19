@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.85';
+var JX_BUILD = 'v2026-07-19.86';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.86', d:'20 juillet 2026', t:[
+   'CONFORMITÉ DES MENTIONS — la présence d\'une mention obligatoire est désormais couplée à la conformité de la clause : une mention n\'est plus validée « ✓ » si le document la bafoue (ex. CDD affichant « aucune indemnité de précarité », « terme imprécis » ou un motif d\'« activité normale et permanente »). La check-list signale alors le point en rouge ⛔ « mention présente mais contredite par une clause du document ». Fini les contradictions entre les cases vertes et l\'analyse approfondie.'
+ ]},
  {v:'v2026-07-19.85', d:'20 juillet 2026', t:[
    'CDD — analyse de fond complétée : nom / qualification du salarié remplacé manquant (L.1242-12, 1°), terme imprécis sans durée minimale (L.1242-12), durée totale supérieure à 18 mois y compris en toutes lettres (« quatorze (14) », « vingt-quatre (24) » — L.1242-8-1), plus de 2 renouvellements (« jusqu\'à quatre (4) fois » — L.1243-13), période d\'essai exprimée en semaines (L.1242-10), délai de carence écarté entre deux CDD successifs sur le même poste (L.1244-3), contrat transmis au-delà de 2 jours ouvrables (L.1242-13) et rémunération inférieure à un CDI de qualification équivalente (L.1242-15).'
  ]},
@@ -11188,15 +11191,15 @@ var CHECKLIST={
  ],
  cdd:[
   {t:'Contrat écrit et transmis au salarié dans les 2 jours ouvrables',a:'L.1242-13',re:null},
-  {t:'Motif précis du recours (remplacement, accroissement temporaire, saisonnier, usage)',a:'L.1242-12',re:/remplacement|accroissement\s+temporaire|saisonnier|usage|surcro[îi]t/i},
-  {t:'Terme précis (date) ou durée minimale + événement',a:'L.1242-12',re:/jusqu[’']au|\bterme\b|dur[ée]e\s+minimale|\bà\s+compter\s+du/i},
+  {t:'Motif précis du recours (remplacement, accroissement temporaire, saisonnier, usage)',a:'L.1242-12',re:/remplacement|accroissement\s+temporaire|saisonnier|usage|surcro[îi]t/i,neg:/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|emploi\s+(durable|permanent)|poste\s+permanent/i},
+  {t:'Terme précis (date) ou durée minimale + événement',a:'L.1242-12',re:/jusqu[’']au|\bterme\b|dur[ée]e\s+minimale|\bà\s+compter\s+du/i,neg:/terme\s+impr[ée]cis|sans\s+(fixer\s+de\s+)?(dur[ée]e\s+minimale|terme\s+pr[ée]cis|date\s+de\s+fin)|prendra\s+fin\s+automatiquement[^.]{0,80}(retour|[ée]quilibre|[ée]v[ée]nement|lorsque)/i},
   {t:'Nom et qualification du salarié remplacé (si remplacement)',a:'L.1242-12',re:null,opt:true},
   {t:'Désignation du poste de travail',a:'L.1242-12',re:/poste|emploi|fonction/i},
   {t:'Intitulé de la convention collective applicable',a:'L.1242-12',re:/convention\s+collective/i},
   {t:'Durée de la période d’essai',a:'L.1242-10',re:/essai/i,opt:true},
   {t:'Montant de la rémunération et de ses composantes',a:'L.1242-12',re:/r[ée]mun[ée]ration|salaire|\b€|euros/i},
   {t:'Caisse de retraite complémentaire et organisme de prévoyance',a:'L.1242-12',re:null,opt:true},
-  {t:'Indemnité de fin de contrat (précarité) 10 %',a:'L.1243-8',re:/pr[ée]carit[ée]|fin\s+de\s+contrat|10\s*%/i,opt:true},
+  {t:'Indemnité de fin de contrat (précarité) 10 %',a:'L.1243-8',re:/pr[ée]carit[ée]|fin\s+de\s+contrat|10\s*%/i,neg:/(aucune|sans|pas\s+d[’'’])\s+indemnit[ée]\s+de\s+(fin\s+de\s+contrat|pr[ée]carit)|supprimer\s+le\s+versement\s+de\s+cette\s+(prime|indemnit)/i,opt:true},
   {t:'Ne pas pourvoir un emploi lié à l’activité normale et permanente',a:'L.1242-1',re:null}
  ],
  contrat:[
@@ -11292,9 +11295,9 @@ var MENTIONS={
  ],
  cdd:[
   {re:/dur[ée]e\s+d[ée]termin[ée]e|\bcdd\b/i,l:'Nature « durée déterminée »'},
-  {re:/motif|remplacement|accroissement|saisonnier|usage/i,l:'Motif de recours précis'},
-  {re:/terme|jusqu[’'\s]au|date\s+de\s+fin|dur[ée]e\s+minimale/i,l:'Terme précis ou durée minimale'},
-  {re:/pr[ée]carit|indemnit[ée]\s+de\s+fin|10\s*%|L\.?\s*1243-8/i,l:'Indemnité de fin de contrat (précarité)'},
+  {re:/motif|remplacement|accroissement|saisonnier|usage/i,neg:/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|emploi\s+(durable|permanent)|poste\s+permanent/i,l:'Motif de recours précis'},
+  {re:/terme|jusqu[’'\s]au|date\s+de\s+fin|dur[ée]e\s+minimale/i,neg:/terme\s+impr[ée]cis|sans\s+(fixer\s+de\s+)?(dur[ée]e\s+minimale|terme\s+pr[ée]cis|date\s+de\s+fin)|prendra\s+fin\s+automatiquement[^.]{0,80}(retour|[ée]quilibre|[ée]v[ée]nement|lorsque)/i,l:'Terme précis ou durée minimale'},
+  {re:/pr[ée]carit|indemnit[ée]\s+de\s+fin|10\s*%|L\.?\s*1243-8/i,neg:/(aucune|sans|pas\s+d[’'’])\s+indemnit[ée]\s+de\s+(fin\s+de\s+contrat|pr[ée]carit)|supprimer\s+le\s+versement\s+de\s+cette\s+(prime|indemnit)/i,l:'Indemnité de fin de contrat (précarité)'},
   {re:/convention\s+collective|idcc|caisse|retraite|pr[ée]voyance/i,neg:/aucune\s+convention\s+collective[^.]{0,40}ne\s+s[’']applique|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i,l:'Mentions L.1242-12 (CCN, caisses)'},
   {re:/p[ée]riode\s+d[’'\s]essai/i,l:'Période d’essai'}
  ],
@@ -11945,16 +11948,18 @@ if(deep.length){
 if(CHECKLIST[t]){
   var cl=CHECKLIST[t], clHasText=(texteNet.length>=30);
   var nOk=0,nMiss=0,nMan=0;
-  cl.forEach(function(it){ if(!it.re){nMan++;} else if(clHasText&&it.re.test(texte)){nOk++;} else if(it.opt){nMan++;} else {nMiss++;} });
+  var nContra=0;
+  cl.forEach(function(it){ if(!it.re){nMan++;} else if(clHasText&&it.neg&&it.neg.test(texte)){nContra++;} else if(clHasText&&it.re.test(texte)){nOk++;} else if(it.opt){nMan++;} else {nMiss++;} });
   h+='<div style="font-weight:700;color:#1b2a4a;font-size:13.5px;margin:16px 0 4px">📋 Check-list de conformité — '+cl.length+' point(s) de contrôle</div>';
   h+='<div style="font-size:11px;color:#888;margin-bottom:8px">Liste des éléments obligatoires attendus pour ce document. '+(clHasText?('✅ détecté&nbsp;·&nbsp;⚠️ non repéré (à vérifier)&nbsp;·&nbsp;◽ contrôle manuel'):'Collez le texte du document ci-dessus pour que l’app coche automatiquement les points détectés.')+'</div>';
   cl.forEach(function(it){
     var st,ic,bg,bd,col;
     if(!it.re){ st='man'; ic='◽'; bg='#f4f5f7'; bd='#c8ccd4'; col='#495'; }
+    else if(clHasText&&it.neg&&it.neg.test(texte)){ st='contra'; ic='⛔'; bg='#fdecec'; bd='#d33'; col='#8a1a1a'; }
     else if(clHasText&&it.re.test(texte)){ st='ok'; ic='✅'; bg='#eefaf1'; bd='#3a9b5c'; col='#1a5c34'; }
     else if(it.opt){ st='optmiss'; ic='◽'; bg='#f4f5f7'; bd='#c8ccd4'; col='#495'; }
     else { st='miss'; ic='⚠️'; bg='#fff7e6'; bd='#e0a83a'; col='#6b5320'; }
-    h+='<div style="background:'+bg+';border-left:3px solid '+bd+';border-radius:6px;padding:6px 9px;margin:3px 0;font-size:12.5px;color:'+col+'">'+ic+' '+esc(it.t)+(it.opt?' <span style="font-size:10.5px;color:#999">(selon le cas)</span>':'')+' <span style="font-size:10.5px;color:#999">— '+esc(it.a)+'</span>'+(st==='miss'?'<div style="font-size:10.5px;color:#a08030;margin-top:2px">↳ non repéré automatiquement : vérifiez sa présence (il peut figurer sous une autre formulation).</div>':'')+(st==='optmiss'?'<div style="font-size:10.5px;color:#8a8f99;margin-top:2px">↳ élément facultatif non repéré : à contrôler seulement s\'il est requis dans votre situation.</div>':'')+'</div>';
+    h+='<div style="background:'+bg+';border-left:3px solid '+bd+';border-radius:6px;padding:6px 9px;margin:3px 0;font-size:12.5px;color:'+col+'">'+ic+' '+esc(it.t)+(it.opt&&st!=='contra'?' <span style="font-size:10.5px;color:#999">(selon le cas)</span>':'')+' <span style="font-size:10.5px;color:#999">— '+esc(it.a)+'</span>'+(st==='miss'?'<div style="font-size:10.5px;color:#a08030;margin-top:2px">↳ non repéré automatiquement : vérifiez sa présence (il peut figurer sous une autre formulation).</div>':'')+(st==='optmiss'?'<div style="font-size:10.5px;color:#8a8f99;margin-top:2px">↳ élément facultatif non repéré : à contrôler seulement s\'il est requis dans votre situation.</div>':'')+(st==='contra'?'<div style="font-size:10.5px;color:#b03030;margin-top:2px">↳ mention présente mais <b>contredite par une clause du document</b> : voir l\'analyse approfondie ci-dessus.</div>':'')+'</div>';
   });
   h+='<div style="font-size:11px;color:#999;margin-top:6px">Cette check-list aide à repérer les erreurs fréquentes et guide la mise en conformité ; elle <b>ne garantit pas</b> à elle seule la conformité juridique du document.</div>';
 }
