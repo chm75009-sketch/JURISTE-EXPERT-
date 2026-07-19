@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.82';
+var JX_BUILD = 'v2026-07-19.83';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.83', d:'20 juillet 2026', t:[
+   'DOCUMENTS CSE (convocation, ordre du jour, procès-verbal) — analyse de fond dédiée : délai de convocation inférieur à 3 jours (L.2315-30), refus de transmettre / mettre à jour la BDESE (L.2312-15/-18), suppléants privés de l\'ordre du jour, ordre du jour établi unilatéralement par l\'employeur au lieu d\'être arrêté conjointement avec le secrétaire (L.2315-29), consultation obligatoire noyée dans les « questions diverses », PV rédigé par l\'employeur au lieu du secrétaire (L.2315-34) ou établi hors délai (R.2315-25), avis « réputé rendu » décidé unilatéralement, participation illicite du président au vote de l\'avis (L.2315-32) et fausse règle de quorum invoquée pour ne pas délibérer.'
+ ]},
  {v:'v2026-07-19.82', d:'20 juillet 2026', t:[
    'PSE — détection de fond affinée : qualités professionnelles appréciées « librement / discrétionnairement » (L.1233-5), périmètre des critères d\'ordre restreint à un seul site (au lieu de la zone d\'emploi), priorité de réembauche réduite à moins d\'1 an y compris en toutes lettres (« six (6) mois » — L.1233-45), offres de reclassement à l\'étranger rédigées dans la langue du pays (Allemagne, États-Unis… — L.1233-4) et mise à l\'écart unilatérale d\'un accord collectif (L.2261-9). Correction d\'un faux positif « motif économique à caractériser » quand le motif est bien exposé (baisse du chiffre d\'affaires, sauvegarde de la compétitivité).'
  ]},
@@ -11557,6 +11560,43 @@ function diagDeepFindings(t,texte){
     // Retenue / préavis mis à la charge du salarié
     if(/(retenue\s+forfaitaire|retenue|d[ée]duction)[^.]{0,70}pr[ée]avis/i.test(texte) || /pr[ée]avis[^.]{0,55}(retenu|d[ée]duit|op[ée]r[ée]e?\s+sur[^.]{0,30}solde|factur[ée]|[àa]\s+votre\s+charge)/i.test(texte))
       d.push('<b>Préavis illégalement retenu sur le solde (art. L.1226-4 / L.1226-14)</b> — en cas d\'inaptitude, le <b>préavis non exécuté n\'est pas dû par le salarié</b> et ne peut lui être facturé ni retenu. En inaptitude <b>professionnelle</b>, c\'est au contraire l\'employeur qui doit verser une <b>indemnité compensatrice de préavis</b>. Une « retenue forfaitaire » sur le solde de tout compte est <b>injustifiée</b>.');
+  }
+  if(t==='cse_convoc'||t==='cse_oj'||t==='cse_pv'){
+    // Délai de convocation / communication de l'ordre du jour : au moins 3 jours avant (L.2315-30)
+    var _dReun=diagDatesNearKw(texte,/tiendra|r[ée]unira|r[ée]union\s+(se|aura|est\s+fix|ordinaire\s+du|du\s+cse\s+du|du\b)|s[ée]ance\s+du|date\s+de\s+la\s+r[ée]union/i);
+    var _dConv=diagDatesNearKw(texte,/fait\s+[àa]|convoqu|pr[ée]sente\s+convocation|le\s+pr[ée]sent\s+ordre/i);
+    var _delaiKw=/(d[ée]lai[^.]{0,55}(r[ée]duit|raccourci|abr[ée]g[ée])|r[ée]duit\s+d[’']un\s+commun\s+accord|moins\s+de\s+(3|trois)\s+jours|d[ée]lai\s+de\s+(pr[ée]venance\s+|convocation\s+)?(de\s+)?(2|deux|1|un)\s+jours?)/i.test(texte);
+    var _gapC=null; if(_dReun.length&&_dConv.length){ _dReun.sort(function(a,b){return a-b;}); _dConv.sort(function(a,b){return a-b;}); _gapC=Math.round((_dReun[0]-_dConv[0])/86400000); }
+    if(_delaiKw || (_gapC!=null && _gapC>=0 && _gapC<3))
+      d.push('<b>Délai de convocation trop court (art. L.2315-30)</b> — la convocation et l\'ordre du jour doivent être communiqués aux membres <b>au moins 3 jours</b> avant la réunion'+(_gapC!=null&&_gapC<3?(' (ici ~<b>'+_gapC+' jour(s)</b>)'):'')+'. Un délai « réduit d\'un commun accord avec les managers » ne peut être opposé aux élus : un délai insuffisant vicie la consultation et peut caractériser un <b>délit d\'entrave</b>.');
+    // Refus de transmettre / mettre à jour la BDESE
+    if(/(aucun\s+document|aucune\s+(mise\s+[àa]\s+jour|information|donn[ée]e)|pas\s+de\s+(mise\s+[àa]\s+jour|transmission)|ne\s+sera\s+(pas\s+)?transmis)[^.]{0,60}(bdese|base\s+de\s+donn[ée]es\s+[ée]conomiques)/i.test(texte) || /bdese[^.]{0,50}(non\s+transmis|pas\s+transmis|ne\s+sera\s+(pas\s+)?(transmis|communiqu)|indisponible)/i.test(texte))
+      d.push('<b>Information du CSE / BDESE non transmise (art. L.2312-15, L.2312-18)</b> — le CSE ne peut émettre un avis éclairé que s\'il dispose d\'<b>informations précises et écrites</b> ; la <b>BDESE</b> doit être tenue à jour et accessible. Refuser toute transmission ou mise à jour prive le CSE de moyens et constitue un manquement (risque de <b>délit d\'entrave</b>) : à défaut, le délai de consultation ne court pas.');
+    // Suppléants privés de l'ordre du jour
+    if(/suppl[ée]ants?[^.]{0,90}(ne\s+(leur\s+)?(est|sont|reçoivent)\s+pas|pas\s+communiqu[ée]s?|priv[ée]s?\s+de|sans\s+(l[’']\s*)?ordre\s+du\s+jour)/i.test(texte) || /ordre\s+du\s+jour[^.]{0,50}(ne\s+leur\s+est\s+pas\s+communiqu|pas\s+communiqu[ée][^.]{0,25}suppl[ée]ant)/i.test(texte))
+      d.push('<b>Suppléants privés de l\'ordre du jour (art. L.2315-30)</b> — la convocation et l\'ordre du jour sont adressés à <b>tous les élus, titulaires ET suppléants</b> ; le suppléant en est destinataire même s\'il ne siège qu\'en l\'absence du titulaire. Lui refuser l\'ordre du jour est irrégulier et l\'empêche de remplacer valablement un titulaire absent.');
+    // Ordre du jour établi unilatéralement par l'employeur (doit être arrêté conjointement avec le secrétaire)
+    if(/(ordre\s+du\s+jour|pr[ée]sent\s+ordre)[^.]{0,110}(arr[êe]t[ée]|r[ée]dig[ée]|[ée]tabli|fix[ée])[^.]{0,70}(par\s+(l[’']employeur|la\s+direction|le\s+pr[ée]sident|l[’']établissement)|unilat[ée]ral)/i.test(texte) || /(pr[ée]rogatives?\s+de\s+la\s+direction|seul\s+le\s+pr[ée]sident)[^.]{0,60}ordre\s+du\s+jour/i.test(texte))
+      d.push('<b>Ordre du jour établi unilatéralement (art. L.2315-29)</b> — l\'ordre du jour est <b>arrêté conjointement</b> par le <b>président ET le secrétaire</b> du CSE. L\'employeur ne peut le rédiger seul « en sa qualité de président » : un ordre du jour établi unilatéralement est <b>irrégulier</b> (seules les consultations rendues obligatoires par la loi peuvent y être inscrites de plein droit par l\'un ou l\'autre).');
+    // Consultation obligatoire noyée dans « questions diverses »
+    if(/questions\s+diverses[\s\S]{0,240}?(avis\s+(obligatoire|du\s+cse)|consultation\s+(obligatoire|du\s+cse)|projet\s+de\s+(d[ée]m[ée]nagement|restructuration|licenciement|r[ée]organisation|transfert))/i.test(texte))
+      d.push('<b>Consultation obligatoire noyée dans « questions diverses » (art. L.2315-29)</b> — un point donnant lieu à <b>consultation et avis</b> du CSE (ici un projet de déménagement/réorganisation) doit figurer comme un <b>point identifié et distinct</b> de l\'ordre du jour, avec les informations préalables. Le glisser dans les « questions diverses » ne permet pas un avis régulier et rend la consultation contestable.');
+    // PV rédigé par l'employeur au lieu du secrétaire
+    if(/(proc[èe]s[- ]verbal|secr[ée]tariat|r[ée]daction\s+(du\s+pv|du\s+proc[èe]s)|pv)[^.]{0,90}(assur[ée]e?s?\s+(directement\s+)?par\s+(l[’']employeur|la\s+direction)|r[ée]dig[ée]s?\s+par\s+(l[’']employeur|la\s+direction)|finalis[ée]s?\s+par\s+la\s+direction|r[ée]dacteur\s+du\s+pv\s*[:/].{0,30}(direction|employeur|drh))/i.test(texte) || /direction\s+des\s+ressources\s+humaines\s*[/-]\s*r[ée]dacteur/i.test(texte))
+      d.push('<b>Procès-verbal rédigé par l\'employeur (art. L.2315-34)</b> — le procès-verbal est établi par le <b>secrétaire du CSE</b> (élu), et non par l\'employeur/la direction. Un PV « rédigé et finalisé par la direction » n\'a pas de valeur régulière : il appartient au secrétaire de le rédiger, puis au comité de l\'adopter.');
+    // PV finalisé hors délai (15 jours par défaut — R.2315-25)
+    var _dPV=diagDatesNearKw(texte,/finalis[ée]|proc[èe]s[- ]verbal\s+a\s+[ée]t[ée]|fait\s+[àa]|transmission\s+aux/i);
+    if(t==='cse_pv' && _dReun.length&&_dPV.length){ var _mn=Math.min.apply(null,_dReun.map(function(x){return +x;})); _dPV.sort(function(a,b){return a-b;}); var _gPV=Math.round((_dPV[_dPV.length-1]-_mn)/86400000);
+      if(_gPV>15&&_gPV<400) d.push('<b>Procès-verbal établi hors délai (art. R.2315-25)</b> — sauf accord ou délais spécifiques, le PV doit être établi et transmis à l\'employeur dans un délai de <b>15 jours</b> suivant la réunion. Ici la réunion et la finalisation du PV semblent séparées d\'environ <b>'+_gPV+' jours</b> : un PV tardif retarde l\'information des salariés et fragilise les décisions prises.'); }
+    // Avis « réputé rendu » décidé par l'employeur / sans consultation effective
+    if(/(avis[^.]{0,45}r[ée]put[ée]\s+rendu|r[ée]put[ée]\s+rendu[^.]{0,35}(n[ée]gati|favorab|d[ée]favorab)|le\s+pr[ée]sident\s+d[ée]cide\s+que\s+l[’']avis|avis[^.]{0,30}officiellement[^.]{0,30}r[ée]put[ée])/i.test(texte))
+      d.push('<b>Avis « réputé rendu » irrégulier (art. L.2312-16, R.2312-6)</b> — l\'avis n\'est « réputé rendu » (négatif) que si le CSE, <b>régulièrement informé et disposant du délai légal</b>, n\'a pas rendu son avis à l\'échéance. L\'employeur ne peut <b>décider lui-même</b> que l\'avis est rendu, ni escamoter l\'<b>expertise</b> votée non encore remise : forcer un avis « réputé rendu » sans consultation effective est un <b>délit d\'entrave</b>.');
+    // Président qui participe au vote de la délégation du personnel
+    if(/pr[ée]sident[\s\S]{0,75}?\bvote\b|\bvote\s+(en\s+faveur|pour|contre|favorable)[\s\S]{0,45}?pr[ée]sident|pr[ée]sident\s+du\s+cse[\s\S]{0,60}?vote/i.test(texte))
+      d.push('<b>Le président ne vote pas les avis du CSE (art. L.2315-32)</b> — lorsqu\'il <b>consulte</b> le CSE et recueille son <b>avis</b>, l\'employeur-président <b>ne participe pas au vote</b> : seuls votent les membres élus de la délégation du personnel. Un vote où le président prend part à la délibération sur l\'avis est <b>nul</b>.');
+    // Fausse règle de quorum invoquée pour ne pas délibérer
+    if(/quorum[^.]{0,110}(aucun\s+d[ée]bat|ne\s+peut\s+(être\s+)?(valablement\s+)?(engag|d[ée]lib)|clôtur|carence|majorit[ée]\s+de\s+ses\s+membres)/i.test(texte) || /(clôtur\w+|lev[ée]e?)[^.]{0,45}(carence\s+de\s+participants|faute\s+de\s+quorum|absence\s+de\s+quorum)/i.test(texte))
+      d.push('<b>Règle de quorum inexistante au CSE (art. L.2315-32)</b> — <b>aucun quorum</b> n\'est requis pour tenir une réunion du CSE ni pour délibérer : le comité se prononce à la <b>majorité des membres présents</b>, quel que soit leur nombre. Invoquer un « défaut de quorum » pour clôturer la séance sans examiner l\'ordre du jour est <b>irrégulier</b> et prive les élus de leur droit à débattre.');
   }
   if(t==='pse'){
     // Espacement des 2 réunions de consultation du CSE : au moins 15 jours (L.1233-30)
