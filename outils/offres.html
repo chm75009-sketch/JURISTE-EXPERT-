@@ -595,6 +595,7 @@ if($("unclassCopy")) $("unclassCopy").addEventListener("click", function(){
 /* Liste + recherche des metiers ROME (combobox) */
 const METIERS_SEED = [
   {code:"K1903", libelle:"Juriste / conseil juridique"},
+  {code:"K1906", libelle:"Delegue a la protection des donnees (DPO)"},
   {code:"K1902", libelle:"Assistant / collaborateur juridique"},
   {code:"M1503", libelle:"Responsable ressources humaines"},
   {code:"M1501", libelle:"Assistant ressources humaines"},
@@ -620,7 +621,12 @@ const METIER_ALIAS = [
            "controle interne","controleur interne","controle permanent","audit interne","auditeur interne","auditrice interne",
            "conformite","compliance","controle de conformite","controle et audit","controle des risques et conformite"],
     codes:[ {code:"M1202", label:"Audit / controle / risques"},
-            {code:"C1202", label:"Analyse de credits et risques bancaires"} ] }
+            {code:"C1202", label:"Analyse de credits et risques bancaires"} ] },
+  { terms:["dpo","data protection officer","delegue a la protection des donnees","deleguee a la protection des donnees",
+           "delegue protection des donnees","delegue protection donnees","protection des donnees","donnees personnelles",
+           "rgpd","gdpr","correspondant informatique et libertes","cil","privacy officer","data privacy"],
+    codes:[ {code:"K1906", label:"Delegue a la protection des donnees (DPO)"},
+            {code:"K1903", label:"Juriste / conseil juridique"} ] }
 ];
 function metierByCode(code, fallback){
   var m=METIERS_ALL.filter(function(x){ return x.code===code; })[0];
