@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.68';
+var JX_BUILD = 'v2026-07-19.69';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.69', d:'20 juillet 2026', t:[
+   'Élections CSE — COLLÈGES : quand l\'entreprise compte au moins 25 cadres, l\'app affiche désormais les 3 collèges séparément (1er ouvriers/employés · 2e techniciens-maîtrise · 3e cadres), avec la répartition femmes/hommes de chacun — le 3e collège est alors obligatoire (L.2314-11). En dessous de 25 cadres, maîtrise et cadres restent réunis dans le 2e collège, comme le prévoit la loi.'
+ ]},
  {v:'v2026-07-19.68', d:'20 juillet 2026', t:[
    'Élections CSE — import : les dates en toutes lettres (« 1er mars 2018 », « 15 janvier 2020 ») sont désormais reconnues (avant, elles bloquaient le salarié concerné, exclu à tort).',
    'Panneau « Points à vérifier » enrichi : détecte aussi les liens familiaux avec l\'employeur (conjoint, PACS, concubin, ascendant/descendant, allié) → électeur mais NON éligible (L.2314-19).'
@@ -8079,8 +8082,9 @@ function calcSalarieNom(s, dateScrutinStr){
     }
   }
 
-  // 4. COLLÈGE
-  const college = (s.statut === 'tam' || s.statut === 'cadre') ? 2 : 1;
+  // 4. COLLÈGE / catégorie : 1 = ouvriers-employés · 2 = techniciens-agents de maîtrise · 3 = cadres-ingénieurs
+  // (les 2e et 3e collèges ne sont distincts que s'il y a ≥ 25 cadres — L.2314-11 ; sinon réunis dans le 2e)
+  const college = (s.statut === 'cadre') ? 3 : (s.statut === 'tam') ? 2 : 1;
 
   // 5. EXCLUSIONS MANUELLES JURIDIQUES (depuis le tableau s.exclusions)
   // Compatibilité ascendante : convertir les anciens champs en exclusions[]
@@ -8260,8 +8264,8 @@ function refreshNomTable(){
     if(synth) synth.innerHTML = '';
     return;
   }
-  let html = '', totalEff = 0, nbElect = 0, nbElig = 0, col1 = 0, col2 = 0, nbCadres = 0;
-  let fCol1 = 0, hCol1 = 0, fCol2 = 0, hCol2 = 0, sansSexe = 0;
+  let html = '', totalEff = 0, nbElect = 0, nbElig = 0, nbCadres = 0;
+  const _electeurs = [];   // {cat:1(ouvriers/employés) | 2(TAM) | 3(cadres), sexe}
   salariesNom.forEach((s, i) => {
     const r = calcSalarieNom(s, dateScrutin);
     html += renderSalarieLine(s, i, r);
@@ -8269,17 +8273,23 @@ function refreshNomTable(){
       totalEff += r.effectif;
       if(r.electeur) nbElect++;
       if(r.eligible) nbElig++;
-      // Répartition des collèges = nombre d'électeurs par collège (cohérent avec le total électeurs)
-      if(r.electeur){
-        if(r.college === 1) col1++; else col2++;
-        // Répartition F/H par collège (base des listes paritaires — L.2314-13/-30)
-        if(s.sexe === 'F'){ if(r.college === 1) fCol1++; else fCol2++; }
-        else if(s.sexe === 'M'){ if(r.college === 1) hCol1++; else hCol2++; }
-        else sansSexe++;
-      }
       if(s.statut === 'cadre' && r.effectif > 0) nbCadres++;
+      if(r.electeur){
+        _electeurs.push({cat:(s.statut === 'cadre') ? 3 : (s.statut === 'tam') ? 2 : 1, sexe:s.sexe});
+      }
     }
   });
+  // Nombre de collèges : 3 si ≥ 25 cadres (3e collège obligatoire — L.2314-11), sinon 2 (TAM et cadres réunis)
+  const _trois = nbCadres >= 25;
+  const _nc = _trois ? 3 : 2;
+  const _cc = new Array(_nc).fill(0), _ff = new Array(_nc).fill(0), _hh = new Array(_nc).fill(0);
+  let sansSexe = 0;
+  _electeurs.forEach(e => {
+    const idx = _trois ? (e.cat - 1) : (e.cat === 1 ? 0 : 1);
+    _cc[idx]++;
+    if(e.sexe === 'F') _ff[idx]++; else if(e.sexe === 'M' || e.sexe === 'H') _hh[idx]++; else sansSexe++;
+  });
+  const _labels = _trois ? ['1er collège (ouvriers/employés)','2e collège (TAM)','3e collège (cadres)'] : ['1er collège (ouvriers/employés)','2e collège (TAM/cadres)'];
   cont.innerHTML = html;
   const synth = document.getElementById('cse-nom-synthese');
   if(!synth) return;
@@ -8292,14 +8302,15 @@ function refreshNomTable(){
   // Nombre de sièges (titulaires) + heures — barème art. R.2314-1 (source unique : cseBareme)
   const _bm = (typeof cseBareme === 'function') ? cseBareme(effArr) : {sieges:0, heures:0};
   let sg = [_bm.sieges, _bm.heures];
-  // Répartition F/H par collège (parité — L.2314-13/-30)
-  const _fh = (c1f,c1h,c2f,c2h)=>`<strong>1er collège :</strong> ${c1f} F / ${c1h} H${col2>0?` · <strong>2e collège :</strong> ${c2f} F / ${c2h} H`:''}`;
+  // Répartition F/H par collège (parité — L.2314-13/-30) — 2 ou 3 collèges selon le nombre de cadres
+  const _repFH = _labels.map((l,i)=>`<strong>${l} :</strong> ${_ff[i]} F / ${_hh[i]} H`).join(' · ');
+  const _repElec = _labels.map((l,i)=>`<strong>${l} : ${_cc[i]}</strong>`).join(' · ');
   let fhLigne = '';
   if(nbElect > 0){
     if(sansSexe >= nbElect){
       fhLigne = `<br><span style="color:#9a9585;font-size:11px">Répartition femmes/hommes : renseignez la colonne « Sexe » du fichier pour calculer la proportion F/H par collège (obligatoire pour les listes paritaires — L.2314-30).</span>`;
     } else {
-      fhLigne = `<br>Répartition femmes/hommes (électeurs) : ${_fh(fCol1,hCol1,fCol2,hCol2)}${sansSexe>0?` <span style="color:#d4a017;font-size:11px">(${sansSexe} sans sexe renseigné)</span>`:''}`;
+      fhLigne = `<br>Répartition femmes/hommes (électeurs) : ${_repFH}${sansSexe>0?` <span style="color:#d4a017;font-size:11px">(${sansSexe} sans sexe renseigné)</span>`:''}`;
     }
   }
   synth.innerHTML = `${sousSeuil ? `<div style="background:rgba(224,92,92,0.15);border:2px solid #e05c5c;border-radius:10px;padding:12px;margin-bottom:10px;color:#e05c5c">
@@ -8312,8 +8323,8 @@ Effectif décompté : <strong>${totalEff.toFixed(2)}</strong> → retenu <strong
 ${!sousSeuil ? `Nombre de sièges à pourvoir : <strong style="color:#e8c97a;font-size:15px"><u>${sg[0]}</u> titulaire(s)</strong> + <strong>${sg[0]} suppléant(s)</strong> · ${sg[1]} h de délégation/mois (art. R.2314-1)<br>` : ''}
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
-Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>${fhLigne}
-${nbCadres >= 25 ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → 3e collège <strong>obligatoire</strong>, quel que soit l\'effectif (art. L.2314-11) — non supprimable, même par accord unanime (L.2314-12)</span>' : ''}
+Répartition des électeurs par collège : ${_repElec}${fhLigne}
+${_trois ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → <strong>3 collèges</strong> (3e collège cadres obligatoire, art. L.2314-11 ; non supprimable même par accord unanime, L.2314-12)</span>' : '<br><span style="font-size:11px;color:#9a9585">2 collèges (moins de 25 cadres : techniciens/maîtrise et cadres réunis dans le 2e collège — L.2314-11)</span>'}
 </div></div>`;
   // Points à vérifier (cas que l'app ne peut pas trancher seule)
   try {
