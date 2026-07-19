@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.86';
+var JX_BUILD = 'v2026-07-19.87';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.87', d:'20 juillet 2026', t:[
+   'ANALYSE DE DOCUMENTS — suggestion de type EN DIRECT : dès que vous collez le texte, l\'app reconnaît le type de document et affiche une pastille (qui pulse doucement) proposant de basculer en un clic vers la bonne grille — « 📄 Ce texte ressemble à … » si aucun type n\'est choisi, ou « ⚠️ … ressemble plutôt à … » si le type sélectionné ne correspond pas. La pastille reste silencieuse quand le type choisi est cohérent. Reconnaissance affinée : une rupture conventionnelle qui évoque un PSE est bien classée en rupture conventionnelle.'
+ ]},
  {v:'v2026-07-19.86', d:'20 juillet 2026', t:[
    'CONFORMITÉ DES MENTIONS — la présence d\'une mention obligatoire est désormais couplée à la conformité de la clause : une mention n\'est plus validée « ✓ » si le document la bafoue (ex. CDD affichant « aucune indemnité de précarité », « terme imprécis » ou un motif d\'« activité normale et permanente »). La check-list signale alors le point en rouge ⛔ « mention présente mais contredite par une clause du document ». Fini les contradictions entre les cases vertes et l\'analyse approfondie.'
  ]},
@@ -10746,6 +10749,11 @@ function auteurReset(){localStorage.setItem('app_auteur',JSON.stringify(AUTEUR_T
 auteurApply();
 </script>
 <div id="pg-diag" class="page">
+  <style>
+    @keyframes diagSuggPulse{0%,100%{box-shadow:0 0 0 0 rgba(47,111,176,.0)}50%{box-shadow:0 0 0 4px rgba(47,111,176,.18)}}
+    .diag-sugg-pulse{animation:diagSuggPulse 1.4s ease-in-out 4}
+    @media (prefers-reduced-motion:reduce){.diag-sugg-pulse{animation:none}}
+  </style>
   <div style="max-width:920px;margin:0 auto;padding:18px 16px 60px">
     <h1 style="font-family:Fraunces,serif;color:#1b2a4a;margin:0 0 4px">⚖️ Analyse &amp; conformité d'un document</h1>
     <div style="font-size:13px;color:#9a7b2e;margin-bottom:10px">Diagnostic guidé · loi · convention collective · jurisprudence</div>
@@ -10779,10 +10787,11 @@ auteurApply();
 
     <div style="background:#f5f3ec;border-radius:12px;padding:14px;margin-bottom:14px">
       <div style="font-weight:600;color:#1b2a4a;margin-bottom:8px">2 · Type de document à analyser</div>
-      <select id="diag-type" onchange="diagRender()" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:8px"></select>
+      <select id="diag-type" onchange="diagRender();diagSuggestType()" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:8px"></select>
+      <div id="diag-typesugg" style="display:none;margin-top:8px"></div>
       <div style="margin-top:10px">
         <label style="font-size:12.5px;color:#1b2a4a;font-weight:600;display:block">📋 Collez ici le texte du document — <span style="color:#1a7a3a">il sera analysé</span>
-          <textarea id="diag-resume" rows="6" placeholder="Collez le texte complet du document (ex. copier-coller d'un PDF, d'un mail ou d'un Word). Le module y recherche automatiquement les mentions obligatoires du type de document choisi et signale celles qui manquent. Astuce : sur un PDF, ouvrez-le, sélectionnez tout (Ctrl+A / tout sélectionner), copiez, puis collez ici." style="width:100%;padding:9px;margin-top:4px;border:1.5px solid #b7a15a;border-radius:8px;font-family:inherit;font-size:12.5px;resize:vertical;background:#fffdf6"></textarea>
+          <textarea id="diag-resume" rows="6" oninput="diagSuggestType()" placeholder="Collez le texte complet du document (ex. copier-coller d'un PDF, d'un mail ou d'un Word). Le module y recherche automatiquement les mentions obligatoires du type de document choisi et signale celles qui manquent. Astuce : sur un PDF, ouvrez-le, sélectionnez tout (Ctrl+A / tout sélectionner), copiez, puis collez ici." style="width:100%;padding:9px;margin-top:4px;border:1.5px solid #b7a15a;border-radius:8px;font-family:inherit;font-size:12.5px;resize:vertical;background:#fffdf6"></textarea>
         </label>
         <div style="font-size:11px;color:#8a7a4e;margin-top:6px;background:#fbf7e8;border-radius:8px;padding:7px 9px">ℹ️ <b>Astuce :</b> joignez un <b>PDF « texte »</b> ou un fichier <b>.txt</b> ci-dessous → son texte est <b>extrait automatiquement</b> et inséré dans la zone d'analyse. Une <b>photo</b> ou un <b>PDF scanné (image)</b> ne peut pas être lu automatiquement (pas de reconnaissance d'image) : collez ou dictez le texte.</div>
         <div style="margin-top:10px">
@@ -11730,8 +11739,25 @@ function diagDeepFindings(t,texte){
 }
 
 window.diagSecteur=function(){var s=document.getElementById('diag-secteur').value;var o=SECT.filter(function(z){return z.id===s;})[0];if(o&&o.ccn)document.getElementById('diag-ccn').value=o.ccn;};
+// Signature « forte » propre à chaque type : si elle est présente, le type choisi est plausible → pas d'alerte
+// (ex. une rupture conventionnelle qui évoque un PSE ou un licenciement économique reste une rupconv).
+var DIAG_SIG={
+  rupconv:/rupture\s+conventionnelle/i,
+  pse:/plan\s+de\s+sauvegarde\s+de\s+l[’']emploi/i,
+  licenciement:/(proc[ée]der\s+[àa]\s+votre\s+licenciement|vous\s+notifions\s+votre\s+licenciement|votre\s+licenciement\s+prend\s+effet|nous\s+vous\s+licencions)/i,
+  cdd:/contrat\s+[àa]\s+dur[ée]e\s+d[ée]termin[ée]e/i,
+  contrat:/contrat\s+[àa]\s+dur[ée]e\s+ind[ée]termin[ée]e/i,
+  sanction:/(avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation)/i,
+  convocation:/(convoqu[ée]?\s+[àa]\s+un\s+entretien\s+pr[ée]alable|entretien\s+pr[ée]alable\s+[àa]\s+un\s+[ée]ventuel)/i,
+  inaptitude:/inaptitude/i,
+  cse_pv:/proc[èe]s[- ]verbal/i,
+  cse_oj:/ordre\s+du\s+jour/i,
+  cse_convoc:/convocation/i
+};
 // Reconnaissance automatique du type de document d'après le texte
 function diagAutoType(txt){var s=(txt||'').toLowerCase();
+  // Signature « forte » d'une rupture conventionnelle (titre-type) : prioritaire sur PSE, qu'elle peut évoquer pour l'éviter
+  if(/convention\s+de\s+rupture\s+conventionnelle|rupture\s+conventionnelle\s+(individuelle|du\s+contrat)/.test(s))return 'rupconv';
   if(/plan\s+de\s+sauvegarde\s+de\s+l[’']emploi|\bpse\b|licenciement\s+(collectif|[ée]conomique)[^.]{0,80}(reclassement|dreets|homologation|crit[èe]res?\s+d[’']ordre)/.test(s))return 'pse';
   if(/proc[èe]s[- ]verbal[^.]{0,60}(cse|comit[ée]\s+social|r[ée]union)|r[ée]union\s+du\s+(cse|comit[ée]\s+social)[^.]{0,120}(pr[ée]sent|d[ée]lib[ée]r|ordre\s+du\s+jour)/.test(s))return 'cse_pv';
   if(/ordre\s+du\s+jour[^.]{0,80}(cse|comit[ée]\s+social|r[ée]union\s+du)/.test(s))return 'cse_oj';
@@ -11870,6 +11896,31 @@ window.diagPreview=function(){var f=document.getElementById('diag-file').files[0
   if(ext==='docx'||f.type==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'){diagExtractDocx(f);return;}
   if(ext==='doc'){diagStatus('📄 '+esc(name)+' joint — ancien format Word (.doc) non lisible automatiquement. Enregistrez-le en .docx, ou ouvrez-le, copiez tout et collez le texte ci-dessus.','#b26b00');return;}
   diagStatus('📎 '+esc(name)+' joint ('+Math.round(f.size/1024)+' Ko) — format non lu automatiquement. Collez le texte ci-dessus pour l\'analyse.','#b26b00');};
+// Suggestion EN DIRECT du type de document d'après le texte collé (avant analyse)
+window.diagSuggestType=function(){
+  var box=document.getElementById('diag-typesugg'); if(!box)return;
+  var sel=document.getElementById('diag-type'), t=sel?sel.value:'';
+  var txtEl=document.getElementById('diag-resume'), txt=txtEl?txtEl.value.trim():'';
+  var net=txt.replace(/\s/g,'');
+  if(net.length<40){ box.style.display='none'; box.innerHTML=''; return; }   // pas assez de texte pour deviner
+  var auto=diagAutoType(txt);
+  if(!auto || !DOCS[auto] || auto===t){ box.style.display='none'; box.innerHTML=''; return; }  // rien à suggérer / déjà bon
+  if(t && DIAG_SIG[t] && DIAG_SIG[t].test(txt)){ box.style.display='none'; box.innerHTML=''; return; }  // le type choisi est plausible (sa signature est présente) → pas de nag
+  var nom=esc(DOCS[auto].nom);
+  if(!t){
+    box.innerHTML='<div class="diag-sugg-pulse" style="background:#eef6ff;border:1.5px solid #2f6fb0;border-radius:9px;padding:9px 11px;font-size:12.5px;color:#12406e">📄 Ce texte ressemble à «&nbsp;<b>'+nom+'</b>&nbsp;». <button type="button" onclick="diagApplyType(\''+auto+'\')" style="margin-left:6px;padding:5px 10px;background:#2f6fb0;color:#fff;border:0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">Choisir ce type</button></div>';
+  } else {
+    box.innerHTML='<div class="diag-sugg-pulse" style="background:#fdf1e7;border:1.5px solid #d98a2b;border-radius:9px;padding:9px 11px;font-size:12.5px;color:#8a4a12">⚠️ Vous avez choisi «&nbsp;<b>'+esc(DOCS[t].nom)+'</b>&nbsp;» mais le texte ressemble plutôt à «&nbsp;<b>'+nom+'</b>&nbsp;». <button type="button" onclick="diagApplyType(\''+auto+'\')" style="margin-left:6px;padding:5px 10px;background:#d98a2b;color:#fff;border:0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">Basculer vers «&nbsp;'+nom+'&nbsp;»</button></div>';
+  }
+  box.style.display='block';
+};
+// Applique le type suggéré puis rafraîchit
+window.diagApplyType=function(ty){
+  var sel=document.getElementById('diag-type'); if(sel){ sel.value=ty; }
+  if(window.diagRender)diagRender();
+  diagSuggestType();
+  try{ document.getElementById('diag-questions').scrollIntoView({behavior:'smooth',block:'nearest'}); }catch(e){}
+};
 window.diagRender=function(){var t=document.getElementById('diag-type').value;var box=document.getElementById('diag-questions');if(!t||!DOCS[t]){box.style.display='none';box.innerHTML='';return;}var d=DOCS[t];var h='<div style="font-weight:600;color:#1b2a4a;margin-bottom:8px">3 · Questions — '+esc(d.nom)+'</div>';d.q.forEach(function(q){h+='<div style="margin-bottom:10px"><label style="font-size:12.5px;color:#444;display:block;margin-bottom:3px">'+esc(q.l)+'</label>';if(q.t==='date')h+='<input id="dq-'+q.id+'" type="date" style="padding:7px;border:1px solid #ccc;border-radius:8px">';else if(q.t==='on')h+='<select id="dq-'+q.id+'" style="padding:7px;border:1px solid #ccc;border-radius:8px"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select>';else if(q.t==='sel'){h+='<select id="dq-'+q.id+'" style="padding:7px;border:1px solid #ccc;border-radius:8px"><option value="">—</option>';q.o.forEach(function(op){h+='<option>'+esc(op)+'</option>';});h+='</select>';}h+='</div>';});box.innerHTML=h;box.style.display='block';};
 window.diagAnalyser=function(){var t=document.getElementById('diag-type').value;var R=document.getElementById('diag-result');if(!t||!DOCS[t]){R.innerHTML='<div style="color:#b00;font-size:13px">Choisissez d’abord un type de document.</div>';return;}var d=DOCS[t];var x={};d.q.forEach(function(q){var el=document.getElementById('dq-'+q.id);x[q.id]=el?el.value:'';});var resumeEl=document.getElementById('diag-resume');var c={rep:document.getElementById('diag-rep').value,eff:document.getElementById('diag-effectif').value,ccn:document.getElementById('diag-ccn').value,anc:document.getElementById('diag-anc').value,resume:resumeEl?resumeEl.value.trim():''};var r=d.a(x,c);
 var h='<div style="background:#fff;border:1px solid #e3ddcd;border-radius:12px;padding:16px">';
@@ -11879,22 +11930,7 @@ if(c.resume)h+='<div style="font-size:11.5px;color:#555;background:#f7f5ee;borde
 var texte=(c.resume||''),texteNet=texte.replace(/\s/g,'');
 // Alerte si le type choisi ne correspond pas au contenu détecté (évite d'analyser avec le mauvais référentiel)
 var _auto=(texteNet.length>=40)?diagAutoType(texte):'';
-// Signature « forte » propre à chaque type : si elle est présente, le type choisi est plausible → pas d'alerte
-// (ex. une rupture conventionnelle qui évoque un PSE ou un licenciement économique reste une rupconv).
-var _sigType={
-  rupconv:/rupture\s+conventionnelle/i,
-  pse:/plan\s+de\s+sauvegarde\s+de\s+l[’']emploi/i,
-  licenciement:/(proc[ée]der\s+[àa]\s+votre\s+licenciement|vous\s+notifions\s+votre\s+licenciement|votre\s+licenciement\s+prend\s+effet|nous\s+vous\s+licencions)/i,
-  cdd:/contrat\s+[àa]\s+dur[ée]e\s+d[ée]termin[ée]e/i,
-  contrat:/contrat\s+[àa]\s+dur[ée]e\s+ind[ée]termin[ée]e/i,
-  sanction:/(avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation)/i,
-  convocation:/(convoqu[ée]?\s+[àa]\s+un\s+entretien\s+pr[ée]alable|entretien\s+pr[ée]alable\s+[àa]\s+un\s+[ée]ventuel)/i,
-  inaptitude:/inaptitude/i,
-  cse_pv:/proc[èe]s[- ]verbal/i,
-  cse_oj:/ordre\s+du\s+jour/i,
-  cse_convoc:/convocation/i
-};
-if(_auto && _auto!==t && DOCS[_auto] && !(_sigType[t]&&_sigType[t].test(texte))){
+if(_auto && _auto!==t && DOCS[_auto] && !(DIAG_SIG[t]&&DIAG_SIG[t].test(texte))){
   h+='<div style="background:#fdecec;border:1.5px solid #d33;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:12.5px;color:#8a1a1a">⚠️ <b>Type de document probablement incorrect.</b> Le texte ressemble plutôt à « <b>'+esc(DOCS[_auto].nom)+'</b> », mais vous avez choisi « '+esc(d.nom)+' ». L\'analyse ci-dessous applique les règles de « '+esc(d.nom)+' » — <b>changez le type en haut de la page</b> puis relancez pour une analyse pertinente.</div>';
 }
 // Mentions obligatoires (avec détection des NÉGATIONS) — calculées AVANT le verdict pour qu'elles comptent
