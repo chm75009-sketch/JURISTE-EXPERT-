@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.83';
+var JX_BUILD = 'v2026-07-19.84';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.84', d:'20 juillet 2026', t:[
+   'DOCUMENTS CSE — correction d\'affichage : le nombre de jours du délai de convocation n\'est plus indiqué lorsqu\'il n\'est pas cohérent (dates mélangées quand plusieurs documents sont collés ensemble) — plus de « ~-122 jours ».'
+ ]},
  {v:'v2026-07-19.83', d:'20 juillet 2026', t:[
    'DOCUMENTS CSE (convocation, ordre du jour, procès-verbal) — analyse de fond dédiée : délai de convocation inférieur à 3 jours (L.2315-30), refus de transmettre / mettre à jour la BDESE (L.2312-15/-18), suppléants privés de l\'ordre du jour, ordre du jour établi unilatéralement par l\'employeur au lieu d\'être arrêté conjointement avec le secrétaire (L.2315-29), consultation obligatoire noyée dans les « questions diverses », PV rédigé par l\'employeur au lieu du secrétaire (L.2315-34) ou établi hors délai (R.2315-25), avis « réputé rendu » décidé unilatéralement, participation illicite du président au vote de l\'avis (L.2315-32) et fausse règle de quorum invoquée pour ne pas délibérer.'
  ]},
@@ -11568,7 +11571,7 @@ function diagDeepFindings(t,texte){
     var _delaiKw=/(d[ée]lai[^.]{0,55}(r[ée]duit|raccourci|abr[ée]g[ée])|r[ée]duit\s+d[’']un\s+commun\s+accord|moins\s+de\s+(3|trois)\s+jours|d[ée]lai\s+de\s+(pr[ée]venance\s+|convocation\s+)?(de\s+)?(2|deux|1|un)\s+jours?)/i.test(texte);
     var _gapC=null; if(_dReun.length&&_dConv.length){ _dReun.sort(function(a,b){return a-b;}); _dConv.sort(function(a,b){return a-b;}); _gapC=Math.round((_dReun[0]-_dConv[0])/86400000); }
     if(_delaiKw || (_gapC!=null && _gapC>=0 && _gapC<3))
-      d.push('<b>Délai de convocation trop court (art. L.2315-30)</b> — la convocation et l\'ordre du jour doivent être communiqués aux membres <b>au moins 3 jours</b> avant la réunion'+(_gapC!=null&&_gapC<3?(' (ici ~<b>'+_gapC+' jour(s)</b>)'):'')+'. Un délai « réduit d\'un commun accord avec les managers » ne peut être opposé aux élus : un délai insuffisant vicie la consultation et peut caractériser un <b>délit d\'entrave</b>.');
+      d.push('<b>Délai de convocation trop court (art. L.2315-30)</b> — la convocation et l\'ordre du jour doivent être communiqués aux membres <b>au moins 3 jours</b> avant la réunion'+(_gapC!=null&&_gapC>=0&&_gapC<3?(' (ici ~<b>'+_gapC+' jour(s)</b>)'):'')+'. Un délai « réduit d\'un commun accord avec les managers » ne peut être opposé aux élus : un délai insuffisant vicie la consultation et peut caractériser un <b>délit d\'entrave</b>.');
     // Refus de transmettre / mettre à jour la BDESE
     if(/(aucun\s+document|aucune\s+(mise\s+[àa]\s+jour|information|donn[ée]e)|pas\s+de\s+(mise\s+[àa]\s+jour|transmission)|ne\s+sera\s+(pas\s+)?transmis)[^.]{0,60}(bdese|base\s+de\s+donn[ée]es\s+[ée]conomiques)/i.test(texte) || /bdese[^.]{0,50}(non\s+transmis|pas\s+transmis|ne\s+sera\s+(pas\s+)?(transmis|communiqu)|indisponible)/i.test(texte))
       d.push('<b>Information du CSE / BDESE non transmise (art. L.2312-15, L.2312-18)</b> — le CSE ne peut émettre un avis éclairé que s\'il dispose d\'<b>informations précises et écrites</b> ; la <b>BDESE</b> doit être tenue à jour et accessible. Refuser toute transmission ou mise à jour prive le CSE de moyens et constitue un manquement (risque de <b>délit d\'entrave</b>) : à défaut, le délai de consultation ne court pas.');
