@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.66';
+var JX_BUILD = 'v2026-07-19.67';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.66', d:'20 juillet 2026', t:[
@@ -8226,7 +8226,7 @@ function _cseVigilance(list, dateScrutin){
   const reRep = /directeur\s+g[ée]n[ée]ral|\bdg\b|g[ée]rant|pr[ée]sident|\bdrh\b|directeur\s+des\s+ressources|d[ée]l[ée]gation\s+(de\s+pouvoir|d[’']autorit)/i;
   list.forEach(s => {
     const txt = ((s.emploi||'')+' '+(s.observations||''));
-    if(reRep.test(txt)) w.push('« '+(s.nom||'?')+' » ('+(s.emploi||'poste de direction')+') : vérifiez s\'il <b>représente l\'employeur</b> ou détient une <b>délégation écrite d\'autorité</b> → dans ce cas il n\'est PAS éligible, voire pas électeur (art. L.2314-19). L\'app le compte par défaut ; excluez-le manuellement le cas échéant.');
+    if(reRep.test(txt)) w.push('« '+(s.nom||'?')+' » ('+(s.emploi||'poste de direction')+') : vérifiez s\'il <b>représente l\'employeur</b> ou détient une <b>délégation écrite d\'autorité</b> → dans ce cas il n\'est PAS <b>éligible</b>, mais il <b>reste électeur</b> (depuis la loi du 21/12/2022, suite QPC n° 2021-947 — art. L.2314-18 et L.2314-19). Retirez-le manuellement des <b>éligibles</b> le cas échéant.');
   });
   // Dates aberrantes / incohérentes
   if(scr) list.forEach(s => {
