@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.87';
+var JX_BUILD = 'v2026-07-19.88';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.88', d:'20 juillet 2026', t:[
+   'CONVOCATION À ENTRETIEN PRÉALABLE — contrôle renforcé des adresses : lorsqu\'une assistance par un conseiller du salarié est mentionnée (entreprise sans CSE), l\'app vérifie désormais que la convocation indique bien l\'adresse de la MAIRIE ET celle de l\'inspection du travail (DDETS) où la liste est consultable. L\'absence de l\'une de ces adresses est signalée comme irrégularité (D.1232-4 ; Cass. soc. 29 avril 2003, n° 01-41.364) — le seul nom de la commune ne suffit pas. Corrige un ancien « ✓ conforme » affiché à tort quand les adresses manquaient.'
+ ]},
  {v:'v2026-07-19.87', d:'20 juillet 2026', t:[
    'ANALYSE DE DOCUMENTS — suggestion de type EN DIRECT : dès que vous collez le texte, l\'app reconnaît le type de document et affiche une pastille (qui pulse doucement) proposant de basculer en un clic vers la bonne grille — « 📄 Ce texte ressemble à … » si aucun type n\'est choisi, ou « ⚠️ … ressemble plutôt à … » si le type sélectionné ne correspond pas. La pastille reste silencieuse quand le type choisi est cohérent. Reconnaissance affinée : une rupture conventionnelle qui évoque un PSE est bien classée en rupture conventionnelle.'
  ]},
@@ -11144,7 +11147,7 @@ var CHECKLIST={
   {t:'Objet : un licenciement est envisagé',a:'L.1232-2',re:/licenciement|sanction/i},
   {t:'Date, heure et lieu précis de l’entretien',a:'L.1232-2',re:/\d{1,2}\s*h(?:eures|\d{2})?|à\s+\d{1,2}\s*h|lieu|adresse|dans\s+nos\s+locaux|bureau/i},
   {t:'Mention de la faculté d’assistance du salarié',a:'L.1232-4',re:/assist(er|ance|é)/i},
-  {t:'Sans IRP : conseiller du salarié + adresses (mairie / inspection du travail) où consulter la liste',a:'L.1232-4, D.1232-4',re:/conseiller\s+du\s+salari/i,opt:true},
+  {t:'Sans IRP : conseiller du salarié + adresses (mairie / inspection du travail) où consulter la liste',a:'L.1232-4, D.1232-4',re:/(?=[\s\S]*conseiller\s+du\s+salari)(?=[\s\S]*(mairie|h[ôo]tel\s+de\s+ville))(?=[\s\S]*(inspection\s+du\s+travail|ddets|dreets|direccte|unit[ée]\s+(territoriale|d[ée]partementale)))/i,opt:true},
   {t:'Délai ≥ 5 jours ouvrables entre présentation de la convocation et l’entretien',a:'L.1232-2',re:null},
   {t:'Le cas échéant : mise à pied conservatoire notifiée comme telle (non disciplinaire)',a:'L.1332-3',re:/mise\s+[àa]\s+pied\s+(conservatoire|[àa]\s+titre\s+conservatoire)/i,opt:true}
  ],
@@ -11512,6 +11515,17 @@ function diagDeepFindings(t,texte){
     // Suppression du droit de contester la sanction
     if(/(sans\s+(aucun\s+)?recours|aucun\s+recours\s+possible|d[ée]finitive\s+et\s+sans\s+recours|non\s+susceptible\s+de\s+recours|ne\s+pourrez\s+(la\s+)?contester)/i.test(texte))
       d.push('<b>Droit de contestation supprimé (ordre public)</b> — le salarié conserve <b>toujours</b> le droit de <b>contester une sanction devant le conseil de prud\'hommes</b> (et le juge peut l\'annuler si elle est irrégulière, injustifiée ou disproportionnée — L.1333-1 s.). Affirmer que la décision est « sans aucun recours possible » est <b>illicite</b> et sans effet.');
+  }
+  if(t==='convocation'){
+    // Sans IRP : la lettre proposant l'assistance par un conseiller du salarié doit indiquer l'adresse
+    // de la mairie ET de l'inspection du travail où la liste est consultable (D.1232-4).
+    // L'omission de l'une de ces adresses est une irrégularité (Cass. soc. 29 avril 2003, n° 01-41.364).
+    if(/conseiller\s+du\s+salari[ée]/i.test(texte)){
+      var _hasMairie=/mairie|h[ôo]tel\s+de\s+ville/i.test(texte);
+      var _hasInsp=/inspection\s+du\s+travail|\bddets\b|\bdreets\b|direccte|unit[ée]\s+(territoriale|d[ée]partementale)/i.test(texte);
+      if(!_hasMairie || !_hasInsp)
+        d.push('<b>Adresses de consultation de la liste des conseillers manquantes (art. D.1232-4)</b> — lorsque le salarié peut être assisté par un <b>conseiller du salarié</b> (entreprise sans CSE), la convocation doit préciser <b>l\'adresse de la mairie ET celle de l\'inspection du travail (DDETS)</b> où la liste départementale est tenue à sa disposition. '+((!_hasMairie&&!_hasInsp)?'<b>Aucune de ces deux adresses</b> ne figure ici':(!_hasMairie?'L\'<b>adresse de la mairie</b> ne figure pas ici':'L\'<b>adresse de l\'inspection du travail (DDETS)</b> ne figure pas ici'))+'. L\'omission de l\'une de ces adresses est une <b>irrégularité de procédure</b> ouvrant droit à indemnité (Cass. soc. 29 avril 2003, n° 01-41.364) : indiquez-les de façon <b>précise et complète</b> (et non le seul nom de la commune).');
+    }
   }
   if(t==='rupconv'){
     // Délai de rétractation : 15 jours CALENDAIRES (L.1237-13)
