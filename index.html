@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.70';
+var JX_BUILD = 'v2026-07-19.71';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.71', d:'20 juillet 2026', t:[
+   'Élections CSE — le panneau « Points à vérifier » signale aussi les données incomplètes qui pèsent sur le scrutin : salariés sans SEXE (bloque la parité F/H des listes) et salariés sans COLLÈGE renseigné (placés par défaut dans le 1er collège, à contrôler pour la répartition des sièges).'
+ ]},
  {v:'v2026-07-19.70', d:'20 juillet 2026', t:[
    'Élections CSE — panneau « Points à vérifier » : chaque point indique désormais <b>comment l\'app a compté par défaut</b> (« compté ÉLECTEUR + ÉLIGIBLE », « NON compté », « déjà tranché : exclu »…), pour savoir l\'état exact en attendant vos rectifications manuelles.',
    'Détection des doublons resserrée : l\'app ne signale plus les simples homonymes ; un doublon n\'est signalé que si le <b>nom ET la date de naissance</b> sont identiques (fin des dizaines de fausses alertes sur les grandes listes).'
@@ -8255,6 +8258,11 @@ function _cseVigilance(list, dateScrutin){
     if(dE && !isNaN(dE) && scr && dE>scr) w.push('« '+(s.nom||'?')+' » : entrée ('+s.dateEntree+') postérieure au scrutin — <i>par défaut : NON compté (pas encore présent)</i>.');
     if(dN && dE && !isNaN(dN) && !isNaN(dE) && dE<dN) w.push('« '+(s.nom||'?')+' » : entrée antérieure à la naissance (données incohérentes) — <i>par défaut : '+statutDef(s)+'</i>. Corrigez.');
   });
+  // Données incomplètes qui pèsent sur le scrutin
+  const sansSexe2 = list.filter(s => s.nom && !s.sexe).length;
+  if(sansSexe2) w.push('<b>'+sansSexe2+' salarié(s) sans SEXE renseigné</b> — comptés dans les électeurs mais exclus du calcul de la <b>parité F/H</b> des listes (L.2314-30). Complétez la colonne Sexe.');
+  const sansCol = list.filter(s => s.statutManquant).length;
+  if(sansCol) w.push('<b>'+sansCol+' salarié(s) sans COLLÈGE / catégorie renseigné(e)</b> — <i>placé(s) par défaut dans le 1er collège</i> (ouvriers/employés) ; vérifiez leur catégorie, sinon la répartition des sièges par collège est faussée.');
   // Stagiaires / intérimaires : décision déjà tranchée
   const nStag = list.filter(s => s.contrat==='stagiaire').length;
   if(nStag) w.push('<b>'+nStag+' stagiaire(s)</b> — <i>déjà tranché : exclus de l\'effectif et non électeurs</i> (pas un contrat de travail).');
@@ -8469,6 +8477,7 @@ function _extraireSalarie(champs, map){
     statut: normaliseStatut(map.statut !== undefined ? (champs[map.statut]||'') : ''),
     sexe: _normSexe(map.sexe !== undefined ? (champs[map.sexe]||'') : ''),
     emploi: map.emploi !== undefined ? (champs[map.emploi]||'').toString().trim() : '',
+    statutManquant: (map.statut !== undefined) && !((champs[map.statut]||'').toString().trim()),
     heures,
     debutContrat: contratsDD.includes(contratFinal) ? dateEntree : '',
     finContrat: contratsDD.includes(contratFinal) ? dateSortie : '',
