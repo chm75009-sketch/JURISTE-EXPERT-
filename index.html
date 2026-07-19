@@ -637,7 +637,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.62';
+var JX_BUILD = 'v2026-07-19.63';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-12.62', d:'19 juillet 2026', t:[
@@ -8670,8 +8670,42 @@ function genererModeleCSV(){
     'BERNARD;Lucas;08/04/2007;M;Française;Apprenti mécano;01/09/2024;;Apprentissage;Ouvrier;Temps plein;Exemple apprenti (à supprimer)',
     ';;;;;;;;;;;⚠️ REGISTRE UNIQUE DU PERSONNEL - Remplir TOUTES les colonnes. Dates JJ/MM/AAAA. Contrat: CDI/CDD/Apprentissage/Stagiaire/Interim/Saisonnier/Contrat pro. Statut: Ouvrier/Employe/TAM/Cadre. Temps de travail: Temps plein OU pourcentage (ex 50%). Date sortie uniquement si sorti.',
   ].join('\n') + '\n';
+  // Nom de fichier personnalisable : l'utilisateur peut le nommer ou le renommer.
+  var defaut = 'Modele_registre_unique_personnel';
+  var nom = prompt('Nom du fichier CSV à télécharger\n(vous pourrez le faire remplir par l\'entreprise puis le réimporter ici) :', defaut);
+  if(nom === null) return; // annulé
+  nom = (String(nom).trim() || defaut).replace(/[\\/:*?"<>|]+/g, '-');
+  if(!/\.csv$/i.test(nom)) nom += '.csv';
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  _telecharger(blob, 'text/csv', 'Modele_registre_unique_personnel.csv');
+  _telechargerCSVModele(blob, nom);
+}
+
+// Téléchargement robuste du modèle CSV (fiable sur iPhone) : partage natif puis, à défaut, ancre <a download>.
+function _telechargerCSVModele(blob, nom){
+  // 1) Partage natif iOS/Android : "Enregistrer dans Fichiers" avec le nom choisi.
+  try{
+    var file = new File([blob], nom, {type:'text/csv'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({files:[file], title:nom}).catch(function(err){
+        if(!err || err.name !== 'AbortError') _telechargerAncre(blob, nom); // ne pas re-télécharger si l'utilisateur a annulé
+      });
+      return;
+    }
+  }catch(e){ /* on tente l'ancre ci-dessous */ }
+  // 2) Ancre <a download> : fonctionne sur Safari (iOS/desktop) et Android.
+  _telechargerAncre(blob, nom);
+}
+function _telechargerAncre(blob, nom){
+  try{
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = nom; a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ if(a.parentNode) a.parentNode.removeChild(a); URL.revokeObjectURL(url); }, 4000);
+  }catch(e){
+    alert('Téléchargement bloqué par le navigateur.\nOuvrez l\'application directement dans Safari (pas dans une vue intégrée) puis réessayez.');
+  }
 }
 
 // ═══════════════════════════════════════
