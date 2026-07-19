@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.84';
+var JX_BUILD = 'v2026-07-19.85';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.85', d:'20 juillet 2026', t:[
+   'CDD — analyse de fond complétée : nom / qualification du salarié remplacé manquant (L.1242-12, 1°), terme imprécis sans durée minimale (L.1242-12), durée totale supérieure à 18 mois y compris en toutes lettres (« quatorze (14) », « vingt-quatre (24) » — L.1242-8-1), plus de 2 renouvellements (« jusqu\'à quatre (4) fois » — L.1243-13), période d\'essai exprimée en semaines (L.1242-10), délai de carence écarté entre deux CDD successifs sur le même poste (L.1244-3), contrat transmis au-delà de 2 jours ouvrables (L.1242-13) et rémunération inférieure à un CDI de qualification équivalente (L.1242-15).'
+ ]},
  {v:'v2026-07-19.84', d:'20 juillet 2026', t:[
    'DOCUMENTS CSE — correction d\'affichage : le nombre de jours du délai de convocation n\'est plus indiqué lorsqu\'il n\'est pas cohérent (dates mélangées quand plusieurs documents sont collés ensemble) — plus de « ~-122 jours ».'
  ]},
@@ -11661,17 +11664,44 @@ function diagDeepFindings(t,texte){
   if(t==='cdd'){
     if(/activit[ée]\s+normale\s+et\s+permanente|pourvoir\s+durablement|durablement\s+un\s+poste|emploi\s+(li[ée]\s+[àa]\s+l[’']activit[ée]\s+(normale|permanente)|durable|permanent)|poste\s+permanent/i.test(texte))
       d.push('<b>Motif interdit (art. L.1242-1)</b> — le CDD vise à pourvoir un emploi lié à l\'<b>activité normale et permanente</b> de l\'entreprise : un CDD ne peut avoir ni pour objet ni pour effet de pourvoir <b>durablement</b> un tel emploi → <b>requalification en CDI</b>.');
-    var di2=diagDatesInfo(texte),dureeMois=null;
-    if(di2&&di2.gapMonths>=1&&di2.gapMonths<=72)dureeMois=Math.round(di2.gapMonths);
-    var mm=texte.match(/dur[ée]e\s+(?:minimale\s+)?(?:de\s+|d[’']\s*)?([\wà-ÿ-]+)\s+mois/i);
-    if(mm){var mv=diagMoisFR(mm[1]);if(mv&&(!dureeMois||Math.abs(mv-dureeMois)>2))dureeMois=mv;}
-    if(dureeMois&&dureeMois>18)d.push('<b>Durée excessive (art. L.1242-8-1)</b> — durée d\'environ <b>'+dureeMois+' mois</b> alors que la durée maximale d\'un CDD, renouvellements compris, est en principe de <b>18 mois</b> → requalification.');
-    if(/renouvel\w*[^.]{0,60}(autant\s+de\s+fois|sans\s+limit|illimit|nécessaire)|sans\s+limitation\s+de\s+nombre|renouvel\w*\s+ind[ée]finiment/i.test(texte))
-      d.push('<b>Renouvellements illimités (art. L.1243-13)</b> — un CDD ne peut être renouvelé que <b>2 fois</b> au maximum ; une clause de renouvellement sans limite est illicite.');
-    if(/aucune\s+indemnit[ée]\s+de\s+fin\s+de\s+contrat|sans\s+indemnit[ée]\s+de\s+(fin\s+de\s+contrat|pr[ée]carit)|pas\s+d[’']indemnit[ée]\s+de\s+(fin|pr[ée]carit)/i.test(texte))
+    // Remplacement : nom et qualification du salarié remplacé obligatoires (L.1242-12, 1°)
+    if(/remplac\w+/i.test(texte) && /(sans[^.]{0,80}(identit[ée]|nom|qualification)|sans\s+qu[e’'’][^.]{0,55}(formaliser|pr[ée]ciser|mentionner|indiquer|d[ée]finir)[^.]{0,40}(identit[ée]|nom|qualification|personne\s+remplac)|ne\s+pas\s+(mentionner|pr[ée]ciser|indiquer)[^.]{0,40}(nom|identit[ée]|qualification))/i.test(texte))
+      d.push('<b>Nom / qualification du salarié remplacé manquant (art. L.1242-12, 1°)</b> — pour un CDD de remplacement, le contrat doit mentionner le <b>nom et la qualification</b> du salarié remplacé. L\'omettre (même « par confidentialité ») prive le contrat d\'une mention obligatoire → <b>requalification en CDI</b>.');
+    // Terme imprécis / absence de durée minimale (L.1242-12)
+    if(/terme\s+impr[ée]cis|sans\s+(terme\s+pr[ée]cis|date\s+de\s+fin|fixer\s+de\s+dur[ée]e|dur[ée]e\s+pr[ée]cise)|sans\s+qu[’'’]il\s+soit\s+n[ée]cessaire\s+de\s+fixer\s+de\s+dur[ée]e\s+minimale|prendra\s+fin\s+automatiquement[^.]{0,80}(retour|[ée]quilibre|[ée]v[ée]nement|lorsque)/i.test(texte))
+      d.push('<b>Terme imprécis / durée minimale absente (art. L.1242-12)</b> — un CDD doit comporter soit un <b>terme précis (date)</b>, soit — pour un terme incertain (remplacement, retour d\'un salarié…) — une <b>durée minimale</b>. Un « terme imprécis » sans durée minimale est irrégulier → <b>requalification en CDI</b>.');
+    // Durée totale (renouvellements compris) > 18 mois — on lit tous les « N mois » (chiffres ou lettres, y compris « quatorze (14) »)
+    var _moisVals=[],_rm=/([\wà-ÿ]+(?:-[\wà-ÿ]+)?)\s*(?:\(\s*(\d{1,2})\s*\))?\s*mois/gi,_mm2;
+    while((_mm2=_rm.exec(texte))){ var _v=_mm2[2]?parseInt(_mm2[2],10):(/^\d+$/.test(_mm2[1])?parseInt(_mm2[1],10):diagMoisFR(_mm2[1])); if(_v&&_v<=72)_moisVals.push(_v); }
+    var _maxMois=_moisVals.length?Math.max.apply(null,_moisVals):null;
+    if(_maxMois && _maxMois>18)
+      d.push('<b>Durée excessive (art. L.1242-8-1)</b> — la durée indiquée (~<b>'+_maxMois+' mois</b>, renouvellements compris) dépasse la durée maximale d\'un CDD, en principe de <b>18 mois</b> → <b>requalification en CDI</b>.');
+    // Nombre de renouvellements > 2 (L.1243-13)
+    var _ren=/renouvel\w*[\s\S]{0,80}?([\wà-ÿ]+(?:-[\wà-ÿ]+)?)\s*(?:\(\s*(\d{1,2})\s*\))?\s*fois/i.exec(texte);
+    var _renN=_ren?(_ren[2]?parseInt(_ren[2],10):(/^\d+$/.test(_ren[1])?parseInt(_ren[1],10):diagMoisFR(_ren[1]))):null;
+    if((_renN && _renN>2) || /renouvel\w*[^.]{0,60}(autant\s+de\s+fois|sans\s+limit|illimit|n[ée]cessaire)|sans\s+limitation\s+de\s+nombre|renouvel\w*\s+ind[ée]finiment/i.test(texte))
+      d.push('<b>Renouvellements en nombre excessif (art. L.1243-13)</b> — un CDD ne peut être renouvelé que <b>2 fois</b> au maximum'+(_renN?(' (ici <b>'+_renN+' fois</b>)'):'')+', dans la limite de la durée maximale : au-delà, la <b>requalification en CDI</b> est encourue.');
+    // Suppression de l'indemnité de précarité
+    if(/aucune\s+indemnit[ée]\s+de\s+fin\s+de\s+contrat|sans\s+indemnit[ée]\s+de\s+(fin\s+de\s+contrat|pr[ée]carit)|pas\s+d[’'’]indemnit[ée]\s+de\s+(fin|pr[ée]carit)|supprimer\s+le\s+versement\s+de\s+cette\s+(prime|indemnit)/i.test(texte))
       d.push('<b>Suppression illicite de l\'indemnité de précarité (art. L.1243-8)</b> — l\'indemnité de fin de contrat de <b>10 %</b> est due (sauf saisonnier, CDD d\'usage, refus d\'un CDI, poursuite en CDI, faute grave) ; une clause y renonçant est <b>nulle</b>.');
-    var peC=texte.match(/p[ée]riode\s+d[’']essai\s+de\s+([\wà-ÿ-]+)\s+mois/i);
-    if(peC){var pv=diagMoisFR(peC[1]);if(pv&&pv>1)d.push('<b>Période d\'essai excessive (art. L.1242-10)</b> — l\'essai d\'un CDD est de 1 jour par semaine, plafonné à <b>2 semaines</b> (≤ 6 mois) ou <b>1 mois</b> (au-delà) : '+pv+' mois dépasse ce maximum.');}
+    // Période d'essai : en mois OU en semaines (L.1242-10)
+    var peC=texte.match(/p[ée]riode\s+d[’'’]essai\s+d[e’'’][^.]{0,20}?([\wà-ÿ-]+)\s*(?:\(\s*\d{1,2}\s*\))?\s*mois/i);
+    if(peC){var pv=diagMoisFR(peC[1]);if(pv&&pv>1)d.push('<b>Période d\'essai excessive (art. L.1242-10)</b> — l\'essai d\'un CDD est de 1 jour par semaine, plafonné à <b>2 semaines</b> (durée ≤ 6 mois) ou <b>1 mois</b> (au-delà) : '+pv+' mois dépasse ce maximum.');}
+    var peW=texte.match(/p[ée]riode\s+d[’'’]essai\s+d[e’'’][^.]{0,20}?(\d{1,2}|une?|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s*(?:\(\s*\d{1,2}\s*\))?\s*semaines?/i);
+    if(peW){var pw=(/^\d+$/.test(peW[1])?parseInt(peW[1],10):diagMoisFR(peW[1]));
+      if(pw&&pw>4)d.push('<b>Période d\'essai excessive (art. L.1242-10)</b> — l\'essai d\'un CDD est de 1 jour par semaine, plafonné à <b>2 semaines</b> (durée ≤ 6 mois) ou <b>1 mois</b> (au-delà) : <b>'+pw+' semaines</b> dépasse nettement ce maximum.');
+      else if(pw&&pw>2)d.push('<b>Période d\'essai probablement excessive (art. L.1242-10)</b> — <b>'+pw+' semaines</b> : le plafond est de <b>2 semaines</b> si la durée initiale est ≤ 6 mois (1 mois au-delà). À recouper avec la durée du contrat.');}
+    // Délai de carence écarté entre deux CDD successifs sur le même poste (L.1244-3)
+    if(/(dispens\w+|s[’'’]affranch\w+|sans\s+(application\s+d[’'’]un?\s+|respect\s+d[’'’]un?\s+)?d[ée]lai\s+de\s+carence|pas\s+de\s+(d[ée]lai\s+de\s+)?carence|d[ée]lai\s+de\s+carence\s+ou\s+tiers[- ]temps)/i.test(texte) && /(m[êe]me\s+poste|contrats?\s+successifs?|pr[ée]c[ée]dent\s+cdd|cdd\s+[ée]chu)/i.test(texte))
+      d.push('<b>Délai de carence non respecté (art. L.1244-3)</b> — pour conclure un nouveau CDD sur le <b>même poste</b>, un <b>délai de carence</b> doit s\'écouler (en principe le tiers de la durée du contrat précédent si celui-ci ≥ 14 jours, sinon la moitié). S\'en dispenser hors cas légaux (nouveau remplacement, urgence sécurité…) est irrégulier → requalification.');
+    // Contrat écrit transmis au-delà de 2 jours ouvrables (L.1242-13)
+    var _tr=/(transmis|remis|communiqu[ée]|formalis[ée])[\s\S]{0,95}?([\wà-ÿ]+(?:-[\wà-ÿ]+)?)\s*(?:\(\s*(\d{1,2})\s*\))?\s*jours?\s+ouvrables?/i.exec(texte);
+    var _trN=_tr?(_tr[3]?parseInt(_tr[3],10):(/^\d+$/.test(_tr[2])?parseInt(_tr[2],10):diagMoisFR(_tr[2]))):null;
+    if(_trN && _trN>2)
+      d.push('<b>Contrat transmis hors délai (art. L.1242-13)</b> — le CDD écrit doit être <b>transmis au salarié dans les 2 jours ouvrables</b> suivant l\'embauche. Un délai de <b>'+_trN+' jours</b> dépasse ce maximum : une transmission tardive équivaut à un défaut d\'écrit → <b>requalification en CDI</b>.');
+    // Rémunération inférieure à celle d'un CDI de qualification équivalente (L.1242-15)
+    if(/(inf[ée]rieur\w*|moindre|moins[- ]disant|r[ée]duit\w*)[^.]{0,70}(salari[ée]s?\s+en\s+cdi|cdi\s+(de\s+)?qualification\s+[ée]quivalente|salari[ée]\s+comparable|[ée]quivalente)/i.test(texte) || /inf[ée]rieur\w*\s+de\s+\d+\s*%[^.]{0,60}(cdi|[ée]quivalente|comparable|per[çc]ue)/i.test(texte))
+      d.push('<b>Rémunération inférieure à un CDI équivalent (art. L.1242-15)</b> — le salarié en CDD a droit à une rémunération <b>au moins égale</b> à celle d\'un salarié en <b>CDI de qualification équivalente</b> occupant le même poste. Une rémunération volontairement inférieure (ici « −15 % ») viole le principe d\'<b>égalité de traitement</b> ; le « caractère temporaire » ne le justifie pas.');
     d=d.concat(diagContractChecks(texte));
   }
   if(t==='contrat'){
