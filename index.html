@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.73';
+var JX_BUILD = 'v2026-07-19.74';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.74', d:'20 juillet 2026', t:[
+   'RUPTURE CONVENTIONNELLE — analyse de fond renforcée : détection du signataire employeur non habilité (consultant/cabinet externe), de la renonciation au droit d\'assistance (L.1237-12), de la demande d\'homologation transmise avant la fin des 15 jours de rétractation (comparaison des dates signature/envoi) et de la date d\'effet fixée indépendamment de l\'homologation (« que l\'instruction soit achevée ou non » — L.1237-13). Détection de l\'indemnité inférieure au minimum légal élargie.',
+   'ALERTE DE TYPE affinée : plus d\'avertissement injustifié quand le texte contient bien la signature du type choisi (ex. une rupture conventionnelle qui évoque un PSE reste analysée comme rupture conventionnelle).'
+ ]},
  {v:'v2026-07-19.73', d:'20 juillet 2026', t:[
    'Analyse de documents — ALERTE DE TYPE : si le texte collé ne correspond pas au type de document choisi, l\'app affiche un avertissement (« le texte ressemble plutôt à … ») pour éviter d\'analyser avec le mauvais référentiel.',
    'RUPTURE CONVENTIONNELLE — analyse de fond ajoutée : détection du délai de rétractation erroné (≠ 15 jours calendaires — L.1237-13), de l\'exemplaire non remis au salarié (nullité, Cass. soc. 3 juil. 2019), de l\'indemnité inférieure au minimum légal, du salarié protégé (autorisation de l\'inspecteur du travail requise — L.1237-15), du risque de vice du consentement, du détournement d\'un licenciement économique et de l\'homologation demandée avant la fin de la rétractation (L.1237-14).'
@@ -11430,7 +11434,7 @@ function diagDeepFindings(t,texte){
   }
   if(t==='rupconv'){
     // Délai de rétractation : 15 jours CALENDAIRES (L.1237-13)
-    var _rr=/r[ée]tractation[^.]{0,60}?(\d{1,2})\s*jours?(\s+ouvr\w+|\s+calend\w+)?/i.exec(texte);
+    var _rr=/r[ée]tractation[\s\S]{0,90}?(\d{1,2})\s*jours?(\s+ouvr\w+|\s+calend\w+)?/i.exec(texte);
     if(_rr){ var _rj=parseInt(_rr[1],10);
       if(_rj && _rj!==15) d.push('<b>Délai de rétractation erroné (art. L.1237-13)</b> — le délai de rétractation est de <b>15 jours calendaires</b> ; le document indique <b>'+_rj+' jours</b>. Un délai inexact entache la validité de la convention.');
       else if(/ouvr\w+/i.test(_rr[0])) d.push('<b>Délai de rétractation mal décompté (art. L.1237-13)</b> — les 15 jours de rétractation sont <b>calendaires</b>, pas ouvrés/ouvrables.');
@@ -11439,7 +11443,7 @@ function diagDeepFindings(t,texte){
     if(/(un\s+seul|fait\s+en\s+un|un\s+unique|d[’']un\s+unique)\s+exemplaire|sans\s+remise\s+d[’']un?\s+exemplaire|aucun\s+exemplaire\s+(n[’']est\s+)?remis/i.test(texte))
       d.push('<b>Exemplaire non remis au salarié (nullité — Cass. soc. 3 juil. 2019)</b> — un exemplaire signé de la convention doit être <b>remis au salarié</b> ; un document établi « en un seul exemplaire » ou non remis rend la rupture <b>nulle</b>.');
     // Indemnité inférieure au minimum légal
-    if(/indemnit[ée][^.]{0,70}(inf[ée]rieure|en\s+de[çc]|r[ée]duite|symbolique|minor[ée])/i.test(texte) || /indemnit[ée][^.]{0,40}(z[ée]ro|aucune|n[ée]ant)/i.test(texte))
+    if(/indemnit[ée][^.]{0,70}(inf[ée]rieure?|en\s+de[çc]|r[ée]duite|symbolique|minor[ée])/i.test(texte) || /indemnit[ée][^.]{0,40}(z[ée]ro|aucune|n[ée]ant)/i.test(texte) || /(inf[ée]rieur|en\s+de[çc][àa]|moindre|moins[- ]disant)\w*\s+[àa]\s+l[’']indemnit[ée]\s+l[ée]gale/i.test(texte))
       d.push('<b>Indemnité spécifique possiblement insuffisante (art. L.1237-13)</b> — l\'indemnité de rupture conventionnelle ne peut être <b>inférieure à l\'indemnité légale de licenciement</b> (ni au minimum conventionnel plus favorable) ; à recalculer selon l\'ancienneté et le salaire.');
     // Salarié protégé : autorisation de l'inspecteur, pas simple homologation
     if(/(salari[ée]\s+prot[ée]g[ée]|[ée]lu\s+(du\s+|au\s+)?cse|membre\s+(titulaire\s+|suppl[ée]ant\s+)?du\s+cse|repr[ée]sentant\s+du\s+personnel|d[ée]l[ée]gu[ée]\s+syndical|conseiller\s+prud)/i.test(texte) && !/inspecteur\s+du\s+travail|autorisation\s+de\s+l[’']inspect/i.test(texte))
@@ -11453,6 +11457,22 @@ function diagDeepFindings(t,texte){
     // Homologation demandée avant la fin de la rétractation
     if(/homologation[^.]{0,50}(d[èe]s|avant|imm[ée]diat|sans\s+attendre|le\s+jour\s+m[êe]me)[^.]{0,40}(signature|r[ée]tractation)/i.test(texte) || /(d[èe]s|avant)\s+la\s+signature[^.]{0,40}homologation/i.test(texte))
       d.push('<b>Homologation demandée trop tôt (art. L.1237-14)</b> — la demande d\'homologation ne peut être adressée à la DREETS <b>qu\'après l\'expiration du délai de rétractation de 15 jours</b> ; l\'envoyer avant entraîne un refus.');
+    // Signataire côté employeur = tiers extérieur (consultant / cabinet externe) : défaut de pouvoir
+    if(/consultant\s+(rh\s+)?(externe|ext[ée]rieur)|cabinet\s+de\s+conseil|prestataire\s+externe|repr[ée]sent[ée]e?\s+par[^.]{0,60}(consultant|cabinet|avocat|prestataire)[^.]{0,25}(externe|ext[ée]rieur)/i.test(texte))
+      d.push('<b>Signataire employeur non habilité (tiers extérieur)</b> — la convention est signée côté employeur par un <b>consultant / cabinet externe</b>. Seul l\'employeur ou une personne de l\'entreprise régulièrement délégataire du pouvoir de rompre le contrat peut signer ; un <b>tiers étranger à l\'entreprise</b> n\'a pas ce pouvoir, ce qui fragilise la validité de la rupture.');
+    // Renonciation au droit d'être assisté / entretien sans possibilité d'assistance
+    if(/(renon[çc]\w+|renonciation)[^.]{0,50}(assistance|assist[ée]|[êe]tre\s+assist)/i.test(texte) || /(sans|aucune)\s+(possibilit[ée]\s+d[’']|facult[ée]\s+d[’']|)?assistance/i.test(texte) || /entretien\s+(unique|seul)[^.]{0,60}(seuls?|sans\s+tiers|confidentialit)/i.test(texte))
+      d.push('<b>Droit à l\'assistance méconnu (art. L.1237-12)</b> — lors du ou des entretiens, le salarié doit pouvoir <b>se faire assister</b> (par un salarié de l\'entreprise ou, à défaut de CSE, un conseiller du salarié), l\'employeur ne pouvant alors être assisté que si le salarié l\'est. Une clause de <b>renonciation à l\'assistance</b> ou un entretien organisé « seuls » prive le salarié d\'une garantie de fond et peut entraîner la <b>nullité</b> de la convention.');
+    // Homologation / rétractation par les DATES : moins de 15 jours calendaires entre signature et demande d'homologation
+    var _dSig=diagDatesNearKw(texte,/fait\s+[àa]|sign[ée]e?\s+le|signature|le\s+pr[ée]sent\s+(document|acte)/i);
+    var _dHom=diagDatesNearKw(texte,/homologation|t[ée]l[ée]transmis|t[ée]l[ée]rc|dreets|adress[ée]e?\s+[àa]\s+l[’']administration/i);
+    if(_dSig.length && _dHom.length){ _dSig.sort(function(a,b){return a-b;}); _dHom.sort(function(a,b){return a-b;});
+      var _gHom=Math.round((_dHom[0]-_dSig[0])/86400000);
+      if(_gHom>=0 && _gHom<15) d.push('<b>Homologation transmise avant la fin de la rétractation (art. L.1237-13 et L.1237-14)</b> — la signature (~'+diagFdate(_dSig[0])+') et l\'envoi de la demande d\'homologation (~'+diagFdate(_dHom[0])+') sont séparés d\'environ <b>'+_gHom+' jours</b>, alors que le délai de rétractation est de <b>15 jours calendaires</b>. La demande ne peut être adressée à la DREETS <b>qu\'après ce délai</b> : elle est prématurée et sera refusée.');
+    }
+    // Date d'effet fixée indépendamment de l'homologation (« que l'instruction soit achevée ou non »)
+    if(/(que\s+l[’']instruction|que\s+l[’']homologation|m[êe]me\s+si\s+l[’']homologation)[^.]{0,60}(achev[ée]e?|termin[ée]e?|obtenue?|d[ée]livr[ée]e?|accord[ée]e?)\s+ou\s+non/i.test(texte) || /date\s+d[’']effet[^.]{0,90}(sans\s+attendre|ind[ée]pendamment)[^.]{0,40}(homologation|instruction)/i.test(texte))
+      d.push('<b>Date d\'effet de la rupture irrégulière (art. L.1237-13)</b> — le contrat <b>ne peut être rompu qu\'au lendemain de l\'homologation</b> (ou de son acceptation tacite). Fixer une date d\'effet « que l\'instruction soit achevée ou non » est illicite : sans homologation, la rupture est <b>nulle</b> et le contrat se poursuit.');
   }
   if(t==='pse'){
     // Espacement des 2 réunions de consultation du CSE : au moins 15 jours (L.1233-30)
@@ -11686,7 +11706,22 @@ if(c.resume)h+='<div style="font-size:11.5px;color:#555;background:#f7f5ee;borde
 var texte=(c.resume||''),texteNet=texte.replace(/\s/g,'');
 // Alerte si le type choisi ne correspond pas au contenu détecté (évite d'analyser avec le mauvais référentiel)
 var _auto=(texteNet.length>=40)?diagAutoType(texte):'';
-if(_auto && _auto!==t && DOCS[_auto]){
+// Signature « forte » propre à chaque type : si elle est présente, le type choisi est plausible → pas d'alerte
+// (ex. une rupture conventionnelle qui évoque un PSE ou un licenciement économique reste une rupconv).
+var _sigType={
+  rupconv:/rupture\s+conventionnelle/i,
+  pse:/plan\s+de\s+sauvegarde\s+de\s+l[’']emploi/i,
+  licenciement:/(proc[ée]der\s+[àa]\s+votre\s+licenciement|vous\s+notifions\s+votre\s+licenciement|votre\s+licenciement\s+prend\s+effet|nous\s+vous\s+licencions)/i,
+  cdd:/contrat\s+[àa]\s+dur[ée]e\s+d[ée]termin[ée]e/i,
+  contrat:/contrat\s+[àa]\s+dur[ée]e\s+ind[ée]termin[ée]e/i,
+  sanction:/(avertissement|bl[âa]me|mise\s+[àa]\s+pied\s+disciplinaire|r[ée]trogradation)/i,
+  convocation:/(convoqu[ée]?\s+[àa]\s+un\s+entretien\s+pr[ée]alable|entretien\s+pr[ée]alable\s+[àa]\s+un\s+[ée]ventuel)/i,
+  inaptitude:/inaptitude/i,
+  cse_pv:/proc[èe]s[- ]verbal/i,
+  cse_oj:/ordre\s+du\s+jour/i,
+  cse_convoc:/convocation/i
+};
+if(_auto && _auto!==t && DOCS[_auto] && !(_sigType[t]&&_sigType[t].test(texte))){
   h+='<div style="background:#fdecec;border:1.5px solid #d33;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:12.5px;color:#8a1a1a">⚠️ <b>Type de document probablement incorrect.</b> Le texte ressemble plutôt à « <b>'+esc(DOCS[_auto].nom)+'</b> », mais vous avez choisi « '+esc(d.nom)+' ». L\'analyse ci-dessous applique les règles de « '+esc(d.nom)+' » — <b>changez le type en haut de la page</b> puis relancez pour une analyse pertinente.</div>';
 }
 // Mentions obligatoires (avec détection des NÉGATIONS) — calculées AVANT le verdict pour qu'elles comptent
