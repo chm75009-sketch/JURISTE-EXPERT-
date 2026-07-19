@@ -294,7 +294,7 @@
 
     <div class="grid kpis" id="kpis" style="margin-bottom:18px"></div>
 
-    <div class="card" style="border-left:4px solid var(--accent)">
+    <div class="card" id="secRelation" style="border-left:4px solid var(--accent)">
       <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span> <span style="font-weight:700;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle">classif v3</span></h2>
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
@@ -578,6 +578,15 @@ if(taillesEl){ TAILLES.forEach(function(t){
 let lastOffers = [];
 let lastTotal = 0;
 let lastUnclass = [];
+let lastDroitSocial = true;   // la recherche courante relève-t-elle du droit social/RH ? (pilote l'affichage du bloc individuel/collectif)
+// Codes ROME « droit social / RH » pour lesquels le ratio individuel/collectif a du sens
+const DS_ROME = ["K1903","K1902","M1503","M1501","M1502"];
+function isDroitSocialSearch(codeRome, aliasCodes, mots){
+  if(codeRome) return DS_ROME.indexOf(codeRome)>=0;
+  if(aliasCodes && aliasCodes.length) return aliasCodes.some(function(c){ return DS_ROME.indexOf(c)>=0; });
+  if(mots) return /juriste|droit\s+social|droit\s+du\s+travail|ressources?\s+humaines|\brh\b|\bpaie\b|\bsocial\b|\bprud|contentieux\s+social|relations?\s+sociales|d[ée]l[ée]gu[ée]\s+syndical|\bcse\b|repr[ée]sentant\s+du\s+personnel/i.test(mots);
+  return true; // recherche vide (large) : on garde le comportement d'origine
+}
 let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 
 $("searchBtn").addEventListener("click", runSearch);
@@ -777,6 +786,7 @@ async function runSearch(){
     if(am.length){ aliasCodes = am.map(function(m){ return m.code; }); aliasLabel = am.map(function(m){ return m.libelle; }).join(" · "); }
   }
   const romeLabel = codeRome ? (($("metierSearch")||{}).value || "ce metier") : (aliasLabel || "");
+  lastDroitSocial = isDroitSocialSearch(codeRome, aliasCodes, mots);   // pilote l'affichage du bloc individuel/collectif
   if(codeRome) base.set("codeROME", codeRome);
 
   $("searchBtn").disabled = true;
@@ -904,7 +914,9 @@ function analyse(offers, totalDispo){
   const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
   bars("chartComp", comp, 15, n);
   renderCloud("cloud", comp, 30);
-  (function(){
+  // Bloc « individuel / collectif » : pertinent uniquement pour un métier de droit social / RH → masqué sinon
+  var _secRel = $("secRelation"); if(_secRel) _secRel.style.display = lastDroitSocial ? "" : "none";
+  if(lastDroitSocial) (function(){
     const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)","Non précisé"];
     const by={}; offers.forEach(function(o){ const c=classifyRel(o); by[c]=(by[c]||0)+1; });
     const pct=function(v){ return n?Math.round(v/n*100):0; };
