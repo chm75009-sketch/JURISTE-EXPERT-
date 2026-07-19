@@ -983,7 +983,7 @@ function analyse(offers, totalDispo){
     {val: totalDispo.toLocaleString("fr-FR"), lab:"offres disponibles au total"},
     {val: Math.round(withSal/n*100)+"%", lab:"offres avec salaire indiqué"},
     {val: Math.round(cdi/n*100)+"%", lab:"part de CDI"},
-    {val: sal.median ? sal.median.toLocaleString("fr-FR")+" €" : "—", lab:"salaire mensuel brut médian (est.)"},
+    {val: sal.median ? sal.median.toLocaleString("fr-FR")+" €" : "—", lab:"salaire annuel brut médian (est.)"},
   ];
   $("kpis").innerHTML = kpis.map(k=>`<div class="kpi"><div class="val">${k.val}</div><div class="lab">${k.lab}</div></div>`).join("");
 
@@ -996,7 +996,7 @@ function analyse(offers, totalDispo){
       <div class="kpi"><div class="val">${sal.max?sal.max.toLocaleString("fr-FR")+" €":"—"}</div><div class="lab">plafond (est.)</div></div>
       <div class="kpi"><div class="val">${sal.count}</div><div class="lab">offres avec salaire chiffré</div></div>
     </div>
-    <div class="hint">Estimation en <strong>brut mensuel</strong> à partir des libellés France Travail (annuel ÷ 12, horaire × 151,67 h). Les fourchettes annoncées « à débattre » ou « selon profil » ne sont pas comptées. À prendre comme un ordre de grandeur.</div>`;
+    <div class="hint">Estimation en <strong>brut annuel</strong> à partir des libellés France Travail (mensuel × 12, horaire × 151,67 h × 12 ; les deux bornes des fourchettes sont prises en compte). Les salaires « à débattre » ou « selon profil » ne sont pas comptés. À prendre comme un ordre de grandeur.</div>`;
   } else {
     salHtml = `<div class="muted" style="font-size:14px">Aucun salaire chiffré exploitable dans cet échantillon.</div>`;
   }
@@ -1009,6 +1009,7 @@ function analyse(offers, totalDispo){
 /* Extraction numérique des salaires (best-effort) — gère les fourchettes « X à Y € sur 12 mois » */
 function analyseSalaires(offers){
   const vals = [];
+  let nOffers = 0;
   offers.forEach(o=>{
     const lib = o.salaire && o.salaire.libelle;
     if(!lib) return;
@@ -1029,18 +1030,24 @@ function analyseSalaires(offers){
       return v>=8 && v<=600000;                    // mode non précisé
     });
     if(!cands.length) return;
-    const low = Math.min.apply(null, cands); // borne basse de la fourchette
-    let monthly = null;
-    if(isAnnuel) monthly = low/12;
-    else if(isMensuel) monthly = low;
-    else if(isHoraire) monthly = low*151.67;
-    else monthly = (low>=8000) ? low/12 : (low<=200 ? low*151.67 : low); // devine : grand=annuel, petit=horaire
-    if(monthly && monthly>200 && monthly<60000) vals.push(Math.round(monthly));
+    // Conversion en BRUT ANNUEL, en gardant les deux bornes de la fourchette
+    const toYear=function(v){
+      if(isAnnuel) return v;
+      if(isMensuel) return v*12;
+      if(isHoraire) return v*151.67*12;
+      return (v>=8000)?v:(v<=200?v*151.67*12:v*12); // devine : grand=annuel, petit=horaire, sinon mensuel
+    };
+    const yrs=cands.map(toYear).filter(function(y){ return y>=4000 && y<=2000000; });
+    if(!yrs.length) return;
+    nOffers++;
+    const lo=Math.round(Math.min.apply(null,yrs)), hi=Math.round(Math.max.apply(null,yrs));
+    vals.push(lo);                    // borne basse
+    if(hi!==lo) vals.push(hi);        // borne haute (si fourchette)
   });
   if(!vals.length) return {count:0};
   vals.sort((a,b)=>a-b);
   const median = vals[Math.floor(vals.length/2)];
-  return {count:vals.length, min:vals[0], max:vals[vals.length-1], median};
+  return {count:nOffers, min:vals[0], max:vals[vals.length-1], median};
 }
 
 function renderOffers(offers){
