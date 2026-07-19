@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.76';
+var JX_BUILD = 'v2026-07-19.77';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.77', d:'20 juillet 2026', t:[
+   'SANCTION DISCIPLINAIRE — analyse de fond dédiée : double sanction pour les mêmes faits (non bis in idem), entretien préalable omis pour une sanction lourde (L.1332-2), sanction à effet immédiat / délai de 2 jours non respecté (L.1332-2), mise à pied disciplinaire à durée indéterminée (L.1331-1), rétrogradation imposée sans l\'accord du salarié (Cass. soc. 16 juin 1998), motif fondé sur l\'état de santé = discrimination nulle (L.1132-1) et suppression illicite du droit de contester la sanction. S\'ajoute aux détections existantes (prescription des faits, sanction pécuniaire, motif imprécis).'
+ ]},
  {v:'v2026-07-19.76', d:'20 juillet 2026', t:[
    'CONTRAT — la date d\'embauche est désormais reconnue sous la formulation « engagé à compter du … » (et non plus seulement « date d\'embauche » / « prise de fonction ») : plus de fausse alerte orange sur ce point de contrôle.'
  ]},
@@ -11449,6 +11452,31 @@ function diagDeepFindings(t,texte){
       var _ge=Math.round((_envD[0]-_entD[0])/86400000);
       if(_ge>=0 && _ge<=2) d.push('<b>Délai de 2 jours ouvrables à vérifier (art. L.1232-6)</b> — l\'entretien ('+diagFdate(_entD[0])+') et l\'envoi de la lettre ('+diagFdate(_envD[0])+') semblent séparés d\'environ <b>'+_ge+' jour(s)</b>. La lettre ne peut partir <b>qu\'au moins 2 jours OUVRABLES après</b> l\'entretien : recomptez en excluant week-ends et jours fériés (ex. le 14 juillet est férié).');
     }
+  }
+  if(t==='sanction'){
+    var _map=/mise\s+[àa]\s+pied\s+disciplinaire/i.test(texte), _retro=/r[ée]trogradation|mutation\s+disciplinaire/i.test(texte);
+    var _entPrea=/entretien\s+pr[ée]alable/i.test(texte);
+    // Double sanction pour les mêmes faits (non bis in idem)
+    if(/(d[ée]j[àa]\s+prononc[ée]|d[ée]j[àa]\s+(inflig|notifi)[ée]|avertissement\s+([ée]crit\s+)?(a\s+été\s+)?(déjà\s+)?(prononc|notifi|adress|inflig)|un\s+(premier\s+)?avertissement)[^]{0,200}?(sanction\s+plus\s+lourde|nouvelle\s+sanction|m[êe]mes?\s+faits|ces\s+m[êe]mes\s+faits|pour\s+ces\s+faits|sanctionner\s+[àa]\s+nouveau)/i.test(texte))
+      d.push('<b>Double sanction pour les mêmes faits (non bis in idem)</b> — des faits ayant <b>déjà été sanctionnés</b> (ici un avertissement) ne peuvent donner lieu à une <b>seconde sanction</b> : l\'employeur a épuisé son pouvoir disciplinaire pour ces faits (Cass. soc. ; principe non bis in idem). Seuls des faits <b>nouveaux</b>, ou la répétition postérieure à l\'avertissement, peuvent justifier une sanction plus lourde.');
+    // Absence d'entretien préalable alors que la sanction a un impact (mise à pied, rétrogradation…)
+    if((_map||_retro) && !_entPrea)
+      d.push('<b>Entretien préalable omis (art. L.1332-2)</b> — dès lors qu\'une sanction a une <b>incidence sur la présence, la fonction, la carrière ou la rémunération</b> (mise à pied, rétrogradation, mutation), l\'employeur doit <b>convoquer le salarié à un entretien préalable</b> avant de la prononcer. Aucun entretien préalable ne semble mentionné : la sanction est irrégulière.');
+    // Sanction prenant effet immédiatement (délai de 2 jours ouvrables non respecté — L.1332-2)
+    if(/(prend\s+effet\s+imm[ée]diat|effet\s+imm[ée]diat|d[èe]s\s+(la\s+)?r[ée]ception\s+(de\s+ce\s+courrier|de\s+la\s+pr[ée]sente)|imm[ée]diatement\s+d[èe]s)/i.test(texte))
+      d.push('<b>Sanction notifiée / applicable trop tôt (art. L.1332-2)</b> — une sanction (autre qu\'un avertissement) ne peut intervenir <b>moins de 2 jours ouvrables</b> après l\'entretien préalable, ni <b>plus d\'un mois</b> après. Une sanction prenant effet « immédiatement dès réception » ne respecte pas ce délai de réflexion obligatoire.');
+    // Mise à pied disciplinaire sans durée maximale déterminée (L.1331-1 + règlement intérieur)
+    if(_map && /(sans[^.]{0,45}(date\s+de\s+fin|dur[ée]e\s+d[ée]termin|pr[ée]cis|terme)|dur[ée]e\s+que\s+la\s+direction\s+jugera|toute\s+la\s+dur[ée]e\s+(n[ée]cessaire|jug[ée]e)|jusqu[’']à\s+nouvel\s+ordre|dur[ée]e\s+ind[ée]termin[ée]e|sans\s+(en\s+)?pr[ée]ciser\s+(de\s+)?(date|dur[ée]e|terme))/i.test(texte))
+      d.push('<b>Mise à pied disciplinaire à durée indéterminée (art. L.1331-1)</b> — une mise à pied <b>disciplinaire</b> doit être d\'une <b>durée limitée et déterminée</b>, dont le maximum est en principe fixé par le <b>règlement intérieur</b>. Une mise à pied « pour toute la durée que la direction jugera nécessaire », sans terme, est <b>illicite</b> (elle s\'apparente à une mise à pied conservatoire, laquelle ne peut être une sanction).');
+    // Rétrogradation / modification du contrat imposée sans recueillir l'accord du salarié
+    if((_retro || /modification\s+(de\s+)?(votre\s+)?(qualification|contrat|r[ée]mun[ée]ration|responsabilit)/i.test(texte)) && /(prend\s+effet\s+imm[ée]diat|d[ée]finitive|sans\s+(qu[’']?\s*aucune\s+(autre\s+)?formalit|votre\s+accord|recueillir)|impos[ée]?e?\s+|d[èe]s\s+(la\s+)?r[ée]ception)/i.test(texte))
+      d.push('<b>Rétrogradation imposée sans accord du salarié (Cass. soc. 16 juin 1998)</b> — une sanction qui <b>modifie le contrat de travail</b> (rétrogradation, baisse de qualification ou de rémunération) ne peut être <b>imposée</b> : l\'employeur doit <b>recueillir l\'accord exprès du salarié</b>, qui peut la <b>refuser</b>. En cas de refus, l\'employeur peut renoncer ou engager une autre procédure, mais ne peut l\'appliquer d\'office.');
+    // Motif fondé sur l'état de santé / les absences justifiées = discrimination (L.1132-1)
+    if(/([ée]tat\s+de\s+sant[ée]|arr[êe]ts?\s+(de\s+travail|maladie)|syndrome\s+d[’']épuisement|maladie|handicap)[^.]{0,160}(baisse\s+de\s+rendement|ne\s+vous\s+permet|ne\s+permet\s+plus|d[ée]sorganis|sanction|r[ée]trograd|responsabilit[ée]s|rendement)/i.test(texte))
+      d.push('<b>Motif fondé sur l\'état de santé = discrimination nulle (art. L.1132-1)</b> — sanctionner un salarié en raison de son <b>état de santé</b>, de ses <b>arrêts maladie justifiés</b> ou de leurs conséquences (« baisse de rendement », désorganisation) est une <b>discrimination</b> : la sanction est <b>nulle</b>. Seuls des faits fautifs objectifs, distincts de l\'état de santé, peuvent être reprochés.');
+    // Suppression du droit de contester la sanction
+    if(/(sans\s+(aucun\s+)?recours|aucun\s+recours\s+possible|d[ée]finitive\s+et\s+sans\s+recours|non\s+susceptible\s+de\s+recours|ne\s+pourrez\s+(la\s+)?contester)/i.test(texte))
+      d.push('<b>Droit de contestation supprimé (ordre public)</b> — le salarié conserve <b>toujours</b> le droit de <b>contester une sanction devant le conseil de prud\'hommes</b> (et le juge peut l\'annuler si elle est irrégulière, injustifiée ou disproportionnée — L.1333-1 s.). Affirmer que la décision est « sans aucun recours possible » est <b>illicite</b> et sans effet.');
   }
   if(t==='rupconv'){
     // Délai de rétractation : 15 jours CALENDAIRES (L.1237-13)
