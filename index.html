@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.74';
+var JX_BUILD = 'v2026-07-19.75';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.75', d:'20 juillet 2026', t:[
+   'CONTRAT DE TRAVAIL (CDI/CDD) — analyse de fond renforcée : période d\'essai selon la catégorie réelle du salarié (2 mois ouvrier/employé, 3 mois agent de maîtrise/technicien, 4 mois cadre — L.1221-19) et renouvellement irrégulier « à la seule initiative de l\'employeur » (L.1221-21) ; convention de forfait-jours sans accord collectif (L.3121-63) ; clause de modification unilatérale du contrat ; clause de dédit-formation forfaitaire non proportionnée au coût réel ; clause pénale / sanction pécuniaire retenue sur le salaire (L.1331-2). Détection de la rémunération inférieure au SMIC élargie (montant libellé en « euros »).'
+ ]},
  {v:'v2026-07-19.74', d:'20 juillet 2026', t:[
    'RUPTURE CONVENTIONNELLE — analyse de fond renforcée : détection du signataire employeur non habilité (consultant/cabinet externe), de la renonciation au droit d\'assistance (L.1237-12), de la demande d\'homologation transmise avant la fin des 15 jours de rétractation (comparaison des dates signature/envoi) et de la date d\'effet fixée indépendamment de l\'homologation (« que l\'instruction soit achevée ou non » — L.1237-13). Détection de l\'indemnité inférieure au minimum légal élargie.',
    'ALERTE DE TYPE affinée : plus d\'avertissement injustifié quand le texte contient bien la signature du type choisi (ex. une rupture conventionnelle qui évoque un PSE reste analysée comme rupture conventionnelle).'
@@ -11389,7 +11392,7 @@ function diagContractChecks(texte){
     d.push('<b>Classification absente</b> — un <b>coefficient / groupe</b> de la convention collective doit être attribué : il fixe le minimum conventionnel ; son absence prive le salarié de la garantie de rémunération.');
   if(/aucune\s+majoration|sans\s+majoration|ne\s+(feront|donneront?)\s+(l[’']objet\s+d[’']|lieu\s+[àa]\s+)aucune\s+(majoration|contrepartie)|d[ée]compte\s+du\s+temps\s+de\s+service\s+n[’']est\s+pas\s+applicable/i.test(texte))
     d.push('<b>Heures supplémentaires sans majoration (L.3121-28 et s.)</b> — les heures au-delà de la durée légale ouvrent droit à majoration (ou repos compensateur) : une clause les excluant est <b>nulle</b>. En transport, le <b>décompte du temps de service</b> est obligatoire.');
-  var rm=texte.match(/r[ée]mun[ée]ration\s+mensuelle\s+brute\s+de\s+([\d\s.,]+?)\s*€/i)||texte.match(/([\d\s.,]{3,9})\s*€\s+pour\s+151/i)||texte.match(/salaire\s+mensuel\s+brut[^\d]{0,12}([\d\s.,]+?)\s*€/i);
+  var rm=texte.match(/r[ée]mun[ée]ration\s+mensuelle\s+brute\s+de\s+([\d\s.,]+?)\s*€/i)||texte.match(/([\d\s.,]{3,9})\s*€\s+pour\s+151/i)||texte.match(/salaire\s+mensuel\s+brut[^\d]{0,12}([\d\s.,]+?)\s*€/i)||texte.match(/r[ée]mun[ée]ration\s+brute\s+mensuelle[^\d]{0,30}?([\d][\d\s.,]{2,9})\s*(?:€|euros?)/i)||texte.match(/(?:r[ée]mun[ée]ration|salaire)[^.]{0,55}?montant\s+(?:brut\s+)?(?:mensuel\s+)?(?:fixe\s+)?d[e’'’]\s*(?:un\s+montant\s+de\s+)?([\d][\d\s.,]{2,9})\s*(?:€|euros?)/i);
   if(rm){var val=diagNum(rm[1]);if(val&&val>=200&&val<1867)d.push('<b>Rémunération inférieure au SMIC</b> — le brut mensuel indiqué (~<b>'+Math.round(val)+' €</b>) est inférieur au SMIC mensuel (≈ <b>1 867 €</b> pour 151,67 h en 2026) et aux minima conventionnels : le complément de salaire est dû.');}
   if(/aucune\s+convention\s+collective[^.]{0,40}(ne\s+s[’']applique|n[’']est\s+vis[ée]e)|aucune\s+convention\s+collective\s+n[’']est|convention\s+collective\s+de\s+branche\s+ne\s+s[’']applique|aucune\s+convention\s+collective\s+de\s+branche/i.test(texte))
     d.push('<b>Exclusion illicite de la convention collective (L.2261-2)</b> — la CCN s\'impose selon l\'activité réelle de l\'entreprise ; les parties ne peuvent pas l\'écarter, et un contrat de transport ne peut pas être « sans convention collective ».');
@@ -11399,6 +11402,18 @@ function diagContractChecks(texte){
     d.push('<b>Clause d\'exclusivité trop large (L.1121-1)</b> — l\'exclusivité n\'est licite que si elle est indispensable à la protection des intérêts de l\'entreprise, justifiée par la nature de la tâche et proportionnée. Interdire « toute autre activité, rémunérée ou non » est excessif et fragilise la clause.');
   if(/non-concurrence/i.test(texte)&&/aucune\s+contrepartie|sans\s+contrepartie|ne\s+donne\s+lieu\s+[àa]\s+aucune\s+contrepartie|pas\s+de\s+contrepartie/i.test(texte))
     d.push('<b>Clause de non-concurrence NULLE (Cass. soc. 10 juillet 2002)</b> — sans <b>contrepartie financière</b>, la clause de non-concurrence est nulle. Vérifiez aussi qu\'elle est limitée dans le temps et l\'espace et tient compte des spécificités de l\'emploi (une interdiction « transport, 2 ans, territoire national » est en outre disproportionnée).');
+  // Convention de forfait annuel en jours sans accord collectif = nulle (L.3121-63)
+  if(/forfait\s+(annuel\s+)?(en\s+)?jours|forfait[- ]jours|forfait[- ]annuel\s+en\s+jours/i.test(texte) && /(sans\s+(que\s+)?[^.]{0,70}accord\s+(d[’']entreprise|de\s+branche|collectif)|aucun\s+accord\s+(collectif|d[’']entreprise|de\s+branche)|sans\s+se\s+r[ée]f[ée]rer\s+[àa]\s+un\s+accord|sans\s+accord\s+(collectif|d[’']entreprise|de\s+branche))/i.test(texte))
+    d.push('<b>Forfait-jours sans accord collectif = nul (art. L.3121-63 et L.3121-64)</b> — une convention de forfait annuel en jours n\'est valable que si elle est <b>prévue par un accord collectif</b> (accord d\'entreprise ou, à défaut, de branche) fixant le nombre de jours et les garanties de suivi de la charge de travail. Sans accord, la convention est <b>nulle</b> et le salarié peut réclamer le paiement des <b>heures supplémentaires</b>.');
+  // Clause de modification unilatérale du contrat par l'employeur = réputée non écrite
+  if(/(se\s+r[ée]serv\w+)[^.]{0,55}(droit\s+d[’'’\s]?imposer|imposer|modifier)[^.]{0,90}(modification|horaires|r[ée]mun[ée]ration|responsabilit|t[âa]ches|fonctions|structure\s+de\s+sa\s+r[ée]mun)/i.test(texte) || /modification\s+unilat[ée]rale[^.]{0,70}(contrat|r[ée]mun[ée]ration|horaires|fonctions|responsabilit)/i.test(texte))
+    d.push('<b>Clause de modification unilatérale interdite (Cass. soc. ; art. 1103 C. civ.)</b> — l\'employeur ne peut <b>imposer unilatéralement</b> la modification d\'un <b>élément essentiel</b> du contrat (rémunération, qualification, durée du travail). Une clause qui l\'y autorise par avance est <b>réputée non écrite</b> : toute modification suppose l\'<b>accord exprès du salarié</b>.');
+  // Clause de dédit-formation : montant forfaitaire non proportionné au coût réel
+  if((/d[ée]dit[- ]?formation/i.test(texte) || (/formation/i.test(texte) && /s[’']engage\s+[àa]\s+rester|indemnit[ée]\s+(forfaitaire\s+)?compensatrice/i.test(texte))) && /(forfaitaire|sans\s+qu[’']il\s+soit\s+n[ée]cessaire[^.]{0,45}(facture|co[ûu]t\s+r[ée]el)|sans[^.]{0,35}(facture|co[ûu]t\s+r[ée]el|frais\s+r[ée]els))/i.test(texte))
+    d.push('<b>Clause de dédit-formation à revoir (Cass. soc. ; art. L.6353-1)</b> — la clause n\'est licite que si la formation a un <b>coût réel supérieur</b> aux obligations légales de l\'employeur, si le montant du dédit est <b>proportionné à ce coût réel</b> et n\'entrave pas la liberté de démissionner. Un montant <b>forfaitaire</b> fixé <b>sans référence à la facture réelle</b> est disproportionné et rend la clause inopposable.');
+  // Clause pénale / sanction pécuniaire à la charge du salarié + retenue sur salaire = interdite
+  if(/(clause\s+p[ée]nale|indemnit[ée]\s+forfaitaire\s+p[ée]nale|p[ée]nalit[ée]\s+forfaitaire|indemnit[ée]\s+p[ée]nale)/i.test(texte) || /(pr[ée]compt[ée]e?|retenue?)[^.]{0,40}sur\s+(son\s+|le\s+)?(dernier\s+)?(bulletin\s+de\s+(salaire|paie)|salaire|solde\s+de\s+tout\s+compte)/i.test(texte))
+    d.push('<b>Clause pénale / sanction pécuniaire interdite (art. L.1331-2)</b> — mettre à la charge du salarié une <b>indemnité forfaitaire</b> en cas de démission ou d\'inexécution du préavis, et surtout la <b>précompter directement sur le salaire</b>, constitue une <b>sanction pécuniaire prohibée</b>, nulle de plein droit. Seul le préjudice <b>réel</b> peut éventuellement être réclamé en justice, jamais retenu sur la paie.');
   return d;
 }
 function diagDeepFindings(t,texte){
@@ -11547,9 +11562,19 @@ function diagDeepFindings(t,texte){
     d=d.concat(diagContractChecks(texte));
   }
   if(t==='contrat'){
-    var peI=texte.match(/p[ée]riode\s+d[’']essai\s+de\s+([\wà-ÿ-]+)\s+mois/i);
-    if(peI){var pvi=diagMoisFR(peI[1]);if(pvi&&pvi>4)d.push('<b>Période d\'essai illégale (art. L.1221-19)</b> — l\'essai initial d\'un CDI est plafonné à <b>2 mois</b> (ouvriers/employés), <b>3 mois</b> (agents de maîtrise/techniciens) ou <b>4 mois</b> (cadres) : '+pvi+' mois est illégal. Un conducteur relève des ouvriers/employés → <b>2 mois maximum</b> (4 mois avec renouvellement si un accord de branche le prévoit).');
-      else if(pvi&&pvi>2)d.push('<b>Période d\'essai probablement excessive (art. L.1221-19)</b> — '+pvi+' mois : un conducteur relève des ouvriers/employés, dont l\'essai est plafonné à <b>2 mois</b> (renouvellement éventuel jusqu\'à 4 mois si accord de branche). Vérifiez la catégorie et l\'accord applicable.');}
+    // Période d'essai : plafond selon la catégorie (L.1221-19) — ouvrier/employé 2 mois, AM/technicien 3 mois, cadre 4 mois
+    var peI=texte.match(/p[ée]riode\s+d[’']essai\s+d[e’'’][^.]{0,25}?(\d{1,2}|une?|deux|trois|quatre|cinq|six)\s*(?:\(\s*\d{1,2}\s*\))?\s*mois/i);
+    var pvi=peI?diagMoisFR(peI[1]):null;
+    if(pvi){
+      // Catégorie du salarié : détection ciblée (éviter le faux ami « dans le cadre de… »)
+      var _cad=/(cat[ée]gorie|statut|qualit[ée]|classification|position|coefficient|rel[èe]ve\s+de(?:\s+la\s+cat[ée]gorie)?)[^.]{0,35}\bcadres?\b|personnel\s+cadres?\b|statut\s+(de\s+)?cadres?\b|\bcadres?\s+(dirigeant|sup[ée]rieur|au\s+forfait)/i.test(texte), _am=/agent\s+de\s+ma[îi]trise|\btechnicien(ne)?\b/i.test(texte);
+      var _maxE=_cad?4:(_am?3:2), _lbl=_cad?'un cadre (4 mois maximum)':(_am?'un agent de maîtrise / technicien (3 mois maximum)':'un ouvrier / employé (2 mois maximum)');
+      if(pvi>_maxE)
+        d.push('<b>Période d\'essai illégale (art. L.1221-19)</b> — l\'essai indiqué est de <b>'+pvi+' mois</b>, alors que pour <b>'+_lbl+'</b> ce plafond est dépassé. L\'essai initial d\'un CDI est de <b>2 mois</b> (ouvriers/employés), <b>3 mois</b> (agents de maîtrise/techniciens) ou <b>4 mois</b> (cadres) : toute durée supérieure est réduite d\'office au maximum légal.');
+    }
+    // Renouvellement de l'essai : accord de branche étendu + accord exprès du salarié (jamais à la seule initiative de l'employeur)
+    if(/p[ée]riode\s+d[’']essai/i.test(texte) && /renouvel/i.test(texte) && /(initiative\s+(exclusive|seule|unilat[ée]rale)\s+de\s+l[’']employeur|simple\s+(notification|d[ée]cision)\s+([ée]crite\s+)?(remise\s+)?[^.]{0,20}(employeur|direction)|sans\s+accord\s+du\s+salari|d[ée]cision\s+unilat[ée]rale)/i.test(texte))
+      d.push('<b>Renouvellement de la période d\'essai irrégulier (art. L.1221-21 ; Cass. soc.)</b> — le renouvellement suppose à la fois un <b>accord de branche étendu</b> le prévoyant ET l\'<b>accord exprès du salarié</b> recueilli en cours d\'essai. Il ne peut résulter de la <b>seule initiative / notification de l\'employeur</b> ni d\'une acceptation donnée par avance dans le contrat : un tel renouvellement est <b>nul</b>.');
     d=d.concat(diagContractChecks(texte));
   }
   if(t==='clause'){
