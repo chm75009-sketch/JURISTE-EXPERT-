@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.69';
+var JX_BUILD = 'v2026-07-19.70';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.70', d:'20 juillet 2026', t:[
+   'Élections CSE — panneau « Points à vérifier » : chaque point indique désormais <b>comment l\'app a compté par défaut</b> (« compté ÉLECTEUR + ÉLIGIBLE », « NON compté », « déjà tranché : exclu »…), pour savoir l\'état exact en attendant vos rectifications manuelles.',
+   'Détection des doublons resserrée : l\'app ne signale plus les simples homonymes ; un doublon n\'est signalé que si le <b>nom ET la date de naissance</b> sont identiques (fin des dizaines de fausses alertes sur les grandes listes).'
+ ]},
  {v:'v2026-07-19.69', d:'20 juillet 2026', t:[
    'Élections CSE — COLLÈGES : quand l\'entreprise compte au moins 25 cadres, l\'app affiche désormais les 3 collèges séparément (1er ouvriers/employés · 2e techniciens-maîtrise · 3e cadres), avec la répartition femmes/hommes de chacun — le 3e collège est alors obligatoire (L.2314-11). En dessous de 25 cadres, maîtrise et cadres restent réunis dans le 2e collège, comme le prévoit la loi.'
  ]},
@@ -8226,32 +8230,36 @@ function _cseVigilance(list, dateScrutin){
   const w = [];
   if(!list || !list.length) return w;
   const scr = dateScrutin ? new Date(dateScrutin) : null;
-  // Doublons (même nom normalisé)
-  const seen = {}, dups = {};
-  list.forEach(s => { const k=(s.nom||'').toUpperCase().replace(/\s+/g,' ').trim(); if(!k) return; if(seen[k]) dups[k]=true; else seen[k]=1; });
-  Object.keys(dups).forEach(k => w.push('Doublon possible : « '+k+' » apparaît plusieurs fois — vérifiez qu\'il ne s\'agit pas du même salarié compté deux fois.'));
-  // Représentants de l'employeur / délégation d'autorité → non éligibles (voire non électeurs)
+  // Comment l'app a tranché par défaut pour ce salarié
+  const statutDef = (s)=>{ try{ const r=calcSalarieNom(s,dateScrutin); if(!r) return 'non calculé'; return r.electeur ? (r.eligible?'compté ÉLECTEUR + ÉLIGIBLE':'compté ÉLECTEUR, non éligible') : 'NON compté (non électeur)'; }catch(e){ return 'non calculé'; } };
+  // Doublons : même nom ET même date de naissance (évite les simples homonymes)
+  const cnt = {};
+  list.forEach(s => { const nom=(s.nom||'').toUpperCase().replace(/\s+/g,' ').trim(); if(!nom) return; const k=nom+'|'+(s.dateNaissance||''); cnt[k]=(cnt[k]||0)+1; });
+  const dups = Object.keys(cnt).filter(k => cnt[k]>1);
+  dups.slice(0,8).forEach(k => { const p=k.split('|'); w.push('<b>Doublon probable</b> : « '+p[0]+' »'+(p[1]?' (né(e) le '+p[1]+')':'')+' apparaît <b>'+cnt[k]+' fois</b> avec la même date de naissance → probablement le même salarié. <i>Par défaut, l\'app les compte TOUS</i> (effectif + électeurs) : supprimez les doublons.'); });
+  if(dups.length>8) w.push('… et <b>'+(dups.length-8)+' autre(s) doublon(s) probable(s)</b> (même nom + date de naissance) — tous comptés par défaut.');
+  // Représentants de l'employeur / délégation d'autorité
   const reRep = /directeur\s+g[ée]n[ée]ral|\bdg\b|g[ée]rant|pr[ée]sident|\bdrh\b|directeur\s+des\s+ressources|d[ée]l[ée]gation\s+(de\s+pouvoir|d[’']autorit)/i;
   list.forEach(s => {
     const txt = ((s.emploi||'')+' '+(s.observations||''));
-    if(reRep.test(txt)) w.push('« '+(s.nom||'?')+' » ('+(s.emploi||'poste de direction')+') : vérifiez s\'il <b>représente l\'employeur</b> ou détient une <b>délégation écrite d\'autorité</b> → dans ce cas il n\'est PAS <b>éligible</b>, mais il <b>reste électeur</b> (depuis la loi du 21/12/2022, suite QPC n° 2021-947 — art. L.2314-18 et L.2314-19). Retirez-le manuellement des <b>éligibles</b> le cas échéant.');
-    if(/conjoint|[ée]poux|[ée]pouse|concubin|\bpacs\b|partenaire|proche\s+de\s+l[’']employeur/i.test(txt)) w.push('« '+(s.nom||'?')+' » : lien familial possible avec l\'employeur (conjoint, PACS, concubin, ascendant/descendant, frère/sœur, allié) → <b>électeur mais NON éligible</b> (art. L.2314-19). Retirez-le des éligibles s\'il est confirmé.');
+    if(reRep.test(txt)) w.push('« '+(s.nom||'?')+' » ('+(s.emploi||'poste de direction')+') — <i>par défaut : '+statutDef(s)+'</i>. S\'il <b>représente l\'employeur</b> ou détient une <b>délégation écrite d\'autorité</b>, retirez-le des <b>éligibles</b> ; il <b>reste électeur</b> (loi du 21/12/2022, QPC 2021-947 — L.2314-18/-19).');
+    else if(/conjoint|[ée]poux|[ée]pouse|concubin|\bpacs\b|partenaire|proche\s+de\s+l[’']employeur/i.test(txt)) w.push('« '+(s.nom||'?')+' » — <i>par défaut : '+statutDef(s)+'</i>. Lien familial possible avec l\'employeur (conjoint, PACS, ascendant/descendant, allié) → <b>électeur mais NON éligible</b> (L.2314-19) : retirez-le des éligibles si confirmé.');
   });
   // Dates aberrantes / incohérentes
   if(scr) list.forEach(s => {
     const dN=s.dateNaissance?new Date(s.dateNaissance):null, dE=s.dateEntree?new Date(s.dateEntree):null;
     if(dN && !isNaN(dN)){ const age=(scr-dN)/(365.25*864e5);
-      if(age>90) w.push('« '+(s.nom||'?')+' » : âge calculé ≈ '+Math.round(age)+' ans — date de naissance probablement erronée.');
-      else if(age<14 && age>=0) w.push('« '+(s.nom||'?')+' » : âge calculé ≈ '+Math.round(age)+' ans — vérifiez la date de naissance.');
+      if(age>90) w.push('« '+(s.nom||'?')+' » : âge ≈ '+Math.round(age)+' ans (date de naissance douteuse) — <i>par défaut : '+statutDef(s)+'</i>. Corrigez la date.');
+      else if(age<16) w.push('« '+(s.nom||'?')+' » : âge ≈ '+Math.round(age)+' ans — <i>par défaut : '+statutDef(s)+'</i>. Vérifiez la date de naissance.');
     }
-    if(dE && !isNaN(dE) && dE>scr) w.push('« '+(s.nom||'?')+' » : date d\'entrée ('+s.dateEntree+') postérieure au scrutin — pas encore présent (non électeur).');
-    if(dN && dE && !isNaN(dN) && !isNaN(dE) && dE<dN) w.push('« '+(s.nom||'?')+' » : date d\'entrée antérieure à la date de naissance — données incohérentes.');
+    if(dE && !isNaN(dE) && scr && dE>scr) w.push('« '+(s.nom||'?')+' » : entrée ('+s.dateEntree+') postérieure au scrutin — <i>par défaut : NON compté (pas encore présent)</i>.');
+    if(dN && dE && !isNaN(dN) && !isNaN(dE) && dE<dN) w.push('« '+(s.nom||'?')+' » : entrée antérieure à la naissance (données incohérentes) — <i>par défaut : '+statutDef(s)+'</i>. Corrigez.');
   });
-  // Stagiaires (exclus) et intérimaires (nuance électorat)
+  // Stagiaires / intérimaires : décision déjà tranchée
   const nStag = list.filter(s => s.contrat==='stagiaire').length;
-  if(nStag) w.push(nStag+' stagiaire(s) : exclu(s) de l\'effectif et du corps électoral (pas un contrat de travail).');
+  if(nStag) w.push('<b>'+nStag+' stagiaire(s)</b> — <i>déjà tranché : exclus de l\'effectif et non électeurs</i> (pas un contrat de travail).');
   const nInt = list.filter(s => s.contrat==='interim').length;
-  if(nInt) w.push(nInt+' intérimaire(s) : comptés dans l\'effectif au prorata, mais électeurs uniquement s\'ils sont présents depuis 12 mois ET choisissent de voter dans l\'entreprise (par défaut : non électeurs ici — art. L.2314-23).');
+  if(nInt) w.push('<b>'+nInt+' intérimaire(s)</b> — <i>déjà tranché : comptés dans l\'effectif au prorata, NON électeurs par défaut</i>. Ils votent dans l\'entreprise seulement s\'ils y sont depuis 12 mois ET le demandent (L.2314-23) : ajoutez-les alors aux électeurs.');
   return w;
 }
 function refreshNomTable(){
@@ -8330,7 +8338,7 @@ ${_trois ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → <
   try {
     const vig = _cseVigilance(salariesNom, dateScrutin);
     if(vig.length){
-      let vh = '<div class="item" style="margin-top:10px;background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.35)"><div style="font-size:13px;color:#e8c97a;font-weight:700;margin-bottom:6px">⚠️ Points à vérifier (l\'app ne peut pas trancher seule)</div><div style="font-size:12px;color:#e8e4d8;line-height:1.6">';
+      let vh = '<div class="item" style="margin-top:10px;background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.35)"><div style="font-size:13px;color:#e8c97a;font-weight:700;margin-bottom:2px">⚠️ Points à vérifier (l\'app ne peut pas trancher seule)</div><div style="font-size:11px;color:#9a9585;margin-bottom:6px">Chaque point indique <i>comment l\'app a compté par défaut</i> — à corriger manuellement si besoin.</div><div style="font-size:12px;color:#e8e4d8;line-height:1.6">';
       vig.forEach(v => { vh += '• ' + v + '<br>'; });
       vh += '</div></div>';
       synth.innerHTML += vh;
