@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.78';
+var JX_BUILD = 'v2026-07-19.79';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.79', d:'20 juillet 2026', t:[
+   'INAPTITUDE — analyse de fond dédiée : licenciement fondé sur l\'état de santé / l\'absence (motif discriminatoire, nullité — L.1132-1) au lieu de l\'inaptitude + impossibilité de reclassement ; recherche de reclassement insuffisante (L.1226-2 / L.1226-10) ; reclassement imposé d\'office sans accord du salarié ; consultation du CSE omise (obligatoire, origine pro ET non pro) ; reprise du salaire non effectuée après 1 mois (L.1226-4 / L.1226-11) ; inaptitude professionnelle mal qualifiée en non professionnelle — indemnité spéciale doublée et préavis (L.1226-14) ; préavis illégalement retenu sur le solde de tout compte.'
+ ]},
  {v:'v2026-07-19.78', d:'20 juillet 2026', t:[
    'SANCTION — corrections : suppression de la fausse mention obligatoire « avertissement sur la récidive » (aucune obligation légale de ce type dans une lettre de sanction) ; le message de prescription indique désormais « la sanction est nulle » pour une sanction (au lieu du texte « licenciement sans cause » hérité du module licenciement).'
  ]},
@@ -11521,6 +11524,30 @@ function diagDeepFindings(t,texte){
     // Date d'effet fixée indépendamment de l'homologation (« que l'instruction soit achevée ou non »)
     if(/(que\s+l[’']instruction|que\s+l[’']homologation|m[êe]me\s+si\s+l[’']homologation)[^.]{0,60}(achev[ée]e?|termin[ée]e?|obtenue?|d[ée]livr[ée]e?|accord[ée]e?)\s+ou\s+non/i.test(texte) || /date\s+d[’']effet[^.]{0,90}(sans\s+attendre|ind[ée]pendamment)[^.]{0,40}(homologation|instruction)/i.test(texte))
       d.push('<b>Date d\'effet de la rupture irrégulière (art. L.1237-13)</b> — le contrat <b>ne peut être rompu qu\'au lendemain de l\'homologation</b> (ou de son acceptation tacite). Fixer une date d\'effet « que l\'instruction soit achevée ou non » est illicite : sans homologation, la rupture est <b>nulle</b> et le contrat se poursuit.');
+  }
+  if(t==='inaptitude'){
+    var _atmp=/accident\s+du\s+travail|maladie\s+professionnelle|origine\s+professionnelle|rechute\s+d[’']accident/i.test(texte);
+    // Motif fondé sur l'état de santé / la maladie / l'absence, au lieu de l'inaptitude + impossibilité de reclassement
+    if(/(licenciement\s+en\s+raison\s+de\s+(votre\s+)?[ée]tat\s+de\s+sant|en\s+raison\s+de\s+(votre\s+)?[ée]tat\s+de\s+sant[ée]|[ée]tat\s+de\s+sant[ée]\s+d[ée]ficient|absence\s+prolong[ée]e\s+pour\s+maladie)/i.test(texte) || /(maladie|absence|[ée]tat\s+de\s+sant[ée])[^.]{0,60}motif\s+principal/i.test(texte))
+      d.push('<b>Motif fondé sur l\'état de santé = licenciement nul (art. L.1132-1)</b> — un licenciement pour inaptitude doit être motivé par l\'<b>inaptitude constatée par le médecin du travail</b> ET l\'<b>impossibilité (ou le refus) de reclassement</b>, ou la dispense de reclassement. Le motiver par « l\'état de santé », « l\'absence prolongée pour maladie » ou une « désorganisation » est un motif <b>discriminatoire</b> qui entraîne la <b>nullité</b> du licenciement.');
+    // Recherche de reclassement absente ou non sérieuse
+    if(/recherches?\s+(approfondies?\s+)?de\s+reclassement/i.test(texte) && /([ée]tat\s+du\s+march[ée]|n[’']ait?\s+pas\s+permis|pas\s+(pu|permis)|n[’']avons\s+pas\s+(pu|effectu)|non\s+formalis|difficile)/i.test(texte))
+      d.push('<b>Recherche de reclassement insuffisante (art. L.1226-2 / L.1226-10)</b> — avant tout licenciement pour inaptitude, l\'employeur doit rechercher un reclassement de façon <b>sérieuse et loyale</b>, sur des emplois appropriés dans l\'entreprise et le groupe. Invoquer « l\'état du marché » ou l\'absence de recherches formalisées caractérise un <b>manquement à l\'obligation de reclassement</b> → licenciement <b>sans cause réelle et sérieuse</b>.');
+    // Reclassement imposé d'office au lieu d'être proposé (accord du salarié requis)
+    if(/(affecter\s+directement|d[ée]cid[ée]\s+de\s+vous\s+(y\s+)?affecter|affect[ée]\s+d[’']office|vous\s+y\s+affecter\s+directement|mut[ée]\s+d[’']office)/i.test(texte))
+      d.push('<b>Reclassement imposé d\'office (art. L.1226-2)</b> — un poste de reclassement doit être <b>proposé</b> au salarié, qui reste <b>libre de l\'accepter ou de le refuser</b> ; il constitue une modification du contrat qui ne peut être <b>imposée</b>. « Affecter directement » le salarié à un autre poste (temps partiel, autre site) sans son accord est irrégulier.');
+    // Absence de consultation du CSE sur le reclassement (obligatoire, pro ET non pro depuis 2017)
+    if(/(inutile|pas\s+(utile|n[ée]cessaire)|sans\s+(consulter|r[ée]unir)|estim[ée]\s+inutile|dispens[ée]s?\s+de|nous\s+avons\s+estim[ée]\s+inutile)[^.]{0,70}(r[ée]unir|consulter|avis)?[^.]{0,30}(cse|comit[ée]\s+social|membres\s+du\s+cse|d[ée]l[ée]gu[ée]s\s+du\s+personnel)/i.test(texte) || /(cse|comit[ée]\s+social)[^.]{0,40}(non\s+consult|pas\s+consult|inutile)/i.test(texte))
+      d.push('<b>Consultation du CSE omise (art. L.1226-2 et L.1226-10)</b> — l\'avis du <b>CSE</b> sur les propositions de reclassement est <b>obligatoire</b> avant un licenciement pour inaptitude, que l\'inaptitude soit d\'origine <b>professionnelle OU non professionnelle</b> (depuis le 1ᵉʳ janvier 2017). L\'omettre rend le licenciement <b>sans cause réelle et sérieuse</b> (indemnité au moins égale à 6 mois de salaire si origine professionnelle).');
+    // Reprise du versement du salaire non effectuée après 1 mois
+    if(/(aucune\s+obligation|pas\s+tenue?|non\s+tenue?|n[’'][ée]tait\s+tenue?)[^.]{0,95}(reprise\s+du\s+versement|versement\s+de\s+(votre\s+)?salaire|maintien\s+(de\s+|du\s+)?salaire|reprendre\s+le\s+versement)/i.test(texte) || /salaire[^.]{0,40}(l[ée]gitimement\s+)?interrompu/i.test(texte))
+      d.push('<b>Reprise du salaire non effectuée après 1 mois (art. L.1226-4 / L.1226-11)</b> — si, <b>1 mois</b> après l\'avis d\'inaptitude, le salarié n\'est ni reclassé ni licencié, l\'employeur doit <b>reprendre le versement du salaire</b> correspondant à l\'emploi occupé avant la suspension. Prétendre n\'être « tenu à aucune obligation » et laisser le salaire interrompu est <b>illégal</b> : les salaires sont dus.');
+    // Inaptitude d'origine professionnelle traitée comme non professionnelle
+    if(_atmp && /(r[èe]gles\s+de\s+l[’']inaptitude\s+non\s+professionnelle|inaptitude\s+non\s+professionnelle\s+s[’']appliqu|indemnit[ée]\s+(l[ée]gale\s+)?(de\s+licenciement\s+)?simple|sans\s+doublement|indemnit[ée]\s+simple)/i.test(texte))
+      d.push('<b>Inaptitude professionnelle mal qualifiée (art. L.1226-14)</b> — l\'inaptitude consécutive à un <b>accident du travail</b> ou une <b>maladie professionnelle</b> ouvre droit à une <b>indemnité spéciale de licenciement égale au DOUBLE de l\'indemnité légale</b> ET à une <b>indemnité compensatrice de préavis</b>. Appliquer « les règles de l\'inaptitude non professionnelle » et verser une indemnité « simple sans doublement » prive le salarié de ces droits d\'ordre public.');
+    // Retenue / préavis mis à la charge du salarié
+    if(/(retenue\s+forfaitaire|retenue|d[ée]duction)[^.]{0,70}pr[ée]avis/i.test(texte) || /pr[ée]avis[^.]{0,55}(retenu|d[ée]duit|op[ée]r[ée]e?\s+sur[^.]{0,30}solde|factur[ée]|[àa]\s+votre\s+charge)/i.test(texte))
+      d.push('<b>Préavis illégalement retenu sur le solde (art. L.1226-4 / L.1226-14)</b> — en cas d\'inaptitude, le <b>préavis non exécuté n\'est pas dû par le salarié</b> et ne peut lui être facturé ni retenu. En inaptitude <b>professionnelle</b>, c\'est au contraire l\'employeur qui doit verser une <b>indemnité compensatrice de préavis</b>. Une « retenue forfaitaire » sur le solde de tout compte est <b>injustifiée</b>.');
   }
   if(t==='pse'){
     // Espacement des 2 réunions de consultation du CSE : au moins 15 jours (L.1233-30)
