@@ -601,6 +601,7 @@ const METIERS_SEED = [
   {code:"M1502", libelle:"Charge de recrutement / developpement RH"},
   {code:"M1402", libelle:"Consultant organisation / management"},
   {code:"M1202", libelle:"Audit / controle / risques"},
+  {code:"C1202", libelle:"Analyse de credits et risques bancaires"},
   {code:"M1204", libelle:"Controle de gestion"},
   {code:"M1205", libelle:"Direction administrative et financiere"},
   {code:"M1203", libelle:"Comptable"},
@@ -611,6 +612,29 @@ const METIERS_SEED = [
 ];
 let METIERS_ALL = METIERS_SEED.slice();
 function normM(s){ return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+/* Alias / synonymes : relie des termes m\u00e9tier aux codes ROME correspondants (ex. \u00ab risque op\u00e9rationnel \u00bb \u2192 M1202 + C1202) */
+const METIER_ALIAS = [
+  { terms:["risque operationnel","risques operationnels","analyste risque operationnel","analyste risques operationnels",
+           "risk manager","risk officer","operational risk","gestion des risques","analyste risques","analyste risque",
+           "controle des risques","maitrise des risques","risques bancaires","analyste risques bancaires","gestionnaire des risques"],
+    codes:[ {code:"M1202", label:"Audit / controle / risques"},
+            {code:"C1202", label:"Analyse de credits et risques bancaires"} ] }
+];
+function metierByCode(code, fallback){
+  var m=METIERS_ALL.filter(function(x){ return x.code===code; })[0];
+  if(m) return m;
+  return fallback ? {code:code, libelle:fallback} : null;
+}
+function metierAliasMatch(q){
+  if(!q) return [];
+  var out=[];
+  METIER_ALIAS.forEach(function(a){
+    var hit=a.terms.some(function(t){ var nt=normM(t); return nt.indexOf(q)>=0 || q.indexOf(nt)>=0; });
+    if(hit) a.codes.forEach(function(cf){ var m=metierByCode(cf.code, cf.label); if(m) out.push(m); });
+  });
+  return out;
+}
+function metierMerge(a,b){ var seen={}, out=[]; a.concat(b).forEach(function(m){ if(m&&m.code&&!seen[m.code]){ seen[m.code]=1; out.push(m); } }); return out; }
 async function loadMetiers(){
   const proxy=(localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
   try{
@@ -633,7 +657,8 @@ loadMetiers();
     hid.value="";
     const q=normM(inp.value.trim());
     if(!q){ render(METIERS_SEED); return; }
-    render(METIERS_ALL.filter(function(m){ return normM(m.libelle).indexOf(q)>=0; }));
+    var base=METIERS_ALL.filter(function(m){ return normM(m.libelle).indexOf(q)>=0; });
+    render(metierMerge(metierAliasMatch(q), base));   // alias (synonymes) prioritaires, puis correspondance par libellé
   });
   inp.addEventListener("focus", function(){ if(!inp.value.trim()) render(METIERS_SEED); });
   sug.addEventListener("click", function(e){
