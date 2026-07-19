@@ -760,7 +760,14 @@ async function runSearch(){
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
   const codeRome = $("rome").value;
-  const romeLabel = codeRome ? (($("metierSearch")||{}).value || "ce metier") : "";
+  // Si aucun metier n'est selectionne mais le mot-cle correspond a un alias metier (ex. « risque operationnel »,
+  // « controle interne », « dpo »…), on cible directement le(s) code(s) ROME au lieu d'une recherche litterale.
+  let aliasCodes = [], aliasLabel = "";
+  if(!codeRome && mots){
+    const am = metierAliasMatch(normM(mots));
+    if(am.length){ aliasCodes = am.map(function(m){ return m.code; }); aliasLabel = am.map(function(m){ return m.libelle; }).join(" · "); }
+  }
+  const romeLabel = codeRome ? (($("metierSearch")||{}).value || "ce metier") : (aliasLabel || "");
   if(codeRome) base.set("codeROME", codeRome);
 
   $("searchBtn").disabled = true;
@@ -775,8 +782,21 @@ async function runSearch(){
 
   try{
     // On envoie la recherche telle que saisie (comportement previsible, proche du site).
-    const res = await fetchOffres(proxy, base, mots || (codeRome ? "" : (($("metierSearch")||{}).value||"").trim()));
-    let offers = res.offers;
+    let res, offers;
+    if(aliasCodes.length){
+      // Mot-cle reconnu comme metier : on interroge chaque code ROME correspondant et on fusionne (sans mot-cle litteral).
+      let all = [], range0 = "", seen = {};
+      for(const cr of aliasCodes){
+        const bb = new URLSearchParams(base); bb.set("codeROME", cr);
+        const rr = await fetchOffres(proxy, bb, "");
+        if(!range0) range0 = rr.range;
+        rr.offers.forEach(function(o){ const id = o && o.id; if(id && seen[id]) return; if(id) seen[id]=1; all.push(o); });
+      }
+      res = { offers: all, range: range0 }; offers = all;
+    } else {
+      res = await fetchOffres(proxy, base, mots || (codeRome ? "" : (($("metierSearch")||{}).value||"").trim()));
+      offers = res.offers;
+    }
     if($("relInd") && $("relInd").checked && offers.length){
       const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, d:sc.ind-sc.col, col:sc.col, ind:sc.ind}; });
       offers = scored.filter(function(x){ return x.ind>0 && x.col===0; }).sort(function(a,b){ return b.ind-a.ind; }).map(function(x){ return x.o; });
@@ -792,8 +812,7 @@ async function runSearch(){
       $("searchStatus").textContent = "";
     } else {
       let totalDispo = offers.length;
-      const m = res.range.match(/\/(\d+)/);
-      if(m) totalDispo = parseInt(m[1],10);
+      if(!aliasCodes.length){ const m = res.range.match(/\/(\d+)/); if(m) totalDispo = parseInt(m[1],10); }
       analyse(offers, totalDispo);
       $("results").classList.remove("hidden");
       $("searchStatus").innerHTML = '<b>'+totalDispo.toLocaleString("fr-FR")+'</b> offre'+(totalDispo>1?"s":"")+' trouvee'+(totalDispo>1?"s":"")+'.';
