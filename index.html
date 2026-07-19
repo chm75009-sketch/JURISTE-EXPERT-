@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.65';
+var JX_BUILD = 'v2026-07-19.66';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.66', d:'20 juillet 2026', t:[
+   'Élections CSE — effectif : un salarié dont la date d\'entrée est POSTÉRIEURE au scrutin n\'est plus compté dans l\'effectif (il n\'est pas encore présent). Corrige un dernier écart révélé en test (embauche future comptée à tort).'
+ ]},
  {v:'v2026-07-19.65', d:'20 juillet 2026', t:[
    'Élections CSE — import : les STAGIAIRES sont désormais correctement exclus (de l\'effectif ET du corps électoral — pas un contrat de travail). Avant, un contrat « Stage » était traité comme un CDI et le stagiaire comptait à tort comme électeur.',
    'Nouveau panneau « Points à vérifier » dans la synthèse : l\'app signale les cas qu\'elle ne peut pas trancher seule — salariés au poste de direction / avec délégation (représentant de l\'employeur → non éligible, L.2314-19), doublons de noms, dates aberrantes (âge > 90 ans, embauche postérieure au scrutin ou antérieure à la naissance), stagiaires exclus et nuance sur les intérimaires (électeurs seulement s\'ils choisissent de voter dans l\'entreprise, présents 12 mois).'
@@ -8005,6 +8008,8 @@ function calcSalarieNom(s, dateScrutinStr){
   let raisonEff = '';
   if(dSor && dSor < D){
     raisonEff = 'Sorti avant le scrutin';
+  } else if(dE && !isNaN(dE) && dE > D){
+    raisonEff = 'Entrée postérieure au scrutin — pas encore dans l\'effectif';
   } else if(s.contrat === 'stagiaire'){
     raisonEff = 'Stagiaire — pas un contrat de travail (hors effectif)';
   } else if(['apprenti','cdd_rempl','contrat_pro'].includes(s.contrat)){
