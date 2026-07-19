@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.77';
+var JX_BUILD = 'v2026-07-19.78';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.78', d:'20 juillet 2026', t:[
+   'SANCTION — corrections : suppression de la fausse mention obligatoire « avertissement sur la récidive » (aucune obligation légale de ce type dans une lettre de sanction) ; le message de prescription indique désormais « la sanction est nulle » pour une sanction (au lieu du texte « licenciement sans cause » hérité du module licenciement).'
+ ]},
  {v:'v2026-07-19.77', d:'20 juillet 2026', t:[
    'SANCTION DISCIPLINAIRE — analyse de fond dédiée : double sanction pour les mêmes faits (non bis in idem), entretien préalable omis pour une sanction lourde (L.1332-2), sanction à effet immédiat / délai de 2 jours non respecté (L.1332-2), mise à pied disciplinaire à durée indéterminée (L.1331-1), rétrogradation imposée sans l\'accord du salarié (Cass. soc. 16 juin 1998), motif fondé sur l\'état de santé = discrimination nulle (L.1132-1) et suppression illicite du droit de contester la sanction. S\'ajoute aux détections existantes (prescription des faits, sanction pécuniaire, motif imprécis).'
  ]},
@@ -11264,8 +11267,7 @@ var MENTIONS={
  sanction:[
   {re:/avertissement|bl[âa]me|mise\s+[àa]\s+pied|r[ée]trograd|mutation/i,l:'Nature de la sanction précisée'},
   {re:/repro|grief|faute|fait/i,l:'Faits reprochés décrits'},
-  {re:/\b\d{1,2}[\/.\s-]\d{1,2}[\/.\s-]\d{2,4}\b|le\s+\d{1,2}\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)/i,l:'Date des faits'},
-  {re:/nouveau\s+manquement|r[ée]cidive|plus\s+s[ée]v[èe]re/i,l:'Avertissement sur la récidive'}
+  {re:/\b\d{1,2}[\/.\s-]\d{1,2}[\/.\s-]\d{2,4}\b|le\s+\d{1,2}\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)/i,l:'Date des faits'}
  ],
  cdd:[
   {re:/dur[ée]e\s+d[ée]termin[ée]e|\bcdd\b/i,l:'Nature « durée déterminée »'},
@@ -11427,7 +11429,7 @@ function diagDeepFindings(t,texte){
   if(t==='licenciement'||t==='sanction'){
     var di=diagDatesInfo(texte);var fg=/faute\s+grave/i.test(texte),fl=/faute\s+lourde/i.test(texte);
     if(di&&di.gapMonths>2){
-      d.push('<b>Prescription des faits (art. L.1332-4)</b> — des faits datant de <b>'+diagFdate(di.oldest)+'</b> sont évoqués alors que la procédure se situe vers <b>'+diagFdate(di.newest)+'</b> (~'+Math.round(di.gapMonths)+' mois). Aucune sanction ne peut être engagée plus de <b>2 mois</b> après la connaissance des faits : si la connaissance remonte à cette date, la prescription est acquise et le licenciement est <b>sans cause réelle et sérieuse</b>.');
+      d.push('<b>Prescription des faits (art. L.1332-4)</b> — des faits datant de <b>'+diagFdate(di.oldest)+'</b> sont évoqués alors que la procédure se situe vers <b>'+diagFdate(di.newest)+'</b> (~'+Math.round(di.gapMonths)+' mois). Aucune sanction ne peut être engagée plus de <b>2 mois</b> après la connaissance des faits : si la connaissance remonte à cette date, la prescription est acquise et '+(t==='sanction'?'la <b>sanction est nulle</b>':'le licenciement est <b>sans cause réelle et sérieuse</b>')+'.');
       if(fg||fl)d.push('<b>Faute grave/lourde incompatible avec des faits anciens</b> — la faute grave suppose une réaction <b>immédiate</b> (impossibilité de maintien) : des faits tolérés ~'+Math.round(di.gapMonths)+' mois ne peuvent en principe la justifier.');
     }
     var vg=DIAG_VAGUE.filter(function(v){return v.re.test(texte);});
