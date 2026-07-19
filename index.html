@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.71';
+var JX_BUILD = 'v2026-07-19.72';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.72', d:'20 juillet 2026', t:[
+   'Analyse d\'une LETTRE DE LICENCIEMENT — 5 nouveaux pièges détectés automatiquement : signataire non habilité (cabinet/consultant externe → sans cause réelle et sérieuse, Cass. soc. 26 avr. 2017) ; sanction pécuniaire / retenue sur salaire (interdite, L.1331-2) ; faute grave contredite par le versement du préavis et de l\'indemnité de licenciement (L.1234-1/-9) ; réserve d\'ajouter un motif après la lettre (les motifs fixent les limites du litige, L.1232-6) ; délai entre l\'entretien et l\'envoi inférieur à 2 jours ouvrables (L.1232-6, avec rappel des jours fériés).'
+ ]},
  {v:'v2026-07-19.71', d:'20 juillet 2026', t:[
    'Élections CSE — le panneau « Points à vérifier » signale aussi les données incomplètes qui pèsent sur le scrutin : salariés sans SEXE (bloque la parité F/H des listes) et salariés sans COLLÈGE renseigné (placés par défaut dans le 1er collège, à contrôler pour la répartition des sièges).'
  ]},
@@ -11401,6 +11404,25 @@ function diagDeepFindings(t,texte){
     var vg=DIAG_VAGUE.filter(function(v){return v.re.test(texte);});
     if(vg.length)d.push('<b>Motif(s) imprécis</b> — expressions repérées : '+vg.map(function(v){return v.l;}).join(', ')+'. La lettre doit énoncer des <b>faits précis, datés et vérifiables</b> (L.1232-6, L.1235-1) ; un grief vague n\'est pas une cause réelle et sérieuse.');
     if((fg||fl)&&!/cong[ée]s\s+pay[ée]s/i.test(texte))d.push('<b>Indemnité de congés payés</b> — même en faute grave/lourde, l\'indemnité compensatrice de congés payés reste due (Cons. const. 2015-523 QPC) ; elle ne semble pas mentionnée.');
+    // Signataire non habilité : tiers extérieur à l'entreprise (cabinet, consultant, avocat, expert-comptable)
+    if(/consultant\s+(rh\s+)?(externe|ext[ée]rieur)|cabinet\s+de\s+conseil|pour\s+le\s+compte\s+de\s+la\s+soci[ée]t[ée]|sign[ée]e?\s+par[^.]{0,40}(cabinet|consultant|avocat|prestataire|expert[- ]comptable)/i.test(texte))
+      d.push('<b>Signataire non habilité (tiers extérieur)</b> — la lettre semble signée par un <b>cabinet / consultant externe</b>. Elle doit être signée par l\'employeur ou un membre du personnel de l\'entreprise ayant délégation ; la signature par un <b>tiers étranger à l\'entreprise</b> (cabinet, avocat, expert-comptable) rend le licenciement <b>sans cause réelle et sérieuse</b> (Cass. soc. 26 avr. 2017, n° 15-25.204).');
+    // Sanction pécuniaire déguisée (retenue sur salaire)
+    if(/(retenue|d[ée]duction|amende|p[ée]nalit[ée])[^.]{0,50}(salaire|r[ée]mun[ée]ration|\bpaie\b|prochain\s+salaire)/i.test(texte) || /sanction\s+p[ée]cuniaire|retenue\s+forfaitaire/i.test(texte))
+      d.push('<b>Sanction pécuniaire interdite (art. L.1331-2)</b> — une <b>retenue / amende sur le salaire</b> à titre de punition est <b>strictement interdite et nulle de plein droit</b> ; elle expose l\'employeur à une amende de 3 750 €. Une retenue ne peut correspondre qu\'à un temps de travail non effectué, jamais à une sanction.');
+    // Faute grave contredite par le versement du préavis / de l'indemnité de licenciement
+    if((fg||fl) && (/b[ée]n[ée]fici\w+\s+de\s+(votre\s+)?pr[ée]avis|pr[ée]avis[^.]{0,60}(int[ée]gralement\s+pay|sera\s+(int[ée]gralement\s+)?pay|vous\s+sera\s+vers)|indemnit[ée][^.]{0,30}(l[ée]gale\s+)?(de\s+)?licenciement[^.]{0,30}(calcul|vers|pay|b[ée]n[ée]fici|selon)|b[ée]n[ée]fici\w+[^.]{0,30}indemnit[ée][^.]{0,20}licenciement/i.test(texte)))
+      d.push('<b>Qualification de faute grave contredite (L.1234-1, L.1234-9)</b> — la faute grave <b>prive du préavis ET de l\'indemnité de licenciement</b>. En accordant ici le préavis payé et/ou l\'indemnité de licenciement, l\'employeur <b>désavoue lui-même la faute grave</b> : le juge peut la requalifier et rétablir tous les droits du salarié.');
+    // Réserve d'ajouter un motif / grief après la lettre
+    if(/nous\s+nous\s+r[ée]servons|r[ée]serv\w+\s+le\s+droit\s+d[’'\s]?invoqu|(ne\s+pourra|pourront?|pourra)\s+être\s+ajout|ajout\w+\s+(ult[ée]rieur|par\s+la\s+suite|au\s+dossier)|d[ée]couvr\w+[^.]{0,50}(grief|faute|absence|reproche)|invoqu\w+[^.]{0,30}(ult[ée]rieur|en\s+justice|par\s+la\s+suite)/i.test(texte))
+      d.push('<b>Ajout de motif après la lettre (art. L.1232-6)</b> — les <b>motifs énoncés dans la lettre fixent définitivement les limites du litige</b>. L\'employeur <b>ne peut pas se réserver d\'invoquer plus tard</b> un nouveau grief (ici des absences) : un motif non énoncé dans la lettre est inopérant devant le juge.');
+    // Délai de 2 jours ouvrables entre l'entretien préalable et l'envoi de la lettre
+    var _mEnt=/entretien\s+pr[ée]alable[^.]{0,90}/i.exec(texte), _mEnv=/fait\s+[àa][^.]{0,50}?\ble\s+[^.]{0,28}/i.exec(texte);
+    var _entD=_mEnt?diagParseDatesFR(_mEnt[0]):[], _envD=_mEnv?diagParseDatesFR(_mEnv[0]):[];
+    if(_entD.length && _envD.length){
+      var _ge=Math.round((_envD[0]-_entD[0])/86400000);
+      if(_ge>=0 && _ge<=2) d.push('<b>Délai de 2 jours ouvrables à vérifier (art. L.1232-6)</b> — l\'entretien ('+diagFdate(_entD[0])+') et l\'envoi de la lettre ('+diagFdate(_envD[0])+') semblent séparés d\'environ <b>'+_ge+' jour(s)</b>. La lettre ne peut partir <b>qu\'au moins 2 jours OUVRABLES après</b> l\'entretien : recomptez en excluant week-ends et jours fériés (ex. le 14 juillet est férié).');
+    }
   }
   if(t==='pse'){
     // Espacement des 2 réunions de consultation du CSE : au moins 15 jours (L.1233-30)
