@@ -295,9 +295,10 @@
     <div class="grid kpis" id="kpis" style="margin-bottom:18px"></div>
 
     <div class="card" style="border-left:4px solid var(--accent)">
-      <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span> <span style="font-weight:700;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle">classif v2</span></h2>
+      <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span> <span style="font-weight:700;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle">classif v3</span></h2>
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
+      <div class="hint" style="margin-top:6px;opacity:.75">Méthode : une offre est « collectif » ou « les deux » dès qu'un marqueur collectif explicite apparaît (CSE, IRP, négociation, PSE, syndical…). Sans marqueur collectif, tout poste de droit social/RH est compté en <b>individuel</b> — les relations individuelles étant le socle du droit du travail. « Non précisé » = offre hors droit social.</div>
       <div style="margin-top:12px">
         <button type="button" class="btn btn-ghost" id="enrichBtn">🔎 Compléter les effectifs « non précisé » (annuaire officiel des entreprises)</button>
         <div class="hint" id="enrichNote" style="margin-top:8px"></div>
@@ -679,11 +680,20 @@ function relIndScore(o){
   COL_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) col++; });
   return {ind:ind, col:col};
 }
+// L'offre relève-t-elle du droit social / RH (donc, par nature, des relations individuelles) ?
+const SOCIAL_CTX = ["droit social","droit du travail","protection sociale","ressources humaines","affaires sociales","relations sociales","administration du personnel","gestion du personnel","juriste social","paie","gestionnaire paie","charge rh","responsable rh","adjoint rh","assistant rh","drh","rrh","adp","conventions collectives","conseil social","juriste en droit","droit du travail et"];
+function isSocialContext(o){
+  var hay=" "+norm((o.intitule||"")+" "+(o.romeLibelle||"")+" "+(o.appellationlibelle||o.appellationLibelle||"")+" "+(o.description||""))+" ";
+  return SOCIAL_CTX.some(function(t){ return hay.indexOf(norm(t))>=0; });
+}
 function classifyRel(o){
   const sc=relIndScore(o);
-  if(sc.ind>0 && sc.col===0) return "Exclusivement individuel";
-  if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
   if(sc.ind>0 && sc.col>0) return "Les deux (individuel + collectif)";
+  if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
+  if(sc.ind>0 && sc.col===0) return "Exclusivement individuel";
+  // Aucun marqueur explicite : les relations individuelles sont le socle de tout poste de droit du travail.
+  // On classe donc l'offre en individuel dès lors qu'elle relève du droit social / RH.
+  if(isSocialContext(o)) return "Exclusivement individuel";
   return "Non précisé";
 }
 async function fetchOffres(proxy, base, motsCles){
