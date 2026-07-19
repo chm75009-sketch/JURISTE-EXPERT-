@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.80';
+var JX_BUILD = 'v2026-07-19.81';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.81', d:'20 juillet 2026', t:[
+   'INAPTITUDE — la « visite médicale de reprise » (et l\'« examen de reprise ») est désormais reconnue comme visite de reprise : plus de faux signalement d\'élément manquant sur cette mention.'
+ ]},
  {v:'v2026-07-19.80', d:'20 juillet 2026', t:[
    'AIGUILLAGE — un « licenciement pour inaptitude » est désormais reconnu comme relevant de la grille INAPTITUDE (et non de la grille disciplinaire) : si le type choisi est « Licenciement » alors que le texte parle d\'inaptitude et de médecin du travail, l\'app affiche l\'alerte « le texte ressemble plutôt à Inaptitude » pour appliquer le bon référentiel (reclassement, CSE, reprise du salaire, indemnité AT/MP…).'
  ]},
@@ -11307,7 +11310,7 @@ var MENTIONS={
   {re:/p[ée]riode\s+d[’']essai/i,l:'Période d’essai'}
  ],
  inaptitude:[
-  {re:/visite\s+de\s+reprise|reprise\s+du\s+travail/i,l:'Visite de reprise (médecin du travail)'},
+  {re:/visite\s+(m[ée]dicale\s+)?de\s+reprise|examen\s+(m[ée]dical\s+)?de\s+reprise|reprise\s+du\s+travail|visite\s+m[ée]dicale/i,l:'Visite de reprise (médecin du travail)'},
   {re:/inaptitude|inapte/i,l:'Constat d’inaptitude'},
   {re:/m[ée]decin\s+du\s+travail|avis\s+(médical|d’inaptitude)/i,l:'Avis du médecin du travail'},
   {re:/reclassement/i,l:'Recherche / offre de reclassement'},
