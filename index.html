@@ -637,9 +637,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.75';
+var JX_BUILD = 'v2026-07-19.76';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.76', d:'20 juillet 2026', t:[
+   'CONTRAT — la date d\'embauche est désormais reconnue sous la formulation « engagé à compter du … » (et non plus seulement « date d\'embauche » / « prise de fonction ») : plus de fausse alerte orange sur ce point de contrôle.'
+ ]},
  {v:'v2026-07-19.75', d:'20 juillet 2026', t:[
    'CONTRAT DE TRAVAIL (CDI/CDD) — analyse de fond renforcée : période d\'essai selon la catégorie réelle du salarié (2 mois ouvrier/employé, 3 mois agent de maîtrise/technicien, 4 mois cadre — L.1221-19) et renouvellement irrégulier « à la seule initiative de l\'employeur » (L.1221-21) ; convention de forfait-jours sans accord collectif (L.3121-63) ; clause de modification unilatérale du contrat ; clause de dédit-formation forfaitaire non proportionnée au coût réel ; clause pénale / sanction pécuniaire retenue sur le salaire (L.1331-2). Détection de la rémunération inférieure au SMIC élargie (montant libellé en « euros »).'
  ]},
@@ -11172,7 +11175,7 @@ var CHECKLIST={
  contrat:[
   {t:'Identité des parties (employeur / salarié)',a:'R.1221-34',re:null},
   {t:'Intitulé du poste / description des fonctions',a:'R.1221-34',re:/poste|fonction|emploi|qualification/i},
-  {t:'Date d’embauche / de prise de fonction',a:'R.1221-34',re:/date\s+d[’']embauche|prise\s+de\s+fonction|\bà\s+compter\s+du|d[ée]but\s+du\s+contrat/i},
+  {t:'Date d’embauche / de prise de fonction',a:'R.1221-34',re:/date\s+d[’']embauche|prise\s+de\s+(fonction|poste)|engag[ée]s?\s+[àa]\s+compter|embauch[ée]s?\s+[àa]\s+compter|[àa]\s+compter\s+du\s+\d|d[ée]but\s+du\s+contrat|entr[ée]e\s+(en\s+fonction|dans\s+l|au\s+service)/i},
   {t:'Lieu de travail',a:'R.1221-34',re:/lieu\s+de\s+travail|situ[ée]\s+[àa]/i,opt:true},
   {t:'Rémunération (montant, périodicité, composantes)',a:'R.1221-34',re:/r[ée]mun[ée]ration|salaire|\b€|euros|brut/i},
   {t:'Durée du travail (hebdomadaire / horaires)',a:'R.1221-34',re:/dur[ée]e\s+du\s+travail|heures|temps\s+de\s+travail|35\s*h|forfait/i},
