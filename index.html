@@ -637,9 +637,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.64';
+var JX_BUILD = 'v2026-07-19.65';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.65', d:'20 juillet 2026', t:[
+   'Élections CSE — import : les STAGIAIRES sont désormais correctement exclus (de l\'effectif ET du corps électoral — pas un contrat de travail). Avant, un contrat « Stage » était traité comme un CDI et le stagiaire comptait à tort comme électeur.',
+   'Nouveau panneau « Points à vérifier » dans la synthèse : l\'app signale les cas qu\'elle ne peut pas trancher seule — salariés au poste de direction / avec délégation (représentant de l\'employeur → non éligible, L.2314-19), doublons de noms, dates aberrantes (âge > 90 ans, embauche postérieure au scrutin ou antérieure à la naissance), stagiaires exclus et nuance sur les intérimaires (électeurs seulement s\'ils choisissent de voter dans l\'entreprise, présents 12 mois).'
+ ]},
  {v:'v2026-07-19.64', d:'19 juillet 2026', t:[
    'Élections CSE — import du registre : correction d\'un défaut qui faussait les COLLÈGES. Avec le modèle vierge (colonne « Emploi/Qualification » + colonne « Statut »), l\'app lisait le statut dans la mauvaise colonne et classait tout le monde en 1er collège. Désormais le statut (Ouvrier/Employé/TAM/Cadre) est lu dans la bonne colonne → 2ᵉ et 3ᵉ collèges corrects.',
    'La colonne « Sexe » du fichier est maintenant prise en compte : l\'app affiche la répartition femmes/hommes par collège (base des listes paritaires — L.2314-13/-30).',
@@ -8001,6 +8005,8 @@ function calcSalarieNom(s, dateScrutinStr){
   let raisonEff = '';
   if(dSor && dSor < D){
     raisonEff = 'Sorti avant le scrutin';
+  } else if(s.contrat === 'stagiaire'){
+    raisonEff = 'Stagiaire — pas un contrat de travail (hors effectif)';
   } else if(['apprenti','cdd_rempl','contrat_pro'].includes(s.contrat)){
     raisonEff = 'Exclu du décompte (art. L.1111-3)';
   } else if(s.contrat === 'cdi_tp'){
@@ -8039,7 +8045,8 @@ function calcSalarieNom(s, dateScrutinStr){
   const contratsDD = ['cdd_act','cdd_rempl','interim','saisonnier'];
   const dFinC = s.finContrat ? new Date(s.finContrat) : null;
   if(dSor && dSor < D){ electeur = false; electeurRaison = 'Sorti avant le scrutin'; }
-  else if(s.contrat === 'interim'){ electeur = false; electeurRaison = 'Intérimaire — électeur dans son entreprise de travail temporaire (art. L.2314-23)'; }
+  else if(s.contrat === 'stagiaire'){ electeur = false; electeurRaison = 'Stagiaire — pas un contrat de travail (ni électeur ni éligible)'; }
+  else if(s.contrat === 'interim'){ electeur = false; electeurRaison = 'Intérimaire — en principe électeur dans son entreprise de travail temporaire ; électeur possible dans l\'entreprise utilisatrice s\'il y est présent depuis 12 mois et choisit d\'y voter (art. L.2314-23)'; }
   else if(contratsDD.includes(s.contrat) && dFinC && dFinC < D){ electeur = false; electeurRaison = 'Contrat terminé avant le scrutin'; }
   else if(!dN){ electeur = false; electeurRaison = 'Date de naissance manquante'; }
   else if(!dE){ electeur = false; electeurRaison = 'Date d\'entrée manquante'; }
@@ -8201,6 +8208,38 @@ function toggleEditSalarie(i){
   refreshNomTable();
 }
 
+// Détecte les cas que l'app ne peut pas trancher automatiquement (à vérifier par un humain)
+function _cseVigilance(list, dateScrutin){
+  const w = [];
+  if(!list || !list.length) return w;
+  const scr = dateScrutin ? new Date(dateScrutin) : null;
+  // Doublons (même nom normalisé)
+  const seen = {}, dups = {};
+  list.forEach(s => { const k=(s.nom||'').toUpperCase().replace(/\s+/g,' ').trim(); if(!k) return; if(seen[k]) dups[k]=true; else seen[k]=1; });
+  Object.keys(dups).forEach(k => w.push('Doublon possible : « '+k+' » apparaît plusieurs fois — vérifiez qu\'il ne s\'agit pas du même salarié compté deux fois.'));
+  // Représentants de l'employeur / délégation d'autorité → non éligibles (voire non électeurs)
+  const reRep = /directeur\s+g[ée]n[ée]ral|\bdg\b|g[ée]rant|pr[ée]sident|\bdrh\b|directeur\s+des\s+ressources|d[ée]l[ée]gation\s+(de\s+pouvoir|d[’']autorit)/i;
+  list.forEach(s => {
+    const txt = ((s.emploi||'')+' '+(s.observations||''));
+    if(reRep.test(txt)) w.push('« '+(s.nom||'?')+' » ('+(s.emploi||'poste de direction')+') : vérifiez s\'il <b>représente l\'employeur</b> ou détient une <b>délégation écrite d\'autorité</b> → dans ce cas il n\'est PAS éligible, voire pas électeur (art. L.2314-19). L\'app le compte par défaut ; excluez-le manuellement le cas échéant.');
+  });
+  // Dates aberrantes / incohérentes
+  if(scr) list.forEach(s => {
+    const dN=s.dateNaissance?new Date(s.dateNaissance):null, dE=s.dateEntree?new Date(s.dateEntree):null;
+    if(dN && !isNaN(dN)){ const age=(scr-dN)/(365.25*864e5);
+      if(age>90) w.push('« '+(s.nom||'?')+' » : âge calculé ≈ '+Math.round(age)+' ans — date de naissance probablement erronée.');
+      else if(age<14 && age>=0) w.push('« '+(s.nom||'?')+' » : âge calculé ≈ '+Math.round(age)+' ans — vérifiez la date de naissance.');
+    }
+    if(dE && !isNaN(dE) && dE>scr) w.push('« '+(s.nom||'?')+' » : date d\'entrée ('+s.dateEntree+') postérieure au scrutin — pas encore présent (non électeur).');
+    if(dN && dE && !isNaN(dN) && !isNaN(dE) && dE<dN) w.push('« '+(s.nom||'?')+' » : date d\'entrée antérieure à la date de naissance — données incohérentes.');
+  });
+  // Stagiaires (exclus) et intérimaires (nuance électorat)
+  const nStag = list.filter(s => s.contrat==='stagiaire').length;
+  if(nStag) w.push(nStag+' stagiaire(s) : exclu(s) de l\'effectif et du corps électoral (pas un contrat de travail).');
+  const nInt = list.filter(s => s.contrat==='interim').length;
+  if(nInt) w.push(nInt+' intérimaire(s) : comptés dans l\'effectif au prorata, mais électeurs uniquement s\'ils sont présents depuis 12 mois ET choisissent de voter dans l\'entreprise (par défaut : non électeurs ici — art. L.2314-23).');
+  return w;
+}
 function refreshNomTable(){
   const cont = document.getElementById('cse-nom-liste');
   if(!cont) return;
@@ -8266,6 +8305,16 @@ Nombre d'éligibles : <strong>${nbElig}</strong><br>
 Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>${fhLigne}
 ${nbCadres >= 25 ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → 3e collège <strong>obligatoire</strong>, quel que soit l\'effectif (art. L.2314-11) — non supprimable, même par accord unanime (L.2314-12)</span>' : ''}
 </div></div>`;
+  // Points à vérifier (cas que l'app ne peut pas trancher seule)
+  try {
+    const vig = _cseVigilance(salariesNom, dateScrutin);
+    if(vig.length){
+      let vh = '<div class="item" style="margin-top:10px;background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.35)"><div style="font-size:13px;color:#e8c97a;font-weight:700;margin-bottom:6px">⚠️ Points à vérifier (l\'app ne peut pas trancher seule)</div><div style="font-size:12px;color:#e8e4d8;line-height:1.6">';
+      vig.forEach(v => { vh += '• ' + v + '<br>'; });
+      vh += '</div></div>';
+      synth.innerHTML += vh;
+    }
+  } catch(e){}
   // Mémoriser pour usage dans les documents générés
   window.lastEffArrondi = effArr;
   window.lastSousSeuil = sousSeuil;
@@ -8294,6 +8343,7 @@ function normaliseDate(s){
 }
 function normaliseContrat(s){
   const t = (s||'').toLowerCase().trim();
+  if(/stagiaire|\bstage\b|convention\s+de\s+stage/.test(t)) return 'stagiaire';
   if(/cdi.*partiel|temps.*partiel/.test(t)) return 'cdi_tpartiel';
   if(/cdi/.test(t)) return 'cdi_tp';
   if(/rempl/.test(t)) return 'cdd_rempl';
