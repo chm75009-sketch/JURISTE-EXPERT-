@@ -637,9 +637,17 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-12.61';
+var JX_BUILD = 'v2026-07-12.62';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-12.62', d:'19 juillet 2026', t:[
+   'ÉLECTIONS CSE — audit exhaustif vérifié à la source (Légifrance / code.travail.gouv.fr) et corrections : (1) barème des sièges/heures R.2314-1 corrigé pour les grandes entreprises (au-delà de 3 500 salariés, les heures et les tranches étaient erronées — désormais exactes jusqu\'à 10 000+ : 35 titulaires / 34 h) ;',
+   '(2) apprentis et CDD de remplacement : exclus de l\'effectif (L.1111-3) mais rétablis comme ÉLECTEURS/éligibles s\'ils remplissent les conditions d\'âge et d\'ancienneté (L.2314-18) ;',
+   '(3) salariés mis à disposition : critère d\'effectif mis à jour — « présents dans les locaux et y travaillant depuis au moins 1 an » (L.1111-2, 2°), au lieu de l\'ancien critère jurisprudentiel ;',
+   '(4) 3ᵉ collège désormais indiqué comme OBLIGATOIRE dès 25 cadres (quel que soit l\'effectif), non supprimable même par accord unanime (L.2314-11 / L.2314-12) ;',
+   '(5) calendrier de procédure enrichi : invitation des OS reçue ≥ 15 j avant la 1re réunion (courrier/affichage selon le type d\'OS), délais de contestation 3 j (électorat) / 15 j (régularité) devant le tribunal judiciaire (R.2314-24), PV sur CERFA 15822*04 / 15823*04 / carence 15248*05 transmis au CTEP sous 15 j (R.2314-22) ;',
+   '(6) durée des mandats (4 ans, 2-4 ans par accord) et limite de 3 mandats successifs (L.2314-33/-34) ; (7) sanction du défaut de parité précisée (L.2314-32, Cass. soc. 11 sept. 2024 : siège annulé non réattribué).'
+ ]},
  {v:'v2026-07-12.61', d:'17 juillet 2026', t:[
    'Cohérence renforcée entre la check-list et l\'analyse : l\'item « dispositif d\'accompagnement » (CSP / congé de reclassement) ne peut plus s\'afficher en vert pendant que l\'analyse le signale en rouge — il devient un contrôle « adapté à l\'effectif » pour éviter toute contradiction visible.',
    'Correction d\'un faux négatif : le motif économique formulé « sauvegarder la compétitivité » ou « baisse du chiffre d\'affaires » est désormais bien reconnu par la check-list.',
@@ -2290,7 +2298,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <div style="border-left:2px solid rgba(201,168,76,0.4);padding-left:10px;margin:4px 0 10px">
 Électeurs âgés de <strong>18 ans révolus</strong>, travaillant dans l'entreprise depuis <strong>1 an</strong> au moins.<br>
 <strong>Exclus :</strong> conjoint, partenaire de PACS, concubin, ascendants, descendants, frères, sœurs et alliés au même degré de l'employeur.<br>
-<span style="font-size:11px;color:#9a9585">Représentation équilibrée femmes-hommes obligatoire sur chaque liste, par candidatures alternées, à proportion du collège (art. L.2314-30).</span>
+<span style="font-size:11px;color:#9a9585">Représentation équilibrée femmes-hommes obligatoire sur chaque liste, par candidatures alternées, à proportion du collège (art. L.2314-30). <strong>Sanction (L.2314-32)</strong> : le juge annule l'élection des élus surnuméraires du sexe surreprésenté (dans l'ordre inverse de la liste) ; le siège vacant n'est <strong>pas réattribué</strong> (Cass. soc. 11 sept. 2024, n° 23-60.107). Le défaut de parité n'affecte pas l'audience du syndicat.</span>
 </div>
 <div style="color:#e8c97a;font-weight:700">📊 Vérification du quorum (1er tour)</div>
 <div class="fg" style="margin-top:6px"><label class="fl">Nombre d'électeurs inscrits</label><input type="number" id="cse-inscrits" min="0" placeholder="Ex : 150" oninput="cseQuorum()"/></div>
@@ -2340,7 +2348,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 ☑ CDD de remplacement (remplacement salarié absent ou dont le contrat est suspendu)<br>
 ☑ Apprentis<br>
 ☑ Contrats de professionnalisation pendant la durée de l'action de formation<br>
-☑ Salariés mis à disposition (comptent dans l'effectif de l'entreprise utilisatrice uniquement si intégrés de façon étroite et permanente — appréciation au cas par cas)
+☑ Salariés mis à disposition : comptés dans l'effectif de l'entreprise utilisatrice au prorata de leur temps de présence, uniquement s'ils sont <strong>présents dans les locaux et y travaillent depuis au moins 1 an</strong> (art. L.1111-2, 2°) — ceux qui remplacent un salarié absent sont exclus<br>☑ CDD, intérimaires et mis à disposition <strong>remplaçant un salarié absent</strong> ou dont le contrat est suspendu (L.1111-2, dernier alinéa)
 </div>
 <div class="fg" style="margin-top:8px"><label class="fl">Apprentis (EXCLUS)</label><input type="number" id="eff-apprentis" value="0" min="0" oninput="calcEffectif()"/></div>
 </div>
@@ -2357,6 +2365,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
   <option value="carence">Suite à une carence</option>
 </select></div>
 <div class="fg"><label class="fl">Date d'expiration des mandats (si renouvellement)</label><input type="date" id="cse-fin-mandats"/></div>
+<div class="al info" style="font-size:11px"><b>Durée des mandats</b> : 4 ans (L.2314-33) ; un accord de branche, de groupe ou d'entreprise peut la fixer entre <b>2 et 4 ans</b> (L.2314-34). <b>Limite de 3 mandats successifs</b> (L.2314-33) — sauf entreprises de <b>moins de 50 salariés</b> (exclues), et entreprises de <b>50 à 300 salariés</b> si le PAP en dispose autrement ; au-delà de 300 salariés, la limite est d'ordre public. Renouvellement : invitation des OS <b>2 mois avant</b> l'expiration.</div>
 <div class="fg"><label class="fl">Organisations syndicales représentatives</label>
 <label class="chk"><input type="checkbox" id="cse-os-aucune"/> Aucune organisation syndicale</label>
 <label class="chk"><input type="checkbox" id="cse-os-cgt"/> CGT</label>
@@ -2379,15 +2388,17 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 
 <div class="table-wrap">
 <table>
-<tr><th>Étape</th><th>Action</th><th>Délai</th></tr>
-<tr><td>1</td><td>Information du personnel de l'organisation des élections</td><td>J-90 avant fin des mandats</td></tr>
-<tr><td>2</td><td>Invitation des organisations syndicales à négocier le PAP (LRAR)</td><td>J-90</td></tr>
-<tr><td>3</td><td>Négociation du Protocole d'Accord Préélectoral (PAP)</td><td>J-90 à J-45</td></tr>
-<tr><td>4</td><td>Affichage des listes électorales</td><td>J-4 avant scrutin (min.)</td></tr>
+<tr><th>Étape</th><th>Action</th><th>Délai / base légale</th></tr>
+<tr><td>1</td><td>Information du personnel (par tout moyen à date certaine) précisant la date du 1er tour</td><td>1er tour ≤ 90 j après — L.2314-4</td></tr>
+<tr><td>2</td><td>Invitation des OS à négocier le PAP (courrier aux OS représentatives / à section syndicale / affiliées ; affichage pour les autres)</td><td>Reçue ≥ 15 j avant la 1re réunion ; renouvellement : 2 mois avant la fin des mandats — L.2314-5</td></tr>
+<tr><td>3</td><td>Négociation + signature du PAP (collèges, sièges, modalités) — double condition de majorité</td><td>L.2314-6, L.2314-13</td></tr>
+<tr><td>4</td><td>Établissement et affichage des listes électorales (par collège)</td><td>Ouvre le délai de contestation de 3 j — R.2314-24</td></tr>
 <tr><td>5</td><td>Dépôt des candidatures (1er tour : listes syndicales uniquement)</td><td>Date fixée au PAP</td></tr>
-<tr><td>6</td><td>1er tour de scrutin</td><td>J</td></tr>
-<tr><td>7</td><td>2nd tour si quorum non atteint (candidatures libres)</td><td>J+15</td></tr>
-<tr><td>8</td><td>Transmission des PV au CTEP + inspection du travail</td><td>J+15 après proclamation</td></tr>
+<tr><td>6</td><td>1er tour de scrutin (quorum = ½ des inscrits, par collège)</td><td>≤ 90 j après l'information — L.2314-4 / L.2314-29</td></tr>
+<tr><td>7</td><td>2nd tour si quorum non atteint, carence ou sièges non pourvus (candidatures libres)</td><td>Dans les 15 j — L.2314-29</td></tr>
+<tr><td>8</td><td>Dépouillement, proclamation et PV sur CERFA (titulaires 15822*04, suppléants 15823*04 ; carence 15248*05)</td><td>Immédiat, signé par le bureau — R.2314-22</td></tr>
+<tr><td>9</td><td>Transmission du PV au CTEP via elections-professionnelles.travail.gouv.fr</td><td>Dans les 15 j — R.2314-22</td></tr>
+<tr><td>10</td><td>Contestations devant le tribunal judiciaire (sans avocat)</td><td>3 j (électorat/listes) / 15 j (régularité) — R.2314-24</td></tr>
 </table>
 </div>
 
@@ -2555,7 +2566,8 @@ Exemple :<br>
 <button class="btn-outline" onclick="genDocElectionTEC('pv_carence_total')" style="background:rgba(224,92,92,0.1);border-color:rgba(224,92,92,0.4);color:#e05c5c">⚠️ PV de carence (aucun élu après 2e tour)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('affichage_resultats')" style="background:rgba(46,184,46,0.1);border-color:rgba(46,184,46,0.4);color:#2eb82e">📊 Affichage des résultats</button>
 </div>
-<div class="al warn" style="font-size:11px;margin-top:10px">⚠️ Adresses des électeurs laissées vides — à compléter manuellement avant envoi.</div>
+<div class="al info" style="font-size:11px;margin-top:10px">📌 <b>PV officiels</b> : le procès-verbal doit être établi sur le <b>formulaire CERFA homologué</b> — titulaires <b>15822*04</b>, suppléants <b>15823*04</b>, carence <b>15248*05</b> (R.2314-22). Il est <b>transmis au CTEP dans les 15 jours</b> via <b>elections-professionnelles.travail.gouv.fr</b> (mesure de l'audience syndicale). Un exemplaire est remis aux OS ayant présenté une liste et tenu à disposition de l'inspection du travail. Les trames ci-dessus préparent la saisie ; reportez-les sur le CERFA officiel avant transmission.</div>
+<div class="al warn" style="font-size:11px;margin-top:8px">⚠️ Adresses des électeurs laissées vides — à compléter manuellement avant envoi.</div>
 <button onclick="telechargerTousZIP()" style="margin-top:14px;width:100%;background:#2b579a;border:none;color:#fff;padding:14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">📦 Télécharger TOUT en ZIP (tous les documents en un seul fichier)</button>
 </div>
 
@@ -6421,20 +6433,20 @@ function cseBareme(eff){
   else if(eff<=2499){sieges=23;heures=26;}
   else if(eff<=2999){sieges=24;heures=26;}
   else if(eff<=3499){sieges=25;heures=26;}
-  else if(eff<=3999){sieges=26;heures=26;}
-  else if(eff<=4249){sieges=26;heures=26;}
-  else if(eff<=4749){sieges=27;heures=26;}
-  else if(eff<=4999){sieges=28;heures=26;}
-  else if(eff<=5749){sieges=29;heures=26;}
-  else if(eff<=5999){sieges=30;heures=26;}
-  else if(eff<=6749){sieges=31;heures=26;}
-  else if(eff<=6999){sieges=32;heures=26;}
-  else if(eff<=7499){sieges=32;heures=26;}
-  else if(eff<=7999){sieges=32;heures=26;}
-  else if(eff<=8249){sieges=32;heures=26;}
-  else if(eff<=8999){sieges=33;heures=26;}
-  else if(eff<=9749){sieges=34;heures=26;}
-  else{sieges=35;heures=26;}
+  else if(eff<=3999){sieges=26;heures=27;}
+  else if(eff<=4499){sieges=26;heures=28;}
+  else if(eff<=4999){sieges=27;heures=28;}
+  else if(eff<=5499){sieges=28;heures=28;}
+  else if(eff<=5999){sieges=29;heures=29;}
+  else if(eff<=6499){sieges=29;heures=29;}
+  else if(eff<=6999){sieges=30;heures=29;}
+  else if(eff<=7499){sieges=31;heures=30;}
+  else if(eff<=7999){sieges=31;heures=30;}
+  else if(eff<=8499){sieges=32;heures=30;}
+  else if(eff<=8999){sieges=32;heures=31;}
+  else if(eff<=9499){sieges=33;heures=31;}
+  else if(eff<=9999){sieges=34;heures=32;}
+  else{sieges=35;heures=34;}
   return {sieges:sieges,heures:heures};
 }
 function cseEffDirect(){
@@ -7635,7 +7647,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 <tr><td style="border:1px solid #000;padding:6pt;text-align:center">4</td><td style="border:1px solid #000;padding:6pt;height:25px"></td><td style="border:1px solid #000;padding:6pt"></td></tr>
 </table>
 
-<p style="${S}margin-top:30px;font-style:italic">Les contestations relatives à la régularité du scrutin doivent être adressées au tribunal judiciaire dans les 15 jours suivant le présent affichage (art. R.2314-23 C. trav.).</p>
+<p style="${S}margin-top:30px;font-style:italic">Les contestations relatives à la régularité du scrutin doivent être adressées au tribunal judiciaire dans les 15 jours suivant le présent affichage (art. R.2314-24 C. trav.).</p>
 
 <div style="margin-top:40px">
 <p style="${S}text-align:right">${DIR}<br>Gérant — ${SOC}<br>Le ${today}</p>
@@ -7883,8 +7895,8 @@ const EXCLUSIONS_CSE = {
   'fratrie':    {label:'Frère ou sœur de l\'employeur', effet:'eligible', ref:'Art. L.2314-19 al. 3'},
   'allie':      {label:'Allié au même degré (beau-frère, etc.)', effet:'eligible', ref:'Art. L.2314-19 al. 3'},
   'stagiaire':  {label:'Stagiaire (pas un contrat de travail)', effet:'effectif+tout', ref:'Pas salarié'},
-  'cddrempl':   {label:'CDD remplaçant un salarié permanent', effet:'effectif+tout', ref:'Art. L.1111-3'},
-  'apprenti':   {label:'Apprenti / Alternant', effet:'effectif+tout', ref:'Art. L.1111-3'},
+  'cddrempl':   {label:'CDD remplaçant un salarié absent — hors effectif mais ÉLECTEUR/éligible si conditions', effet:'effectif', ref:'Art. L.1111-2 (exclu de l\'effectif) ; électeur si 16 ans/3 mois (L.2314-18)'},
+  'apprenti':   {label:'Apprenti / Alternant — hors effectif mais ÉLECTEUR/éligible si conditions', effet:'effectif', ref:'Art. L.1111-3 (exclu de l\'effectif) ; électeur si 16 ans/3 mois (L.2314-18)'},
   'contratpro': {label:'Contrat de professionnalisation', effet:'effectif+tout', ref:'Art. L.1111-3'},
   'cie':        {label:'CIE / CUI-CAE (contrat aidé)', effet:'effectif+tout', ref:'Art. L.1111-3'},
   'mep':        {label:'Mis à disposition externe', effet:'effectif', ref:'Art. L.1111-2'},
@@ -8231,7 +8243,7 @@ ${!sousSeuil ? `Nombre de sièges à pourvoir : <strong style="color:#e8c97a;fon
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
 Répartition des électeurs par collège : <strong>1er collège ${col1}</strong> · <strong>2e collège ${col2}</strong>
-${nbCadres >= 25 ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → 3e collège possible (art. L.2314-11)</span>' : ''}
+${nbCadres >= 25 ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → 3e collège <strong>obligatoire</strong>, quel que soit l\'effectif (art. L.2314-11) — non supprimable, même par accord unanime (L.2314-12)</span>' : ''}
 </div></div>`;
   // Mémoriser pour usage dans les documents générés
   window.lastEffArrondi = effArr;
