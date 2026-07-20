@@ -113,22 +113,49 @@ var SOCLE=[
 ];
 
 var HCR=[
- {th:'🍽️ Spécificités HCR',items:[
-   {id:'hcr_nourri',q:'L\'avantage en nature nourriture (2 repas/jour ou indemnité) est-il correctement décompté sur la paie ?',art:'CCN HCR (art. 33) · arrêté avantages en nature',san:'Redressement URSSAF sur l\'assiette des cotisations + rappels.',fix:'Note de calcul avantage nourriture HCR.'},
-   {id:'hcr_ampli',q:'L\'amplitude et les coupures journalières respectent-elles la CCN HCR (repos, durée max) ?',art:'CCN HCR · art. L.3121-18 s. C. trav.',san:'Contravention de 4ᵉ classe par salarié + rappels d\'heures.',fix:'Grille de suivi amplitude/coupures HCR.'},
-   {id:'hcr_jf',q:'Les jours fériés et le repos hebdomadaire (2 jours, aménageables) sont-ils accordés selon la CCN HCR ?',art:'CCN HCR (jours fériés / repos)',san:'Rappels (majoration/repos compensateur) + contravention.',fix:'Planning type conforme HCR.'},
-   {id:'hcr_essai',q:'Les périodes d\'essai et préavis appliqués correspondent-ils à la CCN HCR (ex. démission employé < 6 mois = 8 jours) ?',art:'CCN HCR art. 30',san:'Préavis mal appliqué : rappel d\'indemnité compensatrice de préavis.',fix:'Barème préavis HCR + lettre type.'},
-   {id:'hcr_tenue',q:'La tenue de travail imposée est-elle fournie et son entretien pris en charge ?',art:'art. L.4122-2 · jurisprudence',san:'Rappel au titre de l\'entretien des tenues + dommages-intérêts.',fix:'Clause tenue + note d\'indemnisation.'}
+ {th:'🍽️ Temps de travail & repos (HCR)',items:[
+   {id:'hcr_ampli',q:'L\'amplitude journalière (13 h max) et les coupures (2 max) respectent-elles la CCN HCR ?',art:'CCN HCR (art. 21) · art. L.3121-18 C. trav.',san:'Contravention de 4ᵉ classe (750 € par salarié) + rappels d\'heures et de repos.',fix:'Grille de suivi amplitude/coupures HCR.'},
+   {id:'hcr_repos2j',q:'Le repos hebdomadaire (2 jours, dont modalités d\'aménagement HCR) et les jours fériés sont-ils accordés ?',art:'CCN HCR (art. 21, 25) · art. L.3132-2 C. trav.',san:'Rappels (repos compensateur/majoration) + contravention de 4ᵉ classe.',fix:'Planning type conforme HCR.'},
+   {id:'hcr_hsup',q:'Les heures supplémentaires sont-elles majorées selon le barème HCR (10 % / 20 % / 50 %) et le contingent respecté ?',art:'CCN HCR (avenant durée du travail) · art. L.3121-28 C. trav.',san:'Rappels de salaire majorés ; dissimulation = travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de décompte des heures HCR.'},
+   {id:'hcr_nuit',q:'Le travail de nuit est-il encadré (contreparties, surveillance médicale renforcée) ?',art:'CCN HCR · art. L.3122-1 s. C. trav.',san:'Rappels de contreparties + responsabilité santé de l\'employeur.',fix:'Note travail de nuit HCR.'}
+ ]},
+ {th:'💶 Rémunération & protection sociale (HCR)',items:[
+   {id:'hcr_nourri',q:'L\'avantage en nature nourriture (2 repas/jour ou indemnité compensatrice) est-il correctement décompté sur la paie ?',art:'CCN HCR (art. 33) · arrêté du 28/04/2003 (avantages en nature)',san:'Redressement URSSAF sur l\'assiette des cotisations + rappels.',fix:'Note de calcul avantage nourriture HCR.'},
+   {id:'hcr_minima',q:'Les salaires respectent-ils la grille de minima HCR (niveau/échelon) et le SMIC ?',art:'CCN HCR (grille de salaires) · art. L.2261-2 C. trav.',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Grille de minima HCR à jour.'},
+   {id:'hcr_mutuelle',q:'La mutuelle « frais de santé » et la prévoyance obligatoires sont-elles en place et financées ?',art:'art. L.911-7 CSS · régime conventionnel HCR',san:'Redressement URSSAF (perte de l\'exonération) + prise en charge des prestations non couvertes.',fix:'Attestation d\'affiliation mutuelle/prévoyance HCR.'},
+   {id:'hcr_tenue',q:'La tenue de travail imposée est-elle fournie ET son entretien pris en charge (ou prime de blanchissage) ?',art:'art. L.4122-2 C. trav. · jurisprudence',san:'Rappel au titre de l\'entretien des tenues + dommages-intérêts.',fix:'Clause tenue + note d\'indemnisation.'},
+   {id:'hcr_essai',q:'Les périodes d\'essai et préavis correspondent-ils à la CCN HCR (ex. démission employé < 6 mois = 8 jours) ?',art:'CCN HCR art. 30',san:'Préavis mal appliqué : rappel d\'indemnité compensatrice de préavis.',fix:'Barème préavis HCR + lettre type.'}
+ ]},
+ {th:'🧼 Hygiène & sécurité alimentaire (contrôle DDPP)',items:[
+   {id:'hcr_hygiene',q:'Au moins une personne de l\'établissement a-t-elle suivi la formation « hygiène alimentaire » obligatoire ?',art:'art. L.233-4 C. rural · décret 2011-731',san:'Contrôle DDPP : mise en demeure, amende, voire fermeture administrative.',fix:'Attestation de formation hygiène + suivi.'},
+   {id:'hcr_pms',q:'Le Plan de Maîtrise Sanitaire (PMS / HACCP) est-il rédigé, appliqué et à jour (traçabilité, températures) ?',art:'Règl. (CE) 852/2004 · arrêté du 21/12/2009',san:'Avertissement, procès-verbal, fermeture administrative en cas de risque grave.',fix:'Trame de PMS / relevés HACCP.'},
+   {id:'hcr_affich',q:'Les affichages spécifiques sont-ils en place (interdiction de fumer/vapoter, protection des mineurs vis-à-vis de l\'alcool, permis d\'exploitation, prix) ?',art:'art. L.3342-1 CSP · art. R.3512-2 CSP',san:'Amendes contraventionnelles ; sanctions du débit de boissons.',fix:'Pack affichages obligatoires HCR.'}
  ]}
 ];
 
 var TRANSPORT=[
- {th:'🚚 Spécificités transport',items:[
-   {id:'tr_fco',q:'Les FCO/FIMO (CQC) des conducteurs sont-elles à jour et planifiées avant échéance ?',art:'art. L.3314-1 s. C. transports',san:'Amende (contravention 4ᵉ classe) + immobilisation possible ; conducteur non autorisé.',fix:'Suivi des CQC + convocations FCO.'},
-   {id:'tr_tacho',q:'Le tachygraphe est-il contrôlé (atelier agréé tous les 2 ans) et les temps de conduite/repos respectés ?',art:'Règl. (UE) 165/2014 · art. R.3313-... ',san:'Amendes de 4ᵉ classe par infraction (par conducteur/jour) ; risque pénal pour falsification.',fix:'Procédure de télé-chargement et d\'archivage des données.'},
-   {id:'tr_licence',q:'La licence de transport est-elle valide, l\'entreprise inscrite au registre et la capacité professionnelle assurée ?',art:'art. L.3211-1 s. C. transports',san:'Travail illégal de transport : sanctions pénales + retrait/suspension de la licence.',fix:'Check-list registre transporteurs.'},
-   {id:'tr_bord',q:'Les documents de bord obligatoires sont-ils présents dans chaque véhicule ?',art:'art. R.3411-... C. transports',san:'Amendes + immobilisation du véhicule.',fix:'Liste des documents de bord.'},
-   {id:'tr_alcool',q:'Le cadre alcool/stupéfiants (contrôles, taux, sanctions) est-il fixé au règlement intérieur ?',art:'art. R.4228-20 s. · RI · Code de la route',san:'Responsabilité de l\'employeur en cas d\'accident ; sanctions pénales du conducteur.',fix:'Clause RI alcool/stupéfiants conforme.'}
+ {th:'🪪 Conducteurs & qualifications',items:[
+   {id:'tr_fco',q:'Les FIMO/FCO (CQC) des conducteurs sont-elles à jour et planifiées avant échéance ?',art:'art. L.3314-1 s. C. transports',san:'Contravention de 4ᵉ classe + immobilisation possible ; conducteur non autorisé à conduire.',fix:'Suivi des CQC + convocations FCO.'},
+   {id:'tr_medic',q:'Le suivi médical renforcé des conducteurs (aptitude, visites) est-il assuré ?',art:'art. R.4624-22 s. C. trav.',san:'Contravention de 5ᵉ classe + responsabilité de l\'employeur en cas d\'accident.',fix:'Agenda des visites médicales conducteurs.'},
+   {id:'tr_carte',q:'Les cartes conducteur et la carte entreprise (tachygraphe) sont-elles valides et les données télédéchargées (28 j conducteur / 90 j véhicule) ?',art:'Règl. (UE) 165/2014 · art. R.3313-13 C. transports',san:'Contravention de 4ᵉ classe par manquement ; sanction pénale en cas de falsification.',fix:'Procédure de télédéchargement et d\'archivage.'}
+ ]},
+ {th:'⏱️ Temps de conduite & de travail',items:[
+   {id:'tr_temps',q:'La durée du travail / temps de service des conducteurs (décompte spécifique) est-elle respectée et payée ?',art:'décret n° 83-40 · art. L.3312-1 s. C. transports',san:'Rappels de salaire + contraventions ; travail dissimulé si heures masquées.',fix:'Tableau de suivi du temps de service.'},
+   {id:'tr_conduite',q:'Les temps de conduite (max) et les repos (journalier 11 h/9 h, hebdomadaire) sont-ils respectés ?',art:'Règl. (CE) 561/2006',san:'Amendes par infraction (par conducteur et par jour) ; immobilisation.',fix:'Rappel des règles 561/2006 + suivi.'},
+   {id:'tr_alcool',q:'Le cadre alcool/stupéfiants (contrôles, taux, sanctions) est-il fixé au règlement intérieur ?',art:'art. R.4228-20 s. C. trav. · RI · Code de la route',san:'Responsabilité de l\'employeur en cas d\'accident ; sanctions pénales du conducteur.',fix:'Clause RI alcool/stupéfiants conforme.'}
+ ]},
+ {th:'🚚 Entreprise, véhicules & sécurité',items:[
+   {id:'tr_licence',q:'La licence de transport est-elle valide, l\'entreprise inscrite au registre et la capacité professionnelle assurée ?',art:'art. L.3211-1 s. C. transports',san:'Transport illégal : sanctions pénales + retrait/suspension de la licence.',fix:'Check-list registre des transporteurs.'},
+   {id:'tr_tacho',q:'Le tachygraphe et le limiteur de vitesse font-ils l\'objet du contrôle périodique (atelier agréé, tous les 2 ans) ?',art:'Règl. (UE) 165/2014',san:'Contravention + immobilisation du véhicule.',fix:'Suivi des contrôles atelier.'},
+   {id:'tr_bord',q:'Les documents de bord obligatoires sont-ils présents dans chaque véhicule (licence, lettre de voiture, assurance, carte grise) ?',art:'art. R.3411-1 s. C. transports',san:'Amendes + immobilisation du véhicule.',fix:'Liste des documents de bord.'},
+   {id:'tr_protocole',q:'Les protocoles de sécurité chargement/déchargement sont-ils établis avec les sites d\'accueil ?',art:'art. R.4515-1 s. C. trav.',san:'Contravention + faute inexcusable en cas d\'accident (majoration de rente).',fix:'Modèle de protocole de sécurité par site.'},
+   {id:'tr_adr',q:'Si transport de matières dangereuses : l\'ADR et un conseiller à la sécurité sont-ils en place ?',art:'Accord ADR · art. R.1252-1 s. C. transports',san:'Sanctions pénales, immobilisation, interdiction de transport.',fix:'Check-list ADR + désignation conseiller sécurité.'}
+ ]},
+ {th:'💶 Convention collective (transports routiers, IDCC 16)',items:[
+   {id:'tr_frais',q:'Les frais de déplacement (indemnités de repas, casse-croûte, découcher, grand déplacement) sont-ils versés selon le protocole « frais de déplacement » ?',art:'CCN transports routiers (IDCC 16) · protocole frais de déplacement',san:'Rappels d\'indemnités sur 3 ans + redressement URSSAF si mal traitées.',fix:'Barème des frais de déplacement transport.'},
+   {id:'tr_coeff',q:'La classification (coefficient) des conducteurs est-elle conforme à la grille conventionnelle et les minima respectés ?',art:'CCN transports routiers (IDCC 16) — annexes classifications',san:'Rappels de salaire (minima conventionnels) sur 3 ans.',fix:'Grille de classification et de minima transport.'},
+   {id:'tr_anc',q:'La prime d\'ancienneté conventionnelle (et le 13ᵉ mois si prévu) est-elle versée ?',art:'CCN transports routiers (IDCC 16)',san:'Rappels de salaire sur 3 ans.',fix:'Note prime d\'ancienneté / 13ᵉ mois transport.'},
+   {id:'tr_garantie',q:'Le temps de service (conduite, attente, disponibilité) est-il intégralement décompté et rémunéré, sans temps masqué ?',art:'décret n° 83-40 · art. L.3312-1 C. transports',san:'Rappels de salaire + travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de suivi du temps de service.'}
  ]}
 ];
 
@@ -211,41 +238,42 @@ window.cmScore=function(){
     +'<div class="score-num" style="color:'+col+'">'+pct+'%</div>'
     +'<div class="hint">de conformité sur les points applicables ('+conf+'/'+applic+')</div>'
     +'<div class="bar"><span style="width:'+pct+'%;background:'+col+'"></span></div>'
-    +(man.length?('<div class="hint"><b style="color:#f5c6c2">'+man.length+'</b> manquement(s) à corriger</div>'):'<div class="hint" style="color:#bff0d4">Aucun manquement détecté sur vos réponses 🎉</div>')
+    +(man.length?('<div class="hint"><b style="color:#f5c6c2">'+man.length+'</b> point(s) à corriger — détail commenté ci-dessous</div>'):'<div class="hint" style="color:#bff0d4">Aucun manquement détecté sur vos réponses 🎉</div>')
     +'</div>';
 
-  if(man.length){
-    h+='<div class="card"><div class="grp-t" style="margin-top:0">🚫 Manquements — article & sanction encourue</div>';
-    man.forEach(function(it){
-      h+='<div class="man"><div class="mt">'+esc(it.q)+'</div>'
-       +'<div class="art">📘 '+esc(it.art)+'</div>'
-       +'<div class="san">⚠️ Sanction : '+esc(it.san)+'</div>'
-       +'<div class="fix">🛠️ À régulariser : '+esc(it.fix)+'</div></div>';
-    });
-    h+='</div>';
-  }
-
-  /* Section verrouillée : documents + DUER */
+  /* Section verrouillée : réponses commentées (article + sanction) + documents + DUER — réservée aux clients enregistrés */
   var inscrit=false;try{inscrit=!!localStorage.getItem('cm_inscrit');}catch(e){}
   h+='<div id="cm-locked">'+lockedSection(man,inscrit)+'</div>';
 
   var r=$('cm-result');r.innerHTML=h;r.style.display='';r.scrollIntoView({behavior:'smooth',block:'start'});
 };
 
+function commentedHtml(man){
+  if(!man.length) return '<p class="hint">Aucun manquement à commenter : vos réponses sont conformes sur les points applicables. Le DUER reste obligatoire (ci-dessous).</p>';
+  var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos réponses commentées — article & sanction encourue :</b></div>';
+  man.forEach(function(it){
+    h+='<div class="man"><div class="mt">'+esc(it.q)+'</div>'
+     +'<div class="art">📘 '+esc(it.art)+'</div>'
+     +'<div class="san">⚠️ Sanction : '+esc(it.san)+'</div>'
+     +'<div class="fix">🛠️ À régulariser : '+esc(it.fix)+'</div></div>';
+  });
+  return h;
+}
+
 function lockedSection(man,inscrit){
-  var inner=documentsHtml(man)+duerHtml();
+  var inner=commentedHtml(man)+'<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">'+documentsHtml(man)+duerHtml();
   if(inscrit){
-    return '<div class="card"><div class="grp-t" style="margin-top:0">🔓 Vos documents correctifs & votre DUER</div>'+inner
+    return '<div class="card"><div class="grp-t" style="margin-top:0">🔓 Analyse détaillée, documents & DUER</div>'+inner
       +'<button class="btn ghost no-print" onclick="window.print()">🖨️ Imprimer / enregistrer en PDF</button></div>';
   }
   return '<div class="card lockwrap">'
     +'<div class="lock">'+inner+'</div>'
     +'<div class="lockover"><div class="lockcard">'
-      +'<div class="grp-t" style="margin-top:0">🔒 Débloquez vos documents & votre DUER</div>'
-      +'<p class="hint" style="margin:0 0 10px">Votre score et vos manquements sont gratuits. Pour recevoir les <b>documents correctifs</b> et votre <b>DUER pré-rempli</b>, indiquez votre e-mail.</p>'
+      +'<div class="grp-t" style="margin-top:0">🔒 Réservé aux clients enregistrés</div>'
+      +'<p class="hint" style="margin:0 0 10px">Votre <b>score</b> est gratuit. Pour voir vos <b>réponses commentées</b> (article + sanction encourue), les <b>documents correctifs</b> et votre <b>DUER pré-rempli</b>, connectez-vous ou créez votre accès.</p>'
       +'<input id="cm-email" type="email" placeholder="votre@email.fr" style="margin-bottom:8px">'
-      +'<button class="btn" onclick="cmUnlock()">Débloquer mes documents</button>'
-      +'<p class="hint" style="margin:8px 0 0">En validant, vous créez votre accès. Aucun spam.</p>'
+      +'<button class="btn" onclick="cmUnlock()">Voir mon analyse détaillée</button>'
+      +'<p class="hint" style="margin:8px 0 0">Réservé aux clients enregistrés. Aucun spam.</p>'
     +'</div></div></div>';
 }
 
