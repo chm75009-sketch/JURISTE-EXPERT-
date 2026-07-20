@@ -1003,7 +1003,9 @@ async function runSearch(){
       if($("relInd") && $("relInd").checked && add.length){
         add = add.filter(function(o){ const sc=relIndScore(o); return sc.ind>0 && sc.col===0; });
       }
-      adzN = extra.adzuna.length; jobN = extra.jooble.length;
+      // On affiche le nombre d'offres Adzuna RÉELLEMENT ajoutées (après dédoublonnage et filtres),
+      // pas le nombre brut renvoyé — sinon les totaux semblent se contredire.
+      adzN = add.length; jobN = 0;
       offers = offers.concat(add);
     }
 
