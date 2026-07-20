@@ -892,15 +892,27 @@ function joobleToFT(j){
     competences:[], formations:[], qualitesProfessionnelles:[]
   };
 }
-async function fetchAdzuna(proxy, what, where, results){
+async function fetchAdzuna(proxy, what, where, results, page){
   try{
     var p=new URLSearchParams(); if(what)p.set("what",what); if(where)p.set("where",where);
-    p.set("results", String(results||50)); p.set("page","1");
+    p.set("results", String(results||50)); p.set("page", String(page||1));
     var r=await fetch(proxy+"/adzuna?"+p.toString());
     if(!r.ok) return [];
     var d=await r.json();
     return (d&&d.results)?d.results.map(adzunaToFT):[];
   }catch(e){ return []; }
+}
+// Adzuna renvoie 50 offres/page : on enchaîne les pages pour en ramener le maximum (jusqu'à `target`, plafonné).
+async function fetchAdzunaMulti(proxy, what, where, target){
+  target = Math.max(50, Math.min(target||150, 250));   // plafond 250 (5 pages) pour rester dans les quotas gratuits
+  var pages = Math.ceil(target/50), all=[], seen={};
+  for(var pg=1; pg<=pages; pg++){
+    var batch = await fetchAdzuna(proxy, what, where, 50, pg);
+    if(!batch.length) break;
+    batch.forEach(function(o){ var k=(o.origineOffre&&o.origineOffre.urlOrigine)||o.id; if(k&&seen[k])return; if(k)seen[k]=1; all.push(o); });
+    if(batch.length<50) break;   // dernière page atteinte
+  }
+  return all;
 }
 async function fetchJooble(proxy, keywords, location){
   try{
@@ -914,9 +926,9 @@ async function fetchJooble(proxy, keywords, location){
 // Récupère les sources complémentaires (Adzuna) et renvoie les offres normalisées, dédupliquées (titre+entreprise).
 // NB : Jooble a été retiré — son API bloque (403) les requêtes venant des serveurs Cloudflare (blocage IP côté Jooble).
 //      La fonction fetchJooble reste disponible si un jour on passe par un autre relais.
-async function fetchAutresSources(proxy, keywords, location, seenKeys){
+async function fetchAutresSources(proxy, keywords, location, seenKeys, adzTarget){
   if(!keywords) return {adzuna:[], jooble:[], all:[]};
-  var adz = await fetchAdzuna(proxy, keywords, location, 50);
+  var adz = await fetchAdzunaMulti(proxy, keywords, location, adzTarget||150);
   adz = adz||[];
   var all=[];
   function keyOf(o){ return normM((o.intitule||"")+"|"+((o.entreprise&&o.entreprise.nom)||"")); }
@@ -998,7 +1010,10 @@ async function runSearch(){
       const loc = (dep && !/^\d+$/.test(dep)) ? dep : (regLabel && !/toute la france|—|choisir/i.test(regLabel) ? regLabel : "");
       const seen = {};
       offers.forEach(function(o){ seen[normM((o.intitule||"")+"|"+((o.entreprise&&o.entreprise.nom)||""))]=1; });
-      const extra = await fetchAutresSources(proxy, kw, loc, seen);
+      // Profondeur Adzuna : au moins 150, ou le « Nombre d'offres à analyser » choisi (plafonné à 250 dans le fetch).
+      const _tm = ($("taille").value||"").match(/-(\d+)/);
+      const adzTarget = Math.max(150, _tm ? parseInt(_tm[1],10)+1 : 150);
+      const extra = await fetchAutresSources(proxy, kw, loc, seen, adzTarget);
       let add = extra.all;
       if($("relInd") && $("relInd").checked && add.length){
         add = add.filter(function(o){ const sc=relIndScore(o); return sc.ind>0 && sc.col===0; });
