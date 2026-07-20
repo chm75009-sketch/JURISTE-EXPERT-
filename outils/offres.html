@@ -299,6 +299,10 @@
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
       <div class="hint" style="margin-top:6px;opacity:.75">Méthode : une offre est « collectif » ou « les deux » dès qu'un marqueur collectif explicite apparaît (CSE, IRP, négociation, PSE, syndical…). Sans marqueur collectif, tout poste de droit social/RH est compté en <b>individuel</b> — les relations individuelles étant le socle du droit du travail. « Non précisé » = offre hors droit social.</div>
+      <label style="display:flex;align-items:center;gap:9px;margin-top:10px;font-size:13.5px;font-weight:600;cursor:pointer">
+        <input type="checkbox" id="inclHS" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
+        Inclure les offres hors droit social (non classées) dans l'étude
+      </label>
       <div style="margin-top:12px">
         <button type="button" class="btn btn-ghost" id="enrichBtn">🔎 Compléter les effectifs « non précisé » (annuaire officiel des entreprises)</button>
         <div class="hint" id="enrichNote" style="margin-top:8px"></div>
@@ -626,6 +630,7 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
+if($("inclHS")) $("inclHS").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
 if($("syntheseCsv")) $("syntheseCsv").addEventListener("click", function(){
   if(!lastSyntheseRows.length) return;
   var csv=lastSyntheseRows.map(function(r){ return r.map(function(c){ var s=String(c).replace(/"/g,'""'); return /[";\n]/.test(s)?'"'+s+'"':s; }).join(";"); }).join("\r\n");
@@ -998,6 +1003,14 @@ function renderSynthese(offers){
 }
 function analyse(offers, totalDispo){
   lastTotal = totalDispo;
+  // Étude « juriste droit social » : on écarte les offres hors sujet (non classées : ni individuel ni collectif,
+  // ex. travailleur social, mandataire judiciaire) — sauf si l'utilisateur demande à les inclure.
+  var horsSujet = lastDroitSocial ? offers.filter(function(o){ return classifyRel(o)==="Non précisé"; }) : [];
+  var inclureHS = !!($("inclHS") && $("inclHS").checked);
+  if(lastDroitSocial && !inclureHS && horsSujet.length){
+    offers = offers.filter(function(o){ return classifyRel(o)!=="Non précisé"; });
+  }
+  lastUnclass = horsSujet;
   const n = offers.length;
 
   /* --- Compétences --- */
@@ -1007,7 +1020,8 @@ function analyse(offers, totalDispo){
   // Bloc « individuel / collectif » : pertinent uniquement pour un métier de droit social / RH → masqué sinon
   var _secRel = $("secRelation"); if(_secRel) _secRel.style.display = lastDroitSocial ? "" : "none";
   if(lastDroitSocial) (function(){
-    const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)","Non précisé"];
+    const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)"];
+    if(inclureHS) RCATS.push("Non précisé");   // n'afficher la ligne « hors droit social » que si on les inclut
     const by={}; offers.forEach(function(o){ const c=classifyRel(o); by[c]=(by[c]||0)+1; });
     const pct=function(v){ return n?Math.round(v/n*100):0; };
     var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px">';
@@ -1028,11 +1042,11 @@ function analyse(offers, totalDispo){
     h+='</tbody></table></div>';
     var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
     var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
-    var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%).";
-    // Offres non class\u00e9es (aucun mot-cl\u00e9 individuel ni collectif) -> inspection
-    lastUnclass = offers.filter(function(o){ return classifyRel(o)==="Non pr\u00e9cis\u00e9"; });
+    var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%)."
+      + (horsSujet.length ? "<br><span style=\"opacity:.8\">"+(inclureHS?"<b>"+horsSujet.length+"</b> offre(s) hors droit social incluses ci-dessus.":"<b>"+horsSujet.length+"</b> offre(s) hors droit social <b>\u00e9cart\u00e9e(s)</b> de l'\u00e9tude (travail social, hors sujet) \u2014 voir le d\u00e9tail ci-dessous.")+"</span>" : "");
+    // Offres hors droit social \u00e9cart\u00e9es -> inspection (lastUnclass d\u00e9j\u00e0 d\u00e9fini en t\u00eate d'analyse)
     var ub=$("unclassBtn"), ucp=$("unclassCopy"), ubox=$("unclassList");
-    if(ub){ ub.style.display = lastUnclass.length? "" : "none"; ub.textContent = "\ud83d\udd0d Voir les "+lastUnclass.length+" offre(s) non class\u00e9es (individuel / collectif)"; }
+    if(ub){ ub.style.display = lastUnclass.length? "" : "none"; ub.textContent = "\ud83d\udd0d Voir les "+lastUnclass.length+" offre(s) hors droit social \u00e9cart\u00e9e(s)"; }
     if(ucp){ ucp.style.display = lastUnclass.length? "" : "none"; }
     if(ubox){
       ubox.innerHTML = lastUnclass.slice(0,80).map(function(o){
