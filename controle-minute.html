@@ -61,6 +61,10 @@
 
   <div id="cm-quiz" style="display:none">
     <div class="card">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn ghost" style="width:auto;padding:9px 12px;margin:0" onclick="cmReset()">↺ Changer de secteur</button>
+        <button class="btn ghost" style="width:auto;padding:9px 12px;margin:0" onclick="cmClear()">🔄 Vider mes réponses</button>
+      </div>
       <label class="fl">2 · Répondez — Oui (conforme) · Non (manquement) · N/C (non concerné)</label>
       <div id="cm-list"></div>
       <button class="btn" onclick="cmScore()">Voir mon score et mes manquements ⚖️</button>
@@ -285,6 +289,27 @@ window.cmSet=function(el){
   el.className='opt sel-'+v;
 };
 
+/* Réinitialisation complète : on repart au choix du secteur */
+window.cmReset=function(){
+  A={}; CURSEC=''; var s=$('secteur'); if(s) s.value='';
+  $('cm-quiz').style.display='none'; $('cm-list').innerHTML='';
+  $('cm-result').style.display='none'; $('cm-result').innerHTML='';
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+};
+/* Vider les réponses du secteur en cours (sans changer de secteur) */
+window.cmClear=function(){
+  A={};
+  $('cm-list').querySelectorAll('.opt').forEach(function(o){o.className='opt';});
+  $('cm-result').style.display='none'; $('cm-result').innerHTML='';
+  $('cm-quiz').scrollIntoView({behavior:'smooth',block:'start'});
+};
+/* Retour du résultat vers le questionnaire (réponses conservées) */
+window.cmBack=function(){
+  $('cm-result').style.display='none';
+  $('cm-quiz').style.display='';
+  $('cm-quiz').scrollIntoView({behavior:'smooth',block:'start'});
+};
+
 function allItems(){var out=[];questionsFor(CURSEC).forEach(function(g){g.items.forEach(function(it){out.push(it);});});return out;}
 
 window.cmScore=function(){
@@ -294,7 +319,11 @@ window.cmScore=function(){
   CM_LASTPCT=pct;
   var col=pct>=80?'#3fae74':(pct>=50?'#e0a83a':'#e0574f');
   var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||'';
-  var h='<div class="card score-box"><div class="hint">'+esc(secNom)+'</div>'
+  var h='<div style="display:flex;gap:8px;margin:0 0 4px">'
+    +'<button class="btn ghost no-print" style="width:auto;padding:9px 12px;margin:0" onclick="cmBack()">← Modifier mes réponses</button>'
+    +'<button class="btn ghost no-print" style="width:auto;padding:9px 12px;margin:0" onclick="cmReset()">🔄 Nouveau test</button>'
+    +'</div>';
+  h+='<div class="card score-box"><div class="hint">'+esc(secNom)+'</div>'
     +'<div class="score-num" style="color:'+col+'">'+pct+'%</div>'
     +'<div class="hint">de conformité sur les points applicables ('+conf+'/'+applic+')</div>'
     +'<div class="bar"><span style="width:'+pct+'%;background:'+col+'"></span></div>'
