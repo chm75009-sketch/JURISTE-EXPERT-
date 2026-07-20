@@ -230,9 +230,9 @@
     <div class="field" style="margin-top:10px">
       <label style="display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:600;font-size:14.5px">
         <input type="checkbox" id="srcExtra" checked style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
-        <span>🔎 Élargir la recherche à <b>Adzuna</b> et <b>Jooble</b> (agrégateurs) en plus de France Travail</span>
+        <span>🔎 Élargir la recherche à <b>Adzuna</b> (agrégateur) en plus de France Travail</span>
       </label>
-      <div class="hint">Plus d'offres, dédoublonnées. Nécessite les clés Adzuna/Jooble configurées dans le Worker ; sinon seul France Travail répond.</div>
+      <div class="hint">Plus d'offres, dédoublonnées. Nécessite la clé Adzuna configurée dans le Worker ; sinon seul France Travail répond.</div>
     </div>
     <div class="row-actions" style="margin-top:6px">
       <button class="btn" id="searchBtn">Analyser les offres</button>
@@ -911,20 +911,20 @@ async function fetchJooble(proxy, keywords, location){
     return (d&&d.jobs)?d.jobs.map(joobleToFT):[];
   }catch(e){ return []; }
 }
-// Récupère Adzuna + Jooble en parallèle et renvoie les offres normalisées, dédupliquées (titre+entreprise).
+// Récupère les sources complémentaires (Adzuna) et renvoie les offres normalisées, dédupliquées (titre+entreprise).
+// NB : Jooble a été retiré — son API bloque (403) les requêtes venant des serveurs Cloudflare (blocage IP côté Jooble).
+//      La fonction fetchJooble reste disponible si un jour on passe par un autre relais.
 async function fetchAutresSources(proxy, keywords, location, seenKeys){
   if(!keywords) return {adzuna:[], jooble:[], all:[]};
-  var res = await Promise.all([
-    fetchAdzuna(proxy, keywords, location, 50),
-    fetchJooble(proxy, keywords, location)
-  ]);
-  var adz=res[0]||[], job=res[1]||[], all=[];
+  var adz = await fetchAdzuna(proxy, keywords, location, 50);
+  adz = adz||[];
+  var all=[];
   function keyOf(o){ return normM((o.intitule||"")+"|"+((o.entreprise&&o.entreprise.nom)||"")); }
-  [].concat(adz, job).forEach(function(o){
+  adz.forEach(function(o){
     if(!o.intitule) return;
     var k=keyOf(o); if(seenKeys[k]) return; seenKeys[k]=1; all.push(o);
   });
-  return {adzuna:adz, jooble:job, all:all};
+  return {adzuna:adz, jooble:[], all:all};
 }
 
 async function runSearch(){
@@ -1017,8 +1017,8 @@ async function runSearch(){
       if(!aliasCodes.length){ const m = res.range.match(/\/(\d+)/); if(m) ftTotal = parseInt(m[1],10); }
       analyse(offers, offers.length);
       $("results").classList.remove("hidden");
-      const srcTxt = (adzN||jobN)
-        ? ' &nbsp;·&nbsp; <span class="muted">France Travail : '+ftN.toLocaleString("fr-FR")+(ftTotal>ftN?(' (sur '+ftTotal.toLocaleString("fr-FR")+')'):'')+' · Adzuna : '+adzN+' · Jooble : '+jobN+'</span>'
+      const srcTxt = adzN
+        ? ' &nbsp;·&nbsp; <span class="muted">France Travail : '+ftN.toLocaleString("fr-FR")+(ftTotal>ftN?(' (sur '+ftTotal.toLocaleString("fr-FR")+')'):'')+' · Adzuna : '+adzN+'</span>'
         : (ftTotal>ftN?(' <span class="muted">(sur '+ftTotal.toLocaleString("fr-FR")+' disponibles sur France Travail)</span>'):'');
       $("searchStatus").innerHTML = '<b>'+offers.length.toLocaleString("fr-FR")+'</b> offre'+(offers.length>1?"s":"")+' analysée'+(offers.length>1?"s":"")+srcTxt+'.';
     }
