@@ -483,7 +483,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
     </section>
 
     <div class="access">
-      <span class="af">🔓 Contrôle-minute <b>gratuit</b>, sans code</span>
+      <a class="af" href="controle-minute.html" style="text-decoration:none;cursor:pointer">🎯 Contrôle-minute <b>gratuit</b>, sans code →</a>
       <span class="sep"></span>
       <span class="lk">🔒 Autres modules réservés aux abonnés — code communiqué à l'inscription</span>
     </div>
@@ -526,7 +526,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 
     <div class="lab"><h2>Pilotage &amp; conformité</h2><div class="rule"></div></div>
     <div class="flag">
-      <a class="fc" style="--c:var(--ok)" onclick="accueilTrial();return false"><div class="ic">🎯</div><div><div class="tt">Contrôle-minute</div><div class="dd">Prêt pour un contrôle URSSAF ou inspection ? Questions ciblées, score de conformité, plan d'action.</div><span class="chip"><span class="pt"></span>Essai gratuit · sans code</span></div><div class="chev">›</div></a>
+      <a class="fc" style="--c:var(--ok)" href="controle-minute.html"><div class="ic">🎯</div><div><div class="tt">Contrôle-minute</div><div class="dd">Prêt pour un contrôle URSSAF ou inspection ? Questions ciblées, score de conformité, plan d'action.</div><span class="chip"><span class="pt"></span>Essai gratuit · sans code</span></div><div class="chev">›</div></a>
       <a class="fc" style="--c:var(--alert)" onclick="accueilShowAbo();return false"><div class="ic">🔔</div><div><div class="tt">Alertes d'échéances</div><div class="dd">Titres, habilitations, visites médicales : les dates limites de vos salariés, surveillées.</div><span class="chip"><span class="pt"></span>3 à renouveler</span></div><div class="chev">🔒</div></a>
     </div>
 
@@ -638,9 +638,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.89';
+var JX_BUILD = 'v2026-07-19.90';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
+   'CONTRÔLE-MINUTE — la carte « Contrôle-minute » de l\'accueil et le bandeau « gratuit, sans code » ouvrent désormais directement la page publique (ils ne réagissaient pas). Cohérence : plus de cadenas trompeur sur ce qui est gratuit. Sur la page, le choix du secteur se fait par de gros boutons visibles (au lieu d\'un menu déroulant), et des boutons Retour / Vider mes réponses / Nouveau test permettent de recommencer.'
+ ]},
  {v:'v2026-07-19.89', d:'20 juillet 2026', t:[
    'CONTRÔLE-MINUTE PUBLIC — nouvelle page autonome et gratuite (controle-minute.html), accessible avant le code d\'accès (lien sur l\'écran de connexion). Sélecteur de secteur (Tous secteurs, HCR, Transport), questionnaire adapté, score de conformité, et pour chaque manquement l\'ARTICLE applicable ET la SANCTION encourue. Les documents correctifs et un DUER pré-rempli adapté au secteur se débloquent après inscription (e-mail).'
  ]},

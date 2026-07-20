@@ -20,6 +20,10 @@
   .opt.sel-oui{background:rgba(63,174,116,.18);border-color:var(--ok);color:#bff0d4}
   .opt.sel-non{background:rgba(224,87,79,.18);border-color:var(--ko);color:#f5c6c2}
   .opt.sel-nc{background:rgba(159,176,196,.14);border-color:var(--muted);color:#d8e2ee}
+  .secbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .secbtn{padding:12px 15px;border:1.5px solid var(--line);border-radius:11px;background:#0c1728;color:var(--ink);font-size:14.5px;font-weight:700;cursor:pointer;line-height:1.2}
+  .secbtn:hover{border-color:var(--gold)}
+  .secbtn.on{background:var(--gold);color:#161616;border-color:var(--gold)}
   .btn{display:block;width:100%;padding:14px;background:var(--gold);color:#161616;border:0;border-radius:11px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
   .btn.ghost{background:transparent;color:var(--gold2);border:1px solid var(--gold)}
   .score-box{text-align:center;padding:14px}
@@ -52,11 +56,10 @@
   <p class="sub">Êtes-vous prêt pour un contrôle de l'inspection du travail / URSSAF ? Auto-diagnostic de conformité sociale : <b>score</b>, <b>manquements</b> avec l'<b>article</b> et la <b>sanction encourue</b>, puis <b>documents correctifs</b> et <b>DUER</b> adaptés.</p>
 
   <div class="card no-print">
-    <label class="fl" for="secteur">1 · Votre secteur d'activité</label>
-    <select id="secteur" onchange="cmPick()">
-      <option value="">— choisir —</option>
-    </select>
-    <p class="hint" style="margin:8px 0 0">Le questionnaire, les articles/sanctions et le DUER s'adaptent au secteur choisi.</p>
+    <label class="fl">1 · Choisissez votre secteur</label>
+    <div id="cm-secbtns" class="secbtns"></div>
+    <select id="secteur" onchange="cmPick()" style="display:none"><option value="">— choisir —</option></select>
+    <p class="hint" style="margin:10px 0 0">Le questionnaire, les articles/sanctions et le DUER s'adaptent au secteur choisi.</p>
   </div>
 
   <div id="cm-quiz" style="display:none">
@@ -262,7 +265,14 @@ function $(id){return document.getElementById(id);}
 
 (function initSec(){
   var s=$('secteur');SECTEURS.forEach(function(x){var o=document.createElement('option');o.value=x.id;o.textContent=x.nom;s.appendChild(o);});
+  var box=$('cm-secbtns');
+  if(box){ box.innerHTML=SECTEURS.map(function(x){return '<button type="button" class="secbtn" data-id="'+x.id+'" onclick="cmSelSec(\''+x.id+'\')">'+esc(x.nom)+'</button>';}).join(''); }
 })();
+window.cmSelSec=function(id){
+  var s=$('secteur'); if(s) s.value=id;
+  document.querySelectorAll('#cm-secbtns .secbtn').forEach(function(b){ b.className='secbtn'+(b.getAttribute('data-id')===id?' on':''); });
+  cmPick();
+};
 
 window.cmPick=function(){
   CURSEC=$('secteur').value; A={};
