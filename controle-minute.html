@@ -332,7 +332,7 @@ function lockedSection(man,inscrit){
       +'<p class="hint" style="margin:0 0 10px">Votre <b>score</b> est gratuit. Pour voir vos <b>réponses commentées</b> (article + sanction encourue), les <b>documents correctifs</b> et votre <b>DUER pré-rempli</b>, connectez-vous ou créez votre accès.</p>'
       +'<input id="cm-email" type="email" placeholder="votre@email.fr" style="margin-bottom:8px">'
       +'<button class="btn" onclick="cmUnlock()">Voir mon analyse détaillée</button>'
-      +'<p class="hint" style="margin:8px 0 0">Réservé aux clients enregistrés. Aucun spam.</p>'
+      +'<p class="hint" style="margin:8px 0 0">Un e-mail pré-rempli s\'ouvrira pour finaliser votre inscription auprès de <b>r.t.h@orange.fr</b>. Sinon, écrivez-nous directement à <a href="mailto:r.t.h@orange.fr">r.t.h@orange.fr</a>. Aucun spam.</p>'
     +'</div></div></div>';
 }
 
@@ -355,13 +355,20 @@ function duerHtml(){
   return h;
 }
 
+var CM_CONTACT='r.t.h@orange.fr';
 window.cmUnlock=function(){
-  var e=($('cm-email')||{}).value||'';
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e.trim())){alert('Merci d\'indiquer un e-mail valide.');return;}
-  try{localStorage.setItem('cm_inscrit',e.trim());}catch(e2){}
-  // (À brancher sur votre système d'abonnement / envoi d'e-mail.)
+  var e=(($('cm-email')||{}).value||'').trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Merci d\'indiquer un e-mail valide.');return;}
+  try{localStorage.setItem('cm_inscrit',e);}catch(e2){}
+  // Transmission du lead à l'exploitant par e-mail (page statique : on ouvre un e-mail pré-adressé).
+  var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||CURSEC;
+  var subj='Inscription Contrôle-minute — '+secNom;
+  var body='Nouveau contact via le Contrôle-minute :\n\nE-mail du visiteur : '+e+'\nSecteur : '+secNom+'\n\n(Message généré depuis controle-minute.html — répondez pour transmettre l\'accès.)';
+  var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  // On débloque d'abord le contenu, puis on ouvre l'e-mail.
   var man=allItems().filter(function(it){return A[it.id]==='non';});
   $('cm-locked').innerHTML=lockedSection(man,true);
   $('cm-locked').scrollIntoView({behavior:'smooth',block:'start'});
+  try{ var a=document.createElement('a'); a.href=mailto; a.style.display='none'; document.body.appendChild(a); a.click(); setTimeout(function(){a.remove();},1000); }catch(_){}
 };
 </script>
