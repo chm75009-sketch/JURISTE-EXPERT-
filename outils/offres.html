@@ -481,12 +481,37 @@ CONTRATS.forEach(c=>{
    RECHERCHE
    ============================================================ */
 /* --- Taille d'entreprise (effectif etablissement) --- */
+// Déduction de la taille d'entreprise à partir du TEXTE de l'offre (recours ultime,
+// utile surtout pour les offres anonymisées où le recruteur décrit son client).
+function effectifFromText(o){
+  if(o._effTxt!==undefined) return o._effTxt;
+  var t=" "+norm((o.description||"")+" "+((o.entreprise&&o.entreprise.description)||"")+" "+(o.intitule||""))+" ";
+  var res="";
+  // 1) nombre explicite de salariés / collaborateurs / effectif
+  var m=t.match(/(\d[\d ]{0,7})\s*(salaries|salarie|collaborateur|collaboratrice|personnes|employes|salaries?)/)
+       || t.match(/effectif[^\d]{0,14}(\d[\d ]{0,7})/)
+       || t.match(/(\d[\d ]{0,7})\s*(collaborateurs)/);
+  if(m){ var nb=parseInt(String(m[1]).replace(/\s/g,""),10); if(!isNaN(nb)&&nb>0){ res = nb>=250?"ETI":(nb>=10?"PME":"TPE"); } }
+  // 2) mots-clés de typologie
+  if(!res){
+    if(/grand groupe|groupe international|multinationale|leader mondial|leader europ|leader sur son marche|cac 40|sbf 120|cotee? en bourse|milliards? d euros|dizaines de milliers|grande entreprise|grand compte/.test(t)) res="ETI";
+    else if(/ eti |entreprise de taille intermediaire/.test(t)) res="ETI";
+    else if(/ pme | pmi |petite et moyenne entreprise|entreprise a taille humaine|societe a taille humaine/.test(t)) res="PME";
+    else if(/ tpe |start ?up|jeune entreprise|tres petite entreprise|petite structure|petite equipe|cabinet d avocats?|petit cabinet/.test(t)) res="TPE";
+  }
+  o._effTxt=res;
+  return res;
+}
 function effectifKey(o){
-  if(o&&o._eff) return o._eff;            // effectif complété via l'annuaire des entreprises (INSEE)
+  if(o&&o._eff) return o._eff;            // 1. effectif complété via l'annuaire des entreprises (INSEE)
   const t=(o&&o.trancheEffectifEtab)||"";
-  if(!t) return "NP";
-  const n=parseInt(((t.replace(/\s/g,"").match(/\d+/))||["0"])[0],10);
-  if(n>=250) return "ETI"; if(n>=10) return "PME"; return "TPE";
+  if(t){                                  // 2. tranche d'effectif fournie par France Travail
+    const n=parseInt(((t.replace(/\s/g,"").match(/\d+/))||["0"])[0],10);
+    if(n>=250) return "ETI"; if(n>=10) return "PME"; return "TPE";
+  }
+  var g=o&&effectifFromText(o);           // 3. déduction par le texte de l'offre (recours ultime)
+  if(g) return g;
+  return "NP";
 }
 const TAILLE_LAB={TPE:"TPE (<10)",PME:"PME (10-249)",ETI:"ETI / Grand groupe (250+)",NP:"Non précisé"};
 function effectifLabel(o){ return TAILLE_LAB[effectifKey(o)]; }
@@ -538,11 +563,12 @@ async function enrichEffectifs(){
   if(!lastOffers.length){ if(note) note.textContent = "Fais d'abord une recherche."; return; }
   const uniq = {}, noName = [];
   lastOffers.forEach(function(o){
-    if(effectifKey(o)!=="NP") return;
+    if(o._eff) return;                        // déjà complété par l'INSEE
+    if(o.trancheEffectifEtab) return;         // déjà fourni par France Travail
     const nom = o.entreprise && o.entreprise.nom;
-    if(!nom){ noName.push(o); return; }
+    if(!nom){ if(!effectifFromText(o)) noName.push(o); return; }  // anonymisé : reste NP si le texte ne dit rien
     const k = normEnt(nom); if(!k) return;
-    (uniq[k]=uniq[k]||[]).push(o);
+    (uniq[k]=uniq[k]||[]).push(o);            // société nommée : on interroge l'INSEE (prioritaire sur le texte)
   });
   const names = Object.keys(uniq);
   if(!names.length){
@@ -569,9 +595,10 @@ async function enrichEffectifs(){
   if(btn) btn.disabled = false;
   analyse(lastOffers, lastTotal||lastOffers.length);
   const remainNP = lastOffers.filter(function(o){ return effectifKey(o)==="NP"; }).length;
-  if(note) note.innerHTML = "✅ <b>"+found+"</b> société(s) complétée(s) via l'annuaire des entreprises (INSEE). "
-    + "Il reste <b>"+remainNP+"</b> offre(s) « non précisé » — employeur anonymisé"
-    + (noName.length?" ("+noName.length+" offre(s))":"")+" ou effectif non déclaré à l'INSEE.";
+  const parTexte = lastOffers.filter(function(o){ return !o._eff && !o.trancheEffectifEtab && effectifFromText(o); }).length;
+  if(note) note.innerHTML = "✅ <b>"+found+"</b> société(s) complétée(s) via l'annuaire INSEE"
+    + (parTexte?" · <b>"+parTexte+"</b> autre(s) déduite(s) de la description de l'offre":"")+". "
+    + "Il reste <b>"+remainNP+"</b> offre(s) « non précisé » — employeur anonymisé sans indication de taille dans le texte.";
 }
 const TAILLES=[{key:"TPE"},{key:"PME"},{key:"ETI"},{key:"NP"}];
 const taillesEl=$("tailles");
