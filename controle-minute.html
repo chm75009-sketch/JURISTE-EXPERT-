@@ -77,9 +77,13 @@
 <script>
 /* ===================== DONNÉES ===================== */
 var SECTEURS=[
-  {id:'commun',nom:'Tous secteurs — socle commun'},
-  {id:'hcr',nom:'Hôtels, cafés, restaurants (HCR)'},
-  {id:'transport',nom:'Transport routier de marchandises / voyageurs'}
+  {id:'transport',nom:'Transport routier (IDCC 16)'},
+  {id:'hcr',nom:'Hôtels, cafés, restaurants — HCR (IDCC 1979)'},
+  {id:'banque',nom:'Banque (IDCC 2120)'},
+  {id:'assurances',nom:'Assurances (IDCC 1672)'},
+  {id:'syntec',nom:'Syntec — conseil, informatique (IDCC 1486)'},
+  {id:'enseignement',nom:'Enseignement privé / supérieur — EPNL (IDCC 3218)'},
+  {id:'commun',nom:'Autre / tous secteurs — socle commun'}
 ];
 
 /* Chaque question : q (question) · art (article) · san (sanction encourue) · fix (document/action) */
@@ -109,6 +113,42 @@ var SOCLE=[
  {th:'🚪 Fin de contrat',items:[
    {id:'findoc',q:'Les documents de fin de contrat sont-ils remis (certificat de travail, attestation France Travail, solde de tout compte, portabilité mutuelle) ?',art:'art. L.1234-19, R.1234-9, L.911-8 CSS',san:'Dommages-intérêts au salarié (préjudice) + amende pour non-remise de l\'attestation.',fix:'Pack documents de fin de contrat.'},
    {id:'presc',q:'Les sanctions disciplinaires sont-elles engagées dans les 2 mois de la connaissance des faits, avec entretien si elles ont un impact ?',art:'art. L.1332-4, L.1332-2 C. trav.',san:'Sanction/licenciement sans cause réelle et sérieuse : indemnité (barème) + procédure annulée.',fix:'Trames disciplinaires conformes (convocation, notification).'}
+ ]},
+ {th:'🔁 Obligations RH transverses',items:[
+   {id:'entretpro',q:'L\'entretien professionnel est-il réalisé tous les 2 ans (et l\'état des lieux récapitulatif tous les 6 ans) ?',art:'art. L.6315-1 C. trav.',san:'Entreprise ≥ 50 salariés : abondement correctif du CPF de 3 000 € par salarié concerné.',fix:'Trame d\'entretien professionnel + suivi.'},
+   {id:'egalite',q:'Si ≥ 50 salariés : l\'index égalité femmes-hommes est-il calculé et publié (et mesures si < 75/100) ?',art:'art. L.1142-8, L.1142-10 C. trav.',san:'Pénalité financière jusqu\'à 1 % de la masse salariale.',fix:'Aide au calcul de l\'index égalité.'},
+   {id:'deco',q:'Le droit à la déconnexion est-il défini (accord ou charte) ?',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte droit à la déconnexion.'}
+ ]}
+];
+
+/* ---- Secteurs « cols blancs » : conventions + forfait-jours ---- */
+var BANQUE=[
+ {th:'🏦 Spécificités Banque (IDCC 2120)',items:[
+   {id:'bq_class',q:'La classification (niveaux A à K) et la rémunération minimale garantie conventionnelle sont-elles respectées ?',art:'CCN Banque (IDCC 2120)',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Grille de classification et minima Banque.'},
+   {id:'bq_forfait',q:'Les conventions de forfait annuel en jours sont-elles valablement mises en place (accord collectif + suivi de la charge + entretien annuel) ?',art:'art. L.3121-63 s. C. trav. · accord Banque',san:'Forfait nul : rappel de toutes les heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours conforme + support de suivi.'},
+   {id:'bq_form',q:'Le plan de développement des compétences et l\'accès au CPF sont-ils assurés ?',art:'art. L.6321-1 C. trav.',san:'Manquement à l\'obligation d\'adaptation → dommages-intérêts.',fix:'Trame plan de développement des compétences.'}
+ ]}
+];
+var ASSURANCES=[
+ {th:'🛡️ Spécificités Assurances (IDCC 1672)',items:[
+   {id:'as_class',q:'Les classes de fonctions et la rémunération minimale annuelle (RMA) conventionnelles sont-elles respectées ?',art:'CCN Sociétés d\'assurances (IDCC 1672)',san:'Rappels de salaire sur 3 ans.',fix:'Grille des classes et RMA Assurances.'},
+   {id:'as_forfait',q:'Les forfaits annuels en jours sont-ils valablement encadrés (accord + suivi charge + entretien) ?',art:'art. L.3121-63 s. C. trav. · accord Assurances',san:'Forfait nul : rappel des heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours conforme.'},
+   {id:'as_form',q:'La formation continue et l\'entretien professionnel sont-ils assurés (métiers réglementés : DDA/IAS) ?',art:'art. L.6321-1 · dir. DDA',san:'Dommages-intérêts + risque de perte de conformité ACPR.',fix:'Suivi formation DDA / IAS.'}
+ ]}
+];
+var SYNTEC=[
+ {th:'💻 Spécificités Syntec (IDCC 1486)',items:[
+   {id:'sy_class',q:'La classification (ETAM / IC : position, coefficient) et les minima Syntec sont-ils respectés ?',art:'CCN Syntec (IDCC 1486)',san:'Rappels de salaire sur 3 ans.',fix:'Grille de classification et minima Syntec.'},
+   {id:'sy_forfait',q:'Le forfait annuel en jours (modalité 2 / réalisation de missions) est-il valablement suivi (charge de travail, repos, 2 entretiens/an) ?',art:'art. L.3121-63 s. · accord Syntec du 22/06/1999 (avenants)',san:'Forfait nul (jurisprudence Syntec) : rappel de toutes les heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours Syntec + support de suivi.'},
+   {id:'sy_essai',q:'Les périodes d\'essai et préavis appliqués correspondent-ils à la CCN Syntec (ETAM / IC) ?',art:'CCN Syntec (IDCC 1486)',san:'Rupture d\'essai hors cadre : requalification / rappel de préavis.',fix:'Barème essai/préavis Syntec.'},
+   {id:'sy_frais',q:'Les frais professionnels et de mission (déplacements) sont-ils remboursés selon la CCN et non intégrés au salaire ?',art:'CCN Syntec · arrêté frais professionnels',san:'Redressement URSSAF + rappels.',fix:'Politique de remboursement des frais Syntec.'}
+ ]}
+];
+var ENSEIGNEMENT=[
+ {th:'🎓 Spécificités Enseignement privé / EPNL (IDCC 3218)',items:[
+   {id:'ep_class',q:'La classification (strates / repères) et la rémunération conventionnelle EPNL sont-elles respectées ?',art:'CCN EPNL (IDCC 3218)',san:'Rappels de salaire sur 3 ans.',fix:'Grille de classification EPNL.'},
+   {id:'ep_service',q:'Les obligations de service et le temps de travail des personnels (enseignants, administratifs) sont-ils définis conformément à la CCN ?',art:'CCN EPNL (IDCC 3218) · art. L.3121-1 s. C. trav.',san:'Rappels d\'heures + contentieux temps de travail.',fix:'Note obligations de service EPNL.'},
+   {id:'ep_hono',q:'Le contrôle des antécédents (honorabilité / contact avec mineurs) est-il effectué à l\'embauche ?',art:'art. L.911-5 C. éduc. · art. 776 CPP (B2)',san:'Responsabilité pénale et administrative de l\'établissement.',fix:'Procédure de vérification d\'honorabilité.'}
  ]}
 ];
 
@@ -160,10 +200,9 @@ var TRANSPORT=[
 ];
 
 /* Le questionnaire d'un secteur = son bloc spécifique + le socle commun */
+var SPEC={hcr:HCR,transport:TRANSPORT,banque:BANQUE,assurances:ASSURANCES,syntec:SYNTEC,enseignement:ENSEIGNEMENT};
 function questionsFor(sec){
-  if(sec==='hcr') return HCR.concat(SOCLE);
-  if(sec==='transport') return TRANSPORT.concat(SOCLE);
-  return SOCLE;
+  return SPEC[sec] ? SPEC[sec].concat(SOCLE) : SOCLE;
 }
 
 /* Unités de travail / risques types par secteur pour le DUER */
@@ -188,6 +227,26 @@ var DUER_BASE={
    ['Zones de quai','Heurts engins/piétons','Séparation des flux, signalisation, gilets haute visibilité'],
    ['Travail isolé','Malaise sans secours','Dispositif d\'alerte travailleur isolé, procédures'],
    ['Intempéries / bruit','Exposition, surdité','EPI adaptés, organisation, contrôles']
+ ],
+ banque:[
+   ['Accueil clientèle / guichet','Incivilités, agressions, hold-up, RPS','Procédures sûreté, formation gestion des incivilités, soutien psychologique'],
+   ['Travail sur écran','TMS, fatigue visuelle','Poste ergonomique, pauses, contrôle de la vue'],
+   ['Objectifs commerciaux','Stress, pression, RPS','Régulation de la charge, entretiens, prévention du harcèlement']
+ ],
+ assurances:[
+   ['Travail sur écran / téléphone','TMS, fatigue visuelle et auditive','Poste ergonomique, casques adaptés, pauses'],
+   ['Gestion de sinistres / relation client','Charge émotionnelle, incivilités, RPS','Soutien, régulation de la charge, procédures'],
+   ['Déplacements (experts, commerciaux)','Risque routier','Suivi des déplacements, sensibilisation, alternatives visio']
+ ],
+ syntec:[
+   ['Travail sur écran / développement','TMS, fatigue visuelle','Poste ergonomique, pauses, matériel adapté'],
+   ['Missions chez le client / déplacements','Risque routier, isolement, charge','Encadrement des missions, suivi, droit à la déconnexion'],
+   ['Forfait-jours / charge de travail','Surcharge, RPS, dépassement d\'amplitude','Suivi effectif de la charge, entretiens, alertes']
+ ],
+ enseignement:[
+   ['Salle de cours / face aux élèves','Fatigue vocale, RPS, incivilités','Aménagement, soutien, prévention des violences'],
+   ['Travail sur écran / préparation','TMS, charge de travail','Poste adapté, régulation de la charge'],
+   ['Surveillance / sorties','Chutes, accidents, responsabilité','Encadrement, taux d\'encadrement, consignes de sécurité']
  ]
 };
 
