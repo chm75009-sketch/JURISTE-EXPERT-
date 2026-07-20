@@ -312,6 +312,13 @@
     </div>
 
     <div class="card">
+      <h2>📊 Tableau de synthèse <span class="muted" style="font-weight:400;font-size:12px">(zone × effectif × type de relation)</span></h2>
+      <div class="hint" style="margin-bottom:8px">Pour chaque type de relation (individuel / collectif / les deux), répartition des offres par <b>département</b> et par <b>taille d'entreprise</b>, avec le nombre de <b>sociétés distinctes</b> et le taux de <b>répétition</b> (offres ÷ sociétés).</div>
+      <div id="synthese"></div>
+      <button type="button" class="btn btn-ghost" id="syntheseCsv" style="margin-top:10px;display:none">⭳ Exporter la synthèse (CSV)</button>
+    </div>
+
+    <div class="card">
       <h2>☁️ Nuage de mots-clés du métier</h2>
       <div id="cloud" style="line-height:2.1;text-align:center;padding:6px 0"></div>
     </div>
@@ -592,6 +599,12 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
+if($("syntheseCsv")) $("syntheseCsv").addEventListener("click", function(){
+  if(!lastSyntheseRows.length) return;
+  var csv=lastSyntheseRows.map(function(r){ return r.map(function(c){ var s=String(c).replace(/"/g,'""'); return /[";\n]/.test(s)?'"'+s+'"':s; }).join(";"); }).join("\r\n");
+  var blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="synthese-offres.csv"; a.click(); URL.revokeObjectURL(a.href);
+});
 if($("unclassCopy")) $("unclassCopy").addEventListener("click", function(){
   var ex = lastUnclass.slice(0,4).map(function(o,i){
     return "OFFRE "+(i+1)+" — "+(o.intitule||"")+"\nEntreprise : "+((o.entreprise&&o.entreprise.nom)||"non précisé")+"\n"+((o.description||"(pas de description)").replace(/\s+/g," ").trim());
@@ -906,6 +919,56 @@ function tbl(elId, data, itemHead){
 
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
+function depKey(o){
+  var lieu=(o.lieuTravail&&o.lieuTravail.libelle)||"";
+  if(lieu.indexOf(" - ")>=0) return lieu.split(" - ")[0].trim();
+  var cp=((o.lieuTravail&&o.lieuTravail.codePostal)||"")+"";
+  return cp?cp.slice(0,2):"NP";
+}
+let lastSyntheseRows=[];
+function renderSynthese(offers){
+  var box=$("synthese"); if(!box) return;
+  var CATS=[["Exclusivement individuel","var(--accent)"],["Exclusivement collectif","#c47f17"],["Les deux (individuel + collectif)","#2e9e5b"]];
+  var SZ=[["TPE","TPE"],["PME","PME"],["ETI","ETI/GG"],["NP","NP"]];
+  var html="";
+  lastSyntheseRows=[["Type de relation","Zone (dept)","TPE","PME","ETI/GG","Non precise","Nb offres","Nb societes","Repetition"]];
+  CATS.forEach(function(cat){
+    var name=cat[0], color=cat[1];
+    var list=offers.filter(function(o){ return classifyRel(o)===name; });
+    html+='<div style="margin:16px 0 6px;font-weight:800;font-size:14px;color:'+color+'">'+esc(name)+' — '+list.length+' offre'+(list.length>1?"s":"")+'</div>';
+    if(!list.length){ html+='<div class="hint" style="margin-bottom:8px">Aucune offre dans cette catégorie.</div>'; return; }
+    var zones={};
+    list.forEach(function(o){
+      var z=depKey(o); if(!zones[z]) zones[z]={TPE:0,PME:0,ETI:0,NP:0,total:0,comps:{},named:0};
+      zones[z][effectifKey(o)]++; zones[z].total++;
+      var nom=((o.entreprise&&o.entreprise.nom)||"").trim();
+      if(nom){ zones[z].comps[nom.toLowerCase()]=1; zones[z].named++; }
+    });
+    var zkeys=Object.keys(zones).sort(function(a,b){ return zones[b].total-zones[a].total; });
+    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">';
+    html+='<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px">Zone (dépt)</th>';
+    SZ.forEach(function(z){ html+='<th style="padding:6px;text-align:center">'+z[1]+'</th>'; });
+    html+='<th style="padding:6px;text-align:center">Offres</th><th style="padding:6px;text-align:center">Sociétés</th><th style="padding:6px;text-align:center">Répét.</th></tr></thead><tbody>';
+    var tot={TPE:0,PME:0,ETI:0,NP:0,total:0}, allComps={}, allNamed=0;
+    zkeys.forEach(function(z){
+      var zz=zones[z], nc=Object.keys(zz.comps).length, rep=nc?(zz.named/nc):0;
+      var zlab=(z==="NP"?"Non précisé":z);
+      html+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px;font-weight:600">'+esc(zlab)+'</td>';
+      SZ.forEach(function(s){ html+='<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+(zz[s[0]]||0)+'</td>'; tot[s[0]]+=zz[s[0]]||0; });
+      html+='<td style="padding:6px;text-align:center;font-weight:700">'+zz.total+'</td><td style="padding:6px;text-align:center">'+nc+'</td><td style="padding:6px;text-align:center">'+(nc?("×"+rep.toFixed(1)):"—")+'</td></tr>';
+      tot.total+=zz.total; Object.keys(zz.comps).forEach(function(c){ allComps[c]=1; }); allNamed+=zz.named;
+      lastSyntheseRows.push([name,zlab,zz.TPE,zz.PME,zz.ETI,zz.NP,zz.total,nc,(nc?rep.toFixed(1):"")]);
+    });
+    var ncTot=Object.keys(allComps).length;
+    html+='<tr style="border-top:2px solid var(--line);font-weight:800"><td style="padding:6px">TOTAL</td>';
+    SZ.forEach(function(s){ html+='<td style="padding:6px;text-align:center">'+tot[s[0]]+'</td>'; });
+    html+='<td style="padding:6px;text-align:center">'+tot.total+'</td><td style="padding:6px;text-align:center">'+ncTot+'</td><td style="padding:6px;text-align:center">'+(ncTot?("×"+(allNamed/ncTot).toFixed(1)):"—")+'</td></tr>';
+    html+='</tbody></table></div>';
+    lastSyntheseRows.push([name,"TOTAL",tot.TPE,tot.PME,tot.ETI,tot.NP,tot.total,ncTot,(ncTot?(allNamed/ncTot).toFixed(1):"")]);
+  });
+  box.innerHTML=html;
+  var cb=$("syntheseCsv"); if(cb) cb.style.display = offers.length? "" : "none";
+}
 function analyse(offers, totalDispo){
   lastTotal = totalDispo;
   const n = offers.length;
@@ -957,6 +1020,8 @@ function analyse(offers, totalDispo){
       }).join("") || '<div class="hint">Aucune offre non class\u00e9e \ud83c\udf89</div>';
     }
   })();
+
+  renderSynthese(offers);
 
   /* --- Métiers ROME --- */
   const rome = countBy(offers, o => o.romeLibelle || o.appellationlibelle);
