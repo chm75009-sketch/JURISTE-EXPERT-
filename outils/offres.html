@@ -796,7 +796,25 @@ function estAutreSpecialite(o){
   if(fort) return false;
   return AUTRE_SPE.some(function(t){ return hay.indexOf(norm(t))>=0; });
 }
+// Rôles NON-juristes à écarter (travail social, support administratif) — repérés dans l'INTITULÉ,
+// prioritaires même si le mot « juriste » apparaît dans un titre fourre-tout (ex. « MJPM … / Juriste »).
+const ROLE_EXCLU = [
+  // travail social / médico-social
+  "travailleur social","travailleuse sociale","assistant social","assistante sociale","assistant de service social","service social","intervenant social","referent social",
+  "educateur","educatrice","moniteur educateur","mjpm","mandataire judiciaire","delegue a la tutelle","delegue mandataire","protection des majeurs","curateur","tuteur",
+  "cesf","conseiller en economie sociale","tisf","accompagnant educatif","auxiliaire de vie","aide soignant","aide medico","animateur","chef de service educatif","coordinateur social","psychologue","assistant familial",
+  // support administratif / non-juriste
+  "secretaire","assistant juridique","assistante juridique","assistant administratif","gestionnaire administratif","standardiste","office manager","paralegal","clerc"
+];
+function estRoleExclu(o){
+  // On neutralise l'écriture inclusive « (se) (e) (trice)… » qui casserait « travailleur social » -> « travailleur se social e »
+  var t=norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||""));
+  t=" "+t.replace(/\b(se|e|es|ne|nne|trice|rice|euse|ere|eure|iere|ive|ve)\b/g," ").replace(/\s+/g," ").trim()+" ";
+  return ROLE_EXCLU.some(function(r){ return t.indexOf(" "+norm(r)+" ")>=0; });
+}
 function classifyRel(o){
+  // Hors sujet : rôle non-juriste (travail social, secrétariat…) -> écarté même si « juriste » est dans le titre
+  if(estRoleExclu(o)) return "Non précisé";
   // Hors sujet : autre spécialité juridique sans aucun signal droit social -> non classé (écarté de l'étude)
   if(estAutreSpecialite(o)) return "Non précisé";
   const sc=relIndScore(o);
