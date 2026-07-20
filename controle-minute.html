@@ -13,33 +13,30 @@
   select,input{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#0c1728;color:var(--ink);font-size:15px;font-family:inherit}
   .badge{display:inline-block;background:rgba(201,168,76,.15);color:var(--gold2);border:1px solid var(--gold);border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700}
   .grp-t{font-weight:800;color:var(--gold2);font-size:13.5px;margin:16px 0 8px}
-  .q{border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0;background:#12203400}
-  .q .txt{font-size:14px;margin-bottom:9px}
-  .opts{display:flex;gap:7px;flex-wrap:wrap}
-  .opts.col{flex-direction:column;gap:6px}
-  .opt{flex:1;min-width:92px;text-align:center;padding:9px 6px;border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);user-select:none}
-  .optq{flex:none;width:100%;text-align:left;padding:10px 12px;font-size:13px;font-weight:500;color:var(--ink);position:relative;padding-left:34px;transition:border-color .12s,background .12s}
+  .q{border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0}
+  .q .txt{font-size:14px;margin-bottom:9px;font-weight:600;color:#fff}
+  .q .qn{color:var(--gold2);font-weight:800;margin-right:5px}
+  .opts{display:flex;flex-direction:column;gap:6px}
+  .optq{width:100%;text-align:left;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink);position:relative;user-select:none;transition:border-color .12s,background .12s}
   .optq:before{content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
   .optq:hover{border-color:var(--gold)}
-  .optq.sel{background:rgba(201,168,76,.12);border-color:var(--gold);color:#fff;font-weight:600}
-  .optq.sel:before{border-color:var(--gold);background:radial-gradient(var(--gold) 40%,transparent 46%)}
-  .optq.sel.good{background:rgba(63,174,116,.16);border-color:var(--ok)}
-  .optq.sel.good:before{border-color:var(--ok);background:radial-gradient(var(--ok) 40%,transparent 46%)}
-  .optq.sel.nc{background:rgba(159,176,196,.14);border-color:var(--muted)}
-  .optq.sel.nc:before{border-color:var(--muted);background:radial-gradient(var(--muted) 40%,transparent 46%)}
-  .man .rep{font-size:12px;color:#e8d9b0;font-style:italic;margin-top:4px}
+  .optq.sel{background:rgba(201,168,76,.14);border-color:var(--gold);color:#fff;font-weight:600}
+  .optq.sel:before{border-color:var(--gold);background:radial-gradient(var(--gold) 42%,transparent 48%)}
   .secbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
   .secbtn{padding:12px 15px;border:1.5px solid var(--line);border-radius:11px;background:#0c1728;color:var(--ink);font-size:14.5px;font-weight:700;cursor:pointer;line-height:1.2}
   .secbtn:hover{border-color:var(--gold)}
   .secbtn.on{background:var(--gold);color:#161616;border-color:var(--gold)}
   .btn{display:block;width:100%;padding:14px;background:var(--gold);color:#161616;border:0;border-radius:11px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
   .btn.ghost{background:transparent;color:var(--gold2);border:1px solid var(--gold)}
+  .prog{font-size:12px;color:var(--muted);margin:4px 0 0}
   .score-box{text-align:center;padding:14px}
   .score-num{font-size:40px;font-weight:800;line-height:1}
   .bar{height:12px;border-radius:99px;background:#0c1728;overflow:hidden;margin:12px 0}
   .bar>span{display:block;height:100%;border-radius:99px}
   .man{border-left:3px solid var(--ko);background:rgba(224,87,79,.08);border-radius:8px;padding:10px 12px;margin:8px 0}
   .man .mt{font-weight:700;font-size:13.5px;color:#f5c6c2}
+  .man .rep{font-size:12px;color:#f0b7b2;margin-top:5px}
+  .man .good{font-size:12px;color:#bff0d4;margin-top:3px}
   .man .art{font-size:12px;color:var(--gold2);margin-top:4px}
   .man .san{font-size:12px;color:#f0b7b2;margin-top:3px}
   .man .fix{font-size:12px;color:var(--muted);margin-top:4px}
@@ -61,7 +58,7 @@
 <div class="wrap">
   <span class="badge">Gratuit · sans inscription</span>
   <h1>Contrôle-minute</h1>
-  <p class="sub">Êtes-vous prêt pour un contrôle de l'inspection du travail / URSSAF ? Auto-diagnostic de conformité sociale : <b>score</b>, <b>manquements</b> avec l'<b>article</b> et la <b>sanction encourue</b>, puis <b>documents correctifs</b> et <b>DUER</b> adaptés.</p>
+  <p class="sub">Êtes-vous prêt pour un contrôle de l'inspection du travail / URSSAF ? <b>Quiz de conformité</b> : à chaque question, une seule réponse est juridiquement exacte. Vous obtenez votre <b>score</b>, vos <b>manquements</b> avec l'<b>article</b>, la <b>réponse exacte</b> et la <b>sanction encourue</b>, puis des <b>documents correctifs</b> et un <b>DUER</b> adaptés.</p>
 
   <div class="card no-print">
     <label class="fl">1 · Choisissez votre secteur</label>
@@ -76,7 +73,8 @@
         <button class="btn ghost" style="width:auto;padding:9px 12px;margin:0" onclick="cmReset()">↺ Changer de secteur</button>
         <button class="btn ghost" style="width:auto;padding:9px 12px;margin:0" onclick="cmClear()">🔄 Vider mes réponses</button>
       </div>
-      <label class="fl">2 · Pour chaque point, choisissez la réponse la plus honnête — seule la réponse pleinement formalisée et prouvable compte comme conforme</label>
+      <label class="fl">2 · Pour chaque question, choisissez la réponse que vous pensez juridiquement exacte</label>
+      <p class="prog">Aucune réponse ne « suggère » la conformité : il faut connaître la règle. Une seule réponse est exacte par question.</p>
       <div id="cm-list"></div>
       <button class="btn" onclick="cmScore()">Voir mon score et mes manquements ⚖️</button>
     </div>
@@ -85,12 +83,15 @@
   <div id="cm-result" style="display:none"></div>
 
   <div class="foot">
-    Outil d'auto-évaluation à visée informative. Il ne remplace pas un audit individualisé ni l'avis d'un professionnel. Les sanctions indiquées sont les peines/amendes de référence ; leur application dépend des circonstances. Sources : Code du travail, Code de la sécurité sociale, Code des transports.
+    Outil d'auto-évaluation à visée informative. Il ne remplace pas un audit individualisé ni l'avis d'un professionnel. Les sanctions indiquées sont les peines/amendes de référence ; leur application dépend des circonstances. Sources : Code du travail, Code de la sécurité sociale, Code des transports, conventions collectives citées.
   </div>
 </div>
 
 <script>
-/* ===================== DONNÉES ===================== */
+/* ===================== DONNÉES =====================
+   Chaque question (QCM) : q (énoncé) · o (réponses) · art (article) · san (sanction) · fix (document).
+   Dans o[], la réponse exacte porte ok:true ; une éventuelle réponse d'exclusion porte nc:true.
+   Les réponses sont mélangées à l'affichage : rien ne « suggère » la bonne réponse. */
 var SECTEURS=[
   {id:'transport',nom:'Transport routier (IDCC 16)'},
   {id:'hcr',nom:'Hôtels, cafés, restaurants — HCR (IDCC 1979)'},
@@ -101,160 +102,397 @@ var SECTEURS=[
   {id:'commun',nom:'Autre / tous secteurs — socle commun'}
 ];
 
-/* Chaque question : q (question) · art (article) · san (sanction encourue) · fix (document/action) */
 var SOCLE=[
  {th:'📄 Embauche & contrat',items:[
-   {id:'dpae',q:'La DPAE (déclaration préalable à l\'embauche) est-elle faite pour chaque salarié AVANT sa prise de poste ?',art:'art. L.1221-10 C. trav.',san:'Travail dissimulé : jusqu\'à 3 ans d\'emprisonnement et 45 000 € d\'amende (225 000 € pour la société) + redressement URSSAF et pénalités.',fix:'Modèle de DPAE + procédure d\'embauche.'},
-   {id:'contrecrit',q:'Les contrats particuliers (CDD, temps partiel) sont-ils écrits et remis dans les 2 jours ouvrables ?',art:'art. L.1242-13 · L.3123-6 C. trav.',san:'Requalification en CDI (ou en temps plein) + indemnité de requalification ≥ 1 mois de salaire.',fix:'Modèles de CDD / avenant temps partiel conformes.'},
-   {id:'registre',q:'Le registre unique du personnel est-il tenu et à jour ?',art:'art. L.1221-13 C. trav.',san:'Contravention de 4ᵉ classe : 750 € d\'amende par salarié concerné (3 750 € pour la société).',fix:'Trame de registre unique du personnel.'}
+   {id:'dpae',q:'La DPAE (déclaration préalable à l\'embauche) doit être adressée à l\'URSSAF :',art:'art. L.1221-10, R.1221-1 C. trav.',san:'Travail dissimulé : jusqu\'à 3 ans d\'emprisonnement et 45 000 € (225 000 € pour la société) + redressement URSSAF.',fix:'Modèle de DPAE + procédure d\'embauche.',o:[
+     {t:'Avant l\'embauche (dans les 8 jours précédant la prise de poste)',ok:true},
+     {t:'Au plus tard le jour du premier bulletin de paie'},
+     {t:'Dans les 8 jours suivant la prise de poste'},
+     {t:'Uniquement pour les CDI'}]},
+   {id:'contrecrit',q:'Un CDD ou un contrat à temps partiel doit être écrit et remis au salarié :',art:'art. L.1242-13, L.3123-6 C. trav.',san:'Requalification en CDI (ou en temps plein) + indemnité de requalification ≥ 1 mois de salaire.',fix:'Modèles de CDD / avenant temps partiel conformes.',o:[
+     {t:'Dans les 2 jours ouvrables suivant l\'embauche',ok:true},
+     {t:'Dans le mois suivant l\'embauche'},
+     {t:'Au plus tard avec le premier bulletin de paie'},
+     {t:'La remise n\'est pas obligatoire si l\'accord est verbal'}]},
+   {id:'registre',q:'Le registre unique du personnel est obligatoire :',art:'art. L.1221-13 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné (3 750 € pour la société).',fix:'Trame de registre unique du personnel.',o:[
+     {t:'Dès le premier salarié embauché',ok:true},
+     {t:'À partir de 11 salariés'},
+     {t:'À partir de 50 salariés'},
+     {t:'Il a été supprimé par la DSN'}]}
  ]},
  {th:'⏱️ Durée du travail',items:[
-   {id:'repos',q:'Le repos quotidien de 11 h et le repos hebdomadaire de 24 h (+11 h) sont-ils respectés ?',art:'art. L.3131-1, L.3132-2 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné, autant d\'amendes que de salariés.',fix:'Outil de suivi des repos + affichage des horaires.'},
-   {id:'hsup',q:'Les heures supplémentaires sont-elles décomptées, payées et majorées ?',art:'art. L.3121-28 s., D.3171-8 C. trav.',san:'Rappel de salaire + majorations ; dissimulation d\'heures = travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de décompte du temps de travail.'},
-   {id:'affhor',q:'Les horaires de travail collectifs sont-ils affichés (ou décomptés individuellement) ?',art:'art. L.3171-1, D.3171-1 s. C. trav.',san:'Contravention de 4ᵉ classe (750 € par salarié) ; à défaut, présomption en faveur du salarié sur les heures.',fix:'Modèle d\'affichage des horaires.'}
+   {id:'repos',q:'Le repos quotidien minimal entre deux journées de travail est de :',art:'art. L.3131-1 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné.',fix:'Outil de suivi des repos + affichage des horaires.',o:[
+     {t:'11 heures consécutives',ok:true},
+     {t:'9 heures consécutives'},
+     {t:'12 heures consécutives'},
+     {t:'Il n\'y a pas de minimum légal'}]},
+   {id:'hsup',q:'À défaut d\'accord, les 8 premières heures supplémentaires (de la 36ᵉ à la 43ᵉ) sont majorées de :',art:'art. L.3121-36 C. trav.',san:'Rappel de salaire + majorations ; heures dissimulées = travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de décompte du temps de travail.',o:[
+     {t:'25 %',ok:true},
+     {t:'10 %'},
+     {t:'50 %'},
+     {t:'Elles ne sont pas majorées'}]},
+   {id:'affhor',q:'En cas de litige sur le nombre d\'heures de travail réellement effectuées, la preuve :',art:'art. L.3171-4 C. trav.',san:'À défaut d\'éléments de l\'employeur, les heures invoquées par le salarié peuvent être retenues.',fix:'Modèle d\'affichage/relevé des horaires.',o:[
+     {t:'Est partagée : l\'employeur doit produire ses propres éléments de décompte',ok:true},
+     {t:'Incombe exclusivement au salarié'},
+     {t:'Incombe à l\'inspection du travail'},
+     {t:'N\'incombe à personne, faute de badgeuse'}]}
  ]},
  {th:'🩺 Santé & sécurité',items:[
-   {id:'duer',q:'Le Document Unique d\'Évaluation des Risques (DUER) est-il établi ET mis à jour (au moins chaque année si ≥ 11 salariés) ?',art:'art. L.4121-3, R.4121-1 s. C. trav.',san:'Contravention de 5ᵉ classe : 1 500 € (3 000 € en récidive) ; en cas d\'accident, faute inexcusable et majoration de rente.',fix:'DUER pré-rempli et adapté à votre secteur (ci-dessous).'},
-   {id:'spst',q:'L\'adhésion au service de prévention et santé au travail (SPST) est-elle à jour et les visites médicales planifiées (VIP à l\'embauche) ?',art:'art. L.4622-1, L.4624-1 C. trav.',san:'Contravention de 5ᵉ classe (1 500 €) ; responsabilité de l\'employeur en cas d\'atteinte à la santé.',fix:'Modèle de convocation à la visite médicale.'},
-   {id:'at',q:'La déclaration d\'accident du travail (48 h) et le registre des accidents bénins sont-ils maîtrisés ?',art:'art. L.441-2 C. séc. soc.',san:'Amende + prise en charge des conséquences ; obstacle au contrôle = sanctions pénales.',fix:'Procédure interne AT + registre.'}
+   {id:'duer',q:'Le Document Unique d\'Évaluation des Risques (DUER) doit être mis à jour :',art:'art. R.4121-2 C. trav.',san:'Contravention de 5ᵉ classe : 1 500 € (3 000 € en récidive) ; en cas d\'accident, faute inexcusable possible.',fix:'DUER pré-rempli et adapté à votre secteur (ci-dessous).',o:[
+     {t:'Au moins chaque année dans les entreprises d\'au moins 11 salariés, et à chaque changement',ok:true},
+     {t:'Jamais, une fois établi'},
+     {t:'Uniquement après un accident du travail'},
+     {t:'Tous les 5 ans'}]},
+   {id:'spst',q:'La visite d\'information et de prévention (VIP) à l\'embauche doit intervenir :',art:'art. R.4624-10 C. trav.',san:'Manquement à l\'obligation de suivi médical ; responsabilité de l\'employeur en cas d\'atteinte à la santé.',fix:'Modèle de convocation à la visite médicale.',o:[
+     {t:'Dans un délai maximal de 3 mois après la prise de poste (avant, pour les postes à risque)',ok:true},
+     {t:'Dans l\'année qui suit l\'embauche'},
+     {t:'Seulement à la demande du salarié'},
+     {t:'Elle a été supprimée'}]},
+   {id:'at',q:'La déclaration d\'un accident du travail à la CPAM doit être faite dans :',art:'art. L.441-2, R.441-3 C. séc. soc.',san:'Amende + prise en charge des conséquences ; obstacle au contrôle = sanctions pénales.',fix:'Procédure interne AT + registre des accidents bénins.',o:[
+     {t:'48 heures (hors dimanches et jours fériés)',ok:true},
+     {t:'24 heures'},
+     {t:'8 jours'},
+     {t:'1 mois'}]}
  ]},
  {th:'🗳️ Représentation du personnel',items:[
-   {id:'cse',q:'Si l\'effectif atteint 11 salariés depuis 12 mois : le CSE est-il en place (ou disposez-vous d\'un PV de carence de moins de 4 ans) ?',art:'art. L.2311-2 C. trav.',san:'Délit d\'entrave : 7 500 € d\'amende (personne physique), 37 500 € pour la société.',fix:'Kit élections CSE (protocole, convocations, PV).'}
+   {id:'cse',q:'La mise en place du CSE devient obligatoire lorsque l\'effectif atteint :',art:'art. L.2311-2 C. trav.',san:'Délit d\'entrave : 7 500 € d\'amende (personne physique), 37 500 € pour la société.',fix:'Kit élections CSE (protocole, convocations, PV).',o:[
+     {t:'11 salariés pendant 12 mois consécutifs',ok:true},
+     {t:'50 salariés'},
+     {t:'20 salariés'},
+     {t:'Le CSE est facultatif'}]}
  ]},
  {th:'📢 Affichages & obligations',items:[
-   {id:'affobl',q:'Les affichages obligatoires sont-ils en place (CCN applicable, inspection du travail, SPST, consignes sécurité, égalité, harcèlement) ?',art:'art. L.1321-1, D.3171-1, L.1142-2-1 C. trav.',san:'Contraventions de 3ᵉ/4ᵉ classe selon l\'affichage manquant.',fix:'Panneau d\'affichage obligatoire prêt à imprimer.'},
-   {id:'ccn',q:'La convention collective applicable est-elle bien identifiée et ses minima (salaires, primes) respectés ?',art:'art. L.2261-2 C. trav.',san:'Rappels de salaire sur 3 ans + éventuelles pénalités ; application d\'office par le juge.',fix:'Fiche de votre CCN + grille de minima.'}
+   {id:'affobl',q:'Les informations sur le harcèlement moral et sexuel, avec les voies de recours (dont le Défenseur des droits) :',art:'art. L.1152-4, L.1153-5 C. trav.',san:'Contraventions ; manquement à l\'obligation de prévention.',fix:'Panneau d\'affichage obligatoire prêt à imprimer.',o:[
+     {t:'Doivent être portées à la connaissance des salariés dans les lieux de travail et d\'embauche',ok:true},
+     {t:'Ne sont affichées qu\'à la demande du CSE'},
+     {t:'Ne concernent que les entreprises d\'au moins 50 salariés'},
+     {t:'Ne sont pas obligatoires'}]},
+   {id:'ccn',q:'Un salarié rémunéré en dessous du minimum de sa convention collective (mais au-dessus du SMIC) :',art:'art. L.2261-2 C. trav.',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Fiche de votre CCN + grille de minima.',o:[
+     {t:'Peut réclamer un rappel de salaire jusqu\'au minimum conventionnel, sur 3 ans',ok:true},
+     {t:'N\'a droit à rien puisque le SMIC est respecté'},
+     {t:'Ne peut réclamer que sur 1 an'},
+     {t:'Doit d\'abord obtenir l\'accord de l\'employeur'}]}
  ]},
  {th:'🚪 Fin de contrat',items:[
-   {id:'findoc',q:'Les documents de fin de contrat sont-ils remis (certificat de travail, attestation France Travail, solde de tout compte, portabilité mutuelle) ?',art:'art. L.1234-19, R.1234-9, L.911-8 CSS',san:'Dommages-intérêts au salarié (préjudice) + amende pour non-remise de l\'attestation.',fix:'Pack documents de fin de contrat.'},
-   {id:'presc',q:'Les sanctions disciplinaires sont-elles engagées dans les 2 mois de la connaissance des faits, avec entretien si elles ont un impact ?',art:'art. L.1332-4, L.1332-2 C. trav.',san:'Sanction/licenciement sans cause réelle et sérieuse : indemnité (barème) + procédure annulée.',fix:'Trames disciplinaires conformes (convocation, notification).'}
+   {id:'findoc',q:'À la fin du contrat, l\'attestation destinée à France Travail (ex-Pôle emploi) :',art:'art. R.1234-9 C. trav., L.5421-1 s.',san:'Dommages-intérêts au salarié (préjudice) + amende pour non-remise.',fix:'Pack documents de fin de contrat.',o:[
+     {t:'Doit être remise au salarié et transmise à France Travail, quel que soit le motif de rupture',ok:true},
+     {t:'N\'est due qu\'en cas de licenciement'},
+     {t:'Est facultative depuis la DSN'},
+     {t:'Est remplacée par le certificat de travail'}]},
+   {id:'presc',q:'À compter du jour où il a connaissance d\'une faute, l\'employeur doit engager les poursuites disciplinaires dans :',art:'art. L.1332-4 C. trav.',san:'Sanction/licenciement sans cause réelle et sérieuse : indemnité (barème) + procédure annulée.',fix:'Trames disciplinaires conformes (convocation, notification).',o:[
+     {t:'2 mois',ok:true},
+     {t:'1 mois'},
+     {t:'6 mois'},
+     {t:'Il n\'y a aucun délai'}]}
  ]},
  {th:'🔁 Obligations RH transverses',items:[
-   {id:'entretpro',q:'L\'entretien professionnel est-il réalisé tous les 2 ans (et l\'état des lieux récapitulatif tous les 6 ans) ?',art:'art. L.6315-1 C. trav.',san:'Entreprise ≥ 50 salariés : abondement correctif du CPF de 3 000 € par salarié concerné.',fix:'Trame d\'entretien professionnel + suivi.'},
-   {id:'egalite',q:'Si ≥ 50 salariés : l\'index égalité femmes-hommes est-il calculé et publié (et mesures si < 75/100) ?',art:'art. L.1142-8, L.1142-10 C. trav.',san:'Pénalité financière jusqu\'à 1 % de la masse salariale.',fix:'Aide au calcul de l\'index égalité.'},
-   {id:'deco',q:'Le droit à la déconnexion est-il défini (accord ou charte) ?',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte droit à la déconnexion.'}
+   {id:'entretpro',q:'L\'entretien professionnel (distinct de l\'entretien d\'évaluation) doit être proposé :',art:'art. L.6315-1 C. trav.',san:'Entreprise ≥ 50 salariés : abondement correctif du CPF de 3 000 € par salarié concerné.',fix:'Trame d\'entretien professionnel + suivi.',o:[
+     {t:'Tous les 2 ans, avec un état des lieux récapitulatif tous les 6 ans',ok:true},
+     {t:'Chaque année'},
+     {t:'Uniquement à la demande du salarié'},
+     {t:'Tous les 5 ans'}]},
+   {id:'egalite',q:'L\'index de l\'égalité femmes-hommes doit être calculé et publié par les entreprises d\'au moins :',art:'art. L.1142-8 C. trav.',san:'Pénalité financière jusqu\'à 1 % de la masse salariale.',fix:'Aide au calcul de l\'index égalité.',o:[
+     {t:'50 salariés',ok:true},
+     {t:'11 salariés'},
+     {t:'250 salariés'},
+     {t:'1 000 salariés'}]},
+   {id:'deco',q:'Le droit à la déconnexion des salariés :',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte / accord droit à la déconnexion.',o:[
+     {t:'Doit faire l\'objet d\'une négociation (accord) ou, à défaut, d\'une charte',ok:true},
+     {t:'Est une simple bonne pratique facultative'},
+     {t:'Ne concerne que les cadres dirigeants'},
+     {t:'N\'existe pas en droit français'}]}
  ]},
- {th:'🎓 Points techniques & jurisprudence (souvent non conformes)',items:[
-   {id:'harcprev',q:'Prévention du harcèlement moral et sexuel — où en êtes-vous, au-delà de la simple interdiction ?',art:'art. L.1152-4, L.1153-5 · Cass. soc. 1ᵉʳ juin 2016 n° 14-19.702',san:'Manquement à l\'obligation de prévention MÊME sans harcèlement avéré : dommages-intérêts distincts.',fix:'Procédure de prévention et de signalement du harcèlement.',o:[
-     {t:'Dispositif complet : référent(s) désigné(s), procédure de signalement écrite, information des salariés et affichage à jour',s:1},
-     {t:'Seulement l\'interdiction rappelée (affichage / règlement intérieur), sans procédure de prévention active',s:.25},
-     {t:'Rien de spécifique au-delà de la loi',s:0}]},
-   {id:'harcenq',q:'Face à un signalement de harcèlement, comment réagissez-vous ?',art:'Cass. soc. 27 nov. 2019 n° 18-10.551',san:'L\'absence d\'enquête caractérise à elle seule un manquement à l\'obligation de sécurité : dommages-intérêts.',fix:'Trame d\'enquête interne harcèlement.',o:[
-     {t:'Enquête interne systématique, sérieuse et impartiale, tracée par écrit, avec mesures à la clé',s:1},
-     {t:'On en parle / on gère au cas par cas, sans enquête formalisée',s:.2},
-     {t:'Aucune procédure prévue',s:0}]},
-   {id:'secu',q:'Vos actions de prévention (obligation de sécurité), au-delà du DUER, sont-elles prouvables ?',art:'art. L.4121-1 · Cass. soc. 25 nov. 2015 n° 14-24.444 (obligation de sécurité — moyens renforcée)',san:'Faute inexcusable en cas d\'accident/maladie : majoration de rente + réparation intégrale.',fix:'Plan d\'actions de prévention.',o:[
-     {t:'Plan d\'actions écrit et suivi : évaluation, formations, mesures concrètes, preuves conservées',s:1},
-     {t:'Quelques actions ponctuelles, non formalisées ni traçées',s:.3},
-     {t:'Rien au-delà du DUER',s:0}]},
-   {id:'tempsdecompte',q:'Comment décomptez-vous le temps de travail de chaque salarié (cadres au forfait compris) ?',art:'art. L.3171-2 · CJUE 14 mai 2019 C-55/18 (CCOO)',san:'En cas de litige, la preuve ne pèse pas sur le seul salarié : rappels d\'heures supplémentaires sur 3 ans.',fix:'Outil de décompte du temps de travail.',o:[
-     {t:'Système objectif, fiable et accessible pour TOUS (badgeuse/relevés), y compris forfaits',s:1},
-     {t:'Décompte partiel, déclaratif ou uniquement pour certains salariés',s:.3},
-     {t:'Aucun décompte fiable',s:0}]},
-   {id:'forfaitsuivi',q:'Forfait-jours : comment suivez-vous la charge de travail ?',art:'art. L.3121-64 · Cass. soc. 29 juin 2011 n° 09-71.107',san:'Forfait NUL : rappel de TOUTES les heures supplémentaires sur 3 ans.',fix:'Support de suivi de la charge (forfait-jours).',o:[
-     {t:'Suivi effectif : relevés réguliers, entretien annuel dédié, dispositif d\'alerte, le tout tracé',s:1},
-     {t:'Forfait signé mais suivi de la charge quasi inexistant',s:.15},
-     {t:'Forfaits appliqués sans aucun suivi',s:0},
-     {t:'Non concerné (pas de forfait-jours)',s:'nc'}]},
-   {id:'surveillance',q:'Vos dispositifs de surveillance (vidéo, géolocalisation, badges, contrôle informatique) — comment sont-ils encadrés ?',art:'art. L.1222-4, L.2312-38 · RGPD · Cass. soc. 10 nov. 2021 n° 20-12.263',san:'Preuve illicite écartée + dommages-intérêts + sanctions CNIL (jusqu\'à 4 % du CA mondial).',fix:'Registre + notes d\'information des dispositifs de contrôle.',o:[
-     {t:'Proportionnés, information écrite des salariés ET consultation du CSE, inscrits au registre RGPD',s:1},
-     {t:'En place mais sans information préalable complète ou sans consultation du CSE',s:.2},
-     {t:'Aucune formalité (ni information, ni CSE, ni registre)',s:0},
-     {t:'Non concerné (aucun dispositif)',s:'nc'}]},
-   {id:'egaltrait',q:'Les écarts de rémunération à travail égal (ou de valeur égale) — sont-ils justifiables ?',art:'« à travail égal, salaire égal » · Cass. soc. 29 oct. 1996 n° 92-43.680 (Ponsolle)',san:'Rappels de salaire (alignement sur le mieux rémunéré) sur 3 ans.',fix:'Analyse des écarts de rémunération.',o:[
-     {t:'Écarts justifiés par des critères objectifs, écrits et vérifiables (expérience, diplôme, performance mesurée)',s:1},
-     {t:'Écarts existants mais justification floue ou non formalisée',s:.3},
-     {t:'Jamais analysé',s:0}]},
-   {id:'modifcontrat',q:'Avant de modifier poste, lieu ou rémunération, distinguez-vous modification du contrat et changement des conditions de travail ?',art:'art. 1103 C. civ. · Cass. soc. 10 juil. 1996 n° 93-41.137',san:'Modification imposée = prise d\'acte / licenciement sans cause réelle et sérieuse.',fix:'Procédure de modification du contrat (avenant).',o:[
-     {t:'Oui : avenant écrit et accord du salarié pour toute modification d\'un élément essentiel du contrat',s:1},
-     {t:'Au cas par cas, sans procédure claire',s:.3},
-     {t:'On impose les changements sans avenant',s:0}]},
-   {id:'nonconc',q:'Vos clauses de non-concurrence — sont-elles valables ?',art:'Cass. soc. 10 juil. 2002 n° 00-45.135',san:'Clause NULLE sans contrepartie ; si vous l\'appliquez : dommages-intérêts au salarié.',fix:'Clause de non-concurrence conforme.',o:[
-     {t:'Contrepartie financière prévue + limitées dans le temps, l\'espace et l\'activité',s:1},
-     {t:'Clause présente mais sans contrepartie financière (ou disproportionnée)',s:0},
-     {t:'Non concerné (aucune clause de non-concurrence)',s:'nc'}]},
-   {id:'lanceur',q:'Recueil des signalements (lanceur d\'alerte) — où en êtes-vous ?',art:'loi n° 2022-401 du 21 mars 2022 · décret n° 2022-1284',san:'Manquement + nullité des représailles contre le lanceur d\'alerte.',fix:'Procédure lanceur d\'alerte.',o:[
-     {t:'Procédure interne écrite et diffusée, canal de recueil identifié, confidentialité garantie',s:1},
-     {t:'Rien de formalisé',s:0},
-     {t:'Non concerné (< 50 salariés)',s:'nc'}]}
+ {th:'🎓 Points techniques & jurisprudence (souvent non maîtrisés)',items:[
+   {id:'harcprev',q:'L\'obligation de prévention du harcèlement est respectée :',art:'art. L.1152-4 · Cass. soc. 1ᵉʳ juin 2016 n° 14-19.702',san:'Manquement à l\'obligation de prévention MÊME sans harcèlement avéré : dommages-intérêts distincts.',fix:'Procédure de prévention et de signalement du harcèlement.',o:[
+     {t:'Seulement si des mesures de prévention effectives existent, même en l\'absence de tout harcèlement',ok:true},
+     {t:'Dès lors qu\'aucun harcèlement n\'est constaté'},
+     {t:'Uniquement lorsqu\'un salarié le demande'},
+     {t:'Tant qu\'il n\'y a pas de plainte, elle ne s\'applique pas'}]},
+   {id:'harcenq',q:'Saisi d\'un signalement de harcèlement, l\'employeur qui ne diligente aucune enquête :',art:'Cass. soc. 27 nov. 2019 n° 18-10.551',san:'L\'absence d\'enquête caractérise à elle seule un manquement à l\'obligation de sécurité : dommages-intérêts.',fix:'Trame d\'enquête interne harcèlement.',o:[
+     {t:'Manque à son obligation de sécurité, même si le harcèlement n\'est finalement pas établi',ok:true},
+     {t:'Ne commet aucune faute s\'il n\'y a pas de preuve'},
+     {t:'Doit seulement en informer le CSE'},
+     {t:'Peut attendre la décision du conseil de prud\'hommes'}]},
+   {id:'secu',q:'L\'obligation de sécurité de l\'employeur est aujourd\'hui :',art:'art. L.4121-1 · Cass. soc. 25 nov. 2015 n° 14-24.444',san:'Faute inexcusable en cas d\'accident/maladie : majoration de rente + réparation intégrale.',fix:'Plan d\'actions de prévention.',o:[
+     {t:'Une obligation de prévention : l\'employeur doit prouver avoir pris les mesures nécessaires',ok:true},
+     {t:'Une simple obligation de moyens sans preuve à rapporter'},
+     {t:'Sans conséquence tant qu\'il n\'y a pas d\'accident'},
+     {t:'Limitée aux seuls risques listés par décret'}]},
+   {id:'tempsdecompte',q:'Selon la CJUE (14 mai 2019, CCOO), l\'employeur doit :',art:'art. L.3171-2 · CJUE 14 mai 2019 C-55/18',san:'En cas de litige, la preuve ne pèse pas sur le seul salarié : rappels d\'heures supplémentaires sur 3 ans.',fix:'Outil de décompte du temps de travail.',o:[
+     {t:'Mettre en place un système objectif, fiable et accessible de décompte du temps de travail',ok:true},
+     {t:'Laisser chaque salarié noter lui-même ses heures'},
+     {t:'Ne décompter le temps que des salariés non-cadres'},
+     {t:'Ne rien faire tant qu\'un accord ne l\'impose pas'}]},
+   {id:'forfaitsuivi',q:'Une convention de forfait-jours appliquée sans suivi effectif de la charge de travail :',art:'art. L.3121-64 · Cass. soc. 29 juin 2011 n° 09-71.107',san:'Forfait privé d\'effet : rappel de TOUTES les heures supplémentaires sur 3 ans.',fix:'Support de suivi de la charge (forfait-jours).',o:[
+     {t:'Est privée d\'effet : le salarié peut réclamer le paiement des heures supplémentaires',ok:true},
+     {t:'Reste valable dès lors qu\'elle est écrite'},
+     {t:'N\'a de conséquence qu\'au-delà de 235 jours travaillés'},
+     {t:'Est valable si le salarié est cadre'},
+     {t:'Non concerné (aucun forfait-jours dans l\'entreprise)',nc:true}]},
+   {id:'surveillance',q:'Un dispositif de vidéosurveillance ou de géolocalisation des salariés installé sans information préalable :',art:'art. L.1222-4 · RGPD · Cass. soc. 10 nov. 2021 n° 20-12.263',san:'Preuve illicite écartée + dommages-intérêts + sanctions CNIL (jusqu\'à 4 % du CA mondial).',fix:'Registre RGPD + notes d\'information des dispositifs de contrôle.',o:[
+     {t:'Constitue un moyen de preuve illicite, écarté par le juge',ok:true},
+     {t:'Reste opposable au salarié comme preuve'},
+     {t:'N\'est illicite qu\'après une plainte à la CNIL'},
+     {t:'Est autorisé tant qu\'il n\'y a pas de CSE'},
+     {t:'Non concerné (aucun dispositif de surveillance)',nc:true}]},
+   {id:'egaltrait',q:'Le principe « à travail égal, salaire égal » impose que les écarts de rémunération soient :',art:'Cass. soc. 29 oct. 1996 n° 92-43.680 (Ponsolle)',san:'Rappels de salaire (alignement sur le mieux rémunéré) sur 3 ans.',fix:'Analyse des écarts de rémunération.',o:[
+     {t:'Justifiés par des éléments objectifs et vérifiables',ok:true},
+     {t:'Librement fixés par l\'employeur'},
+     {t:'Justifiés seulement en cas de discrimination syndicale'},
+     {t:'Sans importance dès lors que le SMIC est respecté'}]},
+   {id:'modifcontrat',q:'Modifier la rémunération prévue au contrat d\'un salarié suppose :',art:'art. 1103 C. civ. · Cass. soc. 10 juil. 1996 n° 93-41.137',san:'Modification imposée = prise d\'acte / licenciement sans cause réelle et sérieuse.',fix:'Procédure de modification du contrat (avenant).',o:[
+     {t:'Son accord exprès, matérialisé par un avenant signé',ok:true},
+     {t:'Une simple note de service'},
+     {t:'Un délai de prévenance de 7 jours'},
+     {t:'L\'accord du CSE'}]},
+   {id:'nonconc',q:'Une clause de non-concurrence qui ne prévoit aucune contrepartie financière est :',art:'Cass. soc. 10 juil. 2002 n° 00-45.135',san:'Clause nulle ; si l\'employeur l\'applique : dommages-intérêts au salarié.',fix:'Clause de non-concurrence conforme.',o:[
+     {t:'Nulle',ok:true},
+     {t:'Valable si elle est limitée dans le temps'},
+     {t:'Valable pour les cadres'},
+     {t:'Valable en cas de démission'},
+     {t:'Non concerné (aucune clause de non-concurrence)',nc:true}]},
+   {id:'lanceur',q:'Les entreprises d\'au moins 50 salariés doivent, en matière de lanceur d\'alerte :',art:'loi n° 2022-401 du 21 mars 2022 · décret n° 2022-1284',san:'Manquement + nullité des représailles contre le lanceur d\'alerte.',fix:'Procédure lanceur d\'alerte.',o:[
+     {t:'Mettre en place une procédure interne de recueil et de traitement des signalements',ok:true},
+     {t:'N\'avoir aucune obligation particulière'},
+     {t:'Se contenter d\'afficher un numéro vert'},
+     {t:'Attendre un signalement pour agir'},
+     {t:'Non concerné (moins de 50 salariés)',nc:true}]}
  ]}
 ];
 
-/* ---- Secteurs « cols blancs » : conventions + forfait-jours ---- */
+/* ---- Secteurs « cols blancs » ---- */
 var BANQUE=[
  {th:'🏦 Spécificités Banque (IDCC 2120)',items:[
-   {id:'bq_class',q:'La classification (niveaux A à K) et la rémunération minimale garantie conventionnelle sont-elles respectées ?',art:'CCN Banque (IDCC 2120)',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Grille de classification et minima Banque.'},
-   {id:'bq_forfait',q:'Les conventions de forfait annuel en jours sont-elles valablement mises en place (accord collectif + suivi de la charge + entretien annuel) ?',art:'art. L.3121-63 s. C. trav. · accord Banque',san:'Forfait nul : rappel de toutes les heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours conforme + support de suivi.'},
-   {id:'bq_form',q:'Le plan de développement des compétences et l\'accès au CPF sont-ils assurés ?',art:'art. L.6321-1 C. trav.',san:'Manquement à l\'obligation d\'adaptation → dommages-intérêts.',fix:'Trame plan de développement des compétences.'}
+   {id:'bq_class',q:'Un salarié classé en dessous du niveau conventionnel (grille A à K) de la banque :',art:'CCN Banque (IDCC 2120)',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Grille de classification et minima Banque.',o:[
+     {t:'Peut réclamer un rappel jusqu\'à la rémunération minimale garantie conventionnelle (3 ans)',ok:true},
+     {t:'N\'a droit à rien si le SMIC est respecté'},
+     {t:'Ne peut agir qu\'avec l\'accord de l\'employeur'},
+     {t:'Est limité à un rappel de 6 mois'}]},
+   {id:'bq_forfait',q:'Une convention de forfait annuel en jours en banque, sans entretien annuel ni suivi de la charge, est :',art:'art. L.3121-64 s. C. trav. · accord Banque',san:'Forfait privé d\'effet : rappel de toutes les heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours conforme + support de suivi.',o:[
+     {t:'Privée d\'effet : le salarié peut réclamer ses heures supplémentaires',ok:true},
+     {t:'Valable car signée'},
+     {t:'Valable pour tous les cadres'},
+     {t:'Sans risque tant qu\'il n\'y a pas de litige'},
+     {t:'Non concerné (pas de forfait-jours)',nc:true}]},
+   {id:'bq_form',q:'L\'obligation d\'adapter le salarié à l\'évolution de son emploi :',art:'art. L.6321-1 C. trav.',san:'Manquement à l\'obligation d\'adaptation → dommages-intérêts.',fix:'Trame plan de développement des compétences.',o:[
+     {t:'Incombe à l\'employeur, qui doit assurer formation et employabilité',ok:true},
+     {t:'Repose sur le seul salarié via son CPF'},
+     {t:'Est facultative'},
+     {t:'Ne concerne que les cadres'}]}
  ]}
 ];
 var ASSURANCES=[
  {th:'🛡️ Spécificités Assurances (IDCC 1672)',items:[
-   {id:'as_class',q:'Les classes de fonctions et la rémunération minimale annuelle (RMA) conventionnelles sont-elles respectées ?',art:'CCN Sociétés d\'assurances (IDCC 1672)',san:'Rappels de salaire sur 3 ans.',fix:'Grille des classes et RMA Assurances.'},
-   {id:'as_forfait',q:'Les forfaits annuels en jours sont-ils valablement encadrés (accord + suivi charge + entretien) ?',art:'art. L.3121-63 s. C. trav. · accord Assurances',san:'Forfait nul : rappel des heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours conforme.'},
-   {id:'as_form',q:'La formation continue et l\'entretien professionnel sont-ils assurés (métiers réglementés : DDA/IAS) ?',art:'art. L.6321-1 · dir. DDA',san:'Dommages-intérêts + risque de perte de conformité ACPR.',fix:'Suivi formation DDA / IAS.'}
+   {id:'as_class',q:'Un salarié rémunéré en dessous de la rémunération minimale annuelle (RMA) conventionnelle des assurances :',art:'CCN Sociétés d\'assurances (IDCC 1672)',san:'Rappels de salaire sur 3 ans.',fix:'Grille des classes et RMA Assurances.',o:[
+     {t:'Peut réclamer un rappel jusqu\'à la RMA de sa classe (3 ans)',ok:true},
+     {t:'N\'a droit à rien si le SMIC est respecté'},
+     {t:'Ne peut réclamer que la différence sur le dernier mois'},
+     {t:'Doit renégocier son contrat'}]},
+   {id:'as_forfait',q:'Un forfait annuel en jours dans les assurances, sans suivi de la charge ni entretien, est :',art:'art. L.3121-64 s. C. trav. · accord Assurances',san:'Forfait privé d\'effet : rappel des heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours conforme.',o:[
+     {t:'Privé d\'effet : ouvre droit au rappel des heures supplémentaires',ok:true},
+     {t:'Valable dès lors qu\'il est écrit'},
+     {t:'Valable pour les cadres autonomes sans autre condition'},
+     {t:'Sans conséquence financière'},
+     {t:'Non concerné (pas de forfait-jours)',nc:true}]},
+   {id:'as_form',q:'Les personnes qui distribuent des produits d\'assurance (DDA/IAS) doivent suivre une formation continue de :',art:'directive DDA · art. L.511-4 s. C. assur.',san:'Dommages-intérêts + risque de perte de conformité (ACPR).',fix:'Suivi formation DDA / IAS.',o:[
+     {t:'15 heures par an minimum',ok:true},
+     {t:'Aucune, une fois habilitées'},
+     {t:'Une formation unique à l\'embauche'},
+     {t:'7 heures tous les 3 ans'}]}
  ]}
 ];
 var SYNTEC=[
  {th:'💻 Spécificités Syntec (IDCC 1486)',items:[
-   {id:'sy_class',q:'La classification (ETAM / IC : position, coefficient) et les minima Syntec sont-ils respectés ?',art:'CCN Syntec (IDCC 1486)',san:'Rappels de salaire sur 3 ans.',fix:'Grille de classification et minima Syntec.'},
-   {id:'sy_forfait',q:'Le forfait annuel en jours (modalité 2 / réalisation de missions) est-il valablement suivi (charge de travail, repos, 2 entretiens/an) ?',art:'art. L.3121-63 s. · accord Syntec du 22/06/1999 (avenants)',san:'Forfait nul (jurisprudence Syntec) : rappel de toutes les heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours Syntec + support de suivi.'},
-   {id:'sy_essai',q:'Les périodes d\'essai et préavis appliqués correspondent-ils à la CCN Syntec (ETAM / IC) ?',art:'CCN Syntec (IDCC 1486)',san:'Rupture d\'essai hors cadre : requalification / rappel de préavis.',fix:'Barème essai/préavis Syntec.'},
-   {id:'sy_frais',q:'Les frais professionnels et de mission (déplacements) sont-ils remboursés selon la CCN et non intégrés au salaire ?',art:'CCN Syntec · arrêté frais professionnels',san:'Redressement URSSAF + rappels.',fix:'Politique de remboursement des frais Syntec.'}
+   {id:'sy_class',q:'Un salarié (ETAM ou IC) payé sous le minimum Syntec de sa position/coefficient :',art:'CCN Syntec (IDCC 1486)',san:'Rappels de salaire sur 3 ans.',fix:'Grille de classification et minima Syntec.',o:[
+     {t:'Peut réclamer un rappel jusqu\'au minimum conventionnel (3 ans)',ok:true},
+     {t:'N\'a droit à rien si le SMIC est respecté'},
+     {t:'Ne peut agir que via le CSE'},
+     {t:'Est limité à un rappel de 12 mois'}]},
+   {id:'sy_forfait',q:'Le forfait-jours Syntec (modalité « réalisation de missions ») exige notamment :',art:'art. L.3121-64 · accord Syntec (avenants)',san:'À défaut, forfait privé d\'effet : rappel de toutes les heures supplémentaires sur 3 ans.',fix:'Convention de forfait-jours Syntec + support de suivi.',o:[
+     {t:'Un suivi effectif de la charge de travail et des entretiens réguliers',ok:true},
+     {t:'Aucun suivi, la signature suffit'},
+     {t:'Uniquement un plafond de 218 jours, sans autre condition'},
+     {t:'Un simple décompte des congés'},
+     {t:'Non concerné (pas de forfait-jours)',nc:true}]},
+   {id:'sy_essai',q:'Rompre une période d\'essai sans respecter le délai de prévenance légal :',art:'art. L.1221-25 C. trav.',san:'Ouvre droit à une indemnité compensatrice correspondant au délai non respecté.',fix:'Barème essai/préavis Syntec + procédure.',o:[
+     {t:'Ouvre droit à une indemnité compensatrice au profit du salarié',ok:true},
+     {t:'Est libre et sans conséquence'},
+     {t:'Requalifie automatiquement le contrat en CDI'},
+     {t:'N\'est possible que le dernier jour de l\'essai'}]},
+   {id:'sy_frais',q:'Les frais de mission (déplacements) engagés par le salarié :',art:'CCN Syntec · arrêté frais professionnels',san:'Redressement URSSAF si intégrés au salaire + rappels.',fix:'Politique de remboursement des frais Syntec.',o:[
+     {t:'Ne sont pas du salaire : ils sont remboursés en plus de la rémunération',ok:true},
+     {t:'Peuvent être inclus forfaitairement dans le salaire de base'},
+     {t:'Sont à la charge du salarié'},
+     {t:'Sont facultatifs pour l\'employeur'}]}
  ]}
 ];
 var ENSEIGNEMENT=[
  {th:'🎓 Spécificités Enseignement privé / EPNL (IDCC 3218)',items:[
-   {id:'ep_class',q:'La classification (strates / repères) et la rémunération conventionnelle EPNL sont-elles respectées ?',art:'CCN EPNL (IDCC 3218)',san:'Rappels de salaire sur 3 ans.',fix:'Grille de classification EPNL.'},
-   {id:'ep_service',q:'Les obligations de service et le temps de travail des personnels (enseignants, administratifs) sont-ils définis conformément à la CCN ?',art:'CCN EPNL (IDCC 3218) · art. L.3121-1 s. C. trav.',san:'Rappels d\'heures + contentieux temps de travail.',fix:'Note obligations de service EPNL.'},
-   {id:'ep_hono',q:'Le contrôle des antécédents (honorabilité / contact avec mineurs) est-il effectué à l\'embauche ?',art:'art. L.911-5 C. éduc. · art. 776 CPP (B2)',san:'Responsabilité pénale et administrative de l\'établissement.',fix:'Procédure de vérification d\'honorabilité.'}
+   {id:'ep_class',q:'Un personnel rémunéré sous la classification/rémunération conventionnelle EPNL :',art:'CCN EPNL (IDCC 3218)',san:'Rappels de salaire sur 3 ans.',fix:'Grille de classification EPNL.',o:[
+     {t:'Peut réclamer un rappel jusqu\'au minimum conventionnel (3 ans)',ok:true},
+     {t:'N\'a droit à rien si le SMIC est respecté'},
+     {t:'Ne peut agir qu\'en fin de contrat'},
+     {t:'Doit obtenir l\'accord du chef d\'établissement'}]},
+   {id:'ep_service',q:'Le temps de travail et les obligations de service des personnels (enseignants, administratifs) :',art:'CCN EPNL (IDCC 3218) · art. L.3121-1 s. C. trav.',san:'Rappels d\'heures + contentieux temps de travail.',fix:'Note obligations de service EPNL.',o:[
+     {t:'Sont encadrés par la CCN et le Code du travail (durées, décompte)',ok:true},
+     {t:'Sont laissés à la libre appréciation de l\'établissement'},
+     {t:'Ne concernent pas les enseignants'},
+     {t:'Relèvent uniquement de l\'Éducation nationale'}]},
+   {id:'ep_hono',q:'Avant d\'embaucher une personne en contact habituel avec des mineurs, l\'employeur doit :',art:'art. L.133-6 C. act. soc. · art. 776 CPP (bulletin n° 2)',san:'Responsabilité pénale et administrative de l\'établissement.',fix:'Procédure de vérification d\'honorabilité.',o:[
+     {t:'Vérifier l\'honorabilité (antécédents / bulletin n° 2 du casier judiciaire)',ok:true},
+     {t:'Ne rien vérifier, sauf soupçon'},
+     {t:'Se fier à la déclaration sur l\'honneur du candidat'},
+     {t:'Attendre le premier incident'}]}
  ]}
 ];
 
 var HCR=[
  {th:'🍽️ Temps de travail & repos (HCR)',items:[
-   {id:'hcr_ampli',q:'L\'amplitude journalière (13 h max) et les coupures (2 max) respectent-elles la CCN HCR ?',art:'CCN HCR (art. 21) · art. L.3121-18 C. trav.',san:'Contravention de 4ᵉ classe (750 € par salarié) + rappels d\'heures et de repos.',fix:'Grille de suivi amplitude/coupures HCR.'},
-   {id:'hcr_repos2j',q:'Le repos hebdomadaire (2 jours, dont modalités d\'aménagement HCR) et les jours fériés sont-ils accordés ?',art:'CCN HCR (art. 21, 25) · art. L.3132-2 C. trav.',san:'Rappels (repos compensateur/majoration) + contravention de 4ᵉ classe.',fix:'Planning type conforme HCR.'},
-   {id:'hcr_hsup',q:'Les heures supplémentaires sont-elles majorées selon le barème HCR (10 % / 20 % / 50 %) et le contingent respecté ?',art:'CCN HCR (avenant durée du travail) · art. L.3121-28 C. trav.',san:'Rappels de salaire majorés ; dissimulation = travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de décompte des heures HCR.'},
-   {id:'hcr_nuit',q:'Le travail de nuit est-il encadré (contreparties, surveillance médicale renforcée) ?',art:'CCN HCR · art. L.3122-1 s. C. trav.',san:'Rappels de contreparties + responsabilité santé de l\'employeur.',fix:'Note travail de nuit HCR.'}
+   {id:'hcr_ampli',q:'Dans les HCR, l\'amplitude maximale d\'une journée de travail est de :',art:'CCN HCR (durée du travail) · art. L.3121-18 C. trav.',san:'Contravention de 4ᵉ classe (750 € par salarié) + rappels d\'heures et de repos.',fix:'Grille de suivi amplitude/coupures HCR.',o:[
+     {t:'13 heures',ok:true},
+     {t:'10 heures'},
+     {t:'11 heures'},
+     {t:'Aucune limite dans le secteur'}]},
+   {id:'hcr_repos2j',q:'Le repos hebdomadaire légal minimal (repos hebdomadaire + repos quotidien) est de :',art:'art. L.3132-2, L.3131-1 C. trav.',san:'Rappels (repos compensateur/majoration) + contravention de 4ᵉ classe.',fix:'Planning type conforme HCR.',o:[
+     {t:'35 heures consécutives (24 h + 11 h)',ok:true},
+     {t:'24 heures'},
+     {t:'48 heures'},
+     {t:'11 heures'}]},
+   {id:'hcr_hsup',q:'Dans les HCR, les heures effectuées au-delà de la durée légale :',art:'CCN HCR (avenant durée du travail) · art. L.3121-28 C. trav.',san:'Rappels de salaire majorés ; dissimulation = travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de décompte des heures HCR.',o:[
+     {t:'Doivent être décomptées et majorées selon l\'avenant HCR',ok:true},
+     {t:'Ne sont pas dues, le secteur étant au forfait'},
+     {t:'Sont uniquement récupérées en repos, jamais payées'},
+     {t:'Sont réputées incluses dans le salaire'}]},
+   {id:'hcr_nuit',q:'Le travail de nuit dans les HCR :',art:'CCN HCR · art. L.3122-1 s. C. trav.',san:'Rappels de contreparties + responsabilité santé de l\'employeur.',fix:'Note travail de nuit HCR.',o:[
+     {t:'Ouvre droit à des contreparties (repos et/ou rémunération) et à un suivi médical',ok:true},
+     {t:'Est purement et simplement interdit'},
+     {t:'Ne concerne que les salariés mineurs'},
+     {t:'Est libre et sans contrepartie'}]}
  ]},
  {th:'💶 Rémunération & protection sociale (HCR)',items:[
-   {id:'hcr_nourri',q:'L\'avantage en nature nourriture (2 repas/jour ou indemnité compensatrice) est-il correctement décompté sur la paie ?',art:'CCN HCR (art. 33) · arrêté du 28/04/2003 (avantages en nature)',san:'Redressement URSSAF sur l\'assiette des cotisations + rappels.',fix:'Note de calcul avantage nourriture HCR.'},
-   {id:'hcr_minima',q:'Les salaires respectent-ils la grille de minima HCR (niveau/échelon) et le SMIC ?',art:'CCN HCR (grille de salaires) · art. L.2261-2 C. trav.',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Grille de minima HCR à jour.'},
-   {id:'hcr_mutuelle',q:'La mutuelle « frais de santé » et la prévoyance obligatoires sont-elles en place et financées ?',art:'art. L.911-7 CSS · régime conventionnel HCR',san:'Redressement URSSAF (perte de l\'exonération) + prise en charge des prestations non couvertes.',fix:'Attestation d\'affiliation mutuelle/prévoyance HCR.'},
-   {id:'hcr_tenue',q:'La tenue de travail imposée est-elle fournie ET son entretien pris en charge (ou prime de blanchissage) ?',art:'art. L.4122-2 C. trav. · jurisprudence',san:'Rappel au titre de l\'entretien des tenues + dommages-intérêts.',fix:'Clause tenue + note d\'indemnisation.'},
-   {id:'hcr_essai',q:'Les périodes d\'essai et préavis correspondent-ils à la CCN HCR (ex. démission employé < 6 mois = 8 jours) ?',art:'CCN HCR art. 30',san:'Préavis mal appliqué : rappel d\'indemnité compensatrice de préavis.',fix:'Barème préavis HCR + lettre type.'}
+   {id:'hcr_nourri',q:'Les repas fournis au personnel (avantage en nature nourriture) :',art:'CCN HCR · arrêté du 28/04/2003 (avantages en nature)',san:'Redressement URSSAF sur l\'assiette des cotisations + rappels.',fix:'Note de calcul avantage nourriture HCR.',o:[
+     {t:'Doivent être évalués et intégrés à l\'assiette des cotisations sociales',ok:true},
+     {t:'Sont exonérés de cotisations dans les HCR'},
+     {t:'N\'ont pas à figurer sur la paie'},
+     {t:'Sont facultatifs à déclarer'}]},
+   {id:'hcr_minima',q:'Un salaire inférieur au minimum conventionnel HCR mais supérieur au SMIC :',art:'CCN HCR (grille de salaires) · art. L.2261-2 C. trav.',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Grille de minima HCR à jour.',o:[
+     {t:'Ouvre droit à un rappel jusqu\'au minimum conventionnel (3 ans)',ok:true},
+     {t:'Est conforme puisque le SMIC est respecté'},
+     {t:'Nécessite l\'accord écrit du salarié pour être régularisé'},
+     {t:'Ne se régularise qu\'à la rupture du contrat'}]},
+   {id:'hcr_mutuelle',q:'La complémentaire santé (mutuelle) d\'entreprise obligatoire est financée par l\'employeur à hauteur d\'au moins :',art:'art. L.911-7 C. séc. soc.',san:'Redressement URSSAF (perte d\'exonération) + prise en charge des prestations.',fix:'Attestation d\'affiliation mutuelle/prévoyance HCR.',o:[
+     {t:'50 % de la cotisation',ok:true},
+     {t:'0 % : elle est à la charge du salarié'},
+     {t:'100 % obligatoirement'},
+     {t:'25 % de la cotisation'}]},
+   {id:'hcr_tenue',q:'Lorsqu\'une tenue de travail est imposée, son entretien (nettoyage) :',art:'art. L.4122-2 C. trav. · jurisprudence',san:'Rappel au titre de l\'entretien des tenues + dommages-intérêts.',fix:'Clause tenue + note d\'indemnisation.',o:[
+     {t:'Est à la charge de l\'employeur (fourniture et entretien, ou indemnisation)',ok:true},
+     {t:'Est à la charge du salarié'},
+     {t:'N\'est pas encadrée'},
+     {t:'Se règle par une simple prime facultative'}]},
+   {id:'hcr_essai',q:'Dans les HCR, le préavis de démission d\'un employé ayant moins de 6 mois d\'ancienneté est de :',art:'CCN HCR (IDCC 1979), art. 30',san:'Préavis mal appliqué : rappel d\'indemnité compensatrice de préavis.',fix:'Barème préavis HCR + lettre type.',o:[
+     {t:'8 jours',ok:true},
+     {t:'1 mois'},
+     {t:'15 jours'},
+     {t:'Aucun préavis'}]}
  ]},
  {th:'🧼 Hygiène & sécurité alimentaire (contrôle DDPP)',items:[
-   {id:'hcr_hygiene',q:'Au moins une personne de l\'établissement a-t-elle suivi la formation « hygiène alimentaire » obligatoire ?',art:'art. L.233-4 C. rural · décret 2011-731',san:'Contrôle DDPP : mise en demeure, amende, voire fermeture administrative.',fix:'Attestation de formation hygiène + suivi.'},
-   {id:'hcr_pms',q:'Le Plan de Maîtrise Sanitaire (PMS / HACCP) est-il rédigé, appliqué et à jour (traçabilité, températures) ?',art:'Règl. (CE) 852/2004 · arrêté du 21/12/2009',san:'Avertissement, procès-verbal, fermeture administrative en cas de risque grave.',fix:'Trame de PMS / relevés HACCP.'},
-   {id:'hcr_affich',q:'Les affichages spécifiques sont-ils en place (interdiction de fumer/vapoter, protection des mineurs vis-à-vis de l\'alcool, permis d\'exploitation, prix) ?',art:'art. L.3342-1 CSP · art. R.3512-2 CSP',san:'Amendes contraventionnelles ; sanctions du débit de boissons.',fix:'Pack affichages obligatoires HCR.'}
+   {id:'hcr_hygiene',q:'La formation « hygiène alimentaire » en restauration commerciale :',art:'art. L.233-4 C. rural · décret n° 2011-731',san:'Contrôle DDPP : mise en demeure, amende, voire fermeture administrative.',fix:'Attestation de formation hygiène + suivi.',o:[
+     {t:'Est obligatoire : au moins une personne de l\'établissement doit l\'avoir suivie',ok:true},
+     {t:'Est facultative'},
+     {t:'Ne concerne que la restauration collective'},
+     {t:'Est remplacée par le PMS'}]},
+   {id:'hcr_pms',q:'Le Plan de Maîtrise Sanitaire (PMS / HACCP) :',art:'Règl. (CE) 852/2004 · arrêté du 21/12/2009',san:'Avertissement, procès-verbal, fermeture administrative en cas de risque grave.',fix:'Trame de PMS / relevés HACCP.',o:[
+     {t:'Est obligatoire, écrit et tenu à jour (traçabilité, températures)',ok:true},
+     {t:'Est une simple recommandation de la profession'},
+     {t:'N\'est exigé qu\'en cas de contrôle annoncé'},
+     {t:'Ne concerne que les grandes cuisines centrales'}]},
+   {id:'hcr_affich',q:'Dans un débit de boissons, l\'affichage de la protection des mineurs (interdiction de vente d\'alcool) :',art:'art. L.3342-1, L.3342-4 C. santé publ.',san:'Amendes contraventionnelles ; sanctions du débit de boissons.',fix:'Pack affichages obligatoires HCR.',o:[
+     {t:'Est obligatoire et doit être affiché',ok:true},
+     {t:'Est facultatif'},
+     {t:'N\'est requis que la nuit'},
+     {t:'Ne concerne que les discothèques'}]}
  ]}
 ];
 
 var TRANSPORT=[
  {th:'🪪 Conducteurs & qualifications',items:[
-   {id:'tr_fco',q:'Les FIMO/FCO (CQC) des conducteurs sont-elles à jour et planifiées avant échéance ?',art:'art. L.3314-1 s. C. transports',san:'Contravention de 4ᵉ classe + immobilisation possible ; conducteur non autorisé à conduire.',fix:'Suivi des CQC + convocations FCO.'},
-   {id:'tr_medic',q:'Le suivi médical renforcé des conducteurs (aptitude, visites) est-il assuré ?',art:'art. R.4624-22 s. C. trav.',san:'Contravention de 5ᵉ classe + responsabilité de l\'employeur en cas d\'accident.',fix:'Agenda des visites médicales conducteurs.'},
-   {id:'tr_carte',q:'Les cartes conducteur et la carte entreprise (tachygraphe) sont-elles valides et les données télédéchargées (28 j conducteur / 90 j véhicule) ?',art:'Règl. (UE) 165/2014 · art. R.3313-13 C. transports',san:'Contravention de 4ᵉ classe par manquement ; sanction pénale en cas de falsification.',fix:'Procédure de télédéchargement et d\'archivage.'}
+   {id:'tr_fco',q:'La FCO (formation continue obligatoire) des conducteurs doit être renouvelée tous les :',art:'art. L.3314-1 s. C. transports',san:'Contravention de 4ᵉ classe ; conducteur non autorisé à conduire.',fix:'Suivi des CQC + convocations FCO.',o:[
+     {t:'5 ans',ok:true},
+     {t:'2 ans'},
+     {t:'10 ans'},
+     {t:'Une seule fois, à l\'embauche'}]},
+   {id:'tr_medic',q:'Le suivi médical des conducteurs routiers :',art:'art. R.4624-22 s. C. trav.',san:'Contravention de 5ᵉ classe + responsabilité de l\'employeur en cas d\'accident.',fix:'Agenda des visites médicales conducteurs.',o:[
+     {t:'Est un suivi renforcé, adapté aux risques du poste',ok:true},
+     {t:'N\'est pas obligatoire'},
+     {t:'Ne concerne que le transport de matières dangereuses'},
+     {t:'Se limite à une visite unique à l\'embauche à vie'}]},
+   {id:'tr_carte',q:'Les données de la carte conducteur (tachygraphe) doivent être téléchargées au moins tous les :',art:'Règl. (UE) 165/2014 · art. R.3313-13 C. transports',san:'Contravention de 4ᵉ classe par manquement ; sanction pénale en cas de falsification.',fix:'Procédure de télédéchargement et d\'archivage.',o:[
+     {t:'28 jours (et 90 jours pour la mémoire du véhicule)',ok:true},
+     {t:'6 mois'},
+     {t:'1 an'},
+     {t:'Uniquement en cas de contrôle'}]}
  ]},
  {th:'⏱️ Temps de conduite & de travail',items:[
-   {id:'tr_temps',q:'La durée du travail / temps de service des conducteurs (décompte spécifique) est-elle respectée et payée ?',art:'décret n° 83-40 · art. L.3312-1 s. C. transports',san:'Rappels de salaire + contraventions ; travail dissimulé si heures masquées.',fix:'Tableau de suivi du temps de service.'},
-   {id:'tr_conduite',q:'Les temps de conduite (max) et les repos (journalier 11 h/9 h, hebdomadaire) sont-ils respectés ?',art:'Règl. (CE) 561/2006',san:'Amendes par infraction (par conducteur et par jour) ; immobilisation.',fix:'Rappel des règles 561/2006 + suivi.'},
-   {id:'tr_alcool',q:'Le cadre alcool/stupéfiants (contrôles, taux, sanctions) est-il fixé au règlement intérieur ?',art:'art. R.4228-20 s. C. trav. · RI · Code de la route',san:'Responsabilité de l\'employeur en cas d\'accident ; sanctions pénales du conducteur.',fix:'Clause RI alcool/stupéfiants conforme.'}
+   {id:'tr_temps',q:'Le temps de service des conducteurs (à décompter et rémunérer) comprend :',art:'décret n° 83-40 · art. L.3312-1 s. C. transports',san:'Rappels de salaire + travail dissimulé si heures masquées.',fix:'Tableau de suivi du temps de service.',o:[
+     {t:'La conduite, l\'attente et la disponibilité, intégralement décomptées',ok:true},
+     {t:'Le seul temps de conduite'},
+     {t:'Rien : le conducteur est au forfait'},
+     {t:'La conduite, hors chargement/déchargement'}]},
+   {id:'tr_conduite',q:'La durée de conduite journalière (règl. CE 561/2006) est en principe de :',art:'Règl. (CE) 561/2006',san:'Amendes par infraction (par conducteur et par jour) ; immobilisation possible.',fix:'Rappel des règles 561/2006 + suivi.',o:[
+     {t:'9 heures, extensible à 10 heures deux fois par semaine',ok:true},
+     {t:'8 heures maximum, sans dérogation'},
+     {t:'10 heures, extensible à 12 heures'},
+     {t:'Illimitée avec un second conducteur'}]},
+   {id:'tr_alcool',q:'Le contrôle d\'alcoolémie des conducteurs par l\'employeur suppose :',art:'art. R.4228-20 s. C. trav. · règlement intérieur',san:'Responsabilité de l\'employeur en cas d\'accident ; sanctions pénales du conducteur.',fix:'Clause RI alcool/stupéfiants conforme.',o:[
+     {t:'Une clause au règlement intérieur (postes de sûreté/sécurité, modalités, recours possible)',ok:true},
+     {t:'Rien : l\'employeur peut contrôler librement'},
+     {t:'L\'accord écrit du salarié à chaque contrôle'},
+     {t:'Une autorisation préalable de l\'inspection du travail'}]}
  ]},
  {th:'🚚 Entreprise, véhicules & sécurité',items:[
-   {id:'tr_licence',q:'La licence de transport est-elle valide, l\'entreprise inscrite au registre et la capacité professionnelle assurée ?',art:'art. L.3211-1 s. C. transports',san:'Transport illégal : sanctions pénales + retrait/suspension de la licence.',fix:'Check-list registre des transporteurs.'},
-   {id:'tr_tacho',q:'Le tachygraphe et le limiteur de vitesse font-ils l\'objet du contrôle périodique (atelier agréé, tous les 2 ans) ?',art:'Règl. (UE) 165/2014',san:'Contravention + immobilisation du véhicule.',fix:'Suivi des contrôles atelier.'},
-   {id:'tr_bord',q:'Les documents de bord obligatoires sont-ils présents dans chaque véhicule (licence, lettre de voiture, assurance, carte grise) ?',art:'art. R.3411-1 s. C. transports',san:'Amendes + immobilisation du véhicule.',fix:'Liste des documents de bord.'},
-   {id:'tr_protocole',q:'Les protocoles de sécurité chargement/déchargement sont-ils établis avec les sites d\'accueil ?',art:'art. R.4515-1 s. C. trav.',san:'Contravention + faute inexcusable en cas d\'accident (majoration de rente).',fix:'Modèle de protocole de sécurité par site.'},
-   {id:'tr_adr',q:'Si transport de matières dangereuses : l\'ADR et un conseiller à la sécurité sont-ils en place ?',art:'Accord ADR · art. R.1252-1 s. C. transports',san:'Sanctions pénales, immobilisation, interdiction de transport.',fix:'Check-list ADR + désignation conseiller sécurité.'}
+   {id:'tr_licence',q:'Exercer le transport routier de marchandises pour le compte d\'autrui suppose :',art:'art. L.3211-1 s. C. transports',san:'Transport illégal : sanctions pénales + retrait/suspension de la licence.',fix:'Check-list registre des transporteurs.',o:[
+     {t:'Une licence de transport et l\'inscription au registre des transporteurs',ok:true},
+     {t:'Une simple immatriculation de l\'entreprise'},
+     {t:'Aucune formalité en dessous de 10 véhicules'},
+     {t:'Une déclaration en mairie'}]},
+   {id:'tr_tacho',q:'Le tachygraphe doit faire l\'objet d\'un contrôle périodique en atelier agréé tous les :',art:'Règl. (UE) 165/2014',san:'Contravention + immobilisation du véhicule.',fix:'Suivi des contrôles atelier.',o:[
+     {t:'2 ans',ok:true},
+     {t:'1 an'},
+     {t:'4 ans'},
+     {t:'Jamais, une fois installé'}]},
+   {id:'tr_bord',q:'Parmi les documents de bord obligatoires à présenter figure :',art:'art. R.3411-1 s. C. transports',san:'Amendes + immobilisation du véhicule.',fix:'Liste des documents de bord.',o:[
+     {t:'La lettre de voiture (avec licence, assurance, certificat d\'immatriculation)',ok:true},
+     {t:'Le bilan comptable de l\'entreprise'},
+     {t:'Le DUER de l\'entreprise'},
+     {t:'Le registre du personnel'}]},
+   {id:'tr_protocole',q:'Lors d\'un chargement/déchargement par une entreprise extérieure sur un site d\'accueil, il faut établir :',art:'art. R.4515-1 s. C. trav.',san:'Contravention + faute inexcusable en cas d\'accident (majoration de rente).',fix:'Modèle de protocole de sécurité par site.',o:[
+     {t:'Un protocole de sécurité écrit',ok:true},
+     {t:'Un simple accord verbal entre chauffeurs'},
+     {t:'Rien de particulier'},
+     {t:'Une autorisation de l\'inspection du travail'}]},
+   {id:'tr_adr',q:'Le transport de marchandises dangereuses (ADR) impose notamment :',art:'Accord ADR · art. R.1252-1 s. C. transports',san:'Sanctions pénales, immobilisation, interdiction de transport.',fix:'Check-list ADR + désignation conseiller sécurité.',o:[
+     {t:'Le respect de l\'ADR et la désignation d\'un conseiller à la sécurité',ok:true},
+     {t:'Une simple signalisation du véhicule'},
+     {t:'Aucune formalité si le trajet est court'},
+     {t:'L\'accord du destinataire uniquement'}]}
  ]},
  {th:'💶 Convention collective (transports routiers, IDCC 16)',items:[
-   {id:'tr_frais',q:'Les frais de déplacement (indemnités de repas, casse-croûte, découcher, grand déplacement) sont-ils versés selon le protocole « frais de déplacement » ?',art:'CCN transports routiers (IDCC 16) · protocole frais de déplacement',san:'Rappels d\'indemnités sur 3 ans + redressement URSSAF si mal traitées.',fix:'Barème des frais de déplacement transport.'},
-   {id:'tr_coeff',q:'La classification (coefficient) des conducteurs est-elle conforme à la grille conventionnelle et les minima respectés ?',art:'CCN transports routiers (IDCC 16) — annexes classifications',san:'Rappels de salaire (minima conventionnels) sur 3 ans.',fix:'Grille de classification et de minima transport.'},
-   {id:'tr_anc',q:'La prime d\'ancienneté conventionnelle (et le 13ᵉ mois si prévu) est-elle versée ?',art:'CCN transports routiers (IDCC 16)',san:'Rappels de salaire sur 3 ans.',fix:'Note prime d\'ancienneté / 13ᵉ mois transport.'},
-   {id:'tr_garantie',q:'Le temps de service (conduite, attente, disponibilité) est-il intégralement décompté et rémunéré, sans temps masqué ?',art:'décret n° 83-40 · art. L.3312-1 C. transports',san:'Rappels de salaire + travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de suivi du temps de service.'}
+   {id:'tr_frais',q:'Les frais de déplacement des conducteurs (repas, casse-croûte, découcher) :',art:'CCN transports routiers (IDCC 16) · protocole frais de déplacement',san:'Rappels d\'indemnités sur 3 ans + redressement URSSAF si mal traités.',fix:'Barème des frais de déplacement transport.',o:[
+     {t:'Sont versés en plus du salaire, selon le protocole « frais de déplacement »',ok:true},
+     {t:'Sont réputés inclus dans le salaire de base'},
+     {t:'Sont à la charge du conducteur'},
+     {t:'Sont facultatifs pour l\'employeur'}]},
+   {id:'tr_coeff',q:'Un conducteur classé à un coefficient inférieur à la grille conventionnelle :',art:'CCN transports routiers (IDCC 16) — classifications',san:'Rappels de salaire (minima conventionnels) sur 3 ans.',fix:'Grille de classification et de minima transport.',o:[
+     {t:'Peut réclamer un rappel de salaire sur la base du bon coefficient (3 ans)',ok:true},
+     {t:'Ne peut rien réclamer si le SMIC est respecté'},
+     {t:'Doit attendre la fin de son contrat'},
+     {t:'Ne peut agir que collectivement'}]},
+   {id:'tr_garantie',q:'Le temps passé par le conducteur à attendre le chargement/déchargement :',art:'décret n° 83-40 · art. L.3312-1 C. transports',san:'Rappels de salaire + travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de suivi du temps de service.',o:[
+     {t:'Est du temps de service à décompter et rémunérer',ok:true},
+     {t:'N\'est pas rémunéré (temps de pause)'},
+     {t:'Est déduit du salaire'},
+     {t:'N\'a pas à être enregistré'}]}
  ]}
 ];
 
@@ -310,21 +548,15 @@ var DUER_BASE={
 };
 
 /* ===================== LOGIQUE ===================== */
-var A={}; /* réponses {id: index de l'option choisie} */
+var A={};    /* réponses : {id: option choisie {t, ok, nc}} */
+var CUR={};  /* options affichées (mélangées) par question : {id:[opts]} */
 var CURSEC='';
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function $(id){return document.getElementById(id);}
 
-/* Échelle graduée par défaut (QCM) — seule la 1ʳᵉ réponse = pleinement conforme.
-   s = taux de conformité (1 = conforme ; 0 = manquement ; 'nc' = non concerné). */
-var DEFAULT_OPTS=[
-  {t:'Oui — formalisé, à jour et je peux le prouver (écrit / traçabilité)',s:1},
-  {t:'En partie — oral, incomplet, non à jour ou sans preuve',s:.3},
-  {t:'Non — non mis en place',s:0},
-  {t:'Non concerné',s:'nc'}
-];
-/* Options d'une question : celles définies (it.o) ou l'échelle par défaut. */
-function optsFor(it){return (it && it.o && it.o.length) ? it.o : DEFAULT_OPTS;}
+/* Mélange (Fisher-Yates) : la bonne réponse n'est jamais au même endroit */
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function correctOf(it){for(var i=0;i<it.o.length;i++){if(it.o[i].ok)return it.o[i].t;}return '';}
 
 (function initSec(){
   var s=$('secteur');SECTEURS.forEach(function(x){var o=document.createElement('option');o.value=x.id;o.textContent=x.nom;s.appendChild(o);});
@@ -338,18 +570,17 @@ window.cmSelSec=function(id){
 };
 
 window.cmPick=function(){
-  CURSEC=$('secteur').value; A={};
+  CURSEC=$('secteur').value; A={}; CUR={};
   if(!CURSEC){$('cm-quiz').style.display='none';$('cm-result').style.display='none';return;}
-  var groups=questionsFor(CURSEC),h='';
+  var groups=questionsFor(CURSEC),h='',n=0;
   groups.forEach(function(g){
     h+='<div class="grp-t">'+esc(g.th)+'</div>';
     g.items.forEach(function(it){
-      var opts=optsFor(it),oh='';
-      opts.forEach(function(op,i){
-        var cls=op.s==='nc'?'opt optq nc':(op.s===1?'opt optq good':'opt optq');
-        oh+='<div class="'+cls+'" data-id="'+it.id+'" data-i="'+i+'" onclick="cmSet(this)">'+esc(op.t)+'</div>';
-      });
-      h+='<div class="q" id="q-'+it.id+'"><div class="txt">'+esc(it.q)+'</div><div class="opts col">'+oh+'</div></div>';
+      n++;
+      var opts=shuffle(it.o.slice()); CUR[it.id]=opts;
+      var oh='';
+      opts.forEach(function(op,i){oh+='<div class="optq" data-id="'+it.id+'" data-i="'+i+'" onclick="cmSet(this)">'+esc(op.t)+'</div>';});
+      h+='<div class="q" id="q-'+it.id+'"><div class="txt"><span class="qn">'+n+'.</span>'+esc(it.q)+'</div><div class="opts">'+oh+'</div></div>';
     });
   });
   $('cm-list').innerHTML=h;
@@ -358,23 +589,24 @@ window.cmPick=function(){
 };
 
 window.cmSet=function(el){
-  var id=el.getAttribute('data-id'),i=+el.getAttribute('data-i');A[id]=i;
-  var box=el.parentNode;
-  box.querySelectorAll('.optq').forEach(function(o){o.classList.remove('sel');});
+  var id=el.getAttribute('data-id'),i=+el.getAttribute('data-i');
+  A[id]=(CUR[id]||[])[i];
+  var box=el.parentNode;box.querySelectorAll('.optq').forEach(function(o){o.classList.remove('sel');});
   el.classList.add('sel');
 };
 
-/* Réinitialisation complète : on repart au choix du secteur */
+/* Réinitialisation complète : retour au choix du secteur */
 window.cmReset=function(){
-  A={}; CURSEC=''; var s=$('secteur'); if(s) s.value='';
+  A={}; CUR={}; CURSEC=''; var s=$('secteur'); if(s) s.value='';
+  document.querySelectorAll('#cm-secbtns .secbtn').forEach(function(b){b.classList.remove('on');});
   $('cm-quiz').style.display='none'; $('cm-list').innerHTML='';
   $('cm-result').style.display='none'; $('cm-result').innerHTML='';
   try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
 };
-/* Vider les réponses du secteur en cours (sans changer de secteur) */
+/* Vider les réponses du secteur en cours */
 window.cmClear=function(){
   A={};
-  $('cm-list').querySelectorAll('.opt').forEach(function(o){o.className='opt';});
+  $('cm-list').querySelectorAll('.optq').forEach(function(o){o.classList.remove('sel');});
   $('cm-result').style.display='none'; $('cm-result').innerHTML='';
   $('cm-quiz').scrollIntoView({behavior:'smooth',block:'start'});
 };
@@ -389,23 +621,24 @@ function allItems(){var out=[];questionsFor(CURSEC).forEach(function(g){g.items.
 
 // Points à fort enjeu (jurisprudence / risque prud'homal élevé) : pondérés x3 dans le score
 var EXPERT_IDS={harcprev:1,harcenq:1,secu:1,tempsdecompte:1,forfaitsuivi:1,surveillance:1,egaltrait:1,modifcontrat:1,nonconc:1,lanceur:1,duer:1,cse:1,dpae:1,bq_forfait:1,as_forfait:1,sy_forfait:1};
-/* Renvoie les manquements (item + réponse choisie) : toute réponse dont s<1. */
+
+/* Manquements = questions répondues dont la réponse choisie n'est pas la bonne (hors « non concerné ») */
 function cmManquements(){
   var man=[];
   allItems().forEach(function(it){
-    var i=A[it.id];if(i==null)return;
-    var op=optsFor(it)[i];if(!op||op.s==='nc')return;
-    if(op.s<1) man.push({it:it,rep:op.t,s:op.s});
+    var a=A[it.id];if(!a||a.nc)return;
+    if(!a.ok) man.push({it:it,rep:a.t,good:correctOf(it)});
   });
   return man;
 }
+
+var CM_LASTPCT=null;
 window.cmScore=function(){
-  var items=allItems(),conf=0,man=[],applic=0;
-  items.forEach(function(it){
-    var i=A[it.id];if(i==null)return;
-    var op=optsFor(it)[i];if(!op||op.s==='nc')return;
-    var w=EXPERT_IDS[it.id]?3:1;applic+=w;conf+=w*op.s;
-    if(op.s<1) man.push({it:it,rep:op.t,s:op.s});
+  var conf=0,man=[],applic=0;
+  allItems().forEach(function(it){
+    var a=A[it.id];if(!a||a.nc)return;
+    var w=EXPERT_IDS[it.id]?3:1;applic+=w;
+    if(a.ok)conf+=w;else man.push({it:it,rep:a.t,good:correctOf(it)});
   });
   var pct=applic?Math.round(conf/applic*100):0;
   CM_LASTPCT=pct;
@@ -417,12 +650,11 @@ window.cmScore=function(){
     +'</div>';
   h+='<div class="card score-box"><div class="hint">'+esc(secNom)+'</div>'
     +'<div class="score-num" style="color:'+col+'">'+pct+'%</div>'
-    +'<div class="hint">de conformité sur les points applicables ('+conf+'/'+applic+')</div>'
+    +'<div class="hint">de bonnes réponses sur les points applicables ('+conf+'/'+applic+')</div>'
     +'<div class="bar"><span style="width:'+pct+'%;background:'+col+'"></span></div>'
-    +(man.length?('<div class="hint"><b style="color:#f5c6c2">'+man.length+'</b> point(s) à corriger — détail commenté ci-dessous</div>'):'<div class="hint" style="color:#bff0d4">Aucun manquement détecté sur vos réponses 🎉</div>')
+    +(man.length?('<div class="hint"><b style="color:#f5c6c2">'+man.length+'</b> réponse(s) inexacte(s) = autant de manquements — détail commenté ci-dessous</div>'):'<div class="hint" style="color:#bff0d4">Toutes vos réponses sont exactes 🎉</div>')
     +'</div>';
 
-  /* Section verrouillée : réponses commentées (article + sanction) + documents + DUER — réservée aux clients enregistrés */
   var inscrit=false;try{inscrit=!!localStorage.getItem('cm_inscrit');}catch(e){}
   h+='<div id="cm-locked">'+lockedSection(man,inscrit)+'</div>';
 
@@ -430,15 +662,15 @@ window.cmScore=function(){
 };
 
 function commentedHtml(man){
-  if(!man.length) return '<p class="hint">Aucun manquement à commenter : vos réponses sont conformes sur les points applicables. Le DUER reste obligatoire (ci-dessous).</p>';
-  var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos réponses commentées — article & sanction encourue :</b></div>';
+  if(!man.length) return '<p class="hint">Aucune réponse inexacte : vos réponses sont conformes sur les points applicables. Le DUER reste obligatoire (ci-dessous).</p>';
+  var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos réponses inexactes — réponse exacte, article & sanction :</b></div>';
   man.forEach(function(m){
-    var it=m.it||m;
-    h+='<div class="man"><div class="mt">'+esc(it.q)+'</div>'
-     +(m.rep?'<div class="rep">📝 Votre réponse : «&nbsp;'+esc(m.rep)+'&nbsp;»'+(m.s>0?' — partiellement conforme':'')+'</div>':'')
-     +'<div class="art">📘 '+esc(it.art)+'</div>'
-     +'<div class="san">⚠️ Sanction : '+esc(it.san)+'</div>'
-     +'<div class="fix">🛠️ À régulariser : '+esc(it.fix)+'</div></div>';
+    h+='<div class="man"><div class="mt">'+esc(m.it.q)+'</div>'
+     +'<div class="rep">❌ Votre réponse : «&nbsp;'+esc(m.rep)+'&nbsp;»</div>'
+     +'<div class="good">✅ Réponse exacte : '+esc(m.good)+'</div>'
+     +'<div class="art">📘 '+esc(m.it.art)+'</div>'
+     +'<div class="san">⚠️ Sanction : '+esc(m.it.san)+'</div>'
+     +'<div class="fix">🛠️ À régulariser : '+esc(m.it.fix)+'</div></div>';
   });
   return h;
 }
@@ -453,7 +685,7 @@ function lockedSection(man,inscrit){
     +'<div class="lock">'+inner+'</div>'
     +'<div class="lockover"><div class="lockcard">'
       +'<div class="grp-t" style="margin-top:0">🔒 Réservé aux clients enregistrés</div>'
-      +'<p class="hint" style="margin:0 0 10px">Votre <b>score</b> est gratuit. Pour voir vos <b>réponses commentées</b> (article + sanction encourue), les <b>documents correctifs</b> et votre <b>DUER pré-rempli</b>, connectez-vous ou créez votre accès.</p>'
+      +'<p class="hint" style="margin:0 0 10px">Votre <b>score</b> est gratuit. Pour voir la <b>réponse exacte</b> de chaque question ratée, l\'<b>article</b> et la <b>sanction encourue</b>, les <b>documents correctifs</b> et votre <b>DUER pré-rempli</b>, connectez-vous ou créez votre accès.</p>'
       +'<input id="cm-email" type="email" placeholder="votre@email.fr" style="margin-bottom:8px">'
       +'<button class="btn" onclick="cmUnlock()">Voir mon analyse détaillée</button>'
       +'<p class="hint" style="margin:8px 0 0">Un e-mail pré-rempli s\'ouvrira pour finaliser votre inscription auprès de <b>r.t.h@orange.fr</b>. Sinon, écrivez-nous directement à <a href="mailto:r.t.h@orange.fr">r.t.h@orange.fr</a>. Aucun spam.</p>'
@@ -461,9 +693,9 @@ function lockedSection(man,inscrit){
 }
 
 function documentsHtml(man){
-  if(!man.length) return '<p class="hint">Aucun document correctif nécessaire : votre conformité est bonne. Le DUER reste obligatoire (ci-dessous).</p>';
+  if(!man.length) return '<p class="hint">Aucun document correctif nécessaire : vos réponses sont exactes. Le DUER reste obligatoire (ci-dessous).</p>';
   var h='<div style="margin-bottom:10px"><b style="color:var(--gold2)">Documents recommandés pour vos manquements :</b></div>';
-  man.forEach(function(m){var it=m.it||m;h+='<div class="doc">📄 <b>'+esc(it.fix)+'</b><br><span class="hint">'+esc(it.art)+'</span></div>';});
+  man.forEach(function(m){h+='<div class="doc">📄 <b>'+esc(m.it.fix)+'</b><br><span class="hint">'+esc(m.it.art)+'</span></div>';});
   return h;
 }
 
@@ -480,7 +712,6 @@ function duerHtml(){
 }
 
 var CM_CONTACT='r.t.h@orange.fr';
-var CM_LASTPCT=null;
 /* Endpoint Forminit (compte mounir chikhaoui — formulaire « Controle-minute »).
    Tant que c'est vide, on bascule sur l'e-mail pré-rempli vers r.t.h@orange.fr. */
 var CM_FORM_ENDPOINT='https://forminit.com/f/6dsowhkss20';
@@ -495,7 +726,6 @@ window.cmUnlock=function(){
   $('cm-locked').scrollIntoView({behavior:'smooth',block:'start'});
   // 2) Transmettre le lead
   if(CM_FORM_ENDPOINT){
-    // Envoi automatique vers Forminit (form-urlencoded : requête « simple », pas de préflight CORS)
     try{
       var fd=new URLSearchParams();
       fd.set('fi-sender-email', e);
@@ -507,7 +737,6 @@ window.cmUnlock=function(){
       fetch(CM_FORM_ENDPOINT,{method:'POST',headers:{'Accept':'application/json'},body:fd}).catch(function(){});
     }catch(_){}
   } else {
-    // Repli : e-mail pré-adressé à l'exploitant
     var subj='Inscription Contrôle-minute — '+secNom;
     var body='Nouveau contact via le Contrôle-minute :\n\nE-mail du visiteur : '+e+'\nSecteur : '+secNom+'\nScore : '+(CM_LASTPCT!=null?CM_LASTPCT+'%':'')+'\n\n(Répondez pour transmettre l\'accès.)';
     var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
