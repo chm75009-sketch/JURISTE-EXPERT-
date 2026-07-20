@@ -149,8 +149,8 @@ export default {
           headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            // Jooble bloque (403) les requêtes sans User-Agent « navigateur »
-            'User-Agent': 'Mozilla/5.0 (compatible; JurisExpertMCH/1.0; +https://chm75009-sketch.github.io/JURISTE-EXPERT-/)',
+            // Jooble bloque (403) les requêtes sans User-Agent « navigateur » classique
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
           },
           body: JSON.stringify(payload),
         });
