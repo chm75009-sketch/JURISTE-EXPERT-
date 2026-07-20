@@ -146,7 +146,12 @@ export default {
         };
         const r = await fetch('https://fr.jooble.org/api/' + env.JOOBLE_KEY, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            // Jooble bloque (403) les requêtes sans User-Agent « navigateur »
+            'User-Agent': 'Mozilla/5.0 (compatible; JurisExpertMCH/1.0; +https://chm75009-sketch.github.io/JURISTE-EXPERT-/)',
+          },
           body: JSON.stringify(payload),
         });
         const text = await r.text();
