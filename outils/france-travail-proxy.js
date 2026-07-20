@@ -144,7 +144,7 @@ export default {
           location: p.get('location') || '',
           page: (p.get('page') || '1').replace(/[^0-9]/g, '') || '1',
         };
-        const r = await fetch('https://jooble.org/api/' + env.JOOBLE_KEY, {
+        const r = await fetch('https://fr.jooble.org/api/' + env.JOOBLE_KEY, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
