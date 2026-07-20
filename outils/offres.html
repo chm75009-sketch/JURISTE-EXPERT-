@@ -1000,6 +1000,29 @@ function renderSynthese(offers){
   var SZ=[["TPE","TPE"],["PME","PME"],["ETI","ETI/GG"],["NP","NP"]];
   var html="";
   lastSyntheseRows=[["Type de relation","Zone (dept)","TPE","PME","ETI/GG","Non precise","Nb offres","Nb societes","Repetition"]];
+
+  // ── Récapitulatif : d'où viennent les offres selon la taille d'entreprise ? ──
+  html+='<h3 style="font-size:13px;margin:2px 0 8px;font-weight:700">Origine par taille d\'entreprise <span style="font-weight:400;opacity:.7">— petites (TPE+PME) vs grandes (ETI/Grand groupe), sur les offres à effectif connu</span></h3>';
+  html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px">';
+  html+='<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px">Type de relation</th><th style="padding:6px;text-align:center">TPE</th><th style="padding:6px;text-align:center">PME</th><th style="padding:6px;text-align:center">ETI/GG</th><th style="padding:6px;text-align:center">Petites</th><th style="padding:6px;text-align:center">Grandes</th><th style="padding:6px;text-align:center">Tendance</th></tr></thead><tbody>';
+  CATS.forEach(function(cat){
+    var lst=offers.filter(function(o){ return classifyRel(o)===cat[0]; });
+    var c={TPE:0,PME:0,ETI:0}; lst.forEach(function(o){ var k=effectifKey(o); if(k!=="NP") c[k]++; });
+    var known=c.TPE+c.PME+c.ETI, petites=c.TPE+c.PME, grandes=c.ETI;
+    var pc=function(v){ return known?Math.round(v/known*100):0; };
+    var tend = !known ? "—" : (petites>grandes ? "🔻 Petites entreprises" : (grandes>petites ? "🔺 Grandes entreprises" : "≈ Équilibré"));
+    var lab=cat[0].replace("Exclusivement ","").replace("Les deux (individuel + collectif)","Individuel + collectif");
+    html+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px;font-weight:600;color:'+cat[1]+'">'+esc(lab)+'</td>'
+      +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.TPE)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.PME)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.ETI)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-weight:700">'+pc(petites)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-weight:700">'+pc(grandes)+'%</td>'
+      +'<td style="padding:6px;text-align:center;white-space:nowrap">'+tend+(known?' <span style="opacity:.6">('+known+')</span>':'')+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  html+='<div class="hint" style="margin:0 0 10px">Base = offres dont la taille est connue (INSEE, France Travail ou déduite du texte) ; les « non précisé » sont exclus de ce pourcentage. Le nombre entre parenthèses = nb d\'offres à effectif connu.</div>';
+
   CATS.forEach(function(cat){
     var name=cat[0], color=cat[1];
     var list=offers.filter(function(o){ return classifyRel(o)===name; });
