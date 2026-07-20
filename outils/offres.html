@@ -227,6 +227,13 @@
       </label>
       <div class="hint">Strict : ne garde que les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes) ET <b>aucun</b> marqueur collectif. Peu d'offres passeront — l'individuel « pur » est un créneau étroit.</div>
     </div>
+    <div class="field" style="margin-top:10px">
+      <label style="display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:600;font-size:14.5px">
+        <input type="checkbox" id="srcExtra" checked style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
+        <span>🔎 Élargir la recherche à <b>Adzuna</b> et <b>Jooble</b> (agrégateurs) en plus de France Travail</span>
+      </label>
+      <div class="hint">Plus d'offres, dédoublonnées. Nécessite les clés Adzuna/Jooble configurées dans le Worker ; sinon seul France Travail répond.</div>
+    </div>
     <div class="row-actions" style="margin-top:6px">
       <button class="btn" id="searchBtn">Analyser les offres</button>
       <span id="searchStatus" class="hint"></span>
@@ -844,6 +851,82 @@ async function fetchOffres(proxy, base, motsCles){
   return { offers:(data&&data.resultats)?data.resultats:[], range };
 }
 
+/* ============================================================
+   SOURCES COMPLÉMENTAIRES — Adzuna & Jooble (via le même Worker)
+   Chaque offre est normalisée au format France Travail pour que
+   toute l'analyse (salaires, cartes, classification) fonctionne.
+   ============================================================ */
+function adzunaToFT(r){
+  var sal = "";
+  if(r.salary_min || r.salary_max){
+    var lo=Math.round(r.salary_min||r.salary_max), hi=Math.round(r.salary_max||r.salary_min);
+    sal = (lo===hi) ? ("Annuel "+lo+" euros") : ("Annuel de "+Math.min(lo,hi)+" à "+Math.max(lo,hi)+" euros");
+  }
+  var lieu = (r.location && (r.location.display_name || (r.location.area||[]).slice(-1)[0])) || "";
+  return {
+    id: "adz-"+(r.id||r.adref||Math.random().toString(36).slice(2)),
+    source: "Adzuna",
+    intitule: r.title || "",
+    description: r.description || "",
+    entreprise: { nom: (r.company && r.company.display_name) || "" },
+    lieuTravail: { libelle: lieu },
+    typeContratLibelle: (r.contract_time||"")==="part_time" ? "Temps partiel" : (r.contract_type||(r.category&&r.category.label)||""),
+    salaire: sal ? { libelle: sal } : null,
+    dateCreation: r.created || "",
+    origineOffre: { urlOrigine: r.redirect_url || "" },
+    competences:[], formations:[], qualitesProfessionnelles:[]
+  };
+}
+function joobleToFT(j){
+  return {
+    id: "job-"+(j.id||Math.random().toString(36).slice(2)),
+    source: "Jooble",
+    intitule: j.title || "",
+    description: (j.snippet||"").replace(/<[^>]+>/g," "),
+    entreprise: { nom: j.company || "" },
+    lieuTravail: { libelle: j.location || "" },
+    typeContratLibelle: j.type || "",
+    salaire: (j.salary && String(j.salary).trim()) ? { libelle: String(j.salary) } : null,
+    dateCreation: j.updated || "",
+    origineOffre: { urlOrigine: j.link || "" },
+    competences:[], formations:[], qualitesProfessionnelles:[]
+  };
+}
+async function fetchAdzuna(proxy, what, where, results){
+  try{
+    var p=new URLSearchParams(); if(what)p.set("what",what); if(where)p.set("where",where);
+    p.set("results", String(results||50)); p.set("page","1");
+    var r=await fetch(proxy+"/adzuna?"+p.toString());
+    if(!r.ok) return [];
+    var d=await r.json();
+    return (d&&d.results)?d.results.map(adzunaToFT):[];
+  }catch(e){ return []; }
+}
+async function fetchJooble(proxy, keywords, location){
+  try{
+    var p=new URLSearchParams(); if(keywords)p.set("keywords",keywords); if(location)p.set("location",location); p.set("page","1");
+    var r=await fetch(proxy+"/jooble?"+p.toString());
+    if(!r.ok) return [];
+    var d=await r.json();
+    return (d&&d.jobs)?d.jobs.map(joobleToFT):[];
+  }catch(e){ return []; }
+}
+// Récupère Adzuna + Jooble en parallèle et renvoie les offres normalisées, dédupliquées (titre+entreprise).
+async function fetchAutresSources(proxy, keywords, location, seenKeys){
+  if(!keywords) return {adzuna:[], jooble:[], all:[]};
+  var res = await Promise.all([
+    fetchAdzuna(proxy, keywords, location, 50),
+    fetchJooble(proxy, keywords, location)
+  ]);
+  var adz=res[0]||[], job=res[1]||[], all=[];
+  function keyOf(o){ return normM((o.intitule||"")+"|"+((o.entreprise&&o.entreprise.nom)||"")); }
+  [].concat(adz, job).forEach(function(o){
+    if(!o.intitule) return;
+    var k=keyOf(o); if(seenKeys[k]) return; seenKeys[k]=1; all.push(o);
+  });
+  return {adzuna:adz, jooble:job, all:all};
+}
+
 async function runSearch(){
   const proxy = (localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
   const base = new URLSearchParams();
@@ -905,17 +988,39 @@ async function runSearch(){
       const tk=[].slice.call(taillesEl.querySelectorAll("input:checked")).map(function(c){return c.value;});
       if(tk.length && tk.length<TAILLES.length) offers = offers.filter(function(o){ return tk.indexOf(effectifKey(o))>=0; });
     }
+    const ftN = offers.length;
+
+    // ── Sources complémentaires (Adzuna + Jooble) ──
+    let adzN = 0, jobN = 0;
+    if(!$("srcExtra") || $("srcExtra").checked){
+      const kw = (mots || (($("metierSearch")||{}).value||"") || aliasLabel || romeLabel).trim();
+      const regLabel = (($("region").selectedOptions||[])[0]||{}).textContent || "";
+      const loc = (dep && !/^\d+$/.test(dep)) ? dep : (regLabel && !/toute la france|—|choisir/i.test(regLabel) ? regLabel : "");
+      const seen = {};
+      offers.forEach(function(o){ seen[normM((o.intitule||"")+"|"+((o.entreprise&&o.entreprise.nom)||""))]=1; });
+      const extra = await fetchAutresSources(proxy, kw, loc, seen);
+      let add = extra.all;
+      if($("relInd") && $("relInd").checked && add.length){
+        add = add.filter(function(o){ const sc=relIndScore(o); return sc.ind>0 && sc.col===0; });
+      }
+      adzN = extra.adzuna.length; jobN = extra.jooble.length;
+      offers = offers.concat(add);
+    }
+
     lastOffers = offers;
     if(!offers.length){
       $("emptyState").innerHTML = 'Aucune offre pour « '+esc(codeRome?romeLabel:(mots||"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
       $("emptyState").classList.remove("hidden");
       $("searchStatus").textContent = "";
     } else {
-      let totalDispo = offers.length;
-      if(!aliasCodes.length){ const m = res.range.match(/\/(\d+)/); if(m) totalDispo = parseInt(m[1],10); }
-      analyse(offers, totalDispo);
+      let ftTotal = ftN;
+      if(!aliasCodes.length){ const m = res.range.match(/\/(\d+)/); if(m) ftTotal = parseInt(m[1],10); }
+      analyse(offers, offers.length);
       $("results").classList.remove("hidden");
-      $("searchStatus").innerHTML = '<b>'+totalDispo.toLocaleString("fr-FR")+'</b> offre'+(totalDispo>1?"s":"")+' trouvee'+(totalDispo>1?"s":"")+'.';
+      const srcTxt = (adzN||jobN)
+        ? ' &nbsp;·&nbsp; <span class="muted">France Travail : '+ftN.toLocaleString("fr-FR")+(ftTotal>ftN?(' (sur '+ftTotal.toLocaleString("fr-FR")+')'):'')+' · Adzuna : '+adzN+' · Jooble : '+jobN+'</span>'
+        : (ftTotal>ftN?(' <span class="muted">(sur '+ftTotal.toLocaleString("fr-FR")+' disponibles sur France Travail)</span>'):'');
+      $("searchStatus").innerHTML = '<b>'+offers.length.toLocaleString("fr-FR")+'</b> offre'+(offers.length>1?"s":"")+' analysée'+(offers.length>1?"s":"")+srcTxt+'.';
     }
   }catch(e){
     $("searchStatus").textContent = "❌ "+e.message;

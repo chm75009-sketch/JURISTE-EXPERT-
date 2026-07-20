@@ -78,6 +78,40 @@ l'analyse dans une v2 (tendances de marché, compétences normalisées) :
 
 ---
 
+## Étape 3 (option) — Ajouter d'autres sources : Adzuna & Jooble
+
+Le relais sait aussi interroger **Adzuna** et **Jooble** (agrégateurs d'offres). La page les
+fusionne avec France Travail et **dédoublonne** (titre + entreprise). Tant que les clés ne sont
+pas renseignées, ces sources renvoient simplement une liste vide (aucune erreur).
+
+### Adzuna (recommandé — fourchettes de salaire)
+1. Va sur **https://developer.adzuna.com/** → **Sign up** (gratuit).
+2. Une fois connecté, ouvre **« Dashboard »** : tu obtiens un **Application ID** et une **Application Key**.
+3. Dans Cloudflare → ton Worker → **Settings → Variables and Secrets → Add**, ajoute 2 **secrets** :
+
+   | Nom | Valeur |
+   |---|---|
+   | `ADZUNA_APP_ID` | ton Application ID |
+   | `ADZUNA_APP_KEY` | ton Application Key |
+
+### Jooble
+1. Va sur **https://jooble.org/api/about** → demande une clé API (gratuit).
+2. Ajoute dans Cloudflare un **secret** :
+
+   | Nom | Valeur |
+   |---|---|
+   | `JOOBLE_KEY` | ta clé API Jooble |
+
+3. **Save and deploy** le Worker (recolle d'abord le contenu à jour de `france-travail-proxy.js`).
+4. Tests rapides (remplace TON-COMPTE) :
+   - `…workers.dev/adzuna?what=juriste&where=Paris` → doit renvoyer `{"results":[…]}`
+   - `…workers.dev/jooble?keywords=juriste&location=Paris` → doit renvoyer `{"jobs":[…]}`
+
+Dans la page, la case **« Élargir la recherche à Adzuna et Jooble »** (cochée par défaut) active ou
+non ces sources. Le bandeau de résultats indique le détail : `France Travail : … · Adzuna : … · Jooble : …`.
+
+---
+
 ## Sécurité — récapitulatif
 - Le `client_secret` vit **uniquement** dans les secrets Cloudflare.
 - Le relais n'accepte que l'origine `ALLOWED_ORIGIN`.

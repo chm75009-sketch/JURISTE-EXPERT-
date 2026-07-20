@@ -100,6 +100,65 @@ export default {
       return json({ ok: true, service: 'france-travail-proxy' }, 200, cors);
     }
 
+    // ── Source complémentaire : Adzuna (agrégateur, salaires annuels) ──
+    // Secrets Cloudflare : ADZUNA_APP_ID, ADZUNA_APP_KEY
+    // GET /adzuna?what=...&where=...&page=1&results=50
+    if (url.pathname === '/adzuna') {
+      if (!env.ADZUNA_APP_ID || !env.ADZUNA_APP_KEY) {
+        return json({ results: [], error: 'ADZUNA_APP_ID / ADZUNA_APP_KEY manquants' }, 200, cors);
+      }
+      try {
+        const p = url.searchParams;
+        const page = (p.get('page') || '1').replace(/[^0-9]/g, '') || '1';
+        const a = new URLSearchParams({
+          app_id: env.ADZUNA_APP_ID,
+          app_key: env.ADZUNA_APP_KEY,
+          results_per_page: (p.get('results') || '50').replace(/[^0-9]/g, '') || '50',
+          'content-type': 'application/json',
+        });
+        if (p.get('what')) a.set('what', p.get('what'));
+        if (p.get('where')) a.set('where', p.get('where'));
+        const adz = 'https://api.adzuna.com/v1/api/jobs/fr/search/' + page + '?' + a.toString();
+        const r = await fetch(adz, { headers: { Accept: 'application/json' } });
+        const text = await r.text();
+        return new Response(text || '{"results":[]}', {
+          status: r.ok ? 200 : r.status,
+          headers: { 'Content-Type': 'application/json; charset=utf-8', ...cors },
+        });
+      } catch (e) {
+        return json({ results: [], error: String(e && e.message ? e.message : e) }, 200, cors);
+      }
+    }
+
+    // ── Source complémentaire : Jooble (agrégateur) ──
+    // Secret Cloudflare : JOOBLE_KEY
+    // GET /jooble?keywords=...&location=...&page=1
+    if (url.pathname === '/jooble') {
+      if (!env.JOOBLE_KEY) {
+        return json({ jobs: [], error: 'JOOBLE_KEY manquant' }, 200, cors);
+      }
+      try {
+        const p = url.searchParams;
+        const payload = {
+          keywords: p.get('keywords') || '',
+          location: p.get('location') || '',
+          page: (p.get('page') || '1').replace(/[^0-9]/g, '') || '1',
+        };
+        const r = await fetch('https://jooble.org/api/' + env.JOOBLE_KEY, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const text = await r.text();
+        return new Response(text || '{"jobs":[]}', {
+          status: r.ok ? 200 : r.status,
+          headers: { 'Content-Type': 'application/json; charset=utf-8', ...cors },
+        });
+      } catch (e) {
+        return json({ jobs: [], error: String(e && e.message ? e.message : e) }, 200, cors);
+      }
+    }
+
     if (url.pathname === '/metiers') {
       try {
         const token = await getToken(env);
