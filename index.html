@@ -369,7 +369,8 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       onkeydown="if(event.key==='Enter')verifierCode()"/>
     <button onclick="verifierCode()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#d4a017;color:#000;font-weight:700;font-size:15px;cursor:pointer">Déverrouiller</button>
     <div id="lock-error" style="color:#e05c5c;font-size:12px;margin-top:10px;min-height:16px"></div>
-    <div style="margin-top:16px"><a href="#" onclick="accueilShow();return false" style="color:#9a9585;font-size:12px;text-decoration:none">← Retour à l'accueil</a></div>
+    <a href="controle-minute.html" style="display:block;margin-top:14px;padding:11px;border-radius:10px;border:1px solid rgba(212,160,23,0.5);background:rgba(212,160,23,0.10);color:#e8c97a;font-weight:700;font-size:13.5px;text-decoration:none">🎯 Contrôle-minute gratuit — testez votre conformité →</a>
+    <div style="margin-top:14px"><a href="#" onclick="accueilShow();return false" style="color:#9a9585;font-size:12px;text-decoration:none">← Retour à l'accueil</a></div>
   </div>
 </div>
 
@@ -637,9 +638,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-19.88';
+var JX_BUILD = 'v2026-07-19.89';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-07-19.89', d:'20 juillet 2026', t:[
+   'CONTRÔLE-MINUTE PUBLIC — nouvelle page autonome et gratuite (controle-minute.html), accessible avant le code d\'accès (lien sur l\'écran de connexion). Sélecteur de secteur (Tous secteurs, HCR, Transport), questionnaire adapté, score de conformité, et pour chaque manquement l\'ARTICLE applicable ET la SANCTION encourue. Les documents correctifs et un DUER pré-rempli adapté au secteur se débloquent après inscription (e-mail).'
+ ]},
  {v:'v2026-07-19.88', d:'20 juillet 2026', t:[
    'CONVOCATION À ENTRETIEN PRÉALABLE — contrôle renforcé des adresses : lorsqu\'une assistance par un conseiller du salarié est mentionnée (entreprise sans CSE), l\'app vérifie désormais que la convocation indique bien l\'adresse de la MAIRIE ET celle de l\'inspection du travail (DDETS) où la liste est consultable. L\'absence de l\'une de ces adresses est signalée comme irrégularité (D.1232-4 ; Cass. soc. 29 avril 2003, n° 01-41.364) — le seul nom de la commune ne suffit pas. Corrige un ancien « ✓ conforme » affiché à tort quand les adresses manquaient.'
  ]},
