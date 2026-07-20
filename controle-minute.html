@@ -104,33 +104,33 @@ var SECTEURS=[
 
 var SOCLE=[
  {th:'📄 Embauche & contrat',items:[
-   {id:'dpae',q:'La DPAE (déclaration préalable à l\'embauche) doit être adressée à l\'URSSAF :',art:'art. L.1221-10, R.1221-1 C. trav.',san:'Travail dissimulé : jusqu\'à 3 ans d\'emprisonnement et 45 000 € (225 000 € pour la société) + redressement URSSAF.',fix:'Modèle de DPAE + procédure d\'embauche.',o:[
-     {t:'Avant l\'embauche (dans les 8 jours précédant la prise de poste)',ok:true},
-     {t:'Au plus tard le jour du premier bulletin de paie'},
-     {t:'Dans les 8 jours suivant la prise de poste'},
-     {t:'Uniquement pour les CDI'}]},
-   {id:'contrecrit',q:'Un CDD ou un contrat à temps partiel doit être écrit et remis au salarié :',art:'art. L.1242-13, L.3123-6 C. trav.',san:'Requalification en CDI (ou en temps plein) + indemnité de requalification ≥ 1 mois de salaire.',fix:'Modèles de CDD / avenant temps partiel conformes.',o:[
-     {t:'Dans les 2 jours ouvrables suivant l\'embauche',ok:true},
-     {t:'Dans le mois suivant l\'embauche'},
-     {t:'Au plus tard avec le premier bulletin de paie'},
-     {t:'La remise n\'est pas obligatoire si l\'accord est verbal'}]},
-   {id:'registre',q:'Le registre unique du personnel est obligatoire :',art:'art. L.1221-13 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné (3 750 € pour la société).',fix:'Trame de registre unique du personnel.',o:[
-     {t:'Dès le premier salarié embauché',ok:true},
-     {t:'À partir de 11 salariés'},
-     {t:'À partir de 50 salariés'},
-     {t:'Il a été supprimé par la DSN'}]}
+   {id:'dpae',q:'Une DPAE omise entraîne une condamnation pour travail dissimulé :',art:'art. L.8221-5 C. trav. · Cass. soc. (élément intentionnel)',san:'Travail dissimulé : jusqu\'à 3 ans d\'emprisonnement et 45 000 € (225 000 € pour la société) + redressement URSSAF.',fix:'Modèle de DPAE + procédure d\'embauche.',o:[
+     {t:'Seulement si un élément intentionnel est caractérisé — la seule omission ne suffit pas',ok:true},
+     {t:'Automatiquement, dès l\'omission constatée'},
+     {t:'Uniquement si le salarié n\'est jamais déclaré'},
+     {t:'Jamais : c\'est une simple contravention'}]},
+   {id:'contrecrit',q:'Un CDD transmis au salarié après le délai de 2 jours ouvrables (ou non signé) :',art:'art. L.1242-12, L.1242-13 C. trav. · Cass. soc. 17 juin 2005',san:'Requalification en CDI + indemnité de requalification ≥ 1 mois de salaire.',fix:'Modèles de CDD / avenant temps partiel conformes.',o:[
+     {t:'Équivaut à une absence d\'écrit et ouvre droit à la requalification en CDI',ok:true},
+     {t:'N\'a aucune conséquence si le motif est réel'},
+     {t:'Donne seulement lieu à une amende'},
+     {t:'Est régularisable par une signature a posteriori'}]},
+   {id:'registre',q:'Les mentions du registre unique du personnel relatives à un salarié doivent être conservées :',art:'art. L.1221-13, D.1221-27 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné (3 750 € pour la société).',fix:'Trame de registre unique du personnel.',o:[
+     {t:'5 ans à compter du départ du salarié',ok:true},
+     {t:'1 an à compter du départ'},
+     {t:'Jusqu\'au départ du salarié seulement'},
+     {t:'Il n\'existe aucune durée de conservation'}]}
  ]},
  {th:'⏱️ Durée du travail',items:[
-   {id:'repos',q:'Le repos quotidien minimal entre deux journées de travail est de :',art:'art. L.3131-1 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné.',fix:'Outil de suivi des repos + affichage des horaires.',o:[
-     {t:'11 heures consécutives',ok:true},
-     {t:'9 heures consécutives'},
-     {t:'12 heures consécutives'},
-     {t:'Il n\'y a pas de minimum légal'}]},
-   {id:'hsup',q:'À défaut d\'accord, les 8 premières heures supplémentaires (de la 36ᵉ à la 43ᵉ) sont majorées de :',art:'art. L.3121-36 C. trav.',san:'Rappel de salaire + majorations ; heures dissimulées = travail dissimulé (3 ans / 45 000 €).',fix:'Tableau de décompte du temps de travail.',o:[
-     {t:'25 %',ok:true},
-     {t:'10 %'},
-     {t:'50 %'},
-     {t:'Elles ne sont pas majorées'}]},
+   {id:'repos',q:'Par dérogation (accord collectif ou circonstances prévues), le repos quotidien de 11 h peut être réduit sans être inférieur à :',art:'art. L.3131-2, D.3131-5 C. trav.',san:'Contravention de 4ᵉ classe : 750 € par salarié concerné + contreparties dues.',fix:'Outil de suivi des repos + affichage des horaires.',o:[
+     {t:'9 heures',ok:true},
+     {t:'8 heures'},
+     {t:'10 heures'},
+     {t:'Il ne peut jamais être réduit'}]},
+   {id:'hsup',q:'Au-delà du contingent annuel d\'heures supplémentaires, le salarié bénéficie, EN PLUS des majorations :',art:'art. L.3121-30, L.3121-33 C. trav.',san:'Rappel de salaire + contrepartie en repos non prise ; heures dissimulées = travail dissimulé.',fix:'Tableau de décompte du temps de travail + suivi du contingent.',o:[
+     {t:'D\'une contrepartie obligatoire en repos',ok:true},
+     {t:'D\'aucun droit supplémentaire'},
+     {t:'D\'une prime légale de 10 %'},
+     {t:'D\'un simple repos de remplacement facultatif'}]},
    {id:'affhor',q:'En cas de litige sur le nombre d\'heures de travail réellement effectuées, la preuve :',art:'art. L.3171-4 C. trav.',san:'À défaut d\'éléments de l\'employeur, les heures invoquées par le salarié peuvent être retenues.',fix:'Modèle d\'affichage/relevé des horaires.',o:[
      {t:'Est partagée : l\'employeur doit produire ses propres éléments de décompte',ok:true},
      {t:'Incombe exclusivement au salarié'},
@@ -138,21 +138,21 @@ var SOCLE=[
      {t:'N\'incombe à personne, faute de badgeuse'}]}
  ]},
  {th:'🩺 Santé & sécurité',items:[
-   {id:'duer',q:'Le Document Unique d\'Évaluation des Risques (DUER) doit être mis à jour :',art:'art. R.4121-2 C. trav.',san:'Contravention de 5ᵉ classe : 1 500 € (3 000 € en récidive) ; en cas d\'accident, faute inexcusable possible.',fix:'DUER pré-rempli et adapté à votre secteur (ci-dessous).',o:[
-     {t:'Au moins chaque année dans les entreprises d\'au moins 11 salariés, et à chaque changement',ok:true},
-     {t:'Jamais, une fois établi'},
-     {t:'Uniquement après un accident du travail'},
-     {t:'Tous les 5 ans'}]},
-   {id:'spst',q:'La visite d\'information et de prévention (VIP) à l\'embauche doit intervenir :',art:'art. R.4624-10 C. trav.',san:'Manquement à l\'obligation de suivi médical ; responsabilité de l\'employeur en cas d\'atteinte à la santé.',fix:'Modèle de convocation à la visite médicale.',o:[
-     {t:'Dans un délai maximal de 3 mois après la prise de poste (avant, pour les postes à risque)',ok:true},
+   {id:'duer',q:'Depuis la loi du 2 août 2021, les versions successives du DUER doivent être conservées :',art:'art. L.4121-3-1 C. trav.',san:'Contravention de 5ᵉ classe : 1 500 € (3 000 € en récidive) ; en cas d\'accident, faute inexcusable possible.',fix:'DUER pré-rempli et adapté à votre secteur (ci-dessous).',o:[
+     {t:'Pendant au moins 40 ans',ok:true},
+     {t:'Pendant 5 ans'},
+     {t:'Pendant 1 an'},
+     {t:'Aucune obligation de conservation'}]},
+   {id:'spst',q:'Pour un poste à risques (suivi individuel renforcé), l\'examen médical d\'aptitude doit avoir lieu :',art:'art. R.4624-24 C. trav.',san:'Manquement à l\'obligation de suivi médical ; responsabilité de l\'employeur en cas d\'atteinte à la santé.',fix:'Modèle de convocation à la visite médicale.',o:[
+     {t:'AVANT l\'affectation au poste (préalablement à l\'embauche)',ok:true},
+     {t:'Dans les 3 mois suivant l\'embauche'},
      {t:'Dans l\'année qui suit l\'embauche'},
-     {t:'Seulement à la demande du salarié'},
-     {t:'Elle a été supprimée'}]},
-   {id:'at',q:'La déclaration d\'un accident du travail à la CPAM doit être faite dans :',art:'art. L.441-2, R.441-3 C. séc. soc.',san:'Amende + prise en charge des conséquences ; obstacle au contrôle = sanctions pénales.',fix:'Procédure interne AT + registre des accidents bénins.',o:[
-     {t:'48 heures (hors dimanches et jours fériés)',ok:true},
-     {t:'24 heures'},
-     {t:'8 jours'},
-     {t:'1 mois'}]}
+     {t:'Après la période d\'essai'}]},
+   {id:'at',q:'L\'employeur qui conteste le caractère professionnel d\'un accident doit, lors de la déclaration :',art:'art. L.441-2, R.441-6 C. séc. soc.',san:'À défaut de réserves motivées, prise en charge acquise ; obstacle au contrôle = sanctions pénales.',fix:'Procédure interne AT + réserves motivées type.',o:[
+     {t:'Émettre des réserves motivées (temps, lieu de l\'accident ou cause étrangère au travail)',ok:true},
+     {t:'Refuser d\'établir la déclaration d\'accident'},
+     {t:'Attendre la décision de la CPAM sans rien faire'},
+     {t:'Saisir directement le tribunal judiciaire'}]}
  ]},
  {th:'🗳️ Représentation du personnel',items:[
    {id:'cse',q:'La mise en place du CSE devient obligatoire lorsque l\'effectif atteint :',art:'art. L.2311-2 C. trav.',san:'Délit d\'entrave : 7 500 € d\'amende (personne physique), 37 500 € pour la société.',fix:'Kit élections CSE (protocole, convocations, PV).',o:[
@@ -162,45 +162,45 @@ var SOCLE=[
      {t:'Le CSE est facultatif'}]}
  ]},
  {th:'📢 Affichages & obligations',items:[
-   {id:'affobl',q:'Les informations sur le harcèlement moral et sexuel, avec les voies de recours (dont le Défenseur des droits) :',art:'art. L.1152-4, L.1153-5 C. trav.',san:'Contraventions ; manquement à l\'obligation de prévention.',fix:'Panneau d\'affichage obligatoire prêt à imprimer.',o:[
-     {t:'Doivent être portées à la connaissance des salariés dans les lieux de travail et d\'embauche',ok:true},
-     {t:'Ne sont affichées qu\'à la demande du CSE'},
-     {t:'Ne concernent que les entreprises d\'au moins 50 salariés'},
-     {t:'Ne sont pas obligatoires'}]},
-   {id:'ccn',q:'Un salarié rémunéré en dessous du minimum de sa convention collective (mais au-dessus du SMIC) :',art:'art. L.2261-2 C. trav.',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Fiche de votre CCN + grille de minima.',o:[
-     {t:'Peut réclamer un rappel de salaire jusqu\'au minimum conventionnel, sur 3 ans',ok:true},
-     {t:'N\'a droit à rien puisque le SMIC est respecté'},
-     {t:'Ne peut réclamer que sur 1 an'},
-     {t:'Doit d\'abord obtenir l\'accord de l\'employeur'}]}
+   {id:'affobl',q:'Dans une entreprise dotée d\'un CSE, le référent en matière de lutte contre le harcèlement sexuel est désigné :',art:'art. L.2314-1, L.1153-5-1 C. trav.',san:'Manquement à l\'obligation de prévention ; dommages-intérêts distincts.',fix:'Désignation référents + panneau d\'affichage obligatoire.',o:[
+     {t:'Par le CSE, parmi ses membres, quel que soit l\'effectif',ok:true},
+     {t:'Uniquement dans les entreprises d\'au moins 250 salariés'},
+     {t:'Uniquement à partir de 50 salariés'},
+     {t:'Il n\'est pas obligatoire'}]},
+   {id:'ccn',q:'L\'action d\'un salarié en rappel de salaire (minima conventionnels non respectés) se prescrit par :',art:'art. L.3245-1 C. trav.',san:'Rappels de salaire sur 3 ans, appliqués d\'office par le juge.',fix:'Fiche de votre CCN + grille de minima.',o:[
+     {t:'3 ans (portant sur les sommes dues au titre des 3 dernières années)',ok:true},
+     {t:'1 an'},
+     {t:'5 ans'},
+     {t:'2 ans'}]}
  ]},
  {th:'🚪 Fin de contrat',items:[
-   {id:'findoc',q:'À la fin du contrat, l\'attestation destinée à France Travail (ex-Pôle emploi) :',art:'art. R.1234-9 C. trav., L.5421-1 s.',san:'Dommages-intérêts au salarié (préjudice) + amende pour non-remise.',fix:'Pack documents de fin de contrat.',o:[
-     {t:'Doit être remise au salarié et transmise à France Travail, quel que soit le motif de rupture',ok:true},
-     {t:'N\'est due qu\'en cas de licenciement'},
-     {t:'Est facultative depuis la DSN'},
-     {t:'Est remplacée par le certificat de travail'}]},
-   {id:'presc',q:'À compter du jour où il a connaissance d\'une faute, l\'employeur doit engager les poursuites disciplinaires dans :',art:'art. L.1332-4 C. trav.',san:'Sanction/licenciement sans cause réelle et sérieuse : indemnité (barème) + procédure annulée.',fix:'Trames disciplinaires conformes (convocation, notification).',o:[
-     {t:'2 mois',ok:true},
-     {t:'1 mois'},
-     {t:'6 mois'},
-     {t:'Il n\'y a aucun délai'}]}
+   {id:'findoc',q:'Le reçu pour solde de tout compte signé par le salarié peut être dénoncé par lui dans un délai de :',art:'art. L.1234-20 C. trav.',san:'Non-libératoire hors délai ; contentieux sur les sommes dues.',fix:'Pack documents de fin de contrat (reçu conforme).',o:[
+     {t:'6 mois (au-delà, il devient libératoire pour les sommes mentionnées)',ok:true},
+     {t:'2 mois'},
+     {t:'1 an'},
+     {t:'Il est définitif dès la signature'}]},
+   {id:'presc',q:'Après l\'entretien préalable, la sanction disciplinaire doit être notifiée :',art:'art. L.1332-2 C. trav.',san:'Sanction hors délai = irrégulière/annulable ; procédure à refaire.',fix:'Trames disciplinaires conformes (convocation, notification).',o:[
+     {t:'Au moins 2 jours ouvrables après l\'entretien et au plus tard 1 mois après',ok:true},
+     {t:'Immédiatement à l\'issue de l\'entretien'},
+     {t:'Dans les 2 mois de l\'entretien'},
+     {t:'Sans aucun délai maximal'}]}
  ]},
  {th:'🔁 Obligations RH transverses',items:[
-   {id:'entretpro',q:'L\'entretien professionnel (distinct de l\'entretien d\'évaluation) doit être proposé :',art:'art. L.6315-1 C. trav.',san:'Entreprise ≥ 50 salariés : abondement correctif du CPF de 3 000 € par salarié concerné.',fix:'Trame d\'entretien professionnel + suivi.',o:[
-     {t:'Tous les 2 ans, avec un état des lieux récapitulatif tous les 6 ans',ok:true},
-     {t:'Chaque année'},
-     {t:'Uniquement à la demande du salarié'},
-     {t:'Tous les 5 ans'}]},
-   {id:'egalite',q:'L\'index de l\'égalité femmes-hommes doit être calculé et publié par les entreprises d\'au moins :',art:'art. L.1142-8 C. trav.',san:'Pénalité financière jusqu\'à 1 % de la masse salariale.',fix:'Aide au calcul de l\'index égalité.',o:[
-     {t:'50 salariés',ok:true},
-     {t:'11 salariés'},
-     {t:'250 salariés'},
-     {t:'1 000 salariés'}]},
-   {id:'deco',q:'Le droit à la déconnexion des salariés :',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte / accord droit à la déconnexion.',o:[
-     {t:'Doit faire l\'objet d\'une négociation (accord) ou, à défaut, d\'une charte',ok:true},
-     {t:'Est une simple bonne pratique facultative'},
-     {t:'Ne concerne que les cadres dirigeants'},
-     {t:'N\'existe pas en droit français'}]}
+   {id:'entretpro',q:'Au retour de quel(s) événement(s) l\'entretien professionnel doit-il être systématiquement proposé (sans attendre l\'échéance des 2 ans) ?',art:'art. L.6315-1 C. trav.',san:'Entreprise ≥ 50 salariés : abondement correctif du CPF de 3 000 € par salarié concerné.',fix:'Trame d\'entretien professionnel + suivi.',o:[
+     {t:'Congé maternité/parental, longue maladie, mandat, congé sabbatique, proche aidant, etc.',ok:true},
+     {t:'Uniquement au retour de congé maternité'},
+     {t:'Aucun retour ne l\'impose avant les 2 ans'},
+     {t:'Seulement après 6 ans d\'ancienneté'}]},
+   {id:'egalite',q:'L\'index de l\'égalité femmes-hommes (entreprises ≥ 50 salariés) doit être publié chaque année au plus tard le :',art:'art. L.1142-8, D.1142-4 C. trav.',san:'Pénalité financière jusqu\'à 1 % de la masse salariale ; note < 75/100 = mesures correctives.',fix:'Aide au calcul et à la publication de l\'index égalité.',o:[
+     {t:'1er mars',ok:true},
+     {t:'31 décembre'},
+     {t:'30 juin'},
+     {t:'Il n\'y a pas de date imposée'}]},
+   {id:'deco',q:'À défaut d\'accord, la charte sur le droit à la déconnexion est élaborée par l\'employeur :',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte / accord droit à la déconnexion.',o:[
+     {t:'Après avis du CSE',ok:true},
+     {t:'Sans consultation, elle relève du seul employeur'},
+     {t:'Après accord de l\'inspection du travail'},
+     {t:'Après vote des seuls cadres'}]}
  ]},
  {th:'🎓 Points techniques & jurisprudence (souvent non maîtrisés)',items:[
    {id:'harcprev',q:'L\'obligation de prévention du harcèlement est respectée :',art:'art. L.1152-4 · Cass. soc. 1ᵉʳ juin 2016 n° 14-19.702',san:'Manquement à l\'obligation de prévention MÊME sans harcèlement avéré : dommages-intérêts distincts.',fix:'Procédure de prévention et de signalement du harcèlement.',o:[
