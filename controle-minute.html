@@ -16,10 +16,18 @@
   .q{border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0;background:#12203400}
   .q .txt{font-size:14px;margin-bottom:9px}
   .opts{display:flex;gap:7px;flex-wrap:wrap}
+  .opts.col{flex-direction:column;gap:6px}
   .opt{flex:1;min-width:92px;text-align:center;padding:9px 6px;border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);user-select:none}
-  .opt.sel-oui{background:rgba(63,174,116,.18);border-color:var(--ok);color:#bff0d4}
-  .opt.sel-non{background:rgba(224,87,79,.18);border-color:var(--ko);color:#f5c6c2}
-  .opt.sel-nc{background:rgba(159,176,196,.14);border-color:var(--muted);color:#d8e2ee}
+  .optq{flex:none;width:100%;text-align:left;padding:10px 12px;font-size:13px;font-weight:500;color:var(--ink);position:relative;padding-left:34px;transition:border-color .12s,background .12s}
+  .optq:before{content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
+  .optq:hover{border-color:var(--gold)}
+  .optq.sel{background:rgba(201,168,76,.12);border-color:var(--gold);color:#fff;font-weight:600}
+  .optq.sel:before{border-color:var(--gold);background:radial-gradient(var(--gold) 40%,transparent 46%)}
+  .optq.sel.good{background:rgba(63,174,116,.16);border-color:var(--ok)}
+  .optq.sel.good:before{border-color:var(--ok);background:radial-gradient(var(--ok) 40%,transparent 46%)}
+  .optq.sel.nc{background:rgba(159,176,196,.14);border-color:var(--muted)}
+  .optq.sel.nc:before{border-color:var(--muted);background:radial-gradient(var(--muted) 40%,transparent 46%)}
+  .man .rep{font-size:12px;color:#e8d9b0;font-style:italic;margin-top:4px}
   .secbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
   .secbtn{padding:12px 15px;border:1.5px solid var(--line);border-radius:11px;background:#0c1728;color:var(--ink);font-size:14.5px;font-weight:700;cursor:pointer;line-height:1.2}
   .secbtn:hover{border-color:var(--gold)}
@@ -68,7 +76,7 @@
         <button class="btn ghost" style="width:auto;padding:9px 12px;margin:0" onclick="cmReset()">↺ Changer de secteur</button>
         <button class="btn ghost" style="width:auto;padding:9px 12px;margin:0" onclick="cmClear()">🔄 Vider mes réponses</button>
       </div>
-      <label class="fl">2 · Répondez — Oui (conforme) · Non (manquement) · N/C (non concerné)</label>
+      <label class="fl">2 · Pour chaque point, choisissez la réponse la plus honnête — seule la réponse pleinement formalisée et prouvable compte comme conforme</label>
       <div id="cm-list"></div>
       <button class="btn" onclick="cmScore()">Voir mon score et mes manquements ⚖️</button>
     </div>
@@ -127,16 +135,48 @@ var SOCLE=[
    {id:'deco',q:'Le droit à la déconnexion est-il défini (accord ou charte) ?',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte droit à la déconnexion.'}
  ]},
  {th:'🎓 Points techniques & jurisprudence (souvent non conformes)',items:[
-   {id:'harcprev',q:'Avez-vous un dispositif de PRÉVENTION du harcèlement moral et sexuel (information, procédure de signalement, référent, affichage) — au-delà de la simple interdiction ?',art:'art. L.1152-4, L.1153-5 · Cass. soc. 1ᵉʳ juin 2016 n° 14-19.702',san:'Manquement à l\'obligation de prévention MÊME sans harcèlement avéré : dommages-intérêts distincts.',fix:'Procédure de prévention et de signalement du harcèlement.'},
-   {id:'harcenq',q:'En cas de signalement de harcèlement, menez-vous systématiquement une ENQUÊTE interne sérieuse et impartiale ?',art:'Cass. soc. 27 nov. 2019 n° 18-10.551',san:'L\'absence d\'enquête caractérise à elle seule un manquement à l\'obligation de sécurité : dommages-intérêts.',fix:'Trame d\'enquête interne harcèlement.'},
-   {id:'secu',q:'Pouvez-vous PROUVER des actions concrètes de prévention (évaluation, formation, mesures), au-delà du DUER ?',art:'art. L.4121-1 · Cass. soc. 25 nov. 2015 n° 14-24.444 (obligation de sécurité — moyens renforcée)',san:'Faute inexcusable en cas d\'accident/maladie : majoration de rente + réparation intégrale.',fix:'Plan d\'actions de prévention.'},
-   {id:'tempsdecompte',q:'Disposez-vous d\'un système OBJECTIF, FIABLE et ACCESSIBLE de décompte du temps de travail de chaque salarié (cadres au forfait compris) ?',art:'art. L.3171-2 · CJUE 14 mai 2019 C-55/18 (CCOO)',san:'En cas de litige, la preuve ne pèse pas sur le seul salarié : rappels d\'heures supplémentaires sur 3 ans.',fix:'Outil de décompte du temps de travail.'},
-   {id:'forfaitsuivi',q:'Si forfait-jours : la charge de travail fait-elle l\'objet d\'un SUIVI régulier et effectif (relevés, entretiens, droit d\'alerte) ?',art:'art. L.3121-64 · Cass. soc. 29 juin 2011 n° 09-71.107',san:'Forfait NUL : rappel de TOUTES les heures supplémentaires sur 3 ans.',fix:'Support de suivi de la charge (forfait-jours).'},
-   {id:'surveillance',q:'Vos dispositifs de surveillance (vidéo, géolocalisation, badges, contrôle informatique) sont-ils PROPORTIONNÉS, déclarés et précédés d\'une information des salariés ET du CSE ?',art:'art. L.1222-4, L.2312-38 · RGPD · Cass. soc. 10 nov. 2021 n° 20-12.263',san:'Preuve illicite écartée + dommages-intérêts + sanctions CNIL (jusqu\'à 4 % du CA mondial).',fix:'Registre + notes d\'information des dispositifs de contrôle.'},
-   {id:'egaltrait',q:'Les écarts de rémunération entre salariés au travail égal (ou de valeur égale) sont-ils justifiés par des éléments OBJECTIFS et vérifiables ?',art:'« à travail égal, salaire égal » · Cass. soc. 29 oct. 1996 n° 92-43.680 (Ponsolle)',san:'Rappels de salaire (alignement sur le mieux rémunéré) sur 3 ans.',fix:'Analyse des écarts de rémunération.'},
-   {id:'modifcontrat',q:'Distinguez-vous modification du CONTRAT (accord écrit requis) et simple changement des conditions de travail avant toute évolution du poste, du lieu ou de la rémunération ?',art:'art. 1103 C. civ. · Cass. soc. 10 juil. 1996 n° 93-41.137',san:'Modification imposée = prise d\'acte / licenciement sans cause réelle et sérieuse.',fix:'Procédure de modification du contrat (avenant).'},
-   {id:'nonconc',q:'Vos clauses de non-concurrence prévoient-elles une CONTREPARTIE FINANCIÈRE et sont-elles limitées dans le temps, l\'espace et l\'activité ?',art:'Cass. soc. 10 juil. 2002 n° 00-45.135',san:'Clause NULLE sans contrepartie ; si vous l\'appliquez : dommages-intérêts au salarié.',fix:'Clause de non-concurrence conforme.'},
-   {id:'lanceur',q:'Si ≥ 50 salariés : avez-vous une PROCÉDURE INTERNE de recueil des signalements (lanceur d\'alerte) conforme ?',art:'loi n° 2022-401 du 21 mars 2022 · décret n° 2022-1284',san:'Manquement + nullité des représailles contre le lanceur d\'alerte.',fix:'Procédure lanceur d\'alerte.'}
+   {id:'harcprev',q:'Prévention du harcèlement moral et sexuel — où en êtes-vous, au-delà de la simple interdiction ?',art:'art. L.1152-4, L.1153-5 · Cass. soc. 1ᵉʳ juin 2016 n° 14-19.702',san:'Manquement à l\'obligation de prévention MÊME sans harcèlement avéré : dommages-intérêts distincts.',fix:'Procédure de prévention et de signalement du harcèlement.',o:[
+     {t:'Dispositif complet : référent(s) désigné(s), procédure de signalement écrite, information des salariés et affichage à jour',s:1},
+     {t:'Seulement l\'interdiction rappelée (affichage / règlement intérieur), sans procédure de prévention active',s:.25},
+     {t:'Rien de spécifique au-delà de la loi',s:0}]},
+   {id:'harcenq',q:'Face à un signalement de harcèlement, comment réagissez-vous ?',art:'Cass. soc. 27 nov. 2019 n° 18-10.551',san:'L\'absence d\'enquête caractérise à elle seule un manquement à l\'obligation de sécurité : dommages-intérêts.',fix:'Trame d\'enquête interne harcèlement.',o:[
+     {t:'Enquête interne systématique, sérieuse et impartiale, tracée par écrit, avec mesures à la clé',s:1},
+     {t:'On en parle / on gère au cas par cas, sans enquête formalisée',s:.2},
+     {t:'Aucune procédure prévue',s:0}]},
+   {id:'secu',q:'Vos actions de prévention (obligation de sécurité), au-delà du DUER, sont-elles prouvables ?',art:'art. L.4121-1 · Cass. soc. 25 nov. 2015 n° 14-24.444 (obligation de sécurité — moyens renforcée)',san:'Faute inexcusable en cas d\'accident/maladie : majoration de rente + réparation intégrale.',fix:'Plan d\'actions de prévention.',o:[
+     {t:'Plan d\'actions écrit et suivi : évaluation, formations, mesures concrètes, preuves conservées',s:1},
+     {t:'Quelques actions ponctuelles, non formalisées ni traçées',s:.3},
+     {t:'Rien au-delà du DUER',s:0}]},
+   {id:'tempsdecompte',q:'Comment décomptez-vous le temps de travail de chaque salarié (cadres au forfait compris) ?',art:'art. L.3171-2 · CJUE 14 mai 2019 C-55/18 (CCOO)',san:'En cas de litige, la preuve ne pèse pas sur le seul salarié : rappels d\'heures supplémentaires sur 3 ans.',fix:'Outil de décompte du temps de travail.',o:[
+     {t:'Système objectif, fiable et accessible pour TOUS (badgeuse/relevés), y compris forfaits',s:1},
+     {t:'Décompte partiel, déclaratif ou uniquement pour certains salariés',s:.3},
+     {t:'Aucun décompte fiable',s:0}]},
+   {id:'forfaitsuivi',q:'Forfait-jours : comment suivez-vous la charge de travail ?',art:'art. L.3121-64 · Cass. soc. 29 juin 2011 n° 09-71.107',san:'Forfait NUL : rappel de TOUTES les heures supplémentaires sur 3 ans.',fix:'Support de suivi de la charge (forfait-jours).',o:[
+     {t:'Suivi effectif : relevés réguliers, entretien annuel dédié, dispositif d\'alerte, le tout tracé',s:1},
+     {t:'Forfait signé mais suivi de la charge quasi inexistant',s:.15},
+     {t:'Forfaits appliqués sans aucun suivi',s:0},
+     {t:'Non concerné (pas de forfait-jours)',s:'nc'}]},
+   {id:'surveillance',q:'Vos dispositifs de surveillance (vidéo, géolocalisation, badges, contrôle informatique) — comment sont-ils encadrés ?',art:'art. L.1222-4, L.2312-38 · RGPD · Cass. soc. 10 nov. 2021 n° 20-12.263',san:'Preuve illicite écartée + dommages-intérêts + sanctions CNIL (jusqu\'à 4 % du CA mondial).',fix:'Registre + notes d\'information des dispositifs de contrôle.',o:[
+     {t:'Proportionnés, information écrite des salariés ET consultation du CSE, inscrits au registre RGPD',s:1},
+     {t:'En place mais sans information préalable complète ou sans consultation du CSE',s:.2},
+     {t:'Aucune formalité (ni information, ni CSE, ni registre)',s:0},
+     {t:'Non concerné (aucun dispositif)',s:'nc'}]},
+   {id:'egaltrait',q:'Les écarts de rémunération à travail égal (ou de valeur égale) — sont-ils justifiables ?',art:'« à travail égal, salaire égal » · Cass. soc. 29 oct. 1996 n° 92-43.680 (Ponsolle)',san:'Rappels de salaire (alignement sur le mieux rémunéré) sur 3 ans.',fix:'Analyse des écarts de rémunération.',o:[
+     {t:'Écarts justifiés par des critères objectifs, écrits et vérifiables (expérience, diplôme, performance mesurée)',s:1},
+     {t:'Écarts existants mais justification floue ou non formalisée',s:.3},
+     {t:'Jamais analysé',s:0}]},
+   {id:'modifcontrat',q:'Avant de modifier poste, lieu ou rémunération, distinguez-vous modification du contrat et changement des conditions de travail ?',art:'art. 1103 C. civ. · Cass. soc. 10 juil. 1996 n° 93-41.137',san:'Modification imposée = prise d\'acte / licenciement sans cause réelle et sérieuse.',fix:'Procédure de modification du contrat (avenant).',o:[
+     {t:'Oui : avenant écrit et accord du salarié pour toute modification d\'un élément essentiel du contrat',s:1},
+     {t:'Au cas par cas, sans procédure claire',s:.3},
+     {t:'On impose les changements sans avenant',s:0}]},
+   {id:'nonconc',q:'Vos clauses de non-concurrence — sont-elles valables ?',art:'Cass. soc. 10 juil. 2002 n° 00-45.135',san:'Clause NULLE sans contrepartie ; si vous l\'appliquez : dommages-intérêts au salarié.',fix:'Clause de non-concurrence conforme.',o:[
+     {t:'Contrepartie financière prévue + limitées dans le temps, l\'espace et l\'activité',s:1},
+     {t:'Clause présente mais sans contrepartie financière (ou disproportionnée)',s:0},
+     {t:'Non concerné (aucune clause de non-concurrence)',s:'nc'}]},
+   {id:'lanceur',q:'Recueil des signalements (lanceur d\'alerte) — où en êtes-vous ?',art:'loi n° 2022-401 du 21 mars 2022 · décret n° 2022-1284',san:'Manquement + nullité des représailles contre le lanceur d\'alerte.',fix:'Procédure lanceur d\'alerte.',o:[
+     {t:'Procédure interne écrite et diffusée, canal de recueil identifié, confidentialité garantie',s:1},
+     {t:'Rien de formalisé',s:0},
+     {t:'Non concerné (< 50 salariés)',s:'nc'}]}
  ]}
 ];
 
@@ -270,10 +310,21 @@ var DUER_BASE={
 };
 
 /* ===================== LOGIQUE ===================== */
-var A={}; /* réponses {id:'oui'|'non'|'nc'} */
+var A={}; /* réponses {id: index de l'option choisie} */
 var CURSEC='';
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function $(id){return document.getElementById(id);}
+
+/* Échelle graduée par défaut (QCM) — seule la 1ʳᵉ réponse = pleinement conforme.
+   s = taux de conformité (1 = conforme ; 0 = manquement ; 'nc' = non concerné). */
+var DEFAULT_OPTS=[
+  {t:'Oui — formalisé, à jour et je peux le prouver (écrit / traçabilité)',s:1},
+  {t:'En partie — oral, incomplet, non à jour ou sans preuve',s:.3},
+  {t:'Non — non mis en place',s:0},
+  {t:'Non concerné',s:'nc'}
+];
+/* Options d'une question : celles définies (it.o) ou l'échelle par défaut. */
+function optsFor(it){return (it && it.o && it.o.length) ? it.o : DEFAULT_OPTS;}
 
 (function initSec(){
   var s=$('secteur');SECTEURS.forEach(function(x){var o=document.createElement('option');o.value=x.id;o.textContent=x.nom;s.appendChild(o);});
@@ -293,11 +344,12 @@ window.cmPick=function(){
   groups.forEach(function(g){
     h+='<div class="grp-t">'+esc(g.th)+'</div>';
     g.items.forEach(function(it){
-      h+='<div class="q" id="q-'+it.id+'"><div class="txt">'+esc(it.q)+'</div><div class="opts">'
-       +'<div class="opt" data-id="'+it.id+'" data-v="oui" onclick="cmSet(this)">✅ Oui</div>'
-       +'<div class="opt" data-id="'+it.id+'" data-v="non" onclick="cmSet(this)">❌ Non</div>'
-       +'<div class="opt" data-id="'+it.id+'" data-v="nc" onclick="cmSet(this)">◽ N/C</div>'
-       +'</div></div>';
+      var opts=optsFor(it),oh='';
+      opts.forEach(function(op,i){
+        var cls=op.s==='nc'?'opt optq nc':(op.s===1?'opt optq good':'opt optq');
+        oh+='<div class="'+cls+'" data-id="'+it.id+'" data-i="'+i+'" onclick="cmSet(this)">'+esc(op.t)+'</div>';
+      });
+      h+='<div class="q" id="q-'+it.id+'"><div class="txt">'+esc(it.q)+'</div><div class="opts col">'+oh+'</div></div>';
     });
   });
   $('cm-list').innerHTML=h;
@@ -306,9 +358,10 @@ window.cmPick=function(){
 };
 
 window.cmSet=function(el){
-  var id=el.getAttribute('data-id'),v=el.getAttribute('data-v');A[id]=v;
-  var box=el.parentNode;box.querySelectorAll('.opt').forEach(function(o){o.className='opt';});
-  el.className='opt sel-'+v;
+  var id=el.getAttribute('data-id'),i=+el.getAttribute('data-i');A[id]=i;
+  var box=el.parentNode;
+  box.querySelectorAll('.optq').forEach(function(o){o.classList.remove('sel');});
+  el.classList.add('sel');
 };
 
 /* Réinitialisation complète : on repart au choix du secteur */
@@ -336,9 +389,24 @@ function allItems(){var out=[];questionsFor(CURSEC).forEach(function(g){g.items.
 
 // Points à fort enjeu (jurisprudence / risque prud'homal élevé) : pondérés x3 dans le score
 var EXPERT_IDS={harcprev:1,harcenq:1,secu:1,tempsdecompte:1,forfaitsuivi:1,surveillance:1,egaltrait:1,modifcontrat:1,nonconc:1,lanceur:1,duer:1,cse:1,dpae:1,bq_forfait:1,as_forfait:1,sy_forfait:1};
+/* Renvoie les manquements (item + réponse choisie) : toute réponse dont s<1. */
+function cmManquements(){
+  var man=[];
+  allItems().forEach(function(it){
+    var i=A[it.id];if(i==null)return;
+    var op=optsFor(it)[i];if(!op||op.s==='nc')return;
+    if(op.s<1) man.push({it:it,rep:op.t,s:op.s});
+  });
+  return man;
+}
 window.cmScore=function(){
   var items=allItems(),conf=0,man=[],applic=0;
-  items.forEach(function(it){var v=A[it.id];if(v==='nc'||v==null)return;var w=EXPERT_IDS[it.id]?3:1;applic+=w;if(v==='oui')conf+=w;else man.push(it);});
+  items.forEach(function(it){
+    var i=A[it.id];if(i==null)return;
+    var op=optsFor(it)[i];if(!op||op.s==='nc')return;
+    var w=EXPERT_IDS[it.id]?3:1;applic+=w;conf+=w*op.s;
+    if(op.s<1) man.push({it:it,rep:op.t,s:op.s});
+  });
   var pct=applic?Math.round(conf/applic*100):0;
   CM_LASTPCT=pct;
   var col=pct>=80?'#3fae74':(pct>=50?'#e0a83a':'#e0574f');
@@ -364,8 +432,10 @@ window.cmScore=function(){
 function commentedHtml(man){
   if(!man.length) return '<p class="hint">Aucun manquement à commenter : vos réponses sont conformes sur les points applicables. Le DUER reste obligatoire (ci-dessous).</p>';
   var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos réponses commentées — article & sanction encourue :</b></div>';
-  man.forEach(function(it){
+  man.forEach(function(m){
+    var it=m.it||m;
     h+='<div class="man"><div class="mt">'+esc(it.q)+'</div>'
+     +(m.rep?'<div class="rep">📝 Votre réponse : «&nbsp;'+esc(m.rep)+'&nbsp;»'+(m.s>0?' — partiellement conforme':'')+'</div>':'')
      +'<div class="art">📘 '+esc(it.art)+'</div>'
      +'<div class="san">⚠️ Sanction : '+esc(it.san)+'</div>'
      +'<div class="fix">🛠️ À régulariser : '+esc(it.fix)+'</div></div>';
@@ -393,7 +463,7 @@ function lockedSection(man,inscrit){
 function documentsHtml(man){
   if(!man.length) return '<p class="hint">Aucun document correctif nécessaire : votre conformité est bonne. Le DUER reste obligatoire (ci-dessous).</p>';
   var h='<div style="margin-bottom:10px"><b style="color:var(--gold2)">Documents recommandés pour vos manquements :</b></div>';
-  man.forEach(function(it){h+='<div class="doc">📄 <b>'+esc(it.fix)+'</b><br><span class="hint">'+esc(it.art)+'</span></div>';});
+  man.forEach(function(m){var it=m.it||m;h+='<div class="doc">📄 <b>'+esc(it.fix)+'</b><br><span class="hint">'+esc(it.art)+'</span></div>';});
   return h;
 }
 
@@ -420,7 +490,7 @@ window.cmUnlock=function(){
   try{localStorage.setItem('cm_inscrit',e);}catch(e2){}
   var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||CURSEC;
   // 1) Débloquer le contenu tout de suite
-  var man=allItems().filter(function(it){return A[it.id]==='non';});
+  var man=cmManquements();
   $('cm-locked').innerHTML=lockedSection(man,true);
   $('cm-locked').scrollIntoView({behavior:'smooth',block:'start'});
   // 2) Transmettre le lead
