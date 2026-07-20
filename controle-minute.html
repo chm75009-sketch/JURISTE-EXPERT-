@@ -58,7 +58,7 @@
 <div class="wrap">
   <span class="badge">Gratuit · sans inscription</span>
   <h1>Contrôle-minute</h1>
-  <p class="sub">Êtes-vous prêt pour un contrôle de l'inspection du travail / URSSAF ? <b>Quiz de conformité</b> : à chaque question, une seule réponse est juridiquement exacte. Vous obtenez votre <b>score</b>, vos <b>manquements</b> avec l'<b>article</b>, la <b>réponse exacte</b> et la <b>sanction encourue</b>, puis des <b>documents correctifs</b> et un <b>DUER</b> adaptés.</p>
+  <p class="sub">Êtes-vous prêt pour un contrôle de l'inspection du travail / URSSAF ? <b>Quiz de conformité</b> : à chaque question, une seule réponse est juridiquement exacte. Votre <b>score</b> est gratuit ; une <b>fiche</b> débloque la <b>réponse exacte</b>, l'<b>article</b> et la <b>sanction</b> de chaque question ratée. Documents correctifs et DUER sur mesure : en option.</p>
 
   <div class="card no-print">
     <label class="fl">1 · Choisissez votre secteur</label>
@@ -662,41 +662,59 @@ window.cmScore=function(){
 };
 
 function commentedHtml(man){
-  if(!man.length) return '<p class="hint">Aucune réponse inexacte : vos réponses sont conformes sur les points applicables. Le DUER reste obligatoire (ci-dessous).</p>';
+  if(!man.length) return '<p class="hint">Aucune réponse inexacte : vos réponses sont conformes sur les points applicables.</p>';
   var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos réponses inexactes — réponse exacte, article & sanction :</b></div>';
   man.forEach(function(m){
     h+='<div class="man"><div class="mt">'+esc(m.it.q)+'</div>'
      +'<div class="rep">❌ Votre réponse : «&nbsp;'+esc(m.rep)+'&nbsp;»</div>'
      +'<div class="good">✅ Réponse exacte : '+esc(m.good)+'</div>'
      +'<div class="art">📘 '+esc(m.it.art)+'</div>'
-     +'<div class="san">⚠️ Sanction : '+esc(m.it.san)+'</div>'
-     +'<div class="fix">🛠️ À régulariser : '+esc(m.it.fix)+'</div></div>';
+     +'<div class="san">⚠️ Sanction : '+esc(m.it.san)+'</div></div>';
   });
   return h;
 }
 
-function lockedSection(man,inscrit){
-  var inner=commentedHtml(man)+'<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">'+documentsHtml(man)+duerHtml();
-  if(inscrit){
-    return '<div class="card"><div class="grp-t" style="margin-top:0">🔓 Analyse détaillée, documents & DUER</div>'+inner
-      +'<button class="btn ghost no-print" onclick="window.print()">🖨️ Imprimer / enregistrer en PDF</button></div>';
-  }
-  return '<div class="card lockwrap">'
-    +'<div class="lock">'+inner+'</div>'
-    +'<div class="lockover"><div class="lockcard">'
-      +'<div class="grp-t" style="margin-top:0">🔒 Réservé aux clients enregistrés</div>'
-      +'<p class="hint" style="margin:0 0 10px">Votre <b>score</b> est gratuit. Pour voir la <b>réponse exacte</b> de chaque question ratée, l\'<b>article</b> et la <b>sanction encourue</b>, les <b>documents correctifs</b> et votre <b>DUER pré-rempli</b>, connectez-vous ou créez votre accès.</p>'
-      +'<input id="cm-email" type="email" placeholder="votre@email.fr" style="margin-bottom:8px">'
-      +'<button class="btn" onclick="cmUnlock()">Voir mon analyse détaillée</button>'
-      +'<p class="hint" style="margin:8px 0 0">Un e-mail pré-rempli s\'ouvrira pour finaliser votre inscription auprès de <b>r.t.h@orange.fr</b>. Sinon, écrivez-nous directement à <a href="mailto:r.t.h@orange.fr">r.t.h@orange.fr</a>. Aucun spam.</p>'
-    +'</div></div></div>';
+/* La fiche ne donne accès QU'AUX RÉPONSES. Les documents correctifs et le DUER
+   sur mesure relèvent de l'accompagnement (offre) — teasés, jamais livrés ici. */
+function offreCta(man){
+  var n=man.length;
+  return '<div class="card no-print" style="border-color:var(--gold)">'
+    +'<div class="grp-t" style="margin-top:0">📦 Aller plus loin — documents correctifs & DUER sur mesure</div>'
+    +'<p class="hint" style="margin:0 0 10px">'+(n?('Vos <b style="color:#f5c6c2">'+n+'</b> manquement(s) appellent des documents conformes (contrats, procédures, registres, lettres…) et un <b>DUER adapté</b> à votre établissement. '):'Documents conformes et DUER adapté à votre établissement. ')+'Ils sont <b>établis sur mesure</b> dans le cadre de l\'accompagnement Juris Expert MCH — non fournis par ce diagnostic gratuit.</p>'
+    +'<a class="btn" style="text-decoration:none;text-align:center" href="mailto:r.t.h@orange.fr?subject='+encodeURIComponent('Accompagnement Contrôle-minute')+'">Être accompagné / demander un devis</a>'
+    +'</div>';
 }
 
-function documentsHtml(man){
-  if(!man.length) return '<p class="hint">Aucun document correctif nécessaire : vos réponses sont exactes. Le DUER reste obligatoire (ci-dessous).</p>';
-  var h='<div style="margin-bottom:10px"><b style="color:var(--gold2)">Documents recommandés pour vos manquements :</b></div>';
-  man.forEach(function(m){h+='<div class="doc">📄 <b>'+esc(m.it.fix)+'</b><br><span class="hint">'+esc(m.it.art)+'</span></div>';});
-  return h;
+function ficheForm(){
+  return '<div class="grp-t" style="margin-top:0">📝 Votre fiche — accès aux réponses</div>'
+    +'<p class="hint" style="margin:0 0 12px">Renseignez votre fiche pour débloquer la <b>réponse exacte</b> de chaque question ratée, l\'<b>article</b> et la <b>sanction encourue</b>. Cet accès porte <b>uniquement sur les réponses</b>.</p>'
+    +'<label class="fl">Nom et prénom *</label><input id="cm-nom" type="text" autocomplete="name" placeholder="Nom Prénom" style="margin-bottom:9px">'
+    +'<label class="fl">Établissement / société *</label><input id="cm-etab" type="text" autocomplete="organization" placeholder="Raison sociale" style="margin-bottom:9px">'
+    +'<label class="fl">E-mail *</label><input id="cm-email" type="email" autocomplete="email" placeholder="votre@email.fr" style="margin-bottom:9px">'
+    +'<label class="fl">Téléphone</label><input id="cm-tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" style="margin-bottom:9px">'
+    +'<label class="fl">Effectif (facultatif)</label><input id="cm-eff" type="text" inputmode="numeric" placeholder="Nombre de salariés" style="margin-bottom:12px">'
+    +'<button class="btn" onclick="cmUnlock()">Débloquer les réponses ✅</button>'
+    +'<p class="hint" style="margin:8px 0 0">Vos informations sont transmises à <b>r.t.h@orange.fr</b> pour votre accès. Aucun spam. La fiche donne accès aux réponses uniquement.</p>';
+}
+
+function lockedSection(man,inscrit){
+  if(!man.length){
+    return '<div class="card"><div class="grp-t" style="margin-top:0">✅ Aucune réponse inexacte</div>'
+      +'<p class="hint" style="margin:0">Toutes vos réponses sont exactes sur les points applicables. Rien à débloquer.</p></div>'
+      +offreCta(man);
+  }
+  if(inscrit){
+    return '<div class="card"><div class="grp-t" style="margin-top:0">🔓 Vos réponses commentées</div>'
+      +commentedHtml(man)
+      +'<button class="btn ghost no-print" onclick="window.print()">🖨️ Imprimer / enregistrer en PDF</button></div>'
+      +offreCta(man);
+  }
+  return '<div class="card lockwrap">'
+      +'<div class="lock">'+commentedHtml(man)+'</div>'
+      +'<div class="lockover"><div class="lockcard" style="max-width:460px;text-align:left">'
+        +ficheForm()
+      +'</div></div></div>'
+    +offreCta(man);
 }
 
 function duerHtml(){
@@ -716,19 +734,26 @@ var CM_CONTACT='r.t.h@orange.fr';
    Tant que c'est vide, on bascule sur l'e-mail pré-rempli vers r.t.h@orange.fr. */
 var CM_FORM_ENDPOINT='https://forminit.com/f/6dsowhkss20';
 window.cmUnlock=function(){
-  var e=(($('cm-email')||{}).value||'').trim();
+  var val=function(id){return (($(id)||{}).value||'').trim();};
+  var nom=val('cm-nom'), etab=val('cm-etab'), e=val('cm-email'), tel=val('cm-tel'), eff=val('cm-eff');
+  if(!nom){alert('Merci d\'indiquer votre nom et prénom.');return;}
+  if(!etab){alert('Merci d\'indiquer votre établissement / société.');return;}
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Merci d\'indiquer un e-mail valide.');return;}
-  try{localStorage.setItem('cm_inscrit',e);}catch(e2){}
+  try{localStorage.setItem('cm_inscrit',e);localStorage.setItem('cm_fiche',JSON.stringify({nom:nom,etab:etab,email:e,tel:tel,eff:eff}));}catch(e2){}
   var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||CURSEC;
-  // 1) Débloquer le contenu tout de suite
+  // 1) Débloquer les RÉPONSES uniquement
   var man=cmManquements();
   $('cm-locked').innerHTML=lockedSection(man,true);
   $('cm-locked').scrollIntoView({behavior:'smooth',block:'start'});
-  // 2) Transmettre le lead
+  // 2) Transmettre le lead (fiche complète)
   if(CM_FORM_ENDPOINT){
     try{
       var fd=new URLSearchParams();
       fd.set('fi-sender-email', e);
+      fd.set('fi-text-nom', nom);
+      fd.set('fi-text-etablissement', etab);
+      fd.set('fi-text-telephone', tel);
+      fd.set('fi-text-effectif', eff);
       fd.set('fi-text-secteur', secNom);
       fd.set('fi-text-secteur_id', CURSEC);
       fd.set('fi-text-score', (CM_LASTPCT!=null?CM_LASTPCT+'%':''));
@@ -737,8 +762,8 @@ window.cmUnlock=function(){
       fetch(CM_FORM_ENDPOINT,{method:'POST',headers:{'Accept':'application/json'},body:fd}).catch(function(){});
     }catch(_){}
   } else {
-    var subj='Inscription Contrôle-minute — '+secNom;
-    var body='Nouveau contact via le Contrôle-minute :\n\nE-mail du visiteur : '+e+'\nSecteur : '+secNom+'\nScore : '+(CM_LASTPCT!=null?CM_LASTPCT+'%':'')+'\n\n(Répondez pour transmettre l\'accès.)';
+    var subj='Fiche Contrôle-minute — '+etab+' ('+secNom+')';
+    var body='Nouvelle fiche via le Contrôle-minute :\n\nNom : '+nom+'\nÉtablissement : '+etab+'\nE-mail : '+e+'\nTéléphone : '+tel+'\nEffectif : '+eff+'\nSecteur : '+secNom+'\nScore : '+(CM_LASTPCT!=null?CM_LASTPCT+'%':'')+'\nManquements : '+man.length+'\n';
     var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
     try{ var a=document.createElement('a'); a.href=mailto; a.style.display='none'; document.body.appendChild(a); a.click(); setTimeout(function(){a.remove();},1000); }catch(_){}
   }
