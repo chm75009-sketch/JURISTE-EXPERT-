@@ -299,6 +299,10 @@
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
       <div class="hint" style="margin-top:6px;opacity:.75">Méthode : une offre est « collectif » ou « les deux » dès qu'un marqueur collectif explicite apparaît (CSE, IRP, négociation, PSE, syndical…). Sans marqueur collectif, tout poste de droit social/RH est compté en <b>individuel</b> — les relations individuelles étant le socle du droit du travail. « Non précisé » = offre hors droit social.</div>
+      <label style="display:flex;align-items:center;gap:9px;margin-top:10px;font-size:13.5px;font-weight:600;cursor:pointer">
+        <input type="checkbox" id="inclHS" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
+        Inclure les offres hors droit social (non classées) dans l'étude
+      </label>
       <div style="margin-top:12px">
         <button type="button" class="btn btn-ghost" id="enrichBtn">🔎 Compléter les effectifs « non précisé » (annuaire officiel des entreprises)</button>
         <div class="hint" id="enrichNote" style="margin-top:8px"></div>
@@ -309,6 +313,13 @@
         <button type="button" class="btn btn-ghost" id="unclassCopy" style="display:none">📋 Copier 4 exemples pour analyse</button>
         <div id="unclassList" class="hidden" style="margin-top:8px"></div>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Tableau de synthèse <span class="muted" style="font-weight:400;font-size:12px">(zone × effectif × type de relation)</span></h2>
+      <div class="hint" style="margin-bottom:8px">Pour chaque type de relation (individuel / collectif / les deux), répartition des offres par <b>département</b> et par <b>taille d'entreprise</b>, avec le nombre de <b>sociétés distinctes</b> et le taux de <b>répétition</b> (offres ÷ sociétés).</div>
+      <div id="synthese"></div>
+      <button type="button" class="btn btn-ghost" id="syntheseCsv" style="margin-top:10px;display:none">⭳ Exporter la synthèse (CSV)</button>
     </div>
 
     <div class="card">
@@ -474,12 +485,37 @@ CONTRATS.forEach(c=>{
    RECHERCHE
    ============================================================ */
 /* --- Taille d'entreprise (effectif etablissement) --- */
+// Déduction de la taille d'entreprise à partir du TEXTE de l'offre (recours ultime,
+// utile surtout pour les offres anonymisées où le recruteur décrit son client).
+function effectifFromText(o){
+  if(o._effTxt!==undefined) return o._effTxt;
+  var t=" "+norm((o.description||"")+" "+((o.entreprise&&o.entreprise.description)||"")+" "+(o.intitule||""))+" ";
+  var res="";
+  // 1) nombre explicite de salariés / collaborateurs / effectif
+  var m=t.match(/(\d[\d ]{0,7})\s*(salaries|salarie|collaborateur|collaboratrice|personnes|employes|salaries?)/)
+       || t.match(/effectif[^\d]{0,14}(\d[\d ]{0,7})/)
+       || t.match(/(\d[\d ]{0,7})\s*(collaborateurs)/);
+  if(m){ var nb=parseInt(String(m[1]).replace(/\s/g,""),10); if(!isNaN(nb)&&nb>0){ res = nb>=250?"ETI":(nb>=10?"PME":"TPE"); } }
+  // 2) mots-clés de typologie
+  if(!res){
+    if(/grand groupe|groupe international|multinationale|leader mondial|leader europ|leader sur son marche|cac 40|sbf 120|cotee? en bourse|milliards? d euros|dizaines de milliers|grande entreprise|grand compte/.test(t)) res="ETI";
+    else if(/ eti |entreprise de taille intermediaire/.test(t)) res="ETI";
+    else if(/ pme | pmi |petite et moyenne entreprise|entreprise a taille humaine|societe a taille humaine/.test(t)) res="PME";
+    else if(/ tpe |start ?up|jeune entreprise|tres petite entreprise|petite structure|petite equipe|cabinet d avocats?|petit cabinet/.test(t)) res="TPE";
+  }
+  o._effTxt=res;
+  return res;
+}
 function effectifKey(o){
-  if(o&&o._eff) return o._eff;            // effectif complété via l'annuaire des entreprises (INSEE)
+  if(o&&o._eff) return o._eff;            // 1. effectif complété via l'annuaire des entreprises (INSEE)
   const t=(o&&o.trancheEffectifEtab)||"";
-  if(!t) return "NP";
-  const n=parseInt(((t.replace(/\s/g,"").match(/\d+/))||["0"])[0],10);
-  if(n>=250) return "ETI"; if(n>=10) return "PME"; return "TPE";
+  if(t){                                  // 2. tranche d'effectif fournie par France Travail
+    const n=parseInt(((t.replace(/\s/g,"").match(/\d+/))||["0"])[0],10);
+    if(n>=250) return "ETI"; if(n>=10) return "PME"; return "TPE";
+  }
+  var g=o&&effectifFromText(o);           // 3. déduction par le texte de l'offre (recours ultime)
+  if(g) return g;
+  return "NP";
 }
 const TAILLE_LAB={TPE:"TPE (<10)",PME:"PME (10-249)",ETI:"ETI / Grand groupe (250+)",NP:"Non précisé"};
 function effectifLabel(o){ return TAILLE_LAB[effectifKey(o)]; }
@@ -531,11 +567,12 @@ async function enrichEffectifs(){
   if(!lastOffers.length){ if(note) note.textContent = "Fais d'abord une recherche."; return; }
   const uniq = {}, noName = [];
   lastOffers.forEach(function(o){
-    if(effectifKey(o)!=="NP") return;
+    if(o._eff) return;                        // déjà complété par l'INSEE
+    if(o.trancheEffectifEtab) return;         // déjà fourni par France Travail
     const nom = o.entreprise && o.entreprise.nom;
-    if(!nom){ noName.push(o); return; }
+    if(!nom){ if(!effectifFromText(o)) noName.push(o); return; }  // anonymisé : reste NP si le texte ne dit rien
     const k = normEnt(nom); if(!k) return;
-    (uniq[k]=uniq[k]||[]).push(o);
+    (uniq[k]=uniq[k]||[]).push(o);            // société nommée : on interroge l'INSEE (prioritaire sur le texte)
   });
   const names = Object.keys(uniq);
   if(!names.length){
@@ -562,9 +599,10 @@ async function enrichEffectifs(){
   if(btn) btn.disabled = false;
   analyse(lastOffers, lastTotal||lastOffers.length);
   const remainNP = lastOffers.filter(function(o){ return effectifKey(o)==="NP"; }).length;
-  if(note) note.innerHTML = "✅ <b>"+found+"</b> société(s) complétée(s) via l'annuaire des entreprises (INSEE). "
-    + "Il reste <b>"+remainNP+"</b> offre(s) « non précisé » — employeur anonymisé"
-    + (noName.length?" ("+noName.length+" offre(s))":"")+" ou effectif non déclaré à l'INSEE.";
+  const parTexte = lastOffers.filter(function(o){ return !o._eff && !o.trancheEffectifEtab && effectifFromText(o); }).length;
+  if(note) note.innerHTML = "✅ <b>"+found+"</b> société(s) complétée(s) via l'annuaire INSEE"
+    + (parTexte?" · <b>"+parTexte+"</b> autre(s) déduite(s) de la description de l'offre":"")+". "
+    + "Il reste <b>"+remainNP+"</b> offre(s) « non précisé » — employeur anonymisé sans indication de taille dans le texte.";
 }
 const TAILLES=[{key:"TPE"},{key:"PME"},{key:"ETI"},{key:"NP"}];
 const taillesEl=$("tailles");
@@ -592,6 +630,13 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
+if($("inclHS")) $("inclHS").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
+if($("syntheseCsv")) $("syntheseCsv").addEventListener("click", function(){
+  if(!lastSyntheseRows.length) return;
+  var csv=lastSyntheseRows.map(function(r){ return r.map(function(c){ var s=String(c).replace(/"/g,'""'); return /[";\n]/.test(s)?'"'+s+'"':s; }).join(";"); }).join("\r\n");
+  var blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="synthese-offres.csv"; a.click(); URL.revokeObjectURL(a.href);
+});
 if($("unclassCopy")) $("unclassCopy").addEventListener("click", function(){
   var ex = lastUnclass.slice(0,4).map(function(o,i){
     return "OFFRE "+(i+1)+" — "+(o.intitule||"")+"\nEntreprise : "+((o.entreprise&&o.entreprise.nom)||"non précisé")+"\n"+((o.description||"(pas de description)").replace(/\s+/g," ").trim());
@@ -732,12 +777,48 @@ function relIndScore(o){
   return {ind:ind, col:col};
 }
 // L'offre relève-t-elle du droit social / RH (donc, par nature, des relations individuelles) ?
-const SOCIAL_CTX = ["droit social","droit du travail","protection sociale","ressources humaines","affaires sociales","relations sociales","administration du personnel","gestion du personnel","juriste social","paie","gestionnaire paie","charge rh","responsable rh","adjoint rh","assistant rh","drh","rrh","adp","conventions collectives","conseil social","juriste en droit","droit du travail et"];
+const SOCIAL_CTX = ["droit social","droit du travail","protection sociale","ressources humaines","affaires sociales","relations sociales","administration du personnel","gestion du personnel","juriste social","paie","gestionnaire paie","charge rh","responsable rh","adjoint rh","assistant rh","drh","rrh","adp","conventions collectives","conseil social","droit du travail et"];
+// Autres spécialités juridiques : à écarter du champ « juriste droit social » quand aucun signal droit social n'est présent.
+const AUTRE_SPE = ["droit des etrangers","droit d asile","droit de l asile","demandeurs d asile","refugies","titre de sejour","droit des affaires","droit des societes","droit boursier","droit immobilier","droit de la construction","droit penal","droit de la famille","droit fiscal","fiscaliste","droit bancaire","propriete intellectuelle","propriete industrielle","droit des marques","droit de l environnement","droit public","marches publics","droit de la consommation","droit commercial","droit des assurances","droit de la sante","droit maritime","droit du numerique","donnees personnelles","rgpd","fusion acquisition","fusions acquisitions","droit des contrats"];
 function isSocialContext(o){
   var hay=" "+norm((o.intitule||"")+" "+(o.romeLibelle||"")+" "+(o.appellationlibelle||o.appellationLibelle||"")+" "+(o.description||""))+" ";
-  return SOCIAL_CTX.some(function(t){ return hay.indexOf(norm(t))>=0; });
+  if(!SOCIAL_CTX.some(function(t){ return hay.indexOf(norm(t))>=0; })) return false;
+  // Un signal droit social existe. Mais si une AUTRE spécialité juridique est nommée sans terme
+  // « droit social / droit du travail » explicite, l'offre relève de cette autre spécialité -> écartée.
+  var fort = (hay.indexOf("droit social")>=0 || hay.indexOf("droit du travail")>=0 || hay.indexOf("relations sociales")>=0);
+  if(!fort && AUTRE_SPE.some(function(t){ return hay.indexOf(norm(t))>=0; })) return false;
+  return true;
+}
+// L'offre nomme-t-elle une AUTRE spécialité juridique (étrangers, affaires, pénal…) sans signal droit social explicite ?
+function estAutreSpecialite(o){
+  var hay=" "+norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||"")+" "+(o.description||""))+" ";
+  var fort = (hay.indexOf("droit social")>=0 || hay.indexOf("droit du travail")>=0 || hay.indexOf("relations sociales")>=0 || hay.indexOf("ressources humaines")>=0);
+  if(fort) return false;
+  return AUTRE_SPE.some(function(t){ return hay.indexOf(norm(t))>=0; });
+}
+// Rôles NON-juristes à écarter (travail social, support administratif) — repérés dans l'INTITULÉ,
+// prioritaires même si le mot « juriste » apparaît dans un titre fourre-tout (ex. « MJPM … / Juriste »).
+const ROLE_EXCLU = [
+  // travail social / médico-social
+  "travailleur social","travailleuse sociale","assistant social","assistante sociale","assistant de service social","service social","intervenant social","referent social",
+  "educateur","educatrice","moniteur educateur","mjpm","mandataire judiciaire","delegue a la tutelle","delegue mandataire","protection des majeurs","curateur","tuteur",
+  "cesf","conseiller en economie sociale","tisf","accompagnant educatif","auxiliaire de vie","aide soignant","aide medico","animateur","chef de service educatif","coordinateur social","psychologue","assistant familial",
+  // support administratif / non-juriste
+  "secretaire","assistant juridique","assistante juridique","assistant administratif","gestionnaire administratif","standardiste","office manager","paralegal","clerc",
+  // rémunération / comp & ben (fonction RH, non-juriste)
+  "remuneration et avantages","avantages sociaux","responsable remuneration","charge de remuneration","compensation","comp ben","total reward","controle de gestion sociale"
+];
+function estRoleExclu(o){
+  // On neutralise l'écriture inclusive « (se) (e) (trice)… » qui casserait « travailleur social » -> « travailleur se social e »
+  var t=norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||""));
+  t=" "+t.replace(/\b(se|e|es|ne|nne|trice|rice|euse|ere|eure|iere|ive|ve)\b/g," ").replace(/\s+/g," ").trim()+" ";
+  return ROLE_EXCLU.some(function(r){ return t.indexOf(" "+norm(r)+" ")>=0; });
 }
 function classifyRel(o){
+  // Hors sujet : rôle non-juriste (travail social, secrétariat…) -> écarté même si « juriste » est dans le titre
+  if(estRoleExclu(o)) return "Non précisé";
+  // Hors sujet : autre spécialité juridique sans aucun signal droit social -> non classé (écarté de l'étude)
+  if(estAutreSpecialite(o)) return "Non précisé";
   const sc=relIndScore(o);
   if(sc.ind>0 && sc.col>0) return "Les deux (individuel + collectif)";
   if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
@@ -906,8 +987,89 @@ function tbl(elId, data, itemHead){
 
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
+function depKey(o){
+  var lieu=(o.lieuTravail&&o.lieuTravail.libelle)||"";
+  if(lieu.indexOf(" - ")>=0) return lieu.split(" - ")[0].trim();
+  var cp=((o.lieuTravail&&o.lieuTravail.codePostal)||"")+"";
+  return cp?cp.slice(0,2):"NP";
+}
+let lastSyntheseRows=[];
+function renderSynthese(offers){
+  var box=$("synthese"); if(!box) return;
+  var CATS=[["Exclusivement individuel","var(--accent)"],["Exclusivement collectif","#c47f17"],["Les deux (individuel + collectif)","#2e9e5b"]];
+  var SZ=[["TPE","TPE"],["PME","PME"],["ETI","ETI/GG"],["NP","NP"]];
+  var html="";
+  lastSyntheseRows=[["Type de relation","Zone (dept)","TPE","PME","ETI/GG","Non precise","Nb offres","Nb societes","Repetition"]];
+
+  // ── Récapitulatif : d'où viennent les offres selon la taille d'entreprise ? ──
+  html+='<h3 style="font-size:13px;margin:2px 0 8px;font-weight:700">Origine par taille d\'entreprise <span style="font-weight:400;opacity:.7">— petites (TPE+PME) vs grandes (ETI/Grand groupe), sur les offres à effectif connu</span></h3>';
+  html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px">';
+  html+='<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px">Type de relation</th><th style="padding:6px;text-align:center">TPE</th><th style="padding:6px;text-align:center">PME</th><th style="padding:6px;text-align:center">ETI/GG</th><th style="padding:6px;text-align:center">Petites</th><th style="padding:6px;text-align:center">Grandes</th><th style="padding:6px;text-align:center">Tendance</th></tr></thead><tbody>';
+  CATS.forEach(function(cat){
+    var lst=offers.filter(function(o){ return classifyRel(o)===cat[0]; });
+    var c={TPE:0,PME:0,ETI:0}; lst.forEach(function(o){ var k=effectifKey(o); if(k!=="NP") c[k]++; });
+    var known=c.TPE+c.PME+c.ETI, petites=c.TPE+c.PME, grandes=c.ETI;
+    var pc=function(v){ return known?Math.round(v/known*100):0; };
+    var tend = !known ? "—" : (petites>grandes ? "🔻 Petites entreprises" : (grandes>petites ? "🔺 Grandes entreprises" : "≈ Équilibré"));
+    var lab=cat[0].replace("Exclusivement ","").replace("Les deux (individuel + collectif)","Individuel + collectif");
+    html+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px;font-weight:600;color:'+cat[1]+'">'+esc(lab)+'</td>'
+      +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.TPE)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.PME)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.ETI)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-weight:700">'+pc(petites)+'%</td>'
+      +'<td style="padding:6px;text-align:center;font-weight:700">'+pc(grandes)+'%</td>'
+      +'<td style="padding:6px;text-align:center;white-space:nowrap">'+tend+(known?' <span style="opacity:.6">('+known+')</span>':'')+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  html+='<div class="hint" style="margin:0 0 10px">Base = offres dont la taille est connue (INSEE, France Travail ou déduite du texte) ; les « non précisé » sont exclus de ce pourcentage. Le nombre entre parenthèses = nb d\'offres à effectif connu.</div>';
+
+  CATS.forEach(function(cat){
+    var name=cat[0], color=cat[1];
+    var list=offers.filter(function(o){ return classifyRel(o)===name; });
+    html+='<div style="margin:16px 0 6px;font-weight:800;font-size:14px;color:'+color+'">'+esc(name)+' — '+list.length+' offre'+(list.length>1?"s":"")+'</div>';
+    if(!list.length){ html+='<div class="hint" style="margin-bottom:8px">Aucune offre dans cette catégorie.</div>'; return; }
+    var zones={};
+    list.forEach(function(o){
+      var z=depKey(o); if(!zones[z]) zones[z]={TPE:0,PME:0,ETI:0,NP:0,total:0,comps:{},named:0};
+      zones[z][effectifKey(o)]++; zones[z].total++;
+      var nom=((o.entreprise&&o.entreprise.nom)||"").trim();
+      if(nom){ zones[z].comps[nom.toLowerCase()]=1; zones[z].named++; }
+    });
+    var zkeys=Object.keys(zones).sort(function(a,b){ return zones[b].total-zones[a].total; });
+    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">';
+    html+='<thead><tr style="text-align:left;border-bottom:2px solid var(--line)"><th style="padding:6px">Zone (dépt)</th>';
+    SZ.forEach(function(z){ html+='<th style="padding:6px;text-align:center">'+z[1]+'</th>'; });
+    html+='<th style="padding:6px;text-align:center">Offres</th><th style="padding:6px;text-align:center">Sociétés</th><th style="padding:6px;text-align:center">Répét.</th></tr></thead><tbody>';
+    var tot={TPE:0,PME:0,ETI:0,NP:0,total:0}, allComps={}, allNamed=0;
+    zkeys.forEach(function(z){
+      var zz=zones[z], nc=Object.keys(zz.comps).length, rep=nc?(zz.named/nc):0;
+      var zlab=(z==="NP"?"Non précisé":z);
+      html+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px;font-weight:600">'+esc(zlab)+'</td>';
+      SZ.forEach(function(s){ html+='<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+(zz[s[0]]||0)+'</td>'; tot[s[0]]+=zz[s[0]]||0; });
+      html+='<td style="padding:6px;text-align:center;font-weight:700">'+zz.total+'</td><td style="padding:6px;text-align:center">'+nc+'</td><td style="padding:6px;text-align:center">'+(nc?("×"+rep.toFixed(1)):"—")+'</td></tr>';
+      tot.total+=zz.total; Object.keys(zz.comps).forEach(function(c){ allComps[c]=1; }); allNamed+=zz.named;
+      lastSyntheseRows.push([name,zlab,zz.TPE,zz.PME,zz.ETI,zz.NP,zz.total,nc,(nc?rep.toFixed(1):"")]);
+    });
+    var ncTot=Object.keys(allComps).length;
+    html+='<tr style="border-top:2px solid var(--line);font-weight:800"><td style="padding:6px">TOTAL</td>';
+    SZ.forEach(function(s){ html+='<td style="padding:6px;text-align:center">'+tot[s[0]]+'</td>'; });
+    html+='<td style="padding:6px;text-align:center">'+tot.total+'</td><td style="padding:6px;text-align:center">'+ncTot+'</td><td style="padding:6px;text-align:center">'+(ncTot?("×"+(allNamed/ncTot).toFixed(1)):"—")+'</td></tr>';
+    html+='</tbody></table></div>';
+    lastSyntheseRows.push([name,"TOTAL",tot.TPE,tot.PME,tot.ETI,tot.NP,tot.total,ncTot,(ncTot?(allNamed/ncTot).toFixed(1):"")]);
+  });
+  box.innerHTML=html;
+  var cb=$("syntheseCsv"); if(cb) cb.style.display = offers.length? "" : "none";
+}
 function analyse(offers, totalDispo){
   lastTotal = totalDispo;
+  // Étude « juriste droit social » : on écarte les offres hors sujet (non classées : ni individuel ni collectif,
+  // ex. travailleur social, mandataire judiciaire) — sauf si l'utilisateur demande à les inclure.
+  var horsSujet = lastDroitSocial ? offers.filter(function(o){ return classifyRel(o)==="Non précisé"; }) : [];
+  var inclureHS = !!($("inclHS") && $("inclHS").checked);
+  if(lastDroitSocial && !inclureHS && horsSujet.length){
+    offers = offers.filter(function(o){ return classifyRel(o)!=="Non précisé"; });
+  }
+  lastUnclass = horsSujet;
   const n = offers.length;
 
   /* --- Compétences --- */
@@ -917,7 +1079,8 @@ function analyse(offers, totalDispo){
   // Bloc « individuel / collectif » : pertinent uniquement pour un métier de droit social / RH → masqué sinon
   var _secRel = $("secRelation"); if(_secRel) _secRel.style.display = lastDroitSocial ? "" : "none";
   if(lastDroitSocial) (function(){
-    const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)","Non précisé"];
+    const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)"];
+    if(inclureHS) RCATS.push("Non précisé");   // n'afficher la ligne « hors droit social » que si on les inclut
     const by={}; offers.forEach(function(o){ const c=classifyRel(o); by[c]=(by[c]||0)+1; });
     const pct=function(v){ return n?Math.round(v/n*100):0; };
     var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px">';
@@ -938,11 +1101,11 @@ function analyse(offers, totalDispo){
     h+='</tbody></table></div>';
     var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
     var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
-    var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%).";
-    // Offres non class\u00e9es (aucun mot-cl\u00e9 individuel ni collectif) -> inspection
-    lastUnclass = offers.filter(function(o){ return classifyRel(o)==="Non pr\u00e9cis\u00e9"; });
+    var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%)."
+      + (horsSujet.length ? "<br><span style=\"opacity:.8\">"+(inclureHS?"<b>"+horsSujet.length+"</b> offre(s) hors droit social incluses ci-dessus.":"<b>"+horsSujet.length+"</b> offre(s) hors droit social <b>\u00e9cart\u00e9e(s)</b> de l'\u00e9tude (travail social, hors sujet) \u2014 voir le d\u00e9tail ci-dessous.")+"</span>" : "");
+    // Offres hors droit social \u00e9cart\u00e9es -> inspection (lastUnclass d\u00e9j\u00e0 d\u00e9fini en t\u00eate d'analyse)
     var ub=$("unclassBtn"), ucp=$("unclassCopy"), ubox=$("unclassList");
-    if(ub){ ub.style.display = lastUnclass.length? "" : "none"; ub.textContent = "\ud83d\udd0d Voir les "+lastUnclass.length+" offre(s) non class\u00e9es (individuel / collectif)"; }
+    if(ub){ ub.style.display = lastUnclass.length? "" : "none"; ub.textContent = "\ud83d\udd0d Voir les "+lastUnclass.length+" offre(s) hors droit social \u00e9cart\u00e9e(s)"; }
     if(ucp){ ucp.style.display = lastUnclass.length? "" : "none"; }
     if(ubox){
       ubox.innerHTML = lastUnclass.slice(0,80).map(function(o){
@@ -957,6 +1120,8 @@ function analyse(offers, totalDispo){
       }).join("") || '<div class="hint">Aucune offre non class\u00e9e \ud83c\udf89</div>';
     }
   })();
+
+  renderSynthese(offers);
 
   /* --- Métiers ROME --- */
   const rome = countBy(offers, o => o.romeLibelle || o.appellationlibelle);
