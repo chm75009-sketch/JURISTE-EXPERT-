@@ -125,6 +125,18 @@ var SOCLE=[
    {id:'entretpro',q:'L\'entretien professionnel est-il réalisé tous les 2 ans (et l\'état des lieux récapitulatif tous les 6 ans) ?',art:'art. L.6315-1 C. trav.',san:'Entreprise ≥ 50 salariés : abondement correctif du CPF de 3 000 € par salarié concerné.',fix:'Trame d\'entretien professionnel + suivi.'},
    {id:'egalite',q:'Si ≥ 50 salariés : l\'index égalité femmes-hommes est-il calculé et publié (et mesures si < 75/100) ?',art:'art. L.1142-8, L.1142-10 C. trav.',san:'Pénalité financière jusqu\'à 1 % de la masse salariale.',fix:'Aide au calcul de l\'index égalité.'},
    {id:'deco',q:'Le droit à la déconnexion est-il défini (accord ou charte) ?',art:'art. L.2242-17, 7° C. trav.',san:'À défaut : contentieux RPS / heures de connexion non rémunérées + dommages-intérêts.',fix:'Charte droit à la déconnexion.'}
+ ]},
+ {th:'🎓 Points techniques & jurisprudence (souvent non conformes)',items:[
+   {id:'harcprev',q:'Avez-vous un dispositif de PRÉVENTION du harcèlement moral et sexuel (information, procédure de signalement, référent, affichage) — au-delà de la simple interdiction ?',art:'art. L.1152-4, L.1153-5 · Cass. soc. 1ᵉʳ juin 2016 n° 14-19.702',san:'Manquement à l\'obligation de prévention MÊME sans harcèlement avéré : dommages-intérêts distincts.',fix:'Procédure de prévention et de signalement du harcèlement.'},
+   {id:'harcenq',q:'En cas de signalement de harcèlement, menez-vous systématiquement une ENQUÊTE interne sérieuse et impartiale ?',art:'Cass. soc. 27 nov. 2019 n° 18-10.551',san:'L\'absence d\'enquête caractérise à elle seule un manquement à l\'obligation de sécurité : dommages-intérêts.',fix:'Trame d\'enquête interne harcèlement.'},
+   {id:'secu',q:'Pouvez-vous PROUVER des actions concrètes de prévention (évaluation, formation, mesures), au-delà du DUER ?',art:'art. L.4121-1 · Cass. soc. 25 nov. 2015 n° 14-24.444 (obligation de sécurité — moyens renforcée)',san:'Faute inexcusable en cas d\'accident/maladie : majoration de rente + réparation intégrale.',fix:'Plan d\'actions de prévention.'},
+   {id:'tempsdecompte',q:'Disposez-vous d\'un système OBJECTIF, FIABLE et ACCESSIBLE de décompte du temps de travail de chaque salarié (cadres au forfait compris) ?',art:'art. L.3171-2 · CJUE 14 mai 2019 C-55/18 (CCOO)',san:'En cas de litige, la preuve ne pèse pas sur le seul salarié : rappels d\'heures supplémentaires sur 3 ans.',fix:'Outil de décompte du temps de travail.'},
+   {id:'forfaitsuivi',q:'Si forfait-jours : la charge de travail fait-elle l\'objet d\'un SUIVI régulier et effectif (relevés, entretiens, droit d\'alerte) ?',art:'art. L.3121-64 · Cass. soc. 29 juin 2011 n° 09-71.107',san:'Forfait NUL : rappel de TOUTES les heures supplémentaires sur 3 ans.',fix:'Support de suivi de la charge (forfait-jours).'},
+   {id:'surveillance',q:'Vos dispositifs de surveillance (vidéo, géolocalisation, badges, contrôle informatique) sont-ils PROPORTIONNÉS, déclarés et précédés d\'une information des salariés ET du CSE ?',art:'art. L.1222-4, L.2312-38 · RGPD · Cass. soc. 10 nov. 2021 n° 20-12.263',san:'Preuve illicite écartée + dommages-intérêts + sanctions CNIL (jusqu\'à 4 % du CA mondial).',fix:'Registre + notes d\'information des dispositifs de contrôle.'},
+   {id:'egaltrait',q:'Les écarts de rémunération entre salariés au travail égal (ou de valeur égale) sont-ils justifiés par des éléments OBJECTIFS et vérifiables ?',art:'« à travail égal, salaire égal » · Cass. soc. 29 oct. 1996 n° 92-43.680 (Ponsolle)',san:'Rappels de salaire (alignement sur le mieux rémunéré) sur 3 ans.',fix:'Analyse des écarts de rémunération.'},
+   {id:'modifcontrat',q:'Distinguez-vous modification du CONTRAT (accord écrit requis) et simple changement des conditions de travail avant toute évolution du poste, du lieu ou de la rémunération ?',art:'art. 1103 C. civ. · Cass. soc. 10 juil. 1996 n° 93-41.137',san:'Modification imposée = prise d\'acte / licenciement sans cause réelle et sérieuse.',fix:'Procédure de modification du contrat (avenant).'},
+   {id:'nonconc',q:'Vos clauses de non-concurrence prévoient-elles une CONTREPARTIE FINANCIÈRE et sont-elles limitées dans le temps, l\'espace et l\'activité ?',art:'Cass. soc. 10 juil. 2002 n° 00-45.135',san:'Clause NULLE sans contrepartie ; si vous l\'appliquez : dommages-intérêts au salarié.',fix:'Clause de non-concurrence conforme.'},
+   {id:'lanceur',q:'Si ≥ 50 salariés : avez-vous une PROCÉDURE INTERNE de recueil des signalements (lanceur d\'alerte) conforme ?',art:'loi n° 2022-401 du 21 mars 2022 · décret n° 2022-1284',san:'Manquement + nullité des représailles contre le lanceur d\'alerte.',fix:'Procédure lanceur d\'alerte.'}
  ]}
 ];
 
@@ -322,9 +334,11 @@ window.cmBack=function(){
 
 function allItems(){var out=[];questionsFor(CURSEC).forEach(function(g){g.items.forEach(function(it){out.push(it);});});return out;}
 
+// Points à fort enjeu (jurisprudence / risque prud'homal élevé) : pondérés x3 dans le score
+var EXPERT_IDS={harcprev:1,harcenq:1,secu:1,tempsdecompte:1,forfaitsuivi:1,surveillance:1,egaltrait:1,modifcontrat:1,nonconc:1,lanceur:1,duer:1,cse:1,dpae:1,bq_forfait:1,as_forfait:1,sy_forfait:1};
 window.cmScore=function(){
   var items=allItems(),conf=0,man=[],applic=0;
-  items.forEach(function(it){var v=A[it.id];if(v==='nc'||v==null)return;applic++;if(v==='oui')conf++;else man.push(it);});
+  items.forEach(function(it){var v=A[it.id];if(v==='nc'||v==null)return;var w=EXPERT_IDS[it.id]?3:1;applic+=w;if(v==='oui')conf+=w;else man.push(it);});
   var pct=applic?Math.round(conf/applic*100):0;
   CM_LASTPCT=pct;
   var col=pct>=80?'#3fae74':(pct>=50?'#e0a83a':'#e0574f');
