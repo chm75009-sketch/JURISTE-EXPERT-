@@ -777,12 +777,28 @@ function relIndScore(o){
   return {ind:ind, col:col};
 }
 // L'offre relève-t-elle du droit social / RH (donc, par nature, des relations individuelles) ?
-const SOCIAL_CTX = ["droit social","droit du travail","protection sociale","ressources humaines","affaires sociales","relations sociales","administration du personnel","gestion du personnel","juriste social","paie","gestionnaire paie","charge rh","responsable rh","adjoint rh","assistant rh","drh","rrh","adp","conventions collectives","conseil social","juriste en droit","droit du travail et"];
+const SOCIAL_CTX = ["droit social","droit du travail","protection sociale","ressources humaines","affaires sociales","relations sociales","administration du personnel","gestion du personnel","juriste social","paie","gestionnaire paie","charge rh","responsable rh","adjoint rh","assistant rh","drh","rrh","adp","conventions collectives","conseil social","droit du travail et"];
+// Autres spécialités juridiques : à écarter du champ « juriste droit social » quand aucun signal droit social n'est présent.
+const AUTRE_SPE = ["droit des etrangers","droit d asile","droit de l asile","demandeurs d asile","refugies","titre de sejour","droit des affaires","droit des societes","droit boursier","droit immobilier","droit de la construction","droit penal","droit de la famille","droit fiscal","fiscaliste","droit bancaire","propriete intellectuelle","propriete industrielle","droit des marques","droit de l environnement","droit public","marches publics","droit de la consommation","droit commercial","droit des assurances","droit de la sante","droit maritime","droit du numerique","donnees personnelles","rgpd","fusion acquisition","fusions acquisitions","droit des contrats"];
 function isSocialContext(o){
   var hay=" "+norm((o.intitule||"")+" "+(o.romeLibelle||"")+" "+(o.appellationlibelle||o.appellationLibelle||"")+" "+(o.description||""))+" ";
-  return SOCIAL_CTX.some(function(t){ return hay.indexOf(norm(t))>=0; });
+  if(!SOCIAL_CTX.some(function(t){ return hay.indexOf(norm(t))>=0; })) return false;
+  // Un signal droit social existe. Mais si une AUTRE spécialité juridique est nommée sans terme
+  // « droit social / droit du travail » explicite, l'offre relève de cette autre spécialité -> écartée.
+  var fort = (hay.indexOf("droit social")>=0 || hay.indexOf("droit du travail")>=0 || hay.indexOf("relations sociales")>=0);
+  if(!fort && AUTRE_SPE.some(function(t){ return hay.indexOf(norm(t))>=0; })) return false;
+  return true;
+}
+// L'offre nomme-t-elle une AUTRE spécialité juridique (étrangers, affaires, pénal…) sans signal droit social explicite ?
+function estAutreSpecialite(o){
+  var hay=" "+norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||"")+" "+(o.description||""))+" ";
+  var fort = (hay.indexOf("droit social")>=0 || hay.indexOf("droit du travail")>=0 || hay.indexOf("relations sociales")>=0 || hay.indexOf("ressources humaines")>=0);
+  if(fort) return false;
+  return AUTRE_SPE.some(function(t){ return hay.indexOf(norm(t))>=0; });
 }
 function classifyRel(o){
+  // Hors sujet : autre spécialité juridique sans aucun signal droit social -> non classé (écarté de l'étude)
+  if(estAutreSpecialite(o)) return "Non précisé";
   const sc=relIndScore(o);
   if(sc.ind>0 && sc.col>0) return "Les deux (individuel + collectif)";
   if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
