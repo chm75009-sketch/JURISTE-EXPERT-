@@ -291,6 +291,7 @@ window.cmScore=function(){
   var items=allItems(),conf=0,man=[],applic=0;
   items.forEach(function(it){var v=A[it.id];if(v==='nc'||v==null)return;applic++;if(v==='oui')conf++;else man.push(it);});
   var pct=applic?Math.round(conf/applic*100):0;
+  CM_LASTPCT=pct;
   var col=pct>=80?'#3fae74':(pct>=50?'#e0a83a':'#e0574f');
   var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||'';
   var h='<div class="card score-box"><div class="hint">'+esc(secNom)+'</div>'
@@ -356,19 +357,32 @@ function duerHtml(){
 }
 
 var CM_CONTACT='r.t.h@orange.fr';
+var CM_LASTPCT=null;
+/* ▼▼▼ COLLER ICI l'URL d'endpoint Forminit/Getform (ex. "https://getform.io/f/xxxx" ou "https://forminit.com/f/xxxx").
+   Tant que c'est vide, on bascule sur l'e-mail pré-rempli vers r.t.h@orange.fr. ▼▼▼ */
+var CM_FORM_ENDPOINT='';
 window.cmUnlock=function(){
   var e=(($('cm-email')||{}).value||'').trim();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Merci d\'indiquer un e-mail valide.');return;}
   try{localStorage.setItem('cm_inscrit',e);}catch(e2){}
-  // Transmission du lead à l'exploitant par e-mail (page statique : on ouvre un e-mail pré-adressé).
   var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||CURSEC;
-  var subj='Inscription Contrôle-minute — '+secNom;
-  var body='Nouveau contact via le Contrôle-minute :\n\nE-mail du visiteur : '+e+'\nSecteur : '+secNom+'\n\n(Message généré depuis controle-minute.html — répondez pour transmettre l\'accès.)';
-  var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-  // On débloque d'abord le contenu, puis on ouvre l'e-mail.
+  // 1) Débloquer le contenu tout de suite
   var man=allItems().filter(function(it){return A[it.id]==='non';});
   $('cm-locked').innerHTML=lockedSection(man,true);
   $('cm-locked').scrollIntoView({behavior:'smooth',block:'start'});
-  try{ var a=document.createElement('a'); a.href=mailto; a.style.display='none'; document.body.appendChild(a); a.click(); setTimeout(function(){a.remove();},1000); }catch(_){}
+  // 2) Transmettre le lead
+  var payload={email:e,secteur:secNom,secteur_id:CURSEC,score:(CM_LASTPCT!=null?CM_LASTPCT+'%':''),manquements:man.length,source:'controle-minute'};
+  if(CM_FORM_ENDPOINT){
+    // Envoi automatique vers Forminit/Getform (aucune action du visiteur)
+    try{
+      fetch(CM_FORM_ENDPOINT,{method:'POST',headers:{'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(function(){});
+    }catch(_){}
+  } else {
+    // Repli : e-mail pré-adressé à l'exploitant
+    var subj='Inscription Contrôle-minute — '+secNom;
+    var body='Nouveau contact via le Contrôle-minute :\n\nE-mail du visiteur : '+e+'\nSecteur : '+secNom+'\nScore : '+(CM_LASTPCT!=null?CM_LASTPCT+'%':'')+'\n\n(Répondez pour transmettre l\'accès.)';
+    var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    try{ var a=document.createElement('a'); a.href=mailto; a.style.display='none'; document.body.appendChild(a); a.click(); setTimeout(function(){a.remove();},1000); }catch(_){}
+  }
 };
 </script>
