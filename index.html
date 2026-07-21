@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-21.95';
+var JX_BUILD = 'v2026-07-21.96';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -4936,6 +4936,7 @@ function goPage(id){
   // Le module Analyse repart à zéro à chaque entrée (pas de résultat/document résiduel)
   if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
   try{ adminSecPrompt(id); }catch(e){}
+  try{ sectorGuard(id); }catch(e){}
 }
 
 function retourAuto(){
@@ -5007,6 +5008,22 @@ function adminSecChoose(v){
   try{ var ov=document.getElementById('admin-sec-modal'); if(ov)ov.style.display='none'; }catch(e){}
   try{ if(typeof adminPickSector==='function') adminPickSector(v); }catch(e){}
   try{ var act=document.querySelector('.page.act'); if(act){ var id=act.id.replace(/^pg-/,''); if(id && typeof goPage==='function') goPage(id); } }catch(e){}
+}
+// ── Garde-fou intégrité : modules calibrés TRANSPORT — avertir si un autre secteur est actif ──
+var TRANSPORT_ONLY={embauche:1,contrat:1,remuneration:1,cout:1};
+function sectorGuard(pageId){
+  try{
+    var sec=''; try{ sec=sessionStorage.getItem('jte_sector')||''; }catch(e){}
+    var show = sec && sec!=='transport' && TRANSPORT_ONLY[pageId];
+    var g=document.getElementById('sector-guard');
+    if(show){
+      if(!g){ g=document.createElement('div'); g.id='sector-guard';
+        g.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99998;background:#7a1f1f;color:#ffe;border-bottom:2px solid #e0574f;padding:10px 14px;font-size:12.5px;line-height:1.45;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.4)';
+        document.body.appendChild(g); }
+      g.innerHTML='⚠️ <b>Module calibré pour le TRANSPORT (CCN IDCC 0016).</b> Les coefficients, grilles, taux et barèmes affichés ne correspondent PAS à la convention <b>'+((typeof SECTEUR_LAB!=='undefined'&&SECTEUR_LAB[sec])||sec)+'</b>. Version dédiée en préparation — <b>ne pas utiliser tel quel</b> pour ce secteur.';
+      g.style.display='block';
+    } else if(g){ g.style.display='none'; }
+  }catch(e){}
 }
 function applyClientSector(retry){
   try{
