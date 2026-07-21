@@ -955,12 +955,16 @@ async function runSearch(){
   base.set("range", $("taille").value);
   base.set("sort","1"); // tri par date decroissante
   const mots = $("motsCles").value.trim();
+  // Synonymes métier : dans les intitulés d'offres, on écrit « droit social », rarement « droit du travail »
+  // (terme juridique). On cherche donc « droit social » même si l'utilisateur tape « droit du travail »,
+  // pour ne pas rater la majorité des annonces (même métier). `mots` (tel que tapé) sert à l'affichage ; `motsQ` à la recherche.
+  const motsQ = mots.replace(/droit\s+du\s+travail/gi, "droit social");
   const codeRome = $("rome").value;
   // Si aucun metier n'est selectionne mais le mot-cle correspond a un alias metier (ex. « risque operationnel »,
   // « controle interne », « dpo »…), on cible directement le(s) code(s) ROME au lieu d'une recherche litterale.
   let aliasCodes = [], aliasLabel = "";
-  if(!codeRome && mots){
-    const am = metierAliasMatch(normM(mots));
+  if(!codeRome && motsQ){
+    const am = metierAliasMatch(normM(motsQ));
     if(am.length){ aliasCodes = am.map(function(m){ return m.code; }); aliasLabel = am.map(function(m){ return m.libelle; }).join(" · "); }
   }
   const romeLabel = codeRome ? (($("metierSearch")||{}).value || "ce metier") : (aliasLabel || "");
@@ -991,7 +995,7 @@ async function runSearch(){
       }
       res = { offers: all, range: range0 }; offers = all;
     } else {
-      res = await fetchOffres(proxy, base, mots || (codeRome ? "" : (($("metierSearch")||{}).value||"").trim()));
+      res = await fetchOffres(proxy, base, motsQ || (codeRome ? "" : (($("metierSearch")||{}).value||"").trim()));
       offers = res.offers;
     }
     if($("relInd") && $("relInd").checked && offers.length){
@@ -1007,7 +1011,7 @@ async function runSearch(){
     // ── Sources complémentaires (Adzuna + Jooble) ──
     let adzN = 0, jobN = 0;
     if(!$("srcExtra") || $("srcExtra").checked){
-      const kw = (mots || (($("metierSearch")||{}).value||"") || aliasLabel || romeLabel).trim();
+      const kw = (motsQ || (($("metierSearch")||{}).value||"") || aliasLabel || romeLabel).trim();
       const regLabel = (($("region").selectedOptions||[])[0]||{}).textContent || "";
       const loc = (dep && !/^\d+$/.test(dep)) ? dep : (regLabel && !/toute la france|—|choisir/i.test(regLabel) ? regLabel : "");
       const seen = {};
