@@ -99,6 +99,7 @@ var SECTEURS=[
   {id:'assurances',nom:'Assurances (IDCC 1672)'},
   {id:'syntec',nom:'Syntec — conseil, informatique (IDCC 1486)'},
   {id:'enseignement',nom:'Enseignement privé / supérieur — EPNL (IDCC 3218)'},
+  {id:'batiment',nom:'Bâtiment (IDCC 1596/1597 ouvriers · 2609 ETAM · 2420 cadres)'},
   {id:'commun',nom:'Autre / tous secteurs — socle commun'}
 ];
 
@@ -346,6 +347,58 @@ var ENSEIGNEMENT=[
  ]}
 ];
 
+var BATIMENT=[
+ {th:'🏗️ Spécificités Bâtiment — congés, déplacements, minima (IDCC 1596/1597 · 2609 · 2420)',items:[
+   {id:'bat_conges',q:'Dans le bâtiment, les congés payés des salariés sont gérés et réglés par :',art:'régime des caisses de congés payés du BTP (art. D.3141-12 s. C. trav.)',san:'Défaut d\'affiliation/cotisation : redressement + prise en charge des congés à votre charge.',fix:'Affiliation à la caisse CIBTP + déclarations de salaires.',o:[
+     {t:'Une caisse de congés payés du BTP (CIBTP) à laquelle l\'employeur cotise',ok:true},
+     {t:'Directement l\'employeur, comme au régime général'},
+     {t:'France Travail'},
+     {t:'Uniquement pour les cadres'}]},
+   {id:'bat_intemp',q:'Le régime « chômage-intempéries » (heures perdues pour intempéries) impose à l\'entreprise :',art:'art. L.5424-6 s., D.5424-7 s. C. trav.',san:'Rappels d\'indemnités intempéries + redressement de la caisse.',fix:'Procédure de déclaration et d\'indemnisation des intempéries.',o:[
+     {t:'De cotiser à la caisse (CIBTP) et d\'indemniser les heures perdues pour intempéries',ok:true},
+     {t:'De ne rien verser, l\'intempérie étant à la charge du salarié'},
+     {t:'De licencier pour force majeure'},
+     {t:'Rien : c\'est facultatif'}]},
+   {id:'bat_carte',q:'La carte d\'identification professionnelle du BTP (« carte BTP ») est :',art:'art. L.8291-1, R.8291-1 s. C. trav.',san:'Amende administrative jusqu\'à 2 000 € par salarié (4 000 € en récidive), plafond 500 000 €.',fix:'Déclaration des cartes BTP auprès de l\'union des caisses CIBTP.',o:[
+     {t:'Obligatoire pour tout salarié effectuant des travaux de bâtiment/TP, demandée par l\'employeur',ok:true},
+     {t:'Facultative'},
+     {t:'Réservée aux chefs de chantier'},
+     {t:'Délivrée par la mairie'}]},
+   {id:'bat_deplac',q:'Les indemnités de petits déplacements des ouvriers (trajet, transport, repas/panier) sont fixées :',art:'CCN ouvriers bâtiment (IDCC 1596/1597) — petits déplacements',san:'Rappels d\'indemnités sur 3 ans + redressement URSSAF si mal traitées.',fix:'Barème petits déplacements (trajet/transport/panier) par zones.',o:[
+     {t:'Selon des zones concentriques autour du point de rattachement, par barème conventionnel',ok:true},
+     {t:'Au réel uniquement, sur justificatifs'},
+     {t:'Forfaitairement incluses dans le salaire de base'},
+     {t:'Elles ne sont pas dues'}]},
+   {id:'bat_minima',q:'Les salaires minima des ouvriers et ETAM du bâtiment sont fixés :',art:'accords régionaux de salaires (IDCC 1596/1597/2609)',san:'Rappels de salaire (minima régionaux) sur 3 ans, appliqués d\'office par le juge.',fix:'Grille régionale des minima applicable à votre région.',o:[
+     {t:'Par des accords régionaux (grilles régionales)',ok:true},
+     {t:'Uniquement au niveau national'},
+     {t:'Librement par l\'employeur'},
+     {t:'Au niveau du SMIC seulement'}]}
+ ]},
+ {th:'🦺 Sécurité chantier (Bâtiment)',items:[
+   {id:'bat_ppsps',q:'Sur un chantier soumis à coordination SPS, chaque entreprise intervenante doit établir :',art:'art. L.4532-9, R.4532-56 s. C. trav.',san:'Contraventions ; faute inexcusable en cas d\'accident (majoration de rente).',fix:'Modèle de PPSPS (plan particulier de sécurité).',o:[
+     {t:'Un plan particulier de sécurité et de protection de la santé (PPSPS)',ok:true},
+     {t:'Rien de particulier'},
+     {t:'Un simple registre de présence'},
+     {t:'Une note interne facultative'}]},
+   {id:'bat_hauteur',q:'Le travail en hauteur sur un chantier impose en priorité :',art:'art. L.4121-2, R.4323-58 s. C. trav.',san:'Contraventions ; faute inexcusable en cas de chute (majoration de rente).',fix:'Plan de prévention travail en hauteur + vérification des échafaudages.',o:[
+     {t:'Des protections collectives (garde-corps, échafaudages conformes) avant les protections individuelles',ok:true},
+     {t:'Uniquement un harnais individuel'},
+     {t:'Rien en dessous de 3 mètres'},
+     {t:'La seule vigilance du salarié'}]},
+   {id:'bat_amiante',q:'Pour des travaux exposant à l\'amiante (sous-section 3 ou 4), l\'employeur doit :',art:'art. R.4412-94 s. C. trav.',san:'Sanctions pénales lourdes ; faute inexcusable ; arrêt de chantier possible.',fix:'Mode opératoire / plan de retrait amiante + formations SS3/SS4.',o:[
+     {t:'Former les salariés, établir un mode opératoire ou plan de retrait, et assurer un suivi médical renforcé',ok:true},
+     {t:'Rien de spécifique si le chantier est court'},
+     {t:'Se contenter de fournir des masques'},
+     {t:'Laisser le salarié s\'organiser'}]},
+   {id:'bat_sir',q:'Les salariés affectés à des postes à risque (hauteur, amiante, plomb…) relèvent :',art:'art. R.4624-23 s. C. trav.',san:'Responsabilité de l\'employeur en cas d\'atteinte à la santé.',fix:'Planning du suivi individuel renforcé (SIR) + fiches d\'aptitude.',o:[
+     {t:'D\'un suivi individuel renforcé, avec examen d\'aptitude AVANT l\'affectation',ok:true},
+     {t:'D\'aucun suivi médical particulier'},
+     {t:'D\'une visite tous les 5 ans seulement'},
+     {t:'De la médecine de ville'}]}
+ ]}
+];
+
 var HCR=[
  {th:'🍽️ Temps de travail & repos (HCR)',items:[
    {id:'hcr_ampli',q:'Dans les HCR, l\'amplitude maximale d\'une journée de travail est de :',art:'CCN HCR (durée du travail) · art. L.3121-18 C. trav.',san:'Contravention de 4ᵉ classe (750 € par salarié) + rappels d\'heures et de repos.',fix:'Grille de suivi amplitude/coupures HCR.',o:[
@@ -497,13 +550,22 @@ var TRANSPORT=[
 ];
 
 /* Le questionnaire d'un secteur = son bloc spécifique + le socle commun */
-var SPEC={hcr:HCR,transport:TRANSPORT,banque:BANQUE,assurances:ASSURANCES,syntec:SYNTEC,enseignement:ENSEIGNEMENT};
+var SPEC={hcr:HCR,transport:TRANSPORT,banque:BANQUE,assurances:ASSURANCES,syntec:SYNTEC,enseignement:ENSEIGNEMENT,batiment:BATIMENT};
 function questionsFor(sec){
   return SPEC[sec] ? SPEC[sec].concat(SOCLE) : SOCLE;
 }
 
 /* Unités de travail / risques types par secteur pour le DUER */
 var DUER_BASE={
+ batiment:[
+   ['Chantier / gros œuvre','Chutes de hauteur, ensevelissement, heurts d\'engins','Protections collectives, échafaudages conformes, blindage des fouilles, EPI'],
+   ['Manutention / port de charges','TMS, lombalgies','Aides mécaniques, formation gestes et postures, limitation des charges'],
+   ['Outils et machines (scies, meuleuses)','Coupures, projections, bruit, vibrations','Carters de protection, EPI (lunettes, casque anti-bruit), maintenance'],
+   ['Poussières (bois, silice, amiante, plomb)','Maladies respiratoires, cancers','Captation à la source, protection respiratoire, procédures SS3/SS4'],
+   ['Travaux électriques / réseaux','Électrisation, explosion','Consignation, habilitation électrique, DT-DICT avant travaux'],
+   ['Coactivité / circulation chantier','Collisions engins-piétons','Plan de circulation, balisage, coordination SPS'],
+   ['Intempéries / températures extrêmes','Malaises, chutes, hypothermie','Régime intempéries, organisation, EPI adaptés, hydratation']
+ ],
  commun:[
    ['Poste administratif / accueil','Troubles musculo-squelettiques (écran, posture), fatigue visuelle','Siège réglable, pauses écran, éclairage adapté'],
    ['Circulation dans les locaux','Chutes de plain-pied, heurts','Sols antidérapants, signalisation, rangement des passages'],
