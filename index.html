@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-21.94';
+var JX_BUILD = 'v2026-07-21.95';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1150,7 +1150,7 @@ async function verifierCode(){
   const err = document.getElementById('lock-error');
   const h = await _sha256(inp.value);
   if(h === _ADMIN_HASH){
-    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_trial'); }catch(e){}
+    try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
     var _a0=document.getElementById('accueil-screen'); if(_a0) _a0.style.display='none';
     try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
@@ -4935,6 +4935,7 @@ function goPage(id){
   if(btnFixe) btnFixe.style.display = (id==='home') ? 'none' : 'block';
   // Le module Analyse repart à zéro à chaque entrée (pas de résultat/document résiduel)
   if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
+  try{ adminSecPrompt(id); }catch(e){}
 }
 
 function retourAuto(){
@@ -4957,7 +4958,7 @@ function homeToggle(head){
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 function deconnexion(){
-  try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_trial'); }catch(e){}
+  try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
   try{ window.CLIENT_SECTEUR=''; }catch(e){}
   try{ closeMenu(); }catch(e){}
   try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
@@ -4978,6 +4979,35 @@ function _setTransportVisible(show){
   [].forEach.call(document.querySelectorAll('#menu-panel div'),function(d){ if(d.textContent.trim()==='Spécifique transport routier') d.style.display=show?'':'none'; });
 }
 function adminPickSector(v){ try{ if(v) sessionStorage.setItem('jte_sector',v); else sessionStorage.removeItem('jte_sector'); }catch(e){} applyClientSector(); }
+// ── Prompt administrateur : à l'entrée d'un module, choisir le secteur qui adapte toute l'application ──
+var ADMIN_SEC_NONE={home:1,audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1,tarifs:1,contact:1,aide:1,compte:1,admin:1};
+function adminSecPrompt(pageId){
+  try{
+    if(sessionStorage.getItem('jte_admin')!=='1')return;              // administrateur uniquement
+    if(sessionStorage.getItem('jte_sector')||sessionStorage.getItem('jte_secchosen'))return; // déjà choisi
+    if(pageId && ADMIN_SEC_NONE[pageId])return;                        // page sans dimension conventionnelle
+    var ov=document.getElementById('admin-sec-modal');
+    if(!ov){
+      ov=document.createElement('div'); ov.id='admin-sec-modal';
+      ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(10,16,26,.86);display:flex;align-items:center;justify-content:center;padding:18px';
+      var labs=[['','🌐 Tous les secteurs (ne pas verrouiller)']];
+      for(var k in SECTEUR_LAB){ labs.push([k, SECTEUR_LAB[k]]); }
+      var btns=labs.map(function(p){return '<button type="button" onclick="adminSecChoose(\''+p[0]+'\')" style="display:block;width:100%;text-align:left;margin:6px 0;padding:12px 14px;border:1px solid #26405e;border-radius:10px;background:#12203a;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">'+p[1]+'</button>';}).join('');
+      ov.innerHTML='<div style="background:#16263c;border:1px solid #c9a84c;border-radius:16px;max-width:460px;width:100%;padding:20px;max-height:88vh;overflow:auto">'
+        +'<div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px">👑 Choisissez le secteur / la convention</div>'
+        +'<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">Toute l\'application (documents, conventions, calculateurs, jurisprudence) s\'adaptera à ce secteur. Vous pourrez le changer à tout moment via le sélecteur « Secteur (administrateur) ».</div>'
+        +btns+'</div>';
+      document.body.appendChild(ov);
+    }
+    ov.style.display='flex';
+  }catch(e){}
+}
+function adminSecChoose(v){
+  try{ sessionStorage.setItem('jte_secchosen','1'); }catch(e){}
+  try{ var ov=document.getElementById('admin-sec-modal'); if(ov)ov.style.display='none'; }catch(e){}
+  try{ if(typeof adminPickSector==='function') adminPickSector(v); }catch(e){}
+  try{ var act=document.querySelector('.page.act'); if(act){ var id=act.id.replace(/^pg-/,''); if(id && typeof goPage==='function') goPage(id); } }catch(e){}
+}
 function applyClientSector(retry){
   try{
     var admin = (typeof sessionStorage!=='undefined' && sessionStorage.getItem('jte_admin')==='1');
