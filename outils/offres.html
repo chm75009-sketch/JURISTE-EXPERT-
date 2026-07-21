@@ -310,6 +310,14 @@
         <input type="checkbox" id="inclHS" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
         Inclure les offres hors droit social (non classées) dans l'étude
       </label>
+      <label style="display:flex;align-items:center;gap:9px;margin-top:8px;font-size:13.5px;font-weight:600;cursor:pointer">
+        <input type="checkbox" id="inclAvocat" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
+        Inclure les offres pour <b>avocats</b> (profession libérale)
+      </label>
+      <label style="display:flex;align-items:center;gap:9px;margin-top:8px;font-size:13.5px;font-weight:600;cursor:pointer">
+        <input type="checkbox" id="inclAlt" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
+        Inclure les offres en <b>alternance / stage</b>
+      </label>
       <div style="margin-top:12px">
         <button type="button" class="btn btn-ghost" id="enrichBtn">🔎 Compléter les effectifs « non précisé » (annuaire officiel des entreprises)</button>
         <div class="hint" id="enrichNote" style="margin-top:8px"></div>
@@ -639,6 +647,8 @@ $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("inclHS")) $("inclHS").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
+if($("inclAvocat")) $("inclAvocat").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
+if($("inclAlt")) $("inclAlt").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
 if($("syntheseCsv")) $("syntheseCsv").addEventListener("click", function(){
   if(!lastSyntheseRows.length) return;
   var csv=lastSyntheseRows.map(function(r){ return r.map(function(c){ var s=String(c).replace(/"/g,'""'); return /[";\n]/.test(s)?'"'+s+'"':s; }).join(";"); }).join("\r\n");
@@ -832,6 +842,20 @@ const HORS_SUJET_SOCIAL = [
 function estHorsSujetSocial(o){
   var hay=" "+relText(o)+" ";
   return HORS_SUJET_SOCIAL.some(function(t){ return hay.indexOf(norm(t))>=0; });
+}
+// Offre pour AVOCAT (profession libérale) — à isoler du juriste salarié. On repère le rôle dans l'intitulé,
+// SANS confondre avec « cabinet d'avocats » (un juriste peut travailler en cabinet d'avocats).
+function estAvocat(o){
+  var t=" "+norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||""))+" ";
+  t=t.replace(/cabinets? d avocats?/g," ");
+  return /\bavocate?s?\b/.test(t) || t.indexOf(" collaboration liberale ")>=0 || t.indexOf(" collaborateur liberal ")>=0
+      || t.indexOf(" collaboratrice liberale ")>=0 || t.indexOf(" barreau ")>=0 || t.indexOf(" eleve avocat ")>=0 || t.indexOf(" capa ")>=0;
+}
+// Offre en ALTERNANCE / STAGE — à isoler du poste de juriste salarié (intitulé + type de contrat).
+function estAlternance(o){
+  if(o && o.alternance===true) return true;
+  var t=" "+norm((o.intitule||"")+" "+(o.typeContratLibelle||o.typeContrat||"")+" "+(o.natureContrat||""))+" ";
+  return /\b(alternance|alternante?|apprentie?|apprentissage|professionnalisation|stagiaire|stage)\b/.test(t);
 }
 function estRoleExclu(o){
   // On neutralise l'écriture inclusive « (se) (e) (trice)… » qui casserait « travailleur social » -> « travailleur se social e »
@@ -1219,6 +1243,19 @@ function analyse(offers, totalDispo){
     offers = offers.filter(function(o){ return classifyRel(o)!=="Non précisé"; });
   }
   lastUnclass = horsSujet;
+  // Isoler les offres pour AVOCATS et en ALTERNANCE/STAGE (pas des postes de juriste salarié),
+  // sauf si l'utilisateur demande à les inclure. Comptées à part.
+  var inclAvocat = !!($("inclAvocat") && $("inclAvocat").checked);
+  var inclAlt = !!($("inclAlt") && $("inclAlt").checked);
+  var avocats=[], altern=[];
+  if(lastDroitSocial){
+    offers.forEach(function(o){ if(estAvocat(o)) avocats.push(o); else if(estAlternance(o)) altern.push(o); });
+    offers = offers.filter(function(o){
+      if(!inclAvocat && estAvocat(o)) return false;
+      if(!inclAlt && !estAvocat(o) && estAlternance(o)) return false;
+      return true;
+    });
+  }
   const n = offers.length;
 
   /* --- Compétences --- */
@@ -1251,7 +1288,11 @@ function analyse(offers, totalDispo){
     var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
     var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
     var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%)."
-      + (horsSujet.length ? "<br><span style=\"opacity:.8\">"+(inclureHS?"<b>"+horsSujet.length+"</b> offre(s) hors droit social incluses ci-dessus.":"<b>"+horsSujet.length+"</b> offre(s) hors droit social <b>\u00e9cart\u00e9e(s)</b> de l'\u00e9tude (travail social, hors sujet) \u2014 voir le d\u00e9tail ci-dessous.")+"</span>" : "");
+      + (horsSujet.length ? "<br><span style=\"opacity:.8\">"+(inclureHS?"<b>"+horsSujet.length+"</b> offre(s) hors droit social incluses ci-dessus.":"<b>"+horsSujet.length+"</b> offre(s) hors droit social <b>\u00e9cart\u00e9e(s)</b> de l'\u00e9tude (travail social, hors sujet) \u2014 voir le d\u00e9tail ci-dessous.")+"</span>" : "")
+      + ((avocats.length||altern.length) ? "<br><span style=\"opacity:.8\">"
+          + (avocats.length? "\u2696\ufe0f <b>"+avocats.length+"</b> offre(s) pour <b>avocats</b> "+(inclAvocat?"incluses":"isol\u00e9es (cochez pour inclure)")+". " : "")
+          + (altern.length? "\ud83c\udf93 <b>"+altern.length+"</b> offre(s) en <b>alternance/stage</b> "+(inclAlt?"incluses":"isol\u00e9es (cochez pour inclure)")+"." : "")
+          + "</span>" : "");
     // Offres hors droit social \u00e9cart\u00e9es -> inspection (lastUnclass d\u00e9j\u00e0 d\u00e9fini en t\u00eate d'analyse)
     var ub=$("unclassBtn"), ucp=$("unclassCopy"), ubox=$("unclassList");
     if(ub){ ub.style.display = lastUnclass.length? "" : "none"; ub.textContent = "\ud83d\udd0d Voir les "+lastUnclass.length+" offre(s) hors droit social \u00e9cart\u00e9e(s)"; }
