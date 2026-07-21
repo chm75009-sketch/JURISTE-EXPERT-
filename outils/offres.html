@@ -498,17 +498,18 @@ function effectifFromText(o){
   if(o._effTxt!==undefined) return o._effTxt;
   var t=" "+norm((o.description||"")+" "+((o.entreprise&&o.entreprise.description)||"")+" "+(o.intitule||""))+" ";
   var res="";
-  // 1) nombre explicite de salariés / collaborateurs / effectif
-  var m=t.match(/(\d[\d ]{0,7})\s*(salaries|salarie|collaborateur|collaboratrice|personnes|employes|salaries?)/)
-       || t.match(/effectif[^\d]{0,14}(\d[\d ]{0,7})/)
-       || t.match(/(\d[\d ]{0,7})\s*(collaborateurs)/);
-  if(m){ var nb=parseInt(String(m[1]).replace(/\s/g,""),10); if(!isNaN(nb)&&nb>0){ res = nb>=250?"ETI":(nb>=10?"PME":"TPE"); } }
+  // 1) nombre explicite de salariés / collaborateurs / effectif (avec « de », « plus de », « équipe de »…)
+  var m=t.match(/(\d[\d ]{0,7})\s*(salaries?|collaborateurs?|collaboratrices?|personnes|employes?|effectifs?|etp)\b/)
+       || t.match(/effectifs?\s*(?:de|:|d environ)?\s*(\d[\d ]{0,7})/)
+       || t.match(/(?:equipe|entreprise|societe|groupe|structure|cabinet|agence|filiale)\s+de\s+(?:pres de\s+|plus de\s+|environ\s+)?(\d[\d ]{0,7})\b/)
+       || t.match(/(?:pres de|plus de|environ)\s+(\d[\d ]{0,7})\s*(?:salaries?|collaborateurs?|personnes)/);
+  if(m){ var nb=parseInt(String(m[1]).replace(/\s/g,""),10); if(!isNaN(nb)&&nb>0&&nb<2000000){ res = nb>=250?"ETI":(nb>=10?"PME":"TPE"); } }
   // 2) mots-clés de typologie
   if(!res){
-    if(/grand groupe|groupe international|multinationale|leader mondial|leader europ|leader sur son marche|cac 40|sbf 120|cotee? en bourse|milliards? d euros|dizaines de milliers|grande entreprise|grand compte/.test(t)) res="ETI";
+    if(/grand groupe|groupe international|groupe mondial|multinationale|leader mondial|leader europ|leader sur son marche|leader du secteur|cac 40|sbf 120|cotee? en bourse|milliards? d euros|dizaines de milliers|grande entreprise|grand compte|acteur majeur|acteur incontournable|acteur de reference|au sein du groupe|filiale du groupe|reseau international|presence internationale|implante dans plusieurs|plusieurs milliers/.test(t)) res="ETI";
     else if(/ eti |entreprise de taille intermediaire/.test(t)) res="ETI";
-    else if(/ pme | pmi |petite et moyenne entreprise|entreprise a taille humaine|societe a taille humaine/.test(t)) res="PME";
-    else if(/ tpe |start ?up|jeune entreprise|tres petite entreprise|petite structure|petite equipe|cabinet d avocats?|petit cabinet/.test(t)) res="TPE";
+    else if(/ pme | pmi |petite et moyenne entreprise|entreprise a taille humaine|societe a taille humaine|structure a taille humaine|entreprise familiale|societe familiale|groupe familial|entreprise en croissance|scale ?up/.test(t)) res="PME";
+    else if(/ tpe |start ?up|jeune entreprise|tres petite entreprise|petite structure|petite equipe|petit cabinet|cabinet d avocats?|jeune cabinet|creation d entreprise/.test(t)) res="TPE";
   }
   o._effTxt=res;
   return res;
@@ -1044,6 +1045,9 @@ async function runSearch(){
         ? ' &nbsp;·&nbsp; <span class="muted">France Travail : '+ftN.toLocaleString("fr-FR")+(ftTotal>ftN?(' (sur '+ftTotal.toLocaleString("fr-FR")+')'):'')+' · Adzuna : '+adzN+'</span>'
         : (ftTotal>ftN?(' <span class="muted">(sur '+ftTotal.toLocaleString("fr-FR")+' disponibles sur France Travail)</span>'):'');
       $("searchStatus").innerHTML = '<b>'+offers.length.toLocaleString("fr-FR")+'</b> offre'+(offers.length>1?"s":"")+' analysée'+(offers.length>1?"s":"")+srcTxt+'.';
+      // Enrichissement automatique des effectifs « non précisé » via l'annuaire INSEE (en arrière-plan,
+      // sans bloquer l'affichage). Réduit au minimum la colonne « Non précisé ». Idempotent (cache + garde interne).
+      try{ if(typeof enrichEffectifs==="function") setTimeout(function(){ enrichEffectifs(); }, 60); }catch(e){}
     }
   }catch(e){
     $("searchStatus").textContent = "❌ "+e.message;
