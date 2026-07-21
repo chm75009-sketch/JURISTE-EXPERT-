@@ -754,10 +754,10 @@ const IND_TERMS = [
   "contrat de travail","contrats de travail","rupture du contrat","rupture conventionnelle","licenciement","demission","fin de contrat","solde de tout compte","avenant","avenants","periode d essai",
   "discipline","disciplinaire","sanction","sanctions","procedure disciplinaire","faute grave","faute lourde","mise a pied",
   "inaptitude","medecine du travail","accident du travail","maladie professionnelle","arret de travail","absences","gestion des absences","invalidite",
-  "prud","conseil de prud","contentieux prud",
-  "embauche","duree du travail","temps de travail","heures supplementaires","conges payes","conges","rtt","forfait jours",
+  "prud","conseil de prud","contentieux prud","saisine du conseil de prud","entretien prealable","transaction","protocole transactionnel","rupture amiable","depart negocie","clause de non concurrence","clause de mobilite","modification du contrat","modification du contrat de travail","preavis","indemnite de licenciement","certificat de travail","reclassement","pre contentieux","contentieux du travail","gestion disciplinaire","conseil aux managers","conseil aux operationnels","dossier individuel","suivi individuel",
+  "embauche","duree du travail","temps de travail","heures supplementaires","conges payes","conges","rtt","forfait jours","forfait heures","temps partiel","astreinte","teletravail","cdd","cdi","interim","travail temporaire","portage salarial",
   "paie","gestion de la paie","bulletin de paie","administration du personnel","gestion administrative du personnel","gestion du personnel","adp","onboarding",
-  "harcelement","discrimination","conseil aux operationnels","conseil rh","gestion des contentieux","contentieux social","mobilite","expatriation","detachement","mutuelle","prevoyance"
+  "harcelement","discrimination","conseil rh","gestion des contentieux","contentieux social","mobilite","expatriation","detachement","mutuelle","prevoyance"
 ];
 const COL_TERMS = [
   // relation collective de travail (représentants, syndicats, négociation)
@@ -767,9 +767,9 @@ const COL_TERMS = [
   "negociation collective","negociations collectives","accord collectif","accords collectifs","accord d entreprise","accords d entreprise","protocole d accord","protocole preelectoral",
   "dialogue social","relations sociales","climat social","conflit collectif",
   "elections professionnelles","election professionnelle","elections cse",
-  "nao","negociation annuelle","gpec","rupture conventionnelle collective","pse","plan de sauvegarde de l emploi","plan social",
-  "greve","syndical","syndicat","syndicats","delegue syndical","delegues syndicaux","delegue du personnel",
-  "bdes","base de donnees economiques","consultation du cse","reunion cse","reunions cse","expertise cse","droit d alerte"
+  "nao","negociation annuelle","negociation d entreprise","negociation de branche","gpec","gepp","rupture conventionnelle collective","pse","plan de sauvegarde de l emploi","plan social","apc","accord de performance collective","accord de methode","referendum d entreprise",
+  "greve","preavis de greve","conflit social","mouvement social","syndical","droit syndical","syndicat","syndicats","delegue syndical","delegues syndicaux","delegue du personnel","section syndicale","mandat syndical","heures de delegation","credit d heures","local syndical",
+  "bdes","bdese","base de donnees economiques","consultation du cse","consultation des representants","consultations recurrentes","orientations strategiques","politique sociale","situation economique et financiere","reunion cse","reunions cse","reunions des irp","expertise cse","expertise comptable du cse","droit d alerte","ordre du jour du cse","proces verbal de reunion","secretaire du cse","tresorier du cse","referent cse","commission paritaire","paritarisme","vote electronique","pv de carence","activites sociales et culturelles"," asc ","oeuvres sociales","budget de fonctionnement","accord d interessement","accord de participation"
 ];
 function relText(o){
   var parts=[o.intitule||"", o.description||"", o.appellationlibelle||o.appellationLibelle||""];
@@ -799,7 +799,9 @@ function isSocialContext(o){
 }
 // L'offre nomme-t-elle une AUTRE spécialité juridique (étrangers, affaires, pénal…) sans signal droit social explicite ?
 function estAutreSpecialite(o){
-  var hay=" "+norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||"")+" "+(o.description||""))+" ";
+  // On analyse aussi les compétences (relText), pas seulement l'intitulé : une offre « droits étrangers »
+  // ou « droit des affaires » se trahit souvent dans les compétences demandées.
+  var hay=" "+relText(o)+" ";
   var fort = (hay.indexOf("droit social")>=0 || hay.indexOf("droit du travail")>=0 || hay.indexOf("relations sociales")>=0 || hay.indexOf("ressources humaines")>=0);
   if(fort) return false;
   return AUTRE_SPE.some(function(t){ return hay.indexOf(norm(t))>=0; });
@@ -815,9 +817,22 @@ const ROLE_EXCLU = [
   "secretaire","assistant juridique","assistante juridique","assistant administratif","gestionnaire administratif","standardiste","office manager","paralegal","clerc",
   // rémunération / comp & ben (fonction RH, non-juriste)
   "remuneration et avantages","avantages sociaux","responsable remuneration","charge de remuneration","compensation","comp ben","total reward","controle de gestion sociale",
-  // paie / administration du personnel (fonction RH-paie, non-juriste)
-  "paie","gestionnaire de paie","gestionnaire paie","charge de paie","chargee de paie","assistant de paie","assistant paie","technicien de paie","technicien paie","responsable paie","superviseur paie","adp","administration du personnel","gestionnaire adp"
+  // paie / administration du personnel (fonction RH-paie, non-juriste) — PAS « paie » seul,
+  // pour ne pas écarter un « juriste droit social et paie ». Seuls les intitulés de poste paie sont visés.
+  "gestionnaire de paie","gestionnaire paie","charge de paie","chargee de paie","charge paie","assistant de paie","assistant paie","assistante paie","technicien de paie","technicien paie","responsable de paie","responsable paie","superviseur paie","superviseur de paie","adp","administration du personnel","gestionnaire adp"
 ];
+// Signaux FORTS de travail social / mandataire judiciaire (MJPM, tutelle) — repérés dans TOUT le contenu
+// (intitulé + description + compétences), car ces offres arrivent parfois sous un titre « Juriste » générique.
+const HORS_SUJET_SOCIAL = [
+  "protection des majeurs","majeurs proteges","majeur protege","mesure de protection judiciaire","mesures de protection judiciaire",
+  "mandataire judiciaire","mandataire a la protection","delegue mandataire","delegue a la tutelle","tutelle","curatelle","sauvegarde de justice",
+  "inventaire des ressources d une personne","inventaire des ressources","accompagner une personne ou une famille","guider accompagner une personne",
+  "projet de vie de la personne","autonomie de la personne","personnes vulnerables","reinsertion sociale","insertion socioprofessionnelle"
+];
+function estHorsSujetSocial(o){
+  var hay=" "+relText(o)+" ";
+  return HORS_SUJET_SOCIAL.some(function(t){ return hay.indexOf(norm(t))>=0; });
+}
 function estRoleExclu(o){
   // On neutralise l'écriture inclusive « (se) (e) (trice)… » qui casserait « travailleur social » -> « travailleur se social e »
   var t=norm((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||""));
@@ -827,6 +842,8 @@ function estRoleExclu(o){
 function classifyRel(o){
   // Hors sujet : rôle non-juriste (travail social, secrétariat…) -> écarté même si « juriste » est dans le titre
   if(estRoleExclu(o)) return "Non précisé";
+  // Hors sujet : contenu/compétences de travail social ou mandataire judiciaire (MJPM, tutelle) -> écarté
+  if(estHorsSujetSocial(o)) return "Non précisé";
   // Hors sujet : autre spécialité juridique sans aucun signal droit social -> non classé (écarté de l'étude)
   if(estAutreSpecialite(o)) return "Non précisé";
   const sc=relIndScore(o);
