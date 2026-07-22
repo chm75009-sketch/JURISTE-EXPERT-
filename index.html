@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-22.7';
+var JX_BUILD = 'v2026-07-22.8';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1731,7 +1731,7 @@ try{
 <div class="fg"><label class="fl">Catégorie du poste</label>
 <select id="c-cat-poste" onchange="updateCatPoste()">
   <optgroup label="Personnel roulant — Grand routier">
-    <option value="gr_150" data-coeff="150" data-pe="1" data-preavis="2" data-seuil="186.33">GR qualifié — coeff. 150 (>150km habituel)</option>
+    <option value="gr_150" data-coeff="150" data-pe="1" data-preavis="2" data-seuil="186.33">GR qualifié — coeff. 150 (longue distance : découchers)</option>
     <option value="gr_138M" data-coeff="138M" data-pe="1" data-preavis="1" data-seuil="151.67">GR messagerie — coeff. 138M</option>
     <option value="gr_138" data-coeff="138" data-pe="1" data-preavis="1" data-seuil="186.33">GR — coeff. 138</option>
   </optgroup>
@@ -2342,7 +2342,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="fg"><label class="fl">EPI obligatoires</label><input id="ri-epi" placeholder="Ex : chaussures de sécurité, gilet haute visibilité, gants de manutention"/></div>
 <button class="btn" onclick="genRI()">📜 Générer le règlement intérieur →</button>
 <button class="btn-outline" style="margin-top:8px" onclick="genProcedureRI()">📋 Générer la procédure de mise en place →</button>
-<div class="al warn" style="font-size:11px;margin-top:10px">⚠ Le RI ne peut contenir que des clauses relatives à l'hygiène, la sécurité et la discipline. Toute clause contraire aux libertés individuelles non justifiée est nulle. Consultez un avocat avant diffusion.</div>
+<div class="al warn" style="font-size:11px;margin-top:10px">⚠ Le RI est limité aux mesures de santé-sécurité, aux règles de discipline et aux droits de la défense du salarié (art. L.1321-1). Il doit en outre OBLIGATOIREMENT rappeler les dispositions relatives au harcèlement moral, au harcèlement sexuel et aux agissements sexistes, ainsi que l'existence du dispositif de protection des lanceurs d'alerte (art. L.1321-2). Toute clause contraire aux libertés individuelles non justifiée est nulle. Consultez un avocat avant diffusion.</div>
 </div>
 </div>
 
@@ -5803,7 +5803,9 @@ function genChecklistEmbauche(){
 ${document.getElementById('c-has-adr')?.checked?'☐ Certificat ADR en cours de validité<br>':''}</p>
 <p style="${S}"><strong>Actions à réaliser par l'employeur :</strong></p>
 <p style="${S}">☐ Transmettre la DPAE à l'URSSAF (avant ou au plus tard le jour J)<br>
+☐ Pour un ressortissant étranger hors UE : vérifier l'authenticité du titre autorisant le travail auprès de la préfecture au moins 2 jours ouvrables avant l'embauche (art. L.5221-8, R.5221-41 et D.8254-2 C. trav.)<br>
 ☐ Envoyer la convocation à la visite médicale d'embauche (SPST)<br>
+☐ Remettre au salarié, dans les 7 jours calendaires, les informations écrites sur la relation de travail (art. L.1221-5-1 et R.1221-34 C. trav. — directive UE 2019/1152)<br>
 ☐ Remettre le contrat de travail signé<br>
 ☐ Remettre le règlement intérieur (obligatoire si effectif ≥ 50 salariés — L.1311-2 ; recommandé en deçà)<br>
 ☐ Remettre la notice d'information mutuelle et prévoyance<br>
@@ -5923,7 +5925,7 @@ ${cfg.enseignant?'<li>Pour les enseignants/formateurs : maîtrise pédagogique e
 </ul>
 <p style="${S}"><strong>Conditions de travail :</strong></p>
 <ul style="margin-left:20px;${S}">
-<li>Durée du travail : 35 h hebdomadaires (ou aménagement conventionnel applicable)${cadre?' ; pour les cadres autonomes, forfait annuel en jours possible par accord (art. L.3121-58 s. C. trav.)':''}</li>
+<li>Durée du travail : ${cfg.enseignant?'définie par les obligations de service (heures d\'enseignement en face-à-face + activités connexes de préparation, correction et suivi), la rémunération convenue couvrant l\'ensemble de ces temps — et non par un horaire de 35 h de présence':'35 h hebdomadaires (ou aménagement conventionnel applicable)'}${cadre?' ; pour les cadres autonomes, forfait annuel en jours possible par accord (art. L.3121-58 s. C. trav.)':''}</li>
 <li>Suivi médical : visite d'information et de prévention dans les 3 mois de la prise de poste (art. R.4624-10 C. trav.)</li>
 <li>Respect des règles d'hygiène, de sécurité et d'usage des outils de travail</li>
 </ul>
@@ -5952,6 +5954,8 @@ function genChecklistEmbaucheGenerique(sec){
 ☐ Attestation d'inscription France Travail (si demandeur d'emploi)</p>
 <p style="${S}"><strong>Actions à réaliser par l'employeur :</strong></p>
 <p style="${S}">☐ Transmettre la DPAE à l'URSSAF (au plus tard immédiatement avant la mise au travail)<br>
+☐ Pour un ressortissant étranger hors UE : vérifier l'authenticité du titre autorisant le travail auprès de la préfecture au moins 2 jours ouvrables avant l'embauche (art. L.5221-8, R.5221-41 et D.8254-2 C. trav.)<br>
+${sec==='banque'?'☐ Vérifier l\'honorabilité du candidat (extrait de casier judiciaire B3) — interdictions d\'exercer dans le secteur bancaire et financier (art. L.500-1 du Code monétaire et financier)<br>':''}${sec==='ensindep'?'☐ Vérifier l\'honorabilité de l\'enseignant (extrait de casier judiciaire n° 2 et consultation du FIJAISV) — incapacités de diriger un établissement ou d\'y enseigner (art. L.911-5 du Code de l\'éducation)<br>':''}☐ Remettre au salarié, dans les 7 jours calendaires, les informations écrites sur la relation de travail (art. L.1221-5-1 et R.1221-34 C. trav. — directive UE 2019/1152)<br>
 ☐ Affilier à la retraite complémentaire <strong>AGIRC-ARRCO</strong> et à la <strong>prévoyance / complémentaire santé</strong> obligatoire (L.911-7)<br>
 ☐ Organiser la visite d'information et de prévention (SPST) dans les 3 mois<br>
 ☐ Remettre le contrat de travail signé, la notice mutuelle/prévoyance et, le cas échéant, le règlement intérieur (obligatoire si effectif ≥ 50 — L.1311-2)<br>
@@ -6026,10 +6030,10 @@ function genFicheVerif(){
 <hr style="border:none;border-top:1px solid #000;margin:10px 0">
 <table style="width:100%;border-collapse:collapse;${S}">
 <tr style="background:#fff"><th style="border:1px solid #ccc;padding:6px">Paramètre</th><th style="border:1px solid #ccc;padding:6px">Valeur</th><th style="border:1px solid #ccc;padding:6px">Limite légale</th><th style="border:1px solid #ccc;padding:6px">Conformité</th></tr>
-<tr><td style="border:1px solid #ccc;padding:6px">Conduite journalière</td><td style="border:1px solid #ccc;padding:6px">${cj}h</td><td style="border:1px solid #ccc;padding:6px">9h (10h max 2×/sem)</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(cj)<=9?'✓ Conforme':parseFloat(cj)<=10?'⚠ Dérogation':'🚫 Non conforme'}</td></tr>
-<tr><td style="border:1px solid #ccc;padding:6px">Conduite hebdo</td><td style="border:1px solid #ccc;padding:6px">${cs}h</td><td style="border:1px solid #ccc;padding:6px">56h max</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(cs)<=56?'✓ Conforme':'🚫 Non conforme'}</td></tr>
+<tr><td style="border:1px solid #ccc;padding:6px">Conduite journalière</td><td style="border:1px solid #ccc;padding:6px">${cj}h</td><td style="border:1px solid #ccc;padding:6px">9h (10h max 2×/sem)</td><td style="border:1px solid #ccc;padding:6px">${(!cj||isNaN(parseFloat(cj)))?'— À évaluer':parseFloat(cj)<=9?'✓ Conforme':parseFloat(cj)<=10?'⚠ Dérogation':'🚫 Non conforme'}</td></tr>
+<tr><td style="border:1px solid #ccc;padding:6px">Conduite hebdo</td><td style="border:1px solid #ccc;padding:6px">${cs}h</td><td style="border:1px solid #ccc;padding:6px">56h max</td><td style="border:1px solid #ccc;padding:6px">${(!cs||isNaN(parseFloat(cs)))?'— À évaluer':parseFloat(cs)<=56?'✓ Conforme':'🚫 Non conforme'}</td></tr>
 <tr><td style="border:1px solid #ccc;padding:6px">Repos journalier</td><td style="border:1px solid #ccc;padding:6px">${repos}h</td><td style="border:1px solid #ccc;padding:6px">11h (9h réduit)</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(repos)>=11?'✓ Repos normal':parseFloat(repos)>=9?'⚠ Repos réduit':'🚫 Insuffisant'}</td></tr>
-<tr><td style="border:1px solid #ccc;padding:6px">Amplitude journalière</td><td style="border:1px solid #ccc;padding:6px">${amp}h</td><td style="border:1px solid #ccc;padding:6px">12h (14h fractionné)</td><td style="border:1px solid #ccc;padding:6px">${parseFloat(amp)<=12?'✓ Conforme':parseFloat(amp)<=14?'⚠ Fractionné':'🚫 Non conforme'}</td></tr>
+<tr><td style="border:1px solid #ccc;padding:6px">Amplitude journalière</td><td style="border:1px solid #ccc;padding:6px">${amp}h</td><td style="border:1px solid #ccc;padding:6px">12h (14h fractionné)</td><td style="border:1px solid #ccc;padding:6px">${(!amp||isNaN(parseFloat(amp)))?'— À évaluer':parseFloat(amp)<=12?'✓ Conforme':parseFloat(amp)<=14?'⚠ Fractionné':'🚫 Non conforme'}</td></tr>
 </table>
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">Textes applicables : CE 561/2006 · Décret 83-40 du 26/01/1983 · Directive 2002/15/CE<br>Document à usage interne — Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</p>
 </div>`;
@@ -6076,7 +6080,9 @@ ${lignes}
 </table>
 <p style="${S}margin-top:10px"><strong>Conformité hebdomadaire :</strong></p>
 <p style="${S}">Conduite hebdo : ${totalCond}h — Limite : 56h — ${totalCond<=56?'✓ Conforme':'🚫 DÉPASSEMENT'}<br>
-Travail hebdo : ${totalTrav}h — Seuil conventionnel : ${seuil}h — ${totalTrav<=seuil?'✓ Dans le seuil':'⚠ Heures supplémentaires : '+(totalTrav-seuil)+'h'}</p>
+Travail hebdo : ${totalTrav}h — Seuil conventionnel : ${seuil}h — ${totalTrav<=seuil?'✓ Dans le seuil':'⚠ Heures supplémentaires : '+(totalTrav-seuil)+'h'}<br>
+Conduite bimensuelle : limite absolue de 90h sur deux semaines consécutives (règlement CE 561/2006, art. 6-3)<br>
+Repos hebdomadaire : au moins 45h consécutives (repos normal) ou 24h (repos réduit, à compenser avant la fin de la 3<sup>e</sup> semaine suivante) — règlement CE 561/2006, art. 8.</p>
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">CE 561/2006 · Décret 83-40 · Accord branche 20/04/2021 — À conserver 12 mois minimum — Ne constitue pas un conseil juridique</p>
 </div>`;
   showDoc(`Fiche hebdomadaire — ${nom} — Semaine du ${debut}`, html);
@@ -6539,7 +6545,7 @@ ${fautes}
 <p style="${S}text-align:center">Entre en vigueur le [DATE — 1 mois après accomplissement des formalités]<br>Fait à [VILLE], le ${new Date().toLocaleDateString('fr-FR')}</p>
 <p style="${S}text-align:right"><strong>${E.nom}</strong><br>${E.dirigeant} — ${E.qualite}</p>
 <hr style="border:none;border-top:1px solid #ccc;margin:20px 0 8px">
-<p style="${S}font-size:8pt;font-style:italic;color:#555">Trame générée par Juris Expert MCH — Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971). À soumettre au CSE pour avis, puis déposer simultanément à la DREETS et au greffe du CPH, avant affichage. Le RI ne peut contenir que des clauses d'hygiène, de sécurité et de discipline.</p>
+<p style="${S}font-size:8pt;font-style:italic;color:#555">Trame générée par Juris Expert MCH — Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971). À soumettre au CSE pour avis, puis déposer simultanément à la DREETS et au greffe du CPH, avant affichage. Le RI est limité aux mesures de santé-sécurité, aux règles de discipline et aux droits de la défense (art. L.1321-1) et doit rappeler les dispositions sur le harcèlement (moral, sexuel, agissements sexistes) et l'existence du dispositif de protection des lanceurs d'alerte (art. L.1321-2).</p>
 </div>`;
 }
 
@@ -8168,7 +8174,7 @@ ${e.nom}<br>
 <tr><td style="border:1px solid #000;padding:8pt;height:25px"></td></tr>
 <tr><td style="border:1px solid #000;padding:8pt;height:25px"></td></tr>
 </table>
-<p style="${S}font-size:9pt;text-align:center;font-style:italic;margin-top:8px">Cochez le ou les candidats de votre choix</p>
+<p style="${S}font-size:9pt;text-align:center;font-style:italic;margin-top:8px">Scrutin de liste à la représentation proportionnelle : l'électeur retient le bulletin d'UNE seule liste. Il peut rayer un ou plusieurs noms (panachage admis) mais ne peut ni ajouter de nom, ni voter au-delà du nombre de sièges à pourvoir (art. L.2314-29 C. trav.).</p>
 </div>
 
 <p style="${S}margin-top:20px"><strong>Instructions :</strong></p>
@@ -8486,7 +8492,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 <tr><td style="border:1px solid #000;padding:8pt;height:25px">7.</td></tr>
 <tr><td style="border:1px solid #000;padding:8pt;height:25px">8.</td></tr>
 </table>
-<p style="${S}font-size:9pt;text-align:center;font-style:italic;margin-top:8px">Cochez le ou les candidats de votre choix (max 4 titulaires + 4 suppléants)</p>
+<p style="${S}font-size:9pt;text-align:center;font-style:italic;margin-top:8px">2e tour ouvert aux candidatures libres : l'électeur ne peut désigner plus de candidats qu'il n'y a de sièges à pourvoir (barème R.2314-1 selon l'effectif). Il peut rayer des noms (panachage admis)</p>
 </div>
 </div>`;
   }
