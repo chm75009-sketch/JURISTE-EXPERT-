@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-22.3';
+var JX_BUILD = 'v2026-07-22.4';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -2307,7 +2307,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <!-- ═══ MODULE IV — RÈGLEMENT INTÉRIEUR ═══ -->
 <div id="pg-ri" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
-<div style="flex:1"><div class="tt">Règlement intérieur</div><div class="ts">Spécificités transport · Alcool · Tachygraphe · Géolocalisation</div></div>
+<div style="flex:1"><div class="tt">Règlement intérieur</div><div class="ts" id="ri-subtitle">Spécificités transport · Alcool · Tachygraphe · Géolocalisation</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
@@ -2318,18 +2318,19 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
   <option value="moins20">Moins de 50 salariés (RI facultatif mais fortement recommandé)</option>
   <option value="50plus">50 salariés et plus (RI obligatoire + consultation CSE)</option>
 </select></div>
-<div class="fg"><label class="fl">Activités spécifiques</label>
+<div class="fg" id="ri-grp-activites"><label class="fl">Activités spécifiques</label>
 <label class="chk"><input type="checkbox" id="ri-adr"/> Transport matières dangereuses (ADR)</label>
 <label class="chk"><input type="checkbox" id="ri-frigo"/> Transport sous température dirigée (ATP)</label>
 <label class="chk"><input type="checkbox" id="ri-messagerie"/> Messagerie / livraison</label>
 <label class="chk"><input type="checkbox" id="ri-international"/> Transport international (TIR/CMR)</label>
 </div>
-<div class="fg"><label class="fl">Dispositifs de contrôle à inclure</label>
+<div class="fg" id="ri-grp-controle"><label class="fl">Dispositifs de contrôle à inclure</label>
 <label class="chk"><input type="checkbox" id="ri-alcool" checked/> Tests d'alcoolémie sur postes à risque (conducteurs PL)</label>
 <label class="chk"><input type="checkbox" id="ri-stupefiants"/> Tests stupéfiants sur postes à risque</label>
 <label class="chk"><input type="checkbox" id="ri-geoloc" checked/> Géolocalisation des véhicules</label>
 <label class="chk"><input type="checkbox" id="ri-dashcam"/> Dashcam / caméra embarquée</label>
 </div>
+<div class="al info" id="ri-note-secteur" style="font-size:11.5px;display:none"></div>
 <div class="fg"><label class="fl">Durée maximale mise à pied disciplinaire</label>
 <select id="ri-map-duree">
   <option value="3">3 jours</option>
@@ -5084,6 +5085,22 @@ function goPage(id){
   try{ sectorGuard(id); }catch(e){}
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
+  if(id==='ri'){ try{ applyRISector(); }catch(e){} }
+}
+function applyRISector(){
+  try{
+    var sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');
+    var bat=(sec==='batiment');
+    var doc=(typeof SECTOR_DOC!=='undefined'?SECTOR_DOC[sec]:null);
+    var tert=!!doc;
+    var nonT=(bat||tert);
+    var ga=document.getElementById('ri-grp-activites'), gc=document.getElementById('ri-grp-controle'), note=document.getElementById('ri-note-secteur');
+    if(ga)ga.style.display=nonT?'none':'';
+    if(gc)gc.style.display=nonT?'none':'';
+    var sub=document.getElementById('ri-subtitle');
+    if(sub)sub.textContent=bat?'Hygiène · sécurité chantier · EPI · discipline':tert?('Hygiène · sécurité · confidentialité · discipline'):'Spécificités transport · Alcool · Tachygraphe · Géolocalisation';
+    if(note){ if(nonT){ note.style.display=''; note.innerHTML='ℹ️ Le règlement intérieur généré est adapté au secteur <b>'+(bat?'Bâtiment':(doc?doc.lab:''))+'</b> (hygiène, sécurité'+(bat?' de chantier et EPI':' et confidentialité')+', discipline). Les options « transport » ci-dessus ne s\'appliquent pas.'; } else { note.style.display='none'; } }
+  }catch(e){}
 }
 
 function retourAuto(){
@@ -6398,6 +6415,7 @@ function genBulletinTypeGenerique(sec){
 // MODULE IV — RÈGLEMENT INTÉRIEUR
 // ═══════════════════════════════════════
 function genRI(){
+  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genRIBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genRITertiaire(_s); } }catch(e){}
   const eff=gv('ri-effectif');
   const adr=document.getElementById('ri-adr')?.checked;
   const alcool=document.getElementById('ri-alcool')?.checked;
@@ -6485,6 +6503,77 @@ ${dashcam?`<p style="${S}"><strong>Article — Caméra embarquée (dashcam)</str
 <p style="${S}font-size:8pt;font-style:italic;color:#555">Trame générée par Juris Expert MCH — Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971). À soumettre au CSE pour avis, puis déposer simultanément à la DREETS et au greffe du CPH, avant affichage.</p>
 </div>`;
   showDoc('Règlement intérieur — '+E.nom, html);
+}
+
+function _riShell(chap2, fautes){
+  const S=`font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1.8;`;
+  const mapDuree=gv('ri-map-duree')||'5';
+  return `<div style="${S}">
+<h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline;text-transform:uppercase">RÈGLEMENT INTÉRIEUR</h2>
+<p style="${S}text-align:center"><strong>${E.nom}</strong> · SIRET : ${E.siret}<br>${E.adresse}</p>
+<p style="${S}text-align:center;font-style:italic;font-size:10pt">Établi conformément aux articles L.1321-1 à L.1321-6 du Code du travail</p>
+<hr style="border:none;border-top:2px solid #000;margin:12px 0">
+<p style="${S}"><strong>CHAPITRE 1 — CHAMP D'APPLICATION ET DISPOSITIONS GÉNÉRALES</strong></p>
+<p style="${S}">Le présent règlement intérieur s'applique à l'ensemble du personnel de <strong>${E.nom}</strong>, quelle que soit la nature et la durée du contrat. Il s'applique également aux intérimaires et stagiaires présents dans les locaux de l'entreprise.</p>
+<p style="${S}">Il entre en vigueur 1 mois après l'accomplissement des formalités légales (dépôt à la DREETS, dépôt au greffe du CPH, affichage). Tout salarié nouvellement embauché en reçoit un exemplaire.</p>
+<p style="${S}"><strong>CHAPITRE 2 — HYGIÈNE ET SÉCURITÉ</strong></p>
+${chap2}
+<p style="${S}"><strong>CHAPITRE 3 — DISCIPLINE</strong></p>
+<p style="${S}"><strong>Article — Échelle des sanctions</strong></p>
+<p style="${S}">Les sanctions applicables, par ordre croissant de gravité, sont : 1. Avertissement écrit · 2. Blâme · 3. Mise à pied disciplinaire (durée maximale : ${mapDuree} jours) · 4. Rétrogradation · 5. Licenciement pour faute (simple, grave ou lourde).</p>
+<p style="${S}">Conformément à l'article L.1331-2 du Code du travail, <strong>les amendes et sanctions pécuniaires sont interdites</strong> : aucune retenue sur salaire ne peut être opérée à titre de sanction. Toute disposition contraire est réputée non écrite.</p>
+${fautes}
+<p style="${S}"><strong>Article — Procédure disciplinaire</strong></p>
+<p style="${S}">Pour toute sanction autre que l'avertissement et le blâme : convocation à un entretien préalable (LRAR ou remise en main propre, délai minimum 5 jours ouvrables — L.1232-2), entretien avec possibilité d'assistance, puis notification au moins 2 jours ouvrables après l'entretien et dans le mois suivant (L.1332-2).</p>
+<p style="${S}"><strong>CHAPITRE 4 — HARCÈLEMENT ET DROITS DES PERSONNES</strong></p>
+<p style="${S}">Conformément aux articles L.1152-1 (harcèlement moral) et L.1153-1 (harcèlement sexuel et agissements sexistes) du Code du travail, tout acte de harcèlement est strictement interdit et constitue une faute grave. Référent harcèlement : [NOM — à désigner par le CSE si effectif ≥ 11 salariés].</p>
+<p style="${S}"><strong>CHAPITRE 5 — DROIT D'EXPRESSION ET DÉCONNEXION</strong></p>
+<p style="${S}">Les salariés bénéficient d'un droit à la déconnexion des outils numériques professionnels en dehors de leurs heures de travail et pendant leurs temps de repos (art. L.2242-17 C. trav.).</p>
+<hr style="border:none;border-top:2px solid #000;margin:16px 0">
+<p style="${S}text-align:center">Entre en vigueur le [DATE — 1 mois après accomplissement des formalités]<br>Fait à [VILLE], le ${new Date().toLocaleDateString('fr-FR')}</p>
+<p style="${S}text-align:right"><strong>${E.nom}</strong><br>${E.dirigeant} — ${E.qualite}</p>
+<hr style="border:none;border-top:1px solid #ccc;margin:20px 0 8px">
+<p style="${S}font-size:8pt;font-style:italic;color:#555">Trame générée par Juris Expert MCH — Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971). À soumettre au CSE pour avis, puis déposer simultanément à la DREETS et au greffe du CPH, avant affichage. Le RI ne peut contenir que des clauses d'hygiène, de sécurité et de discipline.</p>
+</div>`;
+}
+
+function genRIBatiment(){
+  const S=`font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1.8;`;
+  const epi=gv('ri-epi')||'casque, chaussures de sécurité, gants, vêtements de signalisation et, en hauteur, harnais antichute';
+  const zones=gv('ri-zones')||'zones de stockage, échafaudages, zones de travaux en hauteur ou en tranchée';
+  const chap2=`<p style="${S}"><strong>Article 1 — Règles générales</strong></p>
+<p style="${S}">Chaque salarié respecte les consignes de sécurité du chantier, le plan de prévention et, le cas échéant, le PPSPS. Le non-respect constitue une faute disciplinaire.</p>
+<p style="${S}"><strong>Article 2 — Équipements de protection individuelle (EPI)</strong></p>
+<p style="${S}">Le port des EPI fournis par l'employeur est obligatoire : ${epi} (art. R.4321-4 et L.4122-1 C. trav.). Le refus de porter les EPI constitue une faute disciplinaire.</p>
+<p style="${S}"><strong>Article 3 — Protections collectives et travail en hauteur</strong></p>
+<p style="${S}">Les protections collectives (garde-corps, échafaudages conformes, filets) priment sur les protections individuelles et ne doivent jamais être retirées sans autorisation. Le travail en hauteur obéit aux consignes spécifiques (art. R.4323-58 s. C. trav.).</p>
+<p style="${S}"><strong>Article 4 — Zones à accès restreint et interdiction de fumer</strong></p>
+<p style="${S}">L'accès aux zones suivantes est réservé au personnel habilité : ${zones}. Il est interdit de fumer et de vapoter dans les locaux et zones fermées (art. L.3512-8 C. santé publique).</p>
+<p style="${S}"><strong>Article 5 — Alcool et stupéfiants</strong></p>
+<p style="${S}">L'accès au chantier sous l'empire d'un état alcoolique ou de stupéfiants est interdit. Compte tenu des risques (travail en hauteur, engins, outils dangereux), les salariés occupant ces postes à risque peuvent être soumis à un contrôle d'alcoolémie dans les conditions admises par la jurisprudence (Cass. soc. 27 mars 2012, n° 10-19.915 ; CE 5 déc. 2016, n° 394178) : contrôle réservé aux postes à risque, droit à contre-expertise immédiate, constat en présence d'un témoin.</p>
+<p style="${S}"><strong>Article 6 — Suivi médical et carte BTP</strong></p>
+<p style="${S}">Les salariés affectés à des postes à risque (hauteur, amiante, plomb) relèvent du suivi individuel renforcé (R.4624-23 s. C. trav.). Chaque salarié doit être déclaré pour l'obtention de la carte d'identification professionnelle du BTP (L.8291-1).</p>`;
+  const fautes=`<p style="${S}"><strong>Article — Fautes graves spécifiques</strong></p>
+<p style="${S}">Peuvent constituer une faute grave : le refus répété de porter les EPI, le retrait de protections collectives, le travail en hauteur sans protection, l'état alcoolique ou l'usage de stupéfiants sur le chantier, le refus de contrôle sur poste à risque, le non-respect des consignes du plan de prévention exposant autrui à un danger.</p>`;
+  showDoc('Règlement intérieur (Bâtiment) — '+E.nom, _riShell(chap2, fautes));
+}
+
+function genRITertiaire(sec){
+  var cfg=(typeof SECTOR_DOC!=='undefined'?SECTOR_DOC[sec]:null);
+  const S=`font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1.8;`;
+  const chap2=`<p style="${S}"><strong>Article 1 — Règles générales d'hygiène et de sécurité</strong></p>
+<p style="${S}">Chaque salarié respecte les consignes d'hygiène et de sécurité, les règles d'évacuation et de prévention des incendies, et signale toute situation dangereuse. Le non-respect constitue une faute disciplinaire.</p>
+<p style="${S}"><strong>Article 2 — Interdiction de fumer et de vapoter</strong></p>
+<p style="${S}">Il est interdit de fumer et de vapoter dans les locaux de l'entreprise (art. L.3512-8 C. santé publique et décret n° 2006-1386).</p>
+<p style="${S}"><strong>Article 3 — Alcool</strong></p>
+<p style="${S}">L'introduction et la consommation de boissons alcoolisées sont encadrées ; l'accès au poste en état d'ébriété est interdit (art. R.4228-20/21 C. trav.). L'employeur peut restreindre ou interdire l'alcool lorsque la sécurité l'exige, de façon proportionnée.</p>
+<p style="${S}"><strong>Article 4 — Usage des outils numériques et confidentialité</strong></p>
+<p style="${S}">Les outils informatiques et de communication sont mis à disposition à des fins professionnelles ; un usage personnel raisonnable est toléré. Le salarié respecte la charte informatique, la sécurité des systèmes et la <strong>confidentialité</strong> des informations de l'entreprise et de ses clients. Tout traitement de données personnelles respecte le RGPD (règlement UE 2016/679) ; les dispositifs de contrôle éventuels sont proportionnés (art. L.1121-1 C. trav.) et le CSE informé et consulté (L.2312-38).</p>
+<p style="${S}"><strong>Article 5 — Poste de travail et santé</strong></p>
+<p style="${S}">Le salarié bénéficie du suivi de santé au travail (visite d'information et de prévention dans les 3 mois — R.4624-10) et respecte les recommandations relatives au travail sur écran et à la prévention des risques psychosociaux et des TMS.</p>`;
+  const fautes=`<p style="${S}"><strong>Article — Fautes graves spécifiques</strong></p>
+<p style="${S}">Peuvent constituer une faute grave : la violation de la confidentialité ou du secret professionnel, l'usage frauduleux ou abusif des systèmes d'information, le détournement de données ou de clientèle, et tout manquement grave à la déontologie de la profession${cfg?(' ('+cfg.lab+')'):''}.</p>`;
+  showDoc('Règlement intérieur'+(cfg?(' ('+cfg.lab+')'):'')+' — '+E.nom, _riShell(chap2, fautes));
 }
 
 function genProcedureRI(){
