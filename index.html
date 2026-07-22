@@ -1915,9 +1915,10 @@ try{
 <!-- ═══ MODULE II — TEMPS DE TRAVAIL ═══ -->
 <div id="pg-temps" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
-<div style="flex:1"><div class="tt">Durée du travail</div><div class="ts">Décret 83-40 · CE 561/2006 · Directive 2002/15/CE</div></div>
+<div style="flex:1"><div class="tt">Durée du travail</div><div class="ts" id="temps-subtitle">Décret 83-40 · CE 561/2006 · Directive 2002/15/CE</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
+<div id="temps-transport">
 <div class="card">
 <div class="tab-bar">
   <div class="tab act" id="tab-regles" onclick="showTab('regles')">Règles applicables</div>
@@ -2045,15 +2046,60 @@ try{
 <button class="btn" onclick="genFicheHebdo()" style="margin-top:6px">Générer la fiche de contrôle →</button>
 </div>
 </div>
+</div><!-- /#temps-transport -->
+
+<div id="temps-batiment" class="hidden">
+<div class="card">
+<div class="ct">Durée du travail — Bâtiment</div>
+<div class="al info" style="font-size:12px;margin-bottom:12px;line-height:1.6">Le Bâtiment relève du <b>droit commun</b> de la durée du travail (Code du travail), sans réglementation « temps de conduite/tachygraphe ». S'y ajoute le régime propre du <b>chômage-intempéries</b>.</div>
+
+<div class="item">
+<div class="badge badge-gold">DURÉE DU TRAVAIL</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.95;margin-top:8px">
+<strong style="color:#e8c97a">Durée légale :</strong> 35 h/semaine (art. L.3121-27)<br>
+<strong style="color:#e8c97a">Maximum quotidien :</strong> 10 h (12 h par accord ou dérogation — art. L.3121-18/19)<br>
+<strong style="color:#e8c97a">Maximum hebdomadaire :</strong> 48 h absolu, et 44 h en moyenne sur 12 semaines consécutives (art. L.3121-20/22)<br>
+<strong style="color:#e8c97a">Pause :</strong> 20 min consécutives dès 6 h de travail (art. L.3121-16)<br>
+<strong style="color:#e8c97a">Repos quotidien :</strong> 11 h consécutives (art. L.3131-1)<br>
+<strong style="color:#e8c97a">Repos hebdomadaire :</strong> 35 h consécutives (24 h + 11 h — art. L.3132-2)
 </div>
+</div>
+
+<div class="item">
+<div class="badge badge-gold">HEURES SUPPLÉMENTAIRES</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.95;margin-top:8px">
+Au-delà de 35 h : <strong style="color:#e8c97a">+25 %</strong> pour les 8 premières (36ᵉ-43ᵉ), <strong style="color:#e8c97a">+50 %</strong> au-delà de la 43ᵉ (art. L.3121-36 ; un accord de branche/entreprise peut fixer un autre taux, au moins 10 %). Contingent annuel et contrepartie obligatoire en repos au-delà : selon l'accord applicable.
+</div>
+</div>
+
+<div class="item">
+<div class="badge badge-blue">CHÔMAGE-INTEMPÉRIES</div>
+<div style="font-size:13px;color:#e8e4d8;line-height:1.95;margin-top:8px">
+Lorsque les conditions atmosphériques rendent le travail dangereux ou impossible, l'employeur peut décider l'<strong>arrêt de chantier pour intempéries</strong>. Les heures perdues sont indemnisées au titre du régime <strong>chômage-intempéries</strong> géré par la caisse CIBTP (art. <strong>L.5424-6 s.</strong> et D.5424-7 s. C. trav.). L'indemnité n'est pas due pour la 1ʳᵉ heure perdue (délai de carence) et est plafonnée en nombre d'heures indemnisables par an.
+<span style="display:block;color:#9a9585;font-size:11px;margin-top:4px">Le taux et le plafond sont revalorisés périodiquement — vérifiez les valeurs en vigueur auprès de la CIBTP.</span>
+</div>
+</div>
+
+<div class="item">
+<div class="badge badge-gold">CALCULATRICE — CONFORMITÉ JOURNÉE / SEMAINE</div>
+<div class="bloc" style="margin-top:8px">
+<div class="fg"><label class="fl">Heures travaillées ce jour</label><input type="number" id="tb-jour" step="0.5" placeholder="Ex : 9" oninput="calcTempsBatiment()"/></div>
+<div class="fg"><label class="fl">Heures travaillées cette semaine</label><input type="number" id="tb-sem" step="0.5" placeholder="Ex : 42" oninput="calcTempsBatiment()"/></div>
+<div class="fg"><label class="fl">Repos entre deux journées (heures)</label><input type="number" id="tb-repos" step="0.5" placeholder="Ex : 11" oninput="calcTempsBatiment()"/></div>
+</div>
+<div id="tb-result" style="margin-top:10px"></div>
+</div>
+</div>
+</div><!-- /#temps-batiment -->
 
 
 <!-- ═══ MODULE III — RÉMUNÉRATION ═══ -->
 <div id="pg-remuneration" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
-<div style="flex:1"><div class="tt">Rémunération</div><div class="ts">CCN Transport IDCC 0016 · Barèmes · GAR</div></div>
+<div style="flex:1"><div class="tt">Rémunération</div><div class="ts" id="rem-subtitle">CCN Transport IDCC 0016 · Barèmes · GAR</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
+<div id="rem-transport">
 <div class="card">
 <div class="ct">Simulateur de rémunération mensuelle</div>
 <div class="bloc">
@@ -2157,7 +2203,35 @@ try{
 </div>
 </div>
 </div>
+</div><!-- /#rem-transport -->
+
+<div id="rem-batiment" class="hidden">
+<div class="card">
+<div class="ct">Simulateur de rémunération mensuelle — Bâtiment</div>
+<div class="al warn" style="font-size:11.5px;margin-bottom:10px;line-height:1.6">⚠️ Dans le Bâtiment, les <b>salaires minima sont fixés RÉGION par RÉGION</b> (avenants « salaires » départementaux/régionaux) pour les <b>ouvriers</b> (IDCC 1596/1597) et les <b>ETAM</b> (IDCC 2609) ; seuls les <b>cadres</b> (IDCC 2420) ont des appointements minimaux <b>nationaux</b>. Cet outil calcule le brut à partir du <b>taux horaire que vous saisissez</b> et applique les majorations légales d'heures supplémentaires — il <b>ne peut pas</b> présumer le minimum : vérifiez l'avenant régional en vigueur.</div>
+<div class="bloc">
+<div class="fg"><label class="fl">Taux horaire brut (€) — au moins le minimum conventionnel régional</label><input type="number" id="remb-taux" step="0.01" placeholder="Ex : 13.50" oninput="calcRemBatiment()"/></div>
+<div class="fg"><label class="fl">Durée hebdomadaire de référence</label>
+<select id="remb-base" onchange="calcRemBatiment()">
+  <option value="35">35 h/sem (151,67 h/mois) — durée légale</option>
+  <option value="39">39 h/sem (169 h/mois) — 4 h supp. structurelles</option>
+</select></div>
+<div class="fg"><label class="fl">Heures réellement effectuées ce mois</label><input type="number" id="remb-heures" step="0.5" placeholder="151.67" oninput="calcRemBatiment()"/></div>
+<div class="fg"><label class="fl">Prime d'ancienneté conventionnelle (%) — selon l'accord régional / le collège (à vérifier)</label><input type="number" id="remb-anc" step="0.5" value="0" min="0" oninput="calcRemBatiment()"/></div>
 </div>
+<div id="remb-result" style="margin-top:10px"></div>
+<button class="btn-outline" style="margin-top:10px" onclick="genBulletinType()">📄 Générer le bulletin de paie type →</button>
+</div>
+
+<div class="card">
+<div class="ct">Petits déplacements — ouvriers du Bâtiment</div>
+<div class="al info" style="font-size:12px;margin-bottom:10px;line-height:1.6">Les ouvriers non sédentaires perçoivent trois indemnités de <b>petits déplacements</b>, calculées par <b>zones concentriques</b> autour du point de rattachement, selon un <b>barème RÉGIONAL</b> révisé chaque année :</div>
+<div class="item"><div class="badge badge-gold">TRAJET</div><div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:6px">Indemnise la sujétion du trajet quotidien entre le domicile et le chantier. Due <b>quel que soit le moyen de transport</b> utilisé, y compris si l'ouvrier est véhiculé par l'entreprise (Cass. soc. 6 mai 1998, n° 94-40.496). Barème par zone — à vérifier sur l'avenant régional.</div></div>
+<div class="item"><div class="badge badge-blue">TRANSPORT</div><div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:6px">Rembourse les frais de transport engagés pour se rendre sur le chantier. Barème par zone — à vérifier sur l'avenant régional.</div></div>
+<div class="item"><div class="badge badge-gold">REPAS / PANIER</div><div style="font-size:13px;color:#e8e4d8;line-height:1.9;margin-top:6px">Indemnité de repas (panier) lorsque l'ouvrier ne peut regagner sa résidence ou un lieu de restauration habituel. Montant régional — à vérifier. En cas de <b>grand déplacement</b> (impossibilité de regagner le domicile), c'est le régime des indemnités de grand déplacement qui s'applique (logement + repas).</div></div>
+<div class="al warn" style="font-size:11px;margin-top:8px;line-height:1.6">⚠ Montants NON affichés volontairement : ils dépendent de la région du chantier et sont revalorisés chaque année. Consultez l'avenant « petits déplacements » régional en vigueur (source : la fédération BTP régionale ou Légifrance).</div>
+</div>
+</div><!-- /#rem-batiment -->
 
 <!-- ═══ MODULE IV — RÈGLEMENT INTÉRIEUR ═══ -->
 <div id="pg-ri" class="page">
@@ -4092,7 +4166,7 @@ Exemple :<br>
   <div class="fg" id="cg-brut"><label class="fl">Rémunération brute totale perçue pendant tout le CDD (€)</label><input id="calc-brut" type="number" min="0" step="100" value="0"></div>
   <div class="fg" id="cg-cddmotif"><label class="fl">Cas du CDD (détermine si la prime est due)</label><select id="calc-cddmotif"><option value="normal">CDD classique (remplacement, accroissement…) — prime due</option><option value="saisonnier">CDD saisonnier — prime NON due</option><option value="usage">CDD d'usage (déménagement) — prime NON due</option><option value="cdi-refus">Refus par le salarié d'un CDI sur le même emploi — NON due</option><option value="cdi-suite">Embauche en CDI à l'issue — NON due</option><option value="rupture-salarie">Rupture anticipée à l'initiative du salarié / faute grave — NON due</option><option value="jeune-vacances">Jeune pendant ses vacances scolaires/universitaires — NON due</option></select></div>
   <div class="fg" id="cg-retmode"><label class="fl">Situation de départ en retraite</label><select id="calc-retmode"><option value="mise">Mise à la retraite (à l'initiative de l'employeur)</option><option value="depart">Départ volontaire à la retraite (à l'initiative du salarié)</option></select></div>
-  <div class="fg" id="cg-secteur"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="autre">Autre convention</option></select></div>
+  <div class="fg" id="cg-secteur"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="autre">Autre convention</option></select></div>
   <div id="calc-secteur-note" style="font-size:12px;color:#6b5a2e;background:#fff7e6;border:1px solid #e7d9b0;border-radius:8px;padding:8px;margin-bottom:8px;display:none"></div>
   <div class="fg" id="cg-conv"><label class="fl">Indemnité conventionnelle connue (€) — facultatif</label><input id="calc-conv" type="number" min="0" step="50" placeholder="Montant selon votre CCN, si connu"></div>
   <button class="btn" onclick="calcIndemXIV()">Calculer</button>
@@ -4649,7 +4723,7 @@ function calcIndemXIV(){
 }
 function calcSecteurNote(){
   var sc=(document.getElementById('calc-secteur')||{}).value||'';
-  var N={transport:'CCN Transports routiers (IDCC 0016) : l\'indemnité conventionnelle de licenciement varie selon l\'ancienneté et la catégorie (roulants/sédentaires, ouvriers-employés, agents de maîtrise, cadres) et peut dépasser l\'indemnité légale.',banque:'CCN Banque (IDCC 2120) : indemnité conventionnelle de licenciement généralement plus favorable, par tranches d\'ancienneté.',assurances:'CCN Sociétés d\'assurances (IDCC 1672) : barème conventionnel d\'indemnité de licenciement par tranches d\'ancienneté.',syntec:'CCN Syntec (IDCC 1486) : indemnité de licenciement propre (ETAM / ingénieurs et cadres) selon l\'ancienneté.',enseignement:'EPNL (IDCC 3218) : convention multi-strates ; indemnité selon la strate, souvent plus favorable que le légal.',formation:'Organismes de formation (IDCC 1516) : indemnité de licenciement selon l\'ancienneté et la catégorie ; vérifier la grille.',ensindep:'Enseignement privé indépendant hors contrat (IDCC 2691) : indemnité selon l\'ancienneté et la catégorie ; vérifier la grille.',autre:'Reportez-vous à la grille d\'indemnité de licenciement de votre convention collective.'};
+  var N={transport:'CCN Transports routiers (IDCC 0016) : l\'indemnité conventionnelle de licenciement varie selon l\'ancienneté et la catégorie (roulants/sédentaires, ouvriers-employés, agents de maîtrise, cadres) et peut dépasser l\'indemnité légale.',batiment:'Bâtiment : conventions distinctes selon le collège — ouvriers (IDCC 1596 entreprises ≤ 10 salariés / 1597 > 10), ETAM (IDCC 2609), cadres (IDCC 2420). L\'indemnité conventionnelle de licenciement et le préavis varient selon le collège et l\'ancienneté ; vérifiez la grille du collège applicable.',banque:'CCN Banque (IDCC 2120) : indemnité conventionnelle de licenciement généralement plus favorable, par tranches d\'ancienneté.',assurances:'CCN Sociétés d\'assurances (IDCC 1672) : barème conventionnel d\'indemnité de licenciement par tranches d\'ancienneté.',syntec:'CCN Syntec (IDCC 1486) : indemnité de licenciement propre (ETAM / ingénieurs et cadres) selon l\'ancienneté.',enseignement:'EPNL (IDCC 3218) : convention multi-strates ; indemnité selon la strate, souvent plus favorable que le légal.',formation:'Organismes de formation (IDCC 1516) : indemnité de licenciement selon l\'ancienneté et la catégorie ; vérifier la grille.',ensindep:'Enseignement privé indépendant hors contrat (IDCC 2691) : indemnité selon l\'ancienneté et la catégorie ; vérifier la grille.',autre:'Reportez-vous à la grille d\'indemnité de licenciement de votre convention collective.'};
   var d=document.getElementById('calc-secteur-note');
   if(d){if(N[sc]){d.textContent='ℹ️ '+N[sc]+' On retient toujours le montant le plus favorable (légal ou conventionnel).';d.style.display='block';}else{d.style.display='none';}}
 }
@@ -4937,6 +5011,8 @@ function goPage(id){
   if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
   try{ adminSecPrompt(id); }catch(e){}
   try{ sectorGuard(id); }catch(e){}
+  if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
+  if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
 }
 
 function retourAuto(){
@@ -5012,7 +5088,7 @@ function adminSecChoose(v){
 // ── Garde-fou intégrité : modules calibrés TRANSPORT — avertir si un autre secteur est actif ──
 var TRANSPORT_ONLY={embauche:1,contrat:1,remuneration:1,cout:1};
 // Modules déjà reconstruits et vérifiés pour un secteur (plus de bannière d'avertissement) :
-var DONE_SECTOR_MODULE={batiment:{contrat:1,embauche:1}};
+var DONE_SECTOR_MODULE={batiment:{contrat:1,embauche:1,remuneration:1}};
 function sectorGuard(pageId){
   try{
     var sec=''; try{ sec=sessionStorage.getItem('jte_sector')||''; }catch(e){}
@@ -5796,6 +5872,70 @@ ${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indem
 </div>`;
 }
 
+function applyTempsSector(){
+  try{
+    var sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');
+    var bat=(sec==='batiment');
+    var t=document.getElementById('temps-transport'), b=document.getElementById('temps-batiment');
+    if(t)t.classList.toggle('hidden',bat);
+    if(b)b.classList.toggle('hidden',!bat);
+    var sub=document.getElementById('temps-subtitle');
+    if(sub)sub.textContent=bat?'Droit commun · heures sup. · intempéries':'Décret 83-40 · CE 561/2006 · Directive 2002/15/CE';
+  }catch(e){}
+}
+function calcTempsBatiment(){
+  var res=document.getElementById('tb-result'); if(!res)return;
+  var j=parseFloat(String(gv('tb-jour')).replace(',','.'))||0;
+  var s=parseFloat(String(gv('tb-sem')).replace(',','.'))||0;
+  var r=parseFloat(String(gv('tb-repos')).replace(',','.'))||0;
+  var items=[];
+  if(j>0)items.push('<div class="'+(j<=10?'ok':j<=12?'warn':'err')+' al"><strong>Journée : '+j+' h</strong><br>'+(j<=10?'✓ Conforme — max 10 h (L.3121-18)':j<=12?'⚠ Au-delà de 10 h : possible seulement par accord/dérogation, plafond 12 h (L.3121-19)':'🚫 Dépassement — 12 h maximum même par dérogation')+'</div>');
+  if(s>0){var hs=s>35?s-35:0;items.push('<div class="'+(s<=44?(s<=35?'ok':'warn'):s<=48?'warn':'err')+' al"><strong>Semaine : '+s+' h</strong><br>'+(s<=35?'✓ Dans la durée légale (35 h)':(s<=48?('⚠ '+hs.toFixed(1).replace('.',',')+' h supplémentaires (+25 % puis +50 %) — plafond 48 h/sem, 44 h en moyenne sur 12 sem (L.3121-20/22)'):'🚫 Dépassement — 48 h maximum sur une semaine (L.3121-20)'))+'</div>');}
+  if(r>0)items.push('<div class="'+(r>=11?'ok':'err')+' al"><strong>Repos quotidien : '+r+' h</strong><br>'+(r>=11?'✓ Conforme (≥ 11 h — L.3131-1)':'🚫 Insuffisant — 11 h minimum entre deux journées')+'</div>');
+  res.innerHTML=items.join('')||'<div class="loi">Saisissez au moins une valeur pour vérifier la conformité.</div>';
+}
+function applyRemunerationSector(){
+  try{
+    var sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');
+    var bat=(sec==='batiment');
+    var t=document.getElementById('rem-transport'), b=document.getElementById('rem-batiment');
+    if(t)t.classList.toggle('hidden',bat);
+    if(b)b.classList.toggle('hidden',!bat);
+    var sub=document.getElementById('rem-subtitle');
+    if(sub)sub.textContent=bat?'Bâtiment · brut, heures sup., déplacements':'CCN Transport IDCC 0016 · Barèmes · GAR';
+    if(bat)try{calcRemBatiment();}catch(e){}
+  }catch(e){}
+}
+function calcRemBatiment(){
+  var res=document.getElementById('remb-result'); if(!res)return;
+  var taux=parseFloat(String(gv('remb-taux')).replace(',','.'))||0;
+  var base=parseFloat(gv('remb-base'))||35;
+  var seuil=Math.round(base*52/12*100)/100;              // 35→151,67 ; 39→169
+  var heures=parseFloat(String(gv('remb-heures')).replace(',','.'))||seuil;
+  var anc=parseFloat(String(gv('remb-anc')).replace(',','.'))||0;
+  var smicH=(typeof SMIC_H!=='undefined'?SMIC_H:12.31);
+  if(taux<=0){res.innerHTML='<div class="loi">Saisissez le taux horaire brut pour lancer la simulation.</div>';return;}
+  var sousSmic=(taux<smicH-0.005);
+  var salBase=Math.round(Math.min(heures,seuil)*taux*100)/100;
+  var band25=Math.max(0,(43-base))*52/12;                // largeur mensuelle tranche +25 % (36e-43e)
+  var hsTot=Math.max(0,heures-seuil);
+  var hs1=Math.round(Math.min(hsTot,band25)*100)/100, hs2=Math.round(Math.max(0,hsTot-band25)*100)/100;
+  var mHs1=Math.round(hs1*taux*1.25*100)/100, mHs2=Math.round(hs2*taux*1.50*100)/100;
+  var prime=Math.round(seuil*taux*anc/100*100)/100;      // prime d'ancienneté sur le minimum (indicatif)
+  var totalBrut=Math.round((salBase+mHs1+mHs2+prime)*100)/100;
+  var eu=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  res.innerHTML='<div class="item"><div class="badge badge-gold">SIMULATION — INDICATIF</div>'
+    +'<div style="font-size:13px;line-height:2;margin-top:8px;color:#e8e4d8">'
+    +(sousSmic?'<span style="display:block;background:#fff3cd;border:1px solid #e0a83a;border-radius:6px;padding:6px 8px;margin:4px 0;color:#7a5a12;font-size:12px">⚠️ <b>Taux horaire inférieur au SMIC</b> ('+eu(smicH)+' €). Illégal (L.3231-2) — et le minimum conventionnel RÉGIONAL du Bâtiment est généralement supérieur au SMIC : à corriger.</span>':'')
+    +'Taux horaire retenu : '+eu(taux)+' €/h<br>'
+    +'Salaire de base ('+Math.min(heures,seuil)+' h) : <strong>'+eu(salBase)+' €</strong><br>'
+    +(hs1>0?'Heures sup. 36e-43e ('+hs1+' h × +25 %) : + '+eu(mHs1)+' €<br>':'')
+    +(hs2>0?'Heures sup. au-delà de la 43e ('+hs2+' h × +50 %) : + '+eu(mHs2)+' €<br>':'')
+    +(prime>0?'Prime d\'ancienneté ('+anc+' % — à confirmer sur l\'accord régional) : + '+eu(prime)+' €<br>':'')
+    +'<strong style="color:#e8c97a;font-size:15px">Total brut : '+eu(totalBrut)+' €</strong></div>'
+    +'<div class="loi">Majorations d\'heures supplémentaires : +25 % pour les 8 premières (36e-43e), +50 % au-delà (art. L.3121-36 C. trav. ; un accord de branche/entreprise peut prévoir un taux différent, au minimum 10 %). S\'ajoutent, non calculés ici car <b>régionaux</b> : le <b>minimum conventionnel</b> (à vérifier — voir avertissement), les <b>petits déplacements</b> (trajet/transport/panier) et, le cas échéant, la <b>prime de vacances CIBTP</b> (30 % de l\'indemnité de congés). Vérifiez l\'avenant régional « salaires » et « petits déplacements » en vigueur.</div>'
+    +'</div>';
+}
 function garRows(){var c=gv('gar-cat')||'ouv';return c==='ouv'?(GARD.ouv.bases[gv('gar-base')||'200']||{}):GARD[c].rows;}
 function garBuild(){
   var c=gv('gar-cat')||'ouv';
@@ -5837,6 +5977,7 @@ function calcCarence(){
 }
 
 function genBulletinType(){
+  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genBulletinTypeBatiment(); } }catch(e){}
   const S=`font-family:'Times New Roman',serif;font-size:10pt;color:#000;line-height:1.7;`;
   const coeff=gv('rem-coeff');
   const heures=parseFloat(gv('rem-heures'))||169;
@@ -5873,6 +6014,44 @@ function genBulletinType(){
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">Trame de bulletin — À compléter par le logiciel de paie ou l'expert-comptable. Ce document ne remplace pas un bulletin de paie réglementaire. Ne constitue pas un conseil juridique.</p>
 </div>`;
   showDoc('Bulletin de paie type — '+mois, html);
+}
+
+function genBulletinTypeBatiment(){
+  const S=`font-family:'Times New Roman',serif;font-size:10pt;color:#000;line-height:1.7;`;
+  const taux=parseFloat(String(gv('remb-taux')).replace(',','.'))||0;
+  const base=parseFloat(gv('remb-base'))||35;
+  const seuil=Math.round(base*52/12*100)/100;
+  const heures=parseFloat(String(gv('remb-heures')).replace(',','.'))||seuil;
+  const mois=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const salBase=taux>0?(Math.round(Math.min(heures,seuil)*taux*100)/100):0;
+  const eur=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const html=`<div style="${S}">
+<table style="width:100%;border:none;margin-bottom:16px">
+<tr><td style="border:none;width:60%;vertical-align:top">
+<strong>${E.nom}</strong><br>${E.adresse}<br>SIRET : ${E.siret}
+</td><td style="border:none;width:40%;vertical-align:top;text-align:right">
+<strong>BULLETIN DE PAIE</strong><br>Période : ${mois}
+</td></tr></table>
+<hr style="border:none;border-top:2px solid #000;margin:8px 0">
+<table style="width:100%;border:none;margin-bottom:12px">
+<tr><td style="border:none;width:50%"><strong>Salarié :</strong> [NOM PRÉNOM]</td><td style="border:none;width:50%"><strong>N° SS :</strong> [NSS]</td></tr>
+<tr><td style="border:none"><strong>Poste :</strong> [POSTE]</td><td style="border:none"><strong>Classification :</strong> [niveau / position]</td></tr>
+<tr><td style="border:none"><strong>Convention :</strong> Bâtiment (IDCC 1596/1597 · 2609 · 2420)</td><td style="border:none"><strong>Ancienneté :</strong> [X ans]</td></tr>
+</table>
+<hr style="border:none;border-top:1px solid #ccc;margin:8px 0">
+<table style="width:100%;border-collapse:collapse;font-size:10pt">
+<tr style="background:#fff"><th style="border:1px solid #ccc;padding:5px;text-align:left">Éléments de paie</th><th style="border:1px solid #ccc;padding:5px">Base</th><th style="border:1px solid #ccc;padding:5px">Taux</th><th style="border:1px solid #ccc;padding:5px">Montant</th></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Salaire de base</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${Math.min(heures,seuil)} h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${taux>0?eur(taux):'[taux]'}</td><td style="border:1px solid #ccc;padding:5px;text-align:right">${taux>0?eur(salBase)+' €':'[MONTANT] €'}</td></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Heures supplémentaires (si applicable)</td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X] h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">+25 % / +50 %</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Prime d'ancienneté (accord régional)</td><td style="border:1px solid #ccc;padding:5px;text-align:center"></td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X] %</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
+<tr style="font-weight:bold;background:#fff"><td style="border:1px solid #ccc;padding:5px">SALAIRE BRUT</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[BRUT] €</td></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Cotisations salariales (dont retraite/prévoyance PRO BTP)</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">- [COTIS] €</td></tr>
+<tr style="font-weight:bold;background:#fff"><td style="border:1px solid #ccc;padding:5px">NET À PAYER AVANT IR</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[NET] €</td></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Petits déplacements (trajet + transport + panier, exonérés dans les limites URSSAF)</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[IND] €</td></tr>
+</table>
+<p style="${S}font-size:9pt;font-style:italic;margin-top:12px">Spécificités Bâtiment : les <strong>congés payés</strong> ne figurent pas sur ce bulletin — ils sont gérés et réglés par la <strong>caisse CIBTP</strong>. Retraite/prévoyance : <strong>PRO BTP</strong>. Cotisation <strong>OPPBTP</strong> due par l'employeur. Trame à compléter par le logiciel de paie ou l'expert-comptable — ne remplace pas un bulletin réglementaire (art. R.3243-1 s. C. trav.). Ne constitue pas un conseil juridique.</p>
+</div>`;
+  showDoc('Bulletin de paie type (Bâtiment) — '+mois, html);
 }
 
 
