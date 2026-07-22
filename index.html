@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-21.96';
+var JX_BUILD = 'v2026-07-22.1';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5011,10 +5011,12 @@ function adminSecChoose(v){
 }
 // ── Garde-fou intégrité : modules calibrés TRANSPORT — avertir si un autre secteur est actif ──
 var TRANSPORT_ONLY={embauche:1,contrat:1,remuneration:1,cout:1};
+// Modules déjà reconstruits et vérifiés pour un secteur (plus de bannière d'avertissement) :
+var DONE_SECTOR_MODULE={batiment:{contrat:1,embauche:1}};
 function sectorGuard(pageId){
   try{
     var sec=''; try{ sec=sessionStorage.getItem('jte_sector')||''; }catch(e){}
-    var show = sec && sec!=='transport' && TRANSPORT_ONLY[pageId];
+    var show = sec && sec!=='transport' && TRANSPORT_ONLY[pageId] && !((DONE_SECTOR_MODULE[sec]||{})[pageId]);
     var g=document.getElementById('sector-guard');
     if(show){
       if(!g){ g=document.createElement('div'); g.id='sector-guard';
@@ -5212,6 +5214,7 @@ function checkSalaire(){
 }
 
 function genContrat(){
+  try{ var _sec0=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_sec0==='batiment'){ return genContratBatiment(); } }catch(e){}
   const nom=gv('c-nom')||'[NOM]';
   const poste=gv('c-poste')||'[POSTE]';
   const coeff=gv('c-coeff')||'[COEFF]';
@@ -5345,6 +5348,89 @@ ${geolocOk?`<p style="${S}"><strong style="${S}">${art("Géolocalisation")}</str
   showDoc(`Contrat ${typeLabel} — ${civ} ${nom}`, html);
 }
 
+// ── Contrat de travail dédié BÂTIMENT (IDCC 1596/1597 ouvriers · 2609 ETAM · 2420 cadres) ──
+// Aucune mention transport (ni véhicule, ni permis, ni tachy). Données vérifiées ; minima régionaux NON inventés.
+function genContratBatiment(){
+  const nom=gv('c-nom')||'[NOM]';
+  const poste=gv('c-poste')||'[POSTE]';
+  const classif=gv('c-coeff')||'[niveau / position]';
+  const sal=gv('c-salaire')||'[SALAIRE]';
+  const depot=gv('c-depot')||E.adresse;
+  const debut=gv('c-debut')?fmt(new Date(gv('c-debut'))):'[DATE]';
+  const pe=gv('c-pe');
+  const naiss=gv('c-naissance')?fmt(new Date(gv('c-naissance'))):'[DATE NAISS]';
+  const lieun=gv('c-lieu-naiss')||'[LIEU]';
+  const nat=gv('c-nationalite')||'[NATIONALITÉ]';
+  const ss=gv('c-ss')||'[NSS]';
+  const adrSal=gv('c-adr-sal')||'[ADRESSE]';
+  const dureeHebdo=gv('c-duree-hebdo')||'35';
+  const dureeMoisMap={'35':'151,67','39':'169','43':'186,33'};
+  const dureeMois=dureeMoisMap[dureeHebdo]||('['+(dureeHebdo==='autre'?'à préciser':dureeHebdo)+']');
+  const joursTravail=gv('c-jours-travail')||'du lundi au vendredi';
+  const horaires=gv('c-horaires')||'selon l’horaire collectif du chantier / de l’établissement, affiché sur le lieu de travail';
+  const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
+  // Contrôle salaire : on ne dispose pas d'un minimum conventionnel NATIONAL (les minima ouvriers/ETAM sont RÉGIONAUX).
+  // On contrôle donc honnêtement contre le SMIC, et on rappelle de vérifier la grille régionale.
+  const _smicH=(typeof SMIC_H!=='undefined'?SMIC_H:12.31);
+  const _seuilNum=parseFloat(String(dureeMois).replace(',','.'))||151.67;
+  const _salNum=parseFloat(String(sal).replace(/\s/g,'').replace(',','.'));
+  const _miniSmic=Math.round(_smicH*_seuilNum*100)/100;
+  const _eur=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  const _sousSmic=(isFinite(_salNum)&&_salNum>0&&_salNum<_miniSmic-1);
+  const _remClause=_sousSmic
+    ? `Salaire mensuel brut : <strong>${sal} €</strong> pour ${dureeMois} h. <strong style="color:#b00020">⚠ SALAIRE INFÉRIEUR AU SMIC (≈ ${_eur(_miniSmic)} € pour ${dureeMois} h) — illégal. À corriger avant signature.</strong> De plus, ce montant doit être au moins égal au <strong>minimum conventionnel de la grille RÉGIONALE</strong> du Bâtiment applicable (ouvriers/ETAM), à vérifier pour la région du chantier.`
+    : `Salaire mensuel brut : <strong>${sal} €</strong> pour ${dureeMois} h. Ce montant doit être au moins égal au <strong>minimum conventionnel de la grille RÉGIONALE</strong> du Bâtiment (ouvriers IDCC 1596/1597, ETAM IDCC 2609) applicable à la région du chantier, ou aux appointements minimaux nationaux des cadres (IDCC 2420) — à vérifier sur l’avenant régional en vigueur.`;
+  if(_sousSmic){try{alert('⚠ Salaire inférieur au SMIC ('+sal+' € < ≈ '+_eur(_miniSmic)+' €). À corriger. Vérifiez aussi la grille RÉGIONALE Bâtiment.');}catch(e){}}
+  // Essai (vérifié) : ouvriers 2 mois non renouvelable ; ETAM 2 mois renouv. 1x ; cadres 3 mois renouv. 1x.
+  const _essaiClause=(pe==='0')?'Aucune période d’essai.'
+    :'Période d’essai de '+(pe||'[…]')+' mois. Repères Bâtiment : OUVRIERS (IDCC 1596/1597) 2 mois, NON renouvelable ; ETAM (IDCC 2609) 2 mois, renouvelable une fois (4 mois max) ; CADRES (IDCC 2420) 3 mois, renouvelable une fois (6 mois max, information écrite au moins 8 jours avant le terme). Délais de prévenance de rupture : art. L.1221-25 C. trav.';
+  const typeLabel={'cdi':'DURÉE INDÉTERMINÉE','cdd':'DURÉE DÉTERMINÉE','cddi':'DURÉE DÉTERMINÉE'}[contratType]||'DURÉE INDÉTERMINÉE';
+  const mobOk=document.getElementById('c-mobilite')?.checked;
+  const mobZone=gv('c-mob-zone')||'[ZONE]';
+  const ncOk=document.getElementById('c-nonconc')?.checked;
+  const ncDuree=gv('c-nc-duree')||'12';const ncZone=gv('c-nc-zone')||'[ZONE]';const ncPct=gv('c-nc-pct')||'20';
+  let _n=1; const art=(t)=>'Article '+(_n++)+' — '+t;
+  let html=`<div style="${S}">
+<h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline;text-transform:uppercase;margin-bottom:4px">CONTRAT DE TRAVAIL À ${typeLabel}</h2>
+<p style="${S}text-align:center;font-style:italic;margin-bottom:20px">Convention collective nationale du Bâtiment — Ouvriers IDCC 1596 (entreprises ≤ 10 salariés) / 1597 (&gt; 10 salariés) · ETAM IDCC 2609 · Cadres IDCC 2420</p>
+<p style="${S}"><strong>Entre les soussignés :</strong></p>
+<p style="${S}"><strong>${E.nom}</strong>, ${E.qualite} : ${E.dirigeant}, siège social : ${E.adresse}, SIRET : ${E.siret}, ci-après « l'Employeur »,</p>
+<p style="${S}">D'une part, et</p>
+<p style="${S}"><strong>${civ} ${nom}</strong>, né(e) le ${naiss} à ${lieun}, de nationalité ${nat}, N° SS : ${ss}, demeurant : ${adrSal}, ci-après « le Salarié »,</p>
+<p style="${S}">D'autre part, il a été convenu ce qui suit :</p>
+<hr style="border:none;border-top:1px solid #000;margin:12px 0">
+<p style="${S}"><strong>${art("Engagement et classification")}</strong></p>
+<p style="${S}">${E.nom} engage ${civ} ${nom} à compter du ${debut} en qualité de <strong>${poste}</strong>, classification <strong>${classif}</strong> (niveau / position de la grille Bâtiment applicable). Lieu de rattachement : ${depot}. Le salarié pourra être affecté sur les différents chantiers de l'entreprise.</p>
+<p style="${S}">Le présent contrat est régi par le Code du travail et par la convention collective nationale du Bâtiment applicable à la catégorie du salarié (ouvriers IDCC 1596/1597 selon l'effectif, ETAM IDCC 2609, cadres IDCC 2420). Le salarié reconnaît avoir été informé de la convention collective et du règlement intérieur applicables (art. R.1221-34 C. trav.).</p>
+<p style="${S}"><strong>${art("Durée du travail")}</strong></p>
+<p style="${S}">Durée hebdomadaire : <strong>${dureeHebdo==='autre'?'[à préciser]':dureeHebdo} heures</strong> (${dureeMois} h mensuelles). Répartition : ${joursTravail}. Horaires : ${horaires}. Les heures supplémentaires éventuelles sont décomptées et majorées conformément à la loi et à la convention. Le régime du <strong>« chômage-intempéries »</strong> (art. L.5424-6 s. C. trav.) s'applique aux heures perdues pour intempéries.</p>
+<p style="${S}"><strong>${art("Rémunération")}</strong></p>
+<p style="${S}">${_remClause}</p>
+<p style="${S}"><strong>${art("Petits déplacements")}</strong></p>
+<p style="${S}">Le salarié bénéficie, s'il y a lieu, des indemnités de petits déplacements de la convention collective des ouvriers du Bâtiment (indemnité de <strong>trajet</strong>, indemnité de <strong>transport</strong>, indemnité de <strong>repas/panier</strong>), calculées par zones concentriques autour du point de rattachement, selon le barème conventionnel en vigueur. L'indemnité de trajet est due indépendamment du moyen de transport (Cass. soc. 6 mai 1998, n° 94-40.496).</p>
+<p style="${S}"><strong>${art("Congés payés")}</strong></p>
+<p style="${S}">Les congés payés sont gérés et réglés par la <strong>caisse de congés payés du BTP (CIBTP)</strong> à laquelle l'employeur est affilié et cotise. L'indemnité de congés, augmentée le cas échéant de la prime de vacances, est versée par la caisse dans les conditions de son règlement.</p>
+<p style="${S}"><strong>${art("Prévoyance et retraite")}</strong></p>
+<p style="${S}">Le salarié est affilié aux régimes de prévoyance et de retraite du BTP (PRO BTP) et à la complémentaire santé obligatoire, dans les conditions conventionnelles et légales (art. L.911-7 C. séc. soc.).</p>
+<p style="${S}"><strong>${art("Carte d'identification professionnelle du BTP")}</strong></p>
+<p style="${S}">L'employeur déclare le salarié en vue de l'établissement de sa <strong>carte d'identification professionnelle du BTP</strong> (carte BTP), obligatoire pour tout salarié effectuant des travaux de bâtiment ou de travaux publics (art. L.8291-1 et R.8291-1 s. C. trav.).</p>
+<p style="${S}"><strong>${art("Santé et sécurité")}</strong></p>
+<p style="${S}">Le salarié s'engage à respecter les consignes de sécurité, à porter les équipements de protection fournis et à respecter les protections collectives (travail en hauteur, échafaudages, etc.). En cas de poste à risque (travail en hauteur, amiante, plomb), il bénéficie d'un suivi individuel renforcé (examen d'aptitude préalable à l'affectation, art. R.4624-23 s. C. trav.).</p>
+<p style="${S}"><strong>${art("Période d'essai")}</strong></p>
+<p style="${S}">${_essaiClause}</p>
+<p style="${S}"><strong>${art("Préavis")}</strong></p>
+<p style="${S}">Sauf faute grave ou lourde, la rupture du contrat est précédée d'un préavis conventionnel : OUVRIERS — 2 jours (ancienneté &lt; 3 mois) puis 2 semaines ; ETAM — 1 mois (&lt; 2 ans), 2 mois (≥ 2 ans) ; CADRES — 2 mois (&lt; 2 ans), 3 mois (≥ 2 ans).</p>`;
+  if(mobOk) html+=`<p style="${S}"><strong>${art("Mobilité")}</strong></p><p style="${S}">Compte tenu de l'activité par chantiers, le salarié pourra être affecté sur tout chantier situé dans la zone suivante : <strong>${mobZone}</strong>, sans que cela constitue une modification du contrat.</p>`;
+  if(ncOk) html+=`<p style="${S}"><strong>${art("Non-concurrence")}</strong></p><p style="${S}">Une clause de non-concurrence s'applique pendant <strong>${ncDuree} mois</strong> sur la zone <strong>${ncZone}</strong>, en contrepartie d'une indemnité mensuelle égale à <strong>${ncPct}%</strong> de la moyenne des salaires. Sans contrepartie financière, la clause serait nulle (Cass. soc. 10 juil. 2002).</p>`;
+  html+=`<p style="${S}"><strong>${art("Documents et engagements")}</strong></p>
+<p style="${S}">Le salarié fournira les documents nécessaires et déclare être libre de tout engagement. Le contrat est établi en deux exemplaires.</p>
+<p style="${S}margin-top:16px">Fait à ______, le ${new Date().toLocaleDateString('fr-FR')}, en deux exemplaires.</p>
+<table style="${S}width:100%;margin-top:14px"><tr><td style="${S}width:50%">L'Employeur<br>(signature + cachet)</td><td style="${S}width:50%">Le Salarié<br>(signature, précédée de « Lu et approuvé »)</td></tr></table>
+<p style="font-family:'Times New Roman',serif;font-size:8pt;color:#555;font-style:italic;margin-top:14px">Trame administrative générée par Juris Expert MCH — Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971) — Vérifier la grille régionale et faire valider par un professionnel avant signature.</p>
+</div>`;
+  showDoc(`Contrat ${typeLabel} (Bâtiment) — ${civ} ${nom}`, html);
+}
+
 function genDPAE(){
   const nom=gv('c-nom')||'[NOM]';
   const naiss=gv('c-naissance')?fmt(new Date(gv('c-naissance'))):'[DATE]';
@@ -5370,6 +5456,7 @@ Poste : ${gv('c-poste')||'[POSTE]'}</p>
 }
 
 function genFichePoste(){
+  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genFichePosteBatiment(); } }catch(e){}
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
   const poste=gv('c-poste')||'[POSTE]';
   const coeff=gv('c-coeff')||'[COEFF]';
@@ -5419,6 +5506,7 @@ ${document.getElementById('c-has-adr')?.checked?'<li>Certificat ADR en cours de 
 }
 
 function genChecklistEmbauche(){
+  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genChecklistEmbaucheBatiment(); } }catch(e){}
   const nom=gv('c-nom')||'[NOM]';
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:2;`;
   const html=`<div style="${S}">
@@ -5448,6 +5536,85 @@ ${document.getElementById('c-has-adr')?.checked?'☐ Certificat ADR en cours de 
 ☐ Remettre le règlement intérieur (obligatoire si effectif ≥ 50 salariés — L.1311-2 ; recommandé en deçà)<br>
 ☐ Remettre la notice d'information mutuelle et prévoyance<br>
 ☐ Ouvrir l'accès aux outils informatiques et au tachygraphe du véhicule<br>
+☐ Inscrire le salarié au registre unique du personnel</p>
+<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">
+<p style="${S}font-size:10pt;font-style:italic">Ne constitue pas un conseil juridique — Document établi le ${new Date().toLocaleDateString('fr-FR')}</p>
+</div>`;
+  showDoc('Checklist embauche — '+nom, html);
+}
+
+function genFichePosteBatiment(){
+  const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
+  const poste=gv('c-poste')||'[POSTE]';
+  const coeff=gv('c-coeff')||'[niveau / position]';
+  const html=`<div style="${S}">
+<h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline">FICHE DE POSTE</h2>
+<p style="${S}text-align:center"><strong>${E.nom}</strong> · SIRET : ${E.siret}</p>
+<hr style="border:none;border-top:1px solid #000;margin:12px 0">
+<p style="${S}"><strong>Intitulé du poste :</strong> ${poste}</p>
+<p style="${S}"><strong>Classification :</strong> ${coeff} — grille du Bâtiment applicable (ouvriers IDCC 1596/1597 selon l'effectif, ETAM IDCC 2609, cadres IDCC 2420)</p>
+<p style="${S}"><strong>Rattachement :</strong> ${gv('c-depot')||E.adresse} · Affectation sur les différents chantiers de l'entreprise</p>
+<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">
+<p style="${S}"><strong>Missions principales :</strong></p>
+<ul style="margin-left:20px;${S}">
+<li>Réaliser les travaux de ${poste} conformément aux plans, aux règles de l'art et aux normes en vigueur (DTU)</li>
+<li>Préparer, organiser et sécuriser sa zone de travail sur le chantier</li>
+<li>Respecter les protections collectives et les consignes du plan de prévention / PPSPS</li>
+<li>Utiliser et entretenir l'outillage et les matériaux mis à disposition</li>
+<li>Rendre compte de l'avancement et signaler tout aléa ou situation dangereuse (droit d'alerte et de retrait, art. L.4131-1 C. trav.)</li>
+<li>Maintenir le chantier propre et évacuer les déchets selon les consignes de tri</li>
+</ul>
+<p style="${S}"><strong>Qualifications / habilitations selon le poste :</strong></p>
+<ul style="margin-left:20px;${S}">
+<li>Qualification professionnelle du métier (CAP/BP/titre pro ou expérience équivalente)</li>
+<li>Aptitude médicale au poste — suivi individuel renforcé (SIR) si poste à risque : travail en hauteur, amiante, plomb (art. R.4624-23 s. C. trav.)</li>
+<li>Le cas échéant : habilitation au montage/démontage d'échafaudages (art. R.4323-69 C. trav.), habilitation électrique (NF C18-510), CACES pour la conduite d'engins de chantier (art. R.4323-55 C. trav.), AIPR pour les travaux à proximité de réseaux</li>
+<li>Formations sécurité : accueil sécurité au poste, gestes et postures, SST le cas échéant</li>
+</ul>
+<p style="${S}"><strong>Sécurité — obligations spécifiques Bâtiment :</strong></p>
+<ul style="margin-left:20px;${S}">
+<li>Port obligatoire des équipements de protection individuelle fournis par l'employeur (casque, chaussures de sécurité, gants, harnais en hauteur… — art. R.4321-4 et L.4122-1 C. trav.)</li>
+<li>Respect des protections collectives contre les chutes de hauteur (garde-corps, échafaudages conformes) avant recours aux protections individuelles</li>
+<li>Détention de la <strong>carte d'identification professionnelle du BTP</strong> (carte BTP — art. L.8291-1 C. trav.)</li>
+<li>Respect du régime « chômage-intempéries » et des consignes d'arrêt de chantier (art. L.5424-6 s. C. trav.)</li>
+</ul>
+<hr style="border:none;border-top:1px solid #ccc;margin:12px 0">
+<p style="${S}font-size:10pt;font-style:italic">Fiche de poste non contractuelle — établie à titre indicatif le ${new Date().toLocaleDateString('fr-FR')}</p>
+</div>`;
+  showDoc('Fiche de poste — '+poste, html);
+}
+
+function genChecklistEmbaucheBatiment(){
+  const nom=gv('c-nom')||'[NOM]';
+  const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:2;`;
+  const html=`<div style="${S}">
+<h2 style="${S}font-size:13pt;text-align:center;text-decoration:underline">CHECKLIST EMBAUCHE — DOCUMENTS À COLLECTER (BÂTIMENT)</h2>
+<p style="${S}text-align:center"><strong>${E.nom}</strong> · Salarié : ${civ} ${nom} · Date d'embauche : ${gv('c-debut')?fmt(new Date(gv('c-debut'))):'[DATE]'}</p>
+<hr style="border:none;border-top:1px solid #000;margin:12px 0">
+<p style="${S}"><strong>Documents administratifs obligatoires :</strong></p>
+<p style="${S}">☐ Pièce d'identité en cours de validité (CNI ou passeport)<br>
+☐ Carte Vitale (attestation de droits à l'assurance maladie)<br>
+☐ Relevé d'Identité Bancaire (RIB)<br>
+☐ Justificatif de domicile de moins de 3 mois<br>
+☐ Titre de séjour valant autorisation de travail (si ressortissant étranger hors UE — vérification obligatoire auprès de la préfecture, art. L.8251-1 C. trav.)<br>
+☐ CV, diplômes et certifications professionnelles<br>
+☐ Attestation d'inscription France Travail (si demandeur d'emploi)</p>
+<p style="${S}"><strong>Documents / habilitations spécifiques chantier (selon le poste) :</strong></p>
+<p style="${S}">☐ Attestation d'aptitude médicale au poste — suivi individuel renforcé (SIR) si poste à risque (hauteur, amiante, plomb)<br>
+☐ Habilitation échafaudage (montage/démontage) si concerné<br>
+☐ Habilitation électrique (NF C18-510) si concerné<br>
+☐ CACES engins de chantier si concerné<br>
+☐ AIPR (travaux à proximité de réseaux) si concerné<br>
+☐ Attestations de formation sécurité (SST, gestes et postures, sous-section 4 amiante si concerné)</p>
+<p style="${S}"><strong>Actions à réaliser par l'employeur :</strong></p>
+<p style="${S}">☐ Transmettre la DPAE à l'URSSAF (au plus tard immédiatement avant la mise au travail)<br>
+☐ Déclarer le salarié pour l'établissement de la <strong>carte BTP</strong> (art. L.8291-1 C. trav.)<br>
+☐ Affilier / déclarer le salarié à la caisse de <strong>congés payés du BTP (CIBTP)</strong><br>
+☐ Affilier aux régimes de prévoyance et retraite du BTP (PRO BTP) et à la complémentaire santé<br>
+☐ Organiser la visite d'information et de prévention ou l'examen médical d'aptitude (SIR) auprès du SPST<br>
+☐ Remettre le contrat de travail signé et la notice mutuelle/prévoyance<br>
+☐ Remettre et faire émarger les EPI ; assurer l'accueil sécurité au poste (art. R.4141-3-1 C. trav.)<br>
+☐ Remettre le règlement intérieur (obligatoire si effectif ≥ 50 salariés — L.1311-2)<br>
 ☐ Inscrire le salarié au registre unique du personnel</p>
 <hr style="border:none;border-top:1px solid #ccc;margin:12px 0">
 <p style="${S}font-size:10pt;font-style:italic">Ne constitue pas un conseil juridique — Document établi le ${new Date().toLocaleDateString('fr-FR')}</p>
@@ -12143,6 +12310,8 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 (function(){
   var A={};                       // réponses du parcours en cours
   window.WZA=A;
+  function curSec(){try{return (typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');}catch(e){return '';}}
+  function isBat(){return curSec()==='batiment';}
   function V(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
   function box(h){var b=document.getElementById('wz-emb');if(b){b.innerHTML=h;}try{window.scrollTo(0,0);}catch(e){}}
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -12272,6 +12441,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var opts='<option value="">— nouveau salarié (saisir ci-dessous) —</option>';
     list.forEach(function(f,i){opts+='<option value="'+i+'">'+esc(f.nom||('Fiche '+(i+1)))+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
     var cats=document.getElementById('c-cat-poste')?document.getElementById('c-cat-poste').innerHTML:'';
+    var bat=isBat();
     var h=head(cdd?5:2,cdd?5:4,'👤 Le salarié et le poste','Sélectionnez une fiche existante ou saisissez — la fiche salarié sera créée automatiquement.');
     h+=fg('Fiche salarié existante','<select id="wz-fiche" onchange="wzPickFiche(this.value)">'+opts+'</select>')
       +fg('Civilité','<select id="wz-civ"><option value="m">M.</option><option value="mme"'+(A.civ==='mme'?' selected':'')+'>Mme</option></select>')
@@ -12280,24 +12450,40 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +fg('Lieu de naissance',inp('wz-lieu','Ex : Paris (75)','text',A.lieuNaiss))
       +fg('Nationalité',inp('wz-nat','Française','text',A.nationalite||'Française'))
       +fg('N° Sécurité sociale',inp('wz-ss','15 chiffres','text',A.ss))
-      +fg('Adresse',inp('wz-adr','Ex : 12 rue des Lilas, 95100 Argenteuil','text',A.adr))
-      +fg('Catégorie du poste (CCN transport) *','<select id="wz-cat">'+cats+'</select>')
-      +loi('Le coefficient détermine automatiquement le <b>salaire minimum</b>, la <b>période d’essai</b> et le <b>préavis</b> conventionnels.')
-      +fg('Le salarié conduira-t-il des véhicules ? *','<select id="wz-conducteur"><option value="">— choisir —</option><option value="oui"'+(A.conducteur==='oui'?' selected':'')+'>Oui — conducteur</option><option value="non"'+(A.conducteur==='non'?' selected':'')+'>Non — sédentaire</option></select>')
-      +fg('Salaire mensuel brut (€) *',inp('wz-sal','Ex : 2200','number',A.salaire));
+      +fg('Adresse',inp('wz-adr','Ex : 12 rue des Lilas, 95100 Argenteuil','text',A.adr));
+    if(bat){
+      h+=fg('Poste / métier *',inp('wz-poste-bat','Ex : Maçon, Coffreur, Chef d’équipe','text',A.posteLab))
+        +fg('Classification (niveau / position) *',inp('wz-classif-bat','Ex : Niveau II position 1 — coeff. 185','text',A.coeff))
+        +loi('Grille du Bâtiment applicable : ouvriers IDCC 1596/1597 selon l’effectif, ETAM IDCC 2609, cadres IDCC 2420. Les minima ouvriers/ETAM sont <b>régionaux</b> : vérifiez l’avenant régional en vigueur.')
+        +fg('Poste à risque particulier (travail en hauteur, amiante, plomb) ? *','<select id="wz-risque"><option value="">— choisir —</option><option value="oui"'+(A.risque==='oui'?' selected':'')+'>Oui — suivi individuel renforcé (SIR)</option><option value="non"'+(A.risque==='non'?' selected':'')+'>Non — suivi standard</option></select>');
+    } else {
+      h+=fg('Catégorie du poste (CCN transport) *','<select id="wz-cat">'+cats+'</select>')
+        +loi('Le coefficient détermine automatiquement le <b>salaire minimum</b>, la <b>période d’essai</b> et le <b>préavis</b> conventionnels.')
+        +fg('Le salarié conduira-t-il des véhicules ? *','<select id="wz-conducteur"><option value="">— choisir —</option><option value="oui"'+(A.conducteur==='oui'?' selected':'')+'>Oui — conducteur</option><option value="non"'+(A.conducteur==='non'?' selected':'')+'>Non — sédentaire</option></select>');
+    }
+    h+=fg('Salaire mensuel brut (€) *',inp('wz-sal','Ex : 2200','number',A.salaire));
     if(!cdd)h+=fg('Date d’embauche *',inp('wz-emb','','date',A.debut));
     box(h+btns('wzSalarieNext()',cdd?'cdd-dates':'start'));
-    if(A.cat){var c=document.getElementById('wz-cat');if(c)c.value=A.cat;}};
+    if(!bat&&A.cat){var c=document.getElementById('wz-cat');if(c)c.value=A.cat;}};
   window.wzPickFiche=function(i){if(i==='')return;var f=salList()[parseInt(i,10)];if(!f)return;
     var m={'wz-nom':f.nom,'wz-adr':f.adr,'wz-sal':f.sal};Object.keys(m).forEach(function(k){var e=document.getElementById(k);if(e&&m[k])e.value=m[k];});};
-  window.wzSalarieNext=function(){A.civ=V('wz-civ');A.nom=V('wz-nom');A.naissance=V('wz-naissance');A.lieuNaiss=V('wz-lieu');A.nationalite=V('wz-nat');A.ss=V('wz-ss');A.adr=V('wz-adr');A.cat=V('wz-cat');A.conducteur=V('wz-conducteur');A.salaire=V('wz-sal');
+  window.wzSalarieNext=function(){A.civ=V('wz-civ');A.nom=V('wz-nom');A.naissance=V('wz-naissance');A.lieuNaiss=V('wz-lieu');A.nationalite=V('wz-nat');A.ss=V('wz-ss');A.adr=V('wz-adr');A.salaire=V('wz-sal');
+    var bat=isBat();
     if(A.type!=='cdd')A.debut=V('wz-emb');
     if(!A.nom){alert('Le nom du salarié est obligatoire.');return;}
-    if(!A.conducteur){alert('Précisez si le salarié conduira (cela change la visite médicale et les documents à exiger).');return;}
+    if(bat){
+      A.posteLab=V('wz-poste-bat');A.coeff=V('wz-classif-bat');A.risque=V('wz-risque');A.conducteur='non';A.seuil='151.67';A.pe='';
+      if(!A.posteLab){alert('Le poste / métier est obligatoire.');return;}
+      if(!A.coeff){alert('La classification (niveau / position) est obligatoire.');return;}
+      if(!A.risque){alert('Précisez si le poste est à risque (cela change le suivi médical : SIR ou standard).');return;}
+    } else {
+      A.cat=V('wz-cat');A.conducteur=V('wz-conducteur');
+      if(!A.conducteur){alert('Précisez si le salarié conduira (cela change la visite médicale et les documents à exiger).');return;}
+    }
     if(!A.salaire){alert('Le salaire est obligatoire.');return;}
     if(!A.debut){alert('La date d’embauche est obligatoire.');return;}
-    var c=document.getElementById('wz-cat'),o=c&&c.options[c.selectedIndex];
-    A.coeff=o?(o.dataset.coeff||''):'';A.posteLab=o?o.text.replace(/\s*—.*$/,''):'';A.seuil=o?(o.dataset.seuil||'169'):'169';A.pe=o?(o.dataset.pe||'2'):'2';
+    if(!bat){var c=document.getElementById('wz-cat'),o=c&&c.options[c.selectedIndex];
+      A.coeff=o?(o.dataset.coeff||''):'';A.posteLab=o?o.text.replace(/\s*—.*$/,''):'';A.seuil=o?(o.dataset.seuil||'169'):'169';A.pe=o?(o.dataset.pe||'2'):'2';}
     wzSaveFiche();wzGo('result');};
   function wzSaveFiche(){try{var list=salList(),f={nom:A.nom,poste:A.posteLab+(A.coeff?(' — coeff. '+A.coeff):''),adr:A.adr,emb:A.debut,type:(A.type==='cdd'?'CDD':'CDI'),coeff:A.coeff,sal:A.salaire};
     var i=list.findIndex(function(x){return String(x.nom||'').toLowerCase()===f.nom.toLowerCase();});
@@ -12310,6 +12496,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var cp=document.getElementById('c-cat-poste');if(cp&&A.cat){cp.value=A.cat;try{updateCatPoste();}catch(e){}}
     try{setCiv(A.civ||'m');}catch(e){}
     var map={'c-nom':A.nom,'c-naissance':A.naissance,'c-lieu-naiss':A.lieuNaiss,'c-nationalite':A.nationalite,'c-ss':A.ss,'c-adr-sal':A.adr,'c-salaire':A.salaire,'c-debut':A.debut,'c-poste':A.posteLab};
+    if(isBat())map['c-coeff']=A.coeff||'';
     Object.keys(map).forEach(function(k){var e=document.getElementById(k);if(e)e.value=map[k]||'';});
     try{calcPE();}catch(e){}try{checkSalaire();}catch(e){}
     if(A.type==='cdd'){var mm=document.getElementById('c-cdd-motif');if(mm){mm.value=A.motif;try{updateMotifCDD();}catch(e){}}
@@ -12346,15 +12533,17 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
      +(brut?(' <span style="color:#9a9585">(≈ '+String(Math.round(mensuel/brut*100)/100).replace('.',',')+' fois le brut)</span>'):'');};
 
   /* ── Résultat : verdict + documents + obligations ── */
-  S.result=function(){var cdd=(A.type==='cdd'),cond=(A.conducteur==='oui');
-    var peLab={'0':'sans période d’essai','1':'1 mois','2':'2 mois','3':'3 mois'}[A.pe]||A.pe+' mois';
-    var minima='';try{if(typeof MINIMA!=='undefined'&&A.coeff){var tx=MINIMA[String(A.coeff).replace('M','')];
+  S.result=function(){var cdd=(A.type==='cdd'),cond=(A.conducteur==='oui'),bat=isBat();
+    var peLab={'0':'sans période d’essai','1':'1 mois','2':'2 mois','3':'3 mois'}[A.pe]||(A.pe?A.pe+' mois':'');
+    var minima='';try{if(!bat&&typeof MINIMA!=='undefined'&&A.coeff){var tx=MINIMA[String(A.coeff).replace('M','')];
       if(tx){var minMens=Math.round(tx*parseFloat(A.seuil)*100)/100;
         minima=(parseFloat(A.salaire)<minMens)?'<li>⚠️ <b>Salaire sous le minimum conventionnel estimé</b> ('+String(minMens).replace('.',',')+' € pour '+A.seuil+' h au taux '+String(tx).replace('.',',')+' €/h — coeff. '+A.coeff+') : à corriger.</li>':'<li>✅ Salaire ≥ minimum conventionnel estimé ('+String(minMens).replace('.',',')+' € — coeff. '+A.coeff+').</li>';}}}catch(e){}
+    if(bat){var _smh=(typeof SMIC_H!=='undefined'?SMIC_H:12.31),_minS=Math.round(_smh*151.67*100)/100,_sn=parseFloat(String(A.salaire).replace(',','.'));
+      minima=(isFinite(_sn)&&_sn>0&&_sn<_minS-1)?'<li>⚠️ <b>Salaire inférieur au SMIC</b> (≈ '+String(_minS).replace('.',',')+' € pour 151,67 h) : illégal, à corriger.</li>':'<li>✅ Salaire ≥ SMIC. Vérifiez qu’il atteint le <b>minimum conventionnel RÉGIONAL</b> du Bâtiment (ouvriers/ETAM) applicable à la région du chantier.</li>';}
     var h=head(cdd?5:4,cdd?5:4,'✅ Votre embauche est prête','');
-    h+='<div class="wz-ok"><b>'+(cdd?('CDD — '+MOTIF_LAB[A.motif]):'CDI')+'</b> · '+esc(A.nom)+' · '+esc(A.posteLab)+(A.coeff?(' (coeff. '+A.coeff+')'):'')+'<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
+    h+='<div class="wz-ok"><b>'+(cdd?('CDD — '+MOTIF_LAB[A.motif]):'CDI')+'</b> · '+esc(A.nom)+' · '+esc(A.posteLab)+(A.coeff?(' ('+esc(A.coeff)+')'):'')+'<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
       +'<li>Motif '+(cdd?'vérifié — mentions obligatoires intégrées au contrat (L.1242-12)':'— CDI, forme normale (L.1221-2)')+'.</li>'
-      +'<li>Période d’essai conventionnelle : <b>'+peLab+'</b> (CCN transport, selon coefficient).</li>'
+      +(bat?'<li>Période d’essai (repères Bâtiment) : OUVRIERS 2 mois non renouvelable · ETAM 2 mois renouv. 1x · CADRES 3 mois renouv. 1x — selon le collège du salarié.</li>':'<li>Période d’essai conventionnelle : <b>'+peLab+'</b> (CCN transport, selon coefficient).</li>')
       +(cdd&&A.terme==='imprecis'?'<li>Terme imprécis : durée minimale <b>'+esc(A.dureeMin)+' mois</b>, fin au '+(A.motif==='saisonnier'?'terme de la saison':'retour/arrivée du salarié')+'.</li>':'')
       +(cdd?'<li>Indemnité de fin de contrat 10 % (L.1243-8)'+((A.motif==='saisonnier'||A.motif==='usage')?' — <b>non due</b> pour ce motif (L.1243-10)':'')+'.</li>':'')
       +minima+'</ul></div>';
@@ -12365,7 +12554,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +fg('Niveau de cotisations patronales (après réduction générale)','<select id="wz-ct-taux" onchange="wzCoutCalc()"><option value="6"'+(defT===6?' selected':'')+'>≈ 6 % — au voisinage du SMIC (RGDU maximale ≈ 39 %)</option><option value="20"'+(defT===20?' selected':'')+'>≈ 20 % — rémunération intermédiaire</option><option value="32"'+(defT===32?' selected':'')+'>≈ 32 % — rémunération élevée</option><option value="44"'+(defT===44?' selected':'')+'>≈ 44 % — ≥ 3 SMIC (plus d’allègement, sortie RGDU)</option></select>')
       +(cond?fg('Jours avec indemnité repas / mois (route)',inp('wz-ct-repas','18','number','18'))+fg('Découchers / mois',inp('wz-ct-dec','0','number','0')):'')
       +'<div id="wz-cout-out" style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:6px"></div>'
-      +'<div style="font-size:10.5px;color:#9a9585;margin-top:8px;line-height:1.6">Estimation indicative (hors heures supplémentaires, primes, aides à l’embauche et taux AT/MP propres à l’entreprise). ⚠️ RGDU 2026 (décret n° 2025-1446, en vigueur au 01/01/2026 — source CNR « Coûts de personnel de conduite 2026 ») : réduction maximale ≈ 39 % au SMIC, dégressive, <b>nulle à partir de 3 SMIC</b> ; formule TRM spécifique avec coefficient d’équivalence (45/35 longue distance, 40/35 courte distance). S’ajoutent selon le cas : AT/MP réel, versement mobilité, forfait social, mutuelle. Les niveaux proposés restent des ordres de grandeur. Chiffrage exact : votre expert-comptable ou le simulateur officiel URSSAF.</div>'
+      +'<div style="font-size:10.5px;color:#9a9585;margin-top:8px;line-height:1.6">Estimation indicative (hors heures supplémentaires, primes, aides à l’embauche et taux AT/MP propres à l’entreprise). ⚠️ Réduction générale dégressive des cotisations patronales (RGDU) : maximale au voisinage du SMIC, <b>nulle à partir de 3 SMIC</b>. '+(bat?'Dans le Bâtiment, le taux <b>AT/MP est élevé</b> (activité à risque) et s’y ajoutent les <b>cotisations CIBTP (congés payés)</b> et <b>OPPBTP</b> — le coût réel est donc supérieur à ces ordres de grandeur.':'formule TRM spécifique avec coefficient d’équivalence (45/35 longue distance, 40/35 courte distance).')+' S’ajoutent selon le cas : AT/MP réel, versement mobilité, forfait social, mutuelle. Chiffrage exact : votre expert-comptable ou le simulateur officiel URSSAF.</div>'
       +'</div>';
     h+='<div class="ct" style="margin-top:18px">📄 Vos documents</div><div style="display:grid;gap:8px">'
       +'<button class="btn" style="margin:0" onclick="wzDoc(\'contrat\')">📄 Générer le CONTRAT '+(cdd?'CDD':'CDI')+' complet →</button>'
@@ -12376,11 +12565,11 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2;padding:4px 2px">'
       +'1️⃣ <b>DPAE</b> auprès de l’URSSAF : au plus tôt 8 jours avant, au plus tard <b>immédiatement avant</b> la mise au travail (L.1221-10, R.1221-4).<br>'
       +'2️⃣ <b>Contrat signé</b>'+(cdd?' et <b>transmis au salarié sous 2 jours ouvrables</b> (L.1242-13 — sinon indemnité jusqu’à 1 mois de salaire)':' avant ou au plus tard le jour de l’embauche')+'.<br>'
-      +'3️⃣ <b>Documents du salarié</b> : pièce d’identité'+(cond?', <b>permis en cours de validité, carte de qualification (CQC/FIMO), carte conducteur (tachygraphe)</b>':'')+', carte Vitale, RIB, diplômes — et vérification du <b>titre de travail</b> pour un salarié étranger (L.8251-1, L.5221-8).<br>'
-      +'4️⃣ <b>Visite médicale</b> : '+(cond?'conducteur = <b>avant l’affectation au poste</b> si poste à risque (ADR : examen d’aptitude obligatoire AVANT — R.4624-24) ; sinon visite d’information et de prévention dans les 3 mois':'visite d’information et de prévention dans les 3 mois (R.4624-10)')+'.<br>'
+      +'3️⃣ <b>Documents du salarié</b> : pièce d’identité'+(bat?', attestations d’<b>habilitations</b> le cas échéant (échafaudage, électrique, CACES, AIPR)':cond?', <b>permis en cours de validité, carte de qualification (CQC/FIMO), carte conducteur (tachygraphe)</b>':'')+', carte Vitale, RIB, diplômes — et vérification du <b>titre de travail</b> pour un salarié étranger (L.8251-1, L.5221-8).'+(bat?' Déclarez le salarié pour la <b>carte BTP</b> (L.8291-1).':'')+'<br>'
+      +'4️⃣ <b>Visite médicale</b> : '+(bat?(A.risque==='oui'?'poste à risque = <b>examen médical d’aptitude (SIR) AVANT l’affectation</b> (R.4624-23 s.)':'visite d’information et de prévention dans les 3 mois (R.4624-10)'):(cond?'conducteur = <b>avant l’affectation au poste</b> si poste à risque (ADR : examen d’aptitude obligatoire AVANT — R.4624-24) ; sinon visite d’information et de prévention dans les 3 mois':'visite d’information et de prévention dans les 3 mois (R.4624-10)'))+'.<br>'
       +'5️⃣ <b>Registre unique du personnel</b> à jour dès l’arrivée (L.1221-13).<br>'
-      +'6️⃣ <b>Affiliations</b> : CARCEPT (retraite complémentaire), prévoyance KLESIA, <b>mutuelle</b> obligatoire (L.911-7 — dispense écrite possible).<br>'
-      +'7️⃣ <b>Formation sécurité</b> à l’embauche (L.4141-2)'+(cond?' + suivi des échéances permis/CQC/FCO : ajoutez le conducteur au <b>tableau de bord</b>':'')+'.<br>'
+      +'6️⃣ <b>Affiliations</b> : '+(bat?'<b>caisse de congés payés du BTP (CIBTP)</b>, retraite et prévoyance <b>PRO BTP</b>':'CARCEPT (retraite complémentaire), prévoyance KLESIA')+', <b>mutuelle</b> obligatoire (L.911-7 — dispense écrite possible).<br>'
+      +'7️⃣ <b>Formation sécurité</b> à l’embauche (L.4141-2)'+(bat?' + <b>accueil sécurité au poste</b> et remise des <b>EPI</b> émargée':cond?' + suivi des échéances permis/CQC/FCO : ajoutez le conducteur au <b>tableau de bord</b>':'')+'.<br>'
       +(cdd?'8️⃣ À l’échéance : <b>délai de carence</b> avant un nouveau CDD sur le même poste (L.1244-3).':'8️⃣ Période d’essai : renouvellement à proposer <b>par écrit avant expiration</b> (accord exprès du salarié).')+'</div>';
     if(cond)h+='<button class="btn-outline" style="margin-top:8px" onclick="goPage(\'tableau-bord\')">📊 Ajouter au tableau de bord conducteurs →</button>';
     h+='<div class="al warn" style="font-size:11px;margin-top:14px">⚠ Trames à faire valider par un avocat avant signature — outil d’information (loi n° 71-1130 du 31/12/1971).</div>'
@@ -12390,9 +12579,9 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     wzCoutCalc();};
 
   /* ── Apprentissage ── */
-  S['appr-1']=function(){box(head(2,4,'🎓 Apprentissage — éligibilité','Contrat en alternance avec un CFA (transport : AFTRAL, Promotrans…). Le contrat DOIT être établi sur le <b>formulaire CERFA FA13</b> et transmis à l’OPCO Mobilités.')
+  S['appr-1']=function(){var bat=isBat();box(head(2,4,'🎓 Apprentissage — éligibilité','Contrat en alternance avec un CFA'+(bat?' (Bâtiment : CFA BTP, Compagnons du Devoir…)':' (transport : AFTRAL, Promotrans…)')+'. Le contrat DOIT être établi sur le <b>formulaire CERFA FA13</b> et transmis à l’OPCO'+(bat?' Constructys (BTP)':' Mobilités')+'.')
     +fg('Âge du candidat à la date de début *',inp('wz-age','Ex : 19','number',A.age))
-    +fg('Diplôme ou titre préparé *',inp('wz-diplome','Ex : Titre pro Conducteur du transport routier de marchandises','text',A.diplome))
+    +fg('Diplôme ou titre préparé *',inp('wz-diplome',bat?'Ex : CAP Maçon, BP Menuisier, Titre pro Coffreur-bancheur':'Ex : Titre pro Conducteur du transport routier de marchandises','text',A.diplome))
     +fg('Année d’exécution du contrat','<select id="wz-annee"><option value="1">1re année</option><option value="2"'+(A.annee==='2'?' selected':'')+'>2e année</option><option value="3"'+(A.annee==='3'?' selected':'')+'>3e année</option></select>')
     +btns('wzApprNext()','start'));};
   window.wzApprNext=function(){A.age=parseInt(V('wz-age'),10);A.diplome=V('wz-diplome');A.annee=V('wz-annee')||'1';
@@ -12402,7 +12591,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     wzGo('appr-2');};
   S['appr-2']=function(){box(head(3,4,'🎓 CFA et maître d’apprentissage','')
     +fg('Nom du candidat *',inp('wz-nom','Ex : MARTIN Lucas','text',A.nom))
-    +fg('CFA','<select id="wz-cfa"><option>AFTRAL</option><option>Promotrans</option><option>Autre CFA</option></select>')
+    +fg('CFA',isBat()?'<select id="wz-cfa"><option>CFA BTP</option><option>Compagnons du Devoir</option><option>Autre CFA</option></select>':'<select id="wz-cfa"><option>AFTRAL</option><option>Promotrans</option><option>Autre CFA</option></select>')
     +fg('Date de début *',inp('wz-debut','','date',A.debut))
     +fg('Durée du contrat (mois)',inp('wz-duree','Ex : 12 à 36 selon le diplôme','number',A.duree))
     +fg('Maître d’apprentissage (nom) *',inp('wz-maitre','Ex : DUPONT Jean','text',A.maitre))
@@ -12417,11 +12606,11 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     box(head(4,4,'✅ Dossier apprentissage — '+esc(A.nom),'')
     +'<div class="wz-ok"><b>Rémunération minimale ('+A.annee+'ʳᵉ année, '+A.age+' ans) : '+pct+' du SMIC</b>'+(A.age>=21?' (ou du minimum conventionnel s’il est supérieur)':'')+' — art. D.6222-26. Vérifiez le SMIC en vigueur à la date de début.<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
     +'<li>⚠️ Le contrat DOIT être établi sur le <b>formulaire CERFA FA13</b> (n° 10103) — un contrat sur papier libre n’est pas enregistrable : <a href="https://www.service-public.fr/particuliers/vosdroits/R1319" target="_blank" style="color:#e8c97a">télécharger le CERFA officiel</a>.</li>'
-    +'<li>Transmission à l’<b>OPCO Mobilités</b> au plus tard <b>5 jours ouvrables</b> après le début (L.6224-1).</li>'
+    +'<li>Transmission à l’<b>OPCO '+(isBat()?'Constructys (BTP)':'Mobilités')+'</b> au plus tard <b>5 jours ouvrables</b> après le début (L.6224-1).</li>'
     +'<li>Inscription au CFA ('+esc(A.cfa||'')+') AVANT ou dans les 3 mois du début.</li>'
-    +'<li><b>DPAE</b> et <b>visite d’information et de prévention</b> comme toute embauche ; mineur : VIP <b>avant l’affectation</b>.</li>'
+    +'<li><b>DPAE</b> et <b>visite d’information et de prévention</b> comme toute embauche ; mineur : VIP <b>avant l’affectation</b>'+(isBat()?', et pour tout <b>poste à risque (hauteur, amiante) : SIR avant affectation</b> ; travaux dangereux d’un mineur : déclaration/dérogation à l’inspection du travail (R.4153-40 s.)':'')+'.</li>'
     +'<li>Aides à l’embauche d’apprentis et exonérations : vérifiez les montants en vigueur auprès de l’OPCO.</li>'
-    +'<li>Conduite : l’apprenti conducteur suit la formation du titre — vérifiez permis/âge minimum selon véhicule.</li></ul></div>'
+    +(isBat()?'<li>Sécurité chantier : remise des <b>EPI</b>, accueil sécurité, et déclaration pour la <b>carte BTP</b> (L.8291-1).</li>':'<li>Conduite : l’apprenti conducteur suit la formation du titre — vérifiez permis/âge minimum selon véhicule.</li>')+'</ul></div>'
     +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzGo(\'appr-2\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzGo(\'start\')">🔄 Nouvelle embauche</button></div>');};
 
   /* ── Professionnalisation ── */
@@ -12438,7 +12627,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     box(head(3,3,'✅ Dossier professionnalisation','')
     +'<div class="wz-ok"><b>Rémunération minimale : '+pct+(A.age<26?' du SMIC':'')+'</b> (D.6325-14 s.).<ul style="margin:10px 0 0;padding-left:20px;line-height:1.9">'
     +'<li>Contrat sur <b>formulaire CERFA EJ20</b> (n° 12434) : <a href="https://www.service-public.fr/particuliers/vosdroits/R11592" target="_blank" style="color:#e8c97a">télécharger le CERFA officiel</a>.</li>'
-    +'<li>Envoi à l’<b>OPCO Mobilités</b> dans les <b>5 jours</b> du début (L.6325-5).</li>'
+    +'<li>Envoi à l’<b>OPCO '+(isBat()?'Constructys (BTP)':'Mobilités')+'</b> dans les <b>5 jours</b> du début (L.6325-5).</li>'
     +'<li>Durée : CDD de <b>6 à 12 mois</b> (jusqu’à 36 mois pour certains publics) ou CDI débutant par l’action de professionnalisation.</li>'
     +'<li>Formation : 15 à 25 % de la durée (minimum 150 h), par un organisme ou service de formation interne.</li>'
     +'<li><b>DPAE</b>, <b>visite d’information et de prévention</b>, registre du personnel : comme toute embauche.</li>'
@@ -12450,9 +12639,9 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     +'<div class="al ok" style="font-size:12.5px;line-height:1.8">Avec l’intérim, <b>vous ne rédigez PAS de contrat de travail</b> : l’entreprise de travail temporaire (ETT) est l’employeur. Vous signez avec elle un <b>contrat de mise à disposition</b>, au plus tard <b>2 jours ouvrables</b> après la mise à disposition (L.1251-42).</div>'
     +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2;margin-top:12px">'
     +'• Les <b>cas de recours sont les mêmes que le CDD</b> (L.1251-6) : remplacement, accroissement temporaire, saisonnier… — les mêmes interdictions aussi (gréviste, poste supprimé pour motif éco depuis moins de 6 mois).<br>'
-    +'• <b>Égalité de traitement</b> : l’intérimaire a droit à la même rémunération qu’un salarié embauché sur le poste (L.1251-18) — y compris frais et indemnités CCN transport.<br>'
+    +'• <b>Égalité de traitement</b> : l’intérimaire a droit à la même rémunération qu’un salarié embauché sur le poste (L.1251-18) — y compris frais et indemnités de la convention collective applicable'+(isBat()?' (Bâtiment)':' (CCN transport)')+'.<br>'
     +'• Vérifiez la <b>garantie financière</b> de l’ETT et son autorisation d’exercer.<br>'
-    +'• Vous restez responsable des <b>conditions de travail, de la sécurité</b> (équipements, formation renforcée pour les postes à risques — L.4154-2) et du respect des temps de conduite.<br>'
+    +'• Vous restez responsable des <b>conditions de travail, de la sécurité</b> (équipements, formation renforcée pour les postes à risques — L.4154-2)'+(isBat()?' et de l’accueil sécurité sur le chantier (EPI, protections collectives)':' et du respect des temps de conduite')+'.<br>'
     +'• Requalification possible <b>à votre encontre</b> si le recours est irrégulier (L.1251-40).</div>'
     +'<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzGo(\'start\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="wzType(\'cdd\')">Plutôt un CDD en direct →</button></div>');};
 
