@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-22.1';
+var JX_BUILD = 'v2026-07-22.2';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1648,6 +1648,25 @@ try{
       <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="event.stopPropagation();goPage('ri')">
         <div class="hcard-ic">📜</div>
         <div class="hcard-body"><div class="t">Règlement intérieur transport</div><div class="d">Alcool · tachygraphe · géolocalisation · discipline.</div><div class="m">RI</div></div>
+        <div class="chev">›</div>
+      </div>
+  </div>
+
+  <div id="home-sec-batiment" class="home-sec" style="display:none">🏗️ Spécifique Bâtiment</div>
+  <div id="home-grid-batiment" class="home-grid" style="display:none">
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps')">
+        <div class="hcard-ic">⏱️</div>
+        <div class="hcard-body"><div class="t">Durée du travail</div><div class="d">Droit commun · heures supplémentaires · repos · chômage-intempéries.</div><div class="m">Temps</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('remuneration')">
+        <div class="hcard-ic">💶</div>
+        <div class="hcard-body"><div class="t">Rémunération</div><div class="d">Brut · heures sup. · minima régionaux · petits déplacements · bulletin.</div><div class="m">Paie</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#d4af55;grid-column:1/-1" onclick="event.stopPropagation();goPage('ri')">
+        <div class="hcard-ic">📜</div>
+        <div class="hcard-body"><div class="t">Règlement intérieur</div><div class="d">Hygiène · sécurité chantier · EPI · discipline.</div><div class="m">RI</div></div>
         <div class="chev">›</div>
       </div>
   </div>
@@ -3212,11 +3231,11 @@ Exemple :<br>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
-  <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
+  <div id="menu-sec-header" style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
   <div class="mi" onclick="goPage('audit');closeMenu()"><span style="font-size:18px">🎯</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Contrôle-minute (audit)</div></div></div>
-  <div class="mi" onclick="goPage('temps');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de conduite &amp; repos</div></div></div>
-  <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Rémunération transport</div></div></div>
-  <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
+  <div class="mi" onclick="goPage('temps');closeMenu()"><span style="font-size:18px">⏱️</span><div><div id="menu-lbl-temps" style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de conduite &amp; repos</div></div></div>
+  <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div id="menu-lbl-remuneration" style="font-size:13px;font-weight:500;color:#e8e4d8">Rémunération transport</div></div></div>
+  <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div id="menu-lbl-ri" style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
   <div class="mi" onclick="goPage('parc');closeMenu()"><span style="font-size:18px">🚛</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parc véhicules &amp; contraventions</div></div></div>
   <div class="mi" onclick="window.location.href='maquette-accueil.html'"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Aperçu : nouvelle page d'accueil</div></div></div>
@@ -5046,14 +5065,26 @@ function deconnexion(){
 /* ===== Cadrage par secteur : le client ne voit que son secteur (admin = tout) ===== */
 var SECTEUR_LAB={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant',batiment:'Bâtiment (IDCC 1596/1597 · 2609 · 2420)'};
 function _setTransportVisible(show){
+  var sec=''; try{ sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); }catch(e){}
+  var bat=(sec==='batiment');
+  // Modules désormais disponibles pour d'autres secteurs (version dédiée) : temps, rémunération, RI
+  var MULTI={batiment:{temps:1,remuneration:1,ri:1}};
+  var multi=MULTI[sec]||{};
   document.querySelectorAll('#pg-home .home-sec').forEach(function(hs){
     if(/transport routier/i.test(hs.textContent)){ hs.style.display=show?'':'none'; var g=hs.nextElementSibling; if(g&&g.classList.contains('home-grid'))g.style.display=show?'':'none'; }
   });
   document.querySelectorAll('#pg-home .sec-transport').forEach(function(el){ el.style.display=show?'':'none'; });
-  ['temps','remuneration','ri','tableau-bord'].forEach(function(t){
-    var mi=document.querySelector('#menu-panel .mi[onclick*="goPage(\''+t+'\')"]'); if(mi)mi.style.display=show?'':'none';
+  var hsb=document.getElementById('home-sec-batiment'), hgb=document.getElementById('home-grid-batiment');
+  if(hsb)hsb.style.display=bat?'':'none'; if(hgb)hgb.style.display=bat?'':'none';
+  ['temps','remuneration','ri','tableau-bord','parc'].forEach(function(t){
+    var mi=document.querySelector('#menu-panel .mi[onclick*="goPage(\''+t+'\')"]'); if(mi)mi.style.display=(show||multi[t])?'':'none';
   });
-  [].forEach.call(document.querySelectorAll('#menu-panel div'),function(d){ if(d.textContent.trim()==='Spécifique transport routier') d.style.display=show?'':'none'; });
+  // Étiquettes de menu : neutres/Bâtiment quand ce n'est pas le transport
+  var LBL=bat?{temps:'Durée du travail',remuneration:'Rémunération',ri:'Règlement intérieur'}
+             :{temps:'Temps de conduite &amp; repos',remuneration:'Rémunération transport',ri:'Règlement intérieur transport'};
+  ['temps','remuneration','ri'].forEach(function(t){var e=document.getElementById('menu-lbl-'+t); if(e)e.innerHTML=LBL[t];});
+  var hdr=document.getElementById('menu-sec-header');
+  if(hdr){ if(bat){ hdr.textContent='Spécifique Bâtiment'; hdr.style.display=''; } else { hdr.textContent='Spécifique transport routier'; hdr.style.display=show?'':'none'; } }
 }
 function adminPickSector(v){ try{ if(v) sessionStorage.setItem('jte_sector',v); else sessionStorage.removeItem('jte_sector'); }catch(e){} applyClientSector(); }
 // ── Prompt administrateur : à l'entrée d'un module, choisir le secteur qui adapte toute l'application ──
@@ -5644,7 +5675,7 @@ function genFichePosteBatiment(){
 <ul style="margin-left:20px;${S}">
 <li>Qualification professionnelle du métier (CAP/BP/titre pro ou expérience équivalente)</li>
 <li>Aptitude médicale au poste — suivi individuel renforcé (SIR) si poste à risque : travail en hauteur, amiante, plomb (art. R.4624-23 s. C. trav.)</li>
-<li>Le cas échéant : habilitation au montage/démontage d'échafaudages (art. R.4323-69 C. trav.), habilitation électrique (NF C18-510), CACES pour la conduite d'engins de chantier (art. R.4323-55 C. trav.), AIPR pour les travaux à proximité de réseaux</li>
+<li>Le cas échéant : habilitation au montage/démontage d'échafaudages (art. R.4323-69 C. trav.), habilitation électrique (NF C18-510), autorisation de conduite / CACES pour les engins de chantier (art. R.4323-55 s. C. trav.), AIPR pour les travaux à proximité de réseaux</li>
 <li>Formations sécurité : accueil sécurité au poste, gestes et postures, SST le cas échéant</li>
 </ul>
 <p style="${S}"><strong>Sécurité — obligations spécifiques Bâtiment :</strong></p>
