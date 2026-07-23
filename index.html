@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.22';
+var JX_BUILD = 'v2026-07-23.23';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6294,8 +6294,8 @@ function jxHealOverlays(){
     if(healed){ try{ document.body.style.overflow=''; }catch(e){} }
   }catch(e){}
 }
-function openMenu(){ jxHealOverlays(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
-function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
+function openMenu(){ jxHealOverlays(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
+function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none'; try{ jxFab(); }catch(e){} }
 try{
   window.addEventListener('pageshow', jxHealOverlays);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxHealOverlays(); });
@@ -6308,6 +6308,36 @@ try{
   if(_burger){
     _burger.addEventListener('touchend', function(ev){ try{ ev.preventDefault(); }catch(e){} jxHealOverlays(); openMenu(); }, {passive:false});
   }
+}catch(e){}
+/* ══ Bouton menu FLOTTANT de secours ══
+   Indépendant de l'en-tête collant (source de bugs tactiles sur iOS).
+   Toujours au premier plan et tactile ; masqué sur la vitrine et quand un
+   module plein écran est ouvert (pour ne pas doubler leur propre bouton). */
+function jxFab(){
+  try{
+    var fab=document.getElementById('jx-fab-menu');
+    if(!fab){
+      fab=document.createElement('button'); fab.id='jx-fab-menu'; fab.type='button';
+      fab.textContent='☰'; fab.setAttribute('aria-label','Menu');
+      fab.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;z-index:2000000;width:48px;height:48px;border-radius:12px;border:1px solid rgba(201,168,76,.65);background:rgba(18,30,45,.97);color:#e8c97a;font-size:21px;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.45);-webkit-tap-highlight-color:rgba(201,168,76,.4);touch-action:manipulation;display:none;padding:0';
+      fab.addEventListener('click', function(){ jxHealOverlays(); openMenu(); });
+      fab.addEventListener('touchend', function(ev){ try{ ev.preventDefault(); }catch(e){} jxHealOverlays(); openMenu(); }, {passive:false});
+      document.body.appendChild(fab);
+    }
+    var show=false;
+    var app=document.getElementById('pg-app');
+    var appVisible = app && getComputedStyle(app).display!=='none';
+    var authed=false; try{ authed=sessionStorage.getItem('jte_ok')==='1'; }catch(e){}
+    var overlayOpen=['rx-ov','rx-fiche','cg-edit-ov','rh-ov','rh-fiche-ov','menu-panel','menu-overlay','lock-screen','accueil-screen','abo-screen'].some(function(id){ var e=document.getElementById(id); return e && getComputedStyle(e).display!=='none'; });
+    show = !!(appVisible && authed && !overlayOpen);
+    fab.style.display = show ? 'block' : 'none';
+  }catch(e){}
+}
+try{
+  window.addEventListener('pageshow', jxFab);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxFab(); });
+  setInterval(jxFab, 1000);
+  setTimeout(jxFab, 300);
 }catch(e){}
 function deconnexion(){
   try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
