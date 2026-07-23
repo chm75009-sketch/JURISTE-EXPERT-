@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.31';
+var JX_BUILD = 'v2026-07-23.32';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6139,11 +6139,17 @@ function rxTabBtn(id,lbl){ var on=RX_TAB===id;
 /* ══════════ REGISTRE ══════════ */
 function rxRegistre(){
   var rows=RX.staff.slice().sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
-  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
+  var h='';
+  if(rxCombinedNameCount()>0){
+    h+='<div style="margin-bottom:12px;padding:14px;border:1px solid #c9a84c;border-radius:12px;background:rgba(201,168,76,.12);color:#e8e4d8;font-size:13px;line-height:1.5">'
+      +'✂️ <b>'+rxCombinedNameCount()+' salarié(s)</b> ont le nom et le prénom <b>collés dans la même case</b> (import CSV). Appuyez pour les séparer automatiquement (dernier mot = prénom) :'
+      +'<div style="margin-top:9px"><button onclick="rxSplitNames()" style="width:100%;padding:12px;border:none;border-radius:9px;background:#c9a84c;color:#1a1a1a;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">✂️ Séparer Nom / Prénom maintenant</button></div>'
+      +'</div>';
+  }
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
     +'<button onclick="rxFiche(\'\')" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter un salarié</button>'
     +'<button onclick="document.getElementById(\'rx-csv\').click()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer un fichier CSV</button>'
     +'<input type="file" id="rx-csv" accept=".csv,text/csv" style="display:none" onchange="rxImport(this)">'
-    +(rxCombinedNameCount()>0?'<button onclick="rxSplitNames()" style="padding:10px 14px;border:1px solid #c9a84c;border-radius:9px;background:transparent;color:#e8c97a;font-size:13px;cursor:pointer">✂️ Séparer Nom / Prénom ('+rxCombinedNameCount()+')</button>':'')
     +'</div>';
   if(!RX.staff.length){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>Importez votre fichier CSV, ou ajoutez un salarié.</div>';
