@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.15';
+var JX_BUILD = 'v2026-07-23.16';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6043,9 +6043,11 @@ function rxRegistre(){
 /* ══════════ FICHE ══════════ */
 var RX_CUR=null;
 function rxFiche(id){
-  RX_CUR = id ? RX.staff.filter(function(s){return s.id===id;})[0] : { id:'' };
+  if(id){ RX_CUR = RX.staff.filter(function(s){return s.id===id;})[0]; }
+  else if(!(RX_CUR && RX_CUR.id==='')){ RX_CUR={id:''}; }
   if(!RX_CUR) return;
   var s=RX_CUR;
+  ['absences','retards','sanctions','avances'].forEach(function(k){ if(!Array.isArray(s[k])) s[k]=[]; });
   var F=function(lbl,k,ph,date){ var v=date?rxFR(s[k]):(s[k]||''); return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxf-'+k+'" value="'+rxEsc(v)+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
   var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
   var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
@@ -6063,12 +6065,39 @@ function rxFiche(id){
   h+=SEC('Contrat & rémunération')+g([F('Type de contrat','typeContrat'),F('Statut','statut')])+g([F('Emploi / catégorie','categorie'),F('Coefficient','coeff')])
     +g([F('Temps de travail','tempsTravail'),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+F('Motif de sortie','motifSortie');
   h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="rxf-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:54px;box-sizing:border-box">'+rxEsc(s.observations||'')+'</textarea></div>';
+  h+=SEC('Suivi RH')
+    +rxSub('absences',s.absences,['Date','Type','Jours','Motif'])
+    +rxSub('retards',s.retards,['Date','Minutes','Motif'])
+    +rxSub('sanctions',s.sanctions,['Date','Type','Motif'])
+    +rxSub('avances',s.avances,['Date','Montant €','Remboursée ?','Motif']);
   h+='<div style="display:flex;gap:10px;margin-top:16px">'
     +'<button onclick="rxSaveFiche()" style="flex:1;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'
     +(id?'<button onclick="rxDelFiche(\''+id+'\')" style="padding:13px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️</button>':'')+'</div></div>';
   ov.innerHTML=h; ov.style.display='block'; ov.scrollTop=0;
 }
 function rxCloseFiche(){ var ov=document.getElementById('rx-fiche'); if(ov) ov.style.display='none'; RX_CUR=null; }
+function rxReadForm(s){
+  RX_TXT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=e.value.trim(); });
+  RX_DAT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=rxISO(e.value.trim()); });
+}
+function rxSub(key,arr,cols){
+  var h='<div style="margin:6px 0 10px"><div style="font-size:12px;font-weight:600;color:#e8e4d8;margin-bottom:4px;text-transform:capitalize">'+key+'</div>';
+  if(arr&&arr.length){
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11.5px;color:#cdd7e2">';
+    arr.forEach(function(it,i){ h+='<tr style="border-top:1px solid #26374d">'; cols.forEach(function(c,ci){ h+='<td style="padding:4px">'+rxEsc(it['c'+ci]||'')+'</td>'; }); h+='<td style="padding:4px;text-align:right"><button onclick="rxSubDel(\''+key+'\','+i+')" style="background:none;border:none;color:#e05c5c;cursor:pointer">✕</button></td></tr>'; });
+    h+='</table></div>';
+  }
+  var inputs=cols.map(function(c,ci){ return '<input id="rxs-'+key+'-'+ci+'" placeholder="'+c+'" style="flex:1;min-width:64px;padding:6px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:11.5px;box-sizing:border-box">'; }).join('');
+  h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">'+inputs+'<button onclick="rxSubAdd(\''+key+'\','+cols.length+')" style="padding:6px 11px;border:none;border-radius:7px;background:#26374d;color:#e8e4d8;cursor:pointer;font-size:12px">＋</button></div></div>';
+  return h;
+}
+function rxSubAdd(key,n){
+  if(!RX_CUR) return; if(!RX_CUR[key]) RX_CUR[key]=[];
+  var obj={},empty=true; for(var i=0;i<n;i++){ var v=(document.getElementById('rxs-'+key+'-'+i)||{}).value||''; obj['c'+i]=v; if(v)empty=false; }
+  if(empty) return;
+  rxReadForm(RX_CUR); RX_CUR[key].push(obj); rxFiche(RX_CUR.id||'');
+}
+function rxSubDel(key,i){ if(!RX_CUR||!RX_CUR[key]) return; RX_CUR[key].splice(i,1); rxReadForm(RX_CUR); rxFiche(RX_CUR.id||''); }
 var RX_TXT=['nom','prenom','nationalite','email','tel','adresse','cp','ville','pieceType','permisCats','typeContrat','statut','categorie','coeff','tempsTravail','salaire','motifSortie','observations'];
 var RX_DAT=['naissance','pieceValid','sejourValid','permisValid','fcoValid','carteValid','fimo','adrValid','visitePoste','visiteConduite','entree','sortie'];
 function rxSaveFiche(){
@@ -6165,8 +6194,8 @@ function rxLogin(){
 }
 function rxSetSess(d,code){ var uid=(d.user&&d.user.id)||d.id||''; try{ localStorage.setItem(RX_SESS, JSON.stringify({token:d.access_token,uid:uid,code:code})); }catch(e){} }
 function rxLogout(){ try{ localStorage.removeItem(RX_SESS); }catch(e){} rxRender(); }
-function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, updated_at:new Date().toISOString() }; }
-function rxFromRow(r){ return { id:r.id, nom:r.nom||'', prenom:r.prenom||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
+function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, suivi:{absences:s.absences||[],retards:s.retards||[],sanctions:s.sanctions||[],avances:s.avances||[]}, updated_at:new Date().toISOString() }; }
+function rxFromRow(r){ var su=r.suivi||{}; return { absences:su.absences||[], retards:su.retards||[], sanctions:su.sanctions||[], avances:su.avances||[], id:r.id, nom:r.nom||'', prenom:r.prenom||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
 function rxCloudPushOne(s){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify([rxRow(s)])}).catch(function(){}); }
 function rxCloudDelOne(id){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:rxHeaders(true)}).catch(function(){}); }
 function rxCloudPushAll(loud){ if(!rxSess()){ if(loud) alert('Connectez-vous d\'abord.'); return; }
