@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.16';
+var JX_BUILD = 'v2026-07-23.17';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6001,12 +6001,13 @@ function rxRender(){
   h+='<h2 style="color:#fff;font-size:19px;margin:2px 0 2px">👥 Espace RH — Personnel</h2>';
   h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre</div>';
   h+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
-    +rxTabBtn('reg','📖 Registre')+rxTabBtn('dash','🔔 Alertes')+rxTabBtn('cloud','☁️ En ligne')
+    +rxTabBtn('reg','📖 Registre')+rxTabBtn('dash','🔔 Alertes')+rxTabBtn('ent','🏢 Entreprise')+rxTabBtn('cloud','☁️ En ligne')
     +'</div><div id="rx-c"></div></div>';
   ov.innerHTML=h;
   var c=document.getElementById('rx-c');
   if(RX_TAB==='reg') c.innerHTML=rxRegistre();
   else if(RX_TAB==='dash') c.innerHTML=rxDash();
+  else if(RX_TAB==='ent') c.innerHTML=rxEnt();
   else if(RX_TAB==='cloud') c.innerHTML=rxCloud();
 }
 function rxTabBtn(id,lbl){ var on=RX_TAB===id;
@@ -6153,6 +6154,31 @@ function rxImport(input){
 /* ══════════ EN LIGNE (Supabase, REST direct) ══════════ */
 function rxEmail(code){ return String(code||'').trim().toLowerCase().replace(/[^a-z0-9._-]/g,'')+RX_DOMAIN; }
 function rxHeaders(auth){ var s=rxSess(); return { 'apikey':RX_ANON, 'Content-Type':'application/json', 'Authorization':'Bearer '+((auth&&s&&s.token)?s.token:RX_ANON) }; }
+function rxEnt(){
+  var e=RX.ent||{};
+  var F=function(lbl,k,ph){ return '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxe-'+k+'" value="'+rxEsc(e[k]||'')+'" placeholder="'+(ph||'')+'" style="width:100%;padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
+  return '<div style="max-width:620px">'
+    +F('Raison sociale','nom')+F('Gérant / représentant','gerant')+F('SIRET','siret')+F('Code NAF / APE','naf','ex. 49.41A')
+    +F('Adresse du siège','adresse')+F('E-mail','email')+F('Téléphone','tel')+F('IDCC (convention)','idcc')
+    +'<button onclick="rxSaveEnt()" style="padding:12px 18px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;font-size:14px;cursor:pointer">💾 Enregistrer l\'entreprise</button>'
+    +'<div style="font-size:11px;color:#6b7a8d;margin-top:10px">🔒 Ces informations restent dans votre compte (privé, synchronisé) — jamais publiées. Elles alimentent vos documents.</div></div>';
+}
+function rxSaveEnt(){
+  var g=function(k){ var el=document.getElementById('rxe-'+k); return el?el.value.trim():''; };
+  RX.ent={ nom:g('nom'), gerant:g('gerant'), siret:g('siret'), naf:g('naf'), adresse:g('adresse'), email:g('email'), tel:g('tel'), idcc:g('idcc')||'16' };
+  rxSaveLocal();
+  try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem('juris_transport',JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+  try{ rxCloudPushEnt(); }catch(e){}
+  alert('Entreprise enregistrée.'); rxRender();
+}
+function rxCloudPushEnt(){
+  var s=rxSess(); if(!s) return; var e=RX.ent||{};
+  var payload={ owner:s.uid, nom:e.nom||null, siret:e.siret||null, naf:e.naf||null, adresse:e.adresse||null, dirigeant:e.gerant||null, email:e.email||null, tel:e.tel||null, idcc:e.idcc||'16', updated_at:new Date().toISOString() };
+  fetch(RX_URL+'/rest/v1/entreprises?owner=eq.'+encodeURIComponent(s.uid)+'&select=id',{headers:rxHeaders(true)}).then(function(r){return r.json();}).then(function(d){
+    if(Array.isArray(d)&&d.length){ fetch(RX_URL+'/rest/v1/entreprises?id=eq.'+d[0].id,{method:'PATCH',headers:rxHeaders(true),body:JSON.stringify(payload)}).catch(function(){}); }
+    else { fetch(RX_URL+'/rest/v1/entreprises',{method:'POST',headers:rxHeaders(true),body:JSON.stringify(payload)}).catch(function(){}); }
+  }).catch(function(){});
+}
 function rxCloud(){
   var s=rxSess();
   var h='<div style="max-width:640px;font-size:13px;color:#cdd7e2;line-height:1.6">';
