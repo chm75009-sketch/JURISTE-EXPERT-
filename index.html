@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.10';
+var JX_BUILD = 'v2026-07-23.11';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1381,6 +1381,8 @@ try{
   <div class="eyebrow">Cabinet juridique augmenté</div>
   <h2>Que voulez-vous faire&nbsp;?</h2>
   <p><span id="hero-secteur">Transport routier de marchandises — CCN IDCC 0016</span>. Procédures guidées, documents prêts à signer et jurisprudence à l'appui.</p>
+  <div style="font-size:11px;color:#6b7a8d;margin-top:6px">Version <span id="home-build">…</span></div>
+  <script>try{document.getElementById('home-build').textContent=(typeof JX_BUILD!=='undefined'?JX_BUILD:'—');}catch(e){}</script>
 </div>
 <div class="home-wrap">
 
@@ -1446,7 +1448,7 @@ try{
 
   <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
   <div class="wz-tiles" style="margin-top:0">
-    <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="goPage('personnel')">
+    <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="goPage('personnel');try{if(typeof rhOnEnter==='function')rhOnEnter();}catch(e){}">
       <div class="wz-em">👥</div>
       <div class="wz-tt">Mon personnel — Espace RH</div>
       <div class="wz-td">Registre du personnel, fiches individuelles, alertes d'échéances — synchronisation en ligne sécurisée.</div>
