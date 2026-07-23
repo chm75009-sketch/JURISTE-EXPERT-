@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.14';
+var JX_BUILD = 'v2026-07-23.15';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1448,7 +1448,7 @@ try{
 
   <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
   <div class="wz-tiles" style="margin-top:0">
-    <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="openRH()">
+    <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="rxOpen()">
       <div class="wz-em">👥</div>
       <div class="wz-tt">Mon personnel — Espace RH</div>
       <div class="wz-td">Registre du personnel, fiches individuelles, alertes d'échéances — synchronisation en ligne sécurisée.</div>
@@ -1685,7 +1685,7 @@ try{
         <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · licences · gestionnaire transport.</div><div class="m">Config</div></div>
         <div class="chev">›</div>
       </div>
-      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();openRH()">
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();rxOpen()">
         <div class="hcard-ic">👥</div>
         <div class="hcard-body"><div class="t">Espace RH — Personnel</div><div class="d">Registre du personnel, fiches individuelles, alertes d'échéances · synchronisation en ligne sécurisée.</div><div class="m">RH · en ligne</div></div>
         <div class="chev">›</div>
@@ -3313,7 +3313,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div id="menu-lbl-ri" style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
   <div class="mi" onclick="goPage('parc');closeMenu()"><span style="font-size:18px">🚛</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parc véhicules &amp; contraventions</div></div></div>
-  <div class="mi" onclick="openRH();closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Espace RH — Personnel <span style="color:#c9a84c">🔒</span></div></div></div>
+  <div class="mi" onclick="rxOpen();closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Espace RH — Personnel <span style="color:#c9a84c">🔒</span></div></div></div>
   <div class="mi" onclick="window.location.href='maquette-accueil.html'"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Aperçu : nouvelle page d'accueil</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
@@ -5942,6 +5942,246 @@ function openRH(){
   }catch(err){ alert('Impossible d\'ouvrir l\'Espace RH : '+(err.message||err)); }
 }
 function closeRH(){ var ov=document.getElementById('rh-ov'); if(ov) ov.style.display='none'; try{ document.body.style.overflow=''; }catch(e){} }
+
+
+/* ===== ESPACE RH — RÉÉCRITURE PROPRE (module injecté) ===== */
+/* ══════════════════════════════════════════════════════════════════
+   ESPACE RH — RÉÉCRITURE PROPRE (autonome, robuste, sans système de pages)
+   • Ouverture en overlay plein écran (marche partout, iOS compris)
+   • Registre du personnel : import CSV, liste, fiche individuelle
+   • Synchronisation en ligne Supabase (login par code) — REST direct, sans SDK
+   • Stockage local simple (localStorage) ; la protection en ligne = le compte
+   ══════════════════════════════════════════════════════════════════ */
+var RX = { staff: [], ent: {} };
+var RX_LS = 'rx_data_v1';
+var RX_SESS = 'rx_sess_v1';
+var RX_TAB = 'reg';
+// URL + clé publique du projet Supabase (juris-expert) — publiques par nature
+var RX_URL = 'https://yhzsuxnehsisxkuxqhhg.supabase.co';
+var RX_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloenN1eG5laHNpc3hrdXhxaGhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MTI3MjQsImV4cCI6MjEwMDM4ODcyNH0.0U1NURH755-mvmj45_G6JoDPHat_oY7CKHRyP4l8Mpc';
+var RX_DOMAIN = '@juris-expert.app';
+
+function rxEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function rxLoad(){ try{ var d=JSON.parse(localStorage.getItem(RX_LS)||'null'); if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; } }catch(e){} }
+function rxSaveLocal(){ try{ localStorage.setItem(RX_LS, JSON.stringify({staff:RX.staff, ent:RX.ent})); }catch(e){} }
+function rxSess(){ try{ return JSON.parse(localStorage.getItem(RX_SESS)||'null'); }catch(e){ return null; } }
+function rxUID(){ try{ return crypto.randomUUID(); }catch(e){ return 'x'+Date.now().toString(16)+Math.floor(Math.random?0:(RX.staff.length)).toString(16)+RX.staff.length; } }
+function rxFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function rxISO(s){ if(!s) return ''; s=String(s).trim(); var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(m) return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2); if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10); return ''; }
+function rxDaysLeft(iso){ if(!iso) return null; var d=new Date(iso); if(isNaN(d)) return null; var t=new Date(); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); }
+
+/* ══════════ OUVERTURE / FERMETURE (overlay) ══════════ */
+function rxOpen(){
+  try{
+    rxLoad();
+    var ov=document.getElementById('rx-ov');
+    if(!ov){ ov=document.createElement('div'); ov.id='rx-ov';
+      ov.style.cssText='position:fixed;inset:0;z-index:99990;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+      document.body.appendChild(ov);
+    }
+    ov.style.display='block';
+    try{ document.body.style.overflow='hidden'; }catch(e){}
+    rxRender();
+    // en arrière-plan : si connecté, on récupère les données du compte
+    try{ if(rxSess()) rxPull(true); }catch(e){}
+  }catch(err){ alert('Ouverture impossible : '+(err.message||err)); }
+}
+function rxClose(){ var ov=document.getElementById('rx-ov'); if(ov) ov.style.display='none'; try{ document.body.style.overflow=''; }catch(e){} }
+function rxTab(t){ RX_TAB=t; rxRender(); }
+
+function rxRender(){
+  var ov=document.getElementById('rx-ov'); if(!ov) return;
+  var actifs=RX.staff.filter(function(s){return !s.sortie;}).length;
+  var sess=rxSess();
+  var h='<div style="max-width:900px;margin:0 auto">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">'
+    +'<button onclick="rxClose()" style="padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:600;font-size:14px;cursor:pointer">← Fermer</button>'
+    +'<div style="font-size:12px;color:'+(sess?'#46b885':'#9fb0c4')+'">'+(sess?'☁️ '+rxEsc((sess.code||'compte')):'hors ligne')+'</div>'
+    +'</div>';
+  h+='<h2 style="color:#fff;font-size:19px;margin:2px 0 2px">👥 Espace RH — Personnel</h2>';
+  h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre</div>';
+  h+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
+    +rxTabBtn('reg','📖 Registre')+rxTabBtn('dash','🔔 Alertes')+rxTabBtn('cloud','☁️ En ligne')
+    +'</div><div id="rx-c"></div></div>';
+  ov.innerHTML=h;
+  var c=document.getElementById('rx-c');
+  if(RX_TAB==='reg') c.innerHTML=rxRegistre();
+  else if(RX_TAB==='dash') c.innerHTML=rxDash();
+  else if(RX_TAB==='cloud') c.innerHTML=rxCloud();
+}
+function rxTabBtn(id,lbl){ var on=RX_TAB===id;
+  return '<button onclick="rxTab(\''+id+'\')" style="border:1px solid '+(on?'#c9a84c':'#3a4a5f')+';background:'+(on?'#c9a84c':'#16263c')+';color:'+(on?'#000':'#e8e4d8')+';border-radius:9px;padding:8px 13px;font-size:13px;font-weight:'+(on?'700':'500')+';cursor:pointer">'+lbl+'</button>';
+}
+
+/* ══════════ REGISTRE ══════════ */
+function rxRegistre(){
+  var rows=RX.staff.slice().sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
+  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
+    +'<button onclick="rxFiche(\'\')" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter un salarié</button>'
+    +'<button onclick="document.getElementById(\'rx-csv\').click()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer un fichier CSV</button>'
+    +'<input type="file" id="rx-csv" accept=".csv,text/csv" style="display:none" onchange="rxImport(this)">'
+    +'</div>';
+  if(!RX.staff.length){
+    h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>Importez votre fichier CSV, ou ajoutez un salarié.</div>';
+    return h;
+  }
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;color:#e8e4d8">'
+    +'<tr style="color:#9fb0c4;text-align:left"><th style="padding:7px">Nom Prénom</th><th style="padding:7px">Emploi</th><th style="padding:7px">Contrat</th><th style="padding:7px">Entrée</th><th style="padding:7px">Statut</th></tr>';
+  rows.forEach(function(s){
+    var badge=s.sortie?'<span style="color:#e05c5c">Sorti '+rxFR(s.sortie)+'</span>':'<span style="color:#46b885">Actif</span>';
+    h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rxFiche(\''+s.id+'\')">'
+      +'<td style="padding:7px;color:#fff;font-weight:600">'+rxEsc((s.nom||'')+' '+(s.prenom||''))+'</td>'
+      +'<td style="padding:7px">'+rxEsc(s.categorie||'—')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4">'+rxEsc(s.typeContrat||'')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4">'+rxFR(s.entree)+'</td>'
+      +'<td style="padding:7px">'+badge+'</td></tr>';
+  });
+  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">Registre unique du personnel — art. L.1221-13 C. trav.</div>';
+  return h;
+}
+
+/* ══════════ FICHE ══════════ */
+var RX_CUR=null;
+function rxFiche(id){
+  RX_CUR = id ? RX.staff.filter(function(s){return s.id===id;})[0] : { id:'' };
+  if(!RX_CUR) return;
+  var s=RX_CUR;
+  var F=function(lbl,k,ph,date){ var v=date?rxFR(s[k]):(s[k]||''); return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxf-'+k+'" value="'+rxEsc(v)+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
+  var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
+  var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
+  var ov=document.getElementById('rx-fiche');
+  if(!ov){ ov=document.createElement('div'); ov.id='rx-fiche'; ov.style.cssText='position:fixed;inset:0;z-index:99995;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px'; document.body.appendChild(ov); }
+  var h='<div style="max-width:760px;margin:0 auto">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rxCloseFiche()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>';
+  h+=SEC('État civil')+g([F('Nom','nom'),F('Prénom','prenom')])+g([F('Date de naissance','naissance','JJ/MM/AAAA',true),F('Nationalité','nationalite')]);
+  h+=SEC('Coordonnées')+g([F('E-mail','email'),F('Téléphone','tel')])+F('Adresse','adresse')+g([F('Code postal','cp'),F('Ville','ville')]);
+  h+=SEC('Pièce d\'identité / séjour')+g([F('Type de pièce','pieceType'),F('Validité pièce','pieceValid','JJ/MM/AAAA',true)])+F('Validité titre de séjour','sejourValid','JJ/MM/AAAA',true);
+  h+=SEC('Permis & qualifications')+g([F('Catégories permis (B, C, CE…)','permisCats'),F('Validité permis','permisValid','JJ/MM/AAAA',true)])
+    +g([F('FCO / CQC — validité','fcoValid','JJ/MM/AAAA',true),F('Carte conducteur — validité','carteValid','JJ/MM/AAAA',true)])
+    +g([F('FIMO — date','fimo','JJ/MM/AAAA',true),F('ADR — validité','adrValid','JJ/MM/AAAA',true)]);
+  h+=SEC('Suivi médical')+g([F('Visite médecin du travail','visitePoste','JJ/MM/AAAA',true),F('Aptitude conduite (préfecture)','visiteConduite','JJ/MM/AAAA',true)]);
+  h+=SEC('Contrat & rémunération')+g([F('Type de contrat','typeContrat'),F('Statut','statut')])+g([F('Emploi / catégorie','categorie'),F('Coefficient','coeff')])
+    +g([F('Temps de travail','tempsTravail'),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+F('Motif de sortie','motifSortie');
+  h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="rxf-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:54px;box-sizing:border-box">'+rxEsc(s.observations||'')+'</textarea></div>';
+  h+='<div style="display:flex;gap:10px;margin-top:16px">'
+    +'<button onclick="rxSaveFiche()" style="flex:1;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'
+    +(id?'<button onclick="rxDelFiche(\''+id+'\')" style="padding:13px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️</button>':'')+'</div></div>';
+  ov.innerHTML=h; ov.style.display='block'; ov.scrollTop=0;
+}
+function rxCloseFiche(){ var ov=document.getElementById('rx-fiche'); if(ov) ov.style.display='none'; RX_CUR=null; }
+var RX_TXT=['nom','prenom','nationalite','email','tel','adresse','cp','ville','pieceType','permisCats','typeContrat','statut','categorie','coeff','tempsTravail','salaire','motifSortie','observations'];
+var RX_DAT=['naissance','pieceValid','sejourValid','permisValid','fcoValid','carteValid','fimo','adrValid','visitePoste','visiteConduite','entree','sortie'];
+function rxSaveFiche(){
+  var s=RX_CUR;
+  RX_TXT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=e.value.trim(); });
+  RX_DAT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=rxISO(e.value.trim()); });
+  if(!s.nom){ alert('Le nom est obligatoire.'); return; }
+  if(!s.id){ s.id=rxUID(); RX.staff.push(s); }
+  rxSaveLocal(); try{ rxCloudPushOne(s); }catch(e){} rxCloseFiche(); rxRender();
+}
+function rxDelFiche(id){ if(!confirm('Supprimer cette fiche ?')) return; RX.staff=RX.staff.filter(function(s){return s.id!==id;}); rxSaveLocal(); try{ rxCloudDelOne(id); }catch(e){} rxCloseFiche(); rxRender(); }
+
+/* ══════════ ALERTES ══════════ */
+function rxDash(){
+  var champs=[['permisValid','Permis'],['fcoValid','FCO/CQC'],['fimo','FIMO'],['carteValid','Carte conducteur'],['adrValid','ADR'],['visitePoste','Visite médicale'],['visiteConduite','Aptitude conduite'],['pieceValid','Pièce d\'identité'],['sejourValid','Titre de séjour']];
+  var al=[];
+  RX.staff.filter(function(s){return !s.sortie;}).forEach(function(s){ champs.forEach(function(cf){ var d=rxDaysLeft(s[cf[0]]); if(d!==null && d<=60) al.push({id:s.id,nom:(s.nom||'')+' '+(s.prenom||''),lbl:cf[1],iso:s[cf[0]],d:d}); }); });
+  al.sort(function(a,b){return a.d-b.d;});
+  if(!al.length) return '<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.08);border-radius:10px;padding:14px;font-size:13px;color:#bfe6d4">Aucune échéance sous 60 jours. ✔</div>';
+  var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#e8e4d8">';
+  al.forEach(function(a){ var col=a.d<0?'#e05c5c':a.d<=15?'#e0a34c':'#e8c97a';
+    h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rxFiche(\''+a.id+'\')"><td style="padding:7px;color:#fff">'+rxEsc(a.nom)+'</td><td style="padding:7px">'+a.lbl+'</td><td style="padding:7px;color:#9fb0c4">'+rxFR(a.iso)+'</td><td style="padding:7px;color:'+col+';font-weight:700">'+(a.d<0?('retard '+(-a.d)+'j'):(a.d+'j'))+'</td></tr>'; });
+  h+='</table></div>';
+  return h;
+}
+
+/* ══════════ IMPORT CSV ══════════ */
+function rxSplit(line){ var sep=(line.indexOf(';')>=0 && (line.indexOf(',')<0||line.split(';').length>=line.split(',').length))?';':','; var o=[],c='',q=false; for(var i=0;i<line.length;i++){var ch=line[i]; if(ch==='"'){ if(q&&line[i+1]==='"'){c+='"';i++;} else q=!q; } else if(ch===sep&&!q){o.push(c);c='';} else c+=ch;} o.push(c); return o.map(function(x){return x.trim();}); }
+function rxImport(input){
+  var f=input.files&&input.files[0]; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var txt=String(rd.result).replace(/^﻿/,'');
+      var lines=txt.split(/\r?\n/).filter(function(l){return l.trim();});
+      if(lines.length<2){ alert('Fichier vide ou illisible.'); return; }
+      var hdr=rxSplit(lines[0]).map(function(x){return x.toLowerCase();});
+      var idx=function(keys){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0) return j; } } return -1; };
+      var iN=idx(['nom']), iNa=idx(['naiss']), iEn=idx(['entrée','entree']), iC=idx(['contrat']), iS=idx(['statut']), iSo=idx(['sortie']), iT=idx(['temps']), iO=idx(['observ','poste','emploi']);
+      var n=0;
+      for(var l=1;l<lines.length;l++){ var c=rxSplit(lines[l]); if(!c.length||!(iN>=0?c[iN]:'').trim()) continue;
+        var obs=iO>=0?(c[iO]||''):'';
+        RX.staff.push({ id:rxUID(), nom:(iN>=0?c[iN]:'').trim(), prenom:'', naissance:rxISO(iNa>=0?c[iNa]:''), entree:rxISO(iEn>=0?c[iEn]:''), typeContrat:(iC>=0?c[iC]:'').trim(), statut:(iS>=0?c[iS]:'').trim(), sortie:rxISO(iSo>=0?c[iSo]:''), tempsTravail:(iT>=0?c[iT]:'').trim(), categorie:obs.replace(/^[⚠️✅\s]+/,'').split(' - ')[0].slice(0,60), observations:obs });
+        n++;
+      }
+      rxSaveLocal(); input.value=''; alert(n+' salarié(s) importé(s).'); RX_TAB='reg'; rxRender();
+      try{ rxCloudPushAll(); }catch(e){}
+    }catch(e){ alert('Erreur d\'import : '+(e.message||e)); }
+  };
+  rd.readAsText(f,'UTF-8');
+}
+
+/* ══════════ EN LIGNE (Supabase, REST direct) ══════════ */
+function rxEmail(code){ return String(code||'').trim().toLowerCase().replace(/[^a-z0-9._-]/g,'')+RX_DOMAIN; }
+function rxHeaders(auth){ var s=rxSess(); return { 'apikey':RX_ANON, 'Content-Type':'application/json', 'Authorization':'Bearer '+((auth&&s&&s.token)?s.token:RX_ANON) }; }
+function rxCloud(){
+  var s=rxSess();
+  var h='<div style="max-width:640px;font-size:13px;color:#cdd7e2;line-height:1.6">';
+  h+='<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.07);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px">☁️ Connectez-vous pour retrouver votre personnel sur tous vos appareils. Hébergé en Europe, cloisonné par compte.</div>';
+  if(!s){
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+      +'<input id="rx-code" placeholder="Code / identifiant" autocomplete="username" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box">'
+      +'<input id="rx-pass" type="password" placeholder="Mot de passe (min 8)" autocomplete="current-password" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>';
+    h+='<div style="display:flex;gap:8px"><button onclick="rxLogin()" style="padding:11px 15px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;cursor:pointer">Se connecter</button>'
+      +'<button onclick="rxSignup()" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">Créer un compte</button></div>';
+    h+='<div id="rx-msg" style="font-size:12px;color:#e05c5c;margin-top:8px;min-height:14px"></div>';
+  } else {
+    h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:12px">✔ Connecté : <strong>'+rxEsc(s.code||'compte')+'</strong> <button onclick="rxLogout()" style="background:none;border:none;color:#e0a34c;text-decoration:underline;cursor:pointer;font-size:11px">se déconnecter</button></div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px"><button onclick="rxCloudPushAll(true)" style="padding:11px 15px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">⭱ Tout envoyer</button>'
+      +'<button onclick="rxPull(false)" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">⭳ Récupérer</button></div>';
+    h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px">Les modifications s\'envoient automatiquement. Sur un nouvel appareil : connectez-vous puis « Récupérer ».</div>';
+  }
+  h+='</div>';
+  return h;
+}
+function rxMsg(t){ var e=document.getElementById('rx-msg'); if(e) e.textContent=t||''; }
+function rxSignup(){
+  var code=(document.getElementById('rx-code')||{}).value||''; var pass=(document.getElementById('rx-pass')||{}).value||'';
+  if(code.trim().length<3||pass.length<8){ rxMsg('Code (≥3) + mot de passe (≥8).'); return; }
+  fetch(RX_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:JSON.stringify({email:rxEmail(code),password:pass})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d.access_token){ rxSetSess(d,code); alert('Compte créé et connecté.'); rxRender(); rxCloudPushAll(); }
+      else if(d.msg||d.error_description||d.error){ rxMsg('Refusé : '+(d.msg||d.error_description||d.error)); }
+      else { alert('Compte créé. Connectez-vous.'); rxRender(); }
+    }).catch(function(e){ rxMsg('Réseau : '+e.message); });
+}
+function rxLogin(){
+  var code=(document.getElementById('rx-code')||{}).value||''; var pass=(document.getElementById('rx-pass')||{}).value||'';
+  fetch(RX_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:JSON.stringify({email:rxEmail(code),password:pass})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d.access_token){ rxSetSess(d,code); alert('Connecté.'); rxPull(false); }
+      else { rxMsg('Connexion refusée : '+(d.error_description||d.msg||'identifiants invalides')); }
+    }).catch(function(e){ rxMsg('Réseau : '+e.message); });
+}
+function rxSetSess(d,code){ var uid=(d.user&&d.user.id)||d.id||''; try{ localStorage.setItem(RX_SESS, JSON.stringify({token:d.access_token,uid:uid,code:code})); }catch(e){} }
+function rxLogout(){ try{ localStorage.removeItem(RX_SESS); }catch(e){} rxRender(); }
+function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, updated_at:new Date().toISOString() }; }
+function rxFromRow(r){ return { id:r.id, nom:r.nom||'', prenom:r.prenom||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
+function rxCloudPushOne(s){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify([rxRow(s)])}).catch(function(){}); }
+function rxCloudDelOne(id){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:rxHeaders(true)}).catch(function(){}); }
+function rxCloudPushAll(loud){ if(!rxSess()){ if(loud) alert('Connectez-vous d\'abord.'); return; }
+  if(!RX.staff.length){ if(loud) alert('Aucune donnée à envoyer.'); return; }
+  fetch(RX_URL+'/rest/v1/personnel?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(RX.staff.map(rxRow))})
+    .then(function(r){ if(loud){ if(r.ok) alert('Envoyé : '+RX.staff.length+' salarié(s).'); else r.text().then(function(t){alert('Refus : '+t.slice(0,150));}); } }).catch(function(e){ if(loud) alert('Réseau : '+e.message); });
+}
+function rxCloudPush(){ rxCloudPushAll(false); }
+function rxPull(silent){ if(!rxSess()) return;
+  fetch(RX_URL+'/rest/v1/personnel?select=*',{headers:rxHeaders(true)})
+    .then(function(r){return r.json();}).then(function(d){
+      if(Array.isArray(d)){ RX.staff=d.map(rxFromRow); rxSaveLocal(); rxRender(); if(!silent) alert('Récupéré : '+d.length+' salarié(s).'); }
+      else if(!silent){ alert('Récupération : '+JSON.stringify(d).slice(0,150)); }
+    }).catch(function(e){ if(!silent) alert('Réseau : '+e.message); });
+}
 
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
