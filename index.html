@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.19';
+var JX_BUILD = 'v2026-07-23.20';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1145,17 +1145,29 @@ function cgRenderRegistre(){
 function cgRegSuspend(i){ var reg=_regLoad(); if(reg[i]){ reg[i].susp=!reg[i].susp; _regSave(reg); cgRenderRegistre(); } }
 function cgRegDelete(i){ var reg=_regLoad(); if(reg[i]){ if(!confirm('Supprimer cette fiche du registre ?')) return; reg.splice(i,1); _regSave(reg); cgRenderRegistre(); } }
 function cgRegEdit(i){
+  var reg=_regLoad(); var r=reg[i]; if(!r) return;
+  var ov=document.getElementById('cg-edit-ov');
+  if(!ov){ ov=document.createElement('div'); ov.id='cg-edit-ov'; ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(8,13,22,.92);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif'; document.body.appendChild(ov); }
+  var F=function(lbl,k,val,ph){ return '<div style="margin-bottom:9px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="cge-'+k+'" value="'+_escReg(val||'')+'" placeholder="'+(ph||'')+'" style="width:100%;padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
+  var secs=[['transport','Transport routier'],['banque','Banque'],['assurances','Assurances'],['syntec','Syntec'],['enseignement','Enseignement privé (EPNL)'],['formation','Organismes de formation'],['ensindep','Enseignement privé indépendant'],['batiment','Bâtiment']];
+  var secOpts=secs.map(function(x){ return '<option value="'+x[0]+'"'+(r.sec===x[0]?' selected':'')+'>'+x[1]+'</option>'; }).join('');
+  var h='<div style="max-width:600px;margin:0 auto;background:#132234;border:1px solid #c9a84c;border-radius:16px;padding:20px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:17px;font-weight:800;color:#fff">✏️ Modifier la fiche client</div><button onclick="cgRegEditClose()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>'
+    +'<div style="font-size:11px;color:#8a8578;margin-bottom:12px">Code d\'accès : <b style="color:#e8c97a">'+_escReg(r.code)+'</b></div>'
+    +F('Raison sociale / client','client',r.client)+F('Gérant / représentant','gerant',r.gerant)+F('SIRET','siret',r.siret)+F('Code NAF / APE','naf',r.naf)+F('Adresse','adresse',r.adresse)+F('E-mail','email',r.email)+F('Téléphone','tel',r.tel)
+    +'<div style="margin-bottom:9px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Secteur</label><select id="cge-sec" style="width:100%;padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'+secOpts+'</select></div>'
+    +'<button onclick="cgRegSave('+i+')" style="width:100%;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;font-size:14px;cursor:pointer;margin-top:6px">💾 Enregistrer les modifications</button>'
+    +'</div>';
+  ov.innerHTML=h; ov.style.display='block'; ov.scrollTop=0;
+}
+function cgRegEditClose(){ var ov=document.getElementById('cg-edit-ov'); if(ov) ov.style.display='none'; }
+function cgRegSave(i){
   var reg=_regLoad(); if(!reg[i]) return;
-  var nom=prompt('Raison sociale / client :', reg[i].client||''); if(nom===null) return;
-  var ger=prompt('Gérant / représentant :', reg[i].gerant||''); if(ger===null) return;
-  var sir=prompt('SIRET :', reg[i].siret||''); if(sir===null) return;
-  var naf=prompt('Code NAF / APE :', reg[i].naf||''); if(naf===null) return;
-  var adr=prompt('Adresse :', reg[i].adresse||''); if(adr===null) return;
-  var em=prompt('E-mail :', reg[i].email||''); if(em===null) return;
-  var tl=prompt('Téléphone :', reg[i].tel||''); if(tl===null) return;
-  reg[i].client=nom.trim(); reg[i].gerant=ger.trim(); reg[i].siret=sir.trim(); reg[i].naf=naf.trim(); reg[i].adresse=adr.trim(); reg[i].email=em.trim(); reg[i].tel=tl.trim();
-  reg[i].contact=((em||'')+(em&&tl?' · ':'')+(tl||'')).trim();
-  _regSave(reg); cgRenderRegistre();
+  var g=function(k){ var e=document.getElementById('cge-'+k); return e?e.value.trim():''; };
+  reg[i].client=g('client'); reg[i].gerant=g('gerant'); reg[i].siret=g('siret'); reg[i].naf=g('naf'); reg[i].adresse=g('adresse'); reg[i].email=g('email'); reg[i].tel=g('tel');
+  var sc=document.getElementById('cge-sec'); if(sc) reg[i].sec=sc.value;
+  reg[i].contact=((reg[i].email||'')+(reg[i].email&&reg[i].tel?' · ':'')+(reg[i].tel||'')).trim();
+  _regSave(reg); cgRegEditClose(); cgRenderRegistre();
 }
 function cgCopier(){
   var code=document.getElementById('cg-code').textContent||'';
