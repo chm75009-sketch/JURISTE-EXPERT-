@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.26';
+var JX_BUILD = 'v2026-07-23.27';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6031,6 +6031,21 @@ function rxPrefillEntFromRegistry(){
     RX.ent.naf=m.naf||''; RX.ent.adresse=m.adresse||''; RX.ent.email=m.email||''; RX.ent.tel=m.tel||'';
     if(!RX.ent.idcc) RX.ent.idcc=IDCC[sec]||'';
     rxSaveLocal();
+    /* On alimente aussi la fiche entreprise globale (E) : ses coordonnées
+       figureront automatiquement sur TOUS les documents (contrats, lettres…),
+       sans que le client ait à les ressaisir. */
+    try{
+      if(typeof E!=='undefined' && E){
+        if(RX.ent.nom) E.nom=RX.ent.nom;
+        if(RX.ent.siret) E.siret=RX.ent.siret;
+        if(RX.ent.adresse) E.adresse=RX.ent.adresse;
+        if(RX.ent.gerant) E.dirigeant=RX.ent.gerant;
+        if(RX.ent.email) E.email=RX.ent.email;
+        if(RX.ent.tel) E.tel=RX.ent.tel;
+        localStorage.setItem('juris_transport',JSON.stringify(E));
+        if(typeof updateHeroTop==='function') updateHeroTop();
+      }
+    }catch(e){}
   }catch(e){}
 }
 function rxOpen(){
@@ -6296,7 +6311,17 @@ function rxCloudPush(){ rxCloudPushAll(false); }
 function rxPull(silent){ if(!rxSess()) return;
   fetch(RX_URL+'/rest/v1/personnel?select=*',{headers:rxHeaders(true)})
     .then(function(r){return r.json();}).then(function(d){
-      if(Array.isArray(d)){ RX.staff=d.map(rxFromRow); rxSaveLocal(); rxRender(); if(!silent) alert('Récupéré : '+d.length+' salarié(s).'); }
+      if(Array.isArray(d)){
+        if(d.length===0 && RX.staff.length>0){
+          /* Le compte en ligne est vide mais l'appareil a déjà des salariés :
+             on NE les efface pas — on les envoie vers le compte (1re synchro). */
+          rxCloudPushAll(false); rxCloudPushEnt(); rxRender();
+          if(!silent) alert('Compte vide en ligne : vos '+RX.staff.length+' salarié(s) de cet appareil y ont été envoyés.');
+        } else {
+          RX.staff=d.map(rxFromRow); rxSaveLocal(); rxRender();
+          if(!silent) alert('Récupéré : '+d.length+' salarié(s).');
+        }
+      }
       else if(!silent){ alert('Récupération : '+JSON.stringify(d).slice(0,150)); }
     }).catch(function(e){ if(!silent) alert('Réseau : '+e.message); });
 }
@@ -6563,7 +6588,6 @@ function initApp(){
     const s=typeof localStorage!=='undefined'?localStorage.getItem('juris_transport'):null;
     if(s){
       E=JSON.parse(s);
-      if(E&&(E.nom==='T.E.C.'||E.nom==='TEC'||E.siret==='53845047900034')){E.nom='';E.siret='';E.adresse='';E.dirigeant='';try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){}}
       updateHeroTop();
       document.getElementById('pg-inscription').style.display='none';
       document.getElementById('pg-app').style.display='block';
