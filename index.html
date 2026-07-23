@@ -123,8 +123,8 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 #doc-content h1{font-size:16pt !important;text-align:center}
 #doc-content h2{font-size:13pt !important;text-align:center;text-decoration:underline;text-transform:uppercase}
 #doc-content h3{font-size:12pt !important;border-bottom:1.5pt solid #000;padding-bottom:2pt}
-#menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:200}
-#menu-panel{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;background:#162639;border-left:1px solid rgba(255,255,255,0.1);z-index:201;overflow-y:auto}
+#menu-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:2147483000}
+#menu-panel{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;background:#162639;border-left:1px solid rgba(255,255,255,0.1);z-index:2147483001;overflow-y:auto}
 .mi{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;cursor:pointer;margin-bottom:4px}
 .mi:hover{background:rgba(255,255,255,0.05)}
 #pg-inscription{display:none;min-height:100vh;background:#f5f5f0}
@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.20';
+var JX_BUILD = 'v2026-07-23.21';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6277,8 +6277,29 @@ function rxPull(silent){ if(!rxSess()) return;
     }).catch(function(e){ if(!silent) alert('Réseau : '+e.message); });
 }
 
-function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
+/* ══ Anti-blocage : neutralise tout calque plein écran « fantôme » (resté ouvert
+      mais vide) qui masquerait l'en-tête et rendrait le bouton ☰ inopérant. On ne
+      touche JAMAIS à un calque réellement utilisé (il contient toujours du contenu). ══ */
+function jxHealOverlays(){
+  try{
+    var ids=['rx-ov','rx-fiche','cg-edit-ov','rh-ov','rh-fiche-ov'];
+    var healed=false;
+    for(var i=0;i<ids.length;i++){
+      var el=document.getElementById(ids[i]); if(!el) continue;
+      var disp='';
+      try{ disp=getComputedStyle(el).display; }catch(e){ disp=el.style.display; }
+      if(disp!=='none' && (el.textContent||'').replace(/\s/g,'')===''){ el.style.display='none'; healed=true; }
+    }
+    if(healed){ try{ document.body.style.overflow=''; }catch(e){} }
+  }catch(e){}
+}
+function openMenu(){ jxHealOverlays(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
+try{
+  window.addEventListener('pageshow', jxHealOverlays);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxHealOverlays(); });
+  setInterval(jxHealOverlays, 2000);
+}catch(e){}
 function deconnexion(){
   try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
   try{ window.CLIENT_SECTEUR=''; }catch(e){}
