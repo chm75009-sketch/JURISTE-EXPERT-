@@ -595,8 +595,16 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       <div id="abo-form">
         <label>Nom et prénom <span class="req">*</span></label>
         <input id="abo-nom" type="text" autocomplete="name" placeholder="Ex. Mounir Chikhaoui">
-        <label>Entreprise <span class="req">*</span></label>
+        <label>Entreprise (raison sociale) <span class="req">*</span></label>
         <input id="abo-ent" type="text" autocomplete="organization" placeholder="Raison sociale">
+        <label>Gérant / représentant</label>
+        <input id="abo-gerant" type="text" placeholder="Nom du gérant">
+        <label>SIRET</label>
+        <input id="abo-siret" type="text" inputmode="numeric" placeholder="N° SIRET (14 chiffres)">
+        <label>Code NAF / APE</label>
+        <input id="abo-naf" type="text" placeholder="ex. 49.41A">
+        <label>Adresse du siège</label>
+        <input id="abo-adresse" type="text" placeholder="N°, rue, code postal, ville">
         <label>Secteur d'activité <span class="req">*</span></label>
         <select id="abo-sec">
           <option value="">— Choisir votre secteur —</option>
@@ -638,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.18';
+var JX_BUILD = 'v2026-07-23.19';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1237,6 +1245,7 @@ function _aboMailtoFallback(nom,ent,sec,mail,tel){
 function aboSubmit(){
   var g=function(id){ var e=document.getElementById(id); return e?e.value.trim():''; };
   var nom=g('abo-nom'), ent=g('abo-ent'), sec=g('abo-sec'), mail=g('abo-mail'), tel=g('abo-tel');
+  var gerant=g('abo-gerant'), siret=g('abo-siret'), naf=g('abo-naf'), adresse=g('abo-adresse');
   var err=document.getElementById('abo-err');
   if(!nom||!ent||!sec||!mail){ if(err) err.textContent='Merci de renseigner les champs obligatoires (*).'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ if(err) err.textContent='Adresse email invalide.'; return; }
@@ -1259,7 +1268,7 @@ function aboSubmit(){
     subject: 'Demande d\'accès Juris Expert MCH — '+ent,
     from_name: 'Juris Expert MCH — Abonnement',
     replyto: mail,
-    'Nom': nom, 'Entreprise': ent, 'Secteur': (SECL_ABO[sec]||sec), 'Email du client': mail, 'Téléphone': (tel||'—')
+    'Nom': nom, 'Entreprise': ent, 'Gérant': (gerant||'—'), 'SIRET': (siret||'—'), 'Code NAF/APE': (naf||'—'), 'Adresse': (adresse||'—'), 'Secteur': (SECL_ABO[sec]||sec), 'Email du client': mail, 'Téléphone': (tel||'—')
   };
   try{
     fetch('https://api.web3forms.com/submit', {
