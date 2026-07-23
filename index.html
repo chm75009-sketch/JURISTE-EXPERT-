@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.29';
+var JX_BUILD = 'v2026-07-23.30';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6143,6 +6143,7 @@ function rxRegistre(){
     +'<button onclick="rxFiche(\'\')" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter un salarié</button>'
     +'<button onclick="document.getElementById(\'rx-csv\').click()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer un fichier CSV</button>'
     +'<input type="file" id="rx-csv" accept=".csv,text/csv" style="display:none" onchange="rxImport(this)">'
+    +(rxCombinedNameCount()>0?'<button onclick="rxSplitNames()" style="padding:10px 14px;border:1px solid #c9a84c;border-radius:9px;background:transparent;color:#e8c97a;font-size:13px;cursor:pointer">✂️ Séparer Nom / Prénom ('+rxCombinedNameCount()+')</button>':'')
     +'</div>';
   if(!RX.staff.length){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>Importez votre fichier CSV, ou ajoutez un salarié.</div>';
@@ -6163,6 +6164,19 @@ function rxRegistre(){
   return h;
 }
 
+/* Noms importés « collés » (nom + prénom dans la même case, prénom vide). */
+function rxCombinedNameCount(){ var n=0; RX.staff.forEach(function(s){ if((!s.prenom||!s.prenom.trim()) && (s.nom||'').trim().indexOf(' ')>-1) n++; }); return n; }
+function rxSplitNames(){
+  var cnt=rxCombinedNameCount(); if(!cnt){ return; }
+  if(!confirm('Séparer automatiquement le nom et le prénom pour '+cnt+' salarié(s) ?\n\nRègle : le DERNIER mot devient le prénom, le reste le nom.\n(Ex. « ALFA Zakaria » → Nom : ALFA · Prénom : Zakaria)\nVous pourrez corriger au cas par cas ensuite.')) return;
+  RX.staff.forEach(function(s){
+    if((s.prenom&&s.prenom.trim()) || (s.nom||'').trim().indexOf(' ')===-1) return;
+    var parts=(s.nom||'').trim().split(/\s+/);
+    s.prenom=parts.pop();
+    s.nom=parts.join(' ');
+  });
+  rxSaveLocal(); try{ rxCloudPushAll(false); }catch(e){} rxRender();
+}
 /* ══════════ FICHE ══════════ */
 var RX_CUR=null;
 function rxFiche(id){
@@ -6174,19 +6188,31 @@ function rxFiche(id){
   var F=function(lbl,k,ph,date){ var v=date?rxFR(s[k]):(s[k]||''); return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxf-'+k+'" value="'+rxEsc(v)+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
   var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
   var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
+  /* Menu déroulant : conserve la valeur actuelle même si absente de la liste. */
+  var S=function(lbl,k,opts){
+    var cur=s[k]||'', found=false, o='<option value=""></option>';
+    for(var i=0;i<opts.length;i++){ var v=opts[i]; if(v===cur)found=true; o+='<option'+(v===cur?' selected':'')+'>'+rxEsc(v)+'</option>'; }
+    if(cur&&!found) o+='<option selected>'+rxEsc(cur)+'</option>';
+    return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><select id="rxf-'+k+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box">'+o+'</select></div>';
+  };
+  var OPT_NAT=['Française','Algérienne','Marocaine','Tunisienne','Portugaise','Espagnole','Italienne','Roumaine','Bulgare','Polonaise','Turque','Malienne','Sénégalaise','Ivoirienne','Camerounaise','Congolaise (RDC)','Congolaise','Guinéenne','Mauritanienne','Comorienne','Sri-lankaise','Bangladaise','Pakistanaise','Indienne','Chinoise','Autre'];
+  var OPT_PIECE=['CNI (carte d\'identité)','Passeport','Titre de séjour','Carte de résident','Carte de séjour pluriannuelle','Récépissé','Visa long séjour (VLS-TS)'];
+  var OPT_CONTRAT=['CDI','CDD','Intérim','Apprentissage','Contrat de professionnalisation','Stage','CDI intérimaire'];
+  var OPT_STATUT=['Ouvrier','Employé','Technicien','Agent de maîtrise','Cadre'];
+  var OPT_TEMPS=['Temps plein','Temps partiel','Forfait jours','Forfait heures'];
   var ov=document.getElementById('rx-fiche');
   if(!ov){ ov=document.createElement('div'); ov.id='rx-fiche'; ov.style.cssText='position:fixed;inset:0;z-index:99995;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px'; document.body.appendChild(ov); }
   var h='<div style="max-width:760px;margin:0 auto">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rxCloseFiche()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>';
-  h+=SEC('État civil')+g([F('Nom','nom'),F('Prénom','prenom')])+g([F('Date de naissance','naissance','JJ/MM/AAAA',true),F('Nationalité','nationalite')]);
+  h+=SEC('État civil')+g([F('Nom','nom'),F('Prénom','prenom')])+g([S('Sexe','sexe',['Homme','Femme']),F('Date de naissance','naissance','JJ/MM/AAAA',true)])+S('Nationalité','nationalite',OPT_NAT);
   h+=SEC('Coordonnées')+g([F('E-mail','email'),F('Téléphone','tel')])+F('Adresse','adresse')+g([F('Code postal','cp'),F('Ville','ville')]);
-  h+=SEC('Pièce d\'identité / séjour')+g([F('Type de pièce','pieceType'),F('Validité pièce','pieceValid','JJ/MM/AAAA',true)])+F('Validité titre de séjour','sejourValid','JJ/MM/AAAA',true);
+  h+=SEC('Pièce d\'identité / séjour')+g([S('Type de pièce','pieceType',OPT_PIECE),F('Validité pièce','pieceValid','JJ/MM/AAAA',true)])+F('Validité titre de séjour','sejourValid','JJ/MM/AAAA',true);
   h+=SEC('Permis & qualifications')+g([F('Catégories permis (B, C, CE…)','permisCats'),F('Validité permis','permisValid','JJ/MM/AAAA',true)])
     +g([F('FCO / CQC — validité','fcoValid','JJ/MM/AAAA',true),F('Carte conducteur — validité','carteValid','JJ/MM/AAAA',true)])
     +g([F('FIMO — date','fimo','JJ/MM/AAAA',true),F('ADR — validité','adrValid','JJ/MM/AAAA',true)]);
   h+=SEC('Suivi médical')+g([F('Visite médecin du travail','visitePoste','JJ/MM/AAAA',true),F('Aptitude conduite (préfecture)','visiteConduite','JJ/MM/AAAA',true)]);
-  h+=SEC('Contrat & rémunération')+g([F('Type de contrat','typeContrat'),F('Statut','statut')])+g([F('Emploi / catégorie','categorie'),F('Coefficient','coeff')])
-    +g([F('Temps de travail','tempsTravail'),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+F('Motif de sortie','motifSortie');
+  h+=SEC('Contrat & rémunération')+g([S('Type de contrat','typeContrat',OPT_CONTRAT),S('Statut','statut',OPT_STATUT)])+g([F('Emploi / catégorie','categorie'),F('Coefficient','coeff')])
+    +g([S('Temps de travail','tempsTravail',OPT_TEMPS),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+F('Motif de sortie','motifSortie');
   h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="rxf-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:54px;box-sizing:border-box">'+rxEsc(s.observations||'')+'</textarea></div>';
   h+=SEC('Suivi RH')
     +rxSub('absences',s.absences,['Date','Type','Jours','Motif'])
@@ -6221,7 +6247,7 @@ function rxSubAdd(key,n){
   rxReadForm(RX_CUR); RX_CUR[key].push(obj); rxFiche(RX_CUR.id||'');
 }
 function rxSubDel(key,i){ if(!RX_CUR||!RX_CUR[key]) return; RX_CUR[key].splice(i,1); rxReadForm(RX_CUR); rxFiche(RX_CUR.id||''); }
-var RX_TXT=['nom','prenom','nationalite','email','tel','adresse','cp','ville','pieceType','permisCats','typeContrat','statut','categorie','coeff','tempsTravail','salaire','motifSortie','observations'];
+var RX_TXT=['nom','prenom','sexe','nationalite','email','tel','adresse','cp','ville','pieceType','permisCats','typeContrat','statut','categorie','coeff','tempsTravail','salaire','motifSortie','observations'];
 var RX_DAT=['naissance','pieceValid','sejourValid','permisValid','fcoValid','carteValid','fimo','adrValid','visitePoste','visiteConduite','entree','sortie'];
 function rxSaveFiche(){
   var s=RX_CUR;
