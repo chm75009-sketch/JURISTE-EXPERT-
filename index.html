@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.23';
+var JX_BUILD = 'v2026-07-23.24';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6309,35 +6309,65 @@ try{
     _burger.addEventListener('touchend', function(ev){ try{ ev.preventDefault(); }catch(e){} jxHealOverlays(); openMenu(); }, {passive:false});
   }
 }catch(e){}
-/* ══ Bouton menu FLOTTANT de secours ══
-   Indépendant de l'en-tête collant (source de bugs tactiles sur iOS).
-   Toujours au premier plan et tactile ; masqué sur la vitrine et quand un
-   module plein écran est ouvert (pour ne pas doubler leur propre bouton). */
+/* ══ Boutons FLOTTANTS de secours (méthode éprouvée « Nomos ») ══
+   Deux boutons position:fixed, au z-index quasi-maximal (2147483600), recréés
+   toutes les 400 ms : rien ne peut les supprimer ni les recouvrir. Indépendants
+   de l'en-tête collant (source de bugs tactiles sur iOS).
+     • ☰  (haut-droite) : ouvre le menu → accès « Se déconnecter »
+     • ← Retour (haut-gauche) : ferme le module ouvert, sinon revient à l'accueil */
+function _jxAuthed(){ try{ return sessionStorage.getItem('jte_ok')==='1'; }catch(e){ return false; } }
+function _jxVisible(id){ var e=document.getElementById(id); return e && getComputedStyle(e).display!=='none'; }
+var _JX_MODULES=['cg-edit-ov','rx-fiche','rh-fiche-ov','rx-ov','rh-ov'];
+function _jxModuleOpen(){ for(var i=0;i<_JX_MODULES.length;i++){ if(_jxVisible(_JX_MODULES[i])) return true; } return false; }
+/* Action « retour » : cascade robuste, autonome (ne dépend d'aucune autre fonction) */
+function _jxBack(){
+  try{ for(var i=0;i<_JX_MODULES.length;i++){ var e=document.getElementById(_JX_MODULES[i]); if(e && getComputedStyle(e).display!=='none'){ e.style.display='none'; try{ document.body.style.overflow=''; }catch(_){ } return; } } }catch(e){}
+  try{ var mp=document.getElementById('menu-panel'); if(mp && getComputedStyle(mp).display!=='none'){ closeMenu(); return; } }catch(e){}
+  try{ var home=document.getElementById('pg-home'); if(home && home.className.indexOf('act')===-1 && typeof goPage==='function'){ goPage('home'); return; } }catch(e){}
+  /* Ultime secours, sans dépendre de goPage : bascule DOM directe vers l'accueil */
+  try{ var ps=document.querySelectorAll('#pg-app .page'); for(var j=0;j<ps.length;j++){ ps[j].classList.remove('act'); } var h=document.getElementById('pg-home'); if(h){ h.classList.add('act'); } window.scrollTo(0,0); }catch(e){}
+}
 function jxFab(){
   try{
+    /* ☰ menu (haut-droite) */
     var fab=document.getElementById('jx-fab-menu');
     if(!fab){
       fab=document.createElement('button'); fab.id='jx-fab-menu'; fab.type='button';
       fab.textContent='☰'; fab.setAttribute('aria-label','Menu');
-      fab.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;z-index:2000000;width:48px;height:48px;border-radius:12px;border:1px solid rgba(201,168,76,.65);background:rgba(18,30,45,.97);color:#e8c97a;font-size:21px;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.45);-webkit-tap-highlight-color:rgba(201,168,76,.4);touch-action:manipulation;display:none;padding:0';
+      fab.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;z-index:2147483600;width:48px;height:48px;border-radius:12px;border:1px solid rgba(201,168,76,.65);background:rgba(18,30,45,.97);color:#e8c97a;font-size:21px;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.45);-webkit-tap-highlight-color:rgba(201,168,76,.5);touch-action:manipulation;display:none;padding:0';
       fab.addEventListener('click', function(){ jxHealOverlays(); openMenu(); });
       fab.addEventListener('touchend', function(ev){ try{ ev.preventDefault(); }catch(e){} jxHealOverlays(); openMenu(); }, {passive:false});
       document.body.appendChild(fab);
     }
-    var show=false;
-    var app=document.getElementById('pg-app');
-    var appVisible = app && getComputedStyle(app).display!=='none';
-    var authed=false; try{ authed=sessionStorage.getItem('jte_ok')==='1'; }catch(e){}
-    var overlayOpen=['rx-ov','rx-fiche','cg-edit-ov','rh-ov','rh-fiche-ov','menu-panel','menu-overlay','lock-screen','accueil-screen','abo-screen'].some(function(id){ var e=document.getElementById(id); return e && getComputedStyle(e).display!=='none'; });
-    show = !!(appVisible && authed && !overlayOpen);
-    fab.style.display = show ? 'block' : 'none';
+    /* ← Retour (haut-gauche) */
+    var bk=document.getElementById('jx-fab-back');
+    if(!bk){
+      bk=document.createElement('button'); bk.id='jx-fab-back'; bk.type='button';
+      bk.textContent='← Retour'; bk.setAttribute('aria-label','Retour');
+      bk.style.cssText='position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:14px;z-index:2147483600;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(15,23,42,.92);color:#fff;font-size:13px;font-weight:800;line-height:1;cursor:pointer;padding:11px 16px;box-shadow:0 4px 16px rgba(0,0,0,.45);-webkit-tap-highlight-color:transparent;touch-action:manipulation;display:none;font-family:inherit';
+      bk.addEventListener('click', function(){ _jxBack(); });
+      bk.addEventListener('touchend', function(ev){ try{ ev.preventDefault(); }catch(e){} _jxBack(); }, {passive:false});
+      document.body.appendChild(bk);
+    }
+    /* Visibilités */
+    var appVisible=_jxVisible('pg-app');
+    var authed=_jxAuthed();
+    var vitrine=_jxVisible('accueil-screen')||_jxVisible('lock-screen')||_jxVisible('abo-screen');
+    var menuOpen=_jxVisible('menu-panel');
+    var moduleOpen=_jxModuleOpen();
+    // ☰ : dans l'app, connecté, hors vitrine, hors module plein écran et hors menu ouvert
+    fab.style.display=(appVisible && authed && !vitrine && !moduleOpen && !menuOpen)?'block':'none';
+    // ← Retour : quand il y a quelque chose à fermer (module/menu) OU qu'on n'est pas sur l'accueil
+    var home=document.getElementById('pg-home');
+    var notHome=home && home.className.indexOf('act')===-1;
+    bk.style.display=(appVisible && authed && !vitrine && (moduleOpen || menuOpen || notHome))?'block':'none';
   }catch(e){}
 }
 try{
   window.addEventListener('pageshow', jxFab);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxFab(); });
-  setInterval(jxFab, 1000);
-  setTimeout(jxFab, 300);
+  setInterval(jxFab, 400);
+  setTimeout(jxFab, 200);
 }catch(e){}
 function deconnexion(){
   try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
