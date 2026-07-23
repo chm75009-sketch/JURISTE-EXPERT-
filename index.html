@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.28';
+var JX_BUILD = 'v2026-07-23.29';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5134,8 +5134,12 @@ function goPage(id){
     }
   }catch(e){}
   sauvegarderEtat();
+  // Sécurité : si la page demandée n'existe pas, on retombe sur l'accueil
+  // (sinon aucune page ne serait active → écran blanc).
+  if(!document.getElementById('pg-'+id)){ id='home'; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
   document.getElementById('pg-'+id)?.classList.add('act');
+  if(!document.querySelector('.page.act')){ document.getElementById('pg-home')?.classList.add('act'); }
   document.querySelectorAll('.bn').forEach(b=>b.classList.remove('act'));
   document.getElementById('bn-'+id)?.classList.add('act');
   window.scrollTo(0,0);
@@ -6456,6 +6460,11 @@ function jxFab(){
     var vitrine=_jxVisible('accueil-screen')||_jxVisible('lock-screen')||_jxVisible('abo-screen');
     var menuOpen=_jxVisible('menu-panel');
     var moduleOpen=_jxModuleOpen();
+    /* Auto-réparation « écran blanc » : dans l'app, connecté, sans module ni menu,
+       mais AUCUNE page active → on réactive l'accueil. */
+    if(appVisible && authed && !vitrine && !moduleOpen && !menuOpen && !document.querySelector('#pg-app .page.act')){
+      var _h=document.getElementById('pg-home'); if(_h) _h.classList.add('act');
+    }
     // ☰ : dans l'app, connecté, hors vitrine, hors module plein écran et hors menu ouvert
     fab.style.display=(appVisible && authed && !vitrine && !moduleOpen && !menuOpen)?'block':'none';
     // ← Retour : quand il y a quelque chose à fermer (module/menu) OU qu'on n'est pas sur l'accueil
