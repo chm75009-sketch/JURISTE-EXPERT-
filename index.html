@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.27';
+var JX_BUILD = 'v2026-07-23.28';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6002,8 +6002,40 @@ var RX_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJl
 var RX_DOMAIN = '@juris-expert.app';
 
 function rxEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-function rxLoad(){ try{ var d=JSON.parse(localStorage.getItem(RX_LS)||'null'); if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; } }catch(e){} }
-function rxSaveLocal(){ try{ localStorage.setItem(RX_LS, JSON.stringify({staff:RX.staff, ent:RX.ent})); }catch(e){} }
+/* ══ Stockage PAR COMPTE (et non par téléphone) ══
+   Chaque compte (admin, ou chaque code client) a son propre espace local :
+   sur un même téléphone, deux comptes différents ne voient JAMAIS les mêmes
+   données. La clé dépend du compte connecté. */
+function rxAccountId(){
+  try{
+    if(sessionStorage.getItem('jte_admin')==='1') return 'admin';
+    var c=sessionStorage.getItem('jte_code'); if(c) return 'c_'+c;
+    var s=sessionStorage.getItem('jte_sector'); if(s) return 's_'+s;
+  }catch(e){}
+  return 'local';
+}
+function rxKey(){ return RX_LS+'::'+rxAccountId(); }
+function rxLoad(){
+  try{
+    var d=JSON.parse(localStorage.getItem(rxKey())||'null');
+    if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; }
+    else { RX.staff=[]; RX.ent={}; }   // compte vierge : on n'hérite JAMAIS d'un autre compte
+  }catch(e){ RX.staff=[]; RX.ent={}; }
+}
+function rxSaveLocal(){ try{ localStorage.setItem(rxKey(), JSON.stringify({staff:RX.staff, ent:RX.ent})); }catch(e){} }
+/* Ancien registre unique (avant la séparation par compte) : proposé une fois au
+   rattachement, pour ne pas perdre les 83 salariés déjà saisis sur l'appareil. */
+function rxLegacyData(){ try{ return JSON.parse(localStorage.getItem(RX_LS)||'null'); }catch(e){ return null; } }
+function rxLegacyCount(){ var d=rxLegacyData(); return (d&&d.staff&&d.staff.length)?d.staff.length:0; }
+function rxAdoptLegacy(){
+  var d=rxLegacyData(); if(!d){ return; }
+  if(!confirm('Rattacher ces '+((d.staff&&d.staff.length)||0)+' salarié(s) au compte « '+rxAccountId()+' » ? (ils seront retirés de l\'ancien registre commun de l\'appareil)')) return;
+  RX.staff=d.staff||[]; RX.ent=(RX.ent&&RX.ent.nom)?RX.ent:(d.ent||{});
+  rxSaveLocal();
+  try{ localStorage.removeItem(RX_LS); }catch(e){}
+  rxRender();
+}
+function rxIgnoreLegacy(){ try{ localStorage.removeItem(RX_LS); }catch(e){} rxRender(); }
 function rxSess(){ try{ return JSON.parse(localStorage.getItem(RX_SESS)||'null'); }catch(e){ return null; } }
 function rxUID(){ try{ return crypto.randomUUID(); }catch(e){ return 'x'+Date.now().toString(16)+Math.floor(Math.random?0:(RX.staff.length)).toString(16)+RX.staff.length; } }
 function rxFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
@@ -6077,7 +6109,15 @@ function rxRender(){
     +'<div style="font-size:12px;color:'+(sess?'#46b885':'#9fb0c4')+'">'+(sess?'☁️ '+rxEsc((sess.code||'compte')):'hors ligne')+'</div>'
     +'</div>';
   h+='<h2 style="color:#fff;font-size:19px;margin:2px 0 2px">👥 Espace RH — Personnel</h2>';
-  h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre</div>';
+  h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre <span style="color:#6b7a8d">· compte : '+rxEsc(rxAccountId())+'</span></div>';
+  if(rxLegacyCount()>0){
+    h+='<div style="margin-bottom:12px;padding:12px;border:1px solid #c9a84c;border-radius:10px;background:rgba(201,168,76,.1);font-size:13px;color:#e8e4d8;line-height:1.5">'
+      +'📦 <b>'+rxLegacyCount()+' salarié(s)</b> sont enregistrés sur cet appareil dans l\'ancien registre <b>commun</b> (avant la séparation par compte). À quel compte les rattacher ?'
+      +'<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
+      +'<button onclick="rxAdoptLegacy()" style="padding:9px 14px;border:none;border-radius:8px;background:#c9a84c;color:#1a1a1a;font-weight:700;cursor:pointer;font-family:inherit">Rattacher à CE compte ('+rxEsc(rxAccountId())+')</button>'
+      +'<button onclick="rxIgnoreLegacy()" style="padding:9px 14px;border:1px solid #6b7a8d;border-radius:8px;background:transparent;color:#9fb0c4;cursor:pointer;font-family:inherit">Masquer</button>'
+      +'</div></div>';
+  }
   h+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
     +rxTabBtn('reg','📖 Registre')+rxTabBtn('dash','🔔 Alertes')+rxTabBtn('ent','🏢 Entreprise')+rxTabBtn('cloud','☁️ En ligne')
     +'</div><div id="rx-c"></div></div>';
