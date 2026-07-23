@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.2';
+var JX_BUILD = 'v2026-07-23.3';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5760,7 +5760,8 @@ function genFichePoste(){
 <li>Carte de Qualification Conducteur (CQC Marchandises) — non expirée</li>
 <li>FIMO Marchandises obtenue</li>
 <li>FCO à jour (tous les 5 ans)</li>
-<li>Visite médicale d'aptitude à la conduite — en cours de validité</li>
+<li>Aptitude médicale à la conduite du permis lourd (contrôle par un médecin agréé par le préfet — Code de la route) — en cours de validité</li>
+<li>Aptitude au poste délivrée par le médecin du travail (suivi individuel) — à jour</li>
 <li>Carte conducteur tachygraphe numérique — en cours de validité</li>
 ${document.getElementById('c-has-adr')?.checked?'<li>Certificat ADR en cours de validité</li>':''}
 </ul>
@@ -6311,6 +6312,16 @@ function genBulletinType(){
   const today=new Date().toLocaleDateString('fr-FR');
   const mois=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
   const salBase=Math.round(Math.min(heures,seuil)*minCCN*100)/100;
+  // Décomposition légale du bulletin : base 151,67 h (35 h) puis heures supplémentaires majorées
+  // Transport routier : +25 % de la 36e à la 43e h (soit 151,67 → 186,33 h/mois), +50 % au-delà (CCN IDCC 16 · art. L.3121-36 C. trav.)
+  const BASE_LEG=151.67;
+  const hNorm=Math.min(heures,BASE_LEG);
+  const hSup25=Math.max(0,Math.min(heures,186.33)-BASE_LEG);
+  const hSup50=Math.max(0,heures-186.33);
+  const salNorm=Math.round(hNorm*minCCN*100)/100;
+  const salSup25=Math.round(hSup25*minCCN*1.25*100)/100;
+  const salSup50=Math.round(hSup50*minCCN*1.5*100)/100;
+  const _nb=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
   const html=`<div style="${S}">
 <table style="width:100%;border:none;margin-bottom:16px">
 <tr><td style="border:none;width:60%;vertical-align:top">
@@ -6327,10 +6338,12 @@ function genBulletinType(){
 <hr style="border:none;border-top:1px solid #ccc;margin:8px 0">
 <table style="width:100%;border-collapse:collapse;font-size:10pt">
 <tr style="background:#fff"><th style="border:1px solid #ccc;padding:5px;text-align:left">Éléments de paie</th><th style="border:1px solid #ccc;padding:5px">Base</th><th style="border:1px solid #ccc;padding:5px">Taux</th><th style="border:1px solid #ccc;padding:5px">Montant</th></tr>
-<tr><td style="border:1px solid #ccc;padding:5px">Salaire de base</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${Math.min(heures,seuil)}h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${minCCN}</td><td style="border:1px solid #ccc;padding:5px;text-align:right">${salBase.toFixed(2)} €</td></tr>
-<tr><td style="border:1px solid #ccc;padding:5px">Heures supplémentaires (si applicable)</td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">+25%/+50%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Salaire de base (35 h — 151,67 h/mois)</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${_nb(hNorm)} h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${_nb(minCCN)}</td><td style="border:1px solid #ccc;padding:5px;text-align:right">${_nb(salNorm)} €</td></tr>
+${hSup25>0?`<tr><td style="border:1px solid #ccc;padding:5px">Heures supplémentaires (36<sup>e</sup> à 43<sup>e</sup> h) — +25 %</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${_nb(hSup25)} h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${_nb(minCCN*1.25)}</td><td style="border:1px solid #ccc;padding:5px;text-align:right">${_nb(salSup25)} €</td></tr>`:''}
+${hSup50>0?`<tr><td style="border:1px solid #ccc;padding:5px">Heures supplémentaires (au-delà de la 43<sup>e</sup> h) — +50 %</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${_nb(hSup50)} h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">${_nb(minCCN*1.5)}</td><td style="border:1px solid #ccc;padding:5px;text-align:right">${_nb(salSup50)} €</td></tr>`:''}
+${(hSup25<=0&&hSup50<=0)?`<tr><td style="border:1px solid #ccc;padding:5px">Heures supplémentaires (si applicable)</td><td style="border:1px solid #ccc;padding:5px;text-align:center">— h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">+25 % / +50 %</td><td style="border:1px solid #ccc;padding:5px;text-align:right">— €</td></tr>`:''}
 <tr><td style="border:1px solid #ccc;padding:5px">Majoration heures de nuit</td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]h</td><td style="border:1px solid #ccc;padding:5px;text-align:center">+20%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
-<tr><td style="border:1px solid #ccc;padding:5px">Prime d'ancienneté (CCN art. 13)</td><td style="border:1px solid #ccc;padding:5px;text-align:center"></td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
+<tr><td style="border:1px solid #ccc;padding:5px">Prime d'ancienneté (ouvriers : 2 % / 4 % / 6 % / 8 % à 2 / 5 / 10 / 15 ans — CCN annexe I)</td><td style="border:1px solid #ccc;padding:5px;text-align:center"></td><td style="border:1px solid #ccc;padding:5px;text-align:center">[X]%</td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MONTANT] €</td></tr>
 <tr style="font-weight:bold;background:#fff"><td style="border:1px solid #ccc;padding:5px">SALAIRE BRUT</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[BRUT] €</td></tr>
 <tr><td style="border:1px solid #ccc;padding:5px">Cotisations salariales</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">- [COTIS] €</td></tr>
 <tr style="background:#fff"><td style="border:1px solid #ccc;padding:5px"><strong>Montant net social</strong> (mention obligatoire — arrêté du 31/01/2023, art. R.3243-1)</td><td colspan="2" style="border:1px solid #ccc;padding:5px"></td><td style="border:1px solid #ccc;padding:5px;text-align:right">[MNS] €</td></tr>
