@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.4';
+var JX_BUILD = 'v2026-07-23.5';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -3196,6 +3196,15 @@ Exemple :<br>
 </div>
 
 <!-- ═══ PARAMÉTRAGE ═══ -->
+<div id="pg-personnel" class="page">
+  <div class="wrap">
+    <h1 class="ttl">👥 Espace RH — Personnel</h1>
+    <p class="sub" style="margin-bottom:6px">Registre du personnel &amp; fiches individuelles — chiffré et stocké uniquement sur votre appareil.</p>
+    <div id="rh-body"></div>
+    <input type="file" id="rh-csv-input" accept=".csv,text/csv" style="display:none" onchange="rhImportFile(this)">
+    <input type="file" id="rh-bak-input" accept=".tec,application/octet-stream" style="display:none" onchange="rhImportBackupFile(this)">
+  </div>
+</div>
 <div id="pg-parametrage" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Paramétrage entreprise</div><div class="ts">Coordonnées · Licences · Gestionnaire transport</div></div>
@@ -3291,6 +3300,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div id="menu-lbl-ri" style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
   <div class="mi" onclick="goPage('parc');closeMenu()"><span style="font-size:18px">🚛</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parc véhicules &amp; contraventions</div></div></div>
+  <div class="mi" onclick="goPage('personnel');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Espace RH — Personnel <span style="color:#c9a84c">🔒</span></div></div></div>
   <div class="mi" onclick="window.location.href='maquette-accueil.html'"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Aperçu : nouvelle page d'accueil</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
@@ -5086,6 +5096,7 @@ function goPage(id){
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
+  if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
 }
 function applyRISector(){
   try{
@@ -5120,6 +5131,462 @@ function homeToggle(head){
   var chev=head.querySelector('.home-acc-chev');
   if(chev)chev.textContent=open?'▸':'▾';
 }
+
+/* ===== ESPACE RH TEC (module injecté) ===== */
+/* ══════════════════════════════════════════════════════════════════
+   ESPACE RH — TEC · Registre du personnel + fiches individuelles
+   Données 100% locales (localStorage), chiffrées AES-256-GCM (clé PBKDF2
+   dérivée d'un code PIN). Aucune donnée n'est envoyée ni publiée.
+   ══════════════════════════════════════════════════════════════════ */
+var RH = { ent:{}, staff:[], loaded:false };
+var _rhKey = null;          // CryptoKey en mémoire après déverrouillage
+var _rhSalt = null;         // sel (base64) de dérivation
+var RH_LSK = 'tec_rh_v1';   // clé localStorage (blob chiffré)
+
+/* ---- utilitaires binaires/base64 ---- */
+function _b64e(bytes){ var s=''; var b=new Uint8Array(bytes); for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); }
+function _b64d(str){ var s=atob(str); var b=new Uint8Array(s.length); for(var i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b; }
+
+/* ---- dérivation de clé + chiffrement ---- */
+async function _rhDerive(pin, saltB64){
+  var enc=new TextEncoder();
+  var salt = saltB64 ? _b64d(saltB64) : crypto.getRandomValues(new Uint8Array(16));
+  var base = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+  var key = await crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt:salt, iterations:200000, hash:'SHA-256'},
+    base, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+  return { key:key, salt:_b64e(salt) };
+}
+async function _rhEncrypt(obj, key){
+  var iv=crypto.getRandomValues(new Uint8Array(12));
+  var data=new TextEncoder().encode(JSON.stringify(obj));
+  var ct=await crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, data);
+  return { v:1, iv:_b64e(iv), ct:_b64e(ct) };
+}
+async function _rhDecrypt(payload, key){
+  var iv=_b64d(payload.iv), ct=_b64d(payload.ct);
+  var pt=await crypto.subtle.decrypt({name:'AES-GCM', iv:iv}, key, ct);
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/* ---- persistance ---- */
+async function rhSave(){
+  if(!_rhKey) return;
+  try{
+    var blob = await _rhEncrypt({ent:RH.ent, staff:RH.staff}, _rhKey);
+    blob.salt = _rhSalt;
+    localStorage.setItem(RH_LSK, JSON.stringify(blob));
+  }catch(e){ alert('Erreur d\'enregistrement chiffré : '+e.message); }
+}
+
+/* ---- dates : "JJ/MM/AAAA" ⇄ ISO, + calcul de jours restants ---- */
+function _rhToISO(s){
+  if(!s) return '';
+  s=String(s).trim();
+  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  return '';
+}
+function _rhFR(iso){
+  if(!iso) return '';
+  var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[3]+'/'+m[2]+'/'+m[1] : iso;
+}
+function _rhDaysLeft(iso){
+  if(!iso) return null;
+  var d=new Date(iso); if(isNaN(d)) return null;
+  var today=new Date(); today.setHours(0,0,0,0);
+  return Math.round((d-today)/86400000);
+}
+function _rhAge(iso){
+  if(!iso) return '';
+  var d=new Date(iso); if(isNaN(d)) return '';
+  var t=new Date(); var a=t.getFullYear()-d.getFullYear();
+  var mm=t.getMonth()-d.getMonth(); if(mm<0||(mm===0&&t.getDate()<d.getDate())) a--;
+  return a;
+}
+function _rhEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function _rhUID(){ return 's'+Math.abs((Date.now()^(RH.staff.length*2654435761))>>>0).toString(36)+RH.staff.length; }
+
+/* ══════════ VERROU / DÉVERROUILLAGE ══════════ */
+function rhOnEnter(){
+  var host=document.getElementById('rh-body');
+  if(!host) return;
+  if(_rhKey){ rhRender(); return; }
+  var exists = !!localStorage.getItem(RH_LSK);
+  host.innerHTML =
+   '<div style="max-width:520px;margin:24px auto;background:#16263c;border:1px solid #c9a84c;border-radius:16px;padding:24px">'
+   +'<div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:6px">🔒 Espace RH sécurisé</div>'
+   +'<div style="font-size:13px;color:#9fb0c4;line-height:1.6;margin-bottom:16px">'
+     +(exists
+        ? 'Saisissez votre code confidentiel pour déchiffrer le registre du personnel. Les données restent sur cet appareil.'
+        : 'Créez un code confidentiel (PIN). Il chiffre vos données (AES-256) et sera demandé à chaque ouverture. <strong style="color:#e8c97a">Notez-le : sans lui, les données sont irrécupérables.</strong>')
+   +'</div>'
+   +'<input id="rh-pin" type="password" inputmode="numeric" autocomplete="off" placeholder="Code confidentiel" style="width:100%;padding:12px;border-radius:10px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;margin-bottom:10px">'
+   +(exists?'':'<input id="rh-pin2" type="password" autocomplete="off" placeholder="Confirmez le code" style="width:100%;padding:12px;border-radius:10px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;margin-bottom:10px">')
+   +'<button onclick="'+(exists?'rhUnlock()':'rhSetup()')+'" style="width:100%;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;font-size:15px;cursor:pointer">'+(exists?'🔓 Déverrouiller':'✓ Créer le coffre chiffré')+'</button>'
+   +'<div id="rh-pin-msg" style="font-size:12.5px;color:#e05c5c;margin-top:10px;min-height:16px"></div>'
+   +(exists?'<div style="margin-top:14px;text-align:center"><button onclick="rhImportBackupPrompt()" style="background:none;border:none;color:#9fb0c4;font-size:12px;text-decoration:underline;cursor:pointer">Restaurer une sauvegarde chiffrée (.tec)</button></div>':'')
+   +'<div style="font-size:11px;color:#6b7a8d;margin-top:14px;line-height:1.5">🛡️ Chiffrement AES-256-GCM · clé dérivée PBKDF2 (200 000 itérations) · aucune donnée envoyée sur Internet.</div>'
+   +'</div>';
+  setTimeout(function(){ var i=document.getElementById('rh-pin'); if(i) i.focus(); },80);
+}
+async function rhSetup(){
+  var p=(document.getElementById('rh-pin')||{}).value||'';
+  var p2=(document.getElementById('rh-pin2')||{}).value||'';
+  var msg=document.getElementById('rh-pin-msg');
+  if(p.length<4){ if(msg)msg.textContent='Le code doit comporter au moins 4 caractères.'; return; }
+  if(p!==p2){ if(msg)msg.textContent='Les deux codes ne correspondent pas.'; return; }
+  try{
+    var d=await _rhDerive(p,null); _rhKey=d.key; _rhSalt=d.salt;
+    RH.ent={ nom:(typeof E!=='undefined'?E.nom:'')||'', siret:(typeof E!=='undefined'?E.siret:'')||'', naf:'', codeClient:'', adresse:(typeof E!=='undefined'?E.adresse:'')||'', dirigeant:(typeof E!=='undefined'?E.dirigeant:'')||'', email:(typeof E!=='undefined'?E.email:'')||'', tel:(typeof E!=='undefined'?E.tel:'')||'', idcc:'16' };
+    RH.staff=[]; RH.loaded=true;
+    await rhSave(); rhRender();
+  }catch(e){ if(msg)msg.textContent='Erreur : '+e.message; }
+}
+async function rhUnlock(){
+  var p=(document.getElementById('rh-pin')||{}).value||'';
+  var msg=document.getElementById('rh-pin-msg');
+  var raw=localStorage.getItem(RH_LSK);
+  if(!raw){ rhOnEnter(); return; }
+  try{
+    var blob=JSON.parse(raw);
+    var d=await _rhDerive(p, blob.salt);
+    var data=await _rhDecrypt(blob, d.key);   // lève une exception si PIN faux
+    _rhKey=d.key; _rhSalt=blob.salt;
+    RH.ent=data.ent||{}; RH.staff=data.staff||[]; RH.loaded=true;
+    rhRender();
+  }catch(e){ if(msg)msg.textContent='Code incorrect ou données illisibles.'; }
+}
+function rhLock(){ _rhKey=null; _rhSalt=null; RH.staff=[]; RH.ent={}; RH.loaded=false; rhOnEnter(); }
+
+/* ══════════ RENDU PRINCIPAL (onglets) ══════════ */
+var _rhTab='dash', _rhFilter={q:'',statut:'actif',cat:''};
+function rhTab(t){ _rhTab=t; rhRender(); }
+function rhRender(){
+  var host=document.getElementById('rh-body'); if(!host||!_rhKey) return;
+  var actifs=RH.staff.filter(function(s){return !s.sortie;}).length;
+  var head=
+   '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px">'
+   +'<div><span style="font-size:17px;font-weight:800;color:#fff">👥 Espace RH</span> <span style="font-size:12px;color:#9fb0c4">— '+_rhEsc(RH.ent.nom||'Entreprise')+' · '+actifs+' salarié(s) actif(s) / '+RH.staff.length+' au registre</span></div>'
+   +'<button onclick="rhLock()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;cursor:pointer">🔒 Verrouiller</button>'
+   +'</div>'
+   +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
+     +_rhTabBtn('dash','📊 Tableau de bord')+_rhTabBtn('reg','📖 Registre du personnel')+_rhTabBtn('ent','🏢 Entreprise')+_rhTabBtn('rgpd','🔒 RGPD & sauvegarde')
+   +'</div><div id="rh-tabc"></div>';
+  host.innerHTML=head;
+  var c=document.getElementById('rh-tabc');
+  if(_rhTab==='dash') c.innerHTML=rhDash();
+  else if(_rhTab==='reg') c.innerHTML=rhRegistre();
+  else if(_rhTab==='ent') c.innerHTML=rhEntForm();
+  else if(_rhTab==='rgpd') c.innerHTML=rhRgpd();
+}
+function _rhTabBtn(id,lbl){
+  var on=_rhTab===id;
+  return '<button onclick="rhTab(\''+id+'\')" style="border:1px solid '+(on?'#c9a84c':'#3a4a5f')+';background:'+(on?'#c9a84c':'#16263c')+';color:'+(on?'#000':'#e8e4d8')+';border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:'+(on?'700':'500')+';cursor:pointer">'+lbl+'</button>';
+}
+
+/* ══════════ TABLEAU DE BORD / ALERTES ══════════ */
+function rhAlerts(){
+  var out=[];
+  var champs=[['permisValid','Permis'],['cqcValid','CQC/FCO'],['fimo','FIMO'],['fco','FCO'],['adrValid','ADR'],['carteValid','Carte conducteur'],['visitePoste','Visite médicale (poste)'],['visiteConduite','Aptitude conduite (préfet)'],['pieceValid','Pièce d\'identité'],['sejourValid','Titre de séjour']];
+  RH.staff.filter(function(s){return !s.sortie;}).forEach(function(s){
+    champs.forEach(function(cf){
+      var d=_rhDaysLeft(s[cf[0]]);
+      if(d!==null && d<=60){ out.push({id:s.id, nom:(s.nom||'')+' '+(s.prenom||''), lbl:cf[1], iso:s[cf[0]], d:d}); }
+    });
+    // fin de période d'essai indicative : ~2 mois roulant après entrée si récent
+    var de=_rhDaysLeft(s.essaiFin);
+    if(de!==null && de<=15 && de>=-3){ out.push({id:s.id, nom:(s.nom||'')+' '+(s.prenom||''), lbl:'Fin de période d\'essai', iso:s.essaiFin, d:de}); }
+  });
+  out.sort(function(a,b){return a.d-b.d;});
+  return out;
+}
+function rhDash(){
+  var al=rhAlerts();
+  var actifs=RH.staff.filter(function(s){return !s.sortie;});
+  var pl=actifs.filter(function(s){return /PL/i.test(s.categorie||'');}).length;
+  var vl=actifs.filter(function(s){return /VL|3\.?5/i.test(s.categorie||'');}).length;
+  var partiel=actifs.filter(function(s){return /50|partiel/i.test(s.tempsTravail||'');}).length;
+  var h='<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">'
+   +_rhStat(actifs.length,'Actifs')+_rhStat(pl,'Conducteurs PL')+_rhStat(vl,'Conducteurs VL / 3,5t')+_rhStat(partiel,'Temps partiel')+_rhStat(al.length,'Alertes',al.length?'#e05c5c':'#46b885')
+   +'</div>';
+  h+='<div style="font-size:14px;font-weight:700;color:#fff;margin:8px 0 8px">🔔 Échéances à surveiller (60 jours)</div>';
+  if(!al.length){ h+='<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.08);border-radius:10px;padding:12px;font-size:13px;color:#bfe6d4">Aucune échéance sous 60 jours. ✔</div>'; }
+  else{
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">';
+    h+='<tr style="color:#9fb0c4;text-align:left"><th style="padding:6px">Salarié</th><th style="padding:6px">Échéance</th><th style="padding:6px">Date</th><th style="padding:6px">Reste</th></tr>';
+    al.forEach(function(a){
+      var col=a.d<0?'#e05c5c':a.d<=15?'#e0a34c':'#e8c97a';
+      h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rhFiche(\''+a.id+'\')"><td style="padding:6px;color:#e8e4d8">'+_rhEsc(a.nom)+'</td><td style="padding:6px;color:#cdd7e2">'+a.lbl+'</td><td style="padding:6px;color:#9fb0c4">'+_rhFR(a.iso)+'</td><td style="padding:6px;color:'+col+';font-weight:700">'+(a.d<0?('en retard '+(-a.d)+' j'):(a.d+' j'))+'</td></tr>';
+    });
+    h+='</table></div>';
+  }
+  return h;
+}
+function _rhStat(n,l,col){ return '<div style="flex:1;min-width:120px;background:#16263c;border:1px solid #26374d;border-radius:12px;padding:12px"><div style="font-size:24px;font-weight:800;color:'+(col||'#c9a84c')+'">'+n+'</div><div style="font-size:11.5px;color:#9fb0c4">'+l+'</div></div>'; }
+
+/* ══════════ REGISTRE ══════════ */
+function rhRegistre(){
+  var f=_rhFilter;
+  var cats=[]; RH.staff.forEach(function(s){ if(s.categorie&&cats.indexOf(s.categorie)<0)cats.push(s.categorie); });
+  var rows=RH.staff.filter(function(s){
+    if(f.statut==='actif'&&s.sortie) return false;
+    if(f.statut==='sorti'&&!s.sortie) return false;
+    if(f.cat&&s.categorie!==f.cat) return false;
+    if(f.q){ var q=f.q.toLowerCase(); if(((s.nom||'')+' '+(s.prenom||'')+' '+(s.categorie||'')).toLowerCase().indexOf(q)<0) return false; }
+    return true;
+  });
+  rows.sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
+  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center">'
+   +'<input oninput="_rhFilter.q=this.value;rhRender()" value="'+_rhEsc(f.q)+'" placeholder="🔎 Rechercher…" style="flex:1;min-width:150px;padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
+   +'<select onchange="_rhFilter.statut=this.value;rhRender()" style="padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
+     +'<option value="actif"'+(f.statut==='actif'?' selected':'')+'>Actifs</option><option value="sorti"'+(f.statut==='sorti'?' selected':'')+'>Sortis</option><option value="tous"'+(f.statut==='tous'?' selected':'')+'>Tous</option></select>'
+   +'<button onclick="rhFiche(\'\')" style="padding:9px 12px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter</button>'
+   +'<button onclick="rhImportPrompt()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer CSV</button>'
+   +'<button onclick="rhExportRegistre()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">🖨️ Registre (impression)</button>'
+   +'</div>';
+  if(!RH.staff.length){
+    h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:20px;text-align:center;color:#9fb0c4;font-size:13px">Registre vide. Importez votre fichier CSV, ajoutez un salarié, ou <button onclick="rhSeedDemo()" style="background:none;border:none;color:#c9a84c;text-decoration:underline;cursor:pointer;font-size:13px">charger 3 fiches de démonstration</button>.</div>';
+    return h;
+  }
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">'
+   +'<tr style="color:#9fb0c4;text-align:left"><th style="padding:7px">Nom Prénom</th><th style="padding:7px">Emploi</th><th style="padding:7px">Contrat</th><th style="padding:7px">Entrée</th><th style="padding:7px">Statut</th><th style="padding:7px">Alertes</th></tr>';
+  rows.forEach(function(s){
+    var na=rhAlerts().filter(function(a){return a.id===s.id;}).length;
+    var badge = s.sortie ? '<span style="color:#e05c5c">Sorti '+_rhFR(s.sortie)+'</span>' : '<span style="color:#46b885">Actif</span>';
+    h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rhFiche(\''+s.id+'\')">'
+      +'<td style="padding:7px;color:#fff;font-weight:600">'+_rhEsc((s.nom||'')+' '+(s.prenom||''))+'</td>'
+      +'<td style="padding:7px;color:#cdd7e2">'+_rhEsc(s.categorie||'—')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4">'+_rhEsc(s.typeContrat||'')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4">'+_rhFR(s.entree)+'</td>'
+      +'<td style="padding:7px">'+badge+'</td>'
+      +'<td style="padding:7px">'+(na?'<span style="background:#e05c5c;color:#fff;border-radius:8px;padding:1px 7px;font-size:11px">'+na+'</span>':'—')+'</td></tr>';
+  });
+  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">Registre unique du personnel — art. L.1221-13 et D.1221-23 s. du Code du travail. Les salariés sortis y sont conservés (mention de la date de sortie).</div>';
+  return h;
+}
+
+/* ══════════ FICHE INDIVIDUELLE ══════════ */
+var _rhCur=null;
+function rhFiche(id){
+  _rhCur = id ? RH.staff.filter(function(s){return s.id===id;})[0] : { id:'', nom:'', prenom:'', absences:[], retards:[], sanctions:[], avances:[] };
+  if(!_rhCur){ return; }
+  var s=_rhCur;
+  ['absences','retards','sanctions','avances'].forEach(function(k){ if(!Array.isArray(s[k])) s[k]=[]; });
+  var ov=document.getElementById('rh-fiche-ov');
+  if(!ov){ ov=document.createElement('div'); ov.id='rh-fiche-ov'; ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(8,13,22,.9);overflow-y:auto;padding:16px'; document.body.appendChild(ov); }
+  ov.style.display='block';
+  var F=function(lbl,id,val,type,ph){ return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="'+id+'" type="'+(type||'text')+'" value="'+_rhEsc(val||'')+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>'; };
+  var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
+  var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
+  var h='<div style="max-width:760px;margin:0 auto;background:#132234;border:1px solid #c9a84c;border-radius:16px;padding:20px">'
+   +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rhCloseFiche()" style="background:#26374d;border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer">✕</button></div>';
+  h+=SEC('État civil')+g([F('Nom','fh-nom',s.nom),F('Prénom','fh-prenom',s.prenom)])
+   +g([F('Date de naissance (JJ/MM/AAAA)','fh-naissance',_rhFR(s.naissance),'text','JJ/MM/AAAA'),F('Nationalité','fh-nationalite',s.nationalite)]);
+  h+=SEC('Coordonnées')+g([F('E-mail','fh-email',s.email,'email'),F('Téléphone','fh-tel',s.tel)])
+   +F('Adresse','fh-adresse',s.adresse)+g([F('Code postal','fh-cp',s.cp),F('Ville','fh-ville',s.ville)]);
+  h+=SEC('Pièce d\'identité / séjour')+g([F('Type de pièce (CNI / passeport / titre de séjour)','fh-pieceType',s.pieceType),F('N° de pièce','fh-pieceNum',s.pieceNum)])
+   +g([F('Validité pièce (JJ/MM/AAAA)','fh-pieceValid',_rhFR(s.pieceValid),'text','JJ/MM/AAAA'),F('Validité titre de séjour (si applicable)','fh-sejourValid',_rhFR(s.sejourValid),'text','JJ/MM/AAAA')]);
+  h+=SEC('Permis & qualifications conducteur')+g([F('Catégories de permis (B, C, CE, D…)','fh-permisCats',s.permisCats),F('Validité permis (visite préfecture)','fh-permisValid',_rhFR(s.permisValid),'text','JJ/MM/AAAA')])
+   +g([F('CQC / FCO — validité','fh-cqcValid',_rhFR(s.cqcValid),'text','JJ/MM/AAAA'),F('FIMO — date','fh-fimo',_rhFR(s.fimo),'text','JJ/MM/AAAA')])
+   +g([F('Carte conducteur (tachy) — validité','fh-carteValid',_rhFR(s.carteValid),'text','JJ/MM/AAAA'),F('ADR — validité','fh-adrValid',_rhFR(s.adrValid),'text','JJ/MM/AAAA')]);
+  h+=SEC('Suivi médical')+g([F('Aptitude au poste (médecin du travail)','fh-visitePoste',_rhFR(s.visitePoste),'text','JJ/MM/AAAA'),F('Aptitude conduite (médecin agréé préfet)','fh-visiteConduite',_rhFR(s.visiteConduite),'text','JJ/MM/AAAA')]);
+  h+=SEC('Contrat & rémunération')+g([F('Type de contrat','fh-typeContrat',s.typeContrat),F('Statut (Ouvrier / Employé…)','fh-statut',s.statut)])
+   +g([F('Emploi / catégorie','fh-categorie',s.categorie),F('Coefficient','fh-coeff',s.coeff)])
+   +g([F('Temps de travail','fh-tempsTravail',s.tempsTravail),F('Salaire mensuel brut (€)','fh-salaire',s.salaire)])
+   +g([F('Date d\'entrée (JJ/MM/AAAA)','fh-entree',_rhFR(s.entree),'text','JJ/MM/AAAA'),F('Fin de période d\'essai (JJ/MM/AAAA)','fh-essaiFin',_rhFR(s.essaiFin),'text','JJ/MM/AAAA')])
+   +g([F('Date de sortie (si applicable)','fh-sortie',_rhFR(s.sortie),'text','JJ/MM/AAAA'),F('Motif de sortie','fh-motifSortie',s.motifSortie)]);
+  h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="fh-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:52px">'+_rhEsc(s.observations||'')+'</textarea></div>';
+  // Suivi RH (listes)
+  h+=SEC('Suivi RH')+rhSubList('absences',s.absences,['Date','Type','Jours','Motif'])
+    +rhSubList('retards',s.retards,['Date','Minutes','Motif'])
+    +rhSubList('sanctions',s.sanctions,['Date','Type','Motif'])
+    +rhSubList('avances',s.avances,['Date','Montant €','Remboursée ?','Motif']);
+  h+='<div style="display:flex;gap:10px;margin-top:18px">'
+    +'<button onclick="rhSaveFiche()" style="flex:1;padding:12px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'
+    +(id?'<button onclick="rhDeleteFiche(\''+id+'\')" style="padding:12px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️ Supprimer</button>':'')
+    +'</div>';
+  h+='<div style="font-size:10.5px;color:#6b7a8d;margin-top:10px">Données chiffrées sur votre appareil. Traitement RH — base légale : gestion du personnel (contrat + obligations légales de l\'employeur). Durée de conservation recommandée : 5 ans après le départ (paie), jusqu\'à 5 ans pour la plupart des pièces.</div>';
+  h+='</div>';
+  ov.innerHTML=h;
+  window.scrollTo(0,0);
+}
+function rhSubList(key,arr,cols){
+  var h='<div style="margin:6px 0 10px"><div style="font-size:12px;font-weight:600;color:#e8e4d8;margin-bottom:4px;text-transform:capitalize">'+key+'</div>';
+  if(arr&&arr.length){
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11.5px">';
+    arr.forEach(function(it,i){
+      h+='<tr style="border-top:1px solid #26374d">';
+      cols.forEach(function(c,ci){ h+='<td style="padding:4px;color:#cdd7e2">'+_rhEsc(it['c'+ci]||'')+'</td>'; });
+      h+='<td style="padding:4px;text-align:right"><button onclick="rhSubDel(\''+key+'\','+i+')" style="background:none;border:none;color:#e05c5c;cursor:pointer">✕</button></td></tr>';
+    });
+    h+='</table></div>';
+  }
+  var inputs=cols.map(function(c,ci){ return '<input id="sub-'+key+'-'+ci+'" placeholder="'+c+'" style="flex:1;min-width:70px;padding:6px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:11.5px">'; }).join('');
+  h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">'+inputs+'<button onclick="rhSubAdd(\''+key+'\','+cols.length+')" style="padding:6px 10px;border:none;border-radius:7px;background:#26374d;color:#e8e4d8;cursor:pointer;font-size:11.5px">＋</button></div>';
+  h+='</div>';
+  return h;
+}
+function rhSubAdd(key,n){
+  if(!_rhCur[key]) _rhCur[key]=[];
+  var obj={}; var empty=true;
+  for(var i=0;i<n;i++){ var v=(document.getElementById('sub-'+key+'-'+i)||{}).value||''; obj['c'+i]=v; if(v)empty=false; }
+  if(empty) return;
+  _rhCur[key].push(obj);
+  rhFicheRefreshKeepValues();
+}
+function rhSubDel(key,i){ if(_rhCur[key]) _rhCur[key].splice(i,1); rhFicheRefreshKeepValues(); }
+function rhFicheRefreshKeepValues(){
+  // sauve les valeurs saisies dans _rhCur avant de re-render la fiche
+  rhReadForm(_rhCur);
+  rhFiche(_rhCur.id);
+}
+function rhReadForm(s){
+  var gvv=function(id){ var e=document.getElementById(id); return e?e.value.trim():undefined; };
+  var map={nom:'fh-nom',prenom:'fh-prenom',nationalite:'fh-nationalite',email:'fh-email',tel:'fh-tel',adresse:'fh-adresse',cp:'fh-cp',ville:'fh-ville',pieceType:'fh-pieceType',pieceNum:'fh-pieceNum',permisCats:'fh-permisCats',typeContrat:'fh-typeContrat',statut:'fh-statut',categorie:'fh-categorie',coeff:'fh-coeff',tempsTravail:'fh-tempsTravail',salaire:'fh-salaire',motifSortie:'fh-motifSortie',observations:'fh-observations'};
+  for(var k in map){ var v=gvv(map[k]); if(v!==undefined) s[k]=v; }
+  var dmap={naissance:'fh-naissance',pieceValid:'fh-pieceValid',sejourValid:'fh-sejourValid',permisValid:'fh-permisValid',cqcValid:'fh-cqcValid',fimo:'fh-fimo',carteValid:'fh-carteValid',adrValid:'fh-adrValid',visitePoste:'fh-visitePoste',visiteConduite:'fh-visiteConduite',entree:'fh-entree',essaiFin:'fh-essaiFin',sortie:'fh-sortie'};
+  for(var k2 in dmap){ var v2=gvv(dmap[k2]); if(v2!==undefined) s[k2]=_rhToISO(v2); }
+}
+async function rhSaveFiche(){
+  var s=_rhCur; rhReadForm(s);
+  if(!s.nom){ alert('Le nom est obligatoire.'); return; }
+  if(!s.id){ s.id=_rhUID(); RH.staff.push(s); }
+  await rhSave(); rhCloseFiche(); rhRender();
+}
+async function rhDeleteFiche(id){
+  if(!confirm('Supprimer définitivement cette fiche ?')) return;
+  RH.staff=RH.staff.filter(function(s){return s.id!==id;});
+  await rhSave(); rhCloseFiche(); rhRender();
+}
+function rhCloseFiche(){ var ov=document.getElementById('rh-fiche-ov'); if(ov) ov.style.display='none'; _rhCur=null; }
+
+/* ══════════ ENTREPRISE ══════════ */
+function rhEntForm(){
+  var e=RH.ent||{};
+  var F=function(lbl,id,val,ph){ return '<div style="margin-bottom:10px"><label style="display:block;font-size:12px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="ent-'+id+'" value="'+_rhEsc(val||'')+'" placeholder="'+(ph||'')+'" style="width:100%;padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>'; };
+  return '<div style="max-width:620px">'
+   +F('Raison sociale','nom',e.nom)+F('SIRET','siret',e.siret)+F('Code NAF / APE','naf',e.naf,'ex. 4941B')
+   +F('Code client / référence interne','codeClient',e.codeClient)
+   +F('Adresse du siège','adresse',e.adresse)+F('Gérant / représentant','dirigeant',e.dirigeant)
+   +F('E-mail','email',e.email)+F('Téléphone','tel',e.tel)+F('IDCC (convention)','idcc',e.idcc||'16')
+   +'<button onclick="rhSaveEnt()" style="padding:11px 16px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer l\'entreprise</button>'
+   +'<div style="font-size:11px;color:#6b7a8d;margin-top:10px">Ces informations alimentent le registre et les documents. Elles restent chiffrées sur cet appareil.</div></div>';
+}
+async function rhSaveEnt(){
+  var gvv=function(id){ var el=document.getElementById('ent-'+id); return el?el.value.trim():''; };
+  RH.ent={ nom:gvv('nom'), siret:gvv('siret'), naf:gvv('naf'), codeClient:gvv('codeClient'), adresse:gvv('adresse'), dirigeant:gvv('dirigeant'), email:gvv('email'), tel:gvv('tel'), idcc:gvv('idcc')||'16' };
+  // synchronise l'objet entreprise global (documents) sans écraser si vide
+  try{ if(typeof E!=='undefined'){ if(RH.ent.nom)E.nom=RH.ent.nom; if(RH.ent.siret)E.siret=RH.ent.siret; if(RH.ent.adresse)E.adresse=RH.ent.adresse; if(RH.ent.dirigeant)E.dirigeant=RH.ent.dirigeant; if(RH.ent.email)E.email=RH.ent.email; if(RH.ent.tel)E.tel=RH.ent.tel; try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){} } }catch(e){}
+  await rhSave(); alert('Entreprise enregistrée.'); rhRender();
+}
+
+/* ══════════ IMPORT CSV ══════════ */
+function rhImportPrompt(){ var i=document.getElementById('rh-csv-input'); if(i) i.click(); }
+function _rhSplitCSV(line){
+  // séparateur ; ou , — gestion basique des guillemets
+  var sep = (line.indexOf(';')>=0 && (line.indexOf(',')<0 || line.split(';').length>=line.split(',').length)) ? ';' : ',';
+  var out=[], cur='', q=false;
+  for(var i=0;i<line.length;i++){ var c=line[i];
+    if(c==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++;} else q=!q; }
+    else if(c===sep&&!q){ out.push(cur); cur=''; }
+    else cur+=c;
+  }
+  out.push(cur); return out.map(function(x){return x.trim();});
+}
+function rhImportFile(input){
+  var file=input.files&&input.files[0]; if(!file) return;
+  var rd=new FileReader();
+  rd.onload=async function(){
+    try{
+      var txt=String(rd.result).replace(/^﻿/,'');
+      var lines=txt.split(/\r?\n/).filter(function(l){return l.trim();});
+      if(lines.length<2){ alert('Fichier vide ou illisible.'); return; }
+      var hdr=_rhSplitCSV(lines[0]).map(function(h){return h.toLowerCase();});
+      var idx=function(keys){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0) return j; } } return -1; };
+      var iNom=idx(['nom']), iNaiss=idx(['naiss']), iEntree=idx(['entrée','entree']), iContrat=idx(['contrat']), iStatut=idx(['statut']), iSortie=idx(['sortie']), iTemps=idx(['temps']), iObs=idx(['observ','poste','emploi']);
+      var added=0;
+      for(var l=1;l<lines.length;l++){
+        var c=_rhSplitCSV(lines[l]); if(!c.length||!(c[iNom]||'').trim()) continue;
+        var obs=iObs>=0?(c[iObs]||''):'';
+        var rec={ id:_rhUID(), nom:(iNom>=0?c[iNom]:'').trim(), prenom:'',
+          naissance:_rhToISO(iNaiss>=0?c[iNaiss]:''), entree:_rhToISO(iEntree>=0?c[iEntree]:''),
+          typeContrat:(iContrat>=0?c[iContrat]:'').trim(), statut:(iStatut>=0?c[iStatut]:'').trim(),
+          sortie:_rhToISO(iSortie>=0?c[iSortie]:''), tempsTravail:(iTemps>=0?c[iTemps]:'').trim(),
+          categorie:obs.replace(/^[⚠️✅\s]+/,'').split(' - ')[0].slice(0,60), observations:obs,
+          absences:[], retards:[], sanctions:[], avances:[] };
+        RH.staff.push(rec); added++;
+      }
+      await rhSave();
+      input.value='';
+      alert(added+' salarié(s) importé(s). Complétez les fiches (coordonnées, permis, validités…).');
+      _rhTab='reg'; rhRender();
+    }catch(e){ alert('Erreur d\'import : '+e.message); }
+  };
+  rd.readAsText(file,'UTF-8');
+}
+async function rhSeedDemo(){
+  var demo=[
+    {id:_rhUID(),nom:'MARTIN',prenom:'Paul',naissance:'1985-03-12',nationalite:'Française',entree:'2021-06-01',typeContrat:'CDI',statut:'Ouvrier',categorie:'Chauffeur PL',tempsTravail:'Temps plein',coeff:'150M',salaire:'2450',permisCats:'C, CE',permisValid:'2027-05-30',fco:'2028-04-01',email:'p.martin@exemple.fr',tel:'0600000001',absences:[],retards:[],sanctions:[],avances:[]},
+    {id:_rhUID(),nom:'DURAND',prenom:'Sophie',naissance:'1990-09-20',nationalite:'Française',entree:'2023-01-15',typeContrat:'CDI',statut:'Employé',categorie:'Assistante administrative',tempsTravail:'Temps plein',coeff:'',salaire:'2100',email:'s.durand@exemple.fr',tel:'0600000002',absences:[],retards:[],sanctions:[],avances:[]},
+    {id:_rhUID(),nom:'PETIT',prenom:'Karim',naissance:'1998-11-05',nationalite:'Française',entree:'2025-09-01',typeContrat:'CDI',statut:'Ouvrier',categorie:'Conducteur véhicule 3.5t',tempsTravail:'Temps plein',permisCats:'B',permisValid:'2026-08-10',email:'k.petit@exemple.fr',tel:'0600000003',absences:[],retards:[],sanctions:[],avances:[]}
+  ];
+  RH.staff=RH.staff.concat(demo); await rhSave(); rhRender();
+}
+
+/* ══════════ EXPORT / SAUVEGARDE ══════════ */
+function rhExportRegistre(){
+  var w=window.open('','_blank'); if(!w){ alert('Autorisez les fenêtres pop-up pour imprimer.'); return; }
+  var rows=RH.staff.slice().sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
+  var tr=rows.map(function(s){ return '<tr><td>'+_rhEsc((s.nom||'')+' '+(s.prenom||''))+'</td><td>'+_rhFR(s.naissance)+'</td><td>'+_rhEsc(s.categorie||'')+'</td><td>'+_rhEsc(s.statut||'')+'</td><td>'+_rhEsc(s.typeContrat||'')+'</td><td>'+_rhFR(s.entree)+'</td><td>'+(s.sortie?_rhFR(s.sortie):'')+'</td></tr>'; }).join('');
+  w.document.write('<html><head><meta charset="utf-8"><title>Registre unique du personnel</title></head><body style="font-family:Times New Roman,serif;padding:24px"><h2 style="text-align:center">REGISTRE UNIQUE DU PERSONNEL</h2><p style="text-align:center">'+_rhEsc(RH.ent.nom||'')+' — SIRET '+_rhEsc(RH.ent.siret||'')+'</p><table border="1" cellspacing="0" cellpadding="5" style="width:100%;border-collapse:collapse;font-size:11pt"><tr><th>Nom Prénom</th><th>Naissance</th><th>Emploi</th><th>Statut</th><th>Contrat</th><th>Entrée</th><th>Sortie</th></tr>'+tr+'</table><p style="font-size:9pt;font-style:italic;margin-top:16px">Art. L.1221-13 et D.1221-23 s. du Code du travail — Document confidentiel.</p></body></html>');
+  w.document.close(); w.focus();
+}
+async function rhBackup(){
+  if(!_rhKey){ return; }
+  try{
+    var blob=await _rhEncrypt({ent:RH.ent,staff:RH.staff},_rhKey); blob.salt=_rhSalt; blob.app='TEC-RH';
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(blob)],{type:'application/octet-stream'}));
+    a.download='sauvegarde-RH-TEC.tec'; a.click();
+  }catch(e){ alert('Erreur de sauvegarde : '+e.message); }
+}
+function rhImportBackupPrompt(){ var i=document.getElementById('rh-bak-input'); if(i) i.click(); }
+function rhImportBackupFile(input){
+  var file=input.files&&input.files[0]; if(!file) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{ localStorage.setItem(RH_LSK, String(rd.result)); input.value=''; alert('Sauvegarde restaurée. Saisissez votre code pour l\'ouvrir.'); rhOnEnter(); }
+    catch(e){ alert('Fichier de sauvegarde invalide.'); }
+  };
+  rd.readAsText(file);
+}
+
+/* ══════════ RGPD ══════════ */
+function rhRgpd(){
+  return '<div style="max-width:660px;font-size:13px;color:#cdd7e2;line-height:1.7">'
+   +'<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:8px">🔒 Protection des données (RGPD)</div>'
+   +'<ul style="margin-left:18px">'
+   +'<li><strong>Stockage local chiffré</strong> : les données sont conservées uniquement dans ce navigateur, chiffrées en AES-256-GCM (clé dérivée de votre code par PBKDF2, 200 000 itérations). Aucune donnée n\'est envoyée sur Internet.</li>'
+   +'<li><strong>Responsable de traitement</strong> : '+_rhEsc(RH.ent.nom||'l\'entreprise')+'. Finalité : gestion administrative du personnel. Base légale : exécution du contrat de travail et obligations légales de l\'employeur.</li>'
+   +'<li><strong>Durées de conservation</strong> : bulletins/paie 5 ans (art. L.3243-4) ; documents relatifs aux charges 6 ans ; registre unique du personnel 5 ans après le départ du salarié (art. R.1221-26).</li>'
+   +'<li><strong>Droits des salariés</strong> : accès, rectification, effacement, limitation — à exercer auprès de l\'employeur.</li>'
+   +'<li><strong>Sécurité</strong> : verrouillez l\'espace après usage et sauvegardez régulièrement (fichier chiffré .tec).</li>'
+   +'</ul>'
+   +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">'
+   +'<button onclick="rhBackup()" style="padding:11px 14px;border:none;border-radius:10px;background:#46b885;color:#04150e;font-weight:700;cursor:pointer">⭳ Sauvegarde chiffrée (.tec)</button>'
+   +'<button onclick="rhImportBackupPrompt()" style="padding:11px 14px;border:1px solid #3a4a5f;border-radius:10px;background:#16263c;color:#e8e4d8;cursor:pointer">⭱ Restaurer une sauvegarde</button>'
+   +'<button onclick="rhWipe()" style="padding:11px 14px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️ Effacer toutes les données</button>'
+   +'</div></div>';
+}
+async function rhWipe(){
+  if(!confirm('Effacer DÉFINITIVEMENT toutes les données RH de cet appareil ? (Pensez à sauvegarder avant.)')) return;
+  try{ localStorage.removeItem(RH_LSK); }catch(e){}
+  RH.staff=[]; RH.ent={}; rhLock();
+}
+
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 function deconnexion(){
