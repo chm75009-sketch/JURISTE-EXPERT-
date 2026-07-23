@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.13';
+var JX_BUILD = 'v2026-07-23.14';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1448,7 +1448,7 @@ try{
 
   <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
   <div class="wz-tiles" style="margin-top:0">
-    <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="goPage('personnel');try{if(typeof rhOnEnter==='function')rhOnEnter();}catch(e){}">
+    <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="openRH()">
       <div class="wz-em">👥</div>
       <div class="wz-tt">Mon personnel — Espace RH</div>
       <div class="wz-td">Registre du personnel, fiches individuelles, alertes d'échéances — synchronisation en ligne sécurisée.</div>
@@ -1685,7 +1685,7 @@ try{
         <div class="hcard-body"><div class="t">Paramétrage entreprise</div><div class="d">Coordonnées · licences · gestionnaire transport.</div><div class="m">Config</div></div>
         <div class="chev">›</div>
       </div>
-      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();goPage('personnel')">
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();openRH()">
         <div class="hcard-ic">👥</div>
         <div class="hcard-body"><div class="t">Espace RH — Personnel</div><div class="d">Registre du personnel, fiches individuelles, alertes d'échéances · synchronisation en ligne sécurisée.</div><div class="m">RH · en ligne</div></div>
         <div class="chev">›</div>
@@ -3213,7 +3213,7 @@ Exemple :<br>
     <button onclick="goPage('home')" style="margin:12px 0 6px;padding:9px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Retour à l'accueil</button>
     <h1 class="ttl">👥 Espace RH — Personnel</h1>
     <p class="sub" style="margin-bottom:6px">Registre du personnel &amp; fiches individuelles — chiffré et stocké uniquement sur votre appareil.</p>
-    <div id="rh-body"><div style="padding:24px;text-align:center;color:#9fb0c4"><div style="font-size:14px;margin-bottom:12px">Chargement de l'Espace RH…</div><button onclick="try{rhOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir l'Espace RH sécurisé</button></div></div>
+    <div id="rh-body-page"><div style="padding:24px;text-align:center;color:#9fb0c4"><div style="font-size:14px;margin-bottom:12px">Chargement de l'Espace RH…</div><button onclick="try{rhOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir l'Espace RH sécurisé</button></div></div>
     <input type="file" id="rh-csv-input" accept=".csv,text/csv" style="display:none" onchange="rhImportFile(this)">
     <input type="file" id="rh-bak-input" accept=".tec,application/octet-stream" style="display:none" onchange="rhImportBackupFile(this)">
   </div>
@@ -3313,7 +3313,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div id="menu-lbl-ri" style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
   <div class="mi" onclick="goPage('parc');closeMenu()"><span style="font-size:18px">🚛</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parc véhicules &amp; contraventions</div></div></div>
-  <div class="mi" onclick="goPage('personnel');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Espace RH — Personnel <span style="color:#c9a84c">🔒</span></div></div></div>
+  <div class="mi" onclick="openRH();closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Espace RH — Personnel <span style="color:#c9a84c">🔒</span></div></div></div>
   <div class="mi" onclick="window.location.href='maquette-accueil.html'"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Aperçu : nouvelle page d'accueil</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
@@ -5923,6 +5923,26 @@ function sbPanel(){
 }
 
 try{ if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', function(){ try{ sbInit(); }catch(e){} }); } else { try{ sbInit(); }catch(e){} } }catch(e){}
+
+/* ===== Espace RH en OVERLAY plein écran (indépendant du système de pages) ===== */
+function openRH(){
+  try{
+    var ov=document.getElementById('rh-ov');
+    if(!ov){ ov=document.createElement('div'); ov.id='rh-ov';
+      ov.style.cssText='position:fixed;inset:0;z-index:99990;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px';
+      document.body.appendChild(ov);
+    }
+    ov.innerHTML='<div style="max-width:900px;margin:0 auto">'
+      +'<button onclick="closeRH()" style="margin-bottom:12px;padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit">\u2190 Fermer</button>'
+      +'<h2 style="color:#fff;font-size:18px;margin:4px 0 6px">\ud83d\udc65 Espace RH \u2014 Personnel</h2>'
+      +'<div id="rh-body"></div></div>';
+    ov.style.display='block';
+    try{ document.body.style.overflow='hidden'; }catch(e){}
+    try{ if(typeof rhOnEnter==='function') rhOnEnter(); }catch(e){ var h=document.getElementById('rh-body'); if(h) h.innerHTML='<div style="color:#e05c5c;padding:16px">Erreur d\'ouverture : '+(e.message||e)+'</div>'; }
+  }catch(err){ alert('Impossible d\'ouvrir l\'Espace RH : '+(err.message||err)); }
+}
+function closeRH(){ var ov=document.getElementById('rh-ov'); if(ov) ov.style.display='none'; try{ document.body.style.overflow=''; }catch(e){} }
+
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 function deconnexion(){
