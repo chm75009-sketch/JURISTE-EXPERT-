@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.17';
+var JX_BUILD = 'v2026-07-23.18';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1088,7 +1088,13 @@ async function cgGenerer(){
   var res=document.getElementById('cg-result');
   if(!s){ if(res) res.style.display='none'; alert('Choisissez d\'abord le secteur du client.'); return; }
   var client=(document.getElementById('cg-client')||{}).value||'';
-  var contact=(document.getElementById('cg-contact')||{}).value||'';
+  var gerant=(document.getElementById('cg-gerant')||{}).value||'';
+  var siret=(document.getElementById('cg-siret')||{}).value||'';
+  var naf=(document.getElementById('cg-naf')||{}).value||'';
+  var adresse=(document.getElementById('cg-adresse')||{}).value||'';
+  var email=(document.getElementById('cg-email')||{}).value||'';
+  var tel=(document.getElementById('cg-tel')||{}).value||'';
+  var contact=((email||'')+(email&&tel?' · ':'')+(tel||'')).trim();
   var idx=_SEC_IDX[s];
   var serial=String(Math.floor(Math.random()*9000)+1000);
   var sig=await _codeSign(idx, serial);
@@ -1099,10 +1105,9 @@ async function cgGenerer(){
   if(res) res.style.display='block';
   // Enregistrement au registre local
   var reg=_regLoad();
-  reg.unshift({ t:Date.now(), code:code, sec:s, client:client.trim(), contact:contact.trim(), susp:false });
+  reg.unshift({ t:Date.now(), code:code, sec:s, client:client.trim(), gerant:gerant.trim(), siret:siret.trim(), naf:naf.trim(), adresse:adresse.trim(), email:email.trim(), tel:tel.trim(), contact:contact, susp:false });
   _regSave(reg);
-  var ci=document.getElementById('cg-client'); if(ci) ci.value='';
-  var cc=document.getElementById('cg-contact'); if(cc) cc.value='';
+  ['cg-client','cg-gerant','cg-siret','cg-naf','cg-adresse','cg-email','cg-tel'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
   cgRenderRegistre();
 }
 function cgRenderRegistre(){
@@ -1120,6 +1125,7 @@ function cgRenderRegistre(){
       +'<span style="font-size:10px;color:#8a8578">'+_regDate(r.t)+'</span></div>'
       +'<div style="font-size:12px;color:#e8e4d8;margin-top:2px">'+(_escReg(r.client)||'<i style="color:#8a8578">sans nom</i>')+(susp?' <span style="color:#e88;font-size:10px;font-weight:700">• SUSPENDU (note)</span>':'')+'</div>'
       +'<div style="font-size:10.5px;color:#9a9585">'+_escReg(SECTEUR_LAB_CG[r.sec]||r.sec)+(r.contact?(' · '+_escReg(r.contact)):'')+'</div>'
+      +((r.gerant||r.siret||r.naf||r.adresse)?('<div style="font-size:10px;color:#8a8578;margin-top:2px">'+[r.gerant?('Gérant : '+_escReg(r.gerant)):'',r.siret?('SIRET '+_escReg(r.siret)):'',r.naf?('NAF '+_escReg(r.naf)):'',r.adresse?_escReg(r.adresse):''].filter(Boolean).join(' · ')+'</div>'):'')
       +'<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">'
       +'<button onclick="cgRegSuspend('+i+')" style="font-size:11px;padding:4px 9px;border:1px solid rgba(224,168,58,.4);border-radius:7px;background:transparent;color:#e0a83a;cursor:pointer">'+(susp?'Réactiver (note)':'Suspendre (note)')+'</button>'
       +'<button onclick="cgRegEdit('+i+')" style="font-size:11px;padding:4px 9px;border:1px solid rgba(255,255,255,.2);border-radius:7px;background:transparent;color:#cfc8b8;cursor:pointer">Modifier</button>'
@@ -1132,9 +1138,16 @@ function cgRegSuspend(i){ var reg=_regLoad(); if(reg[i]){ reg[i].susp=!reg[i].su
 function cgRegDelete(i){ var reg=_regLoad(); if(reg[i]){ if(!confirm('Supprimer cette fiche du registre ?')) return; reg.splice(i,1); _regSave(reg); cgRenderRegistre(); } }
 function cgRegEdit(i){
   var reg=_regLoad(); if(!reg[i]) return;
-  var nom=prompt('Client (nom / entreprise) :', reg[i].client||''); if(nom===null) return;
-  var ct=prompt('Email / téléphone :', reg[i].contact||''); if(ct===null) return;
-  reg[i].client=nom.trim(); reg[i].contact=ct.trim(); _regSave(reg); cgRenderRegistre();
+  var nom=prompt('Raison sociale / client :', reg[i].client||''); if(nom===null) return;
+  var ger=prompt('Gérant / représentant :', reg[i].gerant||''); if(ger===null) return;
+  var sir=prompt('SIRET :', reg[i].siret||''); if(sir===null) return;
+  var naf=prompt('Code NAF / APE :', reg[i].naf||''); if(naf===null) return;
+  var adr=prompt('Adresse :', reg[i].adresse||''); if(adr===null) return;
+  var em=prompt('E-mail :', reg[i].email||''); if(em===null) return;
+  var tl=prompt('Téléphone :', reg[i].tel||''); if(tl===null) return;
+  reg[i].client=nom.trim(); reg[i].gerant=ger.trim(); reg[i].siret=sir.trim(); reg[i].naf=naf.trim(); reg[i].adresse=adr.trim(); reg[i].email=em.trim(); reg[i].tel=tl.trim();
+  reg[i].contact=((em||'')+(em&&tl?' · ':'')+(tl||'')).trim();
+  _regSave(reg); cgRenderRegistre();
 }
 function cgCopier(){
   var code=document.getElementById('cg-code').textContent||'';
@@ -1413,7 +1426,12 @@ try{
     <div style="margin-top:14px;padding:12px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;background:rgba(201,168,76,.06)">
       <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
       <input id="cg-client" placeholder="Client — nom ou entreprise" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-contact" placeholder="Email / téléphone (facultatif)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-gerant" placeholder="Gérant / représentant" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-siret" placeholder="SIRET" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-naf" placeholder="Code NAF / APE (ex. 49.41A)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-adresse" placeholder="Adresse du siège" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-email" placeholder="E-mail" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-tel" placeholder="Téléphone" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <select id="cg-gensecteur" style="width:100%;margin-bottom:8px">
         <option value="">— Secteur du client —</option>
         <option value="transport">Transport routier</option>
