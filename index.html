@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.25';
+var JX_BUILD = 'v2026-07-23.26';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1211,7 +1211,7 @@ async function verifierCode(){
     // Code client unique (généré par l'admin)
     var _algoSec = await _validAlgoCode(inp.value);
     if(_algoSec){
-      try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _algoSec); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_trial'); }catch(e){}
+      try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_sector', _algoSec); sessionStorage.setItem('jte_code', (inp.value||'').trim()); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_trial'); }catch(e){}
       document.getElementById('lock-screen').style.display = 'none';
       var _a4=document.getElementById('accueil-screen'); if(_a4) _a4.style.display='none';
       try{ var _sel2=document.getElementById('ins-secteur'); if(_sel2){ _sel2.value=_algoSec; _sel2.disabled=true; } }catch(e){}
@@ -6011,9 +6011,32 @@ function rxISO(s){ if(!s) return ''; s=String(s).trim(); var m=s.match(/^(\d{1,2
 function rxDaysLeft(iso){ if(!iso) return null; var d=new Date(iso); if(isNaN(d)) return null; var t=new Date(); t.setHours(0,0,0,0); return Math.round((d-t)/86400000); }
 
 /* ══════════ OUVERTURE / FERMETURE (overlay) ══════════ */
+/* Pré-remplissage auto de l'onglet 🏢 Entreprise à partir de la fiche saisie par
+   l'administrateur lors de la génération du code (registre local « je_registre »).
+   Ne touche à rien si l'entreprise est déjà renseignée. */
+function rxPrefillEntFromRegistry(){
+  try{
+    if(RX.ent && RX.ent.nom) return;
+    var reg=(typeof _regLoad==='function')?_regLoad():[];
+    if(!reg||!reg.length) return;
+    var code=''; try{ code=sessionStorage.getItem('jte_code')||''; }catch(e){}
+    var sec=''; try{ sec=sessionStorage.getItem('jte_sector')||''; }catch(e){}
+    var m=null;
+    if(code){ for(var i=0;i<reg.length;i++){ if(String(reg[i].code)===String(code)){ m=reg[i]; break; } } }
+    if(!m && sec){ var c=reg.filter(function(r){return r.sec===sec;}); if(c.length===1) m=c[0]; }
+    if(!m) return;
+    var IDCC={transport:'16',banque:'2120',assurances:'1672',syntec:'1486',enseignement:'3218',formation:'1516',ensindep:'2691',batiment:'1596'};
+    RX.ent=RX.ent||{};
+    RX.ent.nom=m.client||''; RX.ent.gerant=m.gerant||''; RX.ent.siret=m.siret||'';
+    RX.ent.naf=m.naf||''; RX.ent.adresse=m.adresse||''; RX.ent.email=m.email||''; RX.ent.tel=m.tel||'';
+    if(!RX.ent.idcc) RX.ent.idcc=IDCC[sec]||'';
+    rxSaveLocal();
+  }catch(e){}
+}
 function rxOpen(){
   try{
     rxLoad();
+    try{ rxPrefillEntFromRegistry(); }catch(e){}
     var ov=document.getElementById('rx-ov');
     if(!ov){ ov=document.createElement('div'); ov.id='rx-ov';
       ov.style.cssText='position:fixed;inset:0;z-index:99990;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
