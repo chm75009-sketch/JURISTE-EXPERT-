@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.9';
+var JX_BUILD = 'v2026-07-23.10';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5086,7 +5086,7 @@ function goPage(id){
   try{
     if(sessionStorage.getItem('jte_ok') !== '1'){
       if(id==='home'){ if(typeof accueilShow==='function'){ accueilShow(); return; } }
-      var _free={audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1};
+      var _free={audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1,personnel:1};
       if(!_free[id]){ if(typeof accueilShowLock==='function'){ accueilShowLock(); return; } }
     }
   }catch(e){}
