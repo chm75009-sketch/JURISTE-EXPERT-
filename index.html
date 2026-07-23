@@ -262,9 +262,10 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 /* ═══════════ ACCUEIL MODERNE ═══════════ */
 #pg-home{background:linear-gradient(180deg,#0b1722,#0d1d2b 60%,#0b1620)!important}
 .home-top{
-  position:sticky;top:0;z-index:50;
-  background:linear-gradient(180deg,rgba(15,32,47,.95),rgba(13,28,40,.85));
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--ligne);
+  position:sticky;top:0;z-index:300;
+  background:linear-gradient(180deg,#12293c,#0d1c28);
+  border-bottom:1px solid var(--ligne);
+  -webkit-transform:translateZ(0);transform:translateZ(0);
   display:flex;align-items:center;justify-content:space-between;padding:13px 18px;
 }
 .home-brand{display:flex;align-items:center;gap:12px}
@@ -276,7 +277,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 }
 .home-brand h1{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--texte);margin:0;line-height:1.1}
 .home-brand small{font-size:11px;color:var(--texte3);letter-spacing:.5px}
-.home-burger{background:rgba(255,255,255,.06);border:1px solid var(--ligne);border-radius:10px;padding:9px 12px;color:var(--texte);font-size:16px;cursor:pointer}
+.home-burger{position:relative;z-index:2;background:rgba(255,255,255,.06);border:1px solid var(--ligne);border-radius:10px;padding:11px 14px;color:var(--texte);font-size:18px;cursor:pointer;-webkit-tap-highlight-color:rgba(201,168,76,.4);touch-action:manipulation}
 .home-hero{padding:30px 20px 8px;text-align:center}
 .home-hero .eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);font-weight:800}
 .home-hero h2{font-family:'Fraunces',serif;font-size:27px;font-weight:600;color:#fff;margin:8px 0 6px;line-height:1.2}
@@ -646,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.21';
+var JX_BUILD = 'v2026-07-23.22';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6299,6 +6300,14 @@ try{
   window.addEventListener('pageshow', jxHealOverlays);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxHealOverlays(); });
   setInterval(jxHealOverlays, 2000);
+}catch(e){}
+/* iOS : le tap sur le bouton ☰ de l'en-tête collant peut être « avalé » après défilement.
+   On lie explicitement touchend (avec fallback click) pour garantir l'ouverture du menu. */
+try{
+  var _burger=document.querySelector('.home-top .home-burger');
+  if(_burger){
+    _burger.addEventListener('touchend', function(ev){ try{ ev.preventDefault(); }catch(e){} jxHealOverlays(); openMenu(); }, {passive:false});
+  }
 }catch(e){}
 function deconnexion(){
   try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
