@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.6';
+var JX_BUILD = 'v2026-07-23.7';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5282,7 +5282,7 @@ function rhRender(){
   else if(_rhTab==='reg') c.innerHTML=rhRegistre();
   else if(_rhTab==='ent') c.innerHTML=rhEntForm();
   else if(_rhTab==='rgpd') c.innerHTML=rhRgpd();
-  else if(_rhTab==='cloud') c.innerHTML=rhCloudPanel();
+  else if(_rhTab==='cloud') c.innerHTML=sbPanel();
 }
 function _rhTabBtn(id,lbl){
   var on=_rhTab===id;
@@ -5456,12 +5456,12 @@ async function rhSaveFiche(){
   var s=_rhCur; rhReadForm(s);
   if(!s.nom){ alert('Le nom est obligatoire.'); return; }
   if(!s.id){ s.id=_rhUID(); RH.staff.push(s); }
-  await rhSave(); rhCloseFiche(); rhRender();
+  await rhSave(); try{ if(typeof sbPushStaff==='function') sbPushStaff(s); }catch(e){} rhCloseFiche(); rhRender();
 }
 async function rhDeleteFiche(id){
   if(!confirm('Supprimer définitivement cette fiche ?')) return;
   RH.staff=RH.staff.filter(function(s){return s.id!==id;});
-  await rhSave(); rhCloseFiche(); rhRender();
+  await rhSave(); try{ if(typeof sbDeleteStaff==='function') sbDeleteStaff(id); }catch(e){} rhCloseFiche(); rhRender();
 }
 function rhCloseFiche(){ var ov=document.getElementById('rh-fiche-ov'); if(ov) ov.style.display='none'; _rhCur=null; }
 
@@ -5482,7 +5482,7 @@ async function rhSaveEnt(){
   RH.ent={ nom:gvv('nom'), siret:gvv('siret'), naf:gvv('naf'), codeClient:gvv('codeClient'), adresse:gvv('adresse'), dirigeant:gvv('dirigeant'), email:gvv('email'), tel:gvv('tel'), idcc:gvv('idcc')||'16' };
   // synchronise l'objet entreprise global (documents) sans écraser si vide
   try{ if(typeof E!=='undefined'){ if(RH.ent.nom)E.nom=RH.ent.nom; if(RH.ent.siret)E.siret=RH.ent.siret; if(RH.ent.adresse)E.adresse=RH.ent.adresse; if(RH.ent.dirigeant)E.dirigeant=RH.ent.dirigeant; if(RH.ent.email)E.email=RH.ent.email; if(RH.ent.tel)E.tel=RH.ent.tel; try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){} } }catch(e){}
-  await rhSave(); alert('Entreprise enregistrée.'); rhRender();
+  await rhSave(); try{ if(typeof sbPushEntreprise==='function') sbPushEntreprise(); }catch(e){} alert('Entreprise enregistrée.'); rhRender();
 }
 
 /* ══════════ IMPORT CSV ══════════ */
@@ -5726,6 +5726,190 @@ function rhCloudPanel(){
   return h;
 }
 
+
+/* ===== COMPTE EN LIGNE SUPABASE (module injecté) ===== */
+/* ══════════════════════════════════════════════════════════════════
+   JURIS EXPERT — COMPTE EN LIGNE (Supabase), style Nomos
+   • SDK Supabase (CDN) • login par CODE (mappé code@juris-expert.app)
+   • MODE_LOCAL de secours si le SDK/réseau est indisponible
+   • Synchronise entreprise + personnel + conducteurs + véhicules (RLS par compte)
+   ══════════════════════════════════════════════════════════════════ */
+var SB_URL  = 'https://yhzsuxnehsisxkuxqhhg.supabase.co';
+var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloenN1eG5laHNpc3hrdXhxaGhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MTI3MjQsImV4cCI6MjEwMDM4ODcyNH0.0U1NURH755-mvmj45_G6JoDPHat_oY7CKHRyP4l8Mpc';
+var SB_DOMAIN = '@juris-expert.app';
+var sb = null, SB_SESSION = null, SB_MODE_LOCAL = false;
+
+function sbInit(){
+  try{
+    if(window.supabase && window.supabase.createClient){ _sbCreate(); return; }
+    // charger le SDK Supabase dynamiquement (CDN) ; échec → MODE_LOCAL
+    var sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    sc.async=true;
+    sc.onload=function(){ try{ _sbCreate(); }catch(e){ SB_MODE_LOCAL=true; } };
+    sc.onerror=function(){ SB_MODE_LOCAL=true; };
+    (document.head||document.documentElement).appendChild(sc);
+  }catch(e){ SB_MODE_LOCAL=true; }
+}
+function _sbCreate(){
+  try{
+    if(!(window.supabase && window.supabase.createClient)){ SB_MODE_LOCAL=true; return; }
+    sb = window.supabase.createClient(SB_URL, SB_ANON, { auth:{ persistSession:true, autoRefreshToken:true } });
+    sb.auth.getSession().then(function(res){
+      SB_SESSION = (res && res.data && res.data.session) || null;
+      if(SB_SESSION){ try{ sbAfterLogin(true); }catch(e){} }
+    }).catch(function(){});
+    sb.auth.onAuthStateChange(function(_e, session){ SB_SESSION = session || null; });
+  }catch(e){ SB_MODE_LOCAL=true; }
+}
+function sbReady(){ return !!(sb && SB_SESSION && !SB_MODE_LOCAL); }
+function _sbEmail(code){ return String(code||'').trim().toLowerCase().replace(/[^a-z0-9._-]/g,'') + SB_DOMAIN; }
+function _sbUUID(){ try{ return crypto.randomUUID(); }catch(e){ return 'x'+Date.now().toString(16)+Math.abs((RH.staff.length*2654435761)>>>0).toString(16); } }
+var _UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/* ---- AUTH ---- */
+async function sbSignup(){
+  if(!sb){ alert('Connexion en ligne indisponible (SDK non chargé). L\'app fonctionne en mode local.'); return; }
+  var code=(document.getElementById('sb-code')||{}).value||'';
+  var pass=(document.getElementById('sb-pass')||{}).value||'';
+  if(code.trim().length<3||pass.length<8){ alert('Code (≥3 caractères) + mot de passe (≥8 caractères).'); return; }
+  try{
+    var r=await sb.auth.signUp({ email:_sbEmail(code), password:pass });
+    if(r.error){ alert('Création refusée : '+r.error.message); return; }
+    if(r.data && r.data.session){ SB_SESSION=r.data.session; alert('Compte créé et connecté.'); await sbAfterLogin(false); }
+    else { alert('Compte créé. Connectez-vous.'); rhRender(); }
+  }catch(e){ alert('Erreur réseau : '+e.message); }
+}
+async function sbLogin(){
+  if(!sb){ alert('Connexion en ligne indisponible (SDK non chargé). L\'app fonctionne en mode local.'); return; }
+  var code=(document.getElementById('sb-code')||{}).value||'';
+  var pass=(document.getElementById('sb-pass')||{}).value||'';
+  try{
+    var r=await sb.auth.signInWithPassword({ email:_sbEmail(code), password:pass });
+    if(r.error){ alert('Connexion refusée : '+r.error.message); return; }
+    SB_SESSION=r.data.session;
+    await sbAfterLogin(false);
+  }catch(e){ alert('Erreur réseau : '+e.message); }
+}
+async function sbLogout(){ try{ if(sb) await sb.auth.signOut(); }catch(e){} SB_SESSION=null; rhRender(); }
+
+/* Après connexion : on récupère les données du compte */
+async function sbAfterLogin(silent){
+  try{ await sbPull(silent); }catch(e){ if(!silent) alert('Connecté, mais récupération impossible : '+e.message); }
+  if(!silent){ _rhTab='dash'; }
+  try{ rhRender(); }catch(e){}
+}
+
+/* ---- MAPPING personnel ⇄ ligne ---- */
+function _sbNull(v){ return (v===''||v===undefined||v===null) ? null : v; }
+function _sbNum(v){ var n=parseFloat(String(v==null?'':v).replace(',','.')); return isNaN(n)?null:n; }
+function _sbStaffToRow(s){
+  if(!s.id || !_UUID_RE.test(s.id)) s.id=_sbUUID();
+  return { id:s.id,
+    nom:_sbNull(s.nom), prenom:_sbNull(s.prenom), naissance:_sbNull(s.naissance), nationalite:_sbNull(s.nationalite),
+    entree:_sbNull(s.entree), sortie:_sbNull(s.sortie), type_contrat:_sbNull(s.typeContrat), statut:_sbNull(s.statut),
+    categorie:_sbNull(s.categorie), temps_travail:_sbNull(s.tempsTravail),
+    email:_sbNull(s.email), tel:_sbNull(s.tel), adresse:_sbNull(s.adresse), cp:_sbNull(s.cp), ville:_sbNull(s.ville),
+    piece_type:_sbNull(s.pieceType), piece_num:_sbNull(s.pieceNum), piece_valid:_sbNull(s.pieceValid), sejour_valid:_sbNull(s.sejourValid),
+    permis_cats:_sbNull(s.permisCats), permis_valid:_sbNull(s.permisValid), cqc_valid:_sbNull(s.cqcValid), fimo:_sbNull(s.fimo), fco:_sbNull(s.fco),
+    carte_valid:_sbNull(s.carteValid), adr_valid:_sbNull(s.adrValid), visite_poste:_sbNull(s.visitePoste), visite_conduite:_sbNull(s.visiteConduite),
+    coeff:_sbNull(s.coeff), salaire:_sbNum(s.salaire), essai_fin:_sbNull(s.essaiFin), motif_sortie:_sbNull(s.motifSortie), observations:_sbNull(s.observations),
+    suivi:{ absences:s.absences||[], retards:s.retards||[], sanctions:s.sanctions||[], avances:s.avances||[] } };
+}
+function _sbRowToStaff(r){
+  var su=r.suivi||{};
+  return { id:r.id, nom:r.nom||'', prenom:r.prenom||'', naissance:r.naissance||'', nationalite:r.nationalite||'',
+    entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'',
+    categorie:r.categorie||'', tempsTravail:r.temps_travail||'',
+    email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'',
+    pieceType:r.piece_type||'', pieceNum:r.piece_num||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'',
+    permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', cqcValid:r.cqc_valid||'', fimo:r.fimo||'', fco:r.fco||'',
+    carteValid:r.carte_valid||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'',
+    coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), essaiFin:r.essai_fin||'', motifSortie:r.motif_sortie||'', observations:r.observations||'',
+    absences:su.absences||[], retards:su.retards||[], sanctions:su.sanctions||[], avances:su.avances||[] };
+}
+
+/* ---- upsert « une ligne par compte » (entreprise / conducteurs / véhicules) ---- */
+async function _sbSingle(table, payload){
+  var ex=await sb.from(table).select('id').limit(1);
+  if(ex.error) throw ex.error;
+  if(ex.data && ex.data.length){ var u=await sb.from(table).update(payload).eq('id', ex.data[0].id); if(u.error) throw u.error; }
+  else { var i=await sb.from(table).insert(payload); if(i.error) throw i.error; }
+}
+
+/* ---- PULL : récupère tout le compte vers l'appareil ---- */
+async function sbPull(silent){
+  if(!sbReady()) return;
+  // entreprise
+  var e=await sb.from('entreprises').select('*').limit(1);
+  if(!e.error && e.data && e.data.length){
+    var row=e.data[0];
+    try{ if(typeof E!=='undefined'){ E.nom=row.nom||E.nom; E.siret=row.siret||E.siret; E.adresse=row.adresse||E.adresse; E.dirigeant=row.dirigeant||E.dirigeant; E.email=row.email||E.email; E.tel=row.tel||E.tel;
+      localStorage.setItem('juris_transport', JSON.stringify(E)); if(typeof updateHeroTop==='function') updateHeroTop(); } }catch(x){}
+    RH.ent={ nom:row.nom||'', siret:row.siret||'', naf:row.naf||'', codeClient:row.code_client||'', adresse:row.adresse||'', dirigeant:row.dirigeant||'', email:row.email||'', tel:row.tel||'', idcc:row.idcc||'16' };
+  }
+  // personnel
+  var p=await sb.from('personnel').select('*');
+  if(!p.error && p.data){ RH.staff=p.data.map(_sbRowToStaff); RH.loaded=true; }
+  // conducteurs / véhicules (JSONB)
+  var c=await sb.from('conducteurs').select('data').limit(1);
+  if(!c.error && c.data && c.data.length && c.data[0].data){ try{ localStorage.setItem('jt_conducteurs', JSON.stringify(c.data[0].data)); if(typeof chargerConducteurs==='function') chargerConducteurs(); }catch(x){} }
+  var v=await sb.from('vehicules').select('data').limit(1);
+  if(!v.error && v.data && v.data.length && v.data[0].data){ try{ localStorage.setItem('jt_vehicules', JSON.stringify(v.data[0].data)); if(typeof chargerParc==='function') chargerParc(); }catch(x){} }
+  if(!silent){ try{ alert('Données du compte récupérées sur cet appareil.'); }catch(x){} }
+}
+
+/* ---- PUSH ---- */
+async function sbPushEntreprise(){
+  if(!sbReady()) return;
+  var en=RH.ent||{};
+  await _sbSingle('entreprises', { nom:_sbNull(en.nom), siret:_sbNull(en.siret), naf:_sbNull(en.naf), code_client:_sbNull(en.codeClient), adresse:_sbNull(en.adresse), dirigeant:_sbNull(en.dirigeant), email:_sbNull(en.email), tel:_sbNull(en.tel), idcc:en.idcc||'16', updated_at:new Date().toISOString() });
+}
+async function sbPushStaff(s){ if(!sbReady()) return; var row=_sbStaffToRow(s); row.updated_at=new Date().toISOString(); var r=await sb.from('personnel').upsert(row); if(r.error) throw r.error; }
+async function sbDeleteStaff(id){ if(!sbReady()||!id) return; try{ await sb.from('personnel').delete().eq('id', id); }catch(e){} }
+async function sbPushConducteurs(){ if(!sbReady()) return; var d={}; try{ d=JSON.parse(localStorage.getItem('jt_conducteurs')||'[]'); }catch(e){} await _sbSingle('conducteurs', { data:d, updated_at:new Date().toISOString() }); }
+async function sbPushVehicules(){ if(!sbReady()) return; var d={}; try{ d=JSON.parse(localStorage.getItem('jt_vehicules')||'[]'); }catch(e){} await _sbSingle('vehicules', { data:d, updated_at:new Date().toISOString() }); }
+
+async function sbSyncAll(){
+  if(!sbReady()){ alert('Connectez-vous d\'abord.'); return; }
+  try{
+    await sbPushEntreprise();
+    if(RH.staff.length){ var rows=RH.staff.map(function(s){ var r=_sbStaffToRow(s); r.updated_at=new Date().toISOString(); return r; }); var pr=await sb.from('personnel').upsert(rows); if(pr.error) throw pr.error; }
+    await sbPushConducteurs(); await sbPushVehicules();
+    alert('Tout a été envoyé en ligne ('+RH.staff.length+' salarié(s)).');
+  }catch(e){ alert('Envoi partiel/erreur : '+(e.message||e)); }
+}
+
+/* push automatique discret après un enregistrement local */
+function sbMaybePush(){ try{ if(sbReady()){ sbPushEntreprise(); } }catch(e){} }
+
+/* ---- PANNEAU « En ligne » ---- */
+function sbPanel(){
+  if(SB_MODE_LOCAL || !sb){
+    return '<div style="max-width:620px;font-size:13px;color:#cdd7e2;line-height:1.6"><div style="border:1px solid #6b5a2a;background:rgba(201,168,76,.08);border-radius:10px;padding:14px">☁️ <strong>Mode local actif.</strong> Le module de connexion en ligne n\'a pas pu se charger (hors-ligne, ou script bloqué). <strong>L\'application fonctionne normalement</strong> ; vos données restent sur cet appareil. Réessayez avec une connexion Internet.</div></div>';
+  }
+  var h='<div style="max-width:640px;font-size:13px;color:#cdd7e2;line-height:1.6">';
+  h+='<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.07);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px">☁️ <strong>Compte en ligne sécurisé (Supabase, UE).</strong> Connectez-vous pour retrouver votre espace sur n\'importe quel appareil. Chaque compte est cloisonné (RLS) : vous seul accédez à vos données.</div>';
+  if(!SB_SESSION){
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+      +'<input id="sb-code" placeholder="Code / identifiant" autocomplete="username" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
+      +'<input id="sb-pass" type="password" placeholder="Mot de passe (min. 8)" autocomplete="current-password" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
+    h+='<div style="display:flex;gap:8px"><button onclick="sbLogin()" style="padding:11px 15px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;cursor:pointer">Se connecter</button>'
+      +'<button onclick="sbSignup()" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">Créer un compte</button></div>';
+    h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px">Votre code est un identifiant simple (ex. « TEC »). Il est associé à un mot de passe. Données hébergées en Europe.</div>';
+  } else {
+    var who=''; try{ who=(SB_SESSION.user&&SB_SESSION.user.email||'').replace(SB_DOMAIN,''); }catch(e){}
+    h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:12px">✔ Connecté : <strong>'+_rhEsc(who||'compte')+'</strong> <button onclick="sbLogout()" style="background:none;border:none;color:#e0a34c;text-decoration:underline;cursor:pointer;font-size:11px">se déconnecter</button></div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px">'
+      +'<button onclick="sbSyncAll()" style="padding:11px 15px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">⭱ Tout envoyer en ligne</button>'
+      +'<button onclick="sbPull(false)" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">⭳ Récupérer depuis le compte</button></div>';
+    h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px">Vos modifications sont aussi synchronisées automatiquement. Sur un nouvel appareil : connectez-vous, puis « Récupérer ».</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+try{ if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', function(){ try{ sbInit(); }catch(e){} }); } else { try{ sbInit(); }catch(e){} } }catch(e){}
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none';}
 function deconnexion(){
