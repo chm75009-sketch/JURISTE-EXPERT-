@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.5';
+var JX_BUILD = 'v2026-07-23.6';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5176,6 +5176,7 @@ async function rhSave(){
     var blob = await _rhEncrypt({ent:RH.ent, staff:RH.staff}, _rhKey);
     blob.salt = _rhSalt;
     localStorage.setItem(RH_LSK, JSON.stringify(blob));
+    try{ rhCloudMaybePush(); }catch(e){}
   }catch(e){ alert('Erreur d\'enregistrement chiffré : '+e.message); }
 }
 
@@ -5273,7 +5274,7 @@ function rhRender(){
    +'<button onclick="rhLock()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;cursor:pointer">🔒 Verrouiller</button>'
    +'</div>'
    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
-     +_rhTabBtn('dash','📊 Tableau de bord')+_rhTabBtn('reg','📖 Registre du personnel')+_rhTabBtn('ent','🏢 Entreprise')+_rhTabBtn('rgpd','🔒 RGPD & sauvegarde')
+     +_rhTabBtn('dash','📊 Tableau de bord')+_rhTabBtn('reg','📖 Registre du personnel')+_rhTabBtn('ent','🏢 Entreprise')+_rhTabBtn('rgpd','🔒 RGPD & sauvegarde')+_rhTabBtn('cloud','☁️ En ligne')
    +'</div><div id="rh-tabc"></div>';
   host.innerHTML=head;
   var c=document.getElementById('rh-tabc');
@@ -5281,6 +5282,7 @@ function rhRender(){
   else if(_rhTab==='reg') c.innerHTML=rhRegistre();
   else if(_rhTab==='ent') c.innerHTML=rhEntForm();
   else if(_rhTab==='rgpd') c.innerHTML=rhRgpd();
+  else if(_rhTab==='cloud') c.innerHTML=rhCloudPanel();
 }
 function _rhTabBtn(id,lbl){
   var on=_rhTab===id;
@@ -5585,6 +5587,143 @@ async function rhWipe(){
   if(!confirm('Effacer DÉFINITIVEMENT toutes les données RH de cet appareil ? (Pensez à sauvegarder avant.)')) return;
   try{ localStorage.removeItem(RH_LSK); }catch(e){}
   RH.staff=[]; RH.ent={}; rhLock();
+}
+
+
+/* ===== ESPACE RH — SYNC CLOUD (module injecté) ===== */
+/* ══════════════════════════════════════════════════════════════════
+   ESPACE RH — Synchronisation en ligne (Supabase), CHIFFRÉE DE BOUT EN BOUT
+   Le serveur ne reçoit qu'un bloc déjà chiffré (AES-256). Le code PIN
+   ne quitte JAMAIS l'appareil. Auth Supabase = transport/identité ;
+   PIN = déchiffrement. Deux secrets distincts.
+   ══════════════════════════════════════════════════════════════════ */
+var RH_CLOUD_CFG='tec_cloud_cfg';   // {url, anon}
+var RH_CLOUD_SESS='tec_cloud_sess'; // {token, refresh, uid, email}
+
+function rhCloudCfg(){ try{ return JSON.parse(localStorage.getItem(RH_CLOUD_CFG)||'null'); }catch(e){ return null; } }
+function rhCloudSess(){ try{ return JSON.parse(localStorage.getItem(RH_CLOUD_SESS)||'null'); }catch(e){ return null; } }
+function rhCloudSaveCfg(){
+  var url=(document.getElementById('cl-url')||{}).value||'';
+  var anon=(document.getElementById('cl-anon')||{}).value||'';
+  url=url.trim().replace(/\/+$/,'');
+  if(!/^https:\/\/.+\.supabase\.co$/.test(url)){ alert('URL Supabase attendue de la forme https://xxxx.supabase.co'); return; }
+  if(anon.trim().length<30){ alert('Clé « anon » manquante ou trop courte.'); return; }
+  localStorage.setItem(RH_CLOUD_CFG, JSON.stringify({url:url, anon:anon.trim()}));
+  alert('Configuration cloud enregistrée. Vous pouvez maintenant créer un compte ou vous connecter.');
+  rhRender();
+}
+function _rhCloudHeaders(withAuth){
+  var cfg=rhCloudCfg(); var h={ 'apikey':cfg.anon, 'Content-Type':'application/json' };
+  var s=rhCloudSess();
+  h['Authorization']='Bearer '+((withAuth&&s&&s.token)?s.token:cfg.anon);
+  return h;
+}
+async function rhCloudSignup(){
+  var cfg=rhCloudCfg(); if(!cfg){ alert('Configurez d\'abord l\'URL et la clé Supabase.'); return; }
+  var email=(document.getElementById('cl-email')||{}).value||'';
+  var pass=(document.getElementById('cl-pass')||{}).value||'';
+  if(!email||pass.length<8){ alert('E-mail valide + mot de passe d\'au moins 8 caractères.'); return; }
+  try{
+    var r=await fetch(cfg.url+'/auth/v1/signup',{method:'POST',headers:{'apikey':cfg.anon,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});
+    var d=await r.json();
+    if(!r.ok){ alert('Création refusée : '+(d.msg||d.error_description||d.error||JSON.stringify(d))); return; }
+    if(d.access_token){ _rhCloudSetSess(d); alert('Compte créé et connecté.'); }
+    else { alert('Compte créé. Vérifiez votre e-mail pour confirmer, puis connectez-vous.'); }
+    rhRender();
+  }catch(e){ alert('Erreur réseau : '+e.message); }
+}
+async function rhCloudLogin(){
+  var cfg=rhCloudCfg(); if(!cfg){ alert('Configurez d\'abord Supabase.'); return; }
+  var email=(document.getElementById('cl-email')||{}).value||'';
+  var pass=(document.getElementById('cl-pass')||{}).value||'';
+  try{
+    var r=await fetch(cfg.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':cfg.anon,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});
+    var d=await r.json();
+    if(!r.ok||!d.access_token){ alert('Connexion refusée : '+(d.msg||d.error_description||d.error||'identifiants invalides')); return; }
+    _rhCloudSetSess(d);
+    alert('Connecté. Utilisez « Descendre » pour récupérer vos données sur cet appareil.');
+    rhRender();
+  }catch(e){ alert('Erreur réseau : '+e.message); }
+}
+function _rhCloudSetSess(d){
+  var uid=(d.user&&d.user.id)||(d.id)||'';
+  var email=(d.user&&d.user.email)||'';
+  localStorage.setItem(RH_CLOUD_SESS, JSON.stringify({token:d.access_token, refresh:d.refresh_token, uid:uid, email:email}));
+}
+function rhCloudLogout(){ localStorage.removeItem(RH_CLOUD_SESS); rhRender(); }
+
+async function rhCloudPush(){
+  var cfg=rhCloudCfg(), s=rhCloudSess();
+  if(!cfg||!s){ alert('Connectez-vous d\'abord.'); return false; }
+  var blob=localStorage.getItem(RH_LSK);
+  if(!blob){ alert('Aucune donnée locale à envoyer.'); return false; }
+  try{
+    var body=[{ user_id:s.uid, blob:blob, updated_at:new Date().toISOString() }];
+    var r=await fetch(cfg.url+'/rest/v1/rh_vault?on_conflict=user_id',{method:'POST',headers:Object.assign(_rhCloudHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(body)});
+    if(!r.ok){ var t=await r.text(); alert('Envoi refusé : '+t.slice(0,200)); return false; }
+    return true;
+  }catch(e){ alert('Erreur réseau : '+e.message); return false; }
+}
+async function rhCloudPushSilent(){
+  var cfg=rhCloudCfg(), s=rhCloudSess(); if(!cfg||!s) return;
+  var blob=localStorage.getItem(RH_LSK); if(!blob) return;
+  try{
+    var body=[{ user_id:s.uid, blob:blob, updated_at:new Date().toISOString() }];
+    await fetch(cfg.url+'/rest/v1/rh_vault?on_conflict=user_id',{method:'POST',headers:Object.assign(_rhCloudHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(body)});
+  }catch(e){}
+}
+async function rhCloudPull(){
+  var cfg=rhCloudCfg(), s=rhCloudSess();
+  if(!cfg||!s){ alert('Connectez-vous d\'abord.'); return; }
+  try{
+    var r=await fetch(cfg.url+'/rest/v1/rh_vault?user_id=eq.'+encodeURIComponent(s.uid)+'&select=blob,updated_at',{headers:_rhCloudHeaders(true)});
+    var d=await r.json();
+    if(!r.ok){ alert('Récupération refusée : '+JSON.stringify(d).slice(0,200)); return; }
+    if(!d.length||!d[0].blob){ alert('Aucune sauvegarde en ligne pour ce compte. Envoyez d\'abord vos données depuis l\'appareil où elles se trouvent.'); return; }
+    if(!confirm('Remplacer les données de CET appareil par la version en ligne (mise à jour '+((d[0].updated_at||'').slice(0,16).replace('T',' '))+') ?\n\nVous devrez saisir votre code confidentiel pour l\'ouvrir.')) return;
+    localStorage.setItem(RH_LSK, d[0].blob);
+    _rhKey=null; RH.staff=[]; RH.ent={};
+    alert('Données en ligne récupérées. Saisissez votre code confidentiel pour les déchiffrer.');
+    _rhTab='dash'; rhOnEnter();
+  }catch(e){ alert('Erreur réseau : '+e.message); }
+}
+
+/* Appelé automatiquement après chaque enregistrement local */
+function rhCloudMaybePush(){ try{ if(rhCloudCfg()&&rhCloudSess()) rhCloudPushSilent(); }catch(e){} }
+
+/* ══════════ PANNEAU UI « En ligne » ══════════ */
+function rhCloudPanel(){
+  var cfg=rhCloudCfg(), s=rhCloudSess();
+  var h='<div style="max-width:640px;font-size:13px;color:#cdd7e2;line-height:1.6">';
+  h+='<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.07);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px">☁️ <strong>Synchronisation chiffrée de bout en bout.</strong> Le serveur ne reçoit qu\'un bloc déjà chiffré : il ne peut pas lire vos données. Votre code confidentiel ne quitte jamais cet appareil.</div>';
+  // 1) Config
+  h+='<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:6px 0 8px">1 · Connexion à votre projet Supabase (UE)</div>';
+  if(!cfg){
+    h+='<div style="margin-bottom:8px"><label style="font-size:11px;color:#9fb0c4">URL du projet</label><input id="cl-url" placeholder="https://xxxx.supabase.co" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
+    h+='<div style="margin-bottom:8px"><label style="font-size:11px;color:#9fb0c4">Clé publique « anon »</label><input id="cl-anon" placeholder="eyJhbGciOi..." style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
+    h+='<button onclick="rhCloudSaveCfg()" style="padding:10px 14px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">Enregistrer la configuration</button>';
+    h+='<div style="font-size:11px;color:#6b7a8d;margin-top:8px">La clé « anon » est publique par conception. Ne saisissez jamais la clé « service_role ».</div>';
+  } else {
+    h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:8px">✔ Projet configuré : '+_rhEsc(cfg.url)+' <button onclick="localStorage.removeItem(RH_CLOUD_CFG);rhRender()" style="background:none;border:none;color:#9fb0c4;text-decoration:underline;cursor:pointer;font-size:11px">changer</button></div>';
+    // 2) Auth
+    h+='<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px">2 · Votre compte</div>';
+    if(!s){
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input id="cl-email" type="email" placeholder="E-mail" style="padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"><input id="cl-pass" type="password" placeholder="Mot de passe (min. 8)" style="padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
+      h+='<div style="display:flex;gap:8px"><button onclick="rhCloudLogin()" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;cursor:pointer">Se connecter</button><button onclick="rhCloudSignup()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">Créer un compte</button></div>';
+    } else {
+      h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:10px">✔ Connecté : '+_rhEsc(s.email||s.uid)+' <button onclick="rhCloudLogout()" style="background:none;border:none;color:#e0a34c;text-decoration:underline;cursor:pointer;font-size:11px">se déconnecter</button></div>';
+      h+='<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px">3 · Synchroniser</div>';
+      h+='<div style="display:flex;flex-wrap:wrap;gap:8px"><button onclick="rhCloudPush()" style="padding:10px 14px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">⭱ Envoyer (cet appareil → en ligne)</button><button onclick="rhCloudPull()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">⭳ Descendre (en ligne → cet appareil)</button></div>';
+      h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">Vos enregistrements sont aussi envoyés automatiquement après chaque modification. « Descendre » récupère la dernière version sur un nouvel appareil (code confidentiel requis pour l\'ouvrir).</div>';
+    }
+  }
+  // Aide SQL
+  h+='<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:16px 0 6px">Préparer le projet (une seule fois)</div>';
+  h+='<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:6px">Dans Supabase → SQL Editor, exécutez :</div>';
+  h+='<pre style="background:#0b1420;border:1px solid #26374d;border-radius:8px;padding:10px;font-size:11px;color:#bcd;white-space:pre-wrap;overflow-x:auto">create table if not exists rh_vault (\n  user_id uuid primary key references auth.users(id) on delete cascade,\n  blob text,\n  updated_at timestamptz default now()\n);\nalter table rh_vault enable row level security;\ncreate policy "own_select" on rh_vault for select using (auth.uid() = user_id);\ncreate policy "own_insert" on rh_vault for insert with check (auth.uid() = user_id);\ncreate policy "own_update" on rh_vault for update using (auth.uid() = user_id);</pre>';
+  h+='<div style="font-size:11px;color:#6b7a8d;margin-top:8px">Cette politique (RLS) garantit que chaque compte n\'accède QU\'À sa propre ligne. Le contenu reste chiffré côté client.</div>';
+  h+='</div>';
+  return h;
 }
 
 function openMenu(){document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block';}
