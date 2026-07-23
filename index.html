@@ -638,7 +638,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.12';
+var JX_BUILD = 'v2026-07-23.13';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -3213,7 +3213,7 @@ Exemple :<br>
     <button onclick="goPage('home')" style="margin:12px 0 6px;padding:9px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Retour à l'accueil</button>
     <h1 class="ttl">👥 Espace RH — Personnel</h1>
     <p class="sub" style="margin-bottom:6px">Registre du personnel &amp; fiches individuelles — chiffré et stocké uniquement sur votre appareil.</p>
-    <div id="rh-body"></div>
+    <div id="rh-body"><div style="padding:24px;text-align:center;color:#9fb0c4"><div style="font-size:14px;margin-bottom:12px">Chargement de l'Espace RH…</div><button onclick="try{rhOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir l'Espace RH sécurisé</button></div></div>
     <input type="file" id="rh-csv-input" accept=".csv,text/csv" style="display:none" onchange="rhImportFile(this)">
     <input type="file" id="rh-bak-input" accept=".tec,application/octet-stream" style="display:none" onchange="rhImportBackupFile(this)">
   </div>
@@ -5964,7 +5964,7 @@ function _setTransportVisible(show){
 }
 function adminPickSector(v){ try{ if(v) sessionStorage.setItem('jte_sector',v); else sessionStorage.removeItem('jte_sector'); }catch(e){} applyClientSector(); }
 // ── Prompt administrateur : à l'entrée d'un module, choisir le secteur qui adapte toute l'application ──
-var ADMIN_SEC_NONE={home:1,audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1,tarifs:1,contact:1,aide:1,compte:1,admin:1};
+var ADMIN_SEC_NONE={home:1,audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1,tarifs:1,contact:1,aide:1,compte:1,admin:1,personnel:1};
 function adminSecPrompt(pageId){
   try{
     if(sessionStorage.getItem('jte_admin')!=='1')return;              // administrateur uniquement
