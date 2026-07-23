@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.24';
+var JX_BUILD = 'v2026-07-23.25';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6294,8 +6294,21 @@ function jxHealOverlays(){
     if(healed){ try{ document.body.style.overflow=''; }catch(e){} }
   }catch(e){}
 }
-function openMenu(){ jxHealOverlays(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
+/* Le menu (overlay + panneau) est, dans le HTML, imbriqué par erreur dans des
+   pages masquées (#pg-temps / #pg-remuneration display:none) : il s'ouvrait donc
+   en 0×0, invisible. On le rattache au <body> pour qu'aucun ancêtre masqué ne
+   puisse l'écraser. */
+function _jxEnsureMenuAtBody(){
+  try{
+    ['menu-overlay','menu-panel'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el && el.parentElement!==document.body){ document.body.appendChild(el); }
+    });
+  }catch(e){}
+}
+function openMenu(){ jxHealOverlays(); _jxEnsureMenuAtBody(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none'; try{ jxFab(); }catch(e){} }
+try{ _jxEnsureMenuAtBody(); }catch(e){}
 try{
   window.addEventListener('pageshow', jxHealOverlays);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxHealOverlays(); });
