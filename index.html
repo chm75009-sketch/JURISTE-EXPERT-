@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.47';
+var JX_BUILD = 'v2026-07-23.48';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6089,7 +6089,7 @@ function closeRH(){ var ov=document.getElementById('rh-ov'); if(ov) ov.style.dis
    • Synchronisation en ligne Supabase (login par code) — REST direct, sans SDK
    • Stockage local simple (localStorage) ; la protection en ligne = le compte
    ══════════════════════════════════════════════════════════════════ */
-var RX = { staff: [], ent: {}, parc: [], settings: {} };
+var RX = { staff: [], ent: {}, parc: [], settings: {}, procedures: [] };
 var RX_LS = 'rx_data_v1';
 var RX_SESS = 'rx_sess_v1';
 var RX_TAB = 'reg';
@@ -6115,11 +6115,11 @@ function rxKey(){ return RX_LS+'::'+rxAccountId(); }
 function rxLoad(){
   try{
     var d=JSON.parse(localStorage.getItem(rxKey())||'null');
-    if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; RX.parc=d.parc||[]; RX.settings=d.settings||{}; }
-    else { RX.staff=[]; RX.ent={}; RX.parc=[]; RX.settings={}; }   // compte vierge : on n'hérite JAMAIS d'un autre compte
-  }catch(e){ RX.staff=[]; RX.ent={}; RX.parc=[]; RX.settings={}; }
+    if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; RX.parc=d.parc||[]; RX.settings=d.settings||{}; RX.procedures=d.procedures||[]; }
+    else { RX.staff=[]; RX.ent={}; RX.parc=[]; RX.settings={}; RX.procedures=[]; }   // compte vierge : on n'hérite JAMAIS d'un autre compte
+  }catch(e){ RX.staff=[]; RX.ent={}; RX.parc=[]; RX.settings={}; RX.procedures=[]; }
 }
-function rxSaveLocal(){ try{ localStorage.setItem(rxKey(), JSON.stringify({staff:RX.staff, ent:RX.ent, parc:RX.parc, settings:RX.settings})); }catch(e){} }
+function rxSaveLocal(){ try{ localStorage.setItem(rxKey(), JSON.stringify({staff:RX.staff, ent:RX.ent, parc:RX.parc, settings:RX.settings, procedures:RX.procedures})); }catch(e){} }
 function rxAlertDays(){ var d=parseInt((RX.settings||{}).alertDays,10); return (d&&d>0)?d:30; }
 /* ══ Récupération de données sur l'appareil ══
    Les données peuvent avoir été enregistrées sous une autre clé de compte
@@ -6244,12 +6244,13 @@ function rxRender(){
   }
   var nAl=rxAlertCount();
   h+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
-    +rxTabBtn('reg','📖 Registre')+rxTabBtn('parc','🚚 Parc')+rxTabBtn('dash','🔔 Alertes'+(nAl>0?' <span style="background:#e05c5c;color:#fff;border-radius:9px;padding:0 6px;font-size:11px;font-weight:800">'+nAl+'</span>':''))+rxTabBtn('ent','🏢 Entreprise')+rxTabBtn('cloud','☁️ En ligne')
+    +rxTabBtn('reg','📖 Registre')+rxTabBtn('parc','🚚 Parc')+rxTabBtn('proc','⚖️ Procédures')+rxTabBtn('dash','🔔 Alertes'+(nAl>0?' <span style="background:#e05c5c;color:#fff;border-radius:9px;padding:0 6px;font-size:11px;font-weight:800">'+nAl+'</span>':''))+rxTabBtn('ent','🏢 Entreprise')+rxTabBtn('cloud','☁️ En ligne')
     +'</div><div id="rx-c"></div></div>';
   ov.innerHTML=h;
   var c=document.getElementById('rx-c');
   if(RX_TAB==='reg') c.innerHTML=rxRegistre();
   else if(RX_TAB==='parc') c.innerHTML=rxParc();
+  else if(RX_TAB==='proc') c.innerHTML=rxProc();
   else if(RX_TAB==='dash') c.innerHTML=rxDash();
   else if(RX_TAB==='ent') c.innerHTML=rxEnt();
   else if(RX_TAB==='cloud') c.innerHTML=rxCloud();
@@ -6409,6 +6410,7 @@ function rxAllAlerts(){
   });
   var vch=[['ct','Contrôle technique'],['assurance','Assurance'],['tachy','Chronotachygraphe'],['adr','ADR véhicule'],['extincteur','Extincteur']];
   (RX.parc||[]).forEach(function(v){ vch.forEach(function(cf){ var d=rxDaysLeft(v[cf[0]]); if(d!==null && d<=days) out.push({kind:'veh',id:v.id,nom:'🚚 '+(v.immat||v.marque||'Véhicule'),lbl:cf[1],iso:v[cf[0]],d:d}); }); });
+  try{ out=out.concat(rxProcAlerts()); }catch(e){}
   out.sort(function(a,b){return a.d-b.d;});
   return out;
 }
@@ -6424,7 +6426,7 @@ function rxDash(){
   var seuilOrange=Math.max(7,Math.round(days/3));
   h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#e8e4d8">';
   al.forEach(function(a){ var col=a.d<0?'#e05c5c':(a.d<=seuilOrange?'#e0a34c':'#e8c97a');
-    var click=(a.kind==='veh')?('rxVehicule(\''+a.id+'\')'):('rxFiche(\''+a.id+'\')');
+    var click=(a.kind==='veh')?('rxVehicule(\''+a.id+'\')'):(a.kind==='proc'?('rxProcEdit(\''+a.id+'\')'):('rxFiche(\''+a.id+'\')'));
     h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="'+click+'"><td style="padding:7px;color:#fff">'+rxEsc(a.nom)+'</td><td style="padding:7px">'+rxEsc(a.lbl)+'</td><td style="padding:7px;color:#9fb0c4">'+rxFR(a.iso)+'</td><td style="padding:7px;color:'+col+';font-weight:700">'+(a.d<0?('retard '+(-a.d)+'j'):(a.d+'j'))+'</td></tr>'; });
   h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">🔴 dépassé · 🟠 très proche · 🟡 sous le seuil. Réglage enregistré sur votre compte.</div>';
   return h;
@@ -6487,6 +6489,90 @@ function rxSaveVeh(){
   rxSaveLocal(); try{ rxCloudPushVehOne(v); }catch(e){} rxCloseVeh(); rxRender(); rxTab('parc');
 }
 function rxDelVeh(id){ if(!confirm('Supprimer ce véhicule ?')) return; RX.parc=RX.parc.filter(function(v){return v.id!==id;}); rxSaveLocal(); try{ rxCloudDelVehOne(id); }catch(e){} rxCloseVeh(); rxRender(); rxTab('parc'); }
+
+/* ══════════ PROCÉDURES EN COURS (délais légaux) ══════════
+   Sources : C. trav. L.1332-4 (prescription 2 mois), L.1232-2/L.1332-2 (entretien
+   ≥ 5 jours ouvrables après présentation de la convocation), L.1232-6 (notification
+   ≥ 2 jours ouvrables après l'entretien), L.1332-2 (sanction/licenciement
+   disciplinaire notifié ≤ 1 mois après l'entretien). */
+function rxAddDays(iso,n){ if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function rxAddMonths(iso,n){ if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; var day=d.getDate(); d.setMonth(d.getMonth()+n); if(d.getDate()<day) d.setDate(0); return d.toISOString().slice(0,10); }
+/* n jours ouvrables (lun-sam, hors dimanche) à partir du lendemain de iso ; si la
+   date obtenue tombe un dimanche, report au lundi. (Jours fériés : à vérifier.) */
+function rxAddOuvrables(iso,n){ if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; var c=0; while(c<n){ d.setDate(d.getDate()+1); if(d.getDay()!==0) c++; } if(d.getDay()===0) d.setDate(d.getDate()+1); if(d.getDay()===6) d.setDate(d.getDate()+2); return d.toISOString().slice(0,10); }
+var RX_PROC_TYPES=['Licenciement pour motif personnel','Licenciement disciplinaire (faute)','Sanction disciplinaire (avertissement, mise à pied…)','Rupture conventionnelle'];
+/* Renvoie les jalons calculés d'une procédure : {label, iso, crit:true si couperet}. */
+function rxProcSteps(pr){
+  var out=[], disc=(pr.type||'').toLowerCase().indexOf('disciplinaire')>-1 || (pr.type||'').toLowerCase().indexOf('faute')>-1 || (pr.type||'').toLowerCase().indexOf('sanction')>-1;
+  if(pr.dateConn && !pr.dateEntretien){ out.push({label:'Prescription des faits — engager la procédure au plus tard le', iso:rxAddMonths(pr.dateConn,2), crit:true, art:'L.1332-4'}); }
+  if(pr.dateRecep){ out.push({label:'Entretien préalable — pas avant le', iso:rxAddOuvrables(pr.dateRecep,5), crit:false, art:'L.1232-2 / L.1332-2'}); }
+  if(pr.dateEntretien){
+    out.push({label:'Notification — pas avant le', iso:rxAddOuvrables(pr.dateEntretien,2), crit:false, art:'L.1232-6'});
+    if(disc) out.push({label:'Notification — au plus tard le (1 mois)', iso:rxAddMonths(pr.dateEntretien,1), crit:true, art:'L.1332-2'});
+  }
+  return out.filter(function(x){return x.iso;});
+}
+function rxProc(){
+  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
+    +'<button onclick="rxProcEdit(\'\')" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Nouvelle procédure</button></div>';
+  h+='<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:10px;line-height:1.5">Suivez une procédure (convocation, entretien, notification) : l\'appli calcule les <b>délais légaux</b> et les fait remonter dans les <b>🔔 Alertes</b>.</div>';
+  if(!RX.procedures||!RX.procedures.length) return h+'<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucune procédure en cours.</div>';
+  RX.procedures.slice().forEach(function(pr){
+    var steps=rxProcSteps(pr);
+    h+='<div style="border:1px solid #26374d;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer" onclick="rxProcEdit(\''+pr.id+'\')">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px"><b style="color:#fff">'+rxEsc(pr.salarie||'—')+'</b><span style="font-size:11px;color:#9fb0c4">'+rxEsc(pr.type||'')+'</span></div>';
+    if(steps.length){ h+='<div style="margin-top:7px;font-size:12px;color:#cdd7e2;line-height:1.7">';
+      steps.forEach(function(s){ var dl=rxDaysLeft(s.iso); var col=(dl===null)?'#9fb0c4':(dl<0?'#e05c5c':(dl<=7?'#e0a34c':'#8fe3bd')); h+='• '+rxEsc(s.label)+' <b style="color:'+col+'">'+rxFR(s.iso)+'</b>'+(dl!==null?(' <span style="color:'+col+'">('+(dl<0?('dépassé '+(-dl)+'j'):(dl+'j'))+')</span>'):'')+' <span style="color:#6b7a8d">'+s.art+'</span><br>'; });
+      h+='</div>'; }
+    else h+='<div style="margin-top:6px;font-size:12px;color:#9fb0c4">Renseignez les dates pour calculer les délais.</div>';
+    h+='</div>';
+  });
+  return h;
+}
+var RXP_CUR=null;
+function rxProcEdit(id){
+  if(id){ RXP_CUR=RX.procedures.filter(function(p){return p.id===id;})[0]; } else { RXP_CUR={id:''}; }
+  if(!RXP_CUR) return; var pr=RXP_CUR;
+  var staffOpts='<option value="">— choisir un salarié —</option>'+RX.staff.map(function(s){ var nm=((s.nom||'')+' '+(s.prenom||'')).trim(); return '<option'+(pr.salarie===nm?' selected':'')+'>'+rxEsc(nm)+'</option>'; }).join('');
+  var typeOpts=RX_PROC_TYPES.map(function(t){ return '<option'+(pr.type===t?' selected':'')+'>'+rxEsc(t)+'</option>'; }).join('');
+  var F=function(lbl,k,ph){ var v=rxFR(pr[k]); return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxp-'+k+'" value="'+rxEsc(v)+'" placeholder="JJ/MM/AAAA" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
+  var ov=document.getElementById('rx-veh'); // réutilise l'overlet ? non → propre
+  ov=document.getElementById('rx-proc');
+  if(!ov){ ov=document.createElement('div'); ov.id='rx-proc'; ov.style.cssText='position:fixed;inset:0;z-index:99997;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 60px) 14px 18px'; document.body.appendChild(ov); }
+  var h='<div style="max-width:640px;margin:0 auto">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">⚖️ Procédure</div><button onclick="rxCloseProc()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>'
+    +'<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Salarié concerné</label><select id="rxp-salarie" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'+staffOpts+'</select></div>'
+    +'<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Type de procédure</label><select id="rxp-type" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'+typeOpts+'</select></div>'
+    +F('Date de connaissance des faits','dateConn')
+    +F('Date de présentation de la convocation (accusé réception)','dateRecep')
+    +F('Date de l\'entretien préalable','dateEntretien')
+    +F('Date de notification (si déjà envoyée)','dateNotif');
+  var steps=rxProcSteps(pr);
+  if(steps.length){ h+='<div style="border:1px solid rgba(201,168,76,.4);background:rgba(201,168,76,.08);border-radius:10px;padding:12px;margin:6px 0 10px;font-size:12.5px;color:#e8e4d8;line-height:1.7"><b style="color:#e8c97a">Délais calculés</b><br>';
+    steps.forEach(function(s){ h+='• '+rxEsc(s.label)+' <b>'+rxFR(s.iso)+'</b> <span style="color:#8a8578">('+s.art+')</span><br>'; });
+    h+='<div style="font-size:11px;color:#9a9585;margin-top:5px">Jours ouvrables = lun-sam. Vérifiez les jours fériés qui peuvent reporter l\'échéance.</div></div>'; }
+  h+='<div style="display:flex;gap:10px;margin-top:10px"><button onclick="rxSaveProc()" style="flex:1;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'+(id?'<button onclick="rxDelProc(\''+id+'\')" style="padding:13px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️</button>':'')+'</div></div>';
+  ov.innerHTML=h; ov.style.display='block'; ov.scrollTop=0;
+}
+function rxCloseProc(){ var ov=document.getElementById('rx-proc'); if(ov) ov.style.display='none'; RXP_CUR=null; }
+function rxSaveProc(){
+  var pr=RXP_CUR; if(!pr) return;
+  var g=function(id){ var e=document.getElementById(id); return e?e.value.trim():''; };
+  pr.salarie=g('rxp-salarie'); pr.type=g('rxp-type');
+  pr.dateConn=rxISO(g('rxp-dateConn')); pr.dateRecep=rxISO(g('rxp-dateRecep')); pr.dateEntretien=rxISO(g('rxp-dateEntretien')); pr.dateNotif=rxISO(g('rxp-dateNotif'));
+  if(!pr.salarie && !pr.type){ alert('Choisissez au moins un salarié et un type.'); return; }
+  if(!pr.id){ pr.id=rxUID(); RX.procedures.push(pr); }
+  rxSaveLocal(); rxCloseProc(); rxRender(); rxTab('proc');
+}
+function rxDelProc(id){ if(!confirm('Supprimer cette procédure ?')) return; RX.procedures=RX.procedures.filter(function(p){return p.id!==id;}); rxSaveLocal(); rxCloseProc(); rxRender(); rxTab('proc'); }
+/* Alertes procédures : on remonte les échéances « couperet » (au plus tard). */
+function rxProcAlerts(){
+  var out=[], days=rxAlertDays();
+  (RX.procedures||[]).forEach(function(pr){ if(pr.dateNotif) return; /* clôturée */
+    rxProcSteps(pr).forEach(function(s){ if(!s.crit) return; var d=rxDaysLeft(s.iso); if(d!==null && d<=Math.max(days,15)) out.push({kind:'proc',id:pr.id,nom:'⚖️ '+(pr.salarie||'Procédure'),lbl:s.label.replace(/ le$/,'').replace(/ au plus tard.*/,'(délai max)'),iso:s.iso,d:d}); });
+  });
+  return out;
+}
 
 /* ══════════ IMPORT CSV ══════════ */
 function rxSplit(line){ var sep=(line.indexOf(';')>=0 && (line.indexOf(',')<0||line.split(';').length>=line.split(',').length))?';':','; var o=[],c='',q=false; for(var i=0;i<line.length;i++){var ch=line[i]; if(ch==='"'){ if(q&&line[i+1]==='"'){c+='"';i++;} else q=!q; } else if(ch===sep&&!q){o.push(c);c='';} else c+=ch;} o.push(c); return o.map(function(x){return x.trim();}); }
@@ -6661,7 +6747,7 @@ function rxPull(silent){ if(!rxSess()) return;
       touche JAMAIS à un calque réellement utilisé (il contient toujours du contenu). ══ */
 function jxHealOverlays(){
   try{
-    var ids=['rx-ov','rx-fiche','rx-veh','cg-edit-ov','rh-ov','rh-fiche-ov'];
+    var ids=['rx-ov','rx-fiche','rx-veh','rx-proc','cg-edit-ov','rh-ov','rh-fiche-ov'];
     var healed=false;
     for(var i=0;i<ids.length;i++){
       var el=document.getElementById(ids[i]); if(!el) continue;
@@ -6734,7 +6820,7 @@ try{
      • ← Retour (haut-gauche) : ferme le module ouvert, sinon revient à l'accueil */
 function _jxAuthed(){ try{ return sessionStorage.getItem('jte_ok')==='1'; }catch(e){ return false; } }
 function _jxVisible(id){ var e=document.getElementById(id); return e && getComputedStyle(e).display!=='none'; }
-var _JX_MODULES=['cg-edit-ov','rx-veh','rx-fiche','rh-fiche-ov','rx-ov','rh-ov'];
+var _JX_MODULES=['cg-edit-ov','rx-proc','rx-veh','rx-fiche','rh-fiche-ov','rx-ov','rh-ov'];
 function _jxModuleOpen(){ for(var i=0;i<_JX_MODULES.length;i++){ if(_jxVisible(_JX_MODULES[i])) return true; } return false; }
 /* Action « retour » : cascade robuste, autonome (ne dépend d'aucune autre fonction) */
 function _jxBack(){
