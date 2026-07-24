@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.40';
+var JX_BUILD = 'v2026-07-23.41';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6505,7 +6505,7 @@ function rxSignup(){
   if(code.trim().length<3||pass.length<8){ rxMsg('Code (≥3) + mot de passe (≥8).'); return; }
   fetch(RX_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:JSON.stringify({email:rxEmail(code),password:pass})})
     .then(function(r){return r.json();}).then(function(d){
-      if(d.access_token){ rxSetSess(d,code); alert('Compte créé et connecté.'); rxRender(); rxCloudPushAll(); }
+      if(d.access_token){ rxSetSess(d,code); rxRender(); rxCloudPushAll(true); try{ rxCloudPushEnt(); }catch(e){} }
       else if(d.msg||d.error_description||d.error){ rxMsg('Refusé : '+(d.msg||d.error_description||d.error)); }
       else { alert('Compte créé. Connectez-vous.'); rxRender(); }
     }).catch(function(e){ rxMsg('Réseau : '+e.message); });
@@ -6530,7 +6530,18 @@ function rxCloudPushAll(loud){ if(!rxSess()){ if(loud) alert('Connectez-vous d\'
     .then(function(r){ if(loud){ if(r.ok) alert('Envoyé : '+RX.staff.length+' salarié(s).'); else r.text().then(function(t){alert('Refus : '+t.slice(0,150));}); } }).catch(function(e){ if(loud) alert('Réseau : '+e.message); });
 }
 function rxCloudPush(){ rxCloudPushAll(false); }
+function rxPullEnt(){ if(!rxSess()) return;
+  fetch(RX_URL+'/rest/v1/entreprises?select=*',{headers:rxHeaders(true)})
+    .then(function(r){return r.json();}).then(function(d){
+      if(!Array.isArray(d)) return;
+      if(d.length){ var r=d[0]; RX.ent={ nom:r.nom||'', gerant:r.dirigeant||'', siret:r.siret||'', naf:r.naf||'', adresse:r.adresse||'', email:r.email||'', tel:r.tel||'', idcc:r.idcc||'16' }; rxSaveLocal();
+        try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem('juris_transport',JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+        try{ rxRender(); }catch(e){}
+      } else if(RX.ent&&RX.ent.nom){ rxCloudPushEnt(); }  // cloud vide, on envoie la fiche locale
+    }).catch(function(){});
+}
 function rxPull(silent){ if(!rxSess()) return;
+  try{ rxPullEnt(); }catch(e){}
   fetch(RX_URL+'/rest/v1/personnel?select=*',{headers:rxHeaders(true)})
     .then(function(r){return r.json();}).then(function(d){
       if(Array.isArray(d)){
