@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.36';
+var JX_BUILD = 'v2026-07-23.37';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6518,6 +6518,19 @@ function _jxEnsureMenuAtBody(){
 function openMenu(){ jxHealOverlays(); _jxEnsureMenuAtBody(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none'; try{ jxFab(); }catch(e){} }
 try{ _jxEnsureMenuAtBody(); }catch(e){}
+/* Certaines pages sont, dans le HTML, imbriquées par erreur dans d'autres pages
+   (#pg-temps / #pg-remuneration mal fermées) : activées, elles restent invisibles
+   (parent masqué → écran blanc). On les remet toutes comme enfants directs de
+   #pg-app pour que goPage fonctionne partout. */
+function jxUnnestPages(){
+  try{
+    var app=document.getElementById('pg-app'); if(!app) return;
+    var pages=document.querySelectorAll('#pg-app .page');
+    for(var i=0;i<pages.length;i++){ if(pages[i].parentElement!==app) app.appendChild(pages[i]); }
+  }catch(e){}
+}
+try{ jxUnnestPages(); }catch(e){}
+document.addEventListener('DOMContentLoaded', function(){ try{ jxUnnestPages(); }catch(e){} });
 /* Listes de suggestions (datalist) : proposent des choix mais laissent taper
    librement — sans changer le fonctionnement des formulaires/documents. */
 function jxEnsureDatalists(){
