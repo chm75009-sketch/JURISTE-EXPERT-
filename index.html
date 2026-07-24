@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.45';
+var JX_BUILD = 'v2026-07-23.46';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -3786,10 +3786,19 @@ Exemple :<br>
     {key:'pse',anchor:'pse-anc',label:'Salarié enregistré — pré-remplit ancienneté & salaire'},
     {key:'harcele',anchor:'hd-emb',label:'Salarié enregistré — pré-remplit la date d\'embauche'}
   ];
+  function rxStaffList(){ try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){} return (typeof RX!=='undefined'&&RX.staff)?RX.staff:[]; }
+  function rxToFiche(s){ return { nom:((s.nom||'')+' '+(s.prenom||'')).trim(), poste:s.categorie||'', adr:((s.adresse||'')+((s.cp||s.ville)?(' '+(s.cp||'')+' '+(s.ville||'')).replace(/\s+/g,' ').trim():'')).trim(), emb:s.entree||'', type:s.typeContrat||'CDI', coeff:s.coeff||'', sal:s.salaire||'' }; }
   function fillSelect(sel){
-    var list=load(), cur=sel.value;
+    var cur=sel.value;
     var h='<option value="">— choisir un salarié —</option>';
-    list.forEach(function(f,i){h+='<option value="'+i+'">'+esc(f.nom||('Fiche '+(i+1)))+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
+    var rx=rxStaffList();
+    if(rx.length){ h+='<optgroup label="Registre du personnel (Espace RH)">';
+      rx.forEach(function(s,i){ var nm=((s.nom||'')+' '+(s.prenom||'')).trim(); h+='<option value="r'+i+'">'+esc(nm||('Salarié '+(i+1)))+(s.categorie?(' · '+esc(s.categorie)):'')+'</option>'; });
+      h+='</optgroup>'; }
+    var list=load();
+    if(list.length){ h+='<optgroup label="Fiches locales">';
+      list.forEach(function(f,i){h+='<option value="p'+i+'">'+esc(f.nom||('Fiche '+(i+1)))+(f.poste?(' · '+esc(f.poste)):'')+'</option>';});
+      h+='</optgroup>'; }
     h+='<option value="__new">➕ Créer une nouvelle fiche…</option>';
     sel.innerHTML=h; if(cur!==''&&cur!=='__new')sel.value=cur;
   }
@@ -3799,8 +3808,11 @@ Exemple :<br>
   window.salPick=function(key,idx){
     if(idx==='__new'){_pendingKey=key; salOpenNew(); var s=document.getElementById('sal-select-'+key); if(s)s.value=''; return;}
     if(idx==='')return;
-    var f=load()[parseInt(idx,10)]; if(!f)return;
-    if(FILL[key])FILL[key](f);
+    var f=null;
+    if(idx.charAt(0)==='r'){ var s=rxStaffList()[parseInt(idx.slice(1),10)]; if(s) f=rxToFiche(s); }
+    else if(idx.charAt(0)==='p'){ f=load()[parseInt(idx.slice(1),10)]; }
+    else { f=load()[parseInt(idx,10)]; }   // rétro-compat
+    if(f && FILL[key]) FILL[key](f);
   };
   window.salSaveFromParcours=function(){
     function g(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
@@ -5212,6 +5224,7 @@ function goPage(id){
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
+  try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
 }
 function applyRISector(){
   try{
