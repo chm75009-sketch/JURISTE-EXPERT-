@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.39';
+var JX_BUILD = 'v2026-07-23.40';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6062,6 +6062,32 @@ function rxLoad(){
 }
 function rxSaveLocal(){ try{ localStorage.setItem(rxKey(), JSON.stringify({staff:RX.staff, ent:RX.ent, parc:RX.parc, settings:RX.settings})); }catch(e){} }
 function rxAlertDays(){ var d=parseInt((RX.settings||{}).alertDays,10); return (d&&d>0)?d:30; }
+/* ══ Récupération de données sur l'appareil ══
+   Les données peuvent avoir été enregistrées sous une autre clé de compte
+   (ancien registre commun, autre code…). On les retrouve et on peut les
+   rattacher au compte courant, sans rien perdre. */
+function rxAllStashes(){
+  var cur=rxKey(), out=[];
+  try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i);
+    if(k && (k===RX_LS || k.indexOf(RX_LS+'::')===0) && k!==cur){
+      try{ var d=JSON.parse(localStorage.getItem(k)); if(d && (((d.staff||[]).length) || ((d.parc||[]).length) || (d.ent&&d.ent.nom))) out.push({key:k,data:d}); }catch(e){}
+    } } }catch(e){}
+  return out;
+}
+function rxBestStash(){ var a=rxAllStashes(); a.sort(function(x,y){ return ((y.data.staff||[]).length)-((x.data.staff||[]).length); }); return a[0]||null; }
+function rxRecover(){
+  var st=rxBestStash(); if(!st){ alert('Aucune donnée à récupérer sur cet appareil.'); return; }
+  var n=(st.data.staff||[]).length, np=(st.data.parc||[]).length;
+  if(!confirm('Rattacher à CE compte les données trouvées sur cet appareil ?\n\n• '+n+' salarié(s)\n• '+np+' véhicule(s)'+(st.data.ent&&st.data.ent.nom?('\n• Fiche entreprise : '+st.data.ent.nom):'')+'\n\n(les données d\'origine ne sont pas supprimées)')) return;
+  if((st.data.staff||[]).length) RX.staff=st.data.staff;
+  if((st.data.parc||[]).length) RX.parc=st.data.parc;
+  if(st.data.ent && st.data.ent.nom && !(RX.ent&&RX.ent.nom)) RX.ent=st.data.ent;
+  if(st.data.settings && !(RX.settings&&RX.settings.alertDays)) RX.settings=st.data.settings;
+  rxSaveLocal();
+  /* propage aussi les coordonnées vers la fiche entreprise globale (documents) */
+  try{ if(typeof E!=='undefined' && E && RX.ent){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem('juris_transport',JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+  rxRender();
+}
 /* Ancien registre unique (avant la séparation par compte) : proposé une fois au
    rattachement, pour ne pas perdre les 83 salariés déjà saisis sur l'appareil. */
 function rxLegacyData(){ try{ return JSON.parse(localStorage.getItem(RX_LS)||'null'); }catch(e){ return null; } }
@@ -6125,7 +6151,7 @@ function rxOpen(){
     try{ rxPrefillEntFromRegistry(); }catch(e){}
     var ov=document.getElementById('rx-ov');
     if(!ov){ ov=document.createElement('div'); ov.id='rx-ov';
-      ov.style.cssText='position:fixed;inset:0;z-index:99990;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+      ov.style.cssText='position:fixed;inset:0;z-index:99990;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 60px) 14px 18px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
       document.body.appendChild(ov);
     }
     ov.style.display='block';
@@ -6149,13 +6175,13 @@ function rxRender(){
     +'</div>';
   h+='<h2 style="color:#fff;font-size:19px;margin:2px 0 2px">👥 Espace RH — Personnel</h2>';
   h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre <span style="color:#6b7a8d">· compte : '+rxEsc(rxAccountId())+'</span></div>';
-  if(rxLegacyCount()>0){
-    h+='<div style="margin-bottom:12px;padding:12px;border:1px solid #c9a84c;border-radius:10px;background:rgba(201,168,76,.1);font-size:13px;color:#e8e4d8;line-height:1.5">'
-      +'📦 <b>'+rxLegacyCount()+' salarié(s)</b> sont enregistrés sur cet appareil dans l\'ancien registre <b>commun</b> (avant la séparation par compte). À quel compte les rattacher ?'
-      +'<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">'
-      +'<button onclick="rxAdoptLegacy()" style="padding:9px 14px;border:none;border-radius:8px;background:#c9a84c;color:#1a1a1a;font-weight:700;cursor:pointer;font-family:inherit">Rattacher à CE compte ('+rxEsc(rxAccountId())+')</button>'
-      +'<button onclick="rxIgnoreLegacy()" style="padding:9px 14px;border:1px solid #6b7a8d;border-radius:8px;background:transparent;color:#9fb0c4;cursor:pointer;font-family:inherit">Masquer</button>'
-      +'</div></div>';
+  var _st=(RX.staff.length===0)?rxBestStash():null;
+  if(_st){
+    var _n=(_st.data.staff||[]).length, _np=(_st.data.parc||[]).length;
+    h+='<div style="margin-bottom:12px;padding:13px;border:1px solid #c9a84c;border-radius:12px;background:rgba(201,168,76,.12);font-size:13px;color:#e8e4d8;line-height:1.5">'
+      +'📦 Des données existent sur cet appareil : <b>'+_n+' salarié(s)</b>'+(_np?(' · <b>'+_np+' véhicule(s)</b>'):'')+(_st.data.ent&&_st.data.ent.nom?(' · '+rxEsc(_st.data.ent.nom)):'')+'. Les rattacher à <b>ce compte</b> ?'
+      +'<div style="margin-top:9px"><button onclick="rxRecover()" style="width:100%;padding:12px;border:none;border-radius:9px;background:#c9a84c;color:#1a1a1a;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">📥 Récupérer mes données sur ce compte</button></div>'
+      +'</div>';
   }
   var nAl=rxAlertCount();
   h+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
@@ -6252,7 +6278,7 @@ function rxFiche(id){
   var OPT_MOTIF=['Démission','Licenciement pour motif personnel','Licenciement pour faute','Licenciement économique','Rupture conventionnelle','Fin de CDD','Rupture de période d\'essai','Départ à la retraite','Mise à la retraite','Inaptitude','Abandon de poste','Décès','Mutation','Transfert (L.1224-1)'];
   var OPT_PERMIS=['B','B + C','B + C + CE','C','C1','CE','C1E','C + CE','D','D + DE','Aucun'];
   var ov=document.getElementById('rx-fiche');
-  if(!ov){ ov=document.createElement('div'); ov.id='rx-fiche'; ov.style.cssText='position:fixed;inset:0;z-index:99995;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px'; document.body.appendChild(ov); }
+  if(!ov){ ov=document.createElement('div'); ov.id='rx-fiche'; ov.style.cssText='position:fixed;inset:0;z-index:99995;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 60px) 14px 18px'; document.body.appendChild(ov); }
   var h='<div style="max-width:760px;margin:0 auto">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rxCloseFiche()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>';
   h+=SEC('État civil')+g([F('Nom','nom'),F('Prénom','prenom')])+g([S('Sexe','sexe',OPT_SEXE),F('Date de naissance','naissance','JJ/MM/AAAA',true)])+S('Nationalité','nationalite',OPT_NAT);
@@ -6372,7 +6398,7 @@ function rxVehicule(id){
   var CARB=['Gazole','Gazole B100','GNV / bioGNV','Électrique','Hydrogène','Essence','Hybride'];
   var CRIT=['Crit\'Air E (0)','Crit\'Air 1','Crit\'Air 2','Crit\'Air 3','Crit\'Air 4','Crit\'Air 5','Non classé'];
   var ov=document.getElementById('rx-veh');
-  if(!ov){ ov=document.createElement('div'); ov.id='rx-veh'; ov.style.cssText='position:fixed;inset:0;z-index:99996;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px'; document.body.appendChild(ov); }
+  if(!ov){ ov=document.createElement('div'); ov.id='rx-veh'; ov.style.cssText='position:fixed;inset:0;z-index:99996;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 60px) 14px 18px'; document.body.appendChild(ov); }
   var h='<div style="max-width:760px;margin:0 auto">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'🚚 Fiche véhicule':'＋ Nouveau véhicule')+'</div><button onclick="rxCloseVeh()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>';
   h+=SEC('Identification')+g([F('Immatriculation','immat','AB-123-CD'),S('Type','type',TYPE)])+g([F('Marque / modèle','marque'),F('Mise en circulation','miseCirc','JJ/MM/AAAA',true)])+g([F('PTAC (kg)','ptac'),S('Carburant','carburant',CARB)])+S('Vignette Crit\'Air','critair',CRIT);
