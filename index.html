@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.46';
+var JX_BUILD = 'v2026-07-23.47';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5146,8 +5146,29 @@ function jxSetVal(fid,val){ var e=document.getElementById(fid); if(!e) return; e
 function jxStaffList(){ try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){} return (typeof RX!=='undefined'&&RX.staff)?RX.staff:[]; }
 var JX_LINK={
   disciplinaire:{ page:'#pg-disciplinaire', fill:function(s){ jxSetVal('disc-sal-nom',jxSN(s)); jxSetVal('disc-sal-poste',s.categorie||''); jxSetVal('disc-sal-entree',s.entree||''); jxSetVal('disc-sal-salaire',jxSalStr(s)); } },
-  contrat:{ page:'#pg-contrat', fill:function(s){ jxSetVal('c-nom',jxSN(s)); jxSetVal('c-naissance',s.naissance||''); jxSetVal('c-nationalite',s.nationalite||''); jxSetVal('c-poste',s.categorie||''); } }
+  contrat:{ page:'#pg-contrat', fill:function(s){ jxSetVal('c-nom',jxSN(s)); jxSetVal('c-naissance',s.naissance||''); jxSetVal('c-nationalite',s.nationalite||''); jxSetVal('c-poste',s.categorie||''); }, addStaff:jxContratStaff }
 };
+/* Construit une fiche salarié depuis les champs du contrat (pour l'ajout au registre). */
+function jxContratStaff(){
+  var g=function(id){ var e=document.getElementById(id); return e?String(e.value||'').trim():''; };
+  var full=g('c-nom'); var parts=full.split(/\s+/).filter(Boolean); var prenom=parts.length>1?parts.pop():''; var nom=parts.join(' ')||full;
+  return { nom:nom, prenom:prenom, categorie:g('c-poste'), naissance:g('c-naissance'), nationalite:g('c-nationalite'), adresse:g('c-adresse')||g('c-adr-sal')||'', entree:g('c-debut')||g('c-entree')||'', salaire:g('c-salaire')||'', coeff:g('c-coeff')||'', typeContrat:'' };
+}
+function jxLinkAdd(id){ var cfg=JX_LINK[id]; if(cfg && cfg.addStaff) jxAddToRegistre(cfg.addStaff()); }
+function jxAddToRegistre(s){
+  try{
+    if(!s || !s.nom){ alert('Renseignez au moins le nom du salarié avant de l\'ajouter.'); return; }
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof RX==='undefined' || !RX.staff){ alert('Espace RH indisponible.'); return; }
+    var exists=RX.staff.some(function(x){ return ((x.nom||'')+' '+(x.prenom||'')).trim().toLowerCase()===((s.nom||'')+' '+(s.prenom||'')).trim().toLowerCase() && (s.nom||'').trim(); });
+    if(exists && !confirm('Un salarié du même nom existe déjà au registre. L\'ajouter quand même ?')) return;
+    s.id=(typeof rxUID==='function')?rxUID():('x'+String(RX.staff.length)+'_'+(RX.staff.length));
+    RX.staff.push(s);
+    if(typeof rxSaveLocal==='function') rxSaveLocal();
+    try{ if(typeof rxCloudPushOne==='function') rxCloudPushOne(s); }catch(e){}
+    alert('✅ « '+(s.nom||'')+(s.prenom?(' '+s.prenom):'')+' » ajouté au registre du personnel (Espace RH).');
+  }catch(e){ alert('Erreur : '+(e.message||e)); }
+}
 function jxLinkPick(id,idx){ var cfg=JX_LINK[id]; if(!cfg) return; var st=jxStaffList(); var s=st[parseInt(idx,10)]; var info=document.getElementById('jxlinkinfo-'+id);
   if(!s){ if(info) info.innerHTML=''; return; }
   try{ cfg.fill(s); }catch(e){}
@@ -5163,6 +5184,7 @@ function jxInjectPicker(id){
       +'<label style="display:block;font-size:12.5px;font-weight:700;color:#e8c97a;margin-bottom:7px">👥 Pré-remplir depuis un salarié (Espace RH)</label>'
       +'<select id="jxlinksel-'+id+'" onchange="jxLinkPick(\''+id+'\',this.value)" style="width:100%;padding:11px 12px;border:1px solid rgba(201,168,76,.5);border-radius:9px;background:rgba(0,0,0,.25);color:#e8e4d8;font-family:inherit;font-size:14px;box-sizing:border-box">'+opts+'</select>'
       +(st.length?'':'<div style="font-size:11px;color:#9a9585;margin-top:5px">Aucun salarié dans le registre — ajoutez-les dans l\'Espace RH (👥 Mon personnel).</div>')
+      +(cfg.addStaff?'<button onclick="jxLinkAdd(\''+id+'\')" style="margin-top:9px;width:100%;padding:11px;border:1px dashed rgba(70,184,133,.7);border-radius:9px;background:rgba(70,184,133,.10);color:#8fe3bd;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">➕ Ajouter CE salarié au registre du personnel</button>':'')
       +'<div id="jxlinkinfo-'+id+'" style="font-size:12px;color:#9fb0c4;margin-top:7px"></div></div>';
     var box=document.getElementById('jxlink-'+id);
     if(box){ box.innerHTML=inner; }
