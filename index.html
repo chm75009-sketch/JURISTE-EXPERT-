@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.42';
+var JX_BUILD = 'v2026-07-23.43';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6421,9 +6421,9 @@ function rxSaveVeh(){
   RXV_DAT.forEach(function(k){ var e=document.getElementById('rxv-'+k); if(e) v[k]=rxISO(e.value.trim()); });
   if(!v.immat){ alert('L\'immatriculation est obligatoire.'); return; }
   if(!v.id){ v.id=rxUID(); RX.parc.push(v); }
-  rxSaveLocal(); rxCloseVeh(); rxRender(); rxTab('parc');
+  rxSaveLocal(); try{ rxCloudPushVehOne(v); }catch(e){} rxCloseVeh(); rxRender(); rxTab('parc');
 }
-function rxDelVeh(id){ if(!confirm('Supprimer ce véhicule ?')) return; RX.parc=RX.parc.filter(function(v){return v.id!==id;}); rxSaveLocal(); rxCloseVeh(); rxRender(); rxTab('parc'); }
+function rxDelVeh(id){ if(!confirm('Supprimer ce véhicule ?')) return; RX.parc=RX.parc.filter(function(v){return v.id!==id;}); rxSaveLocal(); try{ rxCloudDelVehOne(id); }catch(e){} rxCloseVeh(); rxRender(); rxTab('parc'); }
 
 /* ══════════ IMPORT CSV ══════════ */
 function rxSplit(line){ var sep=(line.indexOf(';')>=0 && (line.indexOf(',')<0||line.split(';').length>=line.split(',').length))?';':','; var o=[],c='',q=false; for(var i=0;i<line.length;i++){var ch=line[i]; if(ch==='"'){ if(q&&line[i+1]==='"'){c+='"';i++;} else q=!q; } else if(ch===sep&&!q){o.push(c);c='';} else c+=ch;} o.push(c); return o.map(function(x){return x.trim();}); }
@@ -6537,7 +6537,7 @@ async function rxAutoCloud(){
     if(d && d.access_token){ rxSetSess(d,code); try{ rxPull(true); }catch(e){} return; }   // compte existant → on récupère
     var r2=await fetch(RX_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:body});
     var d2=await r2.json();
-    if(d2 && d2.access_token){ rxSetSess(d2,code); try{ rxCloudPushAll(false); }catch(e){} try{ rxCloudPushEnt(); }catch(e){} try{ rxRender(); }catch(e){} }  // 1re fois → on envoie
+    if(d2 && d2.access_token){ rxSetSess(d2,code); try{ rxCloudPushAll(false); }catch(e){} try{ rxCloudPushEnt(); }catch(e){} try{ rxCloudPushParc(false); }catch(e){} try{ rxRender(); }catch(e){} }  // 1re fois → on envoie
   }catch(e){}
 }
 function rxLogout(){ try{ localStorage.removeItem(RX_SESS); }catch(e){} rxRender(); }
@@ -6561,8 +6561,21 @@ function rxPullEnt(){ if(!rxSess()) return;
       } else if(RX.ent&&RX.ent.nom){ rxCloudPushEnt(); }  // cloud vide, on envoie la fiche locale
     }).catch(function(){});
 }
+/* ══ Parc véhicules — synchro cloud ══ */
+function rxVehRow(v){ return { id:v.id, owner:(rxSess()||{}).uid, immat:v.immat||null, type:v.type||null, marque:v.marque||null, ptac:v.ptac||null, carburant:v.carburant||null, critair:v.critair||null, cg_num:v.cgNum||null, cg_titulaire:v.cgTitulaire||null, assureur:v.assureur||null, police:v.police||null, conducteur:v.conducteur||null, km:v.km||null, observations:v.observations||null, mise_circ:v.miseCirc||null, ct:v.ct||null, assurance:v.assurance||null, tachy:v.tachy||null, adr:v.adr||null, extincteur:v.extincteur||null, updated_at:new Date().toISOString() }; }
+function rxVehFromRow(r){ return { id:r.id, immat:r.immat||'', type:r.type||'', marque:r.marque||'', ptac:r.ptac||'', carburant:r.carburant||'', critair:r.critair||'', cgNum:r.cg_num||'', cgTitulaire:r.cg_titulaire||'', assureur:r.assureur||'', police:r.police||'', conducteur:r.conducteur||'', km:r.km||'', observations:r.observations||'', miseCirc:r.mise_circ||'', ct:r.ct||'', assurance:r.assurance||'', tachy:r.tachy||'', adr:r.adr||'', extincteur:r.extincteur||'' }; }
+function rxCloudPushVehOne(v){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/vehicules?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify([rxVehRow(v)])}).catch(function(){}); }
+function rxCloudDelVehOne(id){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/vehicules?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:rxHeaders(true)}).catch(function(){}); }
+function rxCloudPushParc(loud){ if(!rxSess()){ if(loud) alert('Connectez-vous d\'abord.'); return; } if(!RX.parc.length){ if(loud) alert('Aucun véhicule à envoyer.'); return; }
+  fetch(RX_URL+'/rest/v1/vehicules?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(RX.parc.map(rxVehRow))})
+    .then(function(r){ if(loud){ if(r.ok) alert('Envoyé : '+RX.parc.length+' véhicule(s).'); else r.text().then(function(t){alert('Refus : '+t.slice(0,150));}); } }).catch(function(e){ if(loud) alert('Réseau : '+e.message); }); }
+function rxParcPull(){ if(!rxSess()) return;
+  fetch(RX_URL+'/rest/v1/vehicules?select=*',{headers:rxHeaders(true)}).then(function(r){return r.json();}).then(function(d){
+    if(Array.isArray(d)){ if(d.length===0 && RX.parc.length>0){ rxCloudPushParc(false); } else { RX.parc=d.map(rxVehFromRow); rxSaveLocal(); try{ rxRender(); }catch(e){} } }
+  }).catch(function(){}); }
 function rxPull(silent){ if(!rxSess()) return;
   try{ rxPullEnt(); }catch(e){}
+  try{ rxParcPull(); }catch(e){}
   fetch(RX_URL+'/rest/v1/personnel?select=*',{headers:rxHeaders(true)})
     .then(function(r){return r.json();}).then(function(d){
       if(Array.isArray(d)){
