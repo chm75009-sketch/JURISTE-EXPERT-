@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.49';
+var JX_BUILD = 'v2026-07-23.50';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6784,8 +6784,25 @@ function jxUnnestPages(){
     for(var i=0;i<pages.length;i++){ if(pages[i].parentElement!==app) app.appendChild(pages[i]); }
   }catch(e){}
 }
-try{ jxUnnestPages(); }catch(e){}
-document.addEventListener('DOMContentLoaded', function(){ try{ jxUnnestPages(); }catch(e){} });
+/* Filet général : sort du contexte d'une page TOUT calque en position:fixed qui y
+   serait piégé (menu, overlays, affichage de documents…). Empêche définitivement
+   la classe de bugs « ça s'ouvre en 0×0 / invisible ». */
+function jxRescueOverlays(){
+  try{
+    var pages=document.querySelectorAll('#pg-app .page'), moved=0;
+    for(var i=0;i<pages.length;i++){
+      var kids=[].slice.call(pages[i].children);
+      for(var j=0;j<kids.length;j++){
+        var el=kids[j]; if(!el || el.classList&&el.classList.contains('page')) continue;
+        var pos=''; try{ pos=getComputedStyle(el).position; }catch(e){}
+        if(pos==='fixed' || /(-overlay$|^doc-overlay$|^menu-)/.test(el.id||'')){ document.body.appendChild(el); moved++; }
+      }
+    }
+    return moved;
+  }catch(e){ return -1; }
+}
+try{ jxUnnestPages(); jxRescueOverlays(); }catch(e){}
+document.addEventListener('DOMContentLoaded', function(){ try{ jxUnnestPages(); jxRescueOverlays(); }catch(e){} });
 /* Listes de suggestions (datalist) : proposent des choix mais laissent taper
    librement — sans changer le fonctionnement des formulaires/documents. */
 function jxEnsureDatalists(){
