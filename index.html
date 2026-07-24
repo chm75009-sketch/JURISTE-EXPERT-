@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.41';
+var JX_BUILD = 'v2026-07-23.42';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6157,8 +6157,8 @@ function rxOpen(){
     ov.style.display='block';
     try{ document.body.style.overflow='hidden'; }catch(e){}
     rxRender();
-    // en arrière-plan : si connecté, on récupère les données du compte
-    try{ if(rxSess()) rxPull(true); }catch(e){}
+    // en arrière-plan : connexion cloud automatique avec le code (un seul identifiant)
+    try{ rxAutoCloud(); }catch(e){}
   }catch(err){ alert('Ouverture impossible : '+(err.message||err)); }
 }
 function rxClose(){ var ov=document.getElementById('rx-ov'); if(ov) ov.style.display='none'; try{ document.body.style.overflow=''; }catch(e){} }
@@ -6481,20 +6481,20 @@ function rxCloudPushEnt(){
 }
 function rxCloud(){
   var s=rxSess();
+  var code=''; try{ code=(sessionStorage.getItem('jte_code')||'').trim(); }catch(e){}
   var h='<div style="max-width:640px;font-size:13px;color:#cdd7e2;line-height:1.6">';
-  h+='<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.07);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px">☁️ Connectez-vous pour retrouver votre personnel sur tous vos appareils. Hébergé en Europe, cloisonné par compte.</div>';
-  if(!s){
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
-      +'<input id="rx-code" placeholder="Code / identifiant" autocomplete="username" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box">'
-      +'<input id="rx-pass" type="password" placeholder="Mot de passe (min 8)" autocomplete="current-password" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>';
-    h+='<div style="display:flex;gap:8px"><button onclick="rxLogin()" style="padding:11px 15px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;cursor:pointer">Se connecter</button>'
-      +'<button onclick="rxSignup()" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">Créer un compte</button></div>';
+  if(s){
+    h+='<div style="border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.10);border-radius:12px;padding:14px;font-size:13px;color:#bfe6d4">'
+      +'✅ <b>Sauvegarde en ligne active</b> — compte <b>'+rxEsc(s.code||code||'')+'</b>.<br>Vos données (personnel, entreprise) sont enregistrées en ligne et vous suivent sur <b>tous vos appareils</b>, avec le même code.</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button onclick="rxCloudPushAll(true)" style="padding:11px 15px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">⭱ Forcer l\'envoi</button>'
+      +'<button onclick="rxPull(false)" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">⭳ Récupérer</button></div>';
+  } else if(code){
+    h+='<div style="border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.10);border-radius:12px;padding:14px;font-size:13px;color:#e8e4d8">'
+      +'☁️ La sauvegarde en ligne se connecte <b>automatiquement</b> avec votre code — rien à saisir. Si ça n\'apparaît pas, vérifiez votre connexion internet puis réessayez.</div>';
+    h+='<button onclick="rxAutoCloud()" style="margin-top:12px;padding:12px 16px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:800;cursor:pointer">🔄 Activer / réessayer la sauvegarde en ligne</button>';
     h+='<div id="rx-msg" style="font-size:12px;color:#e05c5c;margin-top:8px;min-height:14px"></div>';
   } else {
-    h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:12px">✔ Connecté : <strong>'+rxEsc(s.code||'compte')+'</strong> <button onclick="rxLogout()" style="background:none;border:none;color:#e0a34c;text-decoration:underline;cursor:pointer;font-size:11px">se déconnecter</button></div>';
-    h+='<div style="display:flex;flex-wrap:wrap;gap:8px"><button onclick="rxCloudPushAll(true)" style="padding:11px 15px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">⭱ Tout envoyer</button>'
-      +'<button onclick="rxPull(false)" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">⭳ Récupérer</button></div>';
-    h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px">Les modifications s\'envoient automatiquement. Sur un nouvel appareil : connectez-vous puis « Récupérer ».</div>';
+    h+='<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.07);border-radius:10px;padding:12px;font-size:12.5px">☁️ La sauvegarde en ligne s\'active avec un code client. Connectez-vous avec un code d\'accès pour en bénéficier.</div>';
   }
   h+='</div>';
   return h;
@@ -6519,6 +6519,27 @@ function rxLogin(){
     }).catch(function(e){ rxMsg('Réseau : '+e.message); });
 }
 function rxSetSess(d,code){ var uid=(d.user&&d.user.id)||d.id||''; try{ localStorage.setItem(RX_SESS, JSON.stringify({token:d.access_token,uid:uid,code:code})); }catch(e){} }
+/* ══ Cloud AUTOMATIQUE : un seul code ══
+   Dès que TEC entre son code, l'appli se connecte seule au cloud avec CE code
+   (mot de passe dérivé du code, invisible). Pas de 2ᵉ identifiant, pas d'onglet
+   « En ligne » à remplir. Les données suivent le code sur tous les appareils. */
+async function rxDerivePass(code){ try{ var h=await _sha256('jem-cloud::'+String(code||'').trim()); return 'Jx7#'+h.slice(0,26); }catch(e){ return 'Jx7#'+String(code||'')+'jem2026'; } }
+async function rxAutoCloud(){
+  try{
+    var code=''; try{ code=(sessionStorage.getItem('jte_code')||'').trim(); }catch(e){}
+    if(!code) return;                                   // pas de code client (ex. admin) → local
+    var s=rxSess();
+    if(s && (s.code||'')===code && s.token){ try{ rxPull(true); }catch(e){} return; } // déjà connecté sur ce code
+    var email=rxEmail(code), pass=await rxDerivePass(code);
+    var body=JSON.stringify({email:email,password:pass});
+    var r=await fetch(RX_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:body});
+    var d=await r.json();
+    if(d && d.access_token){ rxSetSess(d,code); try{ rxPull(true); }catch(e){} return; }   // compte existant → on récupère
+    var r2=await fetch(RX_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:body});
+    var d2=await r2.json();
+    if(d2 && d2.access_token){ rxSetSess(d2,code); try{ rxCloudPushAll(false); }catch(e){} try{ rxCloudPushEnt(); }catch(e){} try{ rxRender(); }catch(e){} }  // 1re fois → on envoie
+  }catch(e){}
+}
 function rxLogout(){ try{ localStorage.removeItem(RX_SESS); }catch(e){} rxRender(); }
 function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, sexe:s.sexe||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, suivi:{absences:s.absences||[],retards:s.retards||[],sanctions:s.sanctions||[],avances:s.avances||[]}, updated_at:new Date().toISOString() }; }
 function rxFromRow(r){ var su=r.suivi||{}; return { absences:su.absences||[], retards:su.retards||[], sanctions:su.sanctions||[], avances:su.avances||[], id:r.id, nom:r.nom||'', prenom:r.prenom||'', sexe:r.sexe||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
