@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.32';
+var JX_BUILD = 'v2026-07-23.33';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6194,31 +6194,39 @@ function rxFiche(id){
   var F=function(lbl,k,ph,date){ var v=date?rxFR(s[k]):(s[k]||''); return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxf-'+k+'" value="'+rxEsc(v)+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
   var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
   var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
-  /* Menu déroulant : conserve la valeur actuelle même si absente de la liste. */
+  /* Menu déroulant : « Autre… » ajouté en dernier ; s'il est choisi (ou si la
+     valeur importée n'est pas dans la liste), un champ « Préciser… » apparaît. */
   var S=function(lbl,k,opts){
     var cur=s[k]||'', found=false, o='<option value=""></option>';
     for(var i=0;i<opts.length;i++){ var v=opts[i]; if(v===cur)found=true; o+='<option'+(v===cur?' selected':'')+'>'+rxEsc(v)+'</option>'; }
-    if(cur&&!found) o+='<option selected>'+rxEsc(cur)+'</option>';
-    return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><select id="rxf-'+k+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box">'+o+'</select></div>';
+    var custom=cur&&!found;
+    o+='<option value="__autre__"'+(custom?' selected':'')+'>Autre…</option>';
+    return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label>'
+      +'<select id="rxf-'+k+'" onchange="rxAutreToggle(\''+k+'\')" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box">'+o+'</select>'
+      +'<input id="rxf-'+k+'-autre" value="'+(custom?rxEsc(cur):'')+'" placeholder="Préciser…" style="width:100%;margin-top:6px;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box;display:'+(custom?'block':'none')+'"></div>';
   };
-  var OPT_NAT=['Française','Algérienne','Marocaine','Tunisienne','Portugaise','Espagnole','Italienne','Roumaine','Bulgare','Polonaise','Turque','Malienne','Sénégalaise','Ivoirienne','Camerounaise','Congolaise (RDC)','Congolaise','Guinéenne','Mauritanienne','Comorienne','Sri-lankaise','Bangladaise','Pakistanaise','Indienne','Chinoise','Autre'];
+  var OPT_NAT=['Française','Algérienne','Marocaine','Tunisienne','Portugaise','Espagnole','Italienne','Roumaine','Bulgare','Polonaise','Turque','Malienne','Sénégalaise','Ivoirienne','Camerounaise','Congolaise (RDC)','Congolaise','Guinéenne','Mauritanienne','Comorienne','Sri-lankaise','Bangladaise','Pakistanaise','Indienne','Chinoise'];
   var OPT_PIECE=['CNI (carte d\'identité)','Passeport','Titre de séjour','Carte de résident','Carte de séjour pluriannuelle','Récépissé','Visa long séjour (VLS-TS)'];
   var OPT_CONTRAT=['CDI','CDD','Intérim','Apprentissage','Contrat de professionnalisation','Stage','CDI intérimaire'];
   var OPT_STATUT=['Ouvrier','Employé','Technicien','Agent de maîtrise','Cadre'];
   var OPT_TEMPS=['Temps plein','Temps partiel','Forfait jours','Forfait heures'];
+  var OPT_SEXE=['Homme','Femme'];
+  var OPT_EMPLOI=['Conducteur VL (−3,5 t)','Conducteur PL','Conducteur SPL','Conducteur PL 11 à 19 t','Conducteur PL +19 t','Chauffeur-livreur','Conducteur-déménageur','Mécanicien','Agent de quai / manutentionnaire','Magasinier','Exploitant / Affréteur','Assistant(e) d\'exploitation','Assistant(e) administratif(ve)','Comptable','Responsable / Cadre','Dirigeant'];
+  var OPT_MOTIF=['Démission','Licenciement pour motif personnel','Licenciement pour faute','Licenciement économique','Rupture conventionnelle','Fin de CDD','Rupture de période d\'essai','Départ à la retraite','Mise à la retraite','Inaptitude','Abandon de poste','Décès','Mutation','Transfert (L.1224-1)'];
+  var OPT_PERMIS=['B','B + C','B + C + CE','C','C1','CE','C1E','C + CE','D','D + DE','Aucun'];
   var ov=document.getElementById('rx-fiche');
   if(!ov){ ov=document.createElement('div'); ov.id='rx-fiche'; ov.style.cssText='position:fixed;inset:0;z-index:99995;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px'; document.body.appendChild(ov); }
   var h='<div style="max-width:760px;margin:0 auto">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rxCloseFiche()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>';
-  h+=SEC('État civil')+g([F('Nom','nom'),F('Prénom','prenom')])+g([S('Sexe','sexe',['Homme','Femme']),F('Date de naissance','naissance','JJ/MM/AAAA',true)])+S('Nationalité','nationalite',OPT_NAT);
+  h+=SEC('État civil')+g([F('Nom','nom'),F('Prénom','prenom')])+g([S('Sexe','sexe',OPT_SEXE),F('Date de naissance','naissance','JJ/MM/AAAA',true)])+S('Nationalité','nationalite',OPT_NAT);
   h+=SEC('Coordonnées')+g([F('E-mail','email'),F('Téléphone','tel')])+F('Adresse','adresse')+g([F('Code postal','cp'),F('Ville','ville')]);
   h+=SEC('Pièce d\'identité / séjour')+g([S('Type de pièce','pieceType',OPT_PIECE),F('Validité pièce','pieceValid','JJ/MM/AAAA',true)])+F('Validité titre de séjour','sejourValid','JJ/MM/AAAA',true);
-  h+=SEC('Permis & qualifications')+g([F('Catégories permis (B, C, CE…)','permisCats'),F('Validité permis','permisValid','JJ/MM/AAAA',true)])
+  h+=SEC('Permis & qualifications')+g([S('Catégories permis','permisCats',OPT_PERMIS),F('Validité permis','permisValid','JJ/MM/AAAA',true)])
     +g([F('FCO / CQC — validité','fcoValid','JJ/MM/AAAA',true),F('Carte conducteur — validité','carteValid','JJ/MM/AAAA',true)])
     +g([F('FIMO — date','fimo','JJ/MM/AAAA',true),F('ADR — validité','adrValid','JJ/MM/AAAA',true)]);
   h+=SEC('Suivi médical')+g([F('Visite médecin du travail','visitePoste','JJ/MM/AAAA',true),F('Aptitude conduite (préfecture)','visiteConduite','JJ/MM/AAAA',true)]);
-  h+=SEC('Contrat & rémunération')+g([S('Type de contrat','typeContrat',OPT_CONTRAT),S('Statut','statut',OPT_STATUT)])+g([F('Emploi / catégorie','categorie'),F('Coefficient','coeff')])
-    +g([S('Temps de travail','tempsTravail',OPT_TEMPS),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+F('Motif de sortie','motifSortie');
+  h+=SEC('Contrat & rémunération')+g([S('Type de contrat','typeContrat',OPT_CONTRAT),S('Statut','statut',OPT_STATUT)])+g([S('Emploi / catégorie','categorie',OPT_EMPLOI),F('Coefficient','coeff')])
+    +g([S('Temps de travail','tempsTravail',OPT_TEMPS),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+S('Motif de sortie','motifSortie',OPT_MOTIF);
   h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="rxf-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:54px;box-sizing:border-box">'+rxEsc(s.observations||'')+'</textarea></div>';
   h+=SEC('Suivi RH')
     +rxSub('absences',s.absences,['Date','Type','Jours','Motif'])
@@ -6231,8 +6239,11 @@ function rxFiche(id){
   ov.innerHTML=h; ov.style.display='block'; ov.scrollTop=0;
 }
 function rxCloseFiche(){ var ov=document.getElementById('rx-fiche'); if(ov) ov.style.display='none'; RX_CUR=null; }
+function rxAutreToggle(k){ var sel=document.getElementById('rxf-'+k), inp=document.getElementById('rxf-'+k+'-autre'); if(sel&&inp){ var on=sel.value==='__autre__'; inp.style.display=on?'block':'none'; if(on){ try{ inp.focus(); }catch(e){} } } }
+/* Lit un champ en résolvant « Autre… » vers le texte saisi. */
+function rxFieldVal(k){ var e=document.getElementById('rxf-'+k); if(!e) return null; var v=(e.value||'').trim(); if(v==='__autre__'){ var a=document.getElementById('rxf-'+k+'-autre'); v=a?(a.value||'').trim():''; } return v; }
 function rxReadForm(s){
-  RX_TXT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=e.value.trim(); });
+  RX_TXT.forEach(function(k){ var v=rxFieldVal(k); if(v!==null) s[k]=v; });
   RX_DAT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=rxISO(e.value.trim()); });
 }
 function rxSub(key,arr,cols){
@@ -6257,7 +6268,7 @@ var RX_TXT=['nom','prenom','sexe','nationalite','email','tel','adresse','cp','vi
 var RX_DAT=['naissance','pieceValid','sejourValid','permisValid','fcoValid','carteValid','fimo','adrValid','visitePoste','visiteConduite','entree','sortie'];
 function rxSaveFiche(){
   var s=RX_CUR;
-  RX_TXT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=e.value.trim(); });
+  RX_TXT.forEach(function(k){ var v=rxFieldVal(k); if(v!==null) s[k]=v; });
   RX_DAT.forEach(function(k){ var e=document.getElementById('rxf-'+k); if(e) s[k]=rxISO(e.value.trim()); });
   if(!s.nom){ alert('Le nom est obligatoire.'); return; }
   if(!s.id){ s.id=rxUID(); RX.staff.push(s); }
