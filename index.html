@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.33';
+var JX_BUILD = 'v2026-07-23.34';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1828,7 +1828,7 @@ try{
 </div>
 <div id="cdd-remplacement" class="hidden">
 <div class="fg"><label class="fl">Nom du salarié remplacé</label><input id="c-remplace-nom" placeholder="Ex : M. DURAND Paul"/></div>
-<div class="fg"><label class="fl">Qualification / poste du salarié remplacé (obligatoire au contrat — L.1242-12)</label><input id="c-remplace-qualif" placeholder="Ex : Conducteur PL — coeff. 138M"/></div>
+<div class="fg"><label class="fl">Qualification / poste du salarié remplacé (obligatoire au contrat — L.1242-12)</label><input id="c-remplace-qualif" list="dl-poste" placeholder="Ex : Conducteur PL — coeff. 138M"/></div>
 <div class="fg"><label class="fl">Motif de l'absence</label><input id="c-remplace-motif" placeholder="Ex : congé maladie"/></div>
 </div>
 <div class="fg"><label class="fl">Date de début</label><input type="date" id="c-cdd-debut"/></div>
@@ -1856,7 +1856,7 @@ try{
 
 <div class="card">
 <div class="ct">Poste et qualifications</div>
-<div class="fg"><label class="fl">Intitulé du poste</label><input id="c-poste" placeholder="Ex : Conducteur SPL grand routier"/></div>
+<div class="fg"><label class="fl">Intitulé du poste</label><input id="c-poste" list="dl-poste" placeholder="Ex : Conducteur SPL grand routier"/></div>
 <div class="fg"><label class="fl">Coefficient (renseigné automatiquement)</label><input id="c-coeff" readonly style="color:#9a9585;background:rgba(255,255,255,0.04)"/></div>
 <div class="fg"><label class="fl">Véhicule conduit</label>
 <select id="c-vehicule">
@@ -2500,7 +2500,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 <div class="fg"><label class="fl">Sélectionner un salarié enregistré (fiches du Parcours)</label><select id="sal-select-disc" onchange="salPick('disc',this.value)"><option value="">— choisir ou saisir ci-dessous —</option></select></div>
 <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="disc-sal-nom" placeholder="Ex : MARTIN Pierre"/></div>
-<div class="fg"><label class="fl">Poste occupé</label><input id="disc-sal-poste" placeholder="Ex : Conducteur SPL"/></div>
+<div class="fg"><label class="fl">Poste occupé</label><input id="disc-sal-poste" list="dl-poste" placeholder="Ex : Conducteur SPL"/></div>
 <div class="fg"><label class="fl">Date d'entrée dans l'entreprise</label><input type="date" id="disc-sal-entree"/></div>
 <div class="fg"><label class="fl">Coefficient et salaire brut mensuel</label><input id="disc-sal-salaire" placeholder="Ex : coeff. 138 — 2 200 € brut"/></div>
 </div>
@@ -3500,7 +3500,7 @@ Exemple :<br>
   <div class="ct" style="font-size:15px">Fiche salarié — pré-remplit les modèles</div>
   <div class="fg"><label class="fl">Sélectionner un salarié enregistré</label><select id="sal-select-parcours" onchange="salPick('parcours',this.value)"><option value="">— choisir ou créer ci-dessous —</option></select></div>
   <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="pc-nom" placeholder="Ex : DUPONT Jean"></div>
-  <div class="fg"><label class="fl">Poste</label><input id="pc-poste" placeholder="Ex : Conducteur routier PL (SPL)"></div>
+  <div class="fg"><label class="fl">Poste</label><input id="pc-poste" list="dl-poste" placeholder="Ex : Conducteur routier PL (SPL)"></div>
   <div class="fg"><label class="fl">Adresse du salarié</label><input id="pc-adr" placeholder="Ex : 12 rue des Lilas, 95000 Cergy"></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="fg"><label class="fl">Type de contrat</label><select id="pc-type"><option>CDI</option><option>CDD</option></select></div>
@@ -3827,7 +3827,7 @@ Exemple :<br>
       ov.innerHTML='<div style="background:#12283b;border:1px solid rgba(201,168,76,.4);border-radius:14px;padding:18px;max-width:430px;width:100%;max-height:85vh;overflow:auto">'
         +'<div style="font-weight:700;color:#e8c97a;font-size:15px;margin-bottom:10px">➕ Nouvelle fiche salarié</div>'
         +'<div class="fg"><label class="fl">Nom et prénom *</label><input id="qs-nom" placeholder="Ex : DUPONT Jean"></div>'
-        +'<div class="fg"><label class="fl">Poste</label><input id="qs-poste" placeholder="Ex : Conducteur PL"></div>'
+        +'<div class="fg"><label class="fl">Poste</label><input id="qs-poste" list="dl-poste" placeholder="Ex : Conducteur PL"></div>'
         +'<div class="fg"><label class="fl">Adresse</label><input id="qs-adr"></div>'
         +'<div class="fg"><label class="fl">Date d\'embauche</label><input id="qs-emb" type="date"></div>'
         +'<div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="qs-coeff" placeholder="Ex : 138M — Groupe 7"></div>'
@@ -6444,6 +6444,19 @@ function _jxEnsureMenuAtBody(){
 function openMenu(){ jxHealOverlays(); _jxEnsureMenuAtBody(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none'; try{ jxFab(); }catch(e){} }
 try{ _jxEnsureMenuAtBody(); }catch(e){}
+/* Listes de suggestions (datalist) : proposent des choix mais laissent taper
+   librement — sans changer le fonctionnement des formulaires/documents. */
+function jxEnsureDatalists(){
+  try{
+    if(document.getElementById('dl-poste')) return;
+    var postes=['Conducteur VL (−3,5 t)','Conducteur PL','Conducteur SPL','Conducteur PL grand routier','Conducteur SPL grand routier','Conducteur frigorifique','Conducteur ADR (matières dangereuses)','Conducteur-déménageur','Chauffeur-livreur','Coursier','Mécanicien PL','Mécanicien','Agent de quai','Manutentionnaire','Magasinier','Cariste','Exploitant transport','Affréteur','Assistant(e) d\'exploitation','Assistant(e) administratif(ve)','Secrétaire','Comptable','Responsable d\'exploitation','Responsable de parc','Directeur d\'agence','Directeur','Commercial'];
+    var dl=document.createElement('datalist'); dl.id='dl-poste';
+    dl.innerHTML=postes.map(function(p){ return '<option value="'+p.replace(/"/g,'&quot;')+'">'; }).join('');
+    document.body.appendChild(dl);
+  }catch(e){}
+}
+try{ jxEnsureDatalists(); }catch(e){}
+document.addEventListener('DOMContentLoaded', function(){ try{ jxEnsureDatalists(); }catch(e){} });
 try{
   window.addEventListener('pageshow', jxHealOverlays);
   document.addEventListener('visibilitychange', function(){ if(!document.hidden) jxHealOverlays(); });
