@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.43';
+var JX_BUILD = 'v2026-07-23.44';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5157,6 +5157,29 @@ function jxInjectPicker(id){
     else { box=document.createElement('div'); box.id='jxlink-'+id; box.innerHTML=inner; page.insertBefore(box, page.firstChild); }
   }catch(e){}
 }
+/* Bandeau d'alertes affiché DÈS la connexion, sur l'accueil : échéances salariés
+   + véhicules + fin de période d'essai. Un tap ouvre l'Espace RH sur les alertes. */
+function jxHomeAlertes(){
+  try{
+    var el=document.getElementById('home-alertes'); if(!el) return;
+    var authed=false; try{ authed=sessionStorage.getItem('jte_ok')==='1'; }catch(e){}
+    if(!authed || typeof rxAllAlerts!=='function'){ el.style.display='none'; return; }
+    try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){}
+    var al=rxAllAlerts();
+    if(!al || !al.length){ el.innerHTML=''; el.style.display='none'; return; }
+    var overdue=al.filter(function(a){return a.d<0;}).length;
+    var top=al.slice(0,6);
+    var col=overdue?'#e05c5c':'#e0a34c';
+    var h='<div onclick="try{RX_TAB=\'dash\';}catch(e){};rxOpen()" style="cursor:pointer;border:1px solid '+col+';border-radius:14px;background:'+(overdue?'rgba(224,92,92,.12)':'rgba(224,163,76,.12)')+';padding:14px;margin:12px 0">';
+    h+='<div style="font-size:15px;font-weight:800;color:'+(overdue?'#ff9b9b':'#e8c97a')+'">🔔 '+al.length+' échéance(s) à traiter'+(overdue?(' · '+overdue+' en retard'):'')+'</div>';
+    h+='<div style="font-size:12.5px;color:#cdd7e2;margin-top:7px;line-height:1.7">';
+    top.forEach(function(a){ var c=a.d<0?'#ff9b9b':(a.d<=7?'#e8c97a':'#cdd7e2'); h+='• '+_esc(a.nom)+' — '+_esc(a.lbl)+' : <span style="color:'+c+';font-weight:700">'+(a.d<0?('en retard de '+(-a.d)+' j'):('dans '+a.d+' j'))+'</span><br>'; });
+    if(al.length>6) h+='… et '+(al.length-6)+' autre(s)<br>';
+    h+='</div><div style="font-size:12px;color:#9fb0c4;margin-top:8px">👉 Appuyez pour tout voir et traiter</div></div>';
+    el.innerHTML=h; el.style.display='block';
+  }catch(e){}
+}
+function _esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function goPage(id){
   // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
   try{
@@ -5187,6 +5210,7 @@ function goPage(id){
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
+  if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
 }
 function applyRISector(){
@@ -6289,7 +6313,7 @@ function rxFiche(id){
     +g([F('FIMO — date','fimo','JJ/MM/AAAA',true),F('ADR — validité','adrValid','JJ/MM/AAAA',true)]);
   h+=SEC('Suivi médical')+g([F('Visite médecin du travail','visitePoste','JJ/MM/AAAA',true),F('Aptitude conduite (préfecture)','visiteConduite','JJ/MM/AAAA',true)]);
   h+=SEC('Contrat & rémunération')+g([S('Type de contrat','typeContrat',OPT_CONTRAT),S('Statut','statut',OPT_STATUT)])+g([S('Emploi / catégorie','categorie',OPT_EMPLOI),F('Coefficient','coeff')])
-    +g([S('Temps de travail','tempsTravail',OPT_TEMPS),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Date de sortie','sortie','JJ/MM/AAAA',true)])+S('Motif de sortie','motifSortie',OPT_MOTIF);
+    +g([S('Temps de travail','tempsTravail',OPT_TEMPS),F('Salaire mensuel brut (€)','salaire')])+g([F('Date d\'entrée','entree','JJ/MM/AAAA',true),F('Fin de période d\'essai','finEssai','JJ/MM/AAAA',true)])+g([F('Date de sortie','sortie','JJ/MM/AAAA',true),S('Motif de sortie','motifSortie',OPT_MOTIF)]);
   h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="rxf-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:54px;box-sizing:border-box">'+rxEsc(s.observations||'')+'</textarea></div>';
   h+=SEC('Suivi RH')
     +rxSub('absences',s.absences,['Date','Type','Jours','Motif'])
@@ -6328,7 +6352,7 @@ function rxSubAdd(key,n){
 }
 function rxSubDel(key,i){ if(!RX_CUR||!RX_CUR[key]) return; RX_CUR[key].splice(i,1); rxReadForm(RX_CUR); rxFiche(RX_CUR.id||''); }
 var RX_TXT=['nom','prenom','sexe','nationalite','email','tel','adresse','cp','ville','pieceType','permisCats','typeContrat','statut','categorie','coeff','tempsTravail','salaire','motifSortie','observations'];
-var RX_DAT=['naissance','pieceValid','sejourValid','permisValid','fcoValid','carteValid','fimo','adrValid','visitePoste','visiteConduite','entree','sortie'];
+var RX_DAT=['naissance','pieceValid','sejourValid','permisValid','fcoValid','carteValid','fimo','adrValid','visitePoste','visiteConduite','entree','finEssai','sortie'];
 function rxSaveFiche(){
   var s=RX_CUR;
   RX_TXT.forEach(function(k){ var v=rxFieldVal(k); if(v!==null) s[k]=v; });
@@ -6343,7 +6367,11 @@ function rxDelFiche(id){ if(!confirm('Supprimer cette fiche ?')) return; RX.staf
 function rxAllAlerts(){
   var days=rxAlertDays(), out=[];
   var champs=[['permisValid','Permis'],['fcoValid','FCO/CQC'],['fimo','FIMO'],['carteValid','Carte conducteur'],['adrValid','ADR'],['visitePoste','Visite médicale'],['visiteConduite','Aptitude conduite'],['pieceValid','Pièce d\'identité'],['sejourValid','Titre de séjour']];
-  RX.staff.filter(function(s){return !s.sortie;}).forEach(function(s){ champs.forEach(function(cf){ var d=rxDaysLeft(s[cf[0]]); if(d!==null && d<=days) out.push({kind:'staff',id:s.id,nom:(s.nom||'')+' '+(s.prenom||''),lbl:cf[1],iso:s[cf[0]],d:d}); }); });
+  RX.staff.filter(function(s){return !s.sortie;}).forEach(function(s){
+    champs.forEach(function(cf){ var d=rxDaysLeft(s[cf[0]]); if(d!==null && d<=days) out.push({kind:'staff',id:s.id,nom:(s.nom||'')+' '+(s.prenom||''),lbl:cf[1],iso:s[cf[0]],d:d}); });
+    /* Fin de période d'essai : à décider AVANT le terme → alerte 7 jours avant. */
+    var de=rxDaysLeft(s.finEssai); if(de!==null && de<=7) out.push({kind:'staff',id:s.id,nom:(s.nom||'')+' '+(s.prenom||''),lbl:'⏳ Fin de période d\'essai',iso:s.finEssai,d:de});
+  });
   var vch=[['ct','Contrôle technique'],['assurance','Assurance'],['tachy','Chronotachygraphe'],['adr','ADR véhicule'],['extincteur','Extincteur']];
   (RX.parc||[]).forEach(function(v){ vch.forEach(function(cf){ var d=rxDaysLeft(v[cf[0]]); if(d!==null && d<=days) out.push({kind:'veh',id:v.id,nom:'🚚 '+(v.immat||v.marque||'Véhicule'),lbl:cf[1],iso:v[cf[0]],d:d}); }); });
   out.sort(function(a,b){return a.d-b.d;});
@@ -6541,8 +6569,8 @@ async function rxAutoCloud(){
   }catch(e){}
 }
 function rxLogout(){ try{ localStorage.removeItem(RX_SESS); }catch(e){} rxRender(); }
-function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, sexe:s.sexe||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, suivi:{absences:s.absences||[],retards:s.retards||[],sanctions:s.sanctions||[],avances:s.avances||[]}, updated_at:new Date().toISOString() }; }
-function rxFromRow(r){ var su=r.suivi||{}; return { absences:su.absences||[], retards:su.retards||[], sanctions:su.sanctions||[], avances:su.avances||[], id:r.id, nom:r.nom||'', prenom:r.prenom||'', sexe:r.sexe||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
+function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, sexe:s.sexe||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, suivi:{absences:s.absences||[],retards:s.retards||[],sanctions:s.sanctions||[],avances:s.avances||[],finEssai:s.finEssai||''}, updated_at:new Date().toISOString() }; }
+function rxFromRow(r){ var su=r.suivi||{}; return { absences:su.absences||[], retards:su.retards||[], sanctions:su.sanctions||[], avances:su.avances||[], finEssai:su.finEssai||'', id:r.id, nom:r.nom||'', prenom:r.prenom||'', sexe:r.sexe||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
 function rxCloudPushOne(s){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify([rxRow(s)])}).catch(function(){}); }
 function rxCloudDelOne(id){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:rxHeaders(true)}).catch(function(){}); }
 function rxCloudPushAll(loud){ if(!rxSess()){ if(loud) alert('Connectez-vous d\'abord.'); return; }
