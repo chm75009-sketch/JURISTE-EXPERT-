@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.37';
+var JX_BUILD = 'v2026-07-23.38';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5123,6 +5123,40 @@ function calcCalendrierCSE(dateScrutinISO){
 function addMois(ds,n){if(!ds)return null;const d=new Date(ds);d.setMonth(d.getMonth()+n);return d;}
 function joursRestants(ds){if(!ds)return null;return Math.round((new Date(ds)-new Date())/(1000*60*60*24));}
 
+/* ═══ Liaison modules ↔ fiche salarié (Espace RH) ═══
+   Un sélecteur « Pré-remplir depuis la fiche salarié » est injecté en tête des
+   modules concernés : on choisit un salarié du registre → ses champs se
+   remplissent tout seuls (plus de ressaisie), et son e-mail/téléphone s'affichent. */
+function jxSN(s){ return ((s.nom||'')+' '+(s.prenom||'')).trim(); }
+function jxSalStr(s){ var a=[]; if(s.coeff)a.push('coeff. '+s.coeff); if(s.salaire)a.push(s.salaire+' € brut'); return a.join(' — '); }
+function jxEscAttr(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function jxSetVal(fid,val){ var e=document.getElementById(fid); if(!e) return; e.value=(val==null?'':val); try{ e.dispatchEvent(new Event('input',{bubbles:true})); e.dispatchEvent(new Event('change',{bubbles:true})); }catch(x){} }
+function jxStaffList(){ try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){} return (typeof RX!=='undefined'&&RX.staff)?RX.staff:[]; }
+var JX_LINK={
+  disciplinaire:{ anchor:'#disc-sal-nom', fill:function(s){ jxSetVal('disc-sal-nom',jxSN(s)); jxSetVal('disc-sal-poste',s.categorie||''); jxSetVal('disc-sal-entree',s.entree||''); jxSetVal('disc-sal-salaire',jxSalStr(s)); } },
+  contrat:{ anchor:'#c-nom', fill:function(s){ jxSetVal('c-nom',jxSN(s)); jxSetVal('c-naissance',s.naissance||''); jxSetVal('c-nationalite',s.nationalite||''); jxSetVal('c-poste',s.categorie||''); } }
+};
+function jxLinkPick(id,idx){ var cfg=JX_LINK[id]; if(!cfg) return; var st=jxStaffList(); var s=st[parseInt(idx,10)]; var info=document.getElementById('jxlinkinfo-'+id);
+  if(!s){ if(info) info.innerHTML=''; return; }
+  try{ cfg.fill(s); }catch(e){}
+  if(info){ var b=[]; if(s.email) b.push('✉️ <a href="mailto:'+encodeURIComponent(s.email)+'" style="color:#e8c97a">'+jxEscAttr(s.email)+'</a>'); if(s.tel) b.push('📞 '+jxEscAttr(s.tel)); info.innerHTML=b.length?('Contact : '+b.join(' · ')):''; }
+}
+function jxInjectPicker(id){
+  try{
+    var cfg=JX_LINK[id]; if(!cfg) return;
+    var anchor=document.querySelector(cfg.anchor); if(!anchor) return;
+    var host=anchor.closest('.fg')||anchor;
+    var st=jxStaffList();
+    var opts='<option value="">— Choisir un salarié du registre (Espace RH) —</option>'+st.map(function(s,i){ return '<option value="'+i+'">'+jxEscAttr(jxSN(s)||'(sans nom)')+'</option>'; }).join('');
+    var inner='<label class="fl">👥 Pré-remplir depuis la fiche salarié</label>'
+      +'<select id="jxlinksel-'+id+'" onchange="jxLinkPick(\''+id+'\',this.value)" style="width:100%;padding:10px 12px;border:1px solid rgba(201,168,76,.5);border-radius:9px;background:rgba(201,168,76,.08);color:#e8e4d8;font-family:inherit;font-size:14px">'+opts+'</select>'
+      +(st.length?'':'<div style="font-size:11px;color:#9a9585;margin-top:4px">Aucun salarié dans le registre — ajoutez-les dans l\'Espace RH.</div>')
+      +'<div id="jxlinkinfo-'+id+'" style="font-size:12px;color:#9fb0c4;margin-top:5px"></div>';
+    var box=document.getElementById('jxlink-'+id);
+    if(box){ box.innerHTML=inner; }
+    else { box=document.createElement('div'); box.id='jxlink-'+id; box.className='fg'; box.innerHTML=inner; host.parentNode.insertBefore(box, host); }
+  }catch(e){}
+}
 function goPage(id){
   // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
   try{
@@ -5153,6 +5187,7 @@ function goPage(id){
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
+  try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
 }
 function applyRISector(){
   try{
