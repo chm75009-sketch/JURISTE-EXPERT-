@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.44';
+var JX_BUILD = 'v2026-07-23.45';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6848,6 +6848,9 @@ function sectorGuard(pageId){
 }
 function applyClientSector(retry){
   try{
+    /* Dès la connexion : on remplit la fiche entreprise (nom + coordonnées) depuis
+       la fiche saisie à la création du code → le nom du client s'affiche partout. */
+    if(!retry){ try{ if(typeof rxLoad==='function') rxLoad(); if(typeof rxPrefillEntFromRegistry==='function') rxPrefillEntFromRegistry(); }catch(e){} }
     var admin = (typeof sessionStorage!=='undefined' && sessionStorage.getItem('jte_admin')==='1');
     var codeSec = (typeof sessionStorage!=='undefined') ? (sessionStorage.getItem('jte_sector')||'') : '';
     // Secteur effectif : imposé par le code/choix (client ou admin) ; sinon fiche entreprise (client)
