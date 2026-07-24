@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.48';
+var JX_BUILD = 'v2026-07-23.49';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6764,7 +6764,7 @@ function jxHealOverlays(){
    puisse l'écraser. */
 function _jxEnsureMenuAtBody(){
   try{
-    ['menu-overlay','menu-panel'].forEach(function(id){
+    ['menu-overlay','menu-panel','doc-overlay'].forEach(function(id){
       var el=document.getElementById(id);
       if(el && el.parentElement!==document.body){ document.body.appendChild(el); }
     });
