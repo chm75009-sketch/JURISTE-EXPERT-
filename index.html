@@ -647,7 +647,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.34';
+var JX_BUILD = 'v2026-07-23.35';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5996,7 +5996,7 @@ function closeRH(){ var ov=document.getElementById('rh-ov'); if(ov) ov.style.dis
    • Synchronisation en ligne Supabase (login par code) — REST direct, sans SDK
    • Stockage local simple (localStorage) ; la protection en ligne = le compte
    ══════════════════════════════════════════════════════════════════ */
-var RX = { staff: [], ent: {} };
+var RX = { staff: [], ent: {}, parc: [], settings: {} };
 var RX_LS = 'rx_data_v1';
 var RX_SESS = 'rx_sess_v1';
 var RX_TAB = 'reg';
@@ -6022,11 +6022,12 @@ function rxKey(){ return RX_LS+'::'+rxAccountId(); }
 function rxLoad(){
   try{
     var d=JSON.parse(localStorage.getItem(rxKey())||'null');
-    if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; }
-    else { RX.staff=[]; RX.ent={}; }   // compte vierge : on n'hérite JAMAIS d'un autre compte
-  }catch(e){ RX.staff=[]; RX.ent={}; }
+    if(d){ RX.staff=d.staff||[]; RX.ent=d.ent||{}; RX.parc=d.parc||[]; RX.settings=d.settings||{}; }
+    else { RX.staff=[]; RX.ent={}; RX.parc=[]; RX.settings={}; }   // compte vierge : on n'hérite JAMAIS d'un autre compte
+  }catch(e){ RX.staff=[]; RX.ent={}; RX.parc=[]; RX.settings={}; }
 }
-function rxSaveLocal(){ try{ localStorage.setItem(rxKey(), JSON.stringify({staff:RX.staff, ent:RX.ent})); }catch(e){} }
+function rxSaveLocal(){ try{ localStorage.setItem(rxKey(), JSON.stringify({staff:RX.staff, ent:RX.ent, parc:RX.parc, settings:RX.settings})); }catch(e){} }
+function rxAlertDays(){ var d=parseInt((RX.settings||{}).alertDays,10); return (d&&d>0)?d:30; }
 /* Ancien registre unique (avant la séparation par compte) : proposé une fois au
    rattachement, pour ne pas perdre les 83 salariés déjà saisis sur l'appareil. */
 function rxLegacyData(){ try{ return JSON.parse(localStorage.getItem(RX_LS)||'null'); }catch(e){ return null; } }
@@ -6122,12 +6123,14 @@ function rxRender(){
       +'<button onclick="rxIgnoreLegacy()" style="padding:9px 14px;border:1px solid #6b7a8d;border-radius:8px;background:transparent;color:#9fb0c4;cursor:pointer;font-family:inherit">Masquer</button>'
       +'</div></div>';
   }
+  var nAl=rxAlertCount();
   h+='<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">'
-    +rxTabBtn('reg','📖 Registre')+rxTabBtn('dash','🔔 Alertes')+rxTabBtn('ent','🏢 Entreprise')+rxTabBtn('cloud','☁️ En ligne')
+    +rxTabBtn('reg','📖 Registre')+rxTabBtn('parc','🚚 Parc')+rxTabBtn('dash','🔔 Alertes'+(nAl>0?' <span style="background:#e05c5c;color:#fff;border-radius:9px;padding:0 6px;font-size:11px;font-weight:800">'+nAl+'</span>':''))+rxTabBtn('ent','🏢 Entreprise')+rxTabBtn('cloud','☁️ En ligne')
     +'</div><div id="rx-c"></div></div>';
   ov.innerHTML=h;
   var c=document.getElementById('rx-c');
   if(RX_TAB==='reg') c.innerHTML=rxRegistre();
+  else if(RX_TAB==='parc') c.innerHTML=rxParc();
   else if(RX_TAB==='dash') c.innerHTML=rxDash();
   else if(RX_TAB==='ent') c.innerHTML=rxEnt();
   else if(RX_TAB==='cloud') c.innerHTML=rxCloud();
@@ -6276,19 +6279,91 @@ function rxSaveFiche(){
 }
 function rxDelFiche(id){ if(!confirm('Supprimer cette fiche ?')) return; RX.staff=RX.staff.filter(function(s){return s.id!==id;}); rxSaveLocal(); try{ rxCloudDelOne(id); }catch(e){} rxCloseFiche(); rxRender(); }
 
-/* ══════════ ALERTES ══════════ */
-function rxDash(){
+/* ══════════ ALERTES (salariés + véhicules, seuil réglable) ══════════ */
+function rxAllAlerts(){
+  var days=rxAlertDays(), out=[];
   var champs=[['permisValid','Permis'],['fcoValid','FCO/CQC'],['fimo','FIMO'],['carteValid','Carte conducteur'],['adrValid','ADR'],['visitePoste','Visite médicale'],['visiteConduite','Aptitude conduite'],['pieceValid','Pièce d\'identité'],['sejourValid','Titre de séjour']];
-  var al=[];
-  RX.staff.filter(function(s){return !s.sortie;}).forEach(function(s){ champs.forEach(function(cf){ var d=rxDaysLeft(s[cf[0]]); if(d!==null && d<=60) al.push({id:s.id,nom:(s.nom||'')+' '+(s.prenom||''),lbl:cf[1],iso:s[cf[0]],d:d}); }); });
-  al.sort(function(a,b){return a.d-b.d;});
-  if(!al.length) return '<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.08);border-radius:10px;padding:14px;font-size:13px;color:#bfe6d4">Aucune échéance sous 60 jours. ✔</div>';
-  var h='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#e8e4d8">';
-  al.forEach(function(a){ var col=a.d<0?'#e05c5c':a.d<=15?'#e0a34c':'#e8c97a';
-    h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rxFiche(\''+a.id+'\')"><td style="padding:7px;color:#fff">'+rxEsc(a.nom)+'</td><td style="padding:7px">'+a.lbl+'</td><td style="padding:7px;color:#9fb0c4">'+rxFR(a.iso)+'</td><td style="padding:7px;color:'+col+';font-weight:700">'+(a.d<0?('retard '+(-a.d)+'j'):(a.d+'j'))+'</td></tr>'; });
-  h+='</table></div>';
+  RX.staff.filter(function(s){return !s.sortie;}).forEach(function(s){ champs.forEach(function(cf){ var d=rxDaysLeft(s[cf[0]]); if(d!==null && d<=days) out.push({kind:'staff',id:s.id,nom:(s.nom||'')+' '+(s.prenom||''),lbl:cf[1],iso:s[cf[0]],d:d}); }); });
+  var vch=[['ct','Contrôle technique'],['assurance','Assurance'],['tachy','Chronotachygraphe'],['adr','ADR véhicule'],['extincteur','Extincteur']];
+  (RX.parc||[]).forEach(function(v){ vch.forEach(function(cf){ var d=rxDaysLeft(v[cf[0]]); if(d!==null && d<=days) out.push({kind:'veh',id:v.id,nom:'🚚 '+(v.immat||v.marque||'Véhicule'),lbl:cf[1],iso:v[cf[0]],d:d}); }); });
+  out.sort(function(a,b){return a.d-b.d;});
+  return out;
+}
+function rxAlertCount(){ try{ return rxAllAlerts().length; }catch(e){ return 0; } }
+function rxSetAlertDays(v){ RX.settings=RX.settings||{}; RX.settings.alertDays=parseInt(v,10)||30; rxSaveLocal(); rxRender(); rxTab('dash'); }
+function rxDash(){
+  var days=rxAlertDays();
+  var opts=[7,15,30,45,60,90].map(function(n){return '<option value="'+n+'"'+(n===days?' selected':'')+'>'+n+' jours</option>';}).join('');
+  var h='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;font-size:13px;color:#cdd7e2">'
+    +'🔔 <span>Me prévenir</span><select onchange="rxSetAlertDays(this.value)" style="padding:7px 9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'+opts+'</select><span>avant l\'échéance</span></div>';
+  var al=rxAllAlerts();
+  if(!al.length) return h+'<div style="border:1px solid rgba(70,184,133,.4);background:rgba(70,184,133,.08);border-radius:10px;padding:14px;font-size:13px;color:#bfe6d4">Aucune échéance sous '+days+' jours. ✔</div>';
+  var seuilOrange=Math.max(7,Math.round(days/3));
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#e8e4d8">';
+  al.forEach(function(a){ var col=a.d<0?'#e05c5c':(a.d<=seuilOrange?'#e0a34c':'#e8c97a');
+    var click=(a.kind==='veh')?('rxVehicule(\''+a.id+'\')'):('rxFiche(\''+a.id+'\')');
+    h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="'+click+'"><td style="padding:7px;color:#fff">'+rxEsc(a.nom)+'</td><td style="padding:7px">'+rxEsc(a.lbl)+'</td><td style="padding:7px;color:#9fb0c4">'+rxFR(a.iso)+'</td><td style="padding:7px;color:'+col+';font-weight:700">'+(a.d<0?('retard '+(-a.d)+'j'):(a.d+'j'))+'</td></tr>'; });
+  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">🔴 dépassé · 🟠 très proche · 🟡 sous le seuil. Réglage enregistré sur votre compte.</div>';
   return h;
 }
+
+/* ══════════ PARC VÉHICULES ══════════ */
+function rxParc(){
+  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
+    +'<button onclick="rxVehicule(\'\')" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter un véhicule</button></div>';
+  if(!RX.parc||!RX.parc.length) return h+'<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun véhicule.<br>Ajoutez votre premier véhicule (tracteur, semi-remorque, porteur, VUL…).</div>';
+  var days=rxAlertDays();
+  var cc=function(d){ return d===null?'#9fb0c4':(d<0?'#e05c5c':(d<=days?'#e0a34c':'#9fb0c4')); };
+  var rows=RX.parc.slice().sort(function(a,b){return (a.immat||'').localeCompare(b.immat||'');});
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;color:#e8e4d8"><tr style="color:#9fb0c4;text-align:left"><th style="padding:7px">Immatriculation</th><th style="padding:7px">Type</th><th style="padding:7px">Contrôle tech.</th><th style="padding:7px">Assurance</th></tr>';
+  rows.forEach(function(v){ var ct=rxDaysLeft(v.ct), as=rxDaysLeft(v.assurance);
+    h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rxVehicule(\''+v.id+'\')">'
+      +'<td style="padding:7px;color:#fff;font-weight:600">'+rxEsc(v.immat||'—')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4">'+rxEsc(v.type||'')+'</td>'
+      +'<td style="padding:7px;color:'+cc(ct)+'">'+(v.ct?rxFR(v.ct):'—')+'</td>'
+      +'<td style="padding:7px;color:'+cc(as)+'">'+(v.assurance?rxFR(v.assurance):'—')+'</td></tr>';
+  });
+  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">'+RX.parc.length+' véhicule(s) · les échéances proches remontent dans l\'onglet 🔔 Alertes.</div>';
+  return h;
+}
+var RXV_CUR=null;
+function rxVehicule(id){
+  if(id){ RXV_CUR=RX.parc.filter(function(v){return v.id===id;})[0]; } else { RXV_CUR={id:''}; }
+  if(!RXV_CUR) return; var v=RXV_CUR;
+  var F=function(lbl,k,ph,date){ var val=date?rxFR(v[k]):(v[k]||''); return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><input id="rxv-'+k+'" value="'+rxEsc(val)+'" placeholder="'+(ph||'')+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box"></div>'; };
+  var S=function(lbl,k,opts){ var cur=v[k]||'',found=false,o='<option value=""></option>'; for(var i=0;i<opts.length;i++){var x=opts[i]; if(x===cur)found=true; o+='<option'+(x===cur?' selected':'')+'>'+rxEsc(x)+'</option>';} var custom=cur&&!found; o+='<option value="__autre__"'+(custom?' selected':'')+'>Autre…</option>'; return '<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">'+lbl+'</label><select id="rxv-'+k+'" onchange="rxvAutre(\''+k+'\')" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box">'+o+'</select><input id="rxv-'+k+'-autre" value="'+(custom?rxEsc(cur):'')+'" placeholder="Préciser…" style="width:100%;margin-top:6px;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;box-sizing:border-box;display:'+(custom?'block':'none')+'"></div>'; };
+  var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
+  var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
+  var TYPE=['Tracteur routier','Semi-remorque','Porteur PL','Porteur PL + remorque','VUL (−3,5 t)','Fourgon','Camion frigorifique','Benne','Citerne','Plateau / bâché','Remorque','Véhicule léger (VL)'];
+  var CARB=['Gazole','Gazole B100','GNV / bioGNV','Électrique','Hydrogène','Essence','Hybride'];
+  var CRIT=['Crit\'Air E (0)','Crit\'Air 1','Crit\'Air 2','Crit\'Air 3','Crit\'Air 4','Crit\'Air 5','Non classé'];
+  var ov=document.getElementById('rx-veh');
+  if(!ov){ ov=document.createElement('div'); ov.id='rx-veh'; ov.style.cssText='position:fixed;inset:0;z-index:99996;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px'; document.body.appendChild(ov); }
+  var h='<div style="max-width:760px;margin:0 auto">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'🚚 Fiche véhicule':'＋ Nouveau véhicule')+'</div><button onclick="rxCloseVeh()" style="padding:8px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">✕ Fermer</button></div>';
+  h+=SEC('Identification')+g([F('Immatriculation','immat','AB-123-CD'),S('Type','type',TYPE)])+g([F('Marque / modèle','marque'),F('Mise en circulation','miseCirc','JJ/MM/AAAA',true)])+g([F('PTAC (kg)','ptac'),S('Carburant','carburant',CARB)])+S('Vignette Crit\'Air','critair',CRIT);
+  h+=SEC('Contrôle technique')+F('Validité du contrôle technique','ct','JJ/MM/AAAA',true);
+  h+=SEC('Carte grise')+g([F('N° / formule carte grise','cgNum'),F('Titulaire','cgTitulaire')]);
+  h+=SEC('Assurance')+g([F('Compagnie','assureur'),F('N° de police','police')])+F('Échéance de l\'assurance','assurance','JJ/MM/AAAA',true);
+  h+=SEC('Spécifique transport')+g([F('Chronotachygraphe — étalonnage','tachy','JJ/MM/AAAA',true),F('ADR véhicule — validité','adr','JJ/MM/AAAA',true)])+g([F('Extincteur — validité','extincteur','JJ/MM/AAAA',true),F('Conducteur affecté','conducteur')])+F('Kilométrage','km');
+  h+='<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Observations</label><textarea id="rxv-observations" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px;min-height:54px;box-sizing:border-box">'+rxEsc(v.observations||'')+'</textarea></div>';
+  h+='<div style="display:flex;gap:10px;margin-top:16px"><button onclick="rxSaveVeh()" style="flex:1;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'+(id?'<button onclick="rxDelVeh(\''+id+'\')" style="padding:13px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️</button>':'')+'</div></div>';
+  ov.innerHTML=h; ov.style.display='block'; ov.scrollTop=0;
+}
+function rxCloseVeh(){ var ov=document.getElementById('rx-veh'); if(ov) ov.style.display='none'; RXV_CUR=null; }
+function rxvAutre(k){ var sel=document.getElementById('rxv-'+k), inp=document.getElementById('rxv-'+k+'-autre'); if(sel&&inp){ var on=sel.value==='__autre__'; inp.style.display=on?'block':'none'; if(on){ try{ inp.focus(); }catch(e){} } } }
+var RXV_TXT=['immat','type','marque','ptac','carburant','critair','cgNum','cgTitulaire','assureur','police','conducteur','km','observations'];
+var RXV_DAT=['miseCirc','ct','assurance','tachy','adr','extincteur'];
+function rxVehVal(k){ var e=document.getElementById('rxv-'+k); if(!e) return null; var val=(e.value||'').trim(); if(val==='__autre__'){ var a=document.getElementById('rxv-'+k+'-autre'); val=a?(a.value||'').trim():''; } return val; }
+function rxSaveVeh(){
+  var v=RXV_CUR; if(!v) return;
+  RXV_TXT.forEach(function(k){ var val=rxVehVal(k); if(val!==null) v[k]=val; });
+  RXV_DAT.forEach(function(k){ var e=document.getElementById('rxv-'+k); if(e) v[k]=rxISO(e.value.trim()); });
+  if(!v.immat){ alert('L\'immatriculation est obligatoire.'); return; }
+  if(!v.id){ v.id=rxUID(); RX.parc.push(v); }
+  rxSaveLocal(); rxCloseVeh(); rxRender(); rxTab('parc');
+}
+function rxDelVeh(id){ if(!confirm('Supprimer ce véhicule ?')) return; RX.parc=RX.parc.filter(function(v){return v.id!==id;}); rxSaveLocal(); rxCloseVeh(); rxRender(); rxTab('parc'); }
 
 /* ══════════ IMPORT CSV ══════════ */
 function rxSplit(line){ var sep=(line.indexOf(';')>=0 && (line.indexOf(',')<0||line.split(';').length>=line.split(',').length))?';':','; var o=[],c='',q=false; for(var i=0;i<line.length;i++){var ch=line[i]; if(ch==='"'){ if(q&&line[i+1]==='"'){c+='"';i++;} else q=!q; } else if(ch===sep&&!q){o.push(c);c='';} else c+=ch;} o.push(c); return o.map(function(x){return x.trim();}); }
@@ -6418,7 +6493,7 @@ function rxPull(silent){ if(!rxSess()) return;
       touche JAMAIS à un calque réellement utilisé (il contient toujours du contenu). ══ */
 function jxHealOverlays(){
   try{
-    var ids=['rx-ov','rx-fiche','cg-edit-ov','rh-ov','rh-fiche-ov'];
+    var ids=['rx-ov','rx-fiche','rx-veh','cg-edit-ov','rh-ov','rh-fiche-ov'];
     var healed=false;
     for(var i=0;i<ids.length;i++){
       var el=document.getElementById(ids[i]); if(!el) continue;
@@ -6478,7 +6553,7 @@ try{
      • ← Retour (haut-gauche) : ferme le module ouvert, sinon revient à l'accueil */
 function _jxAuthed(){ try{ return sessionStorage.getItem('jte_ok')==='1'; }catch(e){ return false; } }
 function _jxVisible(id){ var e=document.getElementById(id); return e && getComputedStyle(e).display!=='none'; }
-var _JX_MODULES=['cg-edit-ov','rx-fiche','rh-fiche-ov','rx-ov','rh-ov'];
+var _JX_MODULES=['cg-edit-ov','rx-veh','rx-fiche','rh-fiche-ov','rx-ov','rh-ov'];
 function _jxModuleOpen(){ for(var i=0;i<_JX_MODULES.length;i++){ if(_jxVisible(_JX_MODULES[i])) return true; } return false; }
 /* Action « retour » : cascade robuste, autonome (ne dépend d'aucune autre fonction) */
 function _jxBack(){
