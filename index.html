@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.50';
+var JX_BUILD = 'v2026-07-23.51';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -3353,6 +3353,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('tableau-bord');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Tableau de bord conducteurs</div></div></div>
   <div class="mi" onclick="goPage('parc');closeMenu()"><span style="font-size:18px">🚛</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parc véhicules &amp; contraventions</div></div></div>
   <div class="mi" onclick="rxOpen();closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Espace RH — Personnel <span style="color:#c9a84c">🔒</span></div></div></div>
+  <div class="mi" id="menu-cm-admin" style="display:none" onclick="cmAdminOpen();closeMenu()"><span style="font-size:18px">📋</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Demandes Contrôle-minute <span style="color:#c9a84c">admin</span></div></div></div>
   <div class="mi" onclick="window.location.href='maquette-accueil.html'"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Aperçu : nouvelle page d'accueil</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Configuration</div>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
@@ -6690,6 +6691,96 @@ async function rxAutoCloud(){
   }catch(e){}
 }
 function rxLogout(){ try{ localStorage.removeItem(RX_SESS); }catch(e){} rxRender(); }
+
+/* ═══════════════════════════════════════════════════════════════
+   ESPACE ADMINISTRATEUR — Demandes du Contrôle-minute (Supabase)
+   Les tests remplis par les prospects (table cm_leads) apparaissent ici,
+   sur tous les appareils. Réservé au compte administrateur.
+   ═══════════════════════════════════════════════════════════════ */
+var CM_ADMIN_CODE='mch-cm-admin';            // compte admin dédié (mot de passe dérivé)
+var CM_ADMIN_SESS='cm_admin_sess';
+function cmAdminSess(){ try{ return JSON.parse(localStorage.getItem(CM_ADMIN_SESS)||'null'); }catch(e){ return null; } }
+function cmAdminSetSess(d){ try{ localStorage.setItem(CM_ADMIN_SESS, JSON.stringify({token:d.access_token,uid:(d.user&&d.user.id)||''})); }catch(e){} }
+function cmAdminHeaders(){ var s=cmAdminSess(); return { 'apikey':RX_ANON, 'Authorization':'Bearer '+((s&&s.token)?s.token:RX_ANON) }; }
+async function cmAdminConnect(){
+  var email=rxEmail(CM_ADMIN_CODE), pass=await rxDerivePass(CM_ADMIN_CODE);
+  var body=JSON.stringify({email:email,password:pass});
+  try{
+    var r=await fetch(RX_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:body});
+    var d=await r.json();
+    if(d&&d.access_token){ cmAdminSetSess(d); return true; }
+    var r2=await fetch(RX_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:body});
+    var d2=await r2.json();
+    if(d2&&d2.access_token){ cmAdminSetSess(d2); return true; }
+  }catch(e){}
+  return false;
+}
+function cmIsAdmin(){ try{ return sessionStorage.getItem('jte_admin')==='1'; }catch(e){ return false; } }
+function cmAdminOpen(){
+  if(!cmIsAdmin()){ alert('Espace réservé à l\'administrateur.'); return; }
+  var ov=document.getElementById('cm-admin-ov');
+  if(!ov){ ov=document.createElement('div'); ov.id='cm-admin-ov';
+    ov.style.cssText='position:fixed;inset:0;z-index:99993;background:#0b1420;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top,0px) + 60px) 14px 18px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+    document.body.appendChild(ov);
+  }
+  ov.style.display='block'; try{ document.body.style.overflow='hidden'; }catch(e){}
+  try{ jxFab(); }catch(e){}
+  cmAdminLoad();
+}
+function cmAdminClose(){ var ov=document.getElementById('cm-admin-ov'); if(ov) ov.style.display='none'; try{ document.body.style.overflow=''; }catch(e){} }
+function cmAdminRender(inner){
+  var ov=document.getElementById('cm-admin-ov'); if(!ov) return;
+  ov.innerHTML='<div style="max-width:900px;margin:0 auto">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">'
+      +'<button onclick="cmAdminClose()" style="padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:600;font-size:14px;cursor:pointer">← Fermer</button>'
+      +'<button onclick="cmAdminLoad()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">🔄 Actualiser</button>'
+    +'</div>'
+    +'<h2 style="color:#fff;font-size:19px;margin:2px 0 10px">📋 Demandes Contrôle-minute</h2>'
+    +inner+'</div>';
+}
+var CM_ADMIN_ROWS=[];
+async function cmAdminLoad(){
+  cmAdminRender('<div style="color:#9fb0c4">⏳ Chargement des demandes…</div>');
+  var ok=await cmAdminConnect();
+  if(!ok){ cmAdminRender('<div style="border:1px solid rgba(224,92,92,.5);background:rgba(224,92,92,.1);border-radius:10px;padding:14px;color:#f0b7b2">Connexion administrateur impossible (réseau, ou table <b>cm_leads</b> pas encore créée dans Supabase).</div>'); return; }
+  try{
+    var r=await fetch(RX_URL+'/rest/v1/cm_leads?select=*&order=created_at.desc',{headers:cmAdminHeaders()});
+    var d=await r.json();
+    if(!Array.isArray(d)){ cmAdminRender('<div style="color:#f0b7b2">Erreur : '+rxEsc((d&&(d.message||d.hint||d.code))||'réponse inattendue')+'</div>'); return; }
+    CM_ADMIN_ROWS=d;
+    if(!d.length){ cmAdminRender('<div style="color:#9fb0c4">Aucune demande pour le moment. Les tests remplis par vos prospects apparaîtront ici automatiquement.</div>'); return; }
+    var h='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:10px">'+d.length+' demande(s) reçue(s)</div>';
+    d.forEach(function(x,i){
+      var col=(x.score>=80?'#3fae74':(x.score>=50?'#e0a83a':'#e05c5c'));
+      h+='<div style="border:1px solid #26405e;border-radius:12px;padding:12px;margin-bottom:10px;background:#12233a">'
+        +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'
+          +'<div style="font-weight:700;color:#fff;font-size:14px">'+rxEsc(x.societe||'—')+'</div>'
+          +'<div style="font-weight:800;font-size:15px;color:'+col+'">'+(x.score!=null?x.score+'%':'—')+'</div>'
+        +'</div>'
+        +'<div style="font-size:12px;color:#9fb0c4;margin-top:3px">'+rxEsc(x.secteur||'')+' · '+cmAdminDate(x.created_at)+'</div>'
+        +'<div style="font-size:12.5px;color:#cdd7e2;margin-top:6px;line-height:1.7">'
+          +'👤 '+rxEsc(x.responsable||'—')+'<br>'
+          +'📧 <a href="mailto:'+rxEsc(x.email||'')+'" style="color:#e8c97a">'+rxEsc(x.email||'—')+'</a> · 📞 <a href="tel:'+rxEsc(x.tel||'')+'" style="color:#e8c97a">'+rxEsc(x.tel||'—')+'</a><br>'
+          +'🏢 SIRET '+rxEsc(x.siret||'—')+'<br>📍 '+rxEsc(x.adresse||'—')
+        +'</div>'
+        +'<div style="font-size:12px;color:#9fb0c4;margin-top:6px"><b style="color:#f0b7b2">'+(x.manquements||0)+'</b> manquement(s)'+(x.sans_reponse?(' · '+x.sans_reponse+' sans réponse'):'')+' · bonnes réponses : '+rxEsc(x.bonnes||'—')+'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'
+          +'<button onclick="cmAdminDetail('+i+')" style="padding:8px 12px;border:1px solid #3a4a5f;border-radius:8px;background:#16263c;color:#e8e4d8;font-size:12.5px;cursor:pointer">📄 Questions & réponses</button>'
+          +'<button onclick="cmAdminDel(\''+rxEsc(x.id)+'\')" style="padding:8px 12px;border:1px solid rgba(224,92,92,.4);border-radius:8px;background:rgba(224,92,92,.1);color:#e88;font-size:12.5px;cursor:pointer">🗑 Supprimer</button>'
+        +'</div>'
+        +'<div id="cm-adm-det-'+i+'" style="display:none;white-space:pre-wrap;font-size:12px;color:#cdd7e2;margin-top:8px;border-top:1px solid #26405e;padding-top:8px">'+rxEsc(x.detail||'(pas de détail enregistré)')+'</div>'
+      +'</div>';
+    });
+    cmAdminRender(h);
+  }catch(e){ cmAdminRender('<div style="color:#f0b7b2">Réseau : '+rxEsc(e.message||e)+'</div>'); }
+}
+function cmAdminDate(s){ try{ return new Date(s).toLocaleString('fr-FR'); }catch(e){ return s||''; } }
+function cmAdminDetail(i){ var el=document.getElementById('cm-adm-det-'+i); if(el) el.style.display=(el.style.display==='none'?'block':'none'); }
+function cmAdminDel(id){ if(!confirm('Supprimer définitivement cette demande ?')) return;
+  fetch(RX_URL+'/rest/v1/cm_leads?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:cmAdminHeaders()}).then(function(){ cmAdminLoad(); }).catch(function(){ alert('Suppression impossible.'); });
+}
+/* Le lien « Demandes Contrôle-minute » n'est visible que pour l'administrateur */
+function cmAdminMenuToggle(){ try{ var el=document.getElementById('menu-cm-admin'); if(el) el.style.display=cmIsAdmin()?'flex':'none'; }catch(e){} }
 function rxRow(s){ return { id:s.id, owner:(rxSess()||{}).uid, nom:s.nom||null, prenom:s.prenom||null, sexe:s.sexe||null, naissance:s.naissance||null, nationalite:s.nationalite||null, entree:s.entree||null, sortie:s.sortie||null, type_contrat:s.typeContrat||null, statut:s.statut||null, categorie:s.categorie||null, temps_travail:s.tempsTravail||null, email:s.email||null, tel:s.tel||null, adresse:s.adresse||null, cp:s.cp||null, ville:s.ville||null, piece_type:s.pieceType||null, piece_valid:s.pieceValid||null, sejour_valid:s.sejourValid||null, permis_cats:s.permisCats||null, permis_valid:s.permisValid||null, fco:s.fcoValid||null, carte_valid:s.carteValid||null, fimo:s.fimo||null, adr_valid:s.adrValid||null, visite_poste:s.visitePoste||null, visite_conduite:s.visiteConduite||null, coeff:s.coeff||null, salaire:(s.salaire&&!isNaN(parseFloat(s.salaire)))?parseFloat(s.salaire):null, motif_sortie:s.motifSortie||null, observations:s.observations||null, suivi:{absences:s.absences||[],retards:s.retards||[],sanctions:s.sanctions||[],avances:s.avances||[],finEssai:s.finEssai||''}, updated_at:new Date().toISOString() }; }
 function rxFromRow(r){ var su=r.suivi||{}; return { absences:su.absences||[], retards:su.retards||[], sanctions:su.sanctions||[], avances:su.avances||[], finEssai:su.finEssai||'', id:r.id, nom:r.nom||'', prenom:r.prenom||'', sexe:r.sexe||'', naissance:r.naissance||'', nationalite:r.nationalite||'', entree:r.entree||'', sortie:r.sortie||'', typeContrat:r.type_contrat||'', statut:r.statut||'', categorie:r.categorie||'', tempsTravail:r.temps_travail||'', email:r.email||'', tel:r.tel||'', adresse:r.adresse||'', cp:r.cp||'', ville:r.ville||'', pieceType:r.piece_type||'', pieceValid:r.piece_valid||'', sejourValid:r.sejour_valid||'', permisCats:r.permis_cats||'', permisValid:r.permis_valid||'', fcoValid:r.fco||'', carteValid:r.carte_valid||'', fimo:r.fimo||'', adrValid:r.adr_valid||'', visitePoste:r.visite_poste||'', visiteConduite:r.visite_conduite||'', coeff:r.coeff||'', salaire:(r.salaire==null?'':String(r.salaire)), motifSortie:r.motif_sortie||'', observations:r.observations||'' }; }
 function rxCloudPushOne(s){ if(!rxSess()) return; fetch(RX_URL+'/rest/v1/personnel?on_conflict=id',{method:'POST',headers:Object.assign(rxHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify([rxRow(s)])}).catch(function(){}); }
@@ -6747,7 +6838,7 @@ function rxPull(silent){ if(!rxSess()) return;
       touche JAMAIS à un calque réellement utilisé (il contient toujours du contenu). ══ */
 function jxHealOverlays(){
   try{
-    var ids=['rx-ov','rx-fiche','rx-veh','rx-proc','cg-edit-ov','rh-ov','rh-fiche-ov'];
+    var ids=['rx-ov','rx-fiche','rx-veh','rx-proc','cg-edit-ov','rh-ov','rh-fiche-ov','cm-admin-ov'];
     var healed=false;
     for(var i=0;i<ids.length;i++){
       var el=document.getElementById(ids[i]); if(!el) continue;
@@ -6770,7 +6861,7 @@ function _jxEnsureMenuAtBody(){
     });
   }catch(e){}
 }
-function openMenu(){ jxHealOverlays(); _jxEnsureMenuAtBody(); document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
+function openMenu(){ jxHealOverlays(); _jxEnsureMenuAtBody(); try{ cmAdminMenuToggle(); }catch(e){} document.getElementById('menu-overlay').style.display='block';document.getElementById('menu-panel').style.display='block'; try{ jxFab(); }catch(e){} }
 function closeMenu(){document.getElementById('menu-overlay').style.display='none';document.getElementById('menu-panel').style.display='none'; try{ jxFab(); }catch(e){} }
 try{ _jxEnsureMenuAtBody(); }catch(e){}
 /* Certaines pages sont, dans le HTML, imbriquées par erreur dans d'autres pages

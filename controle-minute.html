@@ -808,6 +808,22 @@ var CM_CONTACT='r.t.h@orange.fr';
 /* Endpoint Forminit (compte mounir chikhaoui — formulaire « Controle-minute »).
    Tant que c'est vide, on bascule sur l'e-mail pré-rempli vers r.t.h@orange.fr. */
 var CM_FORM_ENDPOINT='https://forminit.com/f/6dsowhkss20';
+
+/* ── Cloud : chaque demande est aussi enregistrée dans Supabase (table cm_leads),
+   pour apparaître dans l'espace ADMINISTRATEUR de l'application, sur tous les appareils. ── */
+var CM_SB_URL='https://yhzsuxnehsisxkuxqhhg.supabase.co';
+var CM_SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloenN1eG5laHNpc3hrdXhxaGhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4MTI3MjQsImV4cCI6MjEwMDM4ODcyNH0.0U1NURH755-mvmj45_G6JoDPHat_oY7CKHRyP4l8Mpc';
+function cmCloudInsert(d){
+  try{
+    var R=d.R, row={
+      societe:d.etab, responsable:d.nom, siret:d.siret, adresse:d.adresse,
+      tel:d.tel, email:d.email, secteur:d.secNom, secteur_id:CURSEC,
+      score:R.pct, bonnes:(R.conf+'/'+R.applic), manquements:R.man.length,
+      sans_reponse:R.unanswered, detail:d.detail, source:'controle-minute'
+    };
+    fetch(CM_SB_URL+'/rest/v1/cm_leads',{method:'POST',headers:{'apikey':CM_SB_ANON,'Authorization':'Bearer '+CM_SB_ANON,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(row)}).catch(function(){});
+  }catch(_){}
+}
 /* Transcription complète du test : questions, réponse du client, réponse exacte, résultat.
    Sert à l'administrateur (« il doit avoir les questions et les réponses »). */
 function cmTranscript(){
@@ -837,6 +853,8 @@ function cmAdminBody(d){
 /* Envoi à l'administrateur : Forminit (automatique) + bouton e-mail de secours. */
 function cmSendLead(d){
   var R=d.R;
+  // Enregistrement cloud → visible dans l'espace administrateur de l'app (tous appareils)
+  cmCloudInsert(d);
   if(CM_FORM_ENDPOINT){
     try{
       var fd=new URLSearchParams();
