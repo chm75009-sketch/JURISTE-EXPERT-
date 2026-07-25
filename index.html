@@ -646,7 +646,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.51';
+var JX_BUILD = 'v2026-07-23.52';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1307,6 +1307,8 @@ function accueilTrial(){
   var l=document.getElementById('lock-screen'); if(l) l.style.display='none';
   try{ var ins=document.getElementById('pg-inscription'); if(ins) ins.style.display='none'; }catch(e){}
   try{ var app=document.getElementById('pg-app'); if(app) app.style.display='block'; }catch(e){}
+  // Contrôle-minute unifié : on ouvre la page publique (fiche + score + remontée admin)
+  try{ window.location.href='controle-minute.html'; return; }catch(e){}
   try{ goPage('audit'); }catch(e){}
 }
 try{
@@ -1556,7 +1558,7 @@ try{
         <div class="hcard-body"><div class="t">Parc &amp; contraventions</div><div class="d">Échéancier des véhicules (contrôle technique, tachygraphe, assurance…) + désignation du conducteur sous 45 jours (L.121-6, amende 675 €).</div><div class="m">Parc véhicules &amp; contraventions</div></div>
         <div class="chev">›</div>
       </div>
-      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="goPage('audit')">
+      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="window.location.href='controle-minute.html'">
         <div class="hcard-ic">🎯</div>
         <div class="hcard-body"><div class="t">Contrôle-minute — êtes-vous prêt ?</div><div class="d">Auto-audit en 24 questions : score de conformité + plan d'action priorisé (URSSAF, inspection, DREAL).</div><div class="m">Audit de conformité</div></div>
         <div class="chev">›</div>
@@ -3346,7 +3348,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
   <div id="menu-sec-header" style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
-  <div class="mi" onclick="goPage('audit');closeMenu()"><span style="font-size:18px">🎯</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Contrôle-minute (audit)</div></div></div>
+  <div class="mi" onclick="window.location.href='controle-minute.html'"><span style="font-size:18px">🎯</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Contrôle-minute</div></div></div>
   <div class="mi" onclick="goPage('temps');closeMenu()"><span style="font-size:18px">⏱️</span><div><div id="menu-lbl-temps" style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de conduite &amp; repos</div></div></div>
   <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div id="menu-lbl-remuneration" style="font-size:13px;font-weight:500;color:#e8e4d8">Rémunération transport</div></div></div>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div id="menu-lbl-ri" style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>

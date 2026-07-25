@@ -56,6 +56,8 @@
 </style>
 
 <div class="wrap">
+  <a href="index.html" class="no-print" style="display:inline-block;margin-bottom:10px;padding:8px 14px;border:1px solid var(--gold);border-radius:9px;background:var(--card);color:var(--gold2);font-weight:700;font-size:13px;text-decoration:none">← Retour à l'application</a>
+  <br>
   <span class="badge">Gratuit · sans inscription</span>
   <h1>Contrôle-minute</h1>
   <p class="sub">Êtes-vous prêt pour un contrôle de l'inspection du travail / URSSAF ? <b>Quiz de conformité</b> : à chaque question, une seule réponse est juridiquement exacte. Votre <b>score</b> est gratuit ; une <b>fiche</b> débloque la <b>réponse exacte</b>, l'<b>article</b> et la <b>sanction</b> de chaque question ratée. Documents correctifs et DUER sur mesure : en option.</p>
@@ -727,19 +729,14 @@ function cmTopBtns(){
 
 window.cmScore=function(){
   var R=cmCompute(); CM_LAST=R; CM_LASTPCT=R.pct;
-  var inscrit=false;try{inscrit=!!localStorage.getItem('cm_inscrit');}catch(e){}
-  var h=cmTopBtns();
-  if(inscrit){
-    // Fiche déjà remplie → score + manquements affichés directement
-    h+=cmScoreBox(R)+'<div id="cm-locked">'+lockedSection(R.man,true)+'</div>';
-  } else {
-    // Le SCORE n'est OBTENU qu'après la fiche complète (société, responsable, SIRET, adresse, tél, e-mail)
-    h+='<div class="card lockwrap">'
-        +'<div class="lock">'+cmScoreBox(R)+'</div>'
-        +'<div class="lockover"><div class="lockcard" style="max-width:480px;text-align:left">'+ficheForm(R)+'</div></div>'
-      +'</div>'
-      +'<div id="cm-locked"></div>';
-  }
+  // Le SCORE n'est OBTENU qu'après la fiche complète (société, responsable, SIRET, adresse, tél, e-mail).
+  // La fiche est demandée À CHAQUE test (chaque test = une demande transmise à l'administrateur).
+  var h=cmTopBtns()
+    +'<div class="card lockwrap">'
+      +'<div class="lock">'+cmScoreBox(R)+'</div>'
+      +'<div class="lockover"><div class="lockcard" style="max-width:480px;text-align:left">'+ficheForm(R)+'</div></div>'
+    +'</div>'
+    +'<div id="cm-locked"></div>';
   var r=$('cm-result');r.innerHTML=h;r.style.display='';r.scrollIntoView({behavior:'smooth',block:'start'});
 };
 
@@ -768,14 +765,16 @@ function offreCta(man){
 }
 
 function ficheForm(R){
+  var f={};try{f=JSON.parse(localStorage.getItem('cm_fiche')||'{}')||{};}catch(e){}
+  var v=function(x){return esc(x||'');};
   return '<div class="grp-t" style="margin-top:0">🔒 Votre score est prêt — complétez votre fiche pour l\'obtenir</div>'
     +'<p class="hint" style="margin:0 0 12px">Renseignez votre fiche pour <b>obtenir votre score de conformité</b>, la <b>réponse exacte</b> de chaque question ratée, l\'<b>article</b> et la <b>sanction encourue</b>. <b>Tous les champs sont obligatoires.</b></p>'
-    +'<label class="fl">Société (raison sociale) *</label><input id="cm-etab" type="text" autocomplete="organization" placeholder="Raison sociale" style="margin-bottom:9px">'
-    +'<label class="fl">Nom du responsable *</label><input id="cm-nom" type="text" autocomplete="name" placeholder="Nom et prénom du responsable" style="margin-bottom:9px">'
-    +'<label class="fl">SIRET *</label><input id="cm-siret" type="text" inputmode="numeric" placeholder="14 chiffres" style="margin-bottom:9px">'
-    +'<label class="fl">Adresse *</label><input id="cm-adresse" type="text" autocomplete="street-address" placeholder="N°, voie, code postal, ville" style="margin-bottom:9px">'
-    +'<label class="fl">Téléphone *</label><input id="cm-tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" style="margin-bottom:9px">'
-    +'<label class="fl">E-mail *</label><input id="cm-email" type="email" autocomplete="email" placeholder="votre@email.fr" style="margin-bottom:12px">'
+    +'<label class="fl">Société (raison sociale) *</label><input id="cm-etab" type="text" autocomplete="organization" value="'+v(f.societe)+'" placeholder="Raison sociale" style="margin-bottom:9px">'
+    +'<label class="fl">Nom du responsable *</label><input id="cm-nom" type="text" autocomplete="name" value="'+v(f.responsable)+'" placeholder="Nom et prénom du responsable" style="margin-bottom:9px">'
+    +'<label class="fl">SIRET *</label><input id="cm-siret" type="text" inputmode="numeric" value="'+v(f.siret)+'" placeholder="14 chiffres" style="margin-bottom:9px">'
+    +'<label class="fl">Adresse *</label><input id="cm-adresse" type="text" autocomplete="street-address" value="'+v(f.adresse)+'" placeholder="N°, voie, code postal, ville" style="margin-bottom:9px">'
+    +'<label class="fl">Téléphone *</label><input id="cm-tel" type="tel" autocomplete="tel" value="'+v(f.tel)+'" placeholder="06 12 34 56 78" style="margin-bottom:9px">'
+    +'<label class="fl">E-mail *</label><input id="cm-email" type="email" autocomplete="email" value="'+v(f.email)+'" placeholder="votre@email.fr" style="margin-bottom:12px">'
     +'<button class="btn" onclick="cmUnlock()">Obtenir mon score ✅</button>'
     +'<p class="hint" style="margin:8px 0 0">Votre fiche et le <b>détail complet de votre test</b> (questions, vos réponses, résultat) sont transmis à <b>'+CM_CONTACT+'</b>. Aucun spam.</p>';
 }
