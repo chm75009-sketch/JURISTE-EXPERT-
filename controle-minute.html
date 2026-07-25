@@ -684,51 +684,71 @@ function allItems(){var out=[];questionsFor(CURSEC).forEach(function(g){g.items.
 // Points à fort enjeu (jurisprudence / risque prud'homal élevé) : pondérés x3 dans le score
 var EXPERT_IDS={harcprev:1,harcenq:1,secu:1,tempsdecompte:1,forfaitsuivi:1,surveillance:1,egaltrait:1,modifcontrat:1,nonconc:1,lanceur:1,duer:1,cse:1,dpae:1,bq_forfait:1,as_forfait:1,sy_forfait:1};
 
-/* Manquements = questions répondues dont la réponse choisie n'est pas la bonne (hors « non concerné ») */
-function cmManquements(){
-  var man=[];
+/* Points applicables = toutes les questions SAUF celles marquées « non concerné » explicitement.
+   L'ABSENCE DE RÉPONSE compte comme une ERREUR et est décomptée dans le score. */
+function cmCompute(){
+  var conf=0,applic=0,man=[],unanswered=0;
   allItems().forEach(function(it){
-    var a=A[it.id];if(!a||a.nc)return;
-    if(!a.ok) man.push({it:it,rep:a.t,good:correctOf(it)});
-  });
-  return man;
-}
-
-var CM_LASTPCT=null;
-window.cmScore=function(){
-  var conf=0,man=[],applic=0;
-  allItems().forEach(function(it){
-    var a=A[it.id];if(!a||a.nc)return;
-    var w=EXPERT_IDS[it.id]?3:1;applic+=w;
-    if(a.ok)conf+=w;else man.push({it:it,rep:a.t,good:correctOf(it)});
+    var a=A[it.id];
+    if(a&&a.nc)return;                 // « non concerné » explicite → exclu du score
+    var w=EXPERT_IDS[it.id]?3:1;
+    applic+=w;
+    if(a&&a.ok){conf+=w;}
+    else{
+      if(!a)unanswered++;
+      man.push({it:it,rep:(a?a.t:null),good:correctOf(it),noanswer:!a});
+    }
   });
   var pct=applic?Math.round(conf/applic*100):0;
-  CM_LASTPCT=pct;
-  var col=pct>=80?'#3fae74':(pct>=50?'#e0a83a':'#e0574f');
-  var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||'';
-  var h='<div style="display:flex;gap:8px;margin:0 0 4px">'
+  return {conf:conf,applic:applic,pct:pct,man:man,unanswered:unanswered};
+}
+/* Conservé pour compatibilité */
+function cmManquements(){return cmCompute().man;}
+function secName(){return (SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||CURSEC;}
+
+var CM_LAST=null, CM_LASTPCT=null;
+
+function cmScoreBox(R){
+  var pct=R.pct, col=pct>=80?'#3fae74':(pct>=50?'#e0a83a':'#e0574f');
+  return '<div class="card score-box"><div class="hint">'+esc(secName())+'</div>'
+    +'<div class="score-num" style="color:'+col+'">'+pct+'%</div>'
+    +'<div class="hint">de bonnes réponses sur les points applicables ('+R.conf+'/'+R.applic+')</div>'
+    +'<div class="bar"><span style="width:'+pct+'%;background:'+col+'"></span></div>'
+    +(R.man.length?('<div class="hint"><b style="color:#f5c6c2">'+R.man.length+'</b> manquement(s)'+(R.unanswered?(' — dont <b style="color:#f5c6c2">'+R.unanswered+'</b> sans réponse (comptée(s) comme erreur)'):'')+'</div>'):'<div class="hint" style="color:#bff0d4">Toutes vos réponses sont exactes 🎉</div>')
+    +'</div>';
+}
+
+function cmTopBtns(){
+  return '<div style="display:flex;gap:8px;margin:0 0 4px">'
     +'<button class="btn ghost no-print" style="width:auto;padding:9px 12px;margin:0" onclick="cmBack()">← Modifier mes réponses</button>'
     +'<button class="btn ghost no-print" style="width:auto;padding:9px 12px;margin:0" onclick="cmReset()">🔄 Nouveau test</button>'
     +'</div>';
-  h+='<div class="card score-box"><div class="hint">'+esc(secNom)+'</div>'
-    +'<div class="score-num" style="color:'+col+'">'+pct+'%</div>'
-    +'<div class="hint">de bonnes réponses sur les points applicables ('+conf+'/'+applic+')</div>'
-    +'<div class="bar"><span style="width:'+pct+'%;background:'+col+'"></span></div>'
-    +(man.length?('<div class="hint"><b style="color:#f5c6c2">'+man.length+'</b> réponse(s) inexacte(s) = autant de manquements — détail commenté ci-dessous</div>'):'<div class="hint" style="color:#bff0d4">Toutes vos réponses sont exactes 🎉</div>')
-    +'</div>';
+}
 
+window.cmScore=function(){
+  var R=cmCompute(); CM_LAST=R; CM_LASTPCT=R.pct;
   var inscrit=false;try{inscrit=!!localStorage.getItem('cm_inscrit');}catch(e){}
-  h+='<div id="cm-locked">'+lockedSection(man,inscrit)+'</div>';
-
+  var h=cmTopBtns();
+  if(inscrit){
+    // Fiche déjà remplie → score + manquements affichés directement
+    h+=cmScoreBox(R)+'<div id="cm-locked">'+lockedSection(R.man,true)+'</div>';
+  } else {
+    // Le SCORE n'est OBTENU qu'après la fiche complète (société, responsable, SIRET, adresse, tél, e-mail)
+    h+='<div class="card lockwrap">'
+        +'<div class="lock">'+cmScoreBox(R)+'</div>'
+        +'<div class="lockover"><div class="lockcard" style="max-width:480px;text-align:left">'+ficheForm(R)+'</div></div>'
+      +'</div>'
+      +'<div id="cm-locked"></div>';
+  }
   var r=$('cm-result');r.innerHTML=h;r.style.display='';r.scrollIntoView({behavior:'smooth',block:'start'});
 };
 
 function commentedHtml(man){
   if(!man.length) return '<p class="hint">Aucune réponse inexacte : vos réponses sont conformes sur les points applicables.</p>';
-  var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos réponses inexactes — réponse exacte, article & sanction :</b></div>';
+  var h='<div style="margin-bottom:6px"><b style="color:var(--gold2)">🚫 Vos manquements — réponse exacte, article & sanction :</b></div>';
   man.forEach(function(m){
     h+='<div class="man"><div class="mt">'+esc(m.it.q)+'</div>'
-     +'<div class="rep">❌ Votre réponse : «&nbsp;'+esc(m.rep)+'&nbsp;»</div>'
+     +'<div class="rep">❌ Votre réponse : '+(m.noanswer?'<i>aucune réponse (comptée comme erreur)</i>':'«&nbsp;'+esc(m.rep)+'&nbsp;»')+'</div>'
      +'<div class="good">✅ Réponse exacte : '+esc(m.good)+'</div>'
      +'<div class="art">📘 '+esc(m.it.art)+'</div>'
      +'<div class="san">⚠️ Sanction : '+esc(m.it.san)+'</div></div>';
@@ -747,16 +767,17 @@ function offreCta(man){
     +'</div>';
 }
 
-function ficheForm(){
-  return '<div class="grp-t" style="margin-top:0">📝 Votre fiche — accès aux réponses</div>'
-    +'<p class="hint" style="margin:0 0 12px">Renseignez votre fiche pour débloquer la <b>réponse exacte</b> de chaque question ratée, l\'<b>article</b> et la <b>sanction encourue</b>. Cet accès porte <b>uniquement sur les réponses</b>.</p>'
-    +'<label class="fl">Nom et prénom *</label><input id="cm-nom" type="text" autocomplete="name" placeholder="Nom Prénom" style="margin-bottom:9px">'
-    +'<label class="fl">Établissement / société *</label><input id="cm-etab" type="text" autocomplete="organization" placeholder="Raison sociale" style="margin-bottom:9px">'
-    +'<label class="fl">E-mail *</label><input id="cm-email" type="email" autocomplete="email" placeholder="votre@email.fr" style="margin-bottom:9px">'
-    +'<label class="fl">Téléphone</label><input id="cm-tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" style="margin-bottom:9px">'
-    +'<label class="fl">Effectif (facultatif)</label><input id="cm-eff" type="text" inputmode="numeric" placeholder="Nombre de salariés" style="margin-bottom:12px">'
-    +'<button class="btn" onclick="cmUnlock()">Débloquer les réponses ✅</button>'
-    +'<p class="hint" style="margin:8px 0 0">Vos informations sont transmises à <b>r.t.h@orange.fr</b> pour votre accès. Aucun spam. La fiche donne accès aux réponses uniquement.</p>';
+function ficheForm(R){
+  return '<div class="grp-t" style="margin-top:0">🔒 Votre score est prêt — complétez votre fiche pour l\'obtenir</div>'
+    +'<p class="hint" style="margin:0 0 12px">Renseignez votre fiche pour <b>obtenir votre score de conformité</b>, la <b>réponse exacte</b> de chaque question ratée, l\'<b>article</b> et la <b>sanction encourue</b>. <b>Tous les champs sont obligatoires.</b></p>'
+    +'<label class="fl">Société (raison sociale) *</label><input id="cm-etab" type="text" autocomplete="organization" placeholder="Raison sociale" style="margin-bottom:9px">'
+    +'<label class="fl">Nom du responsable *</label><input id="cm-nom" type="text" autocomplete="name" placeholder="Nom et prénom du responsable" style="margin-bottom:9px">'
+    +'<label class="fl">SIRET *</label><input id="cm-siret" type="text" inputmode="numeric" placeholder="14 chiffres" style="margin-bottom:9px">'
+    +'<label class="fl">Adresse *</label><input id="cm-adresse" type="text" autocomplete="street-address" placeholder="N°, voie, code postal, ville" style="margin-bottom:9px">'
+    +'<label class="fl">Téléphone *</label><input id="cm-tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" style="margin-bottom:9px">'
+    +'<label class="fl">E-mail *</label><input id="cm-email" type="email" autocomplete="email" placeholder="votre@email.fr" style="margin-bottom:12px">'
+    +'<button class="btn" onclick="cmUnlock()">Obtenir mon score ✅</button>'
+    +'<p class="hint" style="margin:8px 0 0">Votre fiche et le <b>détail complet de votre test</b> (questions, vos réponses, résultat) sont transmis à <b>'+CM_CONTACT+'</b>. Aucun spam.</p>';
 }
 
 function lockedSection(man,inscrit){
@@ -765,17 +786,9 @@ function lockedSection(man,inscrit){
       +'<p class="hint" style="margin:0">Toutes vos réponses sont exactes sur les points applicables. Rien à débloquer.</p></div>'
       +offreCta(man);
   }
-  if(inscrit){
-    return '<div class="card"><div class="grp-t" style="margin-top:0">🔓 Vos réponses commentées</div>'
-      +commentedHtml(man)
-      +'<button class="btn ghost no-print" onclick="window.print()">🖨️ Imprimer / enregistrer en PDF</button></div>'
-      +offreCta(man);
-  }
-  return '<div class="card lockwrap">'
-      +'<div class="lock">'+commentedHtml(man)+'</div>'
-      +'<div class="lockover"><div class="lockcard" style="max-width:460px;text-align:left">'
-        +ficheForm()
-      +'</div></div></div>'
+  return '<div class="card"><div class="grp-t" style="margin-top:0">🔓 Vos réponses commentées</div>'
+    +commentedHtml(man)
+    +'<button class="btn ghost no-print" onclick="window.print()">🖨️ Imprimer / enregistrer en PDF</button></div>'
     +offreCta(man);
 }
 
@@ -795,39 +808,89 @@ var CM_CONTACT='r.t.h@orange.fr';
 /* Endpoint Forminit (compte mounir chikhaoui — formulaire « Controle-minute »).
    Tant que c'est vide, on bascule sur l'e-mail pré-rempli vers r.t.h@orange.fr. */
 var CM_FORM_ENDPOINT='https://forminit.com/f/6dsowhkss20';
-window.cmUnlock=function(){
-  var val=function(id){return (($(id)||{}).value||'').trim();};
-  var nom=val('cm-nom'), etab=val('cm-etab'), e=val('cm-email'), tel=val('cm-tel'), eff=val('cm-eff');
-  if(!nom){alert('Merci d\'indiquer votre nom et prénom.');return;}
-  if(!etab){alert('Merci d\'indiquer votre établissement / société.');return;}
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Merci d\'indiquer un e-mail valide.');return;}
-  try{localStorage.setItem('cm_inscrit',e);localStorage.setItem('cm_fiche',JSON.stringify({nom:nom,etab:etab,email:e,tel:tel,eff:eff}));}catch(e2){}
-  var secNom=(SECTEURS.filter(function(s){return s.id===CURSEC;})[0]||{}).nom||CURSEC;
-  // 1) Débloquer les RÉPONSES uniquement
-  var man=cmManquements();
-  $('cm-locked').innerHTML=lockedSection(man,true);
-  $('cm-locked').scrollIntoView({behavior:'smooth',block:'start'});
-  // 2) Transmettre le lead (fiche complète)
+/* Transcription complète du test : questions, réponse du client, réponse exacte, résultat.
+   Sert à l'administrateur (« il doit avoir les questions et les réponses »). */
+function cmTranscript(){
+  var lines=[],n=0;
+  questionsFor(CURSEC).forEach(function(g){
+    g.items.forEach(function(it){
+      n++; var a=A[it.id];
+      var rep=a?(a.nc?'Non concerné':a.t):'AUCUNE RÉPONSE';
+      var mark=a?(a.nc?'—':(a.ok?'EXACT':'ERREUR')):'NON RÉPONDU (compté comme erreur)';
+      lines.push(n+'. '+it.q+'\n   Réponse du client : '+rep+'\n   Réponse exacte : '+correctOf(it)+'\n   Résultat : '+mark);
+    });
+  });
+  return lines.join('\n\n');
+}
+
+/* Corps d'e-mail pour l'administrateur : fiche + résultat + test complet. */
+function cmAdminBody(d){
+  var R=d.R;
+  return 'FICHE\n=====\n'
+    +'Société : '+d.etab+'\nResponsable : '+d.nom+'\nSIRET : '+d.siret+'\nAdresse : '+d.adresse
+    +'\nTéléphone : '+d.tel+'\nE-mail : '+d.email+'\nSecteur : '+d.secNom
+    +'\n\nRÉSULTAT\n========\nScore : '+R.pct+'% ('+R.conf+'/'+R.applic+')'
+    +'\nManquements : '+R.man.length+'\nSans réponse (comptés comme erreurs) : '+R.unanswered
+    +'\n\nTEST COMPLET — QUESTIONS & RÉPONSES\n===================================\n'+d.detail+'\n';
+}
+
+/* Envoi à l'administrateur : Forminit (automatique) + bouton e-mail de secours. */
+function cmSendLead(d){
+  var R=d.R;
   if(CM_FORM_ENDPOINT){
     try{
       var fd=new URLSearchParams();
-      fd.set('fi-sender-email', e);
-      fd.set('fi-text-nom', nom);
-      fd.set('fi-text-etablissement', etab);
-      fd.set('fi-text-telephone', tel);
-      fd.set('fi-text-effectif', eff);
-      fd.set('fi-text-secteur', secNom);
+      fd.set('fi-sender-email', d.email);
+      fd.set('fi-subject', 'Contrôle-minute — '+d.etab+' ('+d.secNom+') — '+R.pct+'%');
+      fd.set('fi-text-societe', d.etab);
+      fd.set('fi-text-responsable', d.nom);
+      fd.set('fi-text-siret', d.siret);
+      fd.set('fi-text-adresse', d.adresse);
+      fd.set('fi-text-telephone', d.tel);
+      fd.set('fi-text-email', d.email);
+      fd.set('fi-text-secteur', d.secNom);
       fd.set('fi-text-secteur_id', CURSEC);
-      fd.set('fi-text-score', (CM_LASTPCT!=null?CM_LASTPCT+'%':''));
-      fd.set('fi-text-manquements', String(man.length));
+      fd.set('fi-text-score', R.pct+'%');
+      fd.set('fi-text-bonnes_reponses', R.conf+'/'+R.applic);
+      fd.set('fi-text-manquements', String(R.man.length));
+      fd.set('fi-text-sans_reponse', String(R.unanswered));
       fd.set('fi-text-source', 'controle-minute');
+      fd.set('fi-text-questions_reponses', d.detail);
       fetch(CM_FORM_ENDPOINT,{method:'POST',headers:{'Accept':'application/json'},body:fd}).catch(function(){});
     }catch(_){}
-  } else {
-    var subj='Fiche Contrôle-minute — '+etab+' ('+secNom+')';
-    var body='Nouvelle fiche via le Contrôle-minute :\n\nNom : '+nom+'\nÉtablissement : '+etab+'\nE-mail : '+e+'\nTéléphone : '+tel+'\nEffectif : '+eff+'\nSecteur : '+secNom+'\nScore : '+(CM_LASTPCT!=null?CM_LASTPCT+'%':'')+'\nManquements : '+man.length+'\n';
-    var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-    try{ var a=document.createElement('a'); a.href=mailto; a.style.display='none'; document.body.appendChild(a); a.click(); setTimeout(function(){a.remove();},1000); }catch(_){}
   }
+}
+window._cmMailData=null;
+window.cmMailAdmin=function(){
+  var d=window._cmMailData; if(!d) return;
+  var subj='Contrôle-minute — '+d.etab+' ('+d.secNom+') — '+d.R.pct+'%';
+  var mailto='mailto:'+CM_CONTACT+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(cmAdminBody(d));
+  window.location.href=mailto;
+};
+
+window.cmUnlock=function(){
+  var val=function(id){return (($(id)||{}).value||'').trim();};
+  var etab=val('cm-etab'), nom=val('cm-nom'), siret=val('cm-siret'), adresse=val('cm-adresse'), tel=val('cm-tel'), e=val('cm-email');
+  if(!etab){alert('Merci d\'indiquer la société (raison sociale).');return;}
+  if(!nom){alert('Merci d\'indiquer le nom du responsable.');return;}
+  if(!siret){alert('Merci d\'indiquer le SIRET.');return;}
+  if(!adresse){alert('Merci d\'indiquer l\'adresse.');return;}
+  if(!tel){alert('Merci d\'indiquer un numéro de téléphone.');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Merci d\'indiquer un e-mail valide.');return;}
+  var R=CM_LAST||cmCompute(); CM_LASTPCT=R.pct;
+  var secNom=secName();
+  try{localStorage.setItem('cm_inscrit',e);localStorage.setItem('cm_fiche',JSON.stringify({societe:etab,responsable:nom,siret:siret,adresse:adresse,tel:tel,email:e}));}catch(e2){}
+  var d={etab:etab,nom:nom,siret:siret,adresse:adresse,tel:tel,email:e,secNom:secNom,R:R,detail:cmTranscript()};
+  window._cmMailData=d;
+  // 1) Le SCORE est OBTENU : afficher score + manquements commentés
+  var r=$('cm-result');
+  r.innerHTML=cmTopBtns()
+    +'<div class="card no-print" style="border-color:var(--ok)"><p class="hint" style="margin:0 0 8px;color:#bff0d4">✅ Fiche enregistrée. Votre test et vos résultats ont été transmis à votre conseiller.</p>'
+      +'<button class="btn ghost no-print" style="margin:0" onclick="cmMailAdmin()">📧 Envoyer aussi par e-mail à mon conseiller</button></div>'
+    +cmScoreBox(R)
+    +'<div id="cm-locked">'+lockedSection(R.man,true)+'</div>';
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+  // 2) Transmettre au conseiller : fiche + TEST COMPLET (questions, réponses, résultat)
+  cmSendLead(d);
 };
 </script>
