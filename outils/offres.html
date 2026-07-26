@@ -317,7 +317,7 @@
       <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span> <span style="font-weight:700;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle">classif v3</span></h2>
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
-      <div class="hint" style="margin-top:6px;opacity:.75">Méthode : une offre est « collectif » ou « les deux » dès qu'un marqueur collectif explicite apparaît (CSE, IRP, négociation, PSE, syndical…). Sans marqueur collectif, tout poste de droit social/RH est compté en <b>individuel</b> — les relations individuelles étant le socle du droit du travail. « Non précisé » = offre hors droit social.</div>
+      <div class="hint" style="margin-top:6px;opacity:.75">Méthode (exigence symétrique) : une offre est <b>« individuel »</b> uniquement si un marqueur individuel explicite apparaît (contrat, licenciement, rupture, discipline, inaptitude, prud'hommes, paie…), et <b>« collectif »</b> uniquement avec un marqueur collectif explicite (CSE, IRP, négociation, PSE, syndical…) ; « les deux » si les deux. Sans aucun marqueur explicite de relation de travail, l'offre est <b>écartée</b> (« Non précisé ») — l'individuel est filtré aussi strictement que le collectif.</div>
       <label style="display:flex;align-items:center;gap:9px;margin-top:10px;font-size:13.5px;font-weight:600;cursor:pointer">
         <input type="checkbox" id="inclHS" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
         Inclure les offres hors droit social (non classées) dans l'étude
@@ -898,9 +898,9 @@ function classifyRel(o){
   if(sc.ind>0 && sc.col>0) return "Les deux (individuel + collectif)";
   if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
   if(sc.ind>0 && sc.col===0) return "Exclusivement individuel";
-  // Aucun marqueur explicite : les relations individuelles sont le socle de tout poste de droit du travail.
-  // On classe donc l'offre en individuel dès lors qu'elle relève du droit social / RH.
-  if(isSocialContext(o)) return "Exclusivement individuel";
+  // EXIGENCE SYMÉTRIQUE individuel / collectif : sans marqueur EXPLICITE de relation de travail
+  // (individuelle OU collective), l'offre n'est PAS retenue — même si elle relève du droit social / RH
+  // au sens large. L'individuel est donc filtré aussi strictement que le collectif.
   return "Non précisé";
 }
 
