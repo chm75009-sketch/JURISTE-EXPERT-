@@ -2,6 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<!-- Sécurité : CSP (anti-XSS + connexions sortantes sur liste blanche auditée). En-têtes complets (HSTS, X-Frame-Options, nosniff, Permissions-Policy) via netlify.toml si migration Netlify. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://yhzsuxnehsisxkuxqhhg.supabase.co wss://yhzsuxnehsisxkuxqhhg.supabase.co https://forminit.com https://api.web3forms.com https://api.francetravail.io https://*.workers.dev https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://tessdata.projectnaptha.com; worker-src 'self' blob:; frame-src 'self' blob: data:; form-action 'self' https://forminit.com https://api.web3forms.com; object-src 'none'; base-uri 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Juris Expert MCH</title>
 <!-- Build v14 — 2026-06-26 — PSE multi-secteurs (transport/banque/assurances) + auteur personnalisable -->
@@ -646,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.53';
+var JX_BUILD = 'v2026-07-23.54';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
