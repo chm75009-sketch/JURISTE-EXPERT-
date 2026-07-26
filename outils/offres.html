@@ -62,6 +62,18 @@
   .chip.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
   .hint{font-size:12px;color:var(--muted);margin-top:5px}
 
+  /* ---- Liste d'offres consultables (marquage consultée) ---- */
+  .offre-item{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;
+    padding:11px 13px;margin:8px 0;background:var(--accent-soft);transition:background .15s,opacity .15s}
+  .offre-item .oi-t{font-weight:700;font-size:14px;color:var(--ink)}
+  .offre-item .oi-m{font-size:12px;color:var(--muted);margin:3px 0 5px}
+  .offre-item .oi-link{font-size:12.5px;font-weight:600}
+  .offre-item.vue{border-left-color:#9aa2af;background:#eceef1;opacity:.72}
+  .offre-item.vue .oi-t{color:#6b7280;font-weight:600}
+  .offre-item.vue .oi-t::after{content:" ✓ consultée";color:#3fae74;font-size:11px;font-weight:700}
+  .leg-item{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
+  .leg-sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+
   /* ---- KPIs ---- */
   .kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
   .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
@@ -328,6 +340,17 @@
         <button type="button" class="btn btn-ghost" id="unclassCopy" style="display:none">📋 Copier 4 exemples pour analyse</button>
         <div id="unclassList" class="hidden" style="margin-top:8px"></div>
       </div>
+    </div>
+
+    <div class="card" id="offresListeCard">
+      <h2>📋 Offres retenues <span class="muted" style="font-weight:400;font-size:12px">— droit du travail uniquement · cliquez pour consulter <span id="vuesCompteur" style="color:var(--accent)"></span></span></h2>
+      <div class="hint" style="margin-bottom:8px">Ne sont listées que les offres de <b>droit du travail</b> (relations individuelles <b>et</b> collectives). Les métiers hors sujet (travailleur social, action sociale, mandataire judiciaire…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour.</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <span class="leg-item"><span class="leg-sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span> Non consultée</span>
+        <span class="leg-item"><span class="leg-sw" style="background:#eceef1;border:1px solid #9aa2af"></span> Déjà consultée ✓</span>
+        <a href="#" id="resetVues" style="margin-left:auto;font-size:12px">↺ Réinitialiser les consultées</a>
+      </div>
+      <div id="offresListe"></div>
     </div>
 
     <div class="card">
@@ -646,6 +669,7 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
+if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
 if($("inclHS")) $("inclHS").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
 if($("inclAvocat")) $("inclAvocat").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
 if($("inclAlt")) $("inclAlt").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
@@ -878,6 +902,42 @@ function classifyRel(o){
   // On classe donc l'offre en individuel dès lors qu'elle relève du droit social / RH.
   if(isSocialContext(o)) return "Exclusivement individuel";
   return "Non précisé";
+}
+
+/* ── Liste d'offres consultables + marquage « déjà consultée » (localStorage) ──
+   L'offre change de couleur (grisée) dès qu'on l'ouvre, pour ne pas la rouvrir chaque jour. */
+var LS_VUES = "offres_vues_v1";
+var _offresListe = [];
+function offresVues(){ try{ return JSON.parse(localStorage.getItem(LS_VUES)||"{}")||{}; }catch(e){ return {}; } }
+function saveVues(v){ try{ localStorage.setItem(LS_VUES, JSON.stringify(v)); }catch(e){} }
+function offreKey(o){ return String((o&&o.id) || (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.intitule)||"")+"|"+((o&&o.entreprise&&o.entreprise.nom)||"")); }
+function offreUrl(o){ return (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.id)? "https://candidat.francetravail.fr/offres/recherche/detail/"+encodeURIComponent(o.id) : ""); }
+function majVuesCompteur(){ var v=offresVues(); var n=Object.keys(v).length; var el=$("vuesCompteur"); if(el) el.textContent = n? ("· "+n+" consultée(s)") : ""; }
+function marquerVue(key, el){ if(!key) return; var v=offresVues(); v[key]=Date.now(); saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); }
+function renderOffresListe(offers){
+  var box=$("offresListe"); if(!box) return;
+  _offresListe = offers || [];
+  var vues=offresVues();
+  // EXCLUSION STRICTE du hors droit du travail (travailleur social, action sociale, MJPM/tutelle, autre spécialité…)
+  var liste = (offers||[]).filter(function(o){ return classifyRel(o)!=="Non précisé"; });
+  // Dédoublonnage
+  var seen={}, uniq=[]; liste.forEach(function(o){ var k=offreKey(o); if(k&&!seen[k]){ seen[k]=1; uniq.push(o); } }); liste=uniq;
+  // Non consultées d'abord
+  liste.sort(function(a,b){ return (vues[offreKey(a)]?1:0)-(vues[offreKey(b)]?1:0); });
+  if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre en droit du travail pour cette recherche.</div>'; majVuesCompteur(); return; }
+  box.innerHTML = liste.map(function(o){
+    var key=offreKey(o), url=offreUrl(o), vue=!!vues[key];
+    var meta=[esc((o.entreprise&&o.entreprise.nom)||"employeur non précisé"), esc((o.lieuTravail&&o.lieuTravail.libelle)||""), esc(o.typeContratLibelle||o.typeContrat||"")].filter(Boolean).join(" · ");
+    return '<div class="offre-item'+(vue?' vue':'')+'" data-key="'+esc(key)+'">'
+      +'<div class="oi-t">'+esc(o.intitule||"—")+'</div>'
+      +'<div class="oi-m">'+meta+' · <span style="opacity:.85">'+esc(classifyRel(o))+'</span></div>'
+      +(url? '<a href="'+esc(url)+'" target="_blank" rel="noopener" class="oi-link" data-key="'+esc(key)+'">voir l\'offre ↗</a>' : '<span class="muted" style="font-size:12px">(lien indisponible)</span>')
+      +'</div>';
+  }).join("");
+  [].slice.call(box.querySelectorAll(".oi-link")).forEach(function(a){
+    a.addEventListener("click", function(){ marquerVue(a.getAttribute("data-key"), a.closest(".offre-item")); });
+  });
+  majVuesCompteur();
 }
 async function fetchOffres(proxy, base, motsCles){
   const p = new URLSearchParams(base);
@@ -1257,6 +1317,9 @@ function analyse(offers, totalDispo){
     });
   }
   const n = offers.length;
+
+  /* --- Liste d'offres retenues (consultables, hors droit du travail exclu) --- */
+  try{ renderOffresListe(offers); }catch(e){}
 
   /* --- Compétences --- */
   const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
