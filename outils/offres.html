@@ -357,6 +357,7 @@
         <label class="chip on" id="chipCatInd"><input type="checkbox" id="catInd" checked> Exclusivement individuel <b id="cntCatInd" style="opacity:.7"></b></label>
         <label class="chip on" id="chipCatBoth"><input type="checkbox" id="catBoth" checked> À la fois ind. + coll. <b id="cntCatBoth" style="opacity:.7"></b></label>
         <label class="chip on" id="chipCatCol"><input type="checkbox" id="catCol" checked> Exclusivement collectif <b id="cntCatCol" style="opacity:.7"></b></label>
+        <span style="font-size:13.5px;font-weight:800;color:var(--ink);padding:7px 12px;border:1.5px solid var(--accent);border-radius:999px;background:var(--accent-soft)">= Total : <span id="cntTotal">0</span></span>
       </div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
         <span class="leg-item"><span class="leg-sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span> Non consultée</span>
@@ -958,6 +959,7 @@ function renderOffresListe(offers){
   retenues.forEach(function(o){ var c=classifyRel(o); if(cnt[c]!=null) cnt[c]++; });
   var setCnt=function(id,v){ var e=$(id); if(e) e.textContent = v? ("("+v+")") : "(0)"; };
   setCnt("cntCatInd",cnt[CAT_IND]); setCnt("cntCatBoth",cnt[CAT_BOTH]); setCnt("cntCatCol",cnt[CAT_COL]);
+  var _tot=(cnt[CAT_IND]||0)+(cnt[CAT_BOTH]||0)+(cnt[CAT_COL]||0); var _te=$("cntTotal"); if(_te) _te.textContent=_tot;
   // Filtre par catégories cochées (tout ou partie)
   var showInd=!$("catInd")||$("catInd").checked, showCol=!$("catCol")||$("catCol").checked, showBoth=!$("catBoth")||$("catBoth").checked;
   var liste = retenues.filter(function(o){ var c=classifyRel(o);
