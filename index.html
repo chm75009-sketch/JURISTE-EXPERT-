@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-23.54';
+var JX_BUILD = 'v2026-07-23.55';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -3352,6 +3352,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
   <div id="menu-sec-header" style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
   <div class="mi" onclick="window.location.href='controle-minute.html'"><span style="font-size:18px">🎯</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Contrôle-minute</div></div></div>
+  <div class="mi" onclick="window.location.href='defense-cph.html'"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Conclusions en défense (CPH)</div></div></div>
   <div class="mi" onclick="goPage('temps');closeMenu()"><span style="font-size:18px">⏱️</span><div><div id="menu-lbl-temps" style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de conduite &amp; repos</div></div></div>
   <div class="mi" onclick="goPage('remuneration');closeMenu()"><span style="font-size:18px">💶</span><div><div id="menu-lbl-remuneration" style="font-size:13px;font-weight:500;color:#e8e4d8">Rémunération transport</div></div></div>
   <div class="mi" onclick="goPage('ri');closeMenu()"><span style="font-size:18px">📜</span><div><div id="menu-lbl-ri" style="font-size:13px;font-weight:500;color:#e8e4d8">Règlement intérieur transport</div></div></div>
@@ -13488,6 +13489,10 @@ auteurApply();
   <div style="max-width:920px;margin:0 auto;padding:18px 16px 60px">
     <h1 style="font-family:Fraunces,serif;color:#1b2a4a;margin:0 0 4px">⚖️ Analyse &amp; conformité d'un document</h1>
     <div style="font-size:13px;color:#9a7b2e;margin-bottom:10px">Diagnostic guidé · loi · convention collective · jurisprudence</div>
+    <a href="defense-cph.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;background:#1b2a4a;color:#fff;border-radius:12px;padding:12px 15px;margin-bottom:16px">
+      <span style="font-size:22px">🛡️</span>
+      <span style="flex:1"><b style="font-size:14.5px">Conclusions en défense — Conseil de prud'hommes →</b><br><span style="font-size:12px;color:#cdd7e2">Requête du salarié : analyser, critiquer, déconstruire et rédiger la défense de l'employeur (licenciement, harcèlement, heures sup., exécution déloyale).</span></span>
+    </a>
     <div style="background:#fff7e6;border:1px solid #e7d9b0;border-radius:10px;padding:10px 12px;font-size:12px;color:#6b5a2e;margin-bottom:16px">
       ⚠️ <b>Réserve d'usage.</b> Cet outil <b>détecte les erreurs fréquentes et guide la mise en conformité</b> — il affiche, pour chaque document, une <b>check-list des points obligatoires</b> (avec l'article) et coche ceux qu'il repère dans le texte. Il fournit des <b>éléments de diagnostic</b> à vérifier et adapter ; il <b>ne garantit pas</b> à lui seul la conformité d'un document, ne remplace pas l'avis d'un professionnel, et ne lit pas automatiquement le fichier joint (application sans serveur). Les délais en jours fériés mobiles (Pâques, Ascension, Pentecôte) sont calculés mais à recontrôler.
     </div>
