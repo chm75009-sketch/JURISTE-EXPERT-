@@ -345,6 +345,12 @@
     <div class="card" id="offresListeCard">
       <h2>📋 Offres retenues <span class="muted" style="font-weight:400;font-size:12px">— droit du travail uniquement · cliquez pour consulter <span id="vuesCompteur" style="color:var(--accent)"></span></span></h2>
       <div class="hint" style="margin-bottom:8px">Ne sont listées que les offres de <b>droit du travail</b> (relations individuelles <b>et</b> collectives). Les métiers hors sujet (travailleur social, action sociale, mandataire judiciaire…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <span style="font-size:12.5px;color:var(--muted);font-weight:600">Afficher :</span>
+        <label class="chip on" id="chipCatInd"><input type="checkbox" id="catInd" checked> Exclusivement individuel <b id="cntCatInd" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipCatBoth"><input type="checkbox" id="catBoth" checked> Les deux <b id="cntCatBoth" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipCatCol"><input type="checkbox" id="catCol" checked> Exclusivement collectif <b id="cntCatCol" style="opacity:.7"></b></label>
+      </div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
         <span class="leg-item"><span class="leg-sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span> Non consultée</span>
         <span class="leg-item"><span class="leg-sw" style="background:#eceef1;border:1px solid #9aa2af"></span> Déjà consultée ✓</span>
@@ -670,6 +676,14 @@ $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
+// Sélecteurs de catégorie (tout ou partie) : Exclusivement individuel / Les deux / Exclusivement collectif
+["catInd","catBoth","catCol"].forEach(function(id){
+  var cb=$(id); if(!cb) return;
+  cb.addEventListener("change", function(){
+    var chip=cb.closest(".chip"); if(chip) chip.classList.toggle("on", cb.checked);
+    try{ renderOffresListe(_offresListe); }catch(_){}
+  });
+});
 if($("inclHS")) $("inclHS").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
 if($("inclAvocat")) $("inclAvocat").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
 if($("inclAlt")) $("inclAlt").addEventListener("change", function(){ if(lastOffers.length) analyse(lastOffers, lastTotal||lastOffers.length); });
@@ -914,17 +928,27 @@ function offreKey(o){ return String((o&&o.id) || (o&&o.origineOffre&&o.origineOf
 function offreUrl(o){ return (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.id)? "https://candidat.francetravail.fr/offres/recherche/detail/"+encodeURIComponent(o.id) : ""); }
 function majVuesCompteur(){ var v=offresVues(); var n=Object.keys(v).length; var el=$("vuesCompteur"); if(el) el.textContent = n? ("· "+n+" consultée(s)") : ""; }
 function marquerVue(key, el){ if(!key) return; var v=offresVues(); v[key]=Date.now(); saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); }
+var CAT_IND="Exclusivement individuel", CAT_COL="Exclusivement collectif", CAT_BOTH="Les deux (individuel + collectif)";
 function renderOffresListe(offers){
   var box=$("offresListe"); if(!box) return;
   _offresListe = offers || [];
   var vues=offresVues();
   // EXCLUSION STRICTE du hors droit du travail (travailleur social, action sociale, MJPM/tutelle, autre spécialité…)
-  var liste = (offers||[]).filter(function(o){ return classifyRel(o)!=="Non précisé"; });
+  var retenues = (offers||[]).filter(function(o){ return classifyRel(o)!=="Non précisé"; });
   // Dédoublonnage
-  var seen={}, uniq=[]; liste.forEach(function(o){ var k=offreKey(o); if(k&&!seen[k]){ seen[k]=1; uniq.push(o); } }); liste=uniq;
+  var seen={}, uniq=[]; retenues.forEach(function(o){ var k=offreKey(o); if(k&&!seen[k]){ seen[k]=1; uniq.push(o); } }); retenues=uniq;
+  // Comptage par catégorie (sur l'ensemble retenu, indépendamment de la sélection)
+  var cnt={}; cnt[CAT_IND]=0; cnt[CAT_COL]=0; cnt[CAT_BOTH]=0;
+  retenues.forEach(function(o){ var c=classifyRel(o); if(cnt[c]!=null) cnt[c]++; });
+  var setCnt=function(id,v){ var e=$(id); if(e) e.textContent = v? ("("+v+")") : "(0)"; };
+  setCnt("cntCatInd",cnt[CAT_IND]); setCnt("cntCatBoth",cnt[CAT_BOTH]); setCnt("cntCatCol",cnt[CAT_COL]);
+  // Filtre par catégories cochées (tout ou partie)
+  var showInd=!$("catInd")||$("catInd").checked, showCol=!$("catCol")||$("catCol").checked, showBoth=!$("catBoth")||$("catBoth").checked;
+  var liste = retenues.filter(function(o){ var c=classifyRel(o);
+    if(c===CAT_IND) return showInd; if(c===CAT_COL) return showCol; if(c===CAT_BOTH) return showBoth; return false; });
   // Non consultées d'abord
   liste.sort(function(a,b){ return (vues[offreKey(a)]?1:0)-(vues[offreKey(b)]?1:0); });
-  if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre en droit du travail pour cette recherche.</div>'; majVuesCompteur(); return; }
+  if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre à afficher (vérifiez les catégories cochées ci-dessus).</div>'; majVuesCompteur(); return; }
   box.innerHTML = liste.map(function(o){
     var key=offreKey(o), url=offreUrl(o), vue=!!vues[key];
     var meta=[esc((o.entreprise&&o.entreprise.nom)||"employeur non précisé"), esc((o.lieuTravail&&o.lieuTravail.libelle)||""), esc(o.typeContratLibelle||o.typeContrat||"")].filter(Boolean).join(" · ");
