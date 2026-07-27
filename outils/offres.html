@@ -71,6 +71,13 @@
   .offre-item.vue{border-left-color:#9aa2af;background:#eceef1;opacity:.72}
   .offre-item.vue .oi-t{color:#6b7280;font-weight:600}
   .offre-item.vue .oi-t::after{content:" ✓ consultée";color:#3fae74;font-size:11px;font-weight:700}
+  /* Postulée : prioritaire sur « consultée » (vert) */
+  .offre-item.postule{border-left-color:#2b8a5b;background:#e6f5ec;opacity:1}
+  .offre-item.postule .oi-t{color:var(--ink)}
+  .offre-item.postule .oi-t::after{content:" ✅ postulée";color:#2b8a5b;font-size:11px;font-weight:700}
+  .oi-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px}
+  .oi-post{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;user-select:none;color:var(--ink);font-weight:600}
+  .oi-post input{width:16px;height:16px;accent-color:#2b8a5b;margin:0}
   .leg-item{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
   .leg-sw{width:14px;height:14px;border-radius:3px;display:inline-block}
 
@@ -354,6 +361,7 @@
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
         <span class="leg-item"><span class="leg-sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></span> Non consultée</span>
         <span class="leg-item"><span class="leg-sw" style="background:#eceef1;border:1px solid #9aa2af"></span> Déjà consultée ✓</span>
+        <span class="leg-item"><span class="leg-sw" style="background:#e6f5ec;border:1px solid #2b8a5b"></span> Postulée ✅</span>
         <a href="#" id="resetVues" style="margin-left:auto;font-size:12px">↺ Réinitialiser les consultées</a>
       </div>
       <div id="offresListe"></div>
@@ -926,8 +934,15 @@ function offresVues(){ try{ return JSON.parse(localStorage.getItem(LS_VUES)||"{}
 function saveVues(v){ try{ localStorage.setItem(LS_VUES, JSON.stringify(v)); }catch(e){} }
 function offreKey(o){ return String((o&&o.id) || (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.intitule)||"")+"|"+((o&&o.entreprise&&o.entreprise.nom)||"")); }
 function offreUrl(o){ return (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.id)? "https://candidat.francetravail.fr/offres/recherche/detail/"+encodeURIComponent(o.id) : ""); }
-function majVuesCompteur(){ var v=offresVues(); var n=Object.keys(v).length; var el=$("vuesCompteur"); if(el) el.textContent = n? ("· "+n+" consultée(s)") : ""; }
+var LS_POST = "offres_postule_v1";
+function offresPost(){ try{ return JSON.parse(localStorage.getItem(LS_POST)||"{}")||{}; }catch(e){ return {}; } }
+function savePost(v){ try{ localStorage.setItem(LS_POST, JSON.stringify(v)); }catch(e){} }
+function majVuesCompteur(){ var v=offresVues(), pv=offresPost(); var n=Object.keys(v).length, np=Object.keys(pv).length; var el=$("vuesCompteur"); if(el) el.textContent = (n||np)? ("· "+n+" consultée(s)"+(np?(" · "+np+" postulée(s)"):"")) : ""; }
 function marquerVue(key, el){ if(!key) return; var v=offresVues(); v[key]=Date.now(); saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); }
+function togglePostule(key, checked, el){ if(!key) return; var v=offresPost(); if(checked){ v[key]=Date.now(); } else { delete v[key]; } savePost(v);
+  if(el){ el.classList.toggle("postule", checked); }
+  if(checked){ marquerVue(key, el); }   // postuler implique consultée
+  majVuesCompteur(); }
 var CAT_IND="Exclusivement individuel", CAT_COL="Exclusivement collectif", CAT_BOTH="Les deux (individuel + collectif)";
 function renderOffresListe(offers){
   var box=$("offresListe"); if(!box) return;
@@ -949,17 +964,24 @@ function renderOffresListe(offers){
   // Non consultées d'abord
   liste.sort(function(a,b){ return (vues[offreKey(a)]?1:0)-(vues[offreKey(b)]?1:0); });
   if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre à afficher (vérifiez les catégories cochées ci-dessus).</div>'; majVuesCompteur(); return; }
+  var posts=offresPost();
   box.innerHTML = liste.map(function(o){
-    var key=offreKey(o), url=offreUrl(o), vue=!!vues[key];
+    var key=offreKey(o), url=offreUrl(o), vue=!!vues[key], post=!!posts[key];
     var meta=[esc((o.entreprise&&o.entreprise.nom)||"employeur non précisé"), esc((o.lieuTravail&&o.lieuTravail.libelle)||""), esc(o.typeContratLibelle||o.typeContrat||"")].filter(Boolean).join(" · ");
-    return '<div class="offre-item'+(vue?' vue':'')+'" data-key="'+esc(key)+'">'
+    return '<div class="offre-item'+(vue?' vue':'')+(post?' postule':'')+'" data-key="'+esc(key)+'">'
       +'<div class="oi-t">'+esc(o.intitule||"—")+'</div>'
       +'<div class="oi-m">'+meta+' · <span style="opacity:.85">'+esc(classifyRel(o))+'</span></div>'
+      +'<div class="oi-foot">'
       +(url? '<a href="'+esc(url)+'" target="_blank" rel="noopener" class="oi-link" data-key="'+esc(key)+'">voir l\'offre ↗</a>' : '<span class="muted" style="font-size:12px">(lien indisponible)</span>')
+      +'<label class="oi-post"><input type="checkbox" class="oi-postcb" data-key="'+esc(key)+'"'+(post?' checked':'')+'> j\'ai postulé</label>'
+      +'</div>'
       +'</div>';
   }).join("");
   [].slice.call(box.querySelectorAll(".oi-link")).forEach(function(a){
     a.addEventListener("click", function(){ marquerVue(a.getAttribute("data-key"), a.closest(".offre-item")); });
+  });
+  [].slice.call(box.querySelectorAll(".oi-postcb")).forEach(function(cb){
+    cb.addEventListener("change", function(){ togglePostule(cb.getAttribute("data-key"), cb.checked, cb.closest(".offre-item")); });
   });
   majVuesCompteur();
 }
