@@ -315,6 +315,13 @@
     </div>
   </div>
 
+  <!-- Mes candidatures (toujours visible, indépendant de la recherche, persistant) -->
+  <div class="card" id="mesCandidaturesCard" style="display:none;border-left:4px solid #2b8a5b">
+    <h2>📌 Mes candidatures <span class="muted" style="font-weight:400;font-size:12px">— offres où j'ai postulé (conservées d'une session à l'autre)</span></h2>
+    <div class="hint" style="margin-bottom:8px">Ces offres restent ici <b>même si tu quittes puis reviens</b>, et ne sont <b>pas</b> effacées par « Réinitialiser les consultées ». Décoche « j'ai postulé » (ou « retirer ») pour en enlever une.</div>
+    <div id="mesCandidatures"></div>
+  </div>
+
   <!-- Résultats -->
   <div id="results" class="hidden">
 
@@ -481,6 +488,7 @@ function showApp(){
   $("gate").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("proxyUrl").value = localStorage.getItem(LS_PROXY) || DEFAULT_PROXY;
+  try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès l'ouverture (persistant, sans recherche)
 }
 async function tryGate(){
   const v = $("pass").value.trim();
@@ -686,6 +694,7 @@ $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
+try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès le chargement (persistant)
 // Sélecteurs de catégorie (tout ou partie) : Exclusivement individuel / À la fois ind.+coll. / Exclusivement collectif
 ["catInd","catBoth","catCol"].forEach(function(id){
   var cb=$(id); if(!cb) return;
@@ -941,14 +950,45 @@ function offresPost(){ try{ return JSON.parse(localStorage.getItem(LS_POST)||"{}
 function savePost(v){ try{ localStorage.setItem(LS_POST, JSON.stringify(v)); }catch(e){} }
 function majVuesCompteur(){ var v=offresVues(), pv=offresPost(); var n=Object.keys(v).length, np=Object.keys(pv).length; var el=$("vuesCompteur"); if(el) el.textContent = (n||np)? ("· "+n+" consultée(s)"+(np?(" · "+np+" postulée(s)"):"")) : ""; }
 function marquerVue(key, el){ if(!key) return; var v=offresVues(); v[key]=Date.now(); saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); }
-function togglePostule(key, checked, el){ if(!key) return; var v=offresPost(); if(checked){ v[key]=Date.now(); } else { delete v[key]; } savePost(v);
+var _offreByKey = {};   // clé -> offre courante (pour mémoriser les détails au moment de cocher « postulé »)
+function postRecord(o){ return { t:(o&&o.intitule)||"", e:(o&&o.entreprise&&o.entreprise.nom)||"", l:(o&&o.lieuTravail&&o.lieuTravail.libelle)||"", c:(o&&(o.typeContratLibelle||o.typeContrat))||"", cat:o?classifyRel(o):"", url:offreUrl(o), d:Date.now() }; }
+function togglePostule(key, checked, el){ if(!key) return; var v=offresPost();
+  if(checked){ var o=_offreByKey[key]; v[key]= o? postRecord(o) : {d:Date.now()}; } else { delete v[key]; }
+  savePost(v);
   if(el){ el.classList.toggle("postule", checked); }
   if(checked){ marquerVue(key, el); }   // postuler implique consultée
-  majVuesCompteur(); }
+  majVuesCompteur(); try{ renderPostulees(); }catch(e){} }
+// Section « Mes candidatures » : persistante, indépendante de la recherche
+function renderPostulees(){
+  var card=$("mesCandidaturesCard"), box=$("mesCandidatures"); if(!box) return;
+  var v=offresPost(), keys=Object.keys(v);
+  if(!keys.length){ if(card) card.style.display="none"; box.innerHTML=""; return; }
+  if(card) card.style.display="";
+  var rows=keys.map(function(k){ var r=v[k]; if(typeof r!=="object"||r===null){ r={t:"(offre postulée)",e:"",l:"",c:"",cat:"",url:"",d:(typeof r==="number"?r:0)}; } return {k:k,r:r}; });
+  rows.sort(function(a,b){ return (b.r.d||0)-(a.r.d||0); });
+  box.innerHTML = rows.map(function(x){ var r=x.r, dt=r.d? new Date(r.d).toLocaleDateString("fr-FR") : "";
+    var meta=[esc(r.e||"employeur non précisé"), esc(r.l||""), esc(r.c||""), esc(r.cat||"")].filter(Boolean).join(" · ");
+    return '<div class="offre-item postule" data-key="'+esc(x.k)+'">'
+      +'<div class="oi-t">'+esc(r.t||"(offre)")+'</div>'
+      +'<div class="oi-m">'+meta+(dt?' · <b>postulée le '+esc(dt)+'</b>':'')+'</div>'
+      +'<div class="oi-foot">'
+      +(r.url? '<a href="'+esc(r.url)+'" target="_blank" rel="noopener" class="oi-link">voir l\'offre ↗</a>' : '<span class="muted" style="font-size:12px">(lien indisponible)</span>')
+      +'<a href="#" class="cand-remove" data-key="'+esc(x.k)+'" style="color:#c0392b;font-size:12.5px;font-weight:600">✕ retirer</a>'
+      +'</div></div>';
+  }).join("");
+  [].slice.call(box.querySelectorAll(".cand-remove")).forEach(function(a){
+    a.addEventListener("click", function(e){ e.preventDefault(); var k=a.getAttribute("data-key");
+      var vv=offresPost(); delete vv[k]; savePost(vv);
+      [].slice.call(document.querySelectorAll(".oi-postcb")).forEach(function(cb){ if(cb.getAttribute("data-key")===k){ cb.checked=false; var it=cb.closest(".offre-item"); if(it) it.classList.remove("postule"); } });
+      renderPostulees(); majVuesCompteur();
+    });
+  });
+}
 var CAT_IND="Exclusivement individuel", CAT_COL="Exclusivement collectif", CAT_BOTH="À la fois individuel + collectif";
 function renderOffresListe(offers){
   var box=$("offresListe"); if(!box) return;
   _offresListe = offers || [];
+  (offers||[]).forEach(function(o){ var k=offreKey(o); if(k) _offreByKey[k]=o; });   // pour mémoriser les détails à la coche « postulé »
   var vues=offresVues();
   // EXCLUSION STRICTE du hors droit du travail (travailleur social, action sociale, MJPM/tutelle, autre spécialité…)
   var retenues = (offers||[]).filter(function(o){ return classifyRel(o)!=="Non précisé"; });
