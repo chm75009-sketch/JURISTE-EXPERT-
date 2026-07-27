@@ -353,9 +353,9 @@
       <h2>📋 Offres retenues <span class="muted" style="font-weight:400;font-size:12px">— droit du travail uniquement · cliquez pour consulter <span id="vuesCompteur" style="color:var(--accent)"></span></span></h2>
       <div class="hint" style="margin-bottom:8px">Ne sont listées que les offres de <b>droit du travail</b> (relations individuelles <b>et</b> collectives). Les métiers hors sujet (travailleur social, action sociale, mandataire judiciaire…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-        <span style="font-size:12.5px;color:var(--muted);font-weight:600">Afficher :</span>
+        <span style="font-size:12.5px;color:var(--muted);font-weight:600" title="« À la fois » = une même offre demande des missions individuelles ET collectives. Ce n'est pas l'addition des deux autres colonnes.">Afficher :</span>
         <label class="chip on" id="chipCatInd"><input type="checkbox" id="catInd" checked> Exclusivement individuel <b id="cntCatInd" style="opacity:.7"></b></label>
-        <label class="chip on" id="chipCatBoth"><input type="checkbox" id="catBoth" checked> Les deux <b id="cntCatBoth" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipCatBoth"><input type="checkbox" id="catBoth" checked> À la fois ind. + coll. <b id="cntCatBoth" style="opacity:.7"></b></label>
         <label class="chip on" id="chipCatCol"><input type="checkbox" id="catCol" checked> Exclusivement collectif <b id="cntCatCol" style="opacity:.7"></b></label>
       </div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
@@ -685,7 +685,7 @@ $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
-// Sélecteurs de catégorie (tout ou partie) : Exclusivement individuel / Les deux / Exclusivement collectif
+// Sélecteurs de catégorie (tout ou partie) : Exclusivement individuel / À la fois ind.+coll. / Exclusivement collectif
 ["catInd","catBoth","catCol"].forEach(function(id){
   var cb=$(id); if(!cb) return;
   cb.addEventListener("change", function(){
@@ -918,7 +918,7 @@ function classifyRel(o){
   // Hors sujet : autre spécialité juridique sans aucun signal droit social -> non classé (écarté de l'étude)
   if(estAutreSpecialite(o)) return "Non précisé";
   const sc=relIndScore(o);
-  if(sc.ind>0 && sc.col>0) return "Les deux (individuel + collectif)";
+  if(sc.ind>0 && sc.col>0) return "À la fois individuel + collectif";
   if(sc.col>0 && sc.ind===0) return "Exclusivement collectif";
   if(sc.ind>0 && sc.col===0) return "Exclusivement individuel";
   // EXIGENCE SYMÉTRIQUE individuel / collectif : sans marqueur EXPLICITE de relation de travail
@@ -944,7 +944,7 @@ function togglePostule(key, checked, el){ if(!key) return; var v=offresPost(); i
   if(el){ el.classList.toggle("postule", checked); }
   if(checked){ marquerVue(key, el); }   // postuler implique consultée
   majVuesCompteur(); }
-var CAT_IND="Exclusivement individuel", CAT_COL="Exclusivement collectif", CAT_BOTH="Les deux (individuel + collectif)";
+var CAT_IND="Exclusivement individuel", CAT_COL="Exclusivement collectif", CAT_BOTH="À la fois individuel + collectif";
 function renderOffresListe(offers){
   var box=$("offresListe"); if(!box) return;
   _offresListe = offers || [];
@@ -1276,7 +1276,7 @@ function depKey(o){
 let lastSyntheseRows=[];
 function renderSynthese(offers){
   var box=$("synthese"); if(!box) return;
-  var CATS=[["Exclusivement individuel","var(--accent)"],["Exclusivement collectif","#c47f17"],["Les deux (individuel + collectif)","#2e9e5b"]];
+  var CATS=[["Exclusivement individuel","var(--accent)"],["Exclusivement collectif","#c47f17"],["À la fois individuel + collectif","#2e9e5b"]];
   var SZ=[["TPE","TPE"],["PME","PME"],["ETI","ETI/GG"],["NP","NP"]];
   var html="";
   lastSyntheseRows=[["Type de relation","Zone (dept)","TPE","PME","ETI/GG","Non precise","Nb offres","Nb societes","Repetition"]];
@@ -1291,7 +1291,7 @@ function renderSynthese(offers){
     var known=c.TPE+c.PME+c.ETI, petites=c.TPE+c.PME, grandes=c.ETI;
     var pc=function(v){ return known?Math.round(v/known*100):0; };
     var tend = !known ? "—" : (petites>grandes ? "🔻 Petites entreprises" : (grandes>petites ? "🔺 Grandes entreprises" : "≈ Équilibré"));
-    var lab=cat[0].replace("Exclusivement ","").replace("Les deux (individuel + collectif)","Individuel + collectif");
+    var lab=cat[0].replace("Exclusivement ","").replace("À la fois individuel + collectif","Individuel + collectif");
     html+='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px;font-weight:600;color:'+cat[1]+'">'+esc(lab)+'</td>'
       +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.TPE)+'%</td>'
       +'<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+pc(c.PME)+'%</td>'
@@ -1376,7 +1376,7 @@ function analyse(offers, totalDispo){
     var parts=["Total collecté : <b>"+_fetched0+"</b>", "retenues droit du travail : <b>"+n+"</b>", "hors sujet écartées : <b>"+horsSujet.length+"</b>"];
     if(avocats.length) parts.push("avocats isolés : <b>"+avocats.length+"</b>");
     if(altern.length) parts.push("alternance/stage isolés : <b>"+altern.length+"</b>");
-    rec.innerHTML = parts.join(" · ") + " &nbsp;<span style=\"opacity:.7\">("+n+" = "+ci+" individuel + "+cbo+" les deux + "+cco+" collectif)</span>";
+    rec.innerHTML = parts.join(" · ") + " &nbsp;<span style=\"opacity:.7\">("+n+" retenues = "+ci+" exclusivement individuel + "+cco+" exclusivement collectif + "+cbo+" à la fois ind. & coll.)</span>";
   } }catch(e){}
 
   /* --- Compétences --- */
@@ -1386,7 +1386,7 @@ function analyse(offers, totalDispo){
   // Bloc « individuel / collectif » : pertinent uniquement pour un métier de droit social / RH → masqué sinon
   var _secRel = $("secRelation"); if(_secRel) _secRel.style.display = lastDroitSocial ? "" : "none";
   if(lastDroitSocial) (function(){
-    const RCATS=["Exclusivement individuel","Exclusivement collectif","Les deux (individuel + collectif)"];
+    const RCATS=["Exclusivement individuel","Exclusivement collectif","À la fois individuel + collectif"];
     if(inclureHS) RCATS.push("Non précisé");   // n'afficher la ligne « hors droit social » que si on les inclut
     const by={}; offers.forEach(function(o){ const c=classifyRel(o); by[c]=(by[c]||0)+1; });
     const pct=function(v){ return n?Math.round(v/n*100):0; };
@@ -1407,7 +1407,7 @@ function analyse(offers, totalDispo){
     RCATS.forEach(function(c){ var tot=0; var row='<tr style="border-bottom:1px solid var(--line)"><td style="padding:6px">'+c+'</td>'; SZ.forEach(function(z){ var v=mat[c][z[0]]||0; tot+=v; row+='<td style="padding:6px;text-align:center;font-variant-numeric:tabular-nums">'+v+'</td>'; }); row+='<td style="padding:6px;text-align:center;font-weight:700">'+tot+'</td></tr>'; h+=row; });
     h+='</tbody></table></div>';
     var cr=$("chartRatio"); if(cr) cr.innerHTML=h;
-    var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["Les deux (individuel + collectif)"]||0;
+    var exi=by["Exclusivement individuel"]||0, exc=by["Exclusivement collectif"]||0, both=by["À la fois individuel + collectif"]||0;
     var el=$("ratioNote"); if(el) el.innerHTML="<b>"+exi+"</b> offres exclusivement individuel ("+pct(exi)+"%) \u00b7 <b>"+exc+"</b> exclusivement collectif ("+pct(exc)+"%) \u00b7 <b>"+both+"</b> les deux ("+pct(both)+"%)."
       + (horsSujet.length ? "<br><span style=\"opacity:.8\">"+(inclureHS?"<b>"+horsSujet.length+"</b> offre(s) hors droit social incluses ci-dessus.":"<b>"+horsSujet.length+"</b> offre(s) hors droit social <b>\u00e9cart\u00e9e(s)</b> de l'\u00e9tude (travail social, hors sujet) \u2014 voir le d\u00e9tail ci-dessous.")+"</span>" : "")
       + ((avocats.length||altern.length) ? "<br><span style=\"opacity:.8\">"
