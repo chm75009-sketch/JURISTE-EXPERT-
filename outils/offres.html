@@ -364,6 +364,7 @@
         <span class="leg-item"><span class="leg-sw" style="background:#e6f5ec;border:1px solid #2b8a5b"></span> Postulée ✅</span>
         <a href="#" id="resetVues" style="margin-left:auto;font-size:12px">↺ Réinitialiser les consultées</a>
       </div>
+      <div id="offresRecap" class="hint" style="margin:0 0 10px;padding:8px 10px;background:var(--accent-soft);border-radius:8px"></div>
       <div id="offresListe"></div>
     </div>
 
@@ -1341,6 +1342,7 @@ function renderSynthese(offers){
 }
 function analyse(offers, totalDispo){
   lastTotal = totalDispo;
+  var _fetched0 = (offers||[]).length;   // total réellement collecté (avant tri hors-sujet / avocats / alternance)
   // Étude « juriste droit social » : on écarte les offres hors sujet (non classées : ni individuel ni collectif,
   // ex. travailleur social, mandataire judiciaire) — sauf si l'utilisateur demande à les inclure.
   var horsSujet = lastDroitSocial ? offers.filter(function(o){ return classifyRel(o)==="Non précisé"; }) : [];
@@ -1362,10 +1364,20 @@ function analyse(offers, totalDispo){
       return true;
     });
   }
+  // Dédoublonnage final (cohérence des compteurs : liste, catégories et KPI « offres analysées » identiques)
+  (function(){ var s={},u=[]; offers.forEach(function(o){ var k=offreKey(o); if(k&&!s[k]){ s[k]=1; u.push(o); } }); offers=u; })();
   const n = offers.length;
 
   /* --- Liste d'offres retenues (consultables, hors droit du travail exclu) --- */
   try{ renderOffresListe(offers); }catch(e){}
+  // Récapitulatif transparent : total collecté = retenues + hors sujet + avocats + alternance
+  try{ var rec=$("offresRecap"); if(rec){
+    var ci=0,cbo=0,cco=0; offers.forEach(function(o){ var c=classifyRel(o); if(c===CAT_IND)ci++; else if(c===CAT_BOTH)cbo++; else if(c===CAT_COL)cco++; });
+    var parts=["Total collecté : <b>"+_fetched0+"</b>", "retenues droit du travail : <b>"+n+"</b>", "hors sujet écartées : <b>"+horsSujet.length+"</b>"];
+    if(avocats.length) parts.push("avocats isolés : <b>"+avocats.length+"</b>");
+    if(altern.length) parts.push("alternance/stage isolés : <b>"+altern.length+"</b>");
+    rec.innerHTML = parts.join(" · ") + " &nbsp;<span style=\"opacity:.7\">("+n+" = "+ci+" individuel + "+cbo+" les deux + "+cco+" collectif)</span>";
+  } }catch(e){}
 
   /* --- Compétences --- */
   const comp = countBy(offers, o => (o.competences||[]).map(c=>c.libelle));
