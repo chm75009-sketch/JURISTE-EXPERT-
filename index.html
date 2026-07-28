@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.66';
+var JX_BUILD = 'v2026-07-28.67';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5431,7 +5431,7 @@ function rhRender(){
   var actifs=RH.staff.filter(function(s){return !s.sortie;}).length;
   var head=
    '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px">'
-   +'<div><span style="font-size:17px;font-weight:800;color:#fff">👥 Espace RH</span> <span style="font-size:12px;color:#9fb0c4">— '+_rhEsc(RH.ent.nom||'Entreprise')+' · '+actifs+' salarié(s) actif(s) / '+RH.staff.length+' au registre</span></div>'
+   +'<div><span style="font-size:17px;font-weight:800;color:#fff">👥 Espace RH</span> <span style="font-size:12px;color:#9fb0c4">— '+_rhEsc(RH.ent.nom||'Entreprise')+' · '+actifs+' salarié(s) actif(s) / '+RH.staff.length+' au registre</span> <span style="font-size:10px;color:#6b7a8d">'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+'</span></div>'
    +'<button onclick="rhLock()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;cursor:pointer">🔒 Verrouiller</button>'
    +'</div>'
    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
