@@ -483,6 +483,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
         <span class="sec on">Transport</span><span class="sec">HCR</span><span class="sec">Bâtiment</span><span class="sec">Banque</span><span class="sec">Assurances</span>
         <span class="sec">Syntec</span><span class="sec">Enseignement privé (EPNL)</span><span class="sec">Ens. privé indépendant</span><span class="sec">Organismes de formation</span><span class="sec">Tous secteurs</span>
       </div>
+      <p style="font-size:12.5px;color:rgba(232,228,216,.72);margin-top:10px;line-height:1.55">Ces secteurs sont couverts <b>en profondeur</b> (IDCC, spécificités, jurisprudence, documents adaptés). Pour <b>toute autre convention collective</b>, choisissez « <b>Tous secteurs / Autre</b> » et indiquez votre <b>IDCC</b> : l'app raisonne sur la base du <b>Code du travail</b> (applicable à tous) et vous signale les points où votre convention peut prévoir des règles plus favorables à vérifier.</p>
     </section>
 
     <div class="access">
@@ -618,7 +619,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
           <option value="enseignement">Enseignement privé (EPNL)</option>
           <option value="formation">Organismes de formation (IDCC 1516)</option>
           <option value="ensindep">Enseignement privé indépendant</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
-          <option value="autre">Autre secteur</option>
+          <option value="autre">Autre convention — précisez votre IDCC</option>
         </select>
         <label>Email <span class="req">*</span></label>
         <input id="abo-mail" type="email" autocomplete="email" inputmode="email" placeholder="vous@entreprise.fr">
@@ -649,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.75';
+var JX_BUILD = 'v2026-07-28.76';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -1251,7 +1252,7 @@ function accueilShowAbo(){
   try{ window.scrollTo(0,0); }catch(e){}
   setTimeout(function(){ var i=document.getElementById('abo-nom'); if(i) i.focus(); }, 80);
 }
-var SECL_ABO={transport:'Transport routier (IDCC 16)',banque:'Banque (IDCC 2120)',assurances:'Assurances (IDCC 1672)',syntec:'Syntec (IDCC 1486)',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation (IDCC 1516)',ensindep:'Enseignement privé indépendant',batiment:'Bâtiment (IDCC 1596/1597 · 2609 · 2420)',autre:'Autre secteur'};
+var SECL_ABO={transport:'Transport routier (IDCC 16)',banque:'Banque (IDCC 2120)',assurances:'Assurances (IDCC 1672)',syntec:'Syntec (IDCC 1486)',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation (IDCC 1516)',ensindep:'Enseignement privé indépendant',batiment:'Bâtiment (IDCC 1596/1597 · 2609 · 2420)',autre:'Autre convention (préciser votre IDCC)'};
 function _aboMailtoFallback(nom,ent,sec,mail,tel){
   var sujet='Demande d\'accès Juris Expert MCH — '+ent;
   var corps='Nom : '+nom+'\nEntreprise : '+ent+'\nSecteur : '+(SECL_ABO[sec]||sec)+'\nEmail : '+mail+'\nTéléphone : '+(tel||'—');
