@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.63';
+var JX_BUILD = 'v2026-07-28.64';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -9789,6 +9789,21 @@ Document généré par Juris Expert MCH · ${new Date().toLocaleString('fr-FR')}
 </html>`;
 }
 
+// Bureau de vote (règle supplétive à défaut d'accord dans le PAP) :
+// président = électeur le plus âgé ; assesseurs = 2e plus âgé + le plus jeune.
+function _cseBureauVote(dateScrutinISO){
+  try{
+    if(!dateScrutinISO || typeof salariesNom==='undefined') return null;
+    const el = salariesNom
+      .filter(s => { const r = calcSalarieNom(s, dateScrutinISO); return r && r.electeur && s.dateNaissance; })
+      .map(s => ({ nom:(s.nom||'').trim(), d:new Date(s.dateNaissance) }))
+      .filter(x => x.nom && !isNaN(x.d))
+      .sort((a,b) => a.d - b.d); // du plus âgé au plus jeune
+    if(el.length < 3) return null;
+    const f = x => x.nom + ' (né(e) le ' + x.d.toLocaleDateString('fr-FR') + ')';
+    return { president:f(el[0]), assesseur1:f(el[1]), assesseur2:f(el[el.length-1]) };
+  }catch(e){ return null; }
+}
 function genDocElectionTEC(type){
   // Récupérer la date du 1er tour saisie par l'utilisateur (étape D)
   const dateScrutinISO = document.getElementById('cse-nom-date-scrutin')?.value;
@@ -10012,9 +10027,11 @@ ${e.nom}<br>
 <tbody>${lignes}</tbody>
 </table>
 <p style="${S}margin-top:30px"><strong>Membres du bureau de vote :</strong></p>
-<p style="${S}">Président : ____________________________</p>
-<p style="${S}">Assesseur 1 (le plus âgé) : ____________________________</p>
-<p style="${S}">Assesseur 2 (le plus jeune) : ____________________________</p>
+${(function(){ const bv=_cseBureauVote(dateScrutinISO); if(!bv) return `<p style="${S}">Président (le plus âgé) : ____________________________</p>
+<p style="${S}">Assesseur 1 (2e plus âgé) : ____________________________</p>
+<p style="${S}">Assesseur 2 (le plus jeune) : ____________________________</p>`; return `<p style="${S}">Président (le plus âgé) : ${bv.president}</p>
+<p style="${S}">Assesseur 1 (2e plus âgé) : ${bv.assesseur1}</p>
+<p style="${S}">Assesseur 2 (le plus jeune) : ${bv.assesseur2}</p>`; })()}
 <p style="${S}margin-top:30px">Total inscrits : <strong>${electeurs.length}</strong> &nbsp;·&nbsp; Total votants : _____ &nbsp;·&nbsp; Quorum (50% de ${electeurs.length}) : <strong>${Math.ceil(electeurs.length/2)}</strong></p>
 </div>`;
   }
@@ -10032,9 +10049,12 @@ ${e.nom}<br>
 <p style="${S}text-align:center"><strong>Date du scrutin :</strong> ${dateTour}</p>
 
 <h3 style="${S}font-size:12pt;text-decoration:underline;margin-top:20px">1. Composition du bureau de vote</h3>
-<p style="${S}">Président : ____________________________________________</p>
-<p style="${S}">Assesseur 1 (le plus âgé) : __________________________________</p>
-<p style="${S}">Assesseur 2 (le plus jeune) : ________________________________</p>
+${(function(){ const bv=_cseBureauVote(dateScrutinISO); if(!bv) return `<p style="${S}">Président (le plus âgé) : ____________________________________________</p>
+<p style="${S}">Assesseur 1 (2e plus âgé) : __________________________________</p>
+<p style="${S}">Assesseur 2 (le plus jeune) : ________________________________</p>`; return `<p style="${S}font-size:9pt;color:#555;font-style:italic">Proposition selon la règle supplétive (applicable à défaut d'accord dans le PAP) — désignation définitive le jour du scrutin ; un électeur peut refuser cette mission :</p>
+<p style="${S}">Président (le plus âgé) : ${bv.president}</p>
+<p style="${S}">Assesseur 1 (2e plus âgé) : ${bv.assesseur1}</p>
+<p style="${S}">Assesseur 2 (le plus jeune) : ${bv.assesseur2}</p>`; })()}
 
 <h3 style="${S}font-size:12pt;text-decoration:underline;margin-top:20px">2. Résultats des opérations de vote</h3>
 <table style="${S}width:100%;border-collapse:collapse;margin:10px 0">
