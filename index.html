@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.60';
+var JX_BUILD = 'v2026-07-28.61';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -9266,14 +9266,14 @@ function cseBareme(eff){
   if(eff<11){return {sieges:0,heures:0};}
   else if(eff<=24){sieges=1;heures=10;}
   else if(eff<=49){sieges=2;heures=10;}
-  else if(eff<=74){sieges=4;heures=18;}
-  else if(eff<=99){sieges=5;heures=19;}
-  else if(eff<=124){sieges=6;heures=21;}
-  else if(eff<=149){sieges=7;heures=21;}
-  else if(eff<=174){sieges=8;heures=21;}
-  else if(eff<=199){sieges=9;heures=21;}
-  else if(eff<=249){sieges=10;heures=22;}
-  else if(eff<=299){sieges=11;heures=22;}
+  else if(eff<=74){sieges=3;heures=18;}
+  else if(eff<=99){sieges=4;heures=18;}
+  else if(eff<=124){sieges=5;heures=21;}
+  else if(eff<=149){sieges=6;heures=21;}
+  else if(eff<=174){sieges=7;heures=21;}
+  else if(eff<=199){sieges=8;heures=21;}
+  else if(eff<=249){sieges=9;heures=22;}
+  else if(eff<=299){sieges=10;heures=22;}
   else if(eff<=399){sieges=11;heures=22;}
   else if(eff<=499){sieges=12;heures=22;}
   else if(eff<=599){sieges=13;heures=24;}
