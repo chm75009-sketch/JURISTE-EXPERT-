@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.65';
+var JX_BUILD = 'v2026-07-28.66';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5507,10 +5507,12 @@ function rhRegistre(){
    +'<select onchange="_rhFilter.statut=this.value;rhRender()" style="padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
      +'<option value="actif"'+(f.statut==='actif'?' selected':'')+'>Actifs</option><option value="sorti"'+(f.statut==='sorti'?' selected':'')+'>Sortis</option><option value="tous"'+(f.statut==='tous'?' selected':'')+'>Tous</option></select>'
    +'<button onclick="rhFiche(\'\')" style="padding:9px 12px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter</button>'
-   +'<button onclick="rhImportPrompt()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer (CSV/Excel)</button>'
-   +'<button onclick="rhExportRegistre()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">🖨️ Registre (impression)</button>'
-   +(RH.staff.length?'<button onclick="rhWipeRegistre()" style="padding:9px 12px;border:1px solid rgba(224,92,92,.4);border-radius:9px;background:rgba(224,92,92,.08);color:#e05c5c;font-size:13px;cursor:pointer">🗑️ Vider / remplacer</button>':'')
-   +'</div>';
+   +'<button onclick="rhReplacePrompt()" style="padding:9px 12px;border:1px solid rgba(70,184,133,.5);border-radius:9px;background:rgba(70,184,133,.12);color:#8fe3bd;font-weight:700;font-size:13px;cursor:pointer">🔁 Remplacer (fichier)</button>'
+   +'<button onclick="rhAddPrompt()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">✏️ Modifier / compléter (fichier)</button>'
+   +(RH.staff.length?'<button onclick="rhWipeRegistre()" style="padding:9px 12px;border:1px solid rgba(224,92,92,.45);border-radius:9px;background:rgba(224,92,92,.10);color:#e05c5c;font-weight:700;font-size:13px;cursor:pointer">🗑️ Supprimer le registre</button>':'')
+   +'<button onclick="rhExportRegistre()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">🖨️ Imprimer</button>'
+   +'</div>'
+   +(RH.staff.length?'<div style="font-size:11.5px;color:#9fb0c4;margin:-4px 0 12px">✏️ Pour <b>modifier</b> ou <b>supprimer un salarié</b>, cliquez sur sa ligne dans la liste ci-dessous.</div>':'');
   if(!RH.staff.length){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:20px;text-align:center;color:#9fb0c4;font-size:13px">Registre vide. Importez votre fichier CSV, ajoutez un salarié, ou <button onclick="rhSeedDemo()" style="background:none;border:none;color:#c9a84c;text-decoration:underline;cursor:pointer;font-size:13px">charger 3 fiches de démonstration</button>.</div>';
     return h;
@@ -5649,7 +5651,10 @@ async function rhSaveEnt(){
 }
 
 /* ══════════ IMPORT CSV ══════════ */
-function rhImportPrompt(){ var i=document.getElementById('rh-csv-input'); if(i) i.click(); }
+var _rhImportMode='ask';
+function rhImportPrompt(){ _rhImportMode='ask'; var i=document.getElementById('rh-csv-input'); if(i){ i.value=''; i.click(); } }
+function rhReplacePrompt(){ if(RH.staff.length && !confirm('REMPLACER tout le registre ('+RH.staff.length+' salarié·s) par le contenu du fichier ?\n\nLe registre actuel sera vidé puis remplacé.')) return; _rhImportMode='replace'; var i=document.getElementById('rh-csv-input'); if(i){ i.value=''; i.click(); } }
+function rhAddPrompt(){ _rhImportMode='add'; var i=document.getElementById('rh-csv-input'); if(i){ i.value=''; i.click(); } }
 function _rhSplitCSV(line){
   // séparateur ; ou , — gestion basique des guillemets
   var sep = (line.indexOf(';')>=0 && (line.indexOf(',')<0 || line.split(';').length>=line.split(',').length)) ? ';' : ',';
@@ -5734,7 +5739,9 @@ function rhImportFile(input){
   var ext=(file.name.split('.').pop()||'').toLowerCase();
   var finishRows=async function(rows){
     try{
-      _rhConfirmRemplace();
+      if(_rhImportMode==='replace'){ RH.staff=[]; }
+      else if(_rhImportMode==='ask'){ _rhConfirmRemplace(); }
+      _rhImportMode='ask';
       var added=_rhIngestRows(rows);
       if(added==null){ input.value=''; return; }
       await rhSave(); input.value='';
