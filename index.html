@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.74';
+var JX_BUILD = 'v2026-07-28.75';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -2778,12 +2778,12 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <div class="card">
 <div class="ct">Liste des salariés</div>
 <div class="al info" style="font-size:12px;margin-bottom:10px">
-Une fois le fichier importé (étape C), les salariés apparaissent ici. Vous pouvez aussi ajouter/modifier manuellement.
+Chargez la liste depuis le <b>registre du personnel (Espace RH)</b> ci-dessous, ou importez un fichier. Vous pouvez aussi ajouter/modifier manuellement.
 </div>
+<button onclick="chargerDepuisRH()" class="btn-outline" style="margin-bottom:8px;width:100%;background:rgba(70,184,133,0.16);border-color:rgba(70,184,133,0.6);color:#8fe3bd;font-weight:800;font-size:14px;padding:13px">📥 Charger depuis le registre du personnel (Espace RH)</button>
+<button onclick="document.getElementById('cse-nom-import').click()" class="btn-outline" style="margin-bottom:10px;width:100%">📂 Importer depuis un fichier CSV ou Excel</button>
 <div id="cse-nom-liste"></div>
 <button onclick="addSalarieNom()" class="btn-sm" style="margin-top:10px;width:100%">+ Ajouter un salarié</button>
-<button onclick="chargerDepuisRH()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(70,184,133,0.12);border-color:rgba(70,184,133,0.5);color:#8fe3bd;font-weight:700">📥 Charger depuis le registre du personnel (Espace RH)</button>
-<button onclick="document.getElementById('cse-nom-import').click()" class="btn-outline" style="margin-top:8px;width:100%">📂 Importer depuis un fichier CSV ou Excel</button>
 <input type="file" id="cse-nom-import" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="importFichierNom(this)"/>
 
 <button onclick="document.getElementById('registre-import').click()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📷 Importer depuis photo ou PDF du registre du personnel (OCR)</button>

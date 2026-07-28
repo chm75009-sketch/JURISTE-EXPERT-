@@ -1,5 +1,5 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v58';
+const CACHE = 'jem-v59';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
