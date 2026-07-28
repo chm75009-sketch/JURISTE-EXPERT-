@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.72';
+var JX_BUILD = 'v2026-07-28.73';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6375,6 +6375,7 @@ function rxRegistre(){
     +'<button onclick="rxFiche(\'\')" style="'+_rxb+';border:none;background:#46b885;color:#04150e">＋ Ajouter</button>'
     +'<button onclick="rxReplacePrompt()" style="'+_rxb+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">🔁 Remplacer (fichier)</button>'
     +'<button onclick="rxAddPrompt()" style="'+_rxb+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">✏️ Modifier / compléter</button>'
+    +(RX.staff.length?'<button onclick="rxSplitNames()" style="'+_rxb+';border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a">✂️ Séparer Nom / Prénom</button>':'')
     +(RX.staff.length?'<button onclick="rxPrintRegistre()" style="'+_rxb+';border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a">🖨️ Registre officiel</button>':'')
     +(RX.staff.length?'<button onclick="rxWipeRegistre()" style="'+_rxb+';border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c">🗑️ Supprimer le registre</button>':'')
     +'<input type="file" id="rx-csv" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="rxImport(this)">'
@@ -6411,7 +6412,8 @@ function rxRegistre(){
 /* Noms importés « collés » (nom + prénom dans la même case, prénom vide). */
 function rxCombinedNameCount(){ var n=0; RX.staff.forEach(function(s){ if((!s.prenom||!s.prenom.trim()) && (s.nom||'').trim().indexOf(' ')>-1) n++; }); return n; }
 function rxSplitNames(){
-  var cnt=rxCombinedNameCount(); if(!cnt){ return; }
+  var cnt=rxCombinedNameCount();
+  if(!cnt){ alert('Aucun nom à séparer : tous les salariés ont déjà un nom et un prénom distincts (ou un seul mot).\n\nSi un nom est mal découpé, ouvrez la fiche du salarié (clic sur sa ligne) pour corriger Nom / Prénom à la main.'); return; }
   if(!confirm('Séparer automatiquement le nom et le prénom pour '+cnt+' salarié(s) ?\n\nRègle : le DERNIER mot devient le prénom, le reste le nom.\n(Ex. « ALFA Zakaria » → Nom : ALFA · Prénom : Zakaria)\nVous pourrez corriger au cas par cas ensuite.')) return;
   RX.staff.forEach(function(s){
     if((s.prenom&&s.prenom.trim()) || (s.nom||'').trim().indexOf(' ')===-1) return;
