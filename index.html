@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.57';
+var JX_BUILD = 'v2026-07-28.58';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -2783,7 +2783,7 @@ Une fois le fichier importé (étape C), les salariés apparaissent ici. Vous po
 <div id="cse-nom-liste"></div>
 <button onclick="addSalarieNom()" class="btn-sm" style="margin-top:10px;width:100%">+ Ajouter un salarié</button>
 <button onclick="document.getElementById('cse-nom-import').click()" class="btn-outline" style="margin-top:8px;width:100%">📂 Importer depuis un fichier CSV ou Excel</button>
-<input type="file" id="cse-nom-import" style="display:none" onchange="importFichierNom(this)"/>
+<input type="file" id="cse-nom-import" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="importFichierNom(this)"/>
 
 <button onclick="document.getElementById('registre-import').click()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">📷 Importer depuis photo ou PDF du registre du personnel (OCR)</button>
 <input type="file" id="registre-import" accept=".jpg,.jpeg,.png,.pdf" style="display:none" onchange="handleRegistreFile(this)"/>
@@ -3258,7 +3258,7 @@ Exemple :<br>
     <h1 class="ttl">👥 Espace RH — Personnel</h1>
     <p class="sub" style="margin-bottom:6px">Registre du personnel &amp; fiches individuelles — chiffré et stocké uniquement sur votre appareil.</p>
     <div id="rh-body-page"><div style="padding:24px;text-align:center;color:#9fb0c4"><div style="font-size:14px;margin-bottom:12px">Chargement de l'Espace RH…</div><button onclick="try{rhOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir l'Espace RH sécurisé</button></div></div>
-    <input type="file" id="rh-csv-input" accept=".csv,text/csv" style="display:none" onchange="rhImportFile(this)">
+    <input type="file" id="rh-csv-input" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="rhImportFile(this)">
     <input type="file" id="rh-bak-input" accept=".tec,application/octet-stream" style="display:none" onchange="rhImportBackupFile(this)">
   </div>
 </div>
@@ -5505,8 +5505,9 @@ function rhRegistre(){
    +'<select onchange="_rhFilter.statut=this.value;rhRender()" style="padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
      +'<option value="actif"'+(f.statut==='actif'?' selected':'')+'>Actifs</option><option value="sorti"'+(f.statut==='sorti'?' selected':'')+'>Sortis</option><option value="tous"'+(f.statut==='tous'?' selected':'')+'>Tous</option></select>'
    +'<button onclick="rhFiche(\'\')" style="padding:9px 12px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter</button>'
-   +'<button onclick="rhImportPrompt()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer CSV</button>'
+   +'<button onclick="rhImportPrompt()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer (CSV/Excel)</button>'
    +'<button onclick="rhExportRegistre()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">🖨️ Registre (impression)</button>'
+   +(RH.staff.length?'<button onclick="rhWipeRegistre()" style="padding:9px 12px;border:1px solid rgba(224,92,92,.4);border-radius:9px;background:rgba(224,92,92,.08);color:#e05c5c;font-size:13px;cursor:pointer">🗑️ Vider / remplacer</button>':'')
    +'</div>';
   if(!RH.staff.length){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:20px;text-align:center;color:#9fb0c4;font-size:13px">Registre vide. Importez votre fichier CSV, ajoutez un salarié, ou <button onclick="rhSeedDemo()" style="background:none;border:none;color:#c9a84c;text-decoration:underline;cursor:pointer;font-size:13px">charger 3 fiches de démonstration</button>.</div>';
@@ -5657,36 +5658,79 @@ function _rhSplitCSV(line){
   }
   out.push(cur); return out.map(function(x){return x.trim();});
 }
+// Répare le texte « double-encodé » (ex. « PrÃ©nom » → « Prénom », BOM « ï»¿ ») fréquent dans les exports Excel
+function _fixMojibake(s){
+  if(typeof s!=='string') return s;
+  if(/Ã|Â|â€|ï»¿/.test(s)){ try{ var d=decodeURIComponent(escape(s)); if(d.indexOf('�')<0) s=d; }catch(e){} }
+  return s.replace(/^﻿/,'');
+}
+function _rhIngestLines(lines){
+  if(lines.length<2){ alert('Fichier vide ou illisible.'); return null; }
+  var hdr=_rhSplitCSV(lines[0]).map(function(h){return _fixMojibake(h).toLowerCase();});
+  var idx=function(keys){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0) return j; } } return -1; };
+  var iNom=idx(['nom']), iNaiss=idx(['naiss']), iEntree=idx(['entrée','entree']), iContrat=idx(['contrat']), iStatut=idx(['statut']), iSortie=idx(['sortie']), iTemps=idx(['temps']), iObs=idx(['observ','poste','emploi']);
+  var added=0;
+  for(var l=1;l<lines.length;l++){
+    var c=_rhSplitCSV(lines[l]).map(_fixMojibake); if(!c.length||!(c[iNom]||'').trim()) continue;
+    var obs=iObs>=0?(c[iObs]||''):'';
+    var rec={ id:_rhUID(), nom:(iNom>=0?c[iNom]:'').trim(), prenom:'',
+      naissance:_rhToISO(iNaiss>=0?c[iNaiss]:''), entree:_rhToISO(iEntree>=0?c[iEntree]:''),
+      typeContrat:(iContrat>=0?c[iContrat]:'').trim(), statut:(iStatut>=0?c[iStatut]:'').trim(),
+      sortie:_rhToISO(iSortie>=0?c[iSortie]:''), tempsTravail:(iTemps>=0?c[iTemps]:'').trim(),
+      categorie:obs.replace(/^[⚠️✅\s]+/,'').split(' - ')[0].slice(0,60), observations:obs,
+      absences:[], retards:[], sanctions:[], avances:[] };
+    RH.staff.push(rec); added++;
+  }
+  return added;
+}
+function _rhConfirmRemplace(){
+  if(RH.staff.length>0){
+    var rep=confirm('Le registre contient déjà '+RH.staff.length+' salarié(s).\n\n• OK = REMPLACER (vider puis importer le nouveau fichier)\n• Annuler = AJOUTER à la suite');
+    if(rep){ RH.staff=[]; }
+  }
+}
+function rhWipeRegistre(){
+  if(!RH.staff.length) return;
+  if(!confirm('Supprimer TOUT le registre du personnel ('+RH.staff.length+' salarié·s) ?\n\nAction définitive (sauf sauvegarde .tec). Vous pourrez ensuite réimporter un fichier (CSV ou Excel).')) return;
+  RH.staff=[]; rhSave(); _rhTab='reg'; rhRender();
+}
 function rhImportFile(input){
   var file=input.files&&input.files[0]; if(!file) return;
-  var rd=new FileReader();
-  rd.onload=async function(){
+  var ext=(file.name.split('.').pop()||'').toLowerCase();
+  var finish=async function(lines){
     try{
-      var txt=String(rd.result).replace(/^﻿/,'');
-      var lines=txt.split(/\r?\n/).filter(function(l){return l.trim();});
-      if(lines.length<2){ alert('Fichier vide ou illisible.'); return; }
-      var hdr=_rhSplitCSV(lines[0]).map(function(h){return h.toLowerCase();});
-      var idx=function(keys){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0) return j; } } return -1; };
-      var iNom=idx(['nom']), iNaiss=idx(['naiss']), iEntree=idx(['entrée','entree']), iContrat=idx(['contrat']), iStatut=idx(['statut']), iSortie=idx(['sortie']), iTemps=idx(['temps']), iObs=idx(['observ','poste','emploi']);
-      var added=0;
-      for(var l=1;l<lines.length;l++){
-        var c=_rhSplitCSV(lines[l]); if(!c.length||!(c[iNom]||'').trim()) continue;
-        var obs=iObs>=0?(c[iObs]||''):'';
-        var rec={ id:_rhUID(), nom:(iNom>=0?c[iNom]:'').trim(), prenom:'',
-          naissance:_rhToISO(iNaiss>=0?c[iNaiss]:''), entree:_rhToISO(iEntree>=0?c[iEntree]:''),
-          typeContrat:(iContrat>=0?c[iContrat]:'').trim(), statut:(iStatut>=0?c[iStatut]:'').trim(),
-          sortie:_rhToISO(iSortie>=0?c[iSortie]:''), tempsTravail:(iTemps>=0?c[iTemps]:'').trim(),
-          categorie:obs.replace(/^[⚠️✅\s]+/,'').split(' - ')[0].slice(0,60), observations:obs,
-          absences:[], retards:[], sanctions:[], avances:[] };
-        RH.staff.push(rec); added++;
-      }
-      await rhSave();
-      input.value='';
+      _rhConfirmRemplace();
+      var added=_rhIngestLines(lines);
+      if(added==null){ input.value=''; return; }
+      await rhSave(); input.value='';
       alert(added+' salarié(s) importé(s). Complétez les fiches (coordonnées, permis, validités…).');
       _rhTab='reg'; rhRender();
     }catch(e){ alert('Erreur d\'import : '+e.message); }
   };
-  rd.readAsText(file,'UTF-8');
+  if(['xlsx','xls','xltx','xlsm','xltm','xlsb'].indexOf(ext)>=0){
+    var doXl=function(){
+      var rd=new FileReader();
+      rd.onload=function(){
+        try{
+          var wb=XLSX.read(new Uint8Array(rd.result),{type:'array',cellDates:true});
+          var ws=wb.Sheets[wb.SheetNames[0]];
+          if(!ws){ alert('Le fichier Excel ne contient aucune feuille.'); input.value=''; return; }
+          var csv=XLSX.utils.sheet_to_csv(ws,{FS:';'});
+          finish(csv.split(/\r?\n/).filter(function(l){return l.trim();}));
+        }catch(e){ alert('Erreur de lecture Excel : '+e.message); input.value=''; }
+      };
+      rd.readAsArrayBuffer(file);
+    };
+    if(typeof XLSX==='undefined'){
+      var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      s.onload=doXl; s.onerror=function(){ alert('Impossible de charger le lecteur Excel (connexion internet requise la 1re fois).\n\nSolution : « Enregistrer sous » au format CSV, puis importer le CSV.'); input.value=''; };
+      document.head.appendChild(s);
+    } else doXl();
+  } else {
+    var rd=new FileReader();
+    rd.onload=function(){ var txt=String(rd.result).replace(/^﻿/,''); finish(txt.split(/\r?\n/).filter(function(l){return l.trim();})); };
+    rd.readAsText(file,'UTF-8');
+  }
 }
 async function rhSeedDemo(){
   var demo=[
@@ -11293,7 +11337,8 @@ function importFichierNom(input){
   const ext = (f.name.split('.').pop()||'').toLowerCase();
   if(ext === 'csv' || ext === 'txt'){
     importCSVCore(f, input);
-  } else if(ext === 'xlsx' || ext === 'xls'){
+  } else if(['xlsx','xls','xltx','xlsm','xltm','xlsb'].indexOf(ext) >= 0){
+    // Excel, y compris les MODÈLES (.xltx/.xltm) et classeurs à macros (.xlsm)
     // Chargement à la demande de la bibliothèque Excel
     if(typeof XLSX === 'undefined'){
       const script = document.createElement('script');
@@ -11308,7 +11353,7 @@ function importFichierNom(input){
       importExcelCore(f, input);
     }
   } else {
-    alert('Format non reconnu. Utilisez un fichier .csv, .txt, .xlsx ou .xls.');
+    alert('Format non reconnu. Utilisez un fichier .csv, .txt, ou un fichier Excel (.xlsx, .xls, .xltx modèle, .xlsm).');
     input.value = '';
   }
 }
@@ -11324,7 +11369,7 @@ function importCSVCore(f, input){
       const splitLigne = l => l.split(sep).map(c => c.trim().replace(/^["']|["']$/g,''));
 
       // Détecter si la 1ère ligne est un en-tête et mapper les colonnes
-      const entete = splitLigne(lignes[0]);
+      const entete = splitLigne(lignes[0]).map(_fixMojibake);
       const map = _mapperColonnes(entete);
       const aEntete = map._reconnu >= 3; // au moins 3 colonnes reconnues = en-tête présent
 
@@ -11332,7 +11377,7 @@ function importCSVCore(f, input){
       const lignesData = aEntete ? lignes.slice(1) : lignes;
 
       lignesData.forEach(ligne => {
-        const champs = splitLigne(ligne);
+        const champs = splitLigne(ligne).map(_fixMojibake);
         if(champs.every(c => !c)){ nbIgnores++; return; }
 
         let salarie;
@@ -11374,14 +11419,14 @@ function importExcelCore(f, input){
       if(!rows.length){ alert('Le fichier Excel est vide.'); return; }
 
       // Détecter en-tête et mapper les colonnes
-      const entete = rows[0].map(c => (c||'').toString());
+      const entete = rows[0].map(c => _fixMojibake((c||'').toString()));
       const map = _mapperColonnes(entete);
       const aEntete = map._reconnu >= 3;
       const lignesData = aEntete ? rows.slice(1) : rows;
 
       let nbImportes = 0, nbIgnores = 0;
       lignesData.forEach(r => {
-        const champs = r.map(c => (c instanceof Date) ? c : (c||'').toString().trim());
+        const champs = r.map(c => (c instanceof Date) ? c : _fixMojibake((c||'').toString().trim()));
         if(champs.every(c => !c || (c instanceof Date === false && !c.toString().trim()))){ nbIgnores++; return; }
 
         let salarie;
