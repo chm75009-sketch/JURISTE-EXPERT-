@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.67';
+var JX_BUILD = 'v2026-07-28.68';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5548,7 +5548,7 @@ function rhFiche(id){
   var SEC=function(t){ return '<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px;border-bottom:1px solid #26374d;padding-bottom:4px">'+t+'</div>'; };
   var g=function(a){ return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+a.join('')+'</div>'; };
   var h='<div style="max-width:760px;margin:0 auto;background:#132234;border:1px solid #c9a84c;border-radius:16px;padding:20px">'
-   +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rhCloseFiche()" style="background:#26374d;border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer">✕</button></div>';
+   +'<div style="position:sticky;top:0;z-index:10;background:#132234;display:flex;justify-content:space-between;align-items:center;margin:-20px -20px 10px;padding:14px 20px 10px;border-bottom:1px solid #26374d"><div style="font-size:16px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rhCloseFiche()" style="background:#26374d;border:1px solid #3a4a5f;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:13px">← Retour à la liste</button></div>';
   h+=SEC('État civil')+g([F('Nom','fh-nom',s.nom),F('Prénom','fh-prenom',s.prenom)])
    +g([F('Date de naissance (JJ/MM/AAAA)','fh-naissance',_rhFR(s.naissance),'text','JJ/MM/AAAA'),F('Nationalité','fh-nationalite',s.nationalite)])
    +g(['<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Sexe (parité CSE)</label><select id="fh-sexe" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"><option value="">—</option><option value="F"'+(s.sexe==='F'?' selected':'')+'>Femme</option><option value="H"'+((s.sexe==='H'||s.sexe==='M')?' selected':'')+'>Homme</option></select></div>','<div></div>']);
@@ -5571,9 +5571,10 @@ function rhFiche(id){
     +rhSubList('retards',s.retards,['Date','Minutes','Motif'])
     +rhSubList('sanctions',s.sanctions,['Date','Type','Motif'])
     +rhSubList('avances',s.avances,['Date','Montant €','Remboursée ?','Motif']);
-  h+='<div style="display:flex;gap:10px;margin-top:18px">'
-    +'<button onclick="rhSaveFiche()" style="flex:1;padding:12px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'
+  h+='<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">'
+    +'<button onclick="rhSaveFiche()" style="flex:1;min-width:140px;padding:12px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer</button>'
     +(id?'<button onclick="rhDeleteFiche(\''+id+'\')" style="padding:12px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️ Supprimer</button>':'')
+    +'<button onclick="rhCloseFiche()" style="padding:12px 16px;border:1px solid #3a4a5f;border-radius:10px;background:#16263c;color:#e8e4d8;cursor:pointer">← Retour</button>'
     +'</div>';
   h+='<div style="font-size:10.5px;color:#6b7a8d;margin-top:10px">Données chiffrées sur votre appareil. Traitement RH — base légale : gestion du personnel (contrat + obligations légales de l\'employeur). Durée de conservation recommandée : 5 ans après le départ (paie), jusqu\'à 5 ans pour la plupart des pièces.</div>';
   h+='</div>';
@@ -6164,8 +6165,10 @@ function openRH(){
       document.body.appendChild(ov);
     }
     ov.innerHTML='<div style="max-width:900px;margin:0 auto">'
-      +'<button onclick="closeRH()" style="margin-bottom:12px;padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit">\u2190 Fermer</button>'
-      +'<h2 style="color:#fff;font-size:18px;margin:4px 0 6px">\ud83d\udc65 Espace RH \u2014 Personnel</h2>'
+      +'<div style="position:sticky;top:-16px;z-index:50;background:#0b1420;padding:10px 0 10px;margin:-4px 0 8px;border-bottom:1px solid #26374d;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+        +'<button onclick="closeRH()" style="padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">\u2190 Fermer / Retour</button>'
+        +'<h2 style="color:#fff;font-size:17px;margin:0">\ud83d\udc65 Espace RH \u2014 Personnel</h2>'
+      +'</div>'
       +'<div id="rh-body"></div></div>';
     ov.style.display='block';
     try{ document.body.style.overflow='hidden'; }catch(e){}
