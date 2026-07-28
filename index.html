@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.68';
+var JX_BUILD = 'v2026-07-28.69';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5502,17 +5502,21 @@ function rhRegistre(){
     return true;
   });
   rows.sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
-  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center">'
-   +'<input oninput="_rhFilter.q=this.value;rhRender()" value="'+_rhEsc(f.q)+'" placeholder="🔎 Rechercher…" style="flex:1;min-width:150px;padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
-   +'<select onchange="_rhFilter.statut=this.value;rhRender()" style="padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
-     +'<option value="actif"'+(f.statut==='actif'?' selected':'')+'>Actifs</option><option value="sorti"'+(f.statut==='sorti'?' selected':'')+'>Sortis</option><option value="tous"'+(f.statut==='tous'?' selected':'')+'>Tous</option></select>'
-   +'<button onclick="rhFiche(\'\')" style="padding:9px 12px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter</button>'
-   +'<button onclick="rhReplacePrompt()" style="padding:9px 12px;border:1px solid rgba(70,184,133,.5);border-radius:9px;background:rgba(70,184,133,.12);color:#8fe3bd;font-weight:700;font-size:13px;cursor:pointer">🔁 Remplacer (fichier)</button>'
-   +'<button onclick="rhAddPrompt()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">✏️ Modifier / compléter (fichier)</button>'
-   +(RH.staff.length?'<button onclick="rhWipeRegistre()" style="padding:9px 12px;border:1px solid rgba(224,92,92,.45);border-radius:9px;background:rgba(224,92,92,.10);color:#e05c5c;font-weight:700;font-size:13px;cursor:pointer">🗑️ Supprimer le registre</button>':'')
-   +'<button onclick="rhExportRegistre()" style="padding:9px 12px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">🖨️ Imprimer</button>'
+  // Barre d'ACTIONS en premier (tout en haut), boutons pleine largeur sur mobile
+  var bstyle='flex:1 1 auto;min-width:130px;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-align:center';
+  var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
+   +'<button onclick="rhFiche(\'\')" style="'+bstyle+';border:none;background:#46b885;color:#04150e">＋ Ajouter</button>'
+   +'<button onclick="rhReplacePrompt()" style="'+bstyle+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">🔁 Remplacer (fichier)</button>'
+   +'<button onclick="rhAddPrompt()" style="'+bstyle+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">✏️ Modifier / compléter</button>'
+   +(RH.staff.length?'<button onclick="rhWipeRegistre()" style="'+bstyle+';border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c">🗑️ Supprimer le registre</button>':'')
+   +'<button onclick="rhExportRegistre()" style="'+bstyle+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">🖨️ Imprimer</button>'
    +'</div>'
-   +(RH.staff.length?'<div style="font-size:11.5px;color:#9fb0c4;margin:-4px 0 12px">✏️ Pour <b>modifier</b> ou <b>supprimer un salarié</b>, cliquez sur sa ligne dans la liste ci-dessous.</div>':'');
+   +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;align-items:center">'
+     +'<input oninput="_rhFilter.q=this.value;rhRender()" value="'+_rhEsc(f.q)+'" placeholder="🔎 Rechercher…" style="flex:1;min-width:150px;padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
+     +'<select onchange="_rhFilter.statut=this.value;rhRender()" style="padding:9px;border-radius:9px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px">'
+       +'<option value="actif"'+(f.statut==='actif'?' selected':'')+'>Actifs</option><option value="sorti"'+(f.statut==='sorti'?' selected':'')+'>Sortis</option><option value="tous"'+(f.statut==='tous'?' selected':'')+'>Tous</option></select>'
+   +'</div>'
+   +(RH.staff.length?'<div style="font-size:11.5px;color:#9fb0c4;margin:0 0 12px">✏️ Pour <b>modifier</b> ou <b>supprimer un salarié</b>, cliquez sur sa ligne dans la liste ci-dessous.</div>':'');
   if(!RH.staff.length){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:20px;text-align:center;color:#9fb0c4;font-size:13px">Registre vide. Importez votre fichier CSV, ajoutez un salarié, ou <button onclick="rhSeedDemo()" style="background:none;border:none;color:#c9a84c;text-decoration:underline;cursor:pointer;font-size:13px">charger 3 fiches de démonstration</button>.</div>';
     return h;
