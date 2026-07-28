@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.64';
+var JX_BUILD = 'v2026-07-28.65';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -2782,6 +2782,7 @@ Une fois le fichier importé (étape C), les salariés apparaissent ici. Vous po
 </div>
 <div id="cse-nom-liste"></div>
 <button onclick="addSalarieNom()" class="btn-sm" style="margin-top:10px;width:100%">+ Ajouter un salarié</button>
+<button onclick="chargerDepuisRH()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(70,184,133,0.12);border-color:rgba(70,184,133,0.5);color:#8fe3bd;font-weight:700">📥 Charger depuis le registre du personnel (Espace RH)</button>
 <button onclick="document.getElementById('cse-nom-import').click()" class="btn-outline" style="margin-top:8px;width:100%">📂 Importer depuis un fichier CSV ou Excel</button>
 <input type="file" id="cse-nom-import" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="importFichierNom(this)"/>
 
@@ -5547,7 +5548,8 @@ function rhFiche(id){
   var h='<div style="max-width:760px;margin:0 auto;background:#132234;border:1px solid #c9a84c;border-radius:16px;padding:20px">'
    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:17px;font-weight:800;color:#fff">'+(id?'✏️ Fiche salarié':'＋ Nouveau salarié')+'</div><button onclick="rhCloseFiche()" style="background:#26374d;border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer">✕</button></div>';
   h+=SEC('État civil')+g([F('Nom','fh-nom',s.nom),F('Prénom','fh-prenom',s.prenom)])
-   +g([F('Date de naissance (JJ/MM/AAAA)','fh-naissance',_rhFR(s.naissance),'text','JJ/MM/AAAA'),F('Nationalité','fh-nationalite',s.nationalite)]);
+   +g([F('Date de naissance (JJ/MM/AAAA)','fh-naissance',_rhFR(s.naissance),'text','JJ/MM/AAAA'),F('Nationalité','fh-nationalite',s.nationalite)])
+   +g(['<div style="margin-bottom:8px"><label style="display:block;font-size:11px;color:#9fb0c4;margin-bottom:3px">Sexe (parité CSE)</label><select id="fh-sexe" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"><option value="">—</option><option value="F"'+(s.sexe==='F'?' selected':'')+'>Femme</option><option value="H"'+((s.sexe==='H'||s.sexe==='M')?' selected':'')+'>Homme</option></select></div>','<div></div>']);
   h+=SEC('Coordonnées')+g([F('E-mail','fh-email',s.email,'email'),F('Téléphone','fh-tel',s.tel)])
    +F('Adresse','fh-adresse',s.adresse)+g([F('Code postal','fh-cp',s.cp),F('Ville','fh-ville',s.ville)]);
   h+=SEC('Pièce d\'identité / séjour')+g([F('Type de pièce (CNI / passeport / titre de séjour)','fh-pieceType',s.pieceType),F('N° de pièce','fh-pieceNum',s.pieceNum)])
@@ -5608,7 +5610,7 @@ function rhFicheRefreshKeepValues(){
 }
 function rhReadForm(s){
   var gvv=function(id){ var e=document.getElementById(id); return e?e.value.trim():undefined; };
-  var map={nom:'fh-nom',prenom:'fh-prenom',nationalite:'fh-nationalite',email:'fh-email',tel:'fh-tel',adresse:'fh-adresse',cp:'fh-cp',ville:'fh-ville',pieceType:'fh-pieceType',pieceNum:'fh-pieceNum',permisCats:'fh-permisCats',typeContrat:'fh-typeContrat',statut:'fh-statut',categorie:'fh-categorie',coeff:'fh-coeff',tempsTravail:'fh-tempsTravail',salaire:'fh-salaire',motifSortie:'fh-motifSortie',observations:'fh-observations'};
+  var map={nom:'fh-nom',prenom:'fh-prenom',sexe:'fh-sexe',nationalite:'fh-nationalite',email:'fh-email',tel:'fh-tel',adresse:'fh-adresse',cp:'fh-cp',ville:'fh-ville',pieceType:'fh-pieceType',pieceNum:'fh-pieceNum',permisCats:'fh-permisCats',typeContrat:'fh-typeContrat',statut:'fh-statut',categorie:'fh-categorie',coeff:'fh-coeff',tempsTravail:'fh-tempsTravail',salaire:'fh-salaire',motifSortie:'fh-motifSortie',observations:'fh-observations'};
   for(var k in map){ var v=gvv(map[k]); if(v!==undefined) s[k]=v; }
   var dmap={naissance:'fh-naissance',pieceValid:'fh-pieceValid',sejourValid:'fh-sejourValid',permisValid:'fh-permisValid',cqcValid:'fh-cqcValid',fimo:'fh-fimo',carteValid:'fh-carteValid',adrValid:'fh-adrValid',visitePoste:'fh-visitePoste',visiteConduite:'fh-visiteConduite',entree:'fh-entree',essaiFin:'fh-essaiFin',sortie:'fh-sortie'};
   for(var k2 in dmap){ var v2=gvv(dmap[k2]); if(v2!==undefined) s[k2]=_rhToISO(v2); }
@@ -5702,16 +5704,41 @@ function rhWipeRegistre(){
   if(!confirm('Supprimer TOUT le registre du personnel ('+RH.staff.length+' salarié·s) ?\n\nAction définitive (sauf sauvegarde .tec). Vous pourrez ensuite réimporter un fichier (CSV ou Excel).')) return;
   RH.staff=[]; rhSave(); _rhTab='reg'; rhRender();
 }
+// Convertit un salarié normalisé (moteur CSE) en fiche du registre du personnel
+function _rhSalarieToRecord(s){
+  var lab=(typeof CONTRAT_LABELS!=='undefined'&&CONTRAT_LABELS[s.contrat])||s.contrat||'';
+  var stl=(typeof STATUT_LABELS!=='undefined'&&STATUT_LABELS[s.statut])||s.statut||'';
+  var temps=(s.contrat==='cdi_tpartiel')?('Temps partiel '+Math.round((s.heures/35)*100)+'%'):'Temps plein';
+  return { id:_rhUID(), nom:s.nom||'', prenom:'', sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''),
+    naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'',
+    typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, observations:(s.observations||''),
+    absences:[], retards:[], sanctions:[], avances:[] };
+}
+// Import du registre RH via le MÊME moteur que les Élections CSE (détection d'en-tête + mapping)
+function _rhIngestRows(rows){
+  if(!rows||!rows.length){ alert('Fichier vide ou illisible.'); return null; }
+  var norm=function(row){ return row.map(function(c){ return _fixMojibake((c==null?'':c).toString()); }); };
+  var hdrIdx=0, map=_mapperColonnes(norm(rows[0]));
+  for(var k=1;k<Math.min(rows.length,15);k++){ var m=_mapperColonnes(norm(rows[k])); if(m._reconnu>map._reconnu){ map=m; hdrIdx=k; } }
+  if(map._reconnu<2){ alert('Colonnes non reconnues.\n\nLe fichier doit comporter un en-tête (Nom ou Salarié, Date de naissance, Date d\'entrée, Statut…).'); return null; }
+  var added=0;
+  for(var r=hdrIdx+1;r<rows.length;r++){
+    var champs=rows[r].map(function(c){ return (c instanceof Date)?c:_fixMojibake((c==null?'':c).toString().trim()); });
+    var sal=_extraireSalarie(champs,map); if(!sal) continue;
+    RH.staff.push(_rhSalarieToRecord(sal)); added++;
+  }
+  return added;
+}
 function rhImportFile(input){
   var file=input.files&&input.files[0]; if(!file) return;
   var ext=(file.name.split('.').pop()||'').toLowerCase();
-  var finish=async function(lines){
+  var finishRows=async function(rows){
     try{
       _rhConfirmRemplace();
-      var added=_rhIngestLines(lines);
+      var added=_rhIngestRows(rows);
       if(added==null){ input.value=''; return; }
       await rhSave(); input.value='';
-      alert(added+' salarié(s) importé(s). Complétez les fiches (coordonnées, permis, validités…).');
+      alert(added+' salarié(s) importé(s) dans le registre du personnel.');
       _rhTab='reg'; rhRender();
     }catch(e){ alert('Erreur d\'import : '+e.message); }
   };
@@ -5723,8 +5750,7 @@ function rhImportFile(input){
           var wb=XLSX.read(new Uint8Array(rd.result),{type:'array',cellDates:true});
           var ws=wb.Sheets[wb.SheetNames[0]];
           if(!ws){ alert('Le fichier Excel ne contient aucune feuille.'); input.value=''; return; }
-          var csv=XLSX.utils.sheet_to_csv(ws,{FS:';'});
-          finish(csv.split(/\r?\n/).filter(function(l){return l.trim();}));
+          finishRows(XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''}));
         }catch(e){ alert('Erreur de lecture Excel : '+e.message); input.value=''; }
       };
       rd.readAsArrayBuffer(file);
@@ -5736,7 +5762,7 @@ function rhImportFile(input){
     } else doXl();
   } else {
     var rd=new FileReader();
-    rd.onload=function(){ var txt=String(rd.result).replace(/^﻿/,''); finish(txt.split(/\r?\n/).filter(function(l){return l.trim();})); };
+    rd.onload=function(){ var txt=String(rd.result).replace(/^﻿/,''); var rows=txt.split(/\r?\n/).filter(function(l){return l.trim();}).map(function(l){ return _rhSplitCSV(l); }); finishRows(rows); };
     rd.readAsText(file,'UTF-8');
   }
 }
@@ -11363,6 +11389,33 @@ function _normSexe(s){
   return '';
 }
 
+// Charge la liste des élections depuis le registre du personnel (Espace RH) — source unique
+function chargerDepuisRH(){
+  if(typeof RH === 'undefined' || !RH.loaded || !RH.staff || !RH.staff.length){
+    alert('Le registre du personnel (Espace RH) n\'est pas ouvert, ou il est vide.\n\n1) Ouvrez « Espace RH — Personnel » et saisissez votre code confidentiel pour le déverrouiller.\n2) Revenez ici et recliquez sur « Charger depuis le registre du personnel ».');
+    return;
+  }
+  if(salariesNom.length > 0){
+    if(!confirm('La liste des élections contient déjà ' + salariesNom.length + ' salarié(s).\n\n• OK = REMPLACER par le registre du personnel (' + RH.staff.length + ')\n• Annuler = abandonner')) return;
+  }
+  salariesNom = RH.staff.map(function(s){
+    var contrat = normaliseContrat(s.typeContrat || '');
+    var temps = (s.tempsTravail || '').toString();
+    var heures = 35;
+    var pct = (temps + ' ' + (s.observations || '')).match(/(\d{1,3})\s*%/);
+    if(pct){ heures = Math.round(parseInt(pct[1],10) * 35 / 100 * 100) / 100; if(contrat === 'cdi_tp') contrat = 'cdi_tpartiel'; }
+    else if(/partiel/i.test(temps)){ heures = 17.5; if(contrat === 'cdi_tp') contrat = 'cdi_tpartiel'; }
+    return {
+      nom: s.nom || '', dateNaissance: s.naissance || '', dateEntree: s.entree || '', dateSortie: s.sortie || '',
+      contrat: contrat, statut: normaliseStatut(s.statut || s.categorie || ''), sexe: _normSexe(s.sexe || ''),
+      heures: heures, emploi: s.categorie || '', observations: s.observations || '', telephone: '', adresse: ''
+    };
+  });
+  window.salarieEdit = -1;
+  refreshNomTable();
+  saveNomSalaries();
+  alert(salariesNom.length + ' salarié(s) chargés depuis le registre du personnel (Espace RH).\n\nSaisissez la date du 1er tour pour lancer les calculs.');
+}
 function importFichierNom(input){
   const f = input.files[0];
   if(!f) return;
