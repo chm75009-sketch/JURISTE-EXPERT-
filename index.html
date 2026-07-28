@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.73';
+var JX_BUILD = 'v2026-07-28.74';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6795,6 +6795,13 @@ function _rxIngestRows(rows){
   if(map._reconnu<2){ alert('Colonnes non reconnues.\n\nLe fichier doit comporter un en-tête (Nom ou Salarié, Date de naissance, Date d\'entrée, Statut…).'); return null; }
   var n=0;
   for(var r=hdrIdx+1;r<rows.length;r++){ var champs=rows[r].map(function(c){ return (c instanceof Date)?c:_fixMojibake((c==null?'':c).toString().trim()); }); var sal=_extraireSalarie(champs,map); if(!sal) continue; RX.staff.push(_rxSalarieToRecord(sal)); n++; }
+  // Colonnes obligatoires du registre absentes du fichier (à signaler à l'utilisateur)
+  var manque=[];
+  if(map.sexe===undefined) manque.push('Sexe');
+  if(map.nationalite===undefined) manque.push('Nationalité');
+  if(map.titre===undefined) manque.push('Titre de séjour');
+  if(map.naissance===undefined) manque.push('Date de naissance');
+  window._rxImportManque = manque;
   return n;
 }
 function rxImport(input){
@@ -6806,7 +6813,11 @@ function rxImport(input){
       else if(_rxImportMode==='ask'){ if(RX.staff.length && confirm('Le registre contient déjà '+RX.staff.length+' salarié(s).\n\nOK = REMPLACER\nAnnuler = AJOUTER à la suite')) RX.staff=[]; }
       _rxImportMode='ask';
       var n=_rxIngestRows(rows); if(n==null){ input.value=''; return; }
-      rxSaveLocal(); input.value=''; alert(n+' salarié(s) importé(s) dans le registre du personnel.'); RX_TAB='reg'; rxRender();
+      rxSaveLocal(); input.value='';
+      var _mq=(window._rxImportManque||[]);
+      var _msg=n+' salarié(s) importé(s) dans le registre du personnel.';
+      if(_mq.length){ _msg+='\n\n⚠️ Colonne(s) absente(s) de ce fichier : '+_mq.join(', ')+'.\nCes informations resteront vides (colonne « — ») tant que le fichier importé ne les contient pas.\n\nPour les avoir, importez le fichier complet « Registre… .xls » (qui contient Sexe, Nationalité, Titre de séjour), ou complétez chaque fiche à la main.'; }
+      alert(_msg); RX_TAB='reg'; rxRender();
       try{ rxCloudPushAll(); }catch(e){}
     }catch(e){ alert('Erreur d\'import : '+(e.message||e)); }
   };
