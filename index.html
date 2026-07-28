@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.70';
+var JX_BUILD = 'v2026-07-28.71';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6375,6 +6375,7 @@ function rxRegistre(){
     +'<button onclick="rxFiche(\'\')" style="'+_rxb+';border:none;background:#46b885;color:#04150e">＋ Ajouter</button>'
     +'<button onclick="rxReplacePrompt()" style="'+_rxb+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">🔁 Remplacer (fichier)</button>'
     +'<button onclick="rxAddPrompt()" style="'+_rxb+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">✏️ Modifier / compléter</button>'
+    +(RX.staff.length?'<button onclick="rxPrintRegistre()" style="'+_rxb+';border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a">🖨️ Registre officiel</button>':'')
     +(RX.staff.length?'<button onclick="rxWipeRegistre()" style="'+_rxb+';border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c">🗑️ Supprimer le registre</button>':'')
     +'<input type="file" id="rx-csv" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="rxImport(this)">'
     +'</div>'
@@ -6411,6 +6412,86 @@ function rxSplitNames(){
   });
   rxSaveLocal(); try{ rxCloudPushAll(false); }catch(e){} rxRender();
 }
+/* Registre unique du personnel — édition officielle imprimable (L.1221-13, D.1221-23 C. trav.) */
+function rxPrintRegistre(){
+  if(!RX.staff.length){ alert('Le registre est vide.'); return; }
+  var e=RX.ent||{};
+  // Tenu dans l'ordre des embauches (D.1221-23) : tri par date d'entrée.
+  var rows=RX.staff.slice().sort(function(a,b){ return String(a.entree||'').localeCompare(String(b.entree||'')); });
+  var esc=rxEsc, fr=rxFR;
+  // Mention « type de contrat » enrichie des mentions obligatoires (apprenti, CDD, temps partiel, mise à disposition, stagiaire)
+  function mentionContrat(s){
+    var t=(s.typeContrat||'').toString(); var low=t.toLowerCase(); var ex=[];
+    if(/partiel/i.test(s.tempsTravail||'')||/partiel/i.test(low)) ex.push('temps partiel'+((/(\d{1,3})\s*%/.exec(s.tempsTravail||'')||[])[0]?(' ('+/(\d{1,3})\s*%/.exec(s.tempsTravail)[0]+')'):''));
+    if(/apprenti/.test(low)) ex.push('contrat d\'apprentissage');
+    if(/mise.*dispo|int[ée]rim|temporaire/.test(low)) ex.push('mise à disposition');
+    if(/stage|stagiaire/.test(low)) ex.push('convention de stage');
+    return esc(t)+(ex.length?' <span style="color:#555">— '+esc(ex.join(', '))+'</span>':'');
+  }
+  function titreSejour(s){
+    var v=(s.pieceType||''); var m=/titre de s[ée]jour\s*:?\s*(.*)/i.exec(v);
+    if(m&&m[1].trim()) return esc(m[1].trim());
+    if(s.sejourValid) return 'valable jusqu\'au '+fr(s.sejourValid);
+    var nat=(s.nationalite||'').toLowerCase();
+    if(nat && !/fran[cç]ais|france|\bue\b|europ[ée]en|\bfr\b/.test(nat)) return '<span style="color:#b00">à renseigner (travailleur étranger)</span>';
+    return '—';
+  }
+  var trs='';
+  rows.forEach(function(s,i){
+    var nomComplet=((s.nom||'')+' '+(s.prenom||'')).trim();
+    trs+='<tr>'
+      +'<td class="c">'+(i+1)+'</td>'
+      +'<td><b>'+esc(nomComplet||'—')+'</b></td>'
+      +'<td>'+esc(s.nationalite||'—')+'</td>'
+      +'<td class="c">'+esc(s.sexe==='F'?'F':(s.sexe==='H'||s.sexe==='M'?'H':'—'))+'</td>'
+      +'<td class="c">'+(fr(s.naissance)||'—')+'</td>'
+      +'<td>'+esc(s.categorie||'—')+'</td>'
+      +'<td>'+esc(s.statut||'—')+'</td>'
+      +'<td>'+mentionContrat(s)+'</td>'
+      +'<td class="c">'+(fr(s.entree)||'—')+'</td>'
+      +'<td class="c">'+(fr(s.sortie)||'<span style="color:#080">en poste</span>')+'</td>'
+      +'<td>'+titreSejour(s)+'</td>'
+      +'</tr>';
+  });
+  var actifs=rows.filter(function(s){return !s.sortie;}).length;
+  var dateEdit=(function(){ try{ return new Date().toLocaleDateString('fr-FR'); }catch(_){ return ''; } })();
+  var html='<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Registre unique du personnel</title>'
+    +'<style>'
+    +'*{box-sizing:border-box}body{font-family:"Segoe UI",Arial,sans-serif;color:#111;margin:24px;font-size:12px}'
+    +'h1{font-size:18px;margin:0 0 2px}.sub{color:#555;font-size:12px;margin-bottom:14px}'
+    +'.ent{border:1px solid #999;border-radius:6px;padding:10px 12px;margin-bottom:14px;font-size:12px;line-height:1.5}'
+    +'.ent b{font-size:13px}'
+    +'table{width:100%;border-collapse:collapse;font-size:11px}'
+    +'th,td{border:1px solid #888;padding:5px 6px;vertical-align:top;text-align:left}'
+    +'th{background:#efe9d6;font-size:10.5px}td.c{text-align:center;white-space:nowrap}'
+    +'tr:nth-child(even) td{background:#faf8f2}'
+    +'.foot{margin-top:14px;font-size:10.5px;color:#555;line-height:1.6}'
+    +'.legal{margin-top:6px;font-size:10px;color:#777}'
+    +'@media print{body{margin:8mm}.noprint{display:none}@page{size:A4 landscape;margin:8mm}}'
+    +'.btn{background:#c9a84c;border:none;padding:9px 16px;border-radius:7px;font-weight:700;cursor:pointer;font-size:13px}'
+    +'</style></head><body>'
+    +'<div class="noprint" style="margin-bottom:12px"><button class="btn" onclick="window.print()">🖨️ Imprimer / Enregistrer en PDF</button></div>'
+    +'<h1>Registre unique du personnel</h1>'
+    +'<div class="sub">Articles L.1221-13 et D.1221-23 du Code du travail — édité le '+esc(dateEdit)+'</div>'
+    +'<div class="ent"><b>'+esc(e.nom||'Entreprise')+'</b>'
+      +(e.siret?' — SIRET '+esc(e.siret):'')+(e.naf?' — NAF '+esc(e.naf):'')
+      +(e.adresse?'<br>'+esc(e.adresse):'')
+      +(e.idcc?'<br>Convention collective : IDCC '+esc(e.idcc):'')
+      +'<br>Effectif inscrit : <b>'+rows.length+'</b> — dont en poste : <b>'+actifs+'</b></div>'
+    +'<table><thead><tr>'
+    +'<th>N°</th><th>Nom et prénom</th><th>Nationalité</th><th>Sexe</th><th>Date de naissance</th>'
+    +'<th>Emploi</th><th>Qualification</th><th>Type de contrat</th><th>Date d\'entrée</th><th>Date de sortie</th>'
+    +'<th>Titre autorisant l\'activité (travailleur étranger)</th>'
+    +'</tr></thead><tbody>'+trs+'</tbody></table>'
+    +'<div class="foot">Registre tenu dans l\'ordre chronologique des embauches. Les mentions y sont portées de façon indélébile (art. D.1221-23). '
+      +'À tenir à la disposition de l\'inspection du travail, des agents chargés du recouvrement et des membres du CSE.</div>'
+    +'<div class="legal">Document généré par Juris Expert MCH à partir du registre du personnel — à vérifier et compléter avant présentation officielle.</div>'
+    +'</body></html>';
+  var w=window.open('','_blank');
+  if(!w){ alert('La fenêtre d\'impression a été bloquée. Autorisez les pop-ups pour ce site, puis réessayez.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
 /* ══════════ FICHE ══════════ */
 var RX_CUR=null;
 function rxFiche(id){
@@ -6690,7 +6771,7 @@ function _rxSalarieToRecord(s){
   var lab=(typeof CONTRAT_LABELS!=='undefined'&&CONTRAT_LABELS[s.contrat])||s.contrat||'';
   var stl=(typeof STATUT_LABELS!=='undefined'&&STATUT_LABELS[s.statut])||s.statut||'';
   var temps=(s.contrat==='cdi_tpartiel')?('Temps partiel '+Math.round((s.heures/35)*100)+'%'):'Temps plein';
-  return { id:rxUID(), nom:s.nom||'', prenom:'', sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, observations:(s.observations||'') };
+  return { id:rxUID(), nom:s.nom||'', prenom:'', sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), nationalite:(s.nationalite||''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, pieceType:(s.titreSejour?('Titre de séjour : '+s.titreSejour):''), observations:(s.observations||'') };
 }
 function _rxIngestRows(rows){
   if(!rows||!rows.length){ alert('Fichier vide ou illisible.'); return null; }
@@ -11345,6 +11426,8 @@ function _mapperColonnes(entete){
     else if(map.contrat === undefined && /contrat|nature|type.*cont/.test(c)){ map.contrat = idx; reconnu++; }
     else if(map.statut === undefined && /statut|categorie|college/.test(c)){ map.statut = idx; reconnu++; }
     else if(map.sexe === undefined && /sexe|genre|civilit/.test(c)){ map.sexe = idx; reconnu++; }
+    else if(map.nationalite === undefined && /nationalit/.test(c)){ map.nationalite = idx; reconnu++; }
+    else if(map.titre === undefined && /titre.*s[ée]jour|s[ée]jour/.test(c)){ map.titre = idx; reconnu++; }
     else if(map.emploi === undefined && /emploi|qualif|fonction|poste|metier/.test(c)){ map.emploi = idx; reconnu++; }
     else if(map.temps === undefined && /temps|heures|duree|quotite/.test(c)){ map.temps = idx; reconnu++; }
     else if(map.obs === undefined && /observ|remarq|note|commentaire|particul/.test(c)){ map.obs = idx; reconnu++; }
@@ -11407,6 +11490,8 @@ function _extraireSalarie(champs, map){
     statut: normaliseStatut(map.statut !== undefined ? (champs[map.statut]||'') : ''),
     sexe: _normSexe(map.sexe !== undefined ? (champs[map.sexe]||'') : ''),
     emploi: map.emploi !== undefined ? (champs[map.emploi]||'').toString().trim() : '',
+    nationalite: map.nationalite !== undefined ? (champs[map.nationalite]||'').toString().trim() : '',
+    titreSejour: map.titre !== undefined ? (champs[map.titre]||'').toString().trim() : '',
     statutManquant: (map.statut !== undefined) && !((champs[map.statut]||'').toString().trim()),
     heures,
     debutContrat: contratsDD.includes(contratFinal) ? dateEntree : '',
