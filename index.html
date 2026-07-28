@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.59';
+var JX_BUILD = 'v2026-07-28.60';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -2827,6 +2827,7 @@ Exemple :<br>
 <button class="btn-outline" onclick="exportListeNom('justif','csv')">📊 Justificatif CSV</button>
 </div>
 <div style="display:grid;grid-template-columns:1fr;gap:6px;margin-top:8px">
+<button class="btn-outline" onclick="exportRapportCSE()" style="background:rgba(212,160,23,0.15);border-color:rgba(212,160,23,0.55);color:#e8c97a;font-weight:700">📊 Rapport Excel complet (.xlsx) — Synthèse + tableau nominatif détaillé</button>
 <button class="btn-outline" onclick="exportListeNom('synthese','word')" style="background:rgba(91,155,213,0.1);border-color:rgba(91,155,213,0.4);color:#5b9bd5">📋 Synthèse détaillée Word (avec calcul électeur/éligible pour chaque salarié)</button>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
@@ -11466,6 +11467,82 @@ function importExcelCore(f, input){
   reader.readAsArrayBuffer(f);
 }
 
+// ===== Rapport Excel complet (Synthèse + détail nominatif) =====
+function _cseStats(dateScrutin){
+  const D = new Date(dateScrutin);
+  let eff=0, nElect=0, nElig=0, nCadres=0, sortis=0, futurs=0, presents=0; const tp=[]; const rows=[];
+  salariesNom.forEach((s)=>{
+    const r = calcSalarieNom(s, dateScrutin); if(!r) return;
+    eff += r.effectif; if(r.electeur) nElect++; if(r.eligible) nElig++;
+    if(s.statut==='cadre' && r.effectif>0) nCadres++;
+    const dSor = s.dateSortie ? new Date(s.dateSortie) : null;
+    const dE = s.dateEntree ? new Date(s.dateEntree) : null;
+    if(dSor && !isNaN(dSor) && dSor < D) sortis++;
+    else if(dE && !isNaN(dE) && dE > D) futurs++;
+    else presents++;
+    if(s.contrat==='cdi_tpartiel' && r.effectif>0) tp.push((s.nom||'')+' ('+Math.round((s.heures/35)*100)+'%)');
+    rows.push({s, r});
+  });
+  return {D, eff, nElect, nElig, nCadres, sortis, futurs, presents, tp, rows};
+}
+function exportRapportCSE(){
+  const dateScrutin = document.getElementById('cse-nom-date-scrutin')?.value;
+  if(!dateScrutin){ alert('Saisissez d\'abord la date du 1er tour de scrutin.'); return; }
+  if(!salariesNom.length){ alert('Aucun salarié saisi. Importez d\'abord le registre.'); return; }
+  const go = ()=>{ try{ _buildRapportCSE(dateScrutin); }catch(e){ alert('Erreur lors de la génération du rapport : '+e.message); } };
+  if(typeof XLSX==='undefined'){
+    const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    sc.onload=go; sc.onerror=()=>alert('Lecteur Excel indisponible (connexion internet requise la 1re fois).');
+    document.head.appendChild(sc);
+  } else go();
+}
+function _buildRapportCSE(dateScrutin){
+  const st = _cseStats(dateScrutin);
+  const effArr = Math.floor(st.eff);
+  const _bm = (typeof cseBareme==='function') ? cseBareme(effArr) : {sieges:0, heures:0};
+  const trois = st.nCadres>=25; const nc = trois?3:2;
+  const dFR = new Date(dateScrutin).toLocaleDateString('fr-FR');
+  let ccn=''; try{ const el=document.getElementById('cse-secteur'); if(el&&el.selectedOptions&&el.selectedOptions[0]) ccn=el.selectedOptions[0].text; }catch(e){}
+  const SL = (typeof STATUT_LABELS!=='undefined') ? STATUT_LABELS : {};
+  const syn = [
+    ['RAPPORT DE PRÉPARATION DES ÉLECTIONS CSE'],
+    ['Date du 1er tour du scrutin', dFR],
+    ['Secteur / convention', ccn],
+    [],
+    ['Indicateur','Valeur','Base légale'],
+    ['Lignes exploitables (registre)', salariesNom.length, '—'],
+    ['Sortis avant le scrutin (exclus)', st.sortis, 'date de sortie / mention « SORTI » en observations'],
+    ['Entrées postérieures au scrutin', st.futurs, 'pas encore présents'],
+    ['Présents à la date du scrutin', st.presents, 'entrés ≤ scrutin et non sortis'],
+    ['Effectif (L.1111-2)', Number(st.eff.toFixed(2)), 'CDI temps plein = 1 ; temps partiel au prorata'],
+    ['Effectif retenu (arrondi)', effArr, 'valeur retenue pour les seuils'],
+    ['Électeurs', st.nElect, '≥ 16 ans révolus + ≥ 3 mois d\'ancienneté (L.2314-18)'],
+    ['Éligibles', st.nElig, '≥ 18 ans révolus + ≥ 1 an d\'ancienneté (L.2314-19)'],
+    ['Sièges à pourvoir', _bm.sieges+' titulaire(s) + '+_bm.sieges+' suppléant(s)', 'R.2314-1'],
+    ['Heures de délégation', _bm.heures+' h/mois par titulaire', 'R.2314-1'],
+    ['Nombre de collèges', nc+(trois?' (3e collège cadres — ≥ 25 cadres)':' (TAM et cadres réunis dans le 2e)'), 'L.2314-11'],
+    ['Temps partiels proratisés', st.tp.join(' ; ')||'aucun', 'L.1111-2'],
+    [],
+    [ effArr<11 ? '⛔ Effectif < 11 : pas d\'élections CSE obligatoires (L.2311-2).' : '✅ Élections CSE obligatoires (effectif ≥ 11 atteint).' ]
+  ];
+  const wsSyn = XLSX.utils.aoa_to_sheet(syn);
+  wsSyn['!cols'] = [{wch:34},{wch:34},{wch:54}];
+  const head = ['N°','Nom Prénom','Naissance','Entrée','Sortie','Contrat','Statut','Collège','Exclu de l\'effectif','Motif effectif','Compté dans l\'effectif','Électeur','Motif électorat','Éligible','Motif éligibilité'];
+  const det = [head];
+  st.rows.forEach((o,idx)=>{ const s=o.s, r=o.r;
+    det.push([ idx+1, s.nom||'', s.dateNaissance||'', s.dateEntree||'', s.dateSortie||'',
+      (CONTRAT_LABELS[s.contrat]||s.contrat||''), (SL[s.statut]||s.statut||''), r.college,
+      (r.effectif>0?'Non':'Oui'), r.raisonEff||'', Number(r.effectif.toFixed(2)),
+      r.electeur?'Oui':'Non', r.electeurRaison||'', r.eligible?'Oui':'Non', r.eligibleRaison||'' ]);
+  });
+  const wsDet = XLSX.utils.aoa_to_sheet(det);
+  wsDet['!cols'] = [{wch:4},{wch:26},{wch:11},{wch:11},{wch:11},{wch:16},{wch:12},{wch:8},{wch:14},{wch:28},{wch:14},{wch:9},{wch:26},{wch:9},{wch:24}];
+  try{ wsDet['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:0, c:head.length-1}})}; }catch(e){}
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, wsSyn, 'Synthèse');
+  XLSX.utils.book_append_sheet(wb, wsDet, 'Détail nominatif');
+  XLSX.writeFile(wb, 'Rapport_Elections_CSE_'+dateScrutin+'.xlsx');
+}
 function exportListeNom(type, format){
   const dateScrutin = document.getElementById('cse-nom-date-scrutin')?.value;
   if(!dateScrutin && type !== 'paie'){ alert('Saisissez d\'abord la date du 1er tour de scrutin.'); return; }
