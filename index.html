@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.61';
+var JX_BUILD = 'v2026-07-28.62';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -11525,18 +11525,34 @@ function _buildRapportCSE(dateScrutin){
     [],
     [ effArr<11 ? '⛔ Effectif < 11 : pas d\'élections CSE obligatoires (L.2311-2).' : '✅ Élections CSE obligatoires (effectif ≥ 11 atteint).' ]
   ];
+  // Répartition femmes/hommes par collège (parmi les électeurs) — parité des listes (L.2314-30)
+  const _labelsFH = trois ? ['1er collège (ouvriers/employés)','2e collège (TAM)','3e collège (cadres)'] : ['1er collège (ouvriers/employés)','2e collège (TAM/cadres)'];
+  const _ff = new Array(nc).fill(0), _hh = new Array(nc).fill(0); let _sansSexe = 0;
+  const _sx = (s)=> (s.sexe==='F') ? 'F' : (s.sexe==='M'||s.sexe==='H') ? 'H' : '';
+  st.rows.forEach(o=>{ if(!o.r.electeur) return; const c=(o.s.statut==='cadre')?3:(o.s.statut==='tam')?2:1; const idx=trois?(c-1):(c===1?0:1); const sx=_sx(o.s); if(sx==='F')_ff[idx]++; else if(sx==='H')_hh[idx]++; else _sansSexe++; });
+  const _totF=_ff.reduce((a,b)=>a+b,0), _totH=_hh.reduce((a,b)=>a+b,0);
+  const _fhRows = [ [], ['RÉPARTITION FEMMES / HOMMES (électeurs) — parité des listes (L.2314-30)'] ];
+  if(_totF+_totH===0){
+    _fhRows.push(['Sexe non renseigné', 'Ajoutez une colonne « Sexe » (F / H ou M) au registre puis ré-importez', 'nécessaire pour la parité — L.2314-30']);
+  } else {
+    _labelsFH.forEach((l,i)=>{ const t=_ff[i]+_hh[i]; _fhRows.push([l, _ff[i]+' F / '+_hh[i]+' H', t? ('≈ '+Math.round(_ff[i]/t*100)+' % de femmes'):'—']); });
+    _fhRows.push(['Total électeurs', _totF+' F / '+_totH+' H'+(_sansSexe?(' ('+_sansSexe+' sans sexe renseigné)'):''), 'proportion à refléter sur chaque liste']);
+    const t0=_ff[0]+_hh[0]; const fT = t0?Math.round(_ff[0]/t0*_bm.sieges):0;
+    _fhRows.push(['Composition indicative liste titulaires (1er collège)', fT+' femme(s) / '+(_bm.sieges-fT)+' homme(s) sur '+_bm.sieges+' siège(s)', 'arrondi — L.2314-30/-31 (règle de l\'arrondi ; alternance)']);
+  }
+  syn.splice(syn.length-2, 0, ..._fhRows);
   const wsSyn = XLSX.utils.aoa_to_sheet(syn);
   wsSyn['!cols'] = [{wch:34},{wch:34},{wch:54}];
-  const head = ['N°','Nom Prénom','Naissance','Entrée','Sortie','Contrat','Statut','Collège','Exclu de l\'effectif','Motif effectif','Compté dans l\'effectif','Électeur','Motif électorat','Éligible','Motif éligibilité'];
+  const head = ['N°','Nom Prénom','Sexe','Naissance','Entrée','Sortie','Contrat','Statut','Collège','Exclu de l\'effectif','Motif effectif','Compté dans l\'effectif','Électeur','Motif électorat','Éligible','Motif éligibilité'];
   const det = [head];
   st.rows.forEach((o,idx)=>{ const s=o.s, r=o.r;
-    det.push([ idx+1, s.nom||'', s.dateNaissance||'', s.dateEntree||'', s.dateSortie||'',
+    det.push([ idx+1, s.nom||'', (s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), s.dateNaissance||'', s.dateEntree||'', s.dateSortie||'',
       (CONTRAT_LABELS[s.contrat]||s.contrat||''), (SL[s.statut]||s.statut||''), r.college,
       (r.effectif>0?'Non':'Oui'), r.raisonEff||'', Number(r.effectif.toFixed(2)),
       r.electeur?'Oui':'Non', r.electeurRaison||'', r.eligible?'Oui':'Non', r.eligibleRaison||'' ]);
   });
   const wsDet = XLSX.utils.aoa_to_sheet(det);
-  wsDet['!cols'] = [{wch:4},{wch:26},{wch:11},{wch:11},{wch:11},{wch:16},{wch:12},{wch:8},{wch:14},{wch:28},{wch:14},{wch:9},{wch:26},{wch:9},{wch:24}];
+  wsDet['!cols'] = [{wch:4},{wch:26},{wch:6},{wch:11},{wch:11},{wch:11},{wch:16},{wch:12},{wch:8},{wch:14},{wch:28},{wch:14},{wch:9},{wch:26},{wch:9},{wch:24}];
   try{ wsDet['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:0, c:head.length-1}})}; }catch(e){}
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, wsSyn, 'Synthèse');
