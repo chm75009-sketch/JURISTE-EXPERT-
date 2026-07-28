@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.62';
+var JX_BUILD = 'v2026-07-28.63';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5665,13 +5665,20 @@ function _fixMojibake(s){
   if(/Ã|Â|â€|ï»¿/.test(s)){ try{ var d=decodeURIComponent(escape(s)); if(d.indexOf('�')<0) s=d; }catch(e){} }
   return s.replace(/^﻿/,'');
 }
+function _rhDeacc(s){ try{ return s.normalize('NFD').replace(/[̀-ͯ]/g,''); }catch(e){ return s.replace(/[éèê]/g,'e').replace(/[àâ]/g,'a'); } }
 function _rhIngestLines(lines){
   if(lines.length<2){ alert('Fichier vide ou illisible.'); return null; }
-  var hdr=_rhSplitCSV(lines[0]).map(function(h){return _fixMojibake(h).toLowerCase();});
-  var idx=function(keys){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0) return j; } } return -1; };
-  var iNom=idx(['nom']), iNaiss=idx(['naiss']), iEntree=idx(['entrée','entree']), iContrat=idx(['contrat']), iStatut=idx(['statut']), iSortie=idx(['sortie']), iTemps=idx(['temps']), iObs=idx(['observ','poste','emploi']);
+  // repérage de la ligne d'en-tête (exports RH avec titre + lignes vides en tête)
+  var hdrIdx=0;
+  for(var h=0; h<Math.min(lines.length,15); h++){
+    var cc=_rhSplitCSV(lines[h]).map(function(x){return _rhDeacc(_fixMojibake(x).toLowerCase());});
+    if(cc.some(function(x){return x.indexOf('nom')>=0||x.indexOf('salari')>=0;}) && cc.some(function(x){return x.indexOf('naiss')>=0||x.indexOf('entr')>=0;})){ hdrIdx=h; break; }
+  }
+  var hdr=_rhSplitCSV(lines[hdrIdx]).map(function(h){return _rhDeacc(_fixMojibake(h).toLowerCase());});
+  var idx=function(keys,excl){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0 && !(excl&&hdr[j].indexOf(excl)>=0)) return j; } } return -1; };
+  var iNom=idx(['nom','salari']), iNaiss=idx(['naiss']), iEntree=idx(['date entr','entree','embauche'],'periode'), iContrat=idx(['contrat']), iStatut=idx(['statut prof','statut','categ']), iSortie=idx(['date sortie','sortie','depart'],'periode'), iTemps=idx(['temps','heures','quotit']), iObs=idx(['observ','particul','poste','emploi']);
   var added=0;
-  for(var l=1;l<lines.length;l++){
+  for(var l=hdrIdx+1;l<lines.length;l++){
     var c=_rhSplitCSV(lines[l]).map(_fixMojibake); if(!c.length||!(c[iNom]||'').trim()) continue;
     var obs=iObs>=0?(c[iObs]||''):'';
     var rec={ id:_rhUID(), nom:(iNom>=0?c[iNom]:'').trim(), prenom:'',
@@ -9267,7 +9274,7 @@ function cseBareme(eff){
   else if(eff<=24){sieges=1;heures=10;}
   else if(eff<=49){sieges=2;heures=10;}
   else if(eff<=74){sieges=3;heures=18;}
-  else if(eff<=99){sieges=4;heures=18;}
+  else if(eff<=99){sieges=4;heures=19;}
   else if(eff<=124){sieges=5;heures=21;}
   else if(eff<=149){sieges=6;heures=21;}
   else if(eff<=174){sieges=7;heures=21;}
@@ -11251,14 +11258,14 @@ function _mapperColonnes(entete){
     else if(map.nom === undefined && /\bnom\b/.test(c) && !/prenom/.test(c)){ map.nom = idx; reconnu++; }
     else if(map.prenom === undefined && /prenom/.test(c)){ map.prenom = idx; reconnu++; }
     else if(map.naissance === undefined && /naissance|date.*nais|\bne\b|nee/.test(c)){ map.naissance = idx; reconnu++; }
-    else if(map.entree === undefined && /entree|embauche|debut|arrivee/.test(c)){ map.entree = idx; reconnu++; }
-    else if(map.sortie === undefined && /sortie|depart|fin.*contrat|date.*fin/.test(c)){ map.sortie = idx; reconnu++; }
+    else if(map.entree === undefined && /entree|embauche|debut|arrivee/.test(c) && !/periode/.test(c)){ map.entree = idx; reconnu++; }
+    else if(map.sortie === undefined && /sortie|depart|fin.*contrat|date.*fin/.test(c) && !/periode/.test(c)){ map.sortie = idx; reconnu++; }
     else if(map.contrat === undefined && /contrat|nature|type.*cont/.test(c)){ map.contrat = idx; reconnu++; }
-    else if(map.statut === undefined && /statut|categorie|\bcsp\b|college/.test(c)){ map.statut = idx; reconnu++; }
+    else if(map.statut === undefined && /statut|categorie|college/.test(c)){ map.statut = idx; reconnu++; }
     else if(map.sexe === undefined && /sexe|genre|civilit/.test(c)){ map.sexe = idx; reconnu++; }
     else if(map.emploi === undefined && /emploi|qualif|fonction|poste|metier/.test(c)){ map.emploi = idx; reconnu++; }
     else if(map.temps === undefined && /temps|heures|duree|quotite/.test(c)){ map.temps = idx; reconnu++; }
-    else if(map.obs === undefined && /observ|remarq|note|commentaire/.test(c)){ map.obs = idx; reconnu++; }
+    else if(map.obs === undefined && /observ|remarq|note|commentaire|particul/.test(c)){ map.obs = idx; reconnu++; }
   });
   // Le statut (collège) se lit dans la colonne « Statut/Catégorie » ; à défaut seulement,
   // on se rabat sur la colonne « Emploi/Qualification » (évite que « Emploi » vole le mappage du statut).
@@ -11381,13 +11388,17 @@ function importCSVCore(f, input){
       const sep = lignes[0].includes(';') ? ';' : ',';
       const splitLigne = l => l.split(sep).map(c => c.trim().replace(/^["']|["']$/g,''));
 
-      // Détecter si la 1ère ligne est un en-tête et mapper les colonnes
-      const entete = splitLigne(lignes[0]).map(_fixMojibake);
-      const map = _mapperColonnes(entete);
+      // Détection de la ligne d'en-tête (titre + lignes vides éventuels avant)
+      let hdrIdx = 0, map = _mapperColonnes(splitLigne(lignes[0]).map(_fixMojibake));
+      for(let k=1; k<Math.min(lignes.length, 15); k++){
+        const m = _mapperColonnes(splitLigne(lignes[k]).map(_fixMojibake));
+        if(m._reconnu > map._reconnu){ map = m; hdrIdx = k; }
+      }
+      const entete = splitLigne(lignes[hdrIdx]).map(_fixMojibake);
       const aEntete = map._reconnu >= 3; // au moins 3 colonnes reconnues = en-tête présent
 
       let nbImportes = 0, nbIgnores = 0;
-      const lignesData = aEntete ? lignes.slice(1) : lignes;
+      const lignesData = aEntete ? lignes.slice(hdrIdx+1) : lignes;
 
       lignesData.forEach(ligne => {
         const champs = splitLigne(ligne).map(_fixMojibake);
@@ -11431,11 +11442,15 @@ function importExcelCore(f, input){
       const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, defval:''});
       if(!rows.length){ alert('Le fichier Excel est vide.'); return; }
 
-      // Détecter en-tête et mapper les colonnes
-      const entete = rows[0].map(c => _fixMojibake((c||'').toString()));
-      const map = _mapperColonnes(entete);
+      // Détection de la ligne d'en-tête (certains exports RH ont un titre + lignes vides avant)
+      let hdrIdx = 0, map = _mapperColonnes(rows[0].map(c => _fixMojibake((c||'').toString())));
+      for(let k=1; k<Math.min(rows.length, 15); k++){
+        const m = _mapperColonnes(rows[k].map(c => _fixMojibake((c||'').toString())));
+        if(m._reconnu > map._reconnu){ map = m; hdrIdx = k; }
+      }
+      const entete = rows[hdrIdx].map(c => _fixMojibake((c||'').toString()));
       const aEntete = map._reconnu >= 3;
-      const lignesData = aEntete ? rows.slice(1) : rows;
+      const lignesData = aEntete ? rows.slice(hdrIdx+1) : rows;
 
       let nbImportes = 0, nbIgnores = 0;
       lignesData.forEach(r => {
