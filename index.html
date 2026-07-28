@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.71';
+var JX_BUILD = 'v2026-07-28.72';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6384,18 +6384,27 @@ function rxRegistre(){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>Importez votre fichier CSV, ou ajoutez un salarié.</div>';
     return h;
   }
+  var _th='padding:7px;white-space:nowrap';
   h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;color:#e8e4d8">'
-    +'<tr style="color:#9fb0c4;text-align:left"><th style="padding:7px">Nom Prénom</th><th style="padding:7px">Emploi</th><th style="padding:7px">Contrat</th><th style="padding:7px">Entrée</th><th style="padding:7px">Statut</th></tr>';
+    +'<tr style="color:#9fb0c4;text-align:left">'
+    +'<th style="'+_th+'">Nom</th><th style="'+_th+'">Prénom</th><th style="'+_th+'">Sexe</th>'
+    +'<th style="'+_th+'">Naissance</th><th style="'+_th+'">Emploi</th><th style="'+_th+'">Contrat</th>'
+    +'<th style="'+_th+'">Entrée</th><th style="'+_th+'">Sortie</th><th style="'+_th+'">Situation</th></tr>';
   rows.forEach(function(s){
-    var badge=s.sortie?'<span style="color:#e05c5c">Sorti '+rxFR(s.sortie)+'</span>':'<span style="color:#46b885">Actif</span>';
+    var badge=s.sortie?'<span style="color:#e05c5c">Sorti</span>':'<span style="color:#46b885">Actif</span>';
+    var sx=(s.sexe==='F'?'F':((s.sexe==='H'||s.sexe==='M')?'H':'—'));
     h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="rxFiche(\''+s.id+'\')">'
-      +'<td style="padding:7px;color:#fff;font-weight:600">'+rxEsc((s.nom||'')+' '+(s.prenom||''))+'</td>'
+      +'<td style="padding:7px;color:#fff;font-weight:600;white-space:nowrap">'+rxEsc(s.nom||'—')+'</td>'
+      +'<td style="padding:7px;white-space:nowrap">'+rxEsc(s.prenom||'—')+'</td>'
+      +'<td style="padding:7px;text-align:center">'+sx+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4;white-space:nowrap">'+(rxFR(s.naissance)||'—')+'</td>'
       +'<td style="padding:7px">'+rxEsc(s.categorie||'—')+'</td>'
-      +'<td style="padding:7px;color:#9fb0c4">'+rxEsc(s.typeContrat||'')+'</td>'
-      +'<td style="padding:7px;color:#9fb0c4">'+rxFR(s.entree)+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4;white-space:nowrap">'+rxEsc(s.typeContrat||'')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4;white-space:nowrap">'+(rxFR(s.entree)||'—')+'</td>'
+      +'<td style="padding:7px;color:#9fb0c4;white-space:nowrap">'+(rxFR(s.sortie)||'—')+'</td>'
       +'<td style="padding:7px">'+badge+'</td></tr>';
   });
-  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">Registre unique du personnel — art. L.1221-13 C. trav.</div>';
+  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">Registre unique du personnel — art. L.1221-13 C. trav. · faites défiler le tableau horizontalement pour voir toutes les colonnes · « 🖨️ Registre officiel » pour la version complète (nationalité, titre de séjour…).</div>';
   return h;
 }
 
@@ -6771,7 +6780,10 @@ function _rxSalarieToRecord(s){
   var lab=(typeof CONTRAT_LABELS!=='undefined'&&CONTRAT_LABELS[s.contrat])||s.contrat||'';
   var stl=(typeof STATUT_LABELS!=='undefined'&&STATUT_LABELS[s.statut])||s.statut||'';
   var temps=(s.contrat==='cdi_tpartiel')?('Temps partiel '+Math.round((s.heures/35)*100)+'%'):'Temps plein';
-  return { id:rxUID(), nom:s.nom||'', prenom:'', sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), nationalite:(s.nationalite||''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, pieceType:(s.titreSejour?('Titre de séjour : '+s.titreSejour):''), observations:(s.observations||'') };
+  // Nom / Prénom : colonnes distinctes si le fichier les sépare, sinon découpe heuristique (dernier mot = prénom)
+  var nm=(s.nomBase||s.nom||'').trim(), pr=(s.prenom||'').trim();
+  if(!pr && nm.indexOf(' ')>-1){ var _p=nm.split(/\s+/); pr=_p.pop(); nm=_p.join(' '); }
+  return { id:rxUID(), nom:nm, prenom:pr, sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), nationalite:(s.nationalite||''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, pieceType:(s.titreSejour?('Titre de séjour : '+s.titreSejour):''), observations:(s.observations||'') };
 }
 function _rxIngestRows(rows){
   if(!rows||!rows.length){ alert('Fichier vide ou illisible.'); return null; }
@@ -11441,14 +11453,14 @@ function _mapperColonnes(entete){
 
 function _extraireSalarie(champs, map){
   // Extrait un salarié depuis une ligne en utilisant le mapping de colonnes
-  let nom = '';
+  let nom = '', nomBase = '', prenomBase = '';
   if(map.nomcomplet !== undefined){
-    nom = champs[map.nomcomplet] || '';
+    nom = (champs[map.nomcomplet] || '').toString().trim();
+    nomBase = nom; // « Nom Prénom » collés : séparation heuristique en aval
   } else if(map.nom !== undefined){
-    nom = (champs[map.nom] || '');
-    if(map.prenom !== undefined && champs[map.prenom]){
-      nom = nom + ' ' + champs[map.prenom];
-    }
+    nomBase = (champs[map.nom] || '').toString().trim();
+    prenomBase = (map.prenom !== undefined ? (champs[map.prenom] || '') : '').toString().trim();
+    nom = (nomBase + (prenomBase ? ' ' + prenomBase : '')).trim();
   }
   nom = nom.trim();
   if(!nom) return null;
@@ -11483,6 +11495,8 @@ function _extraireSalarie(champs, map){
 
   return {
     nom,
+    nomBase,
+    prenom: prenomBase,
     dateNaissance: normaliseDate(map.naissance !== undefined ? (champs[map.naissance]||'') : ''),
     dateEntree,
     dateSortie,
