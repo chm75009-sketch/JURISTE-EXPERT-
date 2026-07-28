@@ -649,7 +649,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.69';
+var JX_BUILD = 'v2026-07-28.70';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -6329,9 +6329,9 @@ function rxRender(){
   var actifs=RX.staff.filter(function(s){return !s.sortie;}).length;
   var sess=rxSess();
   var h='<div style="max-width:900px;margin:0 auto">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">'
-    +'<button onclick="rxClose()" style="padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:600;font-size:14px;cursor:pointer">← Fermer</button>'
-    +'<div style="font-size:12px;color:'+(sess?'#46b885':'#9fb0c4')+'">'+(sess?'☁️ '+rxEsc((sess.code||'compte')):'hors ligne')+'</div>'
+  h+='<div style="position:sticky;top:0;z-index:50;background:#0b1420;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px;border-bottom:1px solid #26374d">'
+    +'<button onclick="rxClose()" style="padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:700;font-size:14px;cursor:pointer">← Fermer / Retour</button>'
+    +'<div style="font-size:12px;color:'+(sess?'#46b885':'#9fb0c4')+'">'+(sess?'☁️ '+rxEsc((sess.code||'compte')):'hors ligne')+' <span style="color:#6b7a8d;font-size:10px">'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+'</span></div>'
     +'</div>';
   h+='<h2 style="color:#fff;font-size:19px;margin:2px 0 2px">👥 Espace RH — Personnel</h2>';
   h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre <span style="color:#6b7a8d">· compte : '+rxEsc(rxAccountId())+'</span></div>';
@@ -6370,11 +6370,15 @@ function rxRegistre(){
       +'<div style="margin-top:9px"><button onclick="rxSplitNames()" style="width:100%;padding:12px;border:none;border-radius:9px;background:#c9a84c;color:#1a1a1a;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">✂️ Séparer Nom / Prénom maintenant</button></div>'
       +'</div>';
   }
-  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
-    +'<button onclick="rxFiche(\'\')" style="padding:10px 14px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer">＋ Ajouter un salarié</button>'
-    +'<button onclick="document.getElementById(\'rx-csv\').click()" style="padding:10px 14px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13px;cursor:pointer">⭳ Importer un fichier CSV</button>'
-    +'<input type="file" id="rx-csv" accept=".csv,text/csv" style="display:none" onchange="rxImport(this)">'
-    +'</div>';
+  var _rxb='flex:1 1 auto;min-width:130px;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-align:center';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
+    +'<button onclick="rxFiche(\'\')" style="'+_rxb+';border:none;background:#46b885;color:#04150e">＋ Ajouter</button>'
+    +'<button onclick="rxReplacePrompt()" style="'+_rxb+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">🔁 Remplacer (fichier)</button>'
+    +'<button onclick="rxAddPrompt()" style="'+_rxb+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">✏️ Modifier / compléter</button>'
+    +(RX.staff.length?'<button onclick="rxWipeRegistre()" style="'+_rxb+';border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c">🗑️ Supprimer le registre</button>':'')
+    +'<input type="file" id="rx-csv" accept=".csv,.txt,.xlsx,.xls,.xltx,.xlsm,.xltm,.xlsb,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="rxImport(this)">'
+    +'</div>'
+    +(RX.staff.length?'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:10px">✏️ Pour <b>modifier</b> ou <b>supprimer un salarié</b>, cliquez sur sa ligne ci-dessous.</div>':'');
   if(!RX.staff.length){
     h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>Importez votre fichier CSV, ou ajoutez un salarié.</div>';
     return h;
@@ -6677,28 +6681,46 @@ function rxProcAlerts(){
 
 /* ══════════ IMPORT CSV ══════════ */
 function rxSplit(line){ var sep=(line.indexOf(';')>=0 && (line.indexOf(',')<0||line.split(';').length>=line.split(',').length))?';':','; var o=[],c='',q=false; for(var i=0;i<line.length;i++){var ch=line[i]; if(ch==='"'){ if(q&&line[i+1]==='"'){c+='"';i++;} else q=!q; } else if(ch===sep&&!q){o.push(c);c='';} else c+=ch;} o.push(c); return o.map(function(x){return x.trim();}); }
+var _rxImportMode='ask';
+function rxImportPrompt(){ _rxImportMode='ask'; var i=document.getElementById('rx-csv'); if(i){ i.value=''; i.click(); } }
+function rxReplacePrompt(){ if(RX.staff.length && !confirm('REMPLACER tout le registre ('+RX.staff.length+' salarié·s) par le contenu du fichier ?\n\nLe registre actuel sera vidé puis remplacé.')) return; _rxImportMode='replace'; var i=document.getElementById('rx-csv'); if(i){ i.value=''; i.click(); } }
+function rxAddPrompt(){ _rxImportMode='add'; var i=document.getElementById('rx-csv'); if(i){ i.value=''; i.click(); } }
+function rxWipeRegistre(){ if(!RX.staff.length) return; if(!confirm('Supprimer TOUT le registre du personnel ('+RX.staff.length+' salarié·s) ?\n\nAction définitive (sauf sauvegarde / synchro en ligne). Vous pourrez réimporter un fichier ensuite.')) return; RX.staff=[]; rxSaveLocal(); try{ rxCloudPushAll(); }catch(e){} RX_TAB='reg'; rxRender(); }
+function _rxSalarieToRecord(s){
+  var lab=(typeof CONTRAT_LABELS!=='undefined'&&CONTRAT_LABELS[s.contrat])||s.contrat||'';
+  var stl=(typeof STATUT_LABELS!=='undefined'&&STATUT_LABELS[s.statut])||s.statut||'';
+  var temps=(s.contrat==='cdi_tpartiel')?('Temps partiel '+Math.round((s.heures/35)*100)+'%'):'Temps plein';
+  return { id:rxUID(), nom:s.nom||'', prenom:'', sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, observations:(s.observations||'') };
+}
+function _rxIngestRows(rows){
+  if(!rows||!rows.length){ alert('Fichier vide ou illisible.'); return null; }
+  var norm=function(row){ return row.map(function(c){ return _fixMojibake((c==null?'':c).toString()); }); };
+  var hdrIdx=0, map=_mapperColonnes(norm(rows[0]));
+  for(var k=1;k<Math.min(rows.length,15);k++){ var m=_mapperColonnes(norm(rows[k])); if(m._reconnu>map._reconnu){ map=m; hdrIdx=k; } }
+  if(map._reconnu<2){ alert('Colonnes non reconnues.\n\nLe fichier doit comporter un en-tête (Nom ou Salarié, Date de naissance, Date d\'entrée, Statut…).'); return null; }
+  var n=0;
+  for(var r=hdrIdx+1;r<rows.length;r++){ var champs=rows[r].map(function(c){ return (c instanceof Date)?c:_fixMojibake((c==null?'':c).toString().trim()); }); var sal=_extraireSalarie(champs,map); if(!sal) continue; RX.staff.push(_rxSalarieToRecord(sal)); n++; }
+  return n;
+}
 function rxImport(input){
   var f=input.files&&input.files[0]; if(!f) return;
-  var rd=new FileReader();
-  rd.onload=function(){
+  var ext=(f.name.split('.').pop()||'').toLowerCase();
+  var finishRows=function(rows){
     try{
-      var txt=String(rd.result).replace(/^﻿/,'');
-      var lines=txt.split(/\r?\n/).filter(function(l){return l.trim();});
-      if(lines.length<2){ alert('Fichier vide ou illisible.'); return; }
-      var hdr=rxSplit(lines[0]).map(function(x){return x.toLowerCase();});
-      var idx=function(keys){ for(var k=0;k<keys.length;k++){ for(var j=0;j<hdr.length;j++){ if(hdr[j].indexOf(keys[k])>=0) return j; } } return -1; };
-      var iN=idx(['nom']), iNa=idx(['naiss']), iEn=idx(['entrée','entree']), iC=idx(['contrat']), iS=idx(['statut']), iSo=idx(['sortie']), iT=idx(['temps']), iO=idx(['observ','poste','emploi']);
-      var n=0;
-      for(var l=1;l<lines.length;l++){ var c=rxSplit(lines[l]); if(!c.length||!(iN>=0?c[iN]:'').trim()) continue;
-        var obs=iO>=0?(c[iO]||''):'';
-        RX.staff.push({ id:rxUID(), nom:(iN>=0?c[iN]:'').trim(), prenom:'', naissance:rxISO(iNa>=0?c[iNa]:''), entree:rxISO(iEn>=0?c[iEn]:''), typeContrat:(iC>=0?c[iC]:'').trim(), statut:(iS>=0?c[iS]:'').trim(), sortie:rxISO(iSo>=0?c[iSo]:''), tempsTravail:(iT>=0?c[iT]:'').trim(), categorie:obs.replace(/^[⚠️✅\s]+/,'').split(' - ')[0].slice(0,60), observations:obs });
-        n++;
-      }
-      rxSaveLocal(); input.value=''; alert(n+' salarié(s) importé(s).'); RX_TAB='reg'; rxRender();
+      if(_rxImportMode==='replace'){ RX.staff=[]; }
+      else if(_rxImportMode==='ask'){ if(RX.staff.length && confirm('Le registre contient déjà '+RX.staff.length+' salarié(s).\n\nOK = REMPLACER\nAnnuler = AJOUTER à la suite')) RX.staff=[]; }
+      _rxImportMode='ask';
+      var n=_rxIngestRows(rows); if(n==null){ input.value=''; return; }
+      rxSaveLocal(); input.value=''; alert(n+' salarié(s) importé(s) dans le registre du personnel.'); RX_TAB='reg'; rxRender();
       try{ rxCloudPushAll(); }catch(e){}
     }catch(e){ alert('Erreur d\'import : '+(e.message||e)); }
   };
-  rd.readAsText(f,'UTF-8');
+  if(['xlsx','xls','xltx','xlsm','xltm','xlsb'].indexOf(ext)>=0){
+    var doXl=function(){ var rd=new FileReader(); rd.onload=function(){ try{ var wb=XLSX.read(new Uint8Array(rd.result),{type:'array',cellDates:true}); var ws=wb.Sheets[wb.SheetNames[0]]; if(!ws){ alert('Le fichier Excel ne contient aucune feuille.'); input.value=''; return; } finishRows(XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''})); }catch(e){ alert('Erreur de lecture Excel : '+(e.message||e)); input.value=''; } }; rd.readAsArrayBuffer(f); };
+    if(typeof XLSX==='undefined'){ var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'; sc.onload=doXl; sc.onerror=function(){ alert('Lecteur Excel indisponible (connexion internet requise la 1re fois).\n\nSolution : « Enregistrer sous » au format CSV, puis importer le CSV.'); input.value=''; }; document.head.appendChild(sc); } else doXl();
+  } else {
+    var rd=new FileReader(); rd.onload=function(){ var txt=String(rd.result).replace(/^﻿/,''); var rows=txt.split(/\r?\n/).filter(function(l){return l.trim();}).map(function(l){ return rxSplit(l); }); finishRows(rows); }; rd.readAsText(f,'UTF-8');
+  }
 }
 
 /* ══════════ EN LIGNE (Supabase, REST direct) ══════════ */
@@ -11405,14 +11427,15 @@ function _normSexe(s){
 
 // Charge la liste des élections depuis le registre du personnel (Espace RH) — source unique
 function chargerDepuisRH(){
-  if(typeof RH === 'undefined' || !RH.loaded || !RH.staff || !RH.staff.length){
-    alert('Le registre du personnel (Espace RH) n\'est pas ouvert, ou il est vide.\n\n1) Ouvrez « Espace RH — Personnel » et saisissez votre code confidentiel pour le déverrouiller.\n2) Revenez ici et recliquez sur « Charger depuis le registre du personnel ».');
+  var staff = (typeof rxStaffList === 'function') ? rxStaffList() : ((typeof RX !== 'undefined' && RX.staff) ? RX.staff : []);
+  if(!staff || !staff.length){
+    alert('Le registre du personnel (Espace RH) est vide.\n\nOuvrez « Espace RH — Personnel », importez-y votre fichier, puis revenez ici et recliquez sur « Charger depuis le registre du personnel ».');
     return;
   }
   if(salariesNom.length > 0){
-    if(!confirm('La liste des élections contient déjà ' + salariesNom.length + ' salarié(s).\n\n• OK = REMPLACER par le registre du personnel (' + RH.staff.length + ')\n• Annuler = abandonner')) return;
+    if(!confirm('La liste des élections contient déjà ' + salariesNom.length + ' salarié(s).\n\n• OK = REMPLACER par le registre du personnel (' + staff.length + ')\n• Annuler = abandonner')) return;
   }
-  salariesNom = RH.staff.map(function(s){
+  salariesNom = staff.map(function(s){
     var contrat = normaliseContrat(s.typeContrat || '');
     var temps = (s.tempsTravail || '').toString();
     var heures = 35;
