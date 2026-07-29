@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.77';
+var JX_BUILD = 'v2026-07-28.78';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -11346,6 +11346,8 @@ function refreshNomTable(){
   // Répartition F/H par collège (parité — L.2314-13/-30) — 2 ou 3 collèges selon le nombre de cadres
   const _repFH = _labels.map((l,i)=>`<strong>${l} :</strong> ${_ff[i]} F / ${_hh[i]} H`).join(' · ');
   const _repElec = _labels.map((l,i)=>`<strong>${l} : ${_cc[i]}</strong>`).join(' · ');
+  // Collège unique « de fait » : la 2e catégorie (TAM/cadres) ne comporte aucun électeur
+  const _collegeUnique = (!_trois && _cc.length >= 2 && _cc[1] === 0 && _cc[0] > 0);
   let fhLigne = '';
   if(nbElect > 0){
     if(sansSexe >= nbElect){
@@ -11365,7 +11367,7 @@ ${!sousSeuil ? `Nombre de sièges à pourvoir : <strong style="color:#e8c97a;fon
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
 Répartition des électeurs par collège : ${_repElec}${fhLigne}
-${_trois ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → <strong>3 collèges</strong> (3e collège cadres obligatoire, art. L.2314-11 ; non supprimable même par accord unanime, L.2314-12)</span>' : '<br><span style="font-size:11px;color:#9a9585">2 collèges (moins de 25 cadres : techniciens/maîtrise et cadres réunis dans le 2e collège — L.2314-11)</span>'}
+${_trois ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → <strong>3 collèges</strong> (3e collège cadres obligatoire, art. L.2314-11 ; non supprimable même par accord unanime, L.2314-12)</span>' : (_collegeUnique ? '<br><span style="font-size:12px;color:#8fe3bd">✔ <strong>Collège unique</strong> : le 2e collège (TAM/cadres) ne comporte aucun électeur — les <strong>'+nbElect+' électeurs</strong> et les <strong>'+sg[0]+' sièges</strong> relèvent du 1er collège. Configuration à acter dans le <strong>protocole d\'accord préélectoral</strong> (PAP — L.2314-13). Le cadre légal reste à 2 collèges (L.2314-11) ; le collège unique se constate faute de salarié en 2e catégorie.</span>' : '<br><span style="font-size:11px;color:#9a9585">2 collèges (moins de 25 cadres : techniciens/maîtrise et cadres réunis dans le 2e collège — L.2314-11)</span>')}
 </div></div>`;
   // Points à vérifier (cas que l'app ne peut pas trancher seule)
   try {
