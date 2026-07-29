@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.78';
+var JX_BUILD = 'v2026-07-28.79';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5245,9 +5245,11 @@ function goPage(id){
   document.querySelectorAll('.bn').forEach(b=>b.classList.remove('act'));
   document.getElementById('bn-'+id)?.classList.add('act');
   window.scrollTo(0,0);
-  // Bouton retour flottant : visible sur toutes les pages sauf accueil
+  // Bouton retour flottant : masqué sur l'accueil ET sur les pages qui ont déjà leur propre barre (.topbar)
   const btnFixe = document.getElementById('btn-retour-fixe');
-  if(btnFixe) btnFixe.style.display = (id==='home') ? 'none' : 'block';
+  const _apTb = document.getElementById('pg-'+id);
+  const _pageHasTopbar = !!(_apTb && _apTb.querySelector('.topbar'));
+  if(btnFixe) btnFixe.style.display = (id==='home' || _pageHasTopbar) ? 'none' : 'block';
   // Le module Analyse repart à zéro à chaque entrée (pas de résultat/document résiduel)
   if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
   try{ adminSecPrompt(id); }catch(e){}
@@ -7205,7 +7207,11 @@ function jxFab(){
     // ← Retour : quand il y a quelque chose à fermer (module/menu) OU qu'on n'est pas sur l'accueil
     var home=document.getElementById('pg-home');
     var notHome=home && home.className.indexOf('act')===-1;
-    bk.style.display=(appVisible && authed && !vitrine && (moduleOpen || menuOpen || notHome))?'block':'none';
+    // Éviter le doublon de « Retour » : si la page active a déjà sa propre barre (.topbar avec son bouton Retour),
+    // on masque le bouton flottant global (qui se superposait à l'en-tête/logo).
+    var actPage=document.querySelector('#pg-app .page.act');
+    var pageHasTopbar=!!(actPage && actPage.querySelector('.topbar'));
+    bk.style.display=(appVisible && authed && !vitrine && (moduleOpen || menuOpen || (notHome && !pageHasTopbar)))?'block':'none';
   }catch(e){}
 }
 try{
