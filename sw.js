@@ -1,6 +1,7 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v63';
-const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE = 'jem-v64';
+const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
+  './vendor/xlsx.full.min.js', './vendor/jszip.min.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

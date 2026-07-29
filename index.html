@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.79';
+var JX_BUILD = 'v2026-07-28.80';
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
@@ -5771,7 +5771,7 @@ function rhImportFile(input){
       rd.readAsArrayBuffer(file);
     };
     if(typeof XLSX==='undefined'){
-      var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      var s=document.createElement('script'); s.src='vendor/xlsx.full.min.js';
       s.onload=doXl; s.onerror=function(){ alert('Impossible de charger le lecteur Excel (connexion internet requise la 1re fois).\n\nSolution : « Enregistrer sous » au format CSV, puis importer le CSV.'); input.value=''; };
       document.head.appendChild(s);
     } else doXl();
@@ -6826,7 +6826,7 @@ function rxImport(input){
   };
   if(['xlsx','xls','xltx','xlsm','xltm','xlsb'].indexOf(ext)>=0){
     var doXl=function(){ var rd=new FileReader(); rd.onload=function(){ try{ var wb=XLSX.read(new Uint8Array(rd.result),{type:'array',cellDates:true}); var ws=wb.Sheets[wb.SheetNames[0]]; if(!ws){ alert('Le fichier Excel ne contient aucune feuille.'); input.value=''; return; } finishRows(XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''})); }catch(e){ alert('Erreur de lecture Excel : '+(e.message||e)); input.value=''; } }; rd.readAsArrayBuffer(f); };
-    if(typeof XLSX==='undefined'){ var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'; sc.onload=doXl; sc.onerror=function(){ alert('Lecteur Excel indisponible (connexion internet requise la 1re fois).\n\nSolution : « Enregistrer sous » au format CSV, puis importer le CSV.'); input.value=''; }; document.head.appendChild(sc); } else doXl();
+    if(typeof XLSX==='undefined'){ var sc=document.createElement('script'); sc.src='vendor/xlsx.full.min.js'; sc.onload=doXl; sc.onerror=function(){ alert('Lecteur Excel indisponible (connexion internet requise la 1re fois).\n\nSolution : « Enregistrer sous » au format CSV, puis importer le CSV.'); input.value=''; }; document.head.appendChild(sc); } else doXl();
   } else {
     var rd=new FileReader(); rd.onload=function(){ var txt=String(rd.result).replace(/^﻿/,''); var rows=txt.split(/\r?\n/).filter(function(l){return l.trim();}).map(function(l){ return rxSplit(l); }); finishRows(rows); }; rd.readAsText(f,'UTF-8');
   }
@@ -9726,7 +9726,7 @@ async function telechargerTousZIP(){
     if(typeof JSZip === 'undefined'){
       await new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.src = 'vendor/jszip.min.js';
         s.onload = resolve;
         s.onerror = () => reject(new Error('Chargement JSZip échoué'));
         document.head.appendChild(s);
@@ -11593,7 +11593,7 @@ function importFichierNom(input){
     // Chargement à la demande de la bibliothèque Excel
     if(typeof XLSX === 'undefined'){
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      script.src = 'vendor/xlsx.full.min.js';
       script.onload = () => importExcelCore(f, input);
       script.onerror = () => {
         alert('Impossible de charger le lecteur Excel (besoin d\'une connexion internet pour la première utilisation).\n\nSolution : ouvrir votre fichier Excel, puis "Enregistrer sous" au format CSV (séparateur point-virgule), et importer le CSV.');
@@ -11737,7 +11737,7 @@ function exportRapportCSE(){
   if(!salariesNom.length){ alert('Aucun salarié saisi. Importez d\'abord le registre.'); return; }
   const go = ()=>{ try{ _buildRapportCSE(dateScrutin); }catch(e){ alert('Erreur lors de la génération du rapport : '+e.message); } };
   if(typeof XLSX==='undefined'){
-    const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    const sc=document.createElement('script'); sc.src='vendor/xlsx.full.min.js';
     sc.onload=go; sc.onerror=()=>alert('Lecteur Excel indisponible (connexion internet requise la 1re fois).');
     document.head.appendChild(sc);
   } else go();
