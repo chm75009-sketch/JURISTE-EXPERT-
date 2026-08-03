@@ -180,7 +180,7 @@
         <input type="text" id="dossierNouveau" placeholder="ex. Risque opérationnel" />
       </div>
       <div class="field" style="margin:0">
-        <label for="profilSel">Profil métier <span class="muted" style="font-weight:400">— définit le tri des offres</span></label>
+        <label for="profilSel">Profil métier <span class="muted" style="font-weight:400">— attaché à ce dossier</span></label>
         <select id="profilSel"></select>
       </div>
     </div>
@@ -1366,12 +1366,18 @@ var PROFILS = {
   }
 };
 
-var LS_PROFIL = "offres_profil_v1";
-function profilActifId(){ var id=localStorage.getItem(LS_PROFIL)||"droit-social"; return PROFILS[id]?id:"droit-social"; }
+// Le profil est attache au dossier : changer de dossier change le tri, sans
+// second reglage a penser. L'ancienne cle globale sert de valeur de repli.
+var LS_PROFIL_BASE = "offres_profil_v1";
+function LS_PROFIL(){ return LS_PROFIL_BASE + "::" + dossierActif(); }
+function profilActifId(){
+  var id = localStorage.getItem(LS_PROFIL()) || localStorage.getItem(LS_PROFIL_BASE) || "droit-social";
+  return PROFILS[id] ? id : "droit-social";
+}
 function profilActif(){ return PROFILS[profilActifId()]; }
 function setProfilActif(id){
   if(!PROFILS[id]) return;
-  localStorage.setItem(LS_PROFIL, id);
+  localStorage.setItem(LS_PROFIL(), id);
   majCategories();
   try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(e){}
   try{ if(typeof lastOffers!=="undefined" && lastOffers && lastOffers.length) analyse(lastOffers, lastOffers.length); }catch(e){}
@@ -1523,6 +1529,8 @@ function dossierActif(){
 function setDossierActif(id){
   localStorage.setItem(LS_DOSSIER_ACTIF, id);
   majDossierUI();
+  // Le dossier porte son propre profil de tri : on le remet en place.
+  try{ var ps=$("profilSel"); if(ps) ps.value = profilActifId(); majCategories(); }catch(e){}
   try{ renderPostulees(); }catch(e){}
   try{ majVuesCompteur(); }catch(e){}
   try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(e){}
@@ -1564,9 +1572,12 @@ function initDossiers(){
   if(add) add.addEventListener("click", function(){
     var champ=$("dossierNouveau"), nom=(champ.value||"").trim();
     if(!nom){ champ.focus(); return; }
-    var d=dossiers(), id=nouvelId();
+    var d=dossiers(), id=nouvelId(), profilCourant=profilActifId();
     d[id]=nom; saveDossiers(d); champ.value="";
     setDossierActif(id);
+    // Un nouveau dossier reprend le profil de tri affiche au moment de sa creation.
+    setProfilActif(profilCourant);
+    var ps=$("profilSel"); if(ps) ps.value = profilCourant;
   });
 
   var ren=$("dossierRenommer");
