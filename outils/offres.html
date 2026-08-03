@@ -166,6 +166,33 @@
     </div>
   </div>
 
+  <!-- Dossier de recherche : cloisonne les consultees et les candidatures -->
+  <div class="card" id="dossierCard" style="border-left:4px solid #6b4fbb">
+    <h2>🗂️ Dossier de recherche <span class="muted" style="font-weight:400;font-size:12px">— chaque dossier a ses propres offres consultées et candidatures</span></h2>
+    <div class="hint" style="margin-bottom:8px">Un dossier par personne ou par type de poste (ex. « Juriste droit du travail », « Risque opérationnel »). Les offres consultées et les candidatures d'un dossier <b>ne se mélangent jamais</b> avec celles d'un autre.</div>
+    <div class="grid form-grid">
+      <div class="field" style="margin:0">
+        <label for="dossierSel">Dossier actif</label>
+        <select id="dossierSel"></select>
+      </div>
+      <div class="field" style="margin:0">
+        <label for="dossierNouveau">Créer un dossier</label>
+        <input type="text" id="dossierNouveau" placeholder="ex. Risque opérationnel" />
+      </div>
+      <div class="field" style="margin:0">
+        <label for="profilSel">Profil métier <span class="muted" style="font-weight:400">— définit le tri des offres</span></label>
+        <select id="profilSel"></select>
+      </div>
+    </div>
+    <div class="hint" id="profilDesc" style="margin-top:8px;font-style:italic"></div>
+    <div class="row-actions" style="margin-top:10px">
+      <button class="btn" id="dossierAjouter">+ Créer</button>
+      <button class="btn btn-ghost" id="dossierRenommer">Renommer</button>
+      <button class="btn btn-ghost" id="dossierSupprimer" style="color:#c0392b">Supprimer</button>
+      <span id="dossierStatus" class="hint"></span>
+    </div>
+  </div>
+
   <!-- Formulaire de recherche -->
   <div class="card">
     <h2>Rechercher des offres</h2>
@@ -244,9 +271,9 @@
     <div class="field" style="margin-top:12px">
       <label style="display:flex;align-items:flex-start;gap:13px;cursor:pointer;font-weight:700;font-size:16px;line-height:1.4;border:2px solid var(--accent);background:var(--accent-soft);padding:16px 18px;border-radius:14px">
         <input type="checkbox" id="relInd" style="width:28px;height:28px;accent-color:var(--accent);flex:none;margin-top:1px" />
-        <span>⚖️ Uniquement les offres à <b>dimension relations individuelles</b> — individuel seul <b>ou</b> individuel + collectif (exclut le purement collectif)</span>
+        <span id="lblRelInd">⚖️ Uniquement les offres à <b>dimension relations individuelles</b> — individuel seul <b>ou</b> individuel + collectif (exclut le purement collectif)</span>
       </label>
-      <div class="hint">Garde les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…), <b>y compris</b> celles qui comportent aussi une dimension collective (« les deux »). Seul le <b>purement collectif</b> et le hors droit du travail sont écartés.</div>
+      <div class="hint" id="hintRelInd">Garde les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…), <b>y compris</b> celles qui comportent aussi une dimension collective (« les deux »). Seul le <b>purement collectif</b> et le hors droit du travail sont écartés.</div>
     </div>
     <div class="field" style="margin-top:10px">
       <label style="display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:600;font-size:14.5px">
@@ -254,6 +281,13 @@
         <span>🔎 Élargir la recherche à <b>Adzuna</b> (agrégateur) en plus de France Travail</span>
       </label>
       <div class="hint">Plus d'offres, dédoublonnées. Nécessite la clé Adzuna configurée dans le Worker ; sinon seul France Travail répond.</div>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label style="display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:600;font-size:14.5px">
+        <input type="checkbox" id="banquesOnly" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
+        <span>🏦 Uniquement les offres <b>des banques</b> (établissements bancaires employeurs)</span>
+      </label>
+      <div class="hint">Garde les offres dont l'employeur est une banque (BNP, Société Générale, Crédit Agricole, BPCE, Banque Postale, CIC, HSBC…) ou dont l'intitulé est explicitement bancaire. Écarte les cabinets de conseil et d'audit qui recrutent « pour le secteur banque » (EY, Deloitte…).</div>
     </div>
     <div class="row-actions" style="margin-top:6px">
       <button class="btn" id="searchBtn">Analyser les offres</button>
@@ -319,7 +353,7 @@
 
   <!-- Mes candidatures (toujours visible, indépendant de la recherche, persistant) -->
   <div class="card" id="mesCandidaturesCard" style="display:none;border-left:4px solid #2b8a5b">
-    <h2>📌 Mes candidatures <span class="muted" style="font-weight:400;font-size:12px">— offres où j'ai postulé (conservées d'une session à l'autre)</span></h2>
+    <h2>📌 Mes candidatures <span class="muted" style="font-weight:400;font-size:12px">— dossier « <b id="candDossierNom">—</b> » · offres où j'ai postulé (conservées d'une session à l'autre)</span></h2>
     <div class="hint" style="margin-bottom:8px">Ces offres restent ici <b>même si tu quittes puis reviens</b>, et ne sont <b>pas</b> effacées par « Réinitialiser les consultées ». Décoche « j'ai postulé » (ou « retirer ») pour en enlever une.</div>
     <div id="mesCandidatures"></div>
   </div>
@@ -330,15 +364,15 @@
     <div class="grid kpis" id="kpis" style="margin-bottom:18px"></div>
 
     <div class="card" id="secRelation" style="border-left:4px solid var(--accent)">
-      <h2>⚖️ Ratio relations individuelles vs collectives <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span> <span style="font-weight:700;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle">classif v3</span></h2>
+      <h2><span id="h2Ratio">⚖️ Ratio relations individuelles vs collectives</span> <span class="muted" style="font-weight:400;font-size:12px">(objectif de l'étude)</span> <span style="font-weight:700;font-size:11px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle">classif v3</span></h2>
       <div class="bars" id="chartRatio"></div>
       <div class="hint" id="ratioNote" style="margin-top:10px"></div>
-      <div class="hint" style="margin-top:6px;opacity:.75">Méthode (exigence symétrique) : une offre est <b>« individuel »</b> uniquement si un marqueur individuel explicite apparaît (contrat, licenciement, rupture, discipline, inaptitude, prud'hommes, paie…), et <b>« collectif »</b> uniquement avec un marqueur collectif explicite (CSE, IRP, négociation, PSE, syndical…) ; « les deux » si les deux. Sans aucun marqueur explicite de relation de travail, l'offre est <b>écartée</b> (« Non précisé ») — l'individuel est filtré aussi strictement que le collectif.</div>
+      <div class="hint" id="hintMethode" style="margin-top:6px;opacity:.75">Méthode (exigence symétrique) : une offre est <b>« individuel »</b> uniquement si un marqueur individuel explicite apparaît (contrat, licenciement, rupture, discipline, inaptitude, prud'hommes, paie…), et <b>« collectif »</b> uniquement avec un marqueur collectif explicite (CSE, IRP, négociation, PSE, syndical…) ; « les deux » si les deux. Sans aucun marqueur explicite de relation de travail, l'offre est <b>écartée</b> (« Non précisé ») — l'individuel est filtré aussi strictement que le collectif.</div>
       <label style="display:flex;align-items:center;gap:9px;margin-top:10px;font-size:13.5px;font-weight:600;cursor:pointer">
         <input type="checkbox" id="inclHS" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
-        Inclure les offres hors droit social (non classées) dans l'étude
+        <span id="lblInclHS">Inclure les offres hors droit social (non classées) dans l'étude</span>
       </label>
-      <label style="display:flex;align-items:center;gap:9px;margin-top:8px;font-size:13.5px;font-weight:600;cursor:pointer">
+      <label id="wrapInclAvocat" style="display:flex;align-items:center;gap:9px;margin-top:8px;font-size:13.5px;font-weight:600;cursor:pointer">
         <input type="checkbox" id="inclAvocat" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
         Inclure les offres pour <b>avocats</b> (profession libérale)
       </label>
@@ -359,13 +393,29 @@
     </div>
 
     <div class="card" id="offresListeCard">
-      <h2>📋 Offres retenues <span class="muted" style="font-weight:400;font-size:12px">— droit du travail uniquement · cliquez pour consulter <span id="vuesCompteur" style="color:var(--accent)"></span></span></h2>
-      <div class="hint" style="margin-bottom:8px">Ne sont listées que les offres de <b>droit du travail</b> (relations individuelles <b>et</b> collectives). Les métiers hors sujet (travailleur social, action sociale, mandataire judiciaire…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour.</div>
+      <h2>📋 Offres retenues <span class="muted" style="font-weight:400;font-size:12px"><span id="subOffres">— droit du travail uniquement</span> · cliquez pour consulter <span id="vuesCompteur" style="color:var(--accent)"></span></span></h2>
+      <div class="hint" id="hintOffres" style="margin-bottom:8px">Ne sont listées que les offres de <b>droit du travail</b> (relations individuelles <b>et</b> collectives). Les métiers hors sujet (travailleur social, action sociale, mandataire judiciaire…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
         <span style="font-size:12.5px;color:var(--muted);font-weight:600" title="« À la fois » = une même offre demande des missions individuelles ET collectives. Ce n'est pas l'addition des deux autres colonnes.">Afficher :</span>
-        <label class="chip on" id="chipCatInd"><input type="checkbox" id="catInd" checked> Exclusivement individuel <b id="cntCatInd" style="opacity:.7"></b></label>
-        <label class="chip on" id="chipCatBoth"><input type="checkbox" id="catBoth" checked> À la fois ind. + coll. <b id="cntCatBoth" style="opacity:.7"></b></label>
-        <label class="chip on" id="chipCatCol"><input type="checkbox" id="catCol" checked> Exclusivement collectif <b id="cntCatCol" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipCatInd"><input type="checkbox" id="catInd" checked> <span id="lblCatInd">Exclusivement individuel</span> <b id="cntCatInd" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipCatBoth"><input type="checkbox" id="catBoth" checked> <span id="lblCatBoth">À la fois ind. + coll.</span> <b id="cntCatBoth" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipCatCol"><input type="checkbox" id="catCol" checked> <span id="lblCatCol">Exclusivement collectif</span> <b id="cntCatCol" style="opacity:.7"></b></label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <span style="font-size:12.5px;color:var(--muted);font-weight:600" title="Secteur déduit du nom de l'employeur et du texte de l'offre.">Secteur :</span>
+        <label class="chip on" id="chipSecBank"><input type="checkbox" id="secBank" checked> 🏦 Banque &amp; finance <b id="cntSecBank" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipSecAssu"><input type="checkbox" id="secAssu" checked> 🛡️ Assurance <b id="cntSecAssu" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipSecCons"><input type="checkbox" id="secCons" checked> 📊 Conseil &amp; audit <b id="cntSecCons" style="opacity:.7"></b></label>
+        <label class="chip on" id="chipSecAutre"><input type="checkbox" id="secAutre" checked> Autres secteurs <b id="cntSecAutre" style="opacity:.7"></b></label>
+        <a href="#" id="secBankOnly" style="font-size:12px;font-weight:600;color:var(--accent)">▸ banques uniquement</a>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;padding-top:8px;border-top:1px solid #eee">
+        <span style="font-size:12.5px;color:var(--muted);font-weight:600">Transmettre cette liste :</span>
+        <button type="button" class="btn" id="partMail">✉️ Transférer par mail</button>
+        <button type="button" class="btn btn-ghost" id="partTexte">📋 Copier (mail / message)</button>
+        <button type="button" class="btn btn-ghost" id="partHtml">🌐 Page cliquable (.html)</button>
+        <button type="button" class="btn btn-ghost" id="partCsv">⭳ Tableur (.csv)</button>
+        <span id="partStatus" class="hint"></span>
         <span style="font-size:13.5px;font-weight:800;color:var(--ink);padding:7px 12px;border:1.5px solid var(--accent);border-radius:999px;background:var(--accent-soft)">= Total : <span id="cntTotal">0</span></span>
       </div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
@@ -490,6 +540,8 @@ function showApp(){
   $("gate").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("proxyUrl").value = localStorage.getItem(LS_PROXY) || DEFAULT_PROXY;
+  try{ initProfils(); }catch(e){}
+  try{ initDossiers(); }catch(e){}
   try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès l'ouverture (persistant, sans recherche)
 }
 async function tryGate(){
@@ -685,6 +737,11 @@ let lastDroitSocial = true;   // la recherche courante relève-t-elle du droit s
 // Codes ROME « droit social / RH » pour lesquels le ratio individuel/collectif a du sens
 const DS_ROME = ["K1903","K1902","M1503","M1501","M1502"];
 function isDroitSocialSearch(codeRome, aliasCodes, mots){
+  // Hors profil juridique (risque op., business analyst…), le périmètre n'est
+  // plus celui du droit social : le bloc de tri A/B doit rester actif quel que
+  // soit le code ROME ou les mots-clés saisis, sinon la recherche « risque
+  // opérationnel » ne classe rien et n'affiche aucune offre.
+  try{ if(!profilActif().natif) return true; }catch(e){}
   if(codeRome) return DS_ROME.indexOf(codeRome)>=0;
   if(aliasCodes && aliasCodes.length) return aliasCodes.some(function(c){ return DS_ROME.indexOf(c)>=0; });
   if(mots) return /juriste|droit\s+social|droit\s+du\s+travail|ressources?\s+humaines|\brh\b|\bpaie\b|\bsocial\b|\bprud|contentieux\s+social|relations?\s+sociales|d[ée]l[ée]gu[ée]\s+syndical|\bcse\b|repr[ée]sentant\s+du\s+personnel/i.test(mots);
@@ -696,8 +753,69 @@ $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
+try{ initProfils(); }catch(e){}       // vocabulaire de tri selon le metier vise
+try{ initDossiers(); }catch(e){}      // cloisonne les données par dossier de recherche
 try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès le chargement (persistant)
 // Sélecteurs de catégorie (tout ou partie) : Exclusivement individuel / À la fois ind.+coll. / Exclusivement collectif
+["secBank","secAssu","secCons","secAutre"].forEach(function(id){
+  var cb=$(id); if(!cb) return;
+  cb.addEventListener("change", function(){
+    var chip=cb.closest(".chip"); if(chip) chip.classList.toggle("on", cb.checked);
+    try{ renderOffresListe(_offresListe); }catch(_){}
+  });
+});
+if($("partMail")) $("partMail").addEventListener("click", function(){
+  if(!_listeAffichee.length){ statutPartage("Aucune offre à transmettre."); return; }
+  var e=enteteExport();
+  var sujet = "Offres retenues — "+e.profil+" ("+e.n+" offre"+(e.n>1?"s":"")+")";
+  var corps = partageTexte();
+  var lien  = "mailto:?subject="+encodeURIComponent(sujet)+"&body="+encodeURIComponent(corps);
+  // Au-dela d'environ 1 800 caracteres, les clients mail tronquent l'URL :
+  // on copie alors la liste dans le presse-papier et on ouvre un message vide.
+  if(lien.length > 1800){
+    var ouvrir = function(){ window.location.href = "mailto:?subject="+encodeURIComponent(sujet); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(corps).then(function(){
+        statutPartage("Liste trop longue pour être insérée automatiquement : elle est copiée, collez-la dans le message (Ctrl+V).");
+        ouvrir();
+      }, function(){ statutPartage("Liste trop longue : utilisez « Page cliquable (.html) » et joignez le fichier."); });
+    } else {
+      statutPartage("Liste trop longue : utilisez « Page cliquable (.html) » et joignez le fichier.");
+    }
+    return;
+  }
+  window.location.href = lien;
+  statutPartage("✓ Message ouvert avec les "+e.n+" offre(s).");
+});
+if($("partTexte")) $("partTexte").addEventListener("click", function(){
+  if(!_listeAffichee.length){ statutPartage("Aucune offre à transmettre."); return; }
+  var t=partageTexte();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){ statutPartage("✓ "+_listeAffichee.length+" offre(s) copiée(s) — collez dans un mail ou un message."); },
+      function(){ statutPartage("Copie impossible : téléchargez le .html ou le .csv."); });
+  } else { statutPartage("Copie impossible : téléchargez le .html ou le .csv."); }
+});
+if($("partHtml")) $("partHtml").addEventListener("click", function(){
+  if(!_listeAffichee.length){ statutPartage("Aucune offre à transmettre."); return; }
+  telecharger(nomFichier("html"), partageHtml(), "text/html");
+  statutPartage("✓ Page téléchargée — envoyable par mail, les liens restent cliquables.");
+});
+if($("partCsv")) $("partCsv").addEventListener("click", function(){
+  if(!_listeAffichee.length){ statutPartage("Aucune offre à transmettre."); return; }
+  telecharger(nomFichier("csv"), partageCsv(), "text/csv");
+  statutPartage("✓ Tableur téléchargé — ouvrable dans Excel.");
+});
+if($("secBankOnly")) $("secBankOnly").addEventListener("click", function(e){
+  e.preventDefault();
+  var seulesBanques = $("secBank").checked && !$("secAssu").checked && !$("secCons").checked && !$("secAutre").checked;
+  // un clic isole les banques ; un second clic reaffiche tous les secteurs
+  [["secBank",true],["secAssu",seulesBanques],["secCons",seulesBanques],["secAutre",seulesBanques]].forEach(function(x){
+    var cb=$(x[0]); if(!cb) return; cb.checked=x[1];
+    var chip=cb.closest(".chip"); if(chip) chip.classList.toggle("on", x[1]);
+  });
+  $("secBankOnly").textContent = seulesBanques ? "▸ banques uniquement" : "▸ tous les secteurs";
+  try{ renderOffresListe(_offresListe); }catch(_){}
+});
 ["catInd","catBoth","catCol"].forEach(function(id){
   var cb=$(id); if(!cb) return;
   cb.addEventListener("change", function(){
@@ -838,6 +956,14 @@ const COL_TERMS = [
   "elections professionnelles","election professionnelle","elections cse",
   "nao","negociation annuelle","negociation d entreprise","negociation de branche","gpec","gepp","rupture conventionnelle collective","pse","plan de sauvegarde de l emploi","plan social","apc","accord de performance collective","accord de methode","referendum d entreprise",
   "greve","preavis de greve","conflit social","mouvement social","syndical","droit syndical","syndicat","syndicats","delegue syndical","delegues syndicaux","delegue du personnel","section syndicale","mandat syndical","heures de delegation","credit d heures","local syndical",
+  "collectives","collective","co construction sociale","instances du personnel","representativite",
+  "elu du personnel","elus du personnel","membres du cse","membre du cse","mandats","mandat electif","mandat representatif",
+  "accord de branche","convention de branche","commission paritaire permanente","cppni","denonciation d accord","revision d accord",
+  "usage d entreprise","engagement unilateral","reglement interieur","note de service","consultation ponctuelle","information consultation",
+  "restructuration","reorganisation","licenciement economique","licenciements economiques","transfert d entreprise","article l1224 1","l 1224 1",
+  "ordonnances macron","comite de groupe","comite europeen","cse central","cse d etablissement","csec","commission ssct","referent harcelement",
+  "duerp","document unique","prevention des risques psychosociaux","rps","qvct","qvt","negocier avec les partenaires sociaux","partenaires sociaux",
+  "protocole d accord preelectoral","pap","carence","scrutin","depouillement","college electoral","liste de candidats",
   "bdes","bdese","base de donnees economiques","consultation du cse","consultation des representants","consultations recurrentes","orientations strategiques","politique sociale","situation economique et financiere","reunion cse","reunions cse","reunions des irp","expertise cse","expertise comptable du cse","droit d alerte","ordre du jour du cse","proces verbal de reunion","secretaire du cse","tresorier du cse","referent cse","commission paritaire","paritarisme","vote electronique","pv de carence","activites sociales et culturelles"," asc ","oeuvres sociales","budget de fonctionnement","accord d interessement","accord de participation"
 ];
 function relText(o){
@@ -846,11 +972,24 @@ function relText(o){
   (o.qualitesProfessionnelles||[]).forEach(function(q){ if(q&&q.libelle) parts.push(q.libelle); });
   return norm(parts.join(" "));
 }
+
+/* Correspondance d'un terme dans un texte deja normalise et borne par des espaces.
+   Les sigles et mots courts (<= 4 lettres, sans espace) exigent des delimiteurs de
+   mots : sans cela « orm » matche dans « conformite », « norme » ou « performance »,
+   « cse » dans « processe », etc. */
+function contientTerme(hay, terme){
+  var n = norm(terme);
+  if(!n) return false;
+  if(n.length <= 4 && n.indexOf(" ") < 0) return hay.indexOf(" "+n+" ") >= 0;
+  return hay.indexOf(n) >= 0;
+}
+function termesA(){ var p=profilActif(); return (p.A && p.A.terms) ? p.A.terms : IND_TERMS; }
+function termesB(){ var p=profilActif(); return (p.B && p.B.terms) ? p.B.terms : COL_TERMS; }
 function relIndScore(o){
   const hay=" "+relText(o)+" ";
   let ind=0,col=0;
-  IND_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) ind++; });
-  COL_TERMS.forEach(function(t){ if(hay.indexOf(norm(t))>=0) col++; });
+  termesA().forEach(function(t){ if(contientTerme(hay,t)) ind++; });
+  termesB().forEach(function(t){ if(contientTerme(hay,t)) col++; });
   return {ind:ind, col:col};
 }
 // L'offre relève-t-elle du droit social / RH (donc, par nature, des relations individuelles) ?
@@ -923,6 +1062,20 @@ function estRoleExclu(o){
   return ROLE_EXCLU.some(function(r){ return t.indexOf(" "+norm(r)+" ")>=0; });
 }
 function classifyRel(o){
+  var _p = profilActif();
+  if(!_p.natif){
+    // ── Profil non juridique (ex. risques & conformité) ──
+    var hay = " "+relText(o)+" ";
+    if((_p.excl||[]).some(function(t){ return contientTerme(hay,t); })) return "Non précisé";
+    if((_p.ctx||[]).length && !(_p.ctx||[]).some(function(t){ return contientTerme(hay,t); })) return "Non précisé";
+    var sA=0,sB=0;
+    (_p.A.terms||[]).forEach(function(t){ if(contientTerme(hay,t)) sA++; });
+    (_p.B.terms||[]).forEach(function(t){ if(contientTerme(hay,t)) sB++; });
+    if(sA>0 && sB>0) return _p.both.label;
+    if(sA>0) return _p.A.label;
+    if(sB>0) return _p.B.label;
+    return "Non précisé";
+  }
   // Hors sujet : rôle non-juriste (travail social, secrétariat…) -> écarté même si « juriste » est dans le titre
   if(estRoleExclu(o)) return "Non précisé";
   // Hors sujet : contenu/compétences de travail social ou mandataire judiciaire (MJPM, tutelle) -> écarté
@@ -939,18 +1092,520 @@ function classifyRel(o){
   return "Non précisé";
 }
 
+
+
+
+
+
+/* ══════════════════════════════════════════════════════════════════
+   TRANSMETTRE LA LISTE D'OFFRES
+   Exporte exactement ce qui est affiche a l'ecran (categories, secteurs
+   et profil actifs), sous trois formes : texte a coller dans un mail,
+   page HTML autonome et cliquable, ou tableur CSV.
+   ══════════════════════════════════════════════════════════════════ */
+var _listeAffichee = [];   // renseignee par renderOffresListe
+
+function ligneOffre(o){
+  return {
+    titre: (o.intitule||"—"),
+    employeur: (o.entreprise&&o.entreprise.nom)||"employeur non précisé",
+    lieu: (o.lieuTravail&&o.lieuTravail.libelle)||"",
+    contrat: (o.typeContratLibelle||o.typeContrat||""),
+    categorie: classifyRel(o),
+    secteur: secteurLabel(o),
+    salaire: (o.salaire&&o.salaire.libelle)||"",
+    url: offreUrl(o)
+  };
+}
+function enteteExport(){
+  var d=new Date(), p=profilActif();
+  var dd=("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();
+  return { date:dd, profil:p.nom, dossier:(typeof dossierNom==="function"?dossierNom():""), n:_listeAffichee.length };
+}
+function partageTexte(){
+  var e=enteteExport();
+  var t = "Offres retenues — "+e.profil+(e.dossier?" · dossier « "+e.dossier+" »":"")+"\n"
+        + e.n+" offre(s) — liste établie le "+e.date+"\n\n";
+  t += _listeAffichee.map(function(o,i){ var r=ligneOffre(o);
+    return (i+1)+". "+r.titre+"\n"
+         + "   "+[r.employeur, r.lieu, r.contrat].filter(Boolean).join(" · ")+"\n"
+         + "   "+[r.categorie, r.secteur].filter(Boolean).join(" · ")+(r.salaire?("\n   "+r.salaire):"")+"\n"
+         + (r.url?("   "+r.url+"\n"):"");
+  }).join("\n");
+  return t;
+}
+function partageHtml(){
+  var e=enteteExport();
+  var lignes = _listeAffichee.map(function(o){ var r=ligneOffre(o);
+    return '<article><h2>'+esc(r.titre)+'</h2>'
+      +'<p class="m">'+[esc(r.employeur),esc(r.lieu),esc(r.contrat)].filter(Boolean).join(" &middot; ")+'</p>'
+      +'<p class="c">'+esc(r.categorie)+' &middot; '+esc(r.secteur)+(r.salaire?(' &middot; '+esc(r.salaire)):'')+'</p>'
+      +(r.url?('<p><a href="'+esc(r.url)+'" target="_blank" rel="noopener">Voir l\'offre &#8599;</a></p>'):'')
+      +'</article>';
+  }).join("\n");
+  return '<!doctype html><html lang="fr"><head><meta charset="utf-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1">'
+    +'<title>Offres retenues — '+esc(e.profil)+'</title><style>'
+    +'body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:820px;margin:32px auto;padding:0 18px;color:#1f2430;line-height:1.5}'
+    +'h1{font-size:22px;margin:0 0 4px}.sub{color:#6b7280;font-size:14px;margin:0 0 24px}'
+    +'article{border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:12px}'
+    +'article h2{font-size:16px;margin:0 0 6px}.m{margin:0 0 4px;font-size:14px;color:#374151}'
+    +'.c{margin:0 0 8px;font-size:13px;color:#6b7280}'
+    +'a{color:#3f3a8f;font-weight:600;text-decoration:none}a:hover{text-decoration:underline}'
+    +'footer{margin-top:28px;font-size:12px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:12px}'
+    +'</style></head><body>'
+    +'<h1>Offres retenues — '+esc(e.profil)+'</h1>'
+    +'<p class="sub">'+e.n+' offre(s)'+(e.dossier?' &middot; dossier « '+esc(e.dossier)+' »':'')+' &middot; liste établie le '+esc(e.date)+'</p>'
+    + lignes
+    +'<footer>Liste produite automatiquement à partir des offres France Travail. Les liens renvoient vers les annonces d\'origine.</footer>'
+    +'</body></html>';
+}
+function partageCsv(){
+  var cols=["Intitulé","Employeur","Lieu","Contrat","Catégorie","Secteur","Salaire","Lien"];
+  var rows=[cols].concat(_listeAffichee.map(function(o){ var r=ligneOffre(o);
+    return [r.titre,r.employeur,r.lieu,r.contrat,r.categorie,r.secteur,r.salaire,r.url]; }));
+  return rows.map(function(r){ return r.map(function(c){
+    var v=String(c==null?"":c).replace(/"/g,'""'); return /[";\n]/.test(v)?'"'+v+'"':v; }).join(";"); }).join("\r\n");
+}
+function telecharger(nom, contenu, type){
+  var blob=new Blob([type.indexOf("csv")>=0?"﻿"+contenu:contenu], {type:type+";charset=utf-8"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nom; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+}
+function nomFichier(ext){
+  var e=enteteExport();
+  var base = "offres-"+norm(e.profil).replace(/\s+/g,"-")+(e.dossier?("-"+norm(e.dossier).replace(/\s+/g,"-")):"");
+  return base+"-"+e.date.replace(/\//g,"-")+"."+ext;
+}
+function statutPartage(msg){ var el=$("partStatus"); if(el){ el.textContent=msg; setTimeout(function(){ el.textContent=""; }, 4000); } }
+
+/* ══════════════════════════════════════════════════════════════════
+   SECTEUR DE L'EMPLOYEUR
+   Deduit du nom de l'entreprise ET du texte de l'offre, pour permettre
+   d'isoler les banques (secteur privilegie) comme on isole une categorie.
+   ══════════════════════════════════════════════════════════════════ */
+var SEC_BANK = [
+  "banque","banques","bancaire","bancaires","etablissement de credit","etablissement bancaire",
+  "bnp paribas","societe generale","credit agricole","credit mutuel","credit lyonnais","lcl","cic","bpce",
+  "caisse d epargne","banque populaire","banque postale","natixis","hsbc","barclays","santander","deutsche bank",
+  "boursorama","hello bank","fortuneo","monabanq","ing direct","revolut","qonto","n26","bforbank",
+  "oddo","rothschild","lazard","edmond de rothschild","neuflize","palatine","arkea","cmne","bred",
+  "banque de france","bpifrance","caisse des depots","cdc","banque d investissement","bfi",
+  "financement","leasing","credit bail","credit bailleur","affacturage","factoring","asset management",
+  "gestion d actifs","societe de gestion","private equity","marches financiers","salle des marches",
+  "fintech","paiement","monetique","moyens de paiement","prestataire de services d investissement","psi"
+];
+var SEC_ASSU = [
+  "assurance","assurances","assureur","assurantiel","mutuelle","mutualiste","institution de prevoyance",
+  "axa","allianz","generali","aviva","maif","macif","maaf","matmut","groupama","gan","cnp","covea","mma","gmf",
+  "swiss life","april","malakoff","humanis","ag2r","klesia","apicil","harmonie mutuelle","mgen","pro btp",
+  "courtier en assurance","courtage","reassurance","reassureur","scor","solvabilite","actuariat","sinistres"
+];
+var SEC_CONS = [
+  "cabinet de conseil","societe de conseil","conseil en management","conseil en organisation","esn",
+  "kpmg","deloitte","ernst young","ey ","pwc","pricewaterhouse","mazars","forvis","grant thornton","bdo",
+  "accenture","capgemini","sopra","atos","cgi","wavestone","sia partners","eurogroup","julhiet","alvarez",
+  "mc kinsey","mckinsey","bcg","boston consulting","bain","roland berger","oliver wyman",
+  "commissariat aux comptes","expertise comptable","cabinet d audit","societe de services"
+];
+var SEC_LABELS = { bank:"Banque & finance", assu:"Assurance", cons:"Conseil & audit", autre:"Autres secteurs" };
+
+function secteurTexte(o){
+  return " " + norm([(o&&o.entreprise&&o.entreprise.nom)||"", o.intitule||"", o.description||""].join(" ")) + " ";
+}
+function secteurOffre(o){
+  var hay = secteurTexte(o);
+  if(SEC_BANK.some(function(t){ return contientTerme(hay,t); })) return "bank";
+  if(SEC_ASSU.some(function(t){ return contientTerme(hay,t); })) return "assu";
+  if(SEC_CONS.some(function(t){ return contientTerme(hay,t); })) return "cons";
+  return "autre";
+}
+function secteurLabel(o){ return SEC_LABELS[secteurOffre(o)] || "Autres secteurs"; }
+function secteursActifs(){
+  var a={};
+  a.bank  = !$("secBank")  || $("secBank").checked;
+  a.assu  = !$("secAssu")  || $("secAssu").checked;
+  a.cons  = !$("secCons")  || $("secCons").checked;
+  a.autre = !$("secAutre") || $("secAutre").checked;
+  return a;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PROFILS METIER
+   Chaque profil definit deux familles de termes (A et B) et les
+   libelles des trois categories de tri. Toute la mecanique existante
+   (compteurs, filtres, cartes, verification du texte integral) est
+   reutilisee telle quelle : seuls les vocabulaires changent.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Profil « risque operationnel & conformite » (CV Lea Chikhaoui-Auguste) ── */
+var RISK_A = [   // risque operationnel, controle permanent, controle interne
+  "risque operationnel","risques operationnels","risque op","orm","operational risk",
+  "controle permanent","controles permanents","controle interne","controles internes","dispositif de controle",
+  "lod2","lod 2","deuxieme ligne de defense","2eme ligne de defense","seconde ligne de defense","ligne de defense",
+  "dispositif de maitrise des risques","maitrise des risques","gestion des risques","risk management","risk manager",
+  "cartographie des risques","cartographies des risques","cartographie des processus","rcsa","risk control self assessment",
+  "incidents operationnels","pertes operationnelles","collecte des incidents","base incidents","declaration d incident",
+  "plan de remediation","plans de remediation","plan d action correctif","actions correctives","suivi des remediations",
+  "kri","indicateurs de risque","indicateur de risque","appetence au risque","tolerance au risque","seuils d alerte",
+  "audit interne","mission d audit","recommandations d audit","suivi des recommandations",
+  "controle de premier niveau","controle de second niveau","controle de 2e niveau","test de controle","plan de controle",
+  "culture risque","sensibilisation aux risques","comite des risques","reporting risques","tableau de bord des risques",
+  "risque de non conformite","risque de fraude","fraude","dispositif antifraude","continuite d activite","pca","pua"
+];
+var RISK_B = [   // conformite, reglementaire, protection des donnees
+  "conformite","compliance","chargee de conformite","charge de conformite","responsable conformite","officer conformite",
+  "rgpd","gdpr","dpo","delegue a la protection des donnees","donnees personnelles","data protection","protection des donnees",
+  "registre des traitements","analyse d impact","aipd","dpia","privacy",
+  "lcb ft","lcbft","blanchiment","anti blanchiment","financement du terrorisme","kyc","know your customer","connaissance client",
+  "gel des avoirs","sanctions internationales","embargo","pep","personne politiquement exposee",
+  "deontologie","ethique des affaires","code de conduite","conflits d interets","abus de marche","corruption","sapin 2","sapin ii",
+  "veille reglementaire","reglementaire","reglementation bancaire","reglementation assurantielle","texte reglementaire",
+  "acpr","amf","cnil","bce","eba","esma","superviseur","autorite de controle",
+  "bale","bale iii","bale 3","solvabilite 2","solvency","dora","mif","mifid","emir","crd","crr","ai act","dsp2",
+  "controle de conformite","dispositif de conformite","non conformite","attestation de conformite","mise en conformite"
+];
+var RISK_CTX = [   // contexte metier : l'offre releve-t-elle bien de ce domaine ?
+  "risque","risques","conformite","compliance","controle","controles","audit","reglementaire",
+  "banque","bancaire","assurance","assurantiel","finance","financier","mutuelle","leasing","credit","asset management",
+  "data analyst","business analyst","analyste","reporting","power bi","tableau de bord","kpi","indicateurs",
+  "gouvernance","permanent","interne","maitrise"
+];
+var RISK_EXCL = [  // manifestement hors sujet malgre un mot commun
+  "agent de securite","gardiennage","surveillance de site","securite incendie","ssiap","maitre chien",
+  "hygiene securite environnement","qhse","hse","securite au travail","risques chimiques","risques industriels",
+  "conducteur","chauffeur","cariste","manutention","preparateur de commandes",
+  "commercial terrain","conseiller clientele particuliers","chargee de clientele particuliers","teleconseiller",
+  "aide soignant","infirmier","auxiliaire de vie","educateur","travailleur social",
+  "developpeur web","integrateur web","technicien de maintenance","electricien","plombier"
+];
+
+
+/* ── Profil « business analyst / data » (2e orientation de CV) ── */
+var BA_A = [   // data, BI, analyse
+  "data analyst","business analyst","analyste de donnees","analyste donnees","data analyste",
+  "power bi","powerbi","tableau server","qlik","looker","dataviz","data visualisation","data visualization",
+  "sql","python","dax","vba","etl","pentaho","talend","informatica","mysql","postgresql","mongodb","elasticsearch","kibana","cognos",
+  "dashboard","dashboards","tableau de bord","tableaux de bord","reporting","reportings","restitution",
+  "kpi","indicateurs de performance","indicateurs cles","requetage","requetes sql","modelisation de donnees",
+  "qualite des donnees","data quality","fiabilisation des donnees","gouvernance des donnees","data management",
+  "statistiques","econometrie","analyse statistique","modelisation statistique","datamart","entrepot de donnees","data warehouse",
+  "excel avance","tableaux croises dynamiques","macro","automatisation des reportings"
+];
+var BA_B = [   // besoin metier, AMOA, projet
+  "recueil du besoin","recueil des besoins","expression de besoin","cahier des charges","specifications fonctionnelles",
+  "amoa","moa","maitrise d ouvrage","assistance a maitrise d ouvrage","product owner","proxy po",
+  "user stories","backlog","agile","scrum","kanban","jira","confluence",
+  "recette","tests fonctionnels","cahier de recette","uat","validation utilisateur",
+  "accompagnement des utilisateurs","conduite du changement","formation des utilisateurs","support utilisateur",
+  "cadrage","atelier metier","ateliers metier","interface metier","traduction du besoin","documentation fonctionnelle",
+  "gestion de projet","chef de projet","pilotage de projet","comitologie","suivi de projet"
+];
+var BA_CTX = [
+  "data","donnees","analyste","analyst","reporting","bi","decisionnel","statistiques",
+  "banque","bancaire","assurance","finance","financier","risque","risques","conformite",
+  "metier","projet","indicateurs","pilotage","sql","power bi"
+];
+var BA_EXCL = [
+  "data scientist senior","machine learning engineer","ingenieur ia","developpeur back end","developpeur front end",
+  "administrateur systeme","devops","architecte technique","technicien support informatique","helpdesk",
+  "commercial","teleconseiller","agent de securite","conducteur","chauffeur","aide soignant","infirmier"
+];
+
+var PROFILS = {
+  "droit-social": {
+    nom: "Juriste droit social",
+    desc: "Trie les offres selon qu'elles portent sur les relations individuelles de travail (contrat, licenciement, contentieux prud'homal) ou sur les relations collectives (CSE, élections, négociation collective).",
+    A: { terms: null, label: "Exclusivement individuel", court: "Exclusivement individuel" },   // terms=null -> IND_TERMS
+    B: { terms: null, label: "Exclusivement collectif",  court: "Exclusivement collectif" },   // terms=null -> COL_TERMS
+    both:{ label: "À la fois individuel + collectif", court: "À la fois ind. + coll." },
+    ui: {
+      relInd: "⚖️ Uniquement les offres à <b>dimension relations individuelles</b> — individuel seul <b>ou</b> individuel + collectif (exclut le purement collectif)",
+      relIndHint: "Garde les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…), <b>y compris</b> celles qui comportent aussi une dimension collective (« les deux »). Seul le <b>purement collectif</b> et le hors droit du travail sont écartés.",
+      ratio: "⚖️ Ratio relations individuelles vs collectives",
+      methode: "Méthode (exigence symétrique) : une offre est <b>« individuel »</b> uniquement si un marqueur individuel explicite apparaît (contrat, licenciement, rupture, discipline, inaptitude, prud'hommes, paie…), et <b>« collectif »</b> uniquement avec un marqueur collectif explicite (CSE, IRP, négociation, PSE, syndical…) ; « les deux » si les deux. Sans aucun marqueur explicite de relation de travail, l'offre est <b>écartée</b> (« Non précisé ») — l'individuel est filtré aussi strictement que le collectif.",
+      inclHS: "Inclure les offres hors droit social (non classées) dans l'étude",
+      sousTitre: "— droit du travail uniquement",
+      listeHint: "Ne sont listées que les offres de <b>droit du travail</b> (relations individuelles <b>et</b> collectives). Les métiers hors sujet (travailleur social, action sociale, mandataire judiciaire…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour."
+    },
+    natif: true
+  },
+  "risque-op": {
+    nom: "Risques opérationnels & conformité",
+    desc: "Trie les offres selon qu'elles portent sur le risque opérationnel et le contrôle permanent (incidents, cartographies, LoD2, KRI) ou sur la conformité réglementaire (RGPD, LCB-FT, déontologie, veille).",
+    A: { terms: RISK_A, label: "Exclusivement risque & contrôle", court: "Risque & contrôle" },
+    B: { terms: RISK_B, label: "Exclusivement conformité",        court: "Conformité" },
+    both:{ label: "À la fois risque + conformité", court: "Risque + conformité" },
+    ui: {
+      relInd: "🛡️ Uniquement les offres à <b>dimension risque opérationnel &amp; contrôle</b> — risque seul <b>ou</b> risque + conformité (exclut la conformité pure)",
+      relIndHint: "Garde les offres mentionnant des missions de risque opérationnel ou de contrôle permanent (incidents, cartographie des risques, plans d'action, KRI, LoD2, contrôle de 2<sup>e</sup> niveau…), <b>y compris</b> celles qui comportent aussi une dimension conformité (« les deux »). Seule la <b>conformité pure</b> (RGPD, LCB-FT, déontologie sans volet risque) et le hors sujet sont écartés.",
+      ratio: "🛡️ Ratio risque &amp; contrôle vs conformité",
+      methode: "Méthode (exigence symétrique) : une offre est <b>« risque &amp; contrôle »</b> uniquement si un marqueur explicite apparaît (risque opérationnel, incident, cartographie, contrôle permanent, KRI, LoD2, plan de remédiation…), et <b>« conformité »</b> uniquement avec un marqueur explicite (conformité, RGPD, LCB-FT, déontologie, sanctions, veille réglementaire…) ; « les deux » si les deux. Sans aucun marqueur explicite, l'offre est <b>écartée</b> (« Non précisé »).",
+      inclHS: "Inclure les offres hors risque / conformité (non classées) dans l'étude",
+      sousTitre: "— risque &amp; conformité uniquement",
+      listeHint: "Ne sont listées que les offres de <b>risque opérationnel et de conformité</b> (les deux volets). Les métiers hors sujet (développement informatique, commercial, exploitation…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour."
+    },
+    ctx: RISK_CTX, excl: RISK_EXCL, natif: false
+  },
+  "business-analyst": {
+    nom: "Business analyst — data & risques",
+    desc: "Trie les offres selon qu'elles portent sur la donnée et la restitution (SQL, Power BI, dashboards, KPI, qualité des données) ou sur le besoin métier et le projet (AMOA, spécifications, recette, conduite du changement).",
+    A: { terms: BA_A, label: "Exclusivement data & BI",      court: "Data & BI" },
+    B: { terms: BA_B, label: "Exclusivement besoin métier",  court: "Besoin métier / AMOA" },
+    both:{ label: "À la fois data + besoin métier", court: "Data + métier" },
+    ui: {
+      relInd: "📊 Uniquement les offres à <b>dimension data &amp; BI</b> — data seule <b>ou</b> data + besoin métier (exclut l'AMOA pure)",
+      relIndHint: "Garde les offres mentionnant des missions de donnée et de restitution (SQL, Power BI, dashboards, KPI, qualité des données, requêtage…), <b>y compris</b> celles qui comportent aussi un volet besoin métier (« les deux »). Seul l'<b>AMOA pur</b> (spécifications, recette, conduite du changement sans volet data) et le hors sujet sont écartés.",
+      ratio: "📊 Ratio data &amp; BI vs besoin métier",
+      methode: "Méthode (exigence symétrique) : une offre est <b>« data &amp; BI »</b> uniquement si un marqueur explicite apparaît (SQL, Power BI, dashboard, KPI, entrepôt, qualité des données…), et <b>« besoin métier »</b> uniquement avec un marqueur explicite (AMOA, expression de besoin, spécifications, recette, conduite du changement…) ; « les deux » si les deux. Sans aucun marqueur explicite, l'offre est <b>écartée</b> (« Non précisé »).",
+      inclHS: "Inclure les offres hors data / AMOA (non classées) dans l'étude",
+      sousTitre: "— data &amp; besoin métier uniquement",
+      listeHint: "Ne sont listées que les offres de <b>business analyse</b> (data &amp; BI et besoin métier). Les métiers hors sujet (développement pur, infrastructure, commercial…) sont exclus. Une offre <b>déjà consultée</b> passe en grisé — inutile de la rouvrir chaque jour."
+    },
+    ctx: BA_CTX, excl: BA_EXCL, natif: false
+  }
+};
+
+var LS_PROFIL = "offres_profil_v1";
+function profilActifId(){ var id=localStorage.getItem(LS_PROFIL)||"droit-social"; return PROFILS[id]?id:"droit-social"; }
+function profilActif(){ return PROFILS[profilActifId()]; }
+function setProfilActif(id){
+  if(!PROFILS[id]) return;
+  localStorage.setItem(LS_PROFIL, id);
+  majCategories();
+  try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(e){}
+  try{ if(typeof lastOffers!=="undefined" && lastOffers && lastOffers.length) analyse(lastOffers, lastOffers.length); }catch(e){}
+}
+// Met a jour les libelles des categories dans l'interface
+function majCategories(){
+  var p=profilActif();
+  CAT_IND = p.A.label; CAT_COL = p.B.label; CAT_BOTH = p.both.label;
+  var a=$("lblCatInd"), b=$("lblCatBoth"), c=$("lblCatCol"), d=$("profilDesc");
+  if(a) a.textContent = p.A.court;
+  if(b) b.textContent = p.both.court;
+  if(c) c.textContent = p.B.court;
+  if(d) d.textContent = p.desc;
+  // Tout le reste de l'habillage : bandeau du filtre, titre du ratio,
+  // methode, case « hors perimetre », sous-titre et note de la liste.
+  var u = p.ui || {};
+  function setHtml(id, html){ var el=$(id); if(el && html) el.innerHTML = html; }
+  setHtml("lblRelInd",   u.relInd);
+  setHtml("hintRelInd",  u.relIndHint);
+  setHtml("h2Ratio",     u.ratio);
+  setHtml("hintMethode", u.methode);
+  setHtml("lblInclHS",   u.inclHS);
+  setHtml("subOffres",   u.sousTitre);
+  setHtml("hintOffres",  u.listeHint);
+  // La case « inclure les avocats » n'a de sens que pour le profil juridique.
+  var av = $("wrapInclAvocat");
+  if(av) av.style.display = p.natif ? "flex" : "none";
+}
+function initProfils(){
+  var sel=$("profilSel"); if(!sel) return;
+  var actif=profilActifId();
+  sel.innerHTML = Object.keys(PROFILS).map(function(id){
+    return '<option value="'+esc(id)+'"'+(id===actif?' selected':'')+'>'+esc(PROFILS[id].nom)+'</option>';
+  }).join("");
+  sel.addEventListener("change", function(){ setProfilActif(sel.value); });
+  majCategories();
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VERIFICATION APPROFONDIE DU CLASSEMENT INDIVIDUEL / COLLECTIF
+   La recherche ne renvoie qu'une description TRONQUEE : une offre dont
+   le corps mentionne le CSE, les elections ou la negociation collective
+   peut etre classee « exclusivement individuel » a tort — et inversement,
+   une offre citant le licenciement ou la rupture conventionnelle peut
+   passer pour « exclusivement collectif ».
+   On va chercher la description integrale (endpoint /offre du relais)
+   pour toutes les offres classees « exclusivement X », et on les
+   reclasse dans les deux sens.
+   Repli silencieux si le relais n'expose pas encore cet endpoint.
+   ══════════════════════════════════════════════════════════════════ */
+var LS_DETAILS = "offres_details_v1";
+var detailCache = {};
+try{ Object.assign(detailCache, JSON.parse(localStorage.getItem(LS_DETAILS)||"{}")); }catch(e){}
+function saveDetailCache(){ try{ localStorage.setItem(LS_DETAILS, JSON.stringify(detailCache)); }catch(e){} }
+
+var _detailEndpointOK = true;   // passe a false au premier 404 : on n'insiste pas
+
+async function fetchDetail(proxy, id){
+  if(!id) return null;
+  if(detailCache[id] !== undefined) return detailCache[id];
+  if(!_detailEndpointOK) return null;
+  try{
+    var r = await fetch(proxy+"/offre?id="+encodeURIComponent(id));
+    if(r.status===404){ _detailEndpointOK=false; return null; }
+    if(!r.ok) return null;
+    var d = await r.json();
+    var txt = [d.description||"", d.appellationlibelle||d.appellationLibelle||"",
+               (d.competences||[]).map(function(c){return c&&c.libelle||"";}).join(" "),
+               (d.qualitesProfessionnelles||[]).map(function(q){return q&&q.libelle||"";}).join(" ")].join(" ");
+    detailCache[id] = txt;
+    return txt;
+  }catch(e){ return null; }
+}
+
+// Termes d'une liste presents dans un texte libre
+function termesPresents(txt, liste){
+  var hay=" "+norm(txt)+" ", trouves=[];
+  liste.forEach(function(t){ if(contientTerme(hay,t) && trouves.indexOf(t)<0) trouves.push(t); });
+  return trouves;
+}
+function termesCollectifs(txt){ return termesPresents(txt, COL_TERMS); }
+function termesIndividuels(txt){ return termesPresents(txt, IND_TERMS); }
+
+var _reclassees = {};   // id -> { avant, apres, termes }
+
+/* Verification SYMETRIQUE du classement.
+   Sont recontrolees sur leur description integrale :
+     - les offres « Exclusivement individuel » -> basculent si un marqueur COLLECTIF apparait ;
+     - les offres « Exclusivement collectif »  -> basculent si un marqueur INDIVIDUEL apparait.
+   Dans les deux cas, la description complete est ajoutee a l'offre : classifyRel
+   la reclasse alors d'elle-meme, sans logique dupliquee. */
+async function verifierClassement(offers, proxy, onProgress){
+  var _pp = profilActif();
+  var EXCL = [_pp.A.label, _pp.B.label];
+  var cibles = (offers||[]).filter(function(o){
+    if(!o || !o.id) return false;
+    var id=String(o.id);
+    if(id.indexOf("adz-")===0 || id.indexOf("job-")===0) return false;   // sources sans detail FT
+    return EXCL.indexOf(classifyRel(o))>=0;
+  });
+  if(!cibles.length) return { verifiees:0, reclassees:0, ind:0, col:0 };
+  var reclass=0, versInd=0, versCol=0, faites=0, i=0, PARALLELE=4;
+  async function worker(){
+    while(i < cibles.length){
+      var o = cibles[i++];
+      var avant = classifyRel(o);
+      var txt = await fetchDetail(proxy, o.id);
+      faites++;
+      if(onProgress) onProgress(faites, cibles.length);
+      if(!txt) continue;
+      o.description = (o.description||"") + " " + txt;   // texte integral conserve
+      var apres = classifyRel(o);
+      if(apres !== avant){
+        var termes = (avant===_pp.A.label) ? termesPresents(txt, termesB()) : termesPresents(txt, termesA());
+        _reclassees[o.id] = { avant:avant, apres:apres, termes:termes.slice(0,6) };
+        reclass++;
+        if(avant===_pp.A.label) versCol++; else versInd++;
+      }
+    }
+  }
+  var pool=[]; for(var k=0;k<Math.min(PARALLELE,cibles.length);k++) pool.push(worker());
+  await Promise.all(pool);
+  saveDetailCache();
+  return { verifiees:faites, reclassees:reclass, ind:versInd, col:versCol };
+}
+// compatibilite : ancien nom
+var verifierIndividuelles = verifierClassement;
+
+/* ══════════════════════════════════════════════════════════════════
+   DOSSIERS DE RECHERCHE
+   Chaque dossier possede ses propres offres consultees et candidatures.
+   Les cles localStorage sont suffixees par l'identifiant du dossier, de
+   sorte qu'une recherche « Risque operationnel » n'affiche jamais les
+   candidatures d'une recherche « Juriste droit du travail ».
+   ══════════════════════════════════════════════════════════════════ */
+var LS_DOSSIERS = "offres_dossiers_v1";     // { id: nom }
+var LS_DOSSIER_ACTIF = "offres_dossier_actif_v1";
+
+function dossiers(){
+  try{ var d = JSON.parse(localStorage.getItem(LS_DOSSIERS)||"null"); if(d && typeof d==="object") return d; }catch(e){}
+  return { "defaut": "Dossier principal" };
+}
+function saveDossiers(d){ try{ localStorage.setItem(LS_DOSSIERS, JSON.stringify(d)); }catch(e){} }
+function dossierActif(){
+  var id = localStorage.getItem(LS_DOSSIER_ACTIF) || "defaut";
+  var d = dossiers();
+  return d[id] ? id : Object.keys(d)[0] || "defaut";
+}
+function setDossierActif(id){
+  localStorage.setItem(LS_DOSSIER_ACTIF, id);
+  majDossierUI();
+  try{ renderPostulees(); }catch(e){}
+  try{ majVuesCompteur(); }catch(e){}
+  try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(e){}
+}
+function dossierNom(){ var d=dossiers(); return d[dossierActif()] || "Dossier principal"; }
+function nouvelId(){ return "d" + Date.now().toString(36); }
+
+function majDossierUI(){
+  var sel=$("dossierSel"); if(!sel) return;
+  var d=dossiers(), actif=dossierActif();
+  sel.innerHTML = Object.keys(d).map(function(id){
+    return '<option value="'+esc(id)+'"'+(id===actif?' selected':'')+'>'+esc(d[id])+'</option>';
+  }).join("");
+  var n=$("candDossierNom"); if(n) n.textContent = dossierNom();
+  var st=$("dossierStatus");
+  if(st){
+    var nv=Object.keys(offresVues()).length, np=Object.keys(offresPost()).length;
+    st.textContent = "Dossier « "+dossierNom()+" » : "+nv+" offre(s) consultée(s), "+np+" candidature(s).";
+  }
+}
+
+function initDossiers(){
+  // migration : les donnees existantes deviennent celles du dossier principal
+  try{
+    if(!localStorage.getItem(LS_DOSSIERS)){
+      var anciennesVues = localStorage.getItem("offres_vues_v1");
+      var anciennesPost = localStorage.getItem("offres_postule_v1");
+      if(anciennesVues) localStorage.setItem("offres_vues_v1::defaut", anciennesVues);
+      if(anciennesPost) localStorage.setItem("offres_postule_v1::defaut", anciennesPost);
+      saveDossiers({ "defaut": "Dossier principal" });
+      localStorage.setItem(LS_DOSSIER_ACTIF, "defaut");
+    }
+  }catch(e){}
+
+  var sel=$("dossierSel");
+  if(sel) sel.addEventListener("change", function(){ setDossierActif(sel.value); });
+
+  var add=$("dossierAjouter");
+  if(add) add.addEventListener("click", function(){
+    var champ=$("dossierNouveau"), nom=(champ.value||"").trim();
+    if(!nom){ champ.focus(); return; }
+    var d=dossiers(), id=nouvelId();
+    d[id]=nom; saveDossiers(d); champ.value="";
+    setDossierActif(id);
+  });
+
+  var ren=$("dossierRenommer");
+  if(ren) ren.addEventListener("click", function(){
+    var d=dossiers(), id=dossierActif();
+    var nom = prompt("Nouveau nom du dossier :", d[id]||"");
+    if(nom===null) return;
+    nom=nom.trim(); if(!nom) return;
+    d[id]=nom; saveDossiers(d); majDossierUI();
+  });
+
+  var sup=$("dossierSupprimer");
+  if(sup) sup.addEventListener("click", function(){
+    var d=dossiers(), id=dossierActif(), ids=Object.keys(d);
+    if(ids.length<=1){ alert("Impossible de supprimer le dernier dossier."); return; }
+    var nv=Object.keys(offresVues()).length, np=Object.keys(offresPost()).length;
+    if(!confirm("Supprimer le dossier « "+d[id]+" » ?\n\nSes "+nv+" offre(s) consultée(s) et "+np+" candidature(s) seront définitivement effacées.")) return;
+    try{ localStorage.removeItem("offres_vues_v1::"+id); localStorage.removeItem("offres_postule_v1::"+id); }catch(e){}
+    delete d[id]; saveDossiers(d);
+    setDossierActif(Object.keys(d)[0]);
+  });
+
+  majDossierUI();
+}
+
 /* ── Liste d'offres consultables + marquage « déjà consultée » (localStorage) ──
    L'offre change de couleur (grisée) dès qu'on l'ouvre, pour ne pas la rouvrir chaque jour. */
-var LS_VUES = "offres_vues_v1";
+var LS_VUES_BASE = "offres_vues_v1";
+function LS_VUES(){ return LS_VUES_BASE + "::" + dossierActif(); }
 var _offresListe = [];
-function offresVues(){ try{ return JSON.parse(localStorage.getItem(LS_VUES)||"{}")||{}; }catch(e){ return {}; } }
-function saveVues(v){ try{ localStorage.setItem(LS_VUES, JSON.stringify(v)); }catch(e){} }
+function offresVues(){ try{ return JSON.parse(localStorage.getItem(LS_VUES())||"{}")||{}; }catch(e){ return {}; } }
+function saveVues(v){ try{ localStorage.setItem(LS_VUES(), JSON.stringify(v)); }catch(e){} }
 function offreKey(o){ return String((o&&o.id) || (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.intitule)||"")+"|"+((o&&o.entreprise&&o.entreprise.nom)||"")); }
 function offreUrl(o){ return (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.id)? "https://candidat.francetravail.fr/offres/recherche/detail/"+encodeURIComponent(o.id) : ""); }
-var LS_POST = "offres_postule_v1";
-function offresPost(){ try{ return JSON.parse(localStorage.getItem(LS_POST)||"{}")||{}; }catch(e){ return {}; } }
-function savePost(v){ try{ localStorage.setItem(LS_POST, JSON.stringify(v)); }catch(e){} }
-function majVuesCompteur(){ var v=offresVues(), pv=offresPost(); var n=Object.keys(v).length, np=Object.keys(pv).length; var el=$("vuesCompteur"); if(el) el.textContent = (n||np)? ("· "+n+" consultée(s)"+(np?(" · "+np+" postulée(s)"):"")) : ""; }
+var LS_POST_BASE = "offres_postule_v1";
+function LS_POST(){ return LS_POST_BASE + "::" + dossierActif(); }
+function offresPost(){ try{ return JSON.parse(localStorage.getItem(LS_POST())||"{}")||{}; }catch(e){ return {}; } }
+function savePost(v){ try{ localStorage.setItem(LS_POST(), JSON.stringify(v)); }catch(e){} }
+function majVuesCompteur(){ try{ majDossierUI(); }catch(e){} var v=offresVues(), pv=offresPost(); var n=Object.keys(v).length, np=Object.keys(pv).length; var el=$("vuesCompteur"); if(el) el.textContent = (n||np)? ("· "+n+" consultée(s)"+(np?(" · "+np+" postulée(s)"):"")) : ""; }
 function marquerVue(key, el){ if(!key) return; var v=offresVues(); v[key]=Date.now(); saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); }
 var _offreByKey = {};   // clé -> offre courante (pour mémoriser les détails au moment de cocher « postulé »)
 function postRecord(o){ return { t:(o&&o.intitule)||"", e:(o&&o.entreprise&&o.entreprise.nom)||"", l:(o&&o.lieuTravail&&o.lieuTravail.libelle)||"", c:(o&&(o.typeContratLibelle||o.typeContrat))||"", cat:o?classifyRel(o):"", url:offreUrl(o), d:Date.now() }; }
@@ -987,6 +1642,7 @@ function renderPostulees(){
   });
 }
 var CAT_IND="Exclusivement individuel", CAT_COL="Exclusivement collectif", CAT_BOTH="À la fois individuel + collectif";
+try{ if(typeof majCategories==="function") majCategories(); }catch(e){}
 function renderOffresListe(offers){
   var box=$("offresListe"); if(!box) return;
   _offresListe = offers || [];
@@ -1006,16 +1662,26 @@ function renderOffresListe(offers){
   var showInd=!$("catInd")||$("catInd").checked, showCol=!$("catCol")||$("catCol").checked, showBoth=!$("catBoth")||$("catBoth").checked;
   var liste = retenues.filter(function(o){ var c=classifyRel(o);
     if(c===CAT_IND) return showInd; if(c===CAT_COL) return showCol; if(c===CAT_BOTH) return showBoth; return false; });
+  // Compteurs par secteur (sur les offres retenues, avant filtrage secteur)
+  var cs={bank:0,assu:0,cons:0,autre:0};
+  liste.forEach(function(o){ cs[secteurOffre(o)]++; });
+  [["cntSecBank",cs.bank],["cntSecAssu",cs.assu],["cntSecCons",cs.cons],["cntSecAutre",cs.autre]].forEach(function(x){
+    var el=$(x[0]); if(el) el.textContent = x[1]? "("+x[1]+")" : "";
+  });
+  // Filtrage par secteur
+  var sa=secteursActifs();
+  liste = liste.filter(function(o){ return sa[secteurOffre(o)]; });
+  _listeAffichee = liste;   // ce qui est a l'ecran est ce qui sera transmis
   // Non consultées d'abord
   liste.sort(function(a,b){ return (vues[offreKey(a)]?1:0)-(vues[offreKey(b)]?1:0); });
-  if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre à afficher (vérifiez les catégories cochées ci-dessus).</div>'; majVuesCompteur(); return; }
+  if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre à afficher (vérifiez les catégories <b>et les secteurs</b> cochés ci-dessus).</div>'; majVuesCompteur(); return; }
   var posts=offresPost();
   box.innerHTML = liste.map(function(o){
     var key=offreKey(o), url=offreUrl(o), vue=!!vues[key], post=!!posts[key];
     var meta=[esc((o.entreprise&&o.entreprise.nom)||"employeur non précisé"), esc((o.lieuTravail&&o.lieuTravail.libelle)||""), esc(o.typeContratLibelle||o.typeContrat||"")].filter(Boolean).join(" · ");
     return '<div class="offre-item'+(vue?' vue':'')+(post?' postule':'')+'" data-key="'+esc(key)+'">'
       +'<div class="oi-t">'+esc(o.intitule||"—")+'</div>'
-      +'<div class="oi-m">'+meta+' · <span style="opacity:.85">'+esc(classifyRel(o))+'</span></div>'
+      +'<div class="oi-m">'+meta+' · <span style="opacity:.85">'+esc(classifyRel(o))+'</span> · <span style="opacity:.7">'+esc(secteurLabel(o))+'</span></div>'
       +'<div class="oi-foot">'
       +(url? '<a href="'+esc(url)+'" target="_blank" rel="noopener" class="oi-link" data-key="'+esc(key)+'">voir l\'offre ↗</a>' : '<span class="muted" style="font-size:12px">(lien indisponible)</span>')
       +'<label class="oi-post"><input type="checkbox" class="oi-postcb" data-key="'+esc(key)+'"'+(post?' checked':'')+'> j\'ai postulé</label>'
@@ -1065,7 +1731,7 @@ function adzunaToFT(r){
     description: r.description || "",
     entreprise: { nom: (r.company && r.company.display_name) || "" },
     lieuTravail: { libelle: lieu },
-    typeContratLibelle: (r.contract_time||"")==="part_time" ? "Temps partiel" : (r.contract_type||(r.category&&r.category.label)||""),
+    typeContratLibelle: (r.contract_time||"")==="part_time" ? "Temps partiel" : (r.contract_type==="permanent" ? "CDI" : r.contract_type==="contract" ? "CDD / Intérim" : ""),
     salaire: sal ? { libelle: sal } : null,
     dateCreation: r.created || "",
     origineOffre: { urlOrigine: r.redirect_url || "" },
@@ -1086,6 +1752,57 @@ function joobleToFT(j){
     origineOffre: { urlOrigine: j.link || "" },
     competences:[], formations:[], qualitesProfessionnelles:[]
   };
+}
+/* ── Correctifs qualité des résultats : pertinence mots-clés, doublons, contrats, titres ── */
+var JX_STOP = {"de":1,"du":1,"des":1,"la":1,"le":1,"les":1,"un":1,"une":1,"en":1,"et":1,"ou":1,"au":1,"aux":1,"pour":1,"dans":1,"sur":1,"h":1,"f":1,"hf":1,"avec":1,"sans":1};
+function jxTokens(s){
+  return normM(s||"").split(/[^a-z0-9]+/).filter(function(t){ return t.length>=3 && !JX_STOP[t]; })
+    .map(function(t){ return t.replace(/s$/,""); })
+    .filter(function(t,i,a){ return a.indexOf(t)===i; });
+}
+function jxQueryScore(o, toks){
+  var ti = normM((o.intitule||"")+" "+(o.appellationlibelle||o.appellationLibelle||""));
+  var de = normM((o.romeLibelle||"")+" "+String(o.description||"").slice(0,1500));
+  var s=0; toks.forEach(function(t){ if(ti.indexOf(t)>=0) s+=3; else if(de.indexOf(t)>=0) s+=1; });
+  return s;
+}
+function jxTitreValide(o){
+  var t=String(o.intitule||"").replace(/^nos super offres\s*\|\|\s*/i,"").trim();
+  o.intitule=t;
+  if(/^unknown$/i.test(o.typeContratLibelle||"")) o.typeContratLibelle="";
+  if(!t || t.length<5) return false;
+  if(/^["\u00ab]?\s*title\s*["\u00bb]?(\s*\([wmhf\/\s]*\))?$/i.test(t)) return false;
+  return true;
+}
+function jxEstPrecaire(o){
+  var ty=normM(o.typeContratLibelle||o.typeContrat||"");
+  if(/cdi|permanent/.test(ty)) return false;
+  if(/\b(cdd|interim|interimaire|contract|freelance|vacataire|saisonnier)\b/.test(ty)) return true;
+  return /\b(interim|freelance|vacataire)\b/.test(normM(o.intitule||""));
+}
+var JX_BANQUES = ["bnp","bnp paribas","societe generale","sg ","credit agricole","lcl","credit lyonnais","caisse d epargne","banque populaire","bpce","natixis","bred","cic","credit mutuel","arkea","credit du nord","la banque postale","banque postale","hsbc","boursorama","boursobank","fortuneo","monabanq","hello bank","bforbank","milleis","neuflize","palatine","banque de france","caisse des depots","cdc","rothschild","lazard","oddo","edmond de rothschild","caixa","santander","barclays","deutsche bank","commerzbank","ing","bbva","unicredit","intesa","ubs","credit suisse","jp morgan","jpmorgan","goldman sachs","morgan stanley","bank of america","citi","citigroup","standard chartered","rci banque","psa banque","stellantis financial","socram","oney","carrefour banque","younited","memo bank","qonto","n26","revolut","attijariwafa","banque chaabi","bank of africa","credit cooperatif","banque palatine","delubac","banque wormser","smbc","mufg","mizuho","bank"];
+function jxEstBanque(o){
+  var en=" "+normM((o.entreprise&&o.entreprise.nom)||"")+" ";
+  if(en.trim()){
+    if(JX_BANQUES.some(function(b){ return en.indexOf(" "+b.trim()+" ")>=0 || en.indexOf(b)>=0 && b.length>4; })) return true;
+    if(/\bbanques?\b|\bbank\b|\bbancaire\b|\bbanco\b/.test(en)) return true;
+    return false;
+  }
+  var t=normM(o.intitule||"");
+  return /\bbancaires?\b|\bbanques?\b|\bbanking\b/.test(t);
+}
+function jxDedup(offers){
+  var seen={}, out=[];
+  offers.forEach(function(o){
+    var ti=normM(o.intitule||""), en=normM((o.entreprise&&o.entreprise.nom)||""), li=normM((o.lieuTravail&&o.lieuTravail.libelle)||"");
+    var keys=[ti+"|"+(en||li)];
+    if(en) keys.push(ti+"|"+en);
+    if(ti.length>=30) keys.push(ti);
+    if(keys.some(function(k){ return seen[k]; })) return;
+    keys.forEach(function(k){ seen[k]=1; });
+    out.push(o);
+  });
+  return out;
 }
 async function fetchAdzuna(proxy, what, where, results, page){
   try{
@@ -1214,6 +1931,8 @@ async function runSearch(){
       const adzTarget = Math.max(150, _tm ? parseInt(_tm[1],10)+1 : 150);
       const extra = await fetchAutresSources(proxy, kw, loc, seen, adzTarget);
       let add = extra.all;
+      var _tokAdd = jxTokens(kw);
+      if(_tokAdd.length) add = add.filter(function(o){ return jxQueryScore(o,_tokAdd)>0; });
       if($("relInd") && $("relInd").checked && add.length){
         add = add.filter(function(o){ const sc=relIndScore(o); return sc.ind>0; });
       }
@@ -1223,6 +1942,16 @@ async function runSearch(){
       offers = offers.concat(add);
     }
 
+    // ── Correctif qualité : titres invalides, contrats hors filtre, tri par pertinence, doublons ──
+    offers = offers.filter(jxTitreValide);
+    if($("banquesOnly") && $("banquesOnly").checked) offers = offers.filter(jxEstBanque);
+    if(contrats.length===1 && contrats[0]==="CDI") offers = offers.filter(function(o){ return !estAlternance(o) && !jxEstPrecaire(o); });
+    var _tokAll = jxTokens((motsQ||"")+" "+(aliasLabel||""));
+    if(_tokAll.length){
+      offers.forEach(function(o){ o._q = jxQueryScore(o,_tokAll); });
+      offers.sort(function(a,b){ return (b._q||0)-(a._q||0); });
+    }
+    offers = jxDedup(offers);
     lastOffers = offers;
     if(!offers.length){
       $("emptyState").innerHTML = 'Aucune offre pour « '+esc(codeRome?romeLabel:(mots||"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
@@ -1231,12 +1960,30 @@ async function runSearch(){
     } else {
       let ftTotal = ftN;
       if(!aliasCodes.length){ const m = res.range.match(/\/(\d+)/); if(m) ftTotal = parseInt(m[1],10); }
+      // Verification approfondie : les offres classees « exclusivement individuel »
+      // sont recontrolees sur leur description INTEGRALE (la recherche ne renvoie
+      // qu'un extrait). Celles qui mentionnent le CSE, les elections, la negociation
+      // collective, etc. basculent en « a la fois » ou « exclusivement collectif ».
+      try{
+        var _proxyV = (localStorage.getItem(LS_PROXY)||DEFAULT_PROXY).replace(/\/+$/,"");
+        $("searchStatus").innerHTML = "🔎 Vérification du contenu intégral des offres individuelles…";
+        var _r = await verifierClassement(offers, _proxyV, function(f,t){
+          $("searchStatus").innerHTML = "🔎 Vérification du contenu intégral : "+f+" / "+t+" offre(s)…";
+        });
+        if(_r && _r.reclassees){
+          var _pl=profilActif(); var det=[];
+          if(_r.col) det.push(_r.col+" vers « "+_pl.B.court+" »"); if(_r.ind) det.push(_r.ind+" vers « "+_pl.A.court+" »");
+          window._verifMsg = ' &nbsp;·&nbsp; <span class="muted">'+_r.reclassees+' offre(s) reclassée(s) après lecture du texte intégral'
+                           + (det.length? ' ('+det.join(", ")+')' : '') + '</span>';
+        } else { window._verifMsg = ""; }
+      }catch(e){ window._verifMsg = ""; }
+
       analyse(offers, offers.length);
       $("results").classList.remove("hidden");
       const srcTxt = adzN
         ? ' &nbsp;·&nbsp; <span class="muted">France Travail : '+ftN.toLocaleString("fr-FR")+(ftTotal>ftN?(' (sur '+ftTotal.toLocaleString("fr-FR")+')'):'')+' · Adzuna : '+adzN+'</span>'
         : (ftTotal>ftN?(' <span class="muted">(sur '+ftTotal.toLocaleString("fr-FR")+' disponibles sur France Travail)</span>'):'');
-      $("searchStatus").innerHTML = '<b>'+offers.length.toLocaleString("fr-FR")+'</b> offre'+(offers.length>1?"s":"")+' analysée'+(offers.length>1?"s":"")+srcTxt+'.';
+      $("searchStatus").innerHTML = '<b>'+offers.length.toLocaleString("fr-FR")+'</b> offre'+(offers.length>1?"s":"")+' analysée'+(offers.length>1?"s":"")+srcTxt+'.' + (window._verifMsg||"");
       // Enrichissement automatique des effectifs « non précisé » via l'annuaire INSEE (en arrière-plan,
       // sans bloquer l'affichage). Réduit au minimum la colonne « Non précisé ». Idempotent (cache + garde interne).
       try{ if(typeof enrichEffectifs==="function") setTimeout(function(){ enrichEffectifs(); }, 60); }catch(e){}
@@ -1397,7 +2144,9 @@ function analyse(offers, totalDispo){
   lastUnclass = horsSujet;
   // Isoler les offres pour AVOCATS et en ALTERNANCE/STAGE (pas des postes de juriste salarié),
   // sauf si l'utilisateur demande à les inclure. Comptées à part.
-  var inclAvocat = !!($("inclAvocat") && $("inclAvocat").checked);
+  // Hors profil juridique, la notion d'offre « pour avocat » n'a pas de sens :
+  // on ne l'utilise jamais comme motif d'exclusion.
+  var inclAvocat = !profilActif().natif || !!($("inclAvocat") && $("inclAvocat").checked);
   var inclAlt = !!($("inclAlt") && $("inclAlt").checked);
   var avocats=[], altern=[];
   if(lastDroitSocial){

@@ -17,6 +17,7 @@
  * Endpoints :
  *   GET /health   -> test de vie
  *   GET /offres   -> recherche d'offres (mêmes paramètres que l'API FT v2)
+ *   GET /offre?id= -> detail complet d'une offre (description integrale)
  *                    + paramètre "range" (ex. 0-149) pour la taille de l'échantillon
  * ------------------------------------------------------------------
  */
@@ -25,6 +26,8 @@ const TOKEN_URL =
   'https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire';
 const SEARCH_URL =
   'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search';
+const DETAIL_URL =
+  'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/';
 const METIERS_URL =
   'https://api.francetravail.io/partenaire/offresdemploi/v2/referentiel/metiers';
 const SCOPE = 'api_offresdemploiv2 o2dsoffre';
@@ -173,6 +176,31 @@ export default {
         const text = await r.text();
         return new Response(text || '[]', {
           status: r.ok ? 200 : r.status,
+          headers: { 'Content-Type': 'application/json; charset=utf-8', ...cors },
+        });
+      } catch (e) {
+        return json({ error: String(e && e.message ? e.message : e) }, 502, cors);
+      }
+    }
+
+    // Detail complet d'une offre : la recherche ne renvoie qu'une description
+    // tronquee, insuffisante pour classer une offre en relations individuelles
+    // ou collectives. GET /offre?id=XXXXXXX
+    if (url.pathname === '/offre') {
+      if (request.method !== 'GET') {
+        return json({ error: 'Méthode non autorisée' }, 405, cors);
+      }
+      const id = (url.searchParams.get('id') || '').trim();
+      if (!id) return json({ error: 'Paramètre id manquant' }, 400, cors);
+      try {
+        const token = await getToken(env);
+        const r = await fetch(DETAIL_URL + encodeURIComponent(id), {
+          headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
+        });
+        const text = await r.text();
+        const noBody = r.status === 204 || r.status === 205 || r.status === 304;
+        return new Response(noBody ? '{}' : (text || '{}'), {
+          status: noBody ? 200 : (r.status === 206 ? 200 : r.status),
           headers: { 'Content-Type': 'application/json; charset=utf-8', ...cors },
         });
       } catch (e) {
