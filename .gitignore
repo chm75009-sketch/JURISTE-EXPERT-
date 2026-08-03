@@ -1,0 +1,17 @@
+# Dépôt PUBLIC — les pièces du dossier prud'homal ne doivent jamais y être versées.
+# Bulletins de salaire nominatifs, conclusions, notes de stratégie, tableaux de salaires :
+# fichiers confidentiels, à conserver en local uniquement.
+BULLETINS_*.pdf
+DOSSIER_*.zip
+CONCLUSIONS_*.docx
+SALAIRES_*.xlsx
+CLASSIFICATION_*.xlsx
+Note_Defense_*.docx
+Analyse_*.docx
+Attestations_*.docx
+Decompte_*.docx
+MODELE_CONCLUSIONS_*.docx
+PIECES_ET_TEMOIGNAGES_*.docx
+Refutation_*.docx
+Tableau_*.docx
+Incompetence_*.md
