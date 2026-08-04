@@ -365,6 +365,14 @@
     <div id="mesCandidatures"></div>
   </div>
 
+  <!-- Offres déjà consultées (persistant, indépendant de la recherche) -->
+  <div class="card" id="mesVuesCard" style="display:none;border-left:4px solid #9aa2af">
+    <h2>👁 Offres déjà consultées <span class="muted" style="font-weight:400;font-size:12px">— dossier « <b id="vuesDossierNom">—</b> » · pour ne pas les rouvrir deux fois</span></h2>
+    <div class="hint" style="margin-bottom:8px">Conservées d'une session à l'autre, même si l'annonce ne ressort plus dans les recherches. Les offres où vous avez postulé figurent dans la carte verte ci-dessus.</div>
+    <div id="mesVues"></div>
+    <div style="margin-top:10px"><a href="#" id="viderVues" style="color:#c0392b;font-size:12.5px;font-weight:600">✕ vider la liste des consultées</a></div>
+  </div>
+
   <!-- Résultats -->
   <div id="results" class="hidden">
 
@@ -530,7 +538,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.87";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.88";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -760,6 +768,14 @@ let cvFileMeta = null; // {name, ext, chars} du dernier CV importé
 $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
+if($("viderVues")) $("viderVues").addEventListener("click", function(e){ e.preventDefault();
+  if(!confirm("Vider la liste des offres consultées de ce dossier ?\n\nLes candidatures ne sont pas touchées.")) return;
+  var posts=offresPost(), v=offresVues(), garde={};
+  Object.keys(v).forEach(function(k){ if(posts[k]) garde[k]=v[k]; });   // on conserve celles où l'on a postulé
+  saveVues(garde); renderVues(); majVuesCompteur();
+  try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(_){}
+  try{ if(lastOffers && lastOffers.length) renderOffers(lastOffers); }catch(_){}
+});
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
 try{ var _hb=$("hdrBuild"); if(_hb) _hb.textContent = OFFRES_BUILD; }catch(e){}
 (function(){
@@ -778,6 +794,7 @@ try{ var _hb=$("hdrBuild"); if(_hb) _hb.textContent = OFFRES_BUILD; }catch(e){}
 try{ initProfils(); }catch(e){}       // vocabulaire de tri selon le metier vise
 try{ initDossiers(); }catch(e){}      // cloisonne les données par dossier de recherche
 try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès le chargement (persistant)
+try{ renderVues(); }catch(e){}         // et la liste des offres déjà consultées
 // Sélecteurs de catégorie (tout ou partie) : Exclusivement individuel / À la fois ind.+coll. / Exclusivement collectif
 ["secBank","secAssu","secCons","secAutre"].forEach(function(id){
   var cb=$(id); if(!cb) return;
@@ -1564,6 +1581,7 @@ function setDossierActif(id){
   // Le dossier porte son propre profil de tri : on le remet en place.
   try{ var ps=$("profilSel"); if(ps) ps.value = profilActifId(); majCategories(); }catch(e){}
   try{ renderPostulees(); }catch(e){}
+  try{ renderVues(); }catch(e){}
   try{ majVuesCompteur(); }catch(e){}
   try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(e){}
 }
@@ -1693,7 +1711,13 @@ function LS_POST(){ return LS_POST_BASE + "::" + dossierActif(); }
 function offresPost(){ try{ return JSON.parse(localStorage.getItem(LS_POST())||"{}")||{}; }catch(e){ return {}; } }
 function savePost(v){ try{ localStorage.setItem(LS_POST(), JSON.stringify(v)); }catch(e){} }
 function majVuesCompteur(){ try{ majDossierUI(); }catch(e){} var v=offresVues(), pv=offresPost(); var n=Object.keys(v).length, np=Object.keys(pv).length; var el=$("vuesCompteur"); if(el) el.textContent = (n||np)? ("· "+n+" consultée(s)"+(np?(" · "+np+" postulée(s)"):"")) : ""; }
-function marquerVue(key, el){ if(!key) return; var v=offresVues(); v[key]=Date.now(); saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); }
+function marquerVue(key, el){ if(!key) return; var v=offresVues();
+  // On memorise le detail de l'offre, pas seulement la date : la liste des
+  // offres deja consultees doit rester lisible meme des mois plus tard,
+  // quand l'annonce ne ressort plus dans aucune recherche.
+  var o=_offreByKey[key];
+  v[key] = o ? postRecord(o) : (v[key] || {d:Date.now()});
+  saveVues(v); if(el){ el.classList.add("vue"); } majVuesCompteur(); try{ renderVues(); }catch(e){} }
 var _offreByKey = {};   // clé -> offre courante (pour mémoriser les détails au moment de cocher « postulé »)
 function postRecord(o){ return { t:(o&&o.intitule)||"", e:(o&&o.entreprise&&o.entreprise.nom)||"", l:(o&&o.lieuTravail&&o.lieuTravail.libelle)||"", c:(o&&(o.typeContratLibelle||o.typeContrat))||"", cat:o?classifyRel(o):"", url:offreUrl(o), d:Date.now() }; }
 function togglePostule(key, checked, el){ if(!key) return; var v=offresPost();
@@ -1701,7 +1725,38 @@ function togglePostule(key, checked, el){ if(!key) return; var v=offresPost();
   savePost(v);
   if(el){ el.classList.toggle("postule", checked); }
   if(checked){ marquerVue(key, el); }   // postuler implique consultée
-  majVuesCompteur(); try{ renderPostulees(); }catch(e){} }
+  majVuesCompteur(); try{ renderPostulees(); }catch(e){} try{ renderVues(); }catch(e){} }
+// Section « Offres déjà consultées » : persistante, indépendante de la recherche
+function renderVues(){
+  var card=$("mesVuesCard"), box=$("mesVues"); if(!box) return;
+  var nom=$("vuesDossierNom"); if(nom) nom.textContent = dossierNom();
+  var v=offresVues(), posts=offresPost();
+  var keys=Object.keys(v).filter(function(k){ return !posts[k]; });   // les postulées ont leur propre carte
+  if(!keys.length){ if(card) card.style.display="none"; box.innerHTML=""; return; }
+  if(card) card.style.display="";
+  var rows=keys.map(function(k){ var r=v[k];
+    if(typeof r!=="object"||r===null) r={t:"(offre consultée)",e:"",l:"",c:"",cat:"",url:"",d:(typeof r==="number"?r:0)};
+    return {k:k,r:r}; });
+  rows.sort(function(a,b){ return (b.r.d||0)-(a.r.d||0); });
+  box.innerHTML = rows.map(function(x){ var r=x.r, dt=r.d? new Date(r.d).toLocaleDateString("fr-FR") : "";
+    var meta=[esc(r.e||""), esc(r.l||""), esc(r.c||""), esc(r.cat||"")].filter(Boolean).join(" · ");
+    return '<div class="offre-item vue" data-key="'+esc(x.k)+'">'
+      +'<div class="oi-t">'+esc(r.t||"(offre)")+'</div>'
+      +'<div class="oi-m">'+meta+(dt?' · consultée le '+esc(dt):'')+'</div>'
+      +'<div class="oi-foot">'
+      +(r.url? '<a href="'+esc(r.url)+'" target="_blank" rel="noopener" class="oi-link">revoir l\'offre ↗</a>' : '<span class="muted" style="font-size:12px">(lien indisponible)</span>')
+      +'<a href="#" class="vue-remove" data-key="'+esc(x.k)+'" style="color:#c0392b;font-size:12.5px;font-weight:600">✕ retirer</a>'
+      +'</div></div>';
+  }).join("");
+  [].slice.call(box.querySelectorAll(".vue-remove")).forEach(function(a){
+    a.addEventListener("click", function(e){ e.preventDefault();
+      var k=a.getAttribute("data-key"); var vv=offresVues(); delete vv[k]; saveVues(vv);
+      renderVues(); majVuesCompteur();
+      try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(_){}
+      try{ if(lastOffers && lastOffers.length) renderOffers(lastOffers); }catch(_){}
+    });
+  });
+}
 // Section « Mes candidatures » : persistante, indépendante de la recherche
 function renderPostulees(){
   var card=$("mesCandidaturesCard"), box=$("mesCandidatures"); if(!box) return;
