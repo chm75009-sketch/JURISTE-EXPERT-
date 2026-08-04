@@ -470,7 +470,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
     <header>
       <div class="brand">
         <div class="mono">MCH</div>
-        <div class="brand-t"><div class="n">Juris Expert MCH</div><div class="s">Droit du travail · Tous secteurs</div></div>
+        <div class="brand-t"><div class="n">Juris Expert MCH</div><div class="s">Droit du travail · Tous secteurs <span id="hdr-build" style="display:inline-block;margin-left:6px;padding:1px 7px;border-radius:20px;background:#e8c97a;color:#123;font-size:10.5px;font-weight:800;letter-spacing:.02em;vertical-align:1px" title="Version chargée dans ce navigateur">…</span></div></div>
       </div>
       <div class="hact"><a class="login" onclick="accueilShowLock();return false">Se connecter</a><div class="menu" onclick="accueilShowAbo()">☰</div></div>
     </header>
@@ -650,7 +650,13 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-07-28.80';
+var JX_BUILD = 'v2026-08-03.81';
+// Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
+// version est réellement chargée dans le navigateur (cache du service worker).
+try{ (function(){
+  function pose(){ var e=document.getElementById('hdr-build'); if(e) e.textContent = JX_BUILD; }
+  if(document.readyState!=='loading') pose(); else document.addEventListener('DOMContentLoaded', pose);
+})(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[

@@ -143,7 +143,7 @@
   <header class="top">
     <div>
       <h1>Recherche d'emploi &amp; reclassement</h1>
-      <div class="sub">Données France Travail (API officielle Offres d'emploi v2) · outil interne</div>
+      <div class="sub">Données France Travail (API officielle Offres d'emploi v2) · outil interne <span id="hdrBuild" style="display:inline-block;margin-left:6px;padding:1px 7px;border-radius:20px;background:var(--accent);color:#fff;font-size:10.5px;font-weight:800;vertical-align:1px" title="Version chargée dans ce navigateur">…</span></div>
     </div>
     <div class="topbtns">
       <button class="btn btn-ghost" id="cfgBtn">⚙︎ Configuration</button>
@@ -523,6 +523,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
+var OFFRES_BUILD = "v2026-08-03.12";   // pastille de version affichee dans l'en-tete
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -753,6 +754,7 @@ $("searchBtn").addEventListener("click", runSearch);
 if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
+try{ var _hb=$("hdrBuild"); if(_hb) _hb.textContent = OFFRES_BUILD; }catch(e){}
 try{ initProfils(); }catch(e){}       // vocabulaire de tri selon le metier vise
 try{ initDossiers(); }catch(e){}      // cloisonne les données par dossier de recherche
 try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès le chargement (persistant)
