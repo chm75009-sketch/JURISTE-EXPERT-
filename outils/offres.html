@@ -193,6 +193,7 @@
     <div class="row-actions" style="margin-top:10px">
       <button class="btn" id="dossierAjouter">+ Créer</button>
       <button class="btn btn-ghost" id="dossierRenommer">Renommer</button>
+      <button class="btn btn-ghost" id="dossierFusion">⇥ Reprendre l’historique d’un autre dossier</button>
       <button class="btn btn-ghost" id="dossierSupprimer" style="color:#c0392b">Supprimer</button>
       <span id="dossierStatus" class="hint"></span>
     </div>
@@ -529,7 +530,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.85";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.86";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -1572,8 +1573,15 @@ function nouvelId(){ return "d" + Date.now().toString(36); }
 function majDossierUI(){
   var sel=$("dossierSel"); if(!sel) return;
   var d=dossiers(), actif=dossierActif();
+  // Chaque dossier affiche son propre compteur : on voit du premier coup d'oeil
+  // ou se trouve l'historique, et un dossier neuf ne se confond pas avec un
+  // dossier rempli.
   sel.innerHTML = Object.keys(d).map(function(id){
-    return '<option value="'+esc(id)+'"'+(id===actif?' selected':'')+'>'+esc(d[id])+'</option>';
+    var nv=0, np=0;
+    try{ nv = Object.keys(JSON.parse(localStorage.getItem(LS_VUES_BASE+"::"+id)||"{}")||{}).length; }catch(e){}
+    try{ np = Object.keys(JSON.parse(localStorage.getItem(LS_POST_BASE+"::"+id)||"{}")||{}).length; }catch(e){}
+    var suff = (nv||np) ? "  ("+nv+" consultée"+(nv>1?"s":"")+", "+np+" candidature"+(np>1?"s":"")+")" : "  (vide)";
+    return '<option value="'+esc(id)+'"'+(id===actif?' selected':'')+'>'+esc(d[id])+esc(suff)+'</option>';
   }).join("");
   var n=$("candDossierNom"); if(n) n.textContent = dossierNom();
   var st=$("dossierStatus");
@@ -1618,6 +1626,35 @@ function initDossiers(){
     if(nom===null) return;
     nom=nom.trim(); if(!nom) return;
     d[id]=nom; saveDossiers(d); majDossierUI();
+  });
+
+  var fus=$("dossierFusion");
+  if(fus) fus.addEventListener("click", function(){
+    var d=dossiers(), actif=dossierActif();
+    var autres=Object.keys(d).filter(function(id){ return id!==actif; });
+    if(!autres.length){ alert("Il n’y a pas d’autre dossier."); return; }
+    var liste = autres.map(function(id,i){
+      var nv=0,np=0;
+      try{ nv=Object.keys(JSON.parse(localStorage.getItem(LS_VUES_BASE+"::"+id)||"{}")||{}).length; }catch(e){}
+      try{ np=Object.keys(JSON.parse(localStorage.getItem(LS_POST_BASE+"::"+id)||"{}")||{}).length; }catch(e){}
+      return (i+1)+" — "+d[id]+" ("+nv+" consultée(s), "+np+" candidature(s))";
+    }).join("\n");
+    var rep = prompt("Verser l’historique d’un autre dossier dans « "+d[actif]+" » ?\n\n"+liste+"\n\nTapez le numéro du dossier source :","1");
+    if(rep===null) return;
+    var idx = parseInt(String(rep).trim(),10);
+    if(!(idx>=1 && idx<=autres.length)){ alert("Numéro invalide."); return; }
+    var src = autres[idx-1];
+    var srcV={}, srcP={};
+    try{ srcV=JSON.parse(localStorage.getItem(LS_VUES_BASE+"::"+src)||"{}")||{}; }catch(e){}
+    try{ srcP=JSON.parse(localStorage.getItem(LS_POST_BASE+"::"+src)||"{}")||{}; }catch(e){}
+    var v=offresVues(), pv=offresPost(), nv=0, np=0;
+    Object.keys(srcV).forEach(function(k){ if(!v[k]){ v[k]=srcV[k]; nv++; } });
+    Object.keys(srcP).forEach(function(k){ if(!pv[k]){ pv[k]=srcP[k]; np++; } });
+    saveVues(v); savePost(pv);
+    majDossierUI(); majVuesCompteur(); try{ renderPostulees(); }catch(e){}
+    try{ if(_offresListe && _offresListe.length) renderOffresListe(_offresListe); }catch(e){}
+    try{ if(lastOffers && lastOffers.length) renderOffers(lastOffers); }catch(e){}
+    alert("Repris depuis « "+d[src]+" » : "+nv+" consultation(s) et "+np+" candidature(s).\n\nLe dossier source n’a pas été modifié.");
   });
 
   var sup=$("dossierSupprimer");
