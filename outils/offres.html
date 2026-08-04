@@ -282,7 +282,7 @@
       </label>
       <div class="hint">Plus d'offres, dédoublonnées. Nécessite la clé Adzuna configurée dans le Worker ; sinon seul France Travail répond.</div>
     </div>
-    <div class="field" style="margin-top:10px">
+    <div class="field" id="wrapBanques" style="margin-top:10px">
       <label style="display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:600;font-size:14.5px">
         <input type="checkbox" id="banquesOnly" style="width:22px;height:22px;accent-color:var(--accent);flex:none" />
         <span>🏦 Uniquement les offres <b>des banques</b> (établissements bancaires employeurs)</span>
@@ -429,8 +429,8 @@
     </div>
 
     <div class="card">
-      <h2>📊 Tableau de synthèse <span class="muted" style="font-weight:400;font-size:12px">(zone × effectif × type de relation)</span></h2>
-      <div class="hint" style="margin-bottom:8px">Pour chaque type de relation (individuel / collectif / les deux), répartition des offres par <b>département</b> et par <b>taille d'entreprise</b>, avec le nombre de <b>sociétés distinctes</b> et le taux de <b>répétition</b> (offres ÷ sociétés).</div>
+      <h2>📊 Tableau de synthèse <span class="muted" style="font-weight:400;font-size:12px">(zone × effectif × <span id="lblTypeRel">type de relation</span>)</span></h2>
+      <div class="hint" style="margin-bottom:8px">Pour chaque <span id="lblTypeRel2">type de relation</span> (<span id="lblTrioCat">individuel / collectif / les deux</span>), répartition des offres par <b>département</b> et par <b>taille d'entreprise</b>, avec le nombre de <b>sociétés distinctes</b> et le taux de <b>répétition</b> (offres ÷ sociétés).</div>
       <div id="synthese"></div>
       <button type="button" class="btn btn-ghost" id="syntheseCsv" style="margin-top:10px;display:none">⭳ Exporter la synthèse (CSV)</button>
     </div>
@@ -523,7 +523,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.81";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.82";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -1407,6 +1407,16 @@ function majCategories(){
   // La case « inclure les avocats » n'a de sens que pour le profil juridique.
   var av = $("wrapInclAvocat");
   if(av) av.style.display = p.natif ? "flex" : "none";
+  // Le filtre « uniquement les banques » n'a de sens que pour les profils
+  // orientes secteur financier ; il est masque (et neutralise) ailleurs.
+  var bq = $("wrapBanques");
+  if(bq) bq.style.display = p.natif ? "none" : "";
+  var trio = p.A.court + " / " + p.B.court + " / les deux";
+  var t1=$("lblTypeRel"), t2=$("lblTypeRel2"), t3=$("lblTrioCat");
+  if(t1) t1.textContent = p.natif ? "type de relation" : "catégorie";
+  if(t2) t2.textContent = p.natif ? "type de relation" : "catégorie";
+  if(t3) t3.textContent = trio;
+  if(p.natif){ var cb=$("banquesOnly"); if(cb) cb.checked = false; }
 }
 function initProfils(){
   var sel=$("profilSel"); if(!sel) return;
@@ -1968,7 +1978,7 @@ async function runSearch(){
       offers.sort(function(a,b){ return (b._q||0)-(a._q||0); });
     }
     offers = jxDedup(offers);
-    lastOffers = offers;
+    lastOffers = offers;   // provisoire : reaffecte apres la verification du texte integral
     if(!offers.length){
       $("emptyState").innerHTML = 'Aucune offre pour « '+esc(codeRome?romeLabel:(mots||"ces criteres"))+' ». Astuce : cherche par <b>metier</b> (« juriste », « risk manager », « gestionnaire des risques ») plutot quune expression, et retire les filtres (experience, contrat, departement).';
       $("emptyState").classList.remove("hidden");
@@ -2005,6 +2015,7 @@ async function runSearch(){
         }
       }catch(e){ window._verifMsg = ""; }
 
+      lastOffers = offers;   // liste definitive, apres re-filtre sur le texte integral
       analyse(offers, offers.length);
       $("results").classList.remove("hidden");
       const srcTxt = adzN
