@@ -73,6 +73,11 @@
   .offre-item.vue .oi-t::after{content:" ✓ consultée";color:#3fae74;font-size:11px;font-weight:700}
   /* Postulée : prioritaire sur « consultée » (vert) */
   .offre-item.postule{border-left-color:#2b8a5b;background:#e6f5ec;opacity:1}
+  /* memes reperes visuels dans la liste brute « Offres (n) » */
+  .offer.vue{opacity:.62;background:#f4f5f7;border-radius:10px}
+  .offer.vue h3 a{color:#6b7280}
+  .offer.postule{opacity:1;background:#e6f5ec;border-left:4px solid #2b8a5b;padding-left:10px;border-radius:10px}
+  .offer.postule h3 a{color:#1d6b46}
   .offre-item.postule .oi-t{color:var(--ink)}
   .offre-item.postule .oi-t::after{content:" ✅ postulée";color:#2b8a5b;font-size:11px;font-weight:700}
   .oi-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px}
@@ -524,7 +529,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.84";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.85";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -2394,15 +2399,41 @@ function renderOffers(offers){
     const contrat = o.typeContratLibelle || o.typeContrat || "";
     const sal = (o.salaire && o.salaire.libelle) ? " · "+o.salaire.libelle : "";
     const d = o.dateCreation ? new Date(o.dateCreation).toLocaleDateString("fr-FR") : "";
+    const key = offreKey(o);
+    _offreByKey[key] = o;
+    const vues = offresVues(), posts = offresPost();
+    const estVue = !!vues[key], estPost = !!posts[key];
     const el = document.createElement("div");
-    el.className="offer";
+    el.className = "offer" + (estVue?" vue":"") + (estPost?" postule":"");
     el.innerHTML =
       `<h3><a href="${esc(url)}" target="_blank" rel="noopener">${esc(o.intitule||"Offre")}</a></h3>`+
       `<div class="meta"><span>${esc(ent)}</span><span>📍 ${esc(lieu)}</span>`+
       (o.trancheEffectifEtab?`<span>👥 ${esc(o.trancheEffectifEtab)}</span>`:"")+
       (contrat?`<span class="tag">${esc(contrat)}</span>`:"")+
       (d?`<span>${d}</span>`:"")+
-      (sal?`<span class="muted">${esc(sal)}</span>`:"")+`</div>`;
+      (sal?`<span class="muted">${esc(sal)}</span>`:"")+`</div>`+
+      `<div style="display:flex;gap:14px;align-items:center;margin-top:6px;flex-wrap:wrap">`+
+        `<label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer">`+
+          `<input type="checkbox" class="ckVue" ${estVue?"checked":""} style="width:17px;height:17px;accent-color:var(--accent)"> consultée</label>`+
+        `<label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer">`+
+          `<input type="checkbox" class="ckPost" ${estPost?"checked":""} style="width:17px;height:17px;accent-color:var(--accent)"> ✅ postulé</label>`+
+      `</div>`;
+    // Ouvrir l'annonce vaut consultation.
+    var lien = el.querySelector("h3 a");
+    if(lien) lien.addEventListener("click", function(){
+      marquerVue(key, el);
+      var c = el.querySelector(".ckVue"); if(c) c.checked = true;
+    });
+    var cv = el.querySelector(".ckVue");
+    if(cv) cv.addEventListener("change", function(){
+      if(cv.checked){ marquerVue(key, el); }
+      else { var v=offresVues(); delete v[key]; saveVues(v); el.classList.remove("vue"); majVuesCompteur(); }
+    });
+    var cp = el.querySelector(".ckPost");
+    if(cp) cp.addEventListener("change", function(){
+      togglePostule(key, cp.checked, el);
+      if(cp.checked){ var c2 = el.querySelector(".ckVue"); if(c2) c2.checked = true; }
+    });
     box.appendChild(el);
   });
 }
