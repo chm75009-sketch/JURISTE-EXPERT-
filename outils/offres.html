@@ -1320,8 +1320,8 @@ var PROFILS = {
     B: { terms: null, label: "Exclusivement collectif",  court: "Exclusivement collectif" },   // terms=null -> COL_TERMS
     both:{ label: "À la fois individuel + collectif", court: "À la fois ind. + coll." },
     ui: {
-      relInd: "⚖️ Uniquement les offres à <b>dimension relations individuelles</b> — individuel seul <b>ou</b> individuel + collectif (exclut le purement collectif)",
-      relIndHint: "Garde les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…), <b>y compris</b> celles qui comportent aussi une dimension collective (« les deux »). Seul le <b>purement collectif</b> et le hors droit du travail sont écartés.",
+      relInd: "⚖️ <b>Exclusivement</b> relations individuelles — toute offre mentionnant le collectif est écartée",
+      relIndHint: "Ne garde que les offres portant sur des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…) et <b>ne comportant aucun marqueur collectif</b>. Une seule mention du CSE, des IRP, des élections, de la négociation collective ou d'un PSE suffit à écarter l'offre. La vérification porte sur le <b>texte intégral</b> de l'annonce, pas seulement sur l'extrait.",
       ratio: "⚖️ Ratio relations individuelles vs collectives",
       methode: "Méthode (exigence symétrique) : une offre est <b>« individuel »</b> uniquement si un marqueur individuel explicite apparaît (contrat, licenciement, rupture, discipline, inaptitude, prud'hommes, paie…), et <b>« collectif »</b> uniquement avec un marqueur collectif explicite (CSE, IRP, négociation, PSE, syndical…) ; « les deux » si les deux. Sans aucun marqueur explicite de relation de travail, l'offre est <b>écartée</b> (« Non précisé ») — l'individuel est filtré aussi strictement que le collectif.",
       inclHS: "Inclure les offres hors droit social (non classées) dans l'étude",
@@ -1337,7 +1337,7 @@ var PROFILS = {
     B: { terms: RISK_B, label: "Exclusivement conformité",        court: "Conformité" },
     both:{ label: "À la fois risque + conformité", court: "Risque + conformité" },
     ui: {
-      relInd: "🛡️ Uniquement les offres à <b>dimension risque opérationnel &amp; contrôle</b> — risque seul <b>ou</b> risque + conformité (exclut la conformité pure)",
+      relInd: "🛡️ <b>Exclusivement</b> risque opérationnel &amp; contrôle — toute offre mentionnant la conformité est écartée",
       relIndHint: "Garde les offres mentionnant des missions de risque opérationnel ou de contrôle permanent (incidents, cartographie des risques, plans d'action, KRI, LoD2, contrôle de 2<sup>e</sup> niveau…), <b>y compris</b> celles qui comportent aussi une dimension conformité (« les deux »). Seule la <b>conformité pure</b> (RGPD, LCB-FT, déontologie sans volet risque) et le hors sujet sont écartés.",
       ratio: "🛡️ Ratio risque &amp; contrôle vs conformité",
       methode: "Méthode (exigence symétrique) : une offre est <b>« risque &amp; contrôle »</b> uniquement si un marqueur explicite apparaît (risque opérationnel, incident, cartographie, contrôle permanent, KRI, LoD2, plan de remédiation…), et <b>« conformité »</b> uniquement avec un marqueur explicite (conformité, RGPD, LCB-FT, déontologie, sanctions, veille réglementaire…) ; « les deux » si les deux. Sans aucun marqueur explicite, l'offre est <b>écartée</b> (« Non précisé »).",
@@ -1354,7 +1354,7 @@ var PROFILS = {
     B: { terms: BA_B, label: "Exclusivement besoin métier",  court: "Besoin métier / AMOA" },
     both:{ label: "À la fois data + besoin métier", court: "Data + métier" },
     ui: {
-      relInd: "📊 Uniquement les offres à <b>dimension data &amp; BI</b> — data seule <b>ou</b> data + besoin métier (exclut l'AMOA pure)",
+      relInd: "📊 <b>Exclusivement</b> data &amp; BI — toute offre mentionnant l'AMOA est écartée",
       relIndHint: "Garde les offres mentionnant des missions de donnée et de restitution (SQL, Power BI, dashboards, KPI, qualité des données, requêtage…), <b>y compris</b> celles qui comportent aussi un volet besoin métier (« les deux »). Seul l'<b>AMOA pur</b> (spécifications, recette, conduite du changement sans volet data) et le hors sujet sont écartés.",
       ratio: "📊 Ratio data &amp; BI vs besoin métier",
       methode: "Méthode (exigence symétrique) : une offre est <b>« data &amp; BI »</b> uniquement si un marqueur explicite apparaît (SQL, Power BI, dashboard, KPI, entrepôt, qualité des données…), et <b>« besoin métier »</b> uniquement avec un marqueur explicite (AMOA, expression de besoin, spécifications, recette, conduite du changement…) ; « les deux » si les deux. Sans aucun marqueur explicite, l'offre est <b>écartée</b> (« Non précisé »).",
@@ -1920,8 +1920,11 @@ async function runSearch(){
       offers = res.offers;
     }
     if($("relInd") && $("relInd").checked && offers.length){
-      const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, d:sc.ind-sc.col, col:sc.col, ind:sc.ind}; });
-      offers = scored.filter(function(x){ return x.ind>0; }).sort(function(a,b){ return b.ind-a.ind; }).map(function(x){ return x.o; });
+      // EXCLUSIVEMENT : un seul marqueur de l'autre categorie (CSE, negociation,
+      // IRP, elections...) suffit a ecarter l'offre, meme si elle comporte par
+      // ailleurs des missions individuelles.
+      const scored = offers.map(function(o){ const sc=relIndScore(o); return {o:o, col:sc.col, ind:sc.ind}; });
+      offers = scored.filter(function(x){ return x.ind>0 && x.col===0; }).sort(function(a,b){ return b.ind-a.ind; }).map(function(x){ return x.o; });
     }
     if(taillesEl && offers.length){
       const tk=[].slice.call(taillesEl.querySelectorAll("input:checked")).map(function(c){return c.value;});
@@ -1987,6 +1990,17 @@ async function runSearch(){
           window._verifMsg = ' &nbsp;·&nbsp; <span class="muted">'+_r.reclassees+' offre(s) reclassée(s) après lecture du texte intégral'
                            + (det.length? ' ('+det.join(", ")+')' : '') + '</span>';
         } else { window._verifMsg = ""; }
+        // Le filtre « exclusivement » a d'abord ete applique sur la description
+        // TRONQUEE renvoyee par la recherche. Le texte integral etant desormais
+        // charge, on le re-applique : une offre dont le corps revele un marqueur
+        // de l'autre categorie doit sortir de la liste.
+        if($("relInd") && $("relInd").checked && offers.length){
+          var _av = offers.length;
+          offers = offers.filter(function(o){ var s2=relIndScore(o); return s2.ind>0 && s2.col===0; });
+          var _ret = _av - offers.length;
+          if(_ret) window._verifMsg = (window._verifMsg||"")
+            + ' &nbsp;·&nbsp; <span class="muted">' + _ret + ' offre(s) écartée(s) : marqueur trouvé dans le texte intégral</span>';
+        }
       }catch(e){ window._verifMsg = ""; }
 
       analyse(offers, offers.length);
