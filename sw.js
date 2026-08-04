@@ -1,5 +1,5 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v66';
+const CACHE = 'jem-v67';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './vendor/xlsx.full.min.js', './vendor/jszip.min.js'];
 

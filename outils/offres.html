@@ -169,7 +169,7 @@
   <!-- Dossier de recherche : cloisonne les consultees et les candidatures -->
   <div class="card" id="dossierCard" style="border-left:4px solid #6b4fbb">
     <h2>🗂️ Dossier de recherche <span class="muted" style="font-weight:400;font-size:12px">— chaque dossier a ses propres offres consultées et candidatures</span></h2>
-    <div class="hint" style="margin-bottom:8px">Un dossier par personne ou par type de poste (ex. « Juriste droit du travail », « Risque opérationnel »). Les offres consultées et les candidatures d'un dossier <b>ne se mélangent jamais</b> avec celles d'un autre.</div>
+    <div class="hint" style="margin-bottom:8px">Un dossier par personne. Les offres consultées et les candidatures <b>ne se mélangent jamais</b> d'un dossier à l'autre.</div>
     <div class="grid form-grid">
       <div class="field" style="margin:0">
         <label for="dossierSel">Dossier actif</label>
@@ -198,15 +198,16 @@
     <h2>Rechercher des offres</h2>
     <div class="grid form-grid">
       <div class="field" style="margin:0">
-        <label for="motsCles">Mots-clés / métier</label>
-        <input type="text" id="motsCles" placeholder="ex. responsable qualité HACCP" />
+        <label for="motsCles">Que cherchez-vous ?</label>
+        <input type="text" id="motsCles" placeholder="ex. juriste en droit social" />
+        <div class="hint"><b>Deux ou trois mots suffisent</b> — une phrase longue réduit les résultats. &nbsp;<a href="#" id="toggleRome" style="color:var(--accent);font-weight:600;text-decoration:none">▸ métier officiel (ROME)</a></div>
       </div>
-      <div class="field" style="margin:0">
-        <label for="metierSearch">Métier (tape pour chercher)</label>
-        <input type="text" id="metierSearch" autocomplete="off" placeholder="ex. juriste, data, comptable…" />
+      <div class="field" id="wrapRome" style="margin:0;display:none">
+        <label for="metierSearch">Métier officiel</label>
+        <input type="text" id="metierSearch" autocomplete="off" placeholder="tapez 3 lettres, puis choisissez" />
         <input type="hidden" id="rome" value="" />
         <div id="metierSug" class="metier-sug hidden"></div>
-        <div class="hint">Tape un métier et choisis dans la liste (référentiel France Travail). Tu peux affiner avec un mot-clé ci-dessus. Vide = recherche par mots-clés.</div>
+        <div class="hint">Référentiel France&nbsp;Travail. Ramène toutes les annonces rattachées au métier, quel que soit l'intitulé — mais classe mal les postes de juriste et de risque. À laisser vide en cas de doute.</div>
       </div>
       <div class="field" style="margin:0">
         <label for="region">Région</label>
@@ -231,12 +232,12 @@
           <option value="04">La Réunion</option>
           <option value="06">Mayotte</option>
         </select>
-        <div class="hint">Région entière. (Prioritaire sur le champ département.)</div>
+        <div class="hint">Prioritaire sur le département.</div>
       </div>
       <div class="field" style="margin:0">
         <label for="departement">Département(s)</label>
         <input type="text" id="departement" placeholder="ex. 75 ou 75,92,93" />
-        <div class="hint">Vide = toute la France. Plusieurs codes séparés par des virgules.</div>
+        <div class="hint">Vide = toute la France.</div>
       </div>
       <div class="field" style="margin:0">
         <label for="experience">Expérience</label>
@@ -523,7 +524,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.82";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.83";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -755,6 +756,19 @@ if($("enrichBtn")) $("enrichBtn").addEventListener("click", enrichEffectifs);
 if($("unclassBtn")) $("unclassBtn").addEventListener("click", function(){ $("unclassList").classList.toggle("hidden"); });
 if($("resetVues")) $("resetVues").addEventListener("click", function(e){ e.preventDefault(); if(confirm("Réinitialiser toutes les offres marquées « consultée » ?")){ saveVues({}); try{ renderOffresListe(_offresListe); }catch(_){} } });
 try{ var _hb=$("hdrBuild"); if(_hb) _hb.textContent = OFFRES_BUILD; }catch(e){}
+(function(){
+  // Le referentiel ROME est replie par defaut : une seule case de recherche a
+  // l'ecran. Le lien le deplie pour qui veut chercher par code metier.
+  var lien=$("toggleRome"), wrap=$("wrapRome");
+  if(!lien||!wrap) return;
+  lien.addEventListener("click", function(e){
+    e.preventDefault();
+    var ouvert = wrap.style.display !== "none";
+    wrap.style.display = ouvert ? "none" : "";
+    lien.textContent = ouvert ? "▸ métier officiel (ROME)" : "▾ masquer";
+    if(!ouvert){ var mi=$("metierSearch"); if(mi) mi.focus(); }
+  });
+})();
 try{ initProfils(); }catch(e){}       // vocabulaire de tri selon le metier vise
 try{ initDossiers(); }catch(e){}      // cloisonne les données par dossier de recherche
 try{ renderPostulees(); }catch(e){}   // affiche « Mes candidatures » dès le chargement (persistant)
