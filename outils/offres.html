@@ -280,7 +280,7 @@
         <input type="checkbox" id="relInd" style="width:28px;height:28px;accent-color:var(--accent);flex:none;margin-top:1px" />
         <span id="lblRelInd">⚖️ Uniquement les offres à <b>dimension relations individuelles</b> — individuel seul <b>ou</b> individuel + collectif (exclut le purement collectif)</span>
       </label>
-      <div class="hint" id="hintRelInd">Garde les offres mentionnant des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…), <b>y compris</b> celles qui comportent aussi une dimension collective (« les deux »). Seul le <b>purement collectif</b> et le hors droit du travail sont écartés.</div>
+      <div class="hint" id="hintRelInd">Ne garde que les offres portant sur des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…) et <b>ne comportant aucun marqueur collectif</b>. Une seule mention du CSE, des IRP, des élections ou de la négociation collective suffit à écarter l'offre. <b>La vérification porte sur le texte intégral</b> : les annonces des agrégateurs (Adzuna), dont seul un extrait est accessible, sont écartées car invérifiables — décochez « Élargir à Adzuna » pour ne travailler que sur France Travail.</div>
     </div>
     <div class="field" style="margin-top:10px">
       <label style="display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:600;font-size:14.5px">
@@ -530,7 +530,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.86";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.87";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -1343,7 +1343,7 @@ var PROFILS = {
     both:{ label: "À la fois individuel + collectif", court: "À la fois ind. + coll." },
     ui: {
       relInd: "⚖️ <b>Exclusivement</b> relations individuelles — toute offre mentionnant le collectif est écartée",
-      relIndHint: "Ne garde que les offres portant sur des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…) et <b>ne comportant aucun marqueur collectif</b>. Une seule mention du CSE, des IRP, des élections, de la négociation collective ou d'un PSE suffit à écarter l'offre. La vérification porte sur le <b>texte intégral</b> de l'annonce, pas seulement sur l'extrait.",
+      relIndHint: "Ne garde que les offres portant sur des missions individuelles (contrat, licenciement, rupture conventionnelle, discipline, inaptitude, prud'hommes…) et <b>ne comportant aucun marqueur collectif</b>. Une seule mention du CSE, des IRP, des élections ou de la négociation collective suffit à écarter l'offre. <b>La vérification porte sur le texte intégral</b> : les annonces des agrégateurs (Adzuna), dont seul un extrait est accessible, sont écartées car invérifiables — décochez « Élargir à Adzuna » pour ne travailler que sur France Travail.",
       ratio: "⚖️ Ratio relations individuelles vs collectives",
       methode: "Méthode (exigence symétrique) : une offre est <b>« individuel »</b> uniquement si un marqueur individuel explicite apparaît (contrat, licenciement, rupture, discipline, inaptitude, prud'hommes, paie…), et <b>« collectif »</b> uniquement avec un marqueur collectif explicite (CSE, IRP, négociation, PSE, syndical…) ; « les deux » si les deux. Sans aucun marqueur explicite de relation de travail, l'offre est <b>écartée</b> (« Non précisé ») — l'individuel est filtré aussi strictement que le collectif.",
       inclHS: "Inclure les offres hors droit social (non classées) dans l'étude",
@@ -1679,6 +1679,14 @@ var _offresListe = [];
 function offresVues(){ try{ return JSON.parse(localStorage.getItem(LS_VUES())||"{}")||{}; }catch(e){ return {}; } }
 function saveVues(v){ try{ localStorage.setItem(LS_VUES(), JSON.stringify(v)); }catch(e){} }
 function offreKey(o){ return String((o&&o.id) || (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.intitule)||"")+"|"+((o&&o.entreprise&&o.entreprise.nom)||"")); }
+// Peut-on lire l'annonce en entier ? Seules les offres France Travail ont un
+// endpoint de detail ; les agregateurs ne renvoient qu'un extrait tronque.
+function texteIntegralDisponible(o){
+  var id = String((o && o.id) || "");
+  if(!id) return false;
+  if(id.indexOf("adz-")===0 || id.indexOf("job-")===0) return false;
+  return true;
+}
 function offreUrl(o){ return (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.id)? "https://candidat.francetravail.fr/offres/recherche/detail/"+encodeURIComponent(o.id) : ""); }
 var LS_POST_BASE = "offres_postule_v1";
 function LS_POST(){ return LS_POST_BASE + "::" + dossierActif(); }
@@ -2068,6 +2076,16 @@ async function runSearch(){
           var _ret = _av - offers.length;
           if(_ret) window._verifMsg = (window._verifMsg||"")
             + ' &nbsp;·&nbsp; <span class="muted">' + _ret + ' offre(s) écartée(s) : marqueur trouvé dans le texte intégral</span>';
+          // Les agregateurs (Adzuna, Jooble) ne fournissent qu'un extrait de
+          // l'annonce et n'offrent aucun moyen d'aller lire le texte complet :
+          // une mention du CSE situee plus bas reste invisible. En mode
+          // « exclusivement », ces offres ne peuvent pas etre certifiees et
+          // sont donc ecartees plutot que presentees a tort comme conformes.
+          var _av2 = offers.length;
+          offers = offers.filter(function(o){ return texteIntegralDisponible(o); });
+          var _nv = _av2 - offers.length;
+          if(_nv) window._verifMsg = (window._verifMsg||"")
+            + ' &nbsp;·&nbsp; <span class="muted">' + _nv + ' offre(s) écartée(s) : texte intégral non consultable (agrégateur)</span>';
         }
       }catch(e){ window._verifMsg = ""; }
 
