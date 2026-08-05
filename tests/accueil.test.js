@@ -121,6 +121,31 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   }), 'et l’accueil reste affiché derrière — on ne perd pas sa lecture');
   ok(await page.evaluate(() => !!document.querySelector('#abo-screen .jx-fermer')),
      'la fenêtre a une croix de fermeture');
+  /* Signalé depuis un téléphone : « on fait comment pour revenir en arrière ? »
+     La sortie doit rester atteignable une fois qu'on est descendu dans le
+     formulaire — c'est-à-dire dès qu'on remplit le premier champ, clavier
+     ouvert. Une croix en position:absolute défile avec le contenu ; et un
+     conteneur qui porte backdrop-filter annule position:fixed sur ses
+     descendants. Les deux pièges se voient ici, pas dans le code. */
+  await page.evaluate(() => { document.getElementById('abo-screen').scrollTop = 600; });
+  await page.waitForTimeout(200);
+  const croix = await page.evaluate(() => {
+    const b = document.querySelector('#abo-screen .jx-fermer');
+    if (!b) return null;
+    const r = b.getBoundingClientRect();
+    return { haut: r.top, gauche: r.left, l: r.width, h: r.height,
+             dansEcran: r.top >= 0 && r.top < 120 && r.right <= innerWidth + 1 };
+  });
+  ok(croix && croix.dansEcran,
+     'la croix reste visible en haut de l’écran même une fois le formulaire déroulé',
+     JSON.stringify(croix));
+  ok(croix && croix.l >= 44 && croix.h >= 44,
+     'et sa cible tactile fait au moins 44 px', croix && (croix.l + '×' + croix.h));
+  ok(await page.evaluate(() => {
+    const t = document.getElementById('abo-screen').innerText;
+    return t.indexOf('Revenir à l’accueil') >= 0;
+  }), 'un lien de retour figure aussi en tête du formulaire');
+
   await page.keyboard.press('Escape');
   await page.waitForTimeout(150);
   ok(!(await visible('abo-screen')), 'la touche Échap la referme');
