@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.104';
+var JX_BUILD = 'v2026-08-06.105';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6509,6 +6509,7 @@ function hubClasseur(){
     A({k:'avis-social', lib:'Avis sur la politique sociale, les conditions de travail et l’emploi', art:'L.2312-26', quand:'À chaque consultation', page:'csecns'});
     A({k:'comptes', lib:'Comptes annuels du comité et rapport d’activité et de gestion', art:'L.2315-64 · L.2315-69', quand:'Chaque année'});
     A({k:'env', lib:'Mention des conséquences environnementales dans chaque avis', art:'L.2312-8', quand:'À chaque consultation', page:'csecns'});
+    A({k:'durab', lib:'Avis sur les informations en matière de durabilité et sur les moyens de les obtenir et de les vérifier', art:'L.2312-17', quand:'Si l’entreprise y est assujettie — lors d’une consultation récurrente', page:'csecns'});
   }
   if(eff!==null && eff>=11){
     A({k:'referent', lib:'Résolution désignant le référent harcèlement sexuel', art:'L.2314-1', quand:'Dès la mise en place', page:'moncse'});
@@ -6967,7 +6968,11 @@ function hubVueBdese(){
       +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:5px">'+hubEsc(t.det)+'</div>'
       +'</div>';
   });
-  h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.55">La base porte sur l’année en cours, les deux années précédentes et, sous forme de perspectives, les trois années suivantes.</div>';
+  h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.55">'
+   +'La base porte sur les deux années précédentes et l’année en cours, et intègre des perspectives sur les <b>trois</b> années suivantes. '
+   +'Ces informations sont présentées sous forme de données chiffrées ou, à défaut pour les années à venir, de grandes tendances ; '
+   +'l’employeur indique celles qui ne peuvent faire l’objet ni de l’un ni de l’autre, et pourquoi (R.2312-10).'
+   +'</div>';
   h+='</div>';
 
   /* Le regime de la base : support, acces, mise a jour, sanction */
@@ -7027,6 +7032,21 @@ function hubVueBdese(){
      +'Un avis muet sur ce point est attaquable.'
    +'</div>'
    +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Article L.2312-8 du code du travail · loi n° 2021-1104 du 22 août 2021</div>'
+   +'</div>';
+
+  /* Durabilite — CSRD */
+  h+='<div class="card" style="border-left:3px solid #6fa8dc"><div class="ct">Informations en matière de durabilité</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7">'
+     +'Distincte de la base de données, et souvent confondue avec elle. Les sociétés tenues de publier des informations en matière de durabilité — '
+     +'directive 2022/2464 dite CSRD, transposée par l’ordonnance n° 2023-1142 du 6 décembre 2023 — doivent informer et consulter le comité '
+     +'sur ces informations <b>et sur les moyens de les obtenir et de les vérifier</b>.'
+   +'</div>'
+   +'<div style="font-size:12.5px;color:#e8c97a;line-height:1.7;margin-top:9px">'
+     +'La loi du 30 avril 2025 a précisé le point qui posait le plus de difficultés : cette consultation est menée à l’occasion de <b>l’une au moins des trois consultations récurrentes, au choix de l’employeur</b>. '
+     +'Ce n’est donc pas une quatrième consultation autonome — mais l’avis doit exister, et porter aussi sur les moyens de vérification.'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Article L.2312-17 du code du travail · ordonnance n° 2023-1142 du 6 décembre 2023 · loi du 30 avril 2025</div>'
+   +'<div style="margin-top:10px"><button onclick="goPage(\'csecns\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Renseigner l’assujettissement</button></div>'
    +'</div>';
 
   return h;
@@ -7090,6 +7110,14 @@ var CNS_ETATS=[
   {v:'encours',   lib:'En cours — information mise à disposition'},
   {v:'rendu',     lib:'Avis rendu'},
   {v:'reputee',   lib:'Avis réputé négatif — délai expiré'}
+];
+/* Assujettissement aux obligations de publication d'informations en matiere
+   de durabilite (directive 2022/2464, ordonnance n° 2023-1142 du 6 decembre
+   2023, loi DDADUE du 30 avril 2025). */
+var CNS_DURAB=[
+  {v:'non',    lib:'Non — l’entreprise n’y est pas soumise'},
+  {v:'oui',    lib:'Oui — l’entreprise publie des informations en matière de durabilité'},
+  {v:'inconnu',lib:'À vérifier — l’assujettissement n’a pas été tranché'}
 ];
 var CNS_EXPERTISES=[
   {v:'aucune',  lib:'Aucune expertise — délai d’un mois'},
@@ -7158,6 +7186,27 @@ function cnsAnalyse(){
     A.push({gravite:'info', titre:'Base de données économiques, sociales et environnementales',
       texte:'La mise à disposition des éléments d’information par la base vaut communication des rapports et informations au comité (L.2312-18). '
         +'Un accord peut en définir l’organisation, l’architecture et le contenu, sans pouvoir supprimer les thèmes rendus obligatoires ni priver le comité des informations nécessaires à ses consultations (L.2312-21).'});
+  }
+
+  /* Informations en matiere de durabilite — CSRD */
+  var du=CNS.durabilite||'';
+  if(du==='oui'){
+    var ou=CNS.durabiliteOu||'';
+    var lib={strat:'les orientations stratégiques',eco:'la situation économique et financière',social:'la politique sociale'}[ou]||'';
+    A.push({gravite:(ou?'info':'stop'), titre:'Consultation sur les informations en matière de durabilité',
+      texte:'L’entreprise publie des informations en matière de durabilité : l’employeur informe et consulte le comité sur ces informations '
+        +'et sur les moyens de les obtenir et de les vérifier (L.2312-17, dans sa rédaction issue de l’ordonnance n° 2023-1142 du 6 décembre 2023). '
+        +'Depuis la loi du 30 avril 2025, cette consultation est menée à l’occasion de l’une au moins des consultations récurrentes, au choix de l’employeur'
+        +(lib?(' — ici, '+lib+'.'):'. Indiquez laquelle : tant que ce choix n’est pas fait, la consultation n’est rattachée à rien.')});
+    if(CNS.durabiliteFaite!=='oui'){
+      A.push({gravite:'question', titre:'Consultation sur la durabilité non enregistrée',
+        texte:'Aucune consultation sur les informations en matière de durabilité n’est enregistrée. Elle porte non seulement sur les informations publiées, '
+          +'mais aussi sur les <b>moyens de les obtenir et de les vérifier</b> — un avis qui ne porterait que sur le contenu publié serait incomplet.'});
+    }
+  } else if(du==='inconnu'){
+    A.push({gravite:'question', titre:'Assujettissement aux obligations de durabilité non tranché',
+      texte:'Le périmètre dépend de la taille de l’entreprise, de son statut et de son calendrier d’entrée en vigueur. '
+        +'Tant qu’il n’est pas tranché, il est impossible de dire si la consultation sur les informations en matière de durabilité s’impose (L.2312-17).'});
   }
 
   /* Consequences environnementales — loi Climat et Resilience */
@@ -7249,7 +7298,18 @@ function cnsRender(){
         +'<input type="number" min="1" max="3" value="'+cnsEsc(CNS.periodicite||'')+'" onchange="cnsSet(\'periodicite\',this.value)"></div>'):'')
       +'<div class="fg"><label class="fl">La base de données économiques, sociales et environnementales est-elle en place ?</label>'
       + S('cns-bd',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], CNS.bdese||'', 'cnsSetSel(\'bdese\',\'cns-bd\')')
-      +'</div>';
+      +'</div>'
+      +'<div class="fg"><label class="fl">L’entreprise est-elle tenue de publier des informations en matière de durabilité ?</label>'
+      + S('cns-du',CNS_DURAB,CNS.durabilite||'','cnsSetSel(\'durabilite\',\'cns-du\')')
+      +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:5px;line-height:1.5">Directive 2022/2464 dite CSRD, transposée par l’ordonnance n° 2023-1142 du 6 décembre 2023. Le périmètre et le calendrier dépendent de la taille, du statut et de la cotation de la société.</div>'
+      +'</div>'
+      +((CNS.durabilite==='oui')?(
+         '<div class="fg"><label class="fl">À l’occasion de quelle consultation récurrente la durabilité est-elle traitée ? (choix de l’employeur)</label>'
+         + S('cns-duou',[{v:'strat',lib:'Orientations stratégiques'},{v:'eco',lib:'Situation économique et financière'},{v:'social',lib:'Politique sociale, conditions de travail et emploi'}], CNS.durabiliteOu||'', 'cnsSetSel(\'durabiliteOu\',\'cns-duou\')')
+         +'</div>'
+         +'<div class="fg"><label class="fl">La consultation sur la durabilité a-t-elle été menée ?</label>'
+         + S('cns-dufait',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui — avis rendu sur les informations et sur les moyens de les obtenir et de les vérifier'}], CNS.durabiliteFaite||'', 'cnsSetSel(\'durabiliteFaite\',\'cns-dufait\')')
+         +'</div>'):'');
   }
   h+='</div>';
 
