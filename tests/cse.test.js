@@ -45,8 +45,19 @@ function socRender(){} function goPage(){}
 var RX={staff:[],ent:{}};
 `;
 
+/* La lecture de l'effectif est partagee par tous les modules : elle doit
+   entrer dans le bac a sable, sinon chaque module tombe sur une fonction
+   absente au lieu d'etre reellement teste. */
+function effectifCommun() {
+  const i = SRC.indexOf('function cseEffectif()');
+  const j = SRC.indexOf('var BUD={};', i);
+  if (i < 0 || j < 0) throw new Error('lecture commune de l’effectif introuvable');
+  return SRC.slice(i, j);
+}
+
 const CODE = PRELUDE
   + bloc('var SOC = { idcc:', '   RENDU\n')
+  + effectifCommun()
   + bloc('var CSED = {};', 'function csedTableExos')
   + bloc('var MC={};', 'function mcOnEnter')
   + bloc('var CAL={};', 'function calOnEnter')
@@ -84,6 +95,7 @@ const ctx = {};
       cnsAnalyse:cnsAnalyse, cnsPeriodicite:cnsPeriodicite,
       hubAlertes:hubAlertes, hubEcheances:hubEcheances, hubClasseur:hubClasseur,
       hubTaches:hubTaches, hubIdTache:hubIdTache,
+      cseEffectif:cseEffectif, cseEffectifSaisi:cseEffectifSaisi,
       guideEtapes:guideEtapes, guidePlan:guidePlan,
       jxArticles:jxArticles, jxPremierePhrase:jxPremierePhrase
     };
@@ -178,6 +190,32 @@ test('seuil de 50 : les consultations recurrentes ne s’appliquent qu’a parti
   assert(contient(ctx.cnsAnalyse().alertes, /Moins de cinquante/), '49 : les consultations ne s’appliquent pas');
   entreprise(50);
   assert(!contient(ctx.cnsAnalyse().alertes, /Moins de cinquante/), '50 : les consultations s’appliquent');
+});
+
+/* Un registre vide n'est pas une entreprise de zero salarie. Tant que rien
+   n'a ete saisi, aucun module ne doit placer l'entreprise sous un seuil :
+   il doit dire qu'il ne sait pas. */
+test('registre vide : l’effectif est inconnu, pas nul', () => {
+  entreprise(150);
+  ctx.RX = { staff: [], ent: {} };
+  ctx.CSED = Object.assign({}, ctx.CSED, { exercices: [] });
+  assert(ctx.cseEffectif() === null, 'aucune donnee : l’effectif vaut null, obtenu ' + ctx.cseEffectif());
+  assert(!contient(ctx.cnsAnalyse().alertes, /Moins de cinquante/),
+    'aucune donnee : le module ne declare pas l’entreprise sous cinquante');
+  assert(contient(ctx.cnsAnalyse().alertes, /inconnu|renseign/),
+    'aucune donnee : le module dit que l’effectif manque');
+});
+
+/* L'effectif saisi a la main pour un exercice fait foi quand le registre du
+   personnel n'est pas tenu : c'est la raison pour laquelle il est demande. */
+test('registre vide mais effectif saisi par exercice : c’est lui qui fait foi', () => {
+  entreprise(150);
+  ctx.RX = { staff: [], ent: {} };
+  ctx.CSED = Object.assign({}, ctx.CSED, { exercices: [
+    { cloture: '2024-12-31', ent: '40' },
+    { cloture: '2025-12-31', ent: '150' }
+  ] });
+  assert(ctx.cseEffectif() === 150, 'le dernier exercice clos fait foi, ici 150 — obtenu : ' + ctx.cseEffectif());
 });
 
 test('seuil de 300 : les commissions obligatoires', () => {

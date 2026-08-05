@@ -2,6 +2,7 @@
 
 ```
 node tests/cse.test.js            # règles CSE : seuils, barèmes, calculs
+node tests/budgets.test.js        # les budgets : des euros, au centime
 node tests/navigateur.test.js     # la page ouverte pour de vrai dans Chromium
 node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un autre
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
@@ -60,7 +61,26 @@ réelles :
 Playwright n'est pas une dépendance du projet. S'il est absent, le test le
 dit et sort en succès. Pour l'activer : `npm i playwright`.
 
-## 3. `cloisonnement.test.js` — un dossier ne déborde pas sur un autre
+## 3. `budgets.test.js` — des euros, au centime
+
+Ce module calcule de l'argent dû. Un taux appliqué au mauvais palier, un
+plafond de transfert mal arrondi, et ce sont des euros réclamés à tort ou
+jamais réclamés. Chaque assertion porte donc sur un montant, pas sur une
+phrase :
+
+- le taux à 49, 50, 1 999, **2 000** et 2 001 salariés — le seuil de
+  0,22 % s'applique **à** deux mille, pas au-delà ;
+- 0,20 % de 3 000 000 € = 6 000 € ; versé 5 000 € → il manque exactement
+  1 000 €, et ce montant doit apparaître dans l'alerte ;
+- l'effet de cliquet des activités sociales : 1,100 % en 2024, 1,000 % en
+  2025 → il faudrait 33 000 € ;
+- les plafonds de transfert : 10 % de l'excédent, dans les deux sens ;
+- le régime comptable à 153 000 € (seuil **inclus**), puis à deux des trois
+  seuils de L.2315-73 ;
+- et, en négatif : sans exercice précédent, aucun cliquet n'est supposé ;
+  ressources inconnues, aucun régime n'est affirmé.
+
+## 4. `cloisonnement.test.js` — un dossier ne déborde pas sur un autre
 
 C'est le test le plus important du lot, parce que le défaut qu'il garde était
 le plus grave : un cabinet ouvre plusieurs dossiers clients depuis le même
@@ -79,7 +99,7 @@ fiche **par l'application elle-même**, on se déconnecte, on revient en
 administrateur — rien du client ne doit subsister — puis on retourne dans le
 dossier client, qui doit tout retrouver intact.
 
-## 4. `integrite.py` — ce qui est mécaniquement vérifiable
+## 5. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`

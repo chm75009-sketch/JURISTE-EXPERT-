@@ -668,7 +668,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.113';
+var JX_BUILD = 'v2026-08-06.114';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -677,6 +677,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.114', d:'5 aout 2026', t:[
+   'NOUVEAU MODULE — LES BUDGETS DU COMITE. Deux budgets, deux logiques. Le fonctionnement a un taux fixe par la loi : le module calcule au centime ce qui est du (0,20 % de la masse salariale brute, 0,22 % a partir de deux mille salaries, L.2315-61) et affiche l\'ecart avec ce qui a ete verse. Les activites sociales n\'ont aucun taux legal : ce qui se controle, c\'est que leur part de la masse salariale ne baisse pas d\'une annee sur l\'autre (L.2312-81) — le module compare exercice par exercice et chiffre le rattrapage.',
+   'BUDGETS — plafonds de transfert entre les deux budgets (dix pour cent de l\'excedent annuel, R.2315-31-1 et L.2312-84), regime comptable determine sur les ressources reelles (153 000 € / expert-comptable / commissaire aux comptes selon L.2315-65, L.2315-67 et L.2315-73), et edition d\'un etat annuel des budgets a joindre a l\'arrete des comptes.',
+   'EFFECTIF — correction importante : un registre du personnel vide etait lu comme « zero salarie », et tous les modules du comite placaient alors l\'entreprise sous tous les seuils — « moins de onze salaries », « pas de budget ». Une absence de donnee n\'est pas une donnee : les modules disent maintenant que l\'effectif est inconnu. A defaut de registre tenu, c\'est l\'effectif saisi pour le dernier exercice clos qui fait foi.'
+ ]},
  {v:'v2026-08-06.113', d:'5 aout 2026', t:[
    'COMPTE ADMINISTRATEUR — le compte du cabinet n\'est pas le dossier d\'une entreprise cliente : aucune fiche client ne lui est plus proposee ni rattachee, et son en-tete indique desormais « Mode administrateur · tous secteurs » au lieu d\'une raison sociale et d\'une convention collective.',
    'PARAMETRAGE — la page indique sous quel compte la fiche affichee est enregistree, et un bouton permet de la retirer de ce compte seul : « Ce n\'est pas mon entreprise ». Les autres dossiers ouverts sur l\'appareil ne sont pas touches.'
@@ -2581,6 +2586,28 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 </div>
 
 
+<!-- ═══ CSE — LES BUDGETS ═══ -->
+<div id="pg-csebud" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Les budgets</div><div class="ts">Fonctionnement · activités sociales · transferts · comptes</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    Deux budgets, deux logiques. Le <b>fonctionnement</b> a un taux fixé par la loi : on peut donc
+    calculer au centime ce qui est dû, et voir ce qui manque. Les <b>activités sociales</b> n'ont
+    aucun taux légal — mais leur part ne peut pas baisser d'une année sur l'autre, et c'est cela
+    qui se contrôle. Saisissez un exercice : le module dit ce qui est dû, ce qui manque, ce qui
+    peut être transféré, et quels comptes doivent être tenus.
+  </div>
+</div>
+<div id="csebud-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{budOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
+
 <!-- ═══ MODULE VI — CSE ═══ -->
 <!-- ═══ MODULE CSE GLOBAL ═══ -->
 <div id="pg-csehub" class="page">
@@ -3544,6 +3571,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('csehub');closeMenu()"><span style="font-size:18px">🏛️</span><div><div style="font-size:13px;font-weight:600;color:#e8c97a">Mon espace CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">TOUT LE MODULE</span></div></div></div>
   <div class="mi" onclick="goPage('csecns');closeMenu()"><span style="font-size:18px">📈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Consultations récurrentes</div></div></div>
   <div class="mi" onclick="goPage('csercl');closeMenu()"><span style="font-size:18px">📝</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réclamations</div></div></div>
+  <div class="mi" onclick="goPage('csebud');closeMenu()"><span style="font-size:18px">💶</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Budgets du comité</div></div></div>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
@@ -6467,6 +6495,456 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
 
 
 
+/* ══════════════════════════════════════════════════════════════════════
+   CSE — LES BUDGETS  (etape 3.6)
+   Le fonctionnement a un taux legal : on calcule le du et l'ecart.
+   Les activites sociales n'en ont pas : on controle l'effet de cliquet.
+   Tout est saisi par exercice, parce qu'un taux se compare a l'annee
+   precedente et qu'un effectif franchi change le taux.
+   ══════════════════════════════════════════════════════════════════════ */
+/* L'effectif de l'entreprise, pour tous les modules du comite.
+   Renvoie null tant qu'aucune donnee n'a ete saisie : un registre vide
+   signifie « on ne sait pas », jamais « zero salarie ». La difference
+   compte, parce que zero place l'entreprise sous tous les seuils. */
+function cseEffectif(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    /* 1. Le registre du personnel, quand il est tenu : c'est le calcul le
+          plus exact, mois par mois, exclusions de L.1111-3 comprises. */
+    var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
+    if(st.length && typeof socSerie==='function'){
+      var s=socSerie(36); if(s.length) return s[s.length-1].ent;
+    }
+    /* 2. A defaut, l'effectif saisi a la main pour le dernier exercice
+          clos : c'est precisement pourquoi cette saisie est demandee. */
+    var m=cseEffectifSaisi(); if(m!==null) return m;
+    return null;
+  }catch(e){ return null; }
+}
+/* Le dernier effectif d'entreprise saisi par exercice, s'il y en a un. */
+function cseEffectifSaisi(){
+  try{
+    /* On ne recharge depuis le stockage que si rien n'est encore en memoire :
+       relire systematiquement ecraserait une saisie plus recente. */
+    if(typeof CSED==='undefined' || !CSED || !Array.isArray(CSED.exercices)){
+      if(typeof csedLoad==='function') csedLoad();
+    }
+    var L=(typeof CSED!=='undefined' && Array.isArray(CSED.exercices))?CSED.exercices:[];
+    var best=null, bestDate='';
+    L.forEach(function(e){
+      var v=String(e.ent||'').trim(); if(v==='') return;
+      var n=parseInt(v.replace(/[^0-9]/g,''),10); if(!isFinite(n)) return;
+      var c=String(e.cloture||'');
+      if(best===null || c>bestDate){ best=n; bestDate=c; }
+    });
+    return best;
+  }catch(e){ return null; }
+}
+
+var BUD={};
+var BUD_LS='cse_budgets_v1';
+function budKey(){ return BUD_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function budLoad(){ try{ BUD=JSON.parse(localStorage.getItem(budKey())||'{}')||{}; }catch(e){ BUD={}; } if(!Array.isArray(BUD.exos)) BUD.exos=[]; }
+function budSave(){ try{ localStorage.setItem(budKey(), JSON.stringify(BUD)); }catch(e){} }
+function budEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function budNum(v){ var n=parseFloat(String(v==null?'':v).replace(/\s/g,'').replace(',','.')); return isFinite(n)?n:null; }
+function budEur(n){
+  if(n===null||n===undefined||!isFinite(n)) return '—';
+  return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+}
+function budPct(n){
+  if(n===null||n===undefined||!isFinite(n)) return '—';
+  return n.toLocaleString('fr-FR',{minimumFractionDigits:3,maximumFractionDigits:3})+' %';
+}
+function budAnnee(){ return new Date().getFullYear(); }
+
+/* L'effectif de l'entreprise, tel que le socle l'a calcule. */
+function budEff(){ return cseEffectif(); }
+
+/* ══════════ LE TAUX LEGAL DU BUDGET DE FONCTIONNEMENT ══════════
+   L.2315-61 : 0,20 % de la masse salariale brute, porte a 0,22 % dans les
+   entreprises d'au moins deux mille salaries. En dessous de cinquante
+   salaries, le comite n'a pas de budget : l'article ne s'applique pas. */
+function budTaux(eff){
+  if(eff===null) return null;
+  if(eff<50) return {taux:null, code:'aucun', lib:'Moins de cinquante salariés — le comité n’a pas de budget propre', art:'L.2315-61'};
+  if(eff<2000) return {taux:0.20, code:'20', lib:'Cinquante à moins de deux mille salariés — 0,20 % de la masse salariale brute', art:'L.2315-61'};
+  return {taux:0.22, code:'22', lib:'Deux mille salariés et plus — 0,22 % de la masse salariale brute', art:'L.2315-61'};
+}
+
+/* ══════════ LES EXERCICES ══════════ */
+function budExos(){ if(!Array.isArray(BUD.exos)) BUD.exos=[]; return BUD.exos; }
+function budExoVide(an){
+  return { an:an, masse:'', fonctVerse:'', ascVerse:'', ressources:'', bilan:'',
+           excFonct:'', excAsc:'', transFonctAsc:'', transAscFonct:'' };
+}
+function budAdd(){
+  var L=budExos();
+  var an=budAnnee();
+  while(L.some(function(x){ return String(x.an)===String(an); })) an--;
+  L.push(budExoVide(an));
+  L.sort(function(a,b){ return Number(b.an)-Number(a.an); });
+  budSave(); budRender();
+}
+function budDel(i){
+  if(!confirm('Retirer cet exercice ?')) return;
+  budExos().splice(i,1); budSave(); budRender();
+}
+function budEdit(i,k,v){ var e=budExos()[i]; if(!e) return; e[k]=v; budSave(); budRender(); }
+function budEditQ(i,k,v){ var e=budExos()[i]; if(!e) return; e[k]=v; budSave(); }
+function budSet(k,v){ BUD[k]=v; budSave(); budRender(); }
+
+/* L'exercice le plus recent saisi, et celui qui le precede. */
+function budCourant(){ var L=budExos(); return L.length? L[0] : null; }
+function budPrecedent(){ var L=budExos(); return L.length>1? L[1] : null; }
+
+/* ══════════ LES CHOIX A MENU ══════════ */
+var BUD_VERSEMENT=[
+  {v:'mensuel',     lib:'Chaque mois'},
+  {v:'trimestriel', lib:'Chaque trimestre'},
+  {v:'annuel',      lib:'Une fois par an'},
+  {v:'irregulier',  lib:'Sans périodicité fixe — à la demande'},
+  {v:'aucun',       lib:'Aucun versement à ce jour'},
+  {v:'autre',       lib:'Autre'}
+];
+var BUD_SOURCE_ASC=[
+  {v:'accord',      lib:'Un accord d’entreprise fixe la contribution'},
+  {v:'usage',       lib:'Un usage constant, sans accord écrit'},
+  {v:'unilat',      lib:'Une décision unilatérale de l’employeur'},
+  {v:'rien',        lib:'Rien de formalisé'},
+  {v:'autre',       lib:'Autre'}
+];
+var BUD_COMPTA=[
+  {v:'tresorier',   lib:'Le trésorier seul, sur un livre de recettes et dépenses'},
+  {v:'expert',      lib:'Un expert-comptable'},
+  {v:'cac',         lib:'Un commissaire aux comptes, distinct de celui de l’entreprise'},
+  {v:'aucune',      lib:'Aucune comptabilité tenue à ce jour'},
+  {v:'autre',       lib:'Autre'}
+];
+
+/* ══════════ LE REGIME COMPTABLE ══════════
+   Trois etages, selon les ressources annuelles du comite puis selon deux des
+   trois seuils de L.2315-73. */
+var BUD_SEUIL_PETIT=153000;
+var BUD_SEUILS_GRAND={ salaries:50, ressources:3100000, bilan:1550000 };
+function budRegimeCompta(ressources, eff, bilan){
+  if(ressources===null) return null;
+  if(ressources<=BUD_SEUIL_PETIT){
+    return {code:'ultra', lib:'Comptabilité ultra-simplifiée',
+      det:'Un livre chronologique des recettes et des dépenses, et un état de synthèse annuel simplifié.',
+      art:'L.2315-65', exige:'tresorier'};
+  }
+  var n=0;
+  if(eff!==null && eff>=BUD_SEUILS_GRAND.salaries) n++;
+  if(ressources>BUD_SEUILS_GRAND.ressources) n++;
+  if(bilan!==null && bilan>BUD_SEUILS_GRAND.bilan) n++;
+  if(n>=2){
+    return {code:'grand', lib:'Comptes annuels complets et commissaire aux comptes',
+      det:'Deux des trois seuils sont dépassés (cinquante salariés, 3,1 M€ de ressources, 1,55 M€ de bilan) : les comptes sont complets et certifiés par un commissaire aux comptes distinct de celui de l’entreprise.',
+      art:'L.2315-73', exige:'cac', seuils:n};
+  }
+  return {code:'moyen', lib:'Comptes annuels simplifiés et expert-comptable',
+    det:'Au-delà de 153 000 € de ressources, les comptes sont établis de façon simplifiée et le recours à un expert-comptable est obligatoire ; sa rémunération est prise sur le budget de fonctionnement.',
+    art:'L.2315-67', exige:'expert', seuils:n};
+}
+
+/* ══════════ LE CALCUL D'UN EXERCICE ══════════ */
+function budCalcul(e, eff, prec){
+  if(!e) return null;
+  var t=budTaux(eff);
+  var masse=budNum(e.masse), verse=budNum(e.fonctVerse), asc=budNum(e.ascVerse);
+  var r={ an:e.an, masse:masse, taux:t, verse:verse, asc:asc };
+
+  /* Fonctionnement : le du se calcule, l'ecart aussi. */
+  if(t && t.taux!==null && masse!==null){
+    r.du=masse*t.taux/100;
+    if(verse!==null){ r.ecart=verse-r.du; }
+  }
+
+  /* Activites sociales : pas de taux legal, mais un rapport qui ne peut pas
+     baisser. On le compare a celui de l'exercice precedent (L.2312-81). */
+  if(masse!==null && masse>0 && asc!==null) r.ratio=asc*100/masse;
+  if(prec){
+    var mp=budNum(prec.masse), ap=budNum(prec.ascVerse);
+    if(mp!==null && mp>0 && ap!==null){
+      r.ratioPrec=ap*100/mp;
+      r.anPrec=prec.an;
+      if(masse!==null) r.ascMini=masse*r.ratioPrec/100;
+      if(r.ratio!==undefined && r.ratio!==null) r.ecartAsc=r.ratio-r.ratioPrec;
+    }
+  }
+
+  /* Transferts : dix pour cent de l'excedent annuel, dans les deux sens. */
+  var xf=budNum(e.excFonct), xa=budNum(e.excAsc);
+  if(xf!==null && xf>0) r.plafondFA=xf*0.10;
+  if(xa!==null && xa>0) r.plafondAF=xa*0.10;
+  r.faitFA=budNum(e.transFonctAsc);
+  r.faitAF=budNum(e.transAscFonct);
+
+  /* Regime comptable. */
+  var res=budNum(e.ressources);
+  if(res===null && r.du!==undefined && asc!==null) res=r.du+asc;   // estimation lisible, annoncee comme telle
+  r.ressources=res; r.ressourcesEstimee=(budNum(e.ressources)===null && res!==null);
+  r.compta=budRegimeCompta(res, eff, budNum(e.bilan));
+  return r;
+}
+
+/* ══════════ L'ANALYSE ══════════ */
+function budAnalyse(){
+  budLoad();
+  var A=[], eff=budEff(), t=budTaux(eff), L=budExos();
+  var e=budCourant(), prec=budPrecedent();
+  var c=budCalcul(e, eff, prec);
+
+  if(eff===null){
+    A.push({gravite:'question', titre:'Effectif inconnu',
+      texte:'Le taux du budget de fonctionnement dépend de l’effectif : 0,20 % en dessous de deux mille salariés, 0,22 % au-delà. Renseignez le socle pour que le calcul soit exact.'});
+    return {alertes:A, eff:eff, taux:t, exos:L, c:c};
+  }
+
+  if(t.code==='aucun'){
+    A.push({gravite:'info', titre:t.lib,
+      texte:'En dessous de cinquante salariés, la loi ne prévoit ni subvention de fonctionnement ni contribution aux activités sociales et culturelles. Un accord ou un usage peut en instituer une : dans ce cas, c’est cet accord qui fait la règle, et non l’article L.2315-61.'});
+    return {alertes:A, eff:eff, taux:t, exos:L, c:c};
+  }
+
+  if(!L.length){
+    A.push({gravite:'question', titre:'Aucun exercice saisi',
+      texte:'Ajoutez au moins un exercice avec sa masse salariale brute : sans elle, aucun des deux budgets ne peut être vérifié.'});
+    return {alertes:A, eff:eff, taux:t, exos:L, c:c};
+  }
+
+  /* ── Le budget de fonctionnement ── */
+  if(c && c.masse===null){
+    A.push({gravite:'question', titre:'Masse salariale de '+e.an+' non renseignée',
+      texte:'C’est l’assiette des deux budgets. Il s’agit des gains et rémunérations soumis à cotisations de sécurité sociale, à l’exclusion des indemnités versées à l’occasion de la rupture d’un contrat à durée indéterminée.'});
+  } else if(c && c.du!==undefined){
+    if(c.verse===null){
+      A.push({gravite:'question', titre:'Subvention de fonctionnement de '+e.an+' : montant versé inconnu',
+        texte:'Le dû s’élève à '+budEur(c.du)+' ('+budPct(t.taux)+' de '+budEur(c.masse)+'). Indiquez ce qui a réellement été versé pour voir l’écart.'});
+    } else if(c.ecart < -0.005){
+      A.push({gravite:'stop', titre:'Subvention de fonctionnement incomplète : il manque '+budEur(-c.ecart),
+        texte:'L’employeur doit verser '+budEur(c.du)+' au titre de '+e.an+' ('+budPct(t.taux)+' de la masse salariale brute). '+budEur(c.verse)+' ont été versés. Le solde est dû, et son versement peut être réclamé.'});
+    } else {
+      A.push({gravite:'info', titre:'Subvention de fonctionnement de '+e.an+' : à jour',
+        texte:'Dû '+budEur(c.du)+', versé '+budEur(c.verse)+(c.ecart>0.005?(' — soit '+budEur(c.ecart)+' de plus que le minimum légal.'):'.')});
+    }
+  }
+
+  /* ── Les activités sociales et culturelles ── */
+  if(c && c.ratioPrec===undefined){
+    A.push({gravite:'question', titre:'Activités sociales : aucun point de comparaison',
+      texte:'La contribution n’a pas de taux légal. Ce qui se contrôle, c’est que son rapport à la masse salariale ne baisse pas d’une année sur l’autre. Saisissez l’exercice précédent — masse salariale et contribution — pour que ce contrôle soit possible.'});
+  } else if(c && c.ecartAsc!==undefined && c.ecartAsc!==null){
+    if(c.ecartAsc < -0.0005){
+      A.push({gravite:'stop', titre:'Activités sociales : la part a baissé par rapport à '+c.anPrec,
+        texte:'En '+c.anPrec+', la contribution représentait '+budPct(c.ratioPrec)+' de la masse salariale ; en '+e.an+', '+budPct(c.ratio)+'. Ce rapport ne peut pas diminuer. Au taux de l’année précédente, la contribution de '+e.an+' devrait atteindre '+budEur(c.ascMini)+', soit '+budEur(c.ascMini-c.asc)+' de plus.'});
+    } else {
+      A.push({gravite:'info', titre:'Activités sociales : la part est maintenue',
+        texte:c.anPrec+' : '+budPct(c.ratioPrec)+' · '+e.an+' : '+budPct(c.ratio)+'.'});
+    }
+  }
+
+  if(BUD.sourceAsc==='rien'){
+    A.push({gravite:'question', titre:'Contribution aux activités sociales sans support écrit',
+      texte:'Ni accord, ni usage identifié, ni décision unilatérale : le montant repose alors sur la seule pratique. Le rapport de l’année précédente reste la référence, mais il devient difficile à établir. Un accord d’entreprise sécurise le montant et sa révision.'});
+  }
+
+  /* ── Les transferts ── */
+  if(c && c.faitFA!==null && c.faitFA>0){
+    if(c.plafondFA===undefined || c.plafondFA===null){
+      A.push({gravite:'question', titre:'Transfert vers les activités sociales sans excédent connu',
+        texte:'Le transfert se calcule sur l’excédent annuel du budget de fonctionnement. Renseignez cet excédent pour vérifier le plafond de dix pour cent.'});
+    } else if(c.faitFA > c.plafondFA + 0.005){
+      A.push({gravite:'stop', titre:'Transfert vers les activités sociales au-delà du plafond',
+        texte:'L’excédent de fonctionnement de '+e.an+' s’élève à '+budEur(budNum(e.excFonct))+' : le transfert ne peut pas dépasser '+budEur(c.plafondFA)+'. '+budEur(c.faitFA)+' ont été transférés.'});
+    }
+  }
+  if(c && c.faitAF!==null && c.faitAF>0){
+    if(c.plafondAF===undefined || c.plafondAF===null){
+      A.push({gravite:'question', titre:'Transfert vers le fonctionnement sans excédent connu',
+        texte:'Renseignez l’excédent annuel des activités sociales pour vérifier le plafond de dix pour cent.'});
+    } else if(c.faitAF > c.plafondAF + 0.005){
+      A.push({gravite:'stop', titre:'Transfert vers le fonctionnement au-delà du plafond',
+        texte:'L’excédent des activités sociales de '+e.an+' s’élève à '+budEur(budNum(e.excAsc))+' : le transfert ne peut pas dépasser '+budEur(c.plafondAF)+'. '+budEur(c.faitAF)+' ont été transférés.'});
+    }
+  }
+
+  /* ── La comptabilité ── */
+  if(c && c.compta){
+    var cc=c.compta, tenue=BUD.compta||'';
+    if(tenue==='aucune'){
+      A.push({gravite:'stop', titre:'Aucune comptabilité tenue',
+        texte:'Le comité a la personnalité civile : il doit tenir des comptes, les faire arrêter par son trésorier, les faire approuver en séance plénière dédiée et les porter à la connaissance des salariés. Régime applicable ici : '+cc.lib.toLowerCase()+'.'});
+    } else if(cc.exige==='cac' && tenue && tenue!=='cac' && tenue!=='autre'){
+      A.push({gravite:'stop', titre:'Un commissaire aux comptes est requis',
+        texte:cc.det+' La comptabilité déclarée — '+budLib(BUD_COMPTA,tenue).toLowerCase()+' — ne suffit pas.'});
+    } else if(cc.exige==='expert' && (tenue==='tresorier')){
+      A.push({gravite:'stop', titre:'Un expert-comptable est requis',
+        texte:cc.det+' Le trésorier seul ne suffit plus à ce niveau de ressources.'});
+    } else {
+      A.push({gravite:'info', titre:'Régime comptable : '+cc.lib, texte:cc.det});
+    }
+    if(c.ressourcesEstimee){
+      A.push({gravite:'question', titre:'Ressources annuelles estimées',
+        texte:'Faute de montant saisi, les ressources ont été estimées en additionnant la subvention de fonctionnement due et la contribution aux activités sociales. Le régime comptable se détermine sur les ressources réelles : saisissez-les.'});
+    }
+  }
+
+  return {alertes:A, eff:eff, taux:t, exos:L, c:c, prec:prec};
+}
+
+function budLib(tab,v){ var o=null; tab.forEach(function(x){ if(x.v===v) o=x; }); return o?o.lib:''; }
+
+/* ══════════ L'AFFICHAGE ══════════ */
+function budOnEnter(){ budLoad(); budRender(); }
+function budRender(){
+  var host=document.getElementById('csebud-body'); if(!host) return;
+  var R=budAnalyse(), h='';
+
+  /* Ce que dit la loi, en une carte */
+  h+='<div class="card"><div class="ct">Où vous en êtes</div>';
+  if(R.eff===null) h+='<div style="font-size:13px;color:#e8c97a">Effectif inconnu — renseignez le socle.</div>';
+  else h+='<div style="font-size:13.5px;color:#e8e4d8;line-height:1.7">Effectif retenu : <b>'+R.eff+'</b> salarié(s). '+budEsc(R.taux.lib)+'.'
+       +'<div style="font-size:11px;color:#9a9585;margin-top:5px">'+budEsc(R.taux.art)+'</div></div>';
+  h+='</div>';
+
+  /* Les alertes */
+  if(R.alertes.length){
+    h+='<div class="card"><div class="ct">Ce que cela donne</div>';
+    R.alertes.forEach(function(a){
+      var col=(a.gravite==='stop')?'#e05c5c':(a.gravite==='question')?'#d6a842':'#3f9b7a';
+      h+='<div style="border-left:3px solid '+col+';padding:8px 0 8px 11px;margin-bottom:10px">'
+        +'<div style="font-size:13.5px;font-weight:700;color:#fff;margin-bottom:3px">'+budEsc(a.titre)+'</div>'
+        +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.65">'+budEsc(a.texte)+'</div></div>';
+    });
+    h+='</div>';
+  }
+
+  /* Le cadre general : trois menus deroulants */
+  h+='<div class="card"><div class="ct">Comment c’est organisé chez vous</div>';
+  h+=budSelect('Rythme de versement des budgets par l’employeur', BUD_VERSEMENT, BUD.versement||'', 'versement');
+  h+=budSelect('Ce qui fonde la contribution aux activités sociales', BUD_SOURCE_ASC, BUD.sourceAsc||'', 'sourceAsc');
+  h+=budSelect('Qui tient les comptes du comité', BUD_COMPTA, BUD.compta||'', 'compta');
+  h+='<div style="font-size:11.5px;color:#9a9585;margin-top:6px;line-height:1.6">Aucune périodicité de versement n’est fixée par la loi : elle relève de l’accord ou de l’usage. Ce que la loi impose, c’est le montant annuel.</div>';
+  h+='</div>';
+
+  /* Les exercices */
+  h+='<div class="card"><div class="ct">Les exercices</div>';
+  h+='<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">La masse salariale brute correspond aux gains et rémunérations soumis à cotisations de sécurité sociale, <b>à l’exclusion des indemnités versées à l’occasion de la rupture d’un contrat à durée indéterminée</b> (Cass. soc. 7 février 2018, n° 16-24.231 et 16-16.086). L’assiette est la même pour les deux budgets.</div>';
+  if(!R.exos.length){
+    h+='<div style="font-size:13px;color:#9fb0c4;margin-bottom:10px">Aucun exercice saisi.</div>';
+  }
+  R.exos.forEach(function(e,i){
+    var cc=budCalcul(e, R.eff, R.exos[i+1]||null);
+    h+='<div style="border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:12px;margin-bottom:12px">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">'
+      +'<input value="'+budEsc(e.an)+'" onchange="budEdit('+i+',\'an\',this.value)" style="width:88px;font-weight:800;font-size:15px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:#12283b;color:#fff">'
+      +'<button onclick="budDel('+i+')" style="padding:6px 10px;border:1px solid #7a4a4a;border-radius:8px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:11.5px;cursor:pointer;font-family:inherit">Retirer</button></div>';
+    h+=budEuroChamp('Masse salariale brute', e.masse, i, 'masse');
+    h+=budEuroChamp('Subvention de fonctionnement effectivement versée', e.fonctVerse, i, 'fonctVerse');
+    h+=budEuroChamp('Contribution aux activités sociales effectivement versée', e.ascVerse, i, 'ascVerse');
+    if(cc && cc.du!==undefined){
+      var col=(cc.ecart!==undefined && cc.ecart<-0.005)?'#e05c5c':'#3f9b7a';
+      h+='<div style="background:rgba(255,255,255,.04);border-radius:9px;padding:10px;margin:8px 0;font-size:12.5px;line-height:1.8;color:#e8e4d8">'
+        +'Dû au titre du fonctionnement : <b>'+budEur(cc.du)+'</b> <span style="color:#9a9585">('+budPct(R.taux.taux)+' de '+budEur(cc.masse)+')</span>';
+      if(cc.ecart!==undefined) h+='<br>Écart avec le versé : <b style="color:'+col+'">'+(cc.ecart<0?('il manque '+budEur(-cc.ecart)):(cc.ecart>0.005?('+ '+budEur(cc.ecart)):'aucun'))+'</b>';
+      if(cc.ratio!==undefined && cc.ratio!==null) h+='<br>Part des activités sociales : <b>'+budPct(cc.ratio)+'</b>'+((cc.ratioPrec!==undefined)?(' <span style="color:#9a9585">('+cc.anPrec+' : '+budPct(cc.ratioPrec)+')</span>'):'');
+      h+='</div>';
+    }
+    h+='<details style="margin-top:6px"><summary style="cursor:pointer;font-size:12.5px;color:#e8c97a">Excédents, transferts et comptes</summary><div style="padding-top:8px">';
+    h+=budEuroChamp('Excédent annuel du budget de fonctionnement', e.excFonct, i, 'excFonct');
+    h+=budEuroChamp('Montant transféré vers les activités sociales', e.transFonctAsc, i, 'transFonctAsc');
+    if(cc && cc.plafondFA!==undefined && cc.plafondFA!==null) h+='<div style="font-size:11.5px;color:#9a9585;margin:-4px 0 8px">Plafond : '+budEur(cc.plafondFA)+' — dix pour cent de l’excédent (R.2315-31-1).</div>';
+    h+=budEuroChamp('Excédent annuel des activités sociales', e.excAsc, i, 'excAsc');
+    h+=budEuroChamp('Montant transféré vers le fonctionnement ou vers des associations', e.transAscFonct, i, 'transAscFonct');
+    if(cc && cc.plafondAF!==undefined && cc.plafondAF!==null) h+='<div style="font-size:11.5px;color:#9a9585;margin:-4px 0 8px">Plafond : '+budEur(cc.plafondAF)+' — dix pour cent de l’excédent (L.2312-84).</div>';
+    h+=budEuroChamp('Ressources annuelles totales du comité', e.ressources, i, 'ressources');
+    h+=budEuroChamp('Total du bilan du comité', e.bilan, i, 'bilan');
+    if(cc && cc.compta) h+='<div style="font-size:12px;color:#cfc8b8;line-height:1.7;margin-top:6px"><b>'+budEsc(cc.compta.lib)+'</b> — '+budEsc(cc.compta.det)+' <span style="color:#9a9585">('+budEsc(cc.compta.art)+')</span></div>';
+    h+='</div></details>';
+    h+='</div>';
+  });
+  h+='<button onclick="budAdd()" style="padding:11px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit">+ Ajouter un exercice</button>';
+  h+='</div>';
+
+  /* Le document */
+  h+='<div class="card"><div class="ct">Le document</div>'
+    +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.7;margin-bottom:10px">L’état annuel des budgets récapitule ce qui est dû, ce qui a été versé, les transferts et le régime comptable. Il accompagne l’arrêté des comptes et le rapport de gestion, présentés en séance plénière dédiée (L.2315-68 · L.2315-69).</div>'
+    +'<button onclick="budDoc()" style="padding:11px 16px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Éditer l’état annuel des budgets</button></div>';
+
+  /* Ce qu'il faut retenir */
+  h+='<div class="card"><div class="ct">Ce qu’il faut retenir</div>'
+    +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.9">'
+    +'• Le <b>fonctionnement</b> a un taux légal : 0,20 %, ou 0,22 % à partir de deux mille salariés (L.2315-61).<br>'
+    +'• Les <b>activités sociales</b> n’en ont pas ; leur part de la masse salariale ne peut pas baisser d’une année sur l’autre (L.2312-81).<br>'
+    +'• L’<b>assiette</b> est la même pour les deux : gains soumis à cotisations, hors indemnités de rupture du contrat à durée indéterminée.<br>'
+    +'• Un <b>transfert</b> d’un budget à l’autre est possible dans la limite de dix pour cent de l’excédent annuel (R.2315-31-1 · L.2312-84).<br>'
+    +'• Les <b>pièces</b> se conservent dix ans. En fin d’activité, les biens du comité sont dévolus à un autre comité ou à une institution d’intérêt général, <b>jamais partagés entre les salariés</b> (L.2312-83).'
+    +'</div></div>';
+
+  host.innerHTML=h;
+}
+
+function budEuroChamp(lib, val, i, k){
+  return '<div class="fg"><label class="fl">'+budEsc(lib)+' (€)</label>'
+    +'<input type="text" inputmode="decimal" value="'+budEsc(val)+'" placeholder="—" '
+    +'oninput="budEditQ('+i+',\''+k+'\',this.value)" onchange="budEdit('+i+',\''+k+'\',this.value)"></div>';
+}
+function budSelect(lib, tab, val, cle){
+  var h='<div class="fg"><label class="fl">'+budEsc(lib)+'</label>'
+    +'<select onchange="budSet(\''+cle+'\',this.value)">'
+    +'<option value=""'+(val===''?' selected':'')+'>— à préciser —</option>';
+  tab.forEach(function(o){ h+='<option value="'+o.v+'"'+(val===o.v?' selected':'')+'>'+budEsc(o.lib)+'</option>'; });
+  h+='</select>';
+  if(val==='autre') h+='<input value="'+budEsc(BUD[cle+'Autre']||'')+'" placeholder="Précisez" onchange="budSet(\''+cle+'Autre\',this.value)" style="margin-top:6px">';
+  return h+'</div>';
+}
+
+/* ══════════ L'ETAT ANNUEL DES BUDGETS ══════════ */
+function budDoc(){
+  var R=budAnalyse();
+  if(!R.exos.length){ alert('Ajoutez au moins un exercice.'); return; }
+  var ent={}; try{ ent=(typeof E!=='undefined'&&E)?E:{}; }catch(e){}
+  var S='font-family:Georgia,serif;font-size:11pt;line-height:1.55;color:#111';
+  var h='<div style="'+S+';max-width:19cm;margin:0 auto;padding:18px">';
+  h+='<h1 style="font-size:15pt;margin:0 0 4px">État annuel des budgets du comité social et économique</h1>';
+  h+='<p style="font-size:10pt;color:#444;margin:0 0 16px">'+budEsc(ent.nom||'[ENTREPRISE]')+(R.eff!==null?(' — effectif retenu : '+R.eff+' salarié(s)'):'')+'</p>';
+  R.exos.forEach(function(e,i){
+    var c=budCalcul(e, R.eff, R.exos[i+1]||null);
+    h+='<h2 style="font-size:12.5pt;margin:16px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px">Exercice '+budEsc(e.an)+'</h2>';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:10.5pt">';
+    var L=function(a,b){ h+='<tr><td style="padding:4px 6px;border-bottom:1px solid #eee">'+a+'</td><td style="padding:4px 6px;border-bottom:1px solid #eee;text-align:right"><b>'+b+'</b></td></tr>'; };
+    L('Masse salariale brute', budEur(c?c.masse:null));
+    if(c && c.du!==undefined){
+      L('Subvention de fonctionnement due ('+budPct(R.taux.taux)+' — L.2315-61)', budEur(c.du));
+      L('Subvention de fonctionnement versée', budEur(c.verse));
+      if(c.ecart!==undefined) L('Écart', (c.ecart<0? ('manque '+budEur(-c.ecart)) : budEur(c.ecart)));
+    }
+    L('Contribution aux activités sociales versée', budEur(c?c.asc:null));
+    if(c && c.ratio!==undefined && c.ratio!==null) L('Part de la masse salariale (L.2312-81)', budPct(c.ratio));
+    if(c && c.ratioPrec!==undefined) L('Part de l’exercice '+c.anPrec, budPct(c.ratioPrec));
+    if(c && c.faitFA) L('Transfert fonctionnement → activités sociales (plafond '+budEur(c.plafondFA)+')', budEur(c.faitFA));
+    if(c && c.faitAF) L('Transfert activités sociales → fonctionnement (plafond '+budEur(c.plafondAF)+')', budEur(c.faitAF));
+    if(c && c.compta) L('Régime comptable ('+budEsc(c.compta.art)+')', budEsc(c.compta.lib));
+    h+='</table>';
+  });
+  h+='<p style="font-size:9.5pt;color:#555;margin-top:20px;line-height:1.5">Établi par le trésorier du comité. Arrêté des comptes et rapport de gestion présentés en séance plénière dédiée (L.2315-68 · L.2315-69). Pièces conservées dix ans.</p>';
+  h+='<p style="margin-top:26px">Le trésorier du comité<br>_______________________</p>';
+  h+='</div>';
+  budImprimer(h);
+}
+function budImprimer(html){
+  try{
+    var w=window.open('','_blank');
+    if(!w){ alert('Autorisez les fenêtres pour éditer le document.'); return; }
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>État annuel des budgets</title></head><body>'+html+'</body></html>');
+    w.document.close();
+    setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
+  }catch(e){ alert('Impossible d’ouvrir le document : '+e.message); }
+}
+
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULE GLOBAL
    Un seul endroit qui couvre tout : on demande les informations
@@ -6506,9 +6984,7 @@ function hubReste(iso){
   if(n<=30) return '<b style="color:#e8c97a">dans '+n+' j</b>';
   return '<span style="color:#9fb0c4">dans '+n+' j</span>';
 }
-function hubEff(){
-  try{ if(typeof socSerie!=='function') return null; var s=socSerie(36); return s.length? s[s.length-1].ent : null; }catch(e){ return null; }
-}
+function hubEff(){ return cseEffectif(); }
 
 /* ══════════ CE QU'ON DEMANDE, ET RIEN DE PLUS ══════════
    Chaque reponse est ecrite directement dans le sous-module concerne :
@@ -6575,7 +7051,8 @@ var HUB_MODULES=[
   {k:'calendrier',    lib:'Calendrier des réunions', page:'csecal',  fn:function(){ return (typeof calAnalyse==='function')?calAnalyse():null; }},
   {k:'reunion',       lib:'Réunion en préparation',  page:'csereu',  fn:function(){ return (typeof reuAnalyse==='function')?reuAnalyse():null; }},
   {k:'reclamations',  lib:'Réclamations',            page:'csercl',  fn:function(){ return (typeof rclAnalyse==='function')?rclAnalyse():null; }},
-  {k:'consultations', lib:'Consultations récurrentes',page:'csecns', fn:function(){ return (typeof cnsAnalyse==='function')?cnsAnalyse():null; }}
+  {k:'consultations', lib:'Consultations récurrentes',page:'csecns', fn:function(){ return (typeof cnsAnalyse==='function')?cnsAnalyse():null; }},
+  {k:'budgets',       lib:'Budgets',                 page:'csebud',  fn:function(){ return (typeof budAnalyse==='function')?budAnalyse():null; }}
 ];
 function hubAlertes(){
   var out=[];
@@ -6740,7 +7217,7 @@ var HUB_SECTIONS=[
 ];
 /* Emoji par module : reperage visuel, jamais porteur de sens juridique. */
 var HUB_EMO={ 'Diagnostic':'🧭', 'Composition du comité':'👥', 'Calendrier des réunions':'📅',
-  'Réunion en préparation':'🗣️', 'Réclamations':'📝', 'Consultations récurrentes':'📈' };
+  'Réunion en préparation':'🗣️', 'Réclamations':'📝', 'Consultations récurrentes':'📈', 'Budgets':'💶' };
 
 function hubFait(id){ return (HUB.faites||{})[id]===true; }
 function hubToggleFait(id){
@@ -7735,12 +8212,7 @@ function cnsReste(iso){
   return ' <span style="color:#9fb0c4">— dans '+n+' jour(s)</span>';
 }
 function cnsEff(){
-  try{
-    if(typeof socLoad==='function') socLoad();
-    if(typeof rxLoad==='function') rxLoad();
-    if(typeof socSerie!=='function') return null;
-    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
-  }catch(e){ return null; }
+  return cseEffectif();
 }
 function cnsSet(k,v){ CNS[k]=v; cnsSave(); cnsRender(); }
 function cnsSetSel(k,id){ CNS[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; cnsSave(); cnsRender(); }
@@ -8048,12 +8520,7 @@ function rclMoinsOuvrables(iso,n){
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
 function rclEff(){
-  try{
-    if(typeof socLoad==='function') socLoad();
-    if(typeof rxLoad==='function') rxLoad();
-    if(typeof socSerie!=='function') return null;
-    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
-  }catch(e){ return null; }
+  return cseEffectif();
 }
 function rclSet(k,v){ RCL[k]=v; rclSave(); rclRender(); }
 
@@ -8361,12 +8828,7 @@ function reuSet(k,v){ REU[k]=v; reuSave(); reuRender(); }
 function reuSetQ(k,v){ REU[k]=v; reuSave(); }
 function reuSetSel(k,id){ REU[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; reuSave(); reuRender(); }
 function reuEff(){
-  try{
-    if(typeof socLoad==='function') socLoad();
-    if(typeof rxLoad==='function') rxLoad();
-    if(typeof socSerie!=='function') return null;
-    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
-  }catch(e){ return null; }
+  return cseEffectif();
 }
 /* Les elus viennent de « Mon CSE » : on ne redemande pas la composition. */
 function reuElus(){
@@ -8794,12 +9256,7 @@ function calPlusOuvrables(iso, n){
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
 function calEff(){
-  try{
-    if(typeof socLoad==='function') socLoad();
-    if(typeof rxLoad==='function') rxLoad();
-    if(typeof socSerie!=='function') return null;
-    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
-  }catch(e){ return null; }
+  return cseEffectif();
 }
 function calSet(k,v){ CAL[k]=v; calSave(); calRender(); }
 function calSetSel(k,id){ CAL[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; calSave(); calRender(); }
@@ -9136,15 +9593,7 @@ function mcBareme(eff){
   return {sieges:s,heures:h};
 }
 /* L'effectif vient du socle. On ne le redemande pas. */
-function mcEffectif(){
-  try{
-    if(typeof socLoad==='function') socLoad();
-    if(typeof rxLoad==='function') rxLoad();
-    if(typeof socSerie!=='function') return null;
-    var s=socSerie(36);
-    return s.length? s[s.length-1].ent : null;
-  }catch(e){ return null; }
-}
+function mcEffectif(){ return cseEffectif(); }
 function mcPlus(iso,j,mois,ans){
   if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
   if(ans) d.setFullYear(d.getFullYear()+ans);
