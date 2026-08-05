@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Élections CSE — module autonome</title>
+<meta name="description" content="Organisation des élections du comité social et économique : effectif, sièges, collèges, calendrier daté, documents.">
+<style>
+:root{--or:#c9a84c;--ink:#e8e4d8;--fond:#0b1420;--carte:#162639;--champ:#0f1b2c;--bord:#3a4a5f;--doux:#9fb0c4;--ok:#46b885;--warn:#e8c97a;--stop:#e05c5c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fond);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55}
+header{position:sticky;top:0;z-index:20;background:#101d2e;border-bottom:1px solid rgba(255,255,255,.08);padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 12px;display:flex;gap:10px;align-items:center}
+header .t{flex:1}
+header .t1{font-family:Georgia,serif;font-size:17px;color:#e8c97a}
+header .t2{font-size:11.5px;color:var(--doux)}
+header .b{font-size:10.5px;color:#6b7a8d;white-space:nowrap}
+.wrap{max-width:900px;margin:0 auto;padding:14px}
+.card{background:var(--carte);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px;margin-bottom:12px}
+.ct{font-family:Georgia,serif;font-size:15.5px;color:#e8c97a;margin-bottom:10px}
+.fg{margin-bottom:10px}
+.fl{display:block;font-size:12px;color:#9a9585;margin-bottom:5px;line-height:1.4}
+input,select,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid var(--bord);background:var(--champ);color:#fff;font-size:15px;font-family:inherit}
+textarea{resize:vertical;min-height:80px}
+.btn{width:100%;background:var(--or);color:#0f1f2e;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn2{background:#26374d;border:1px solid var(--bord);color:var(--ink);border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--bord);background:var(--carte);color:var(--ink);border-radius:9px;padding:9px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.tab.on{background:var(--or);border-color:var(--or);color:#000}
+.al{margin:8px 0;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.6}
+.al .h{font-weight:800;margin-bottom:3px}
+.al.stop{background:rgba(224,92,92,.12);border:1px solid var(--stop)}.al.stop .h{color:var(--stop)}
+.al.question{background:rgba(232,201,122,.10);border:1px solid var(--warn)}.al.question .h{color:var(--warn)}
+.al.info{background:rgba(111,168,220,.10);border:1px solid #6fa8dc}.al.info .h{color:#6fa8dc}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--doux);font-size:11.5px;padding:7px;font-weight:600}
+td{padding:7px;border-top:1px solid #263a52}
+.etape{padding:10px 12px;background:var(--champ);border:1px solid var(--bord);border-left:3px solid var(--or);border-radius:9px;margin-bottom:8px}
+.etape .q{font-size:13px;font-weight:800;color:#fff}
+.etape .d{font-size:12.5px;color:var(--warn);font-weight:700;margin:2px 0}
+.etape .x{font-size:12px;color:var(--doux);line-height:1.6}
+.etape .a{font-size:11.5px;color:#6b7a8d;margin-top:3px}
+.gros{font-size:40px;font-weight:800;color:#fff;line-height:1}
+.mini{font-size:12px;color:var(--doux)}
+.leg{font-size:11.5px;color:#6b7a8d;line-height:1.55;margin-top:8px}
+footer{padding:16px 14px 40px;font-size:11px;color:#6b6660;text-align:center;line-height:1.6}
+#doc{position:fixed;inset:0;background:#fff;color:#000;z-index:99;display:none;overflow:auto}
+#docbar{position:sticky;top:0;background:#1a1a1a;padding:10px;display:flex;gap:8px;align-items:center}
+#docbody{padding:22px;max-width:800px;margin:0 auto;font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.7}
+@media print{#docbar{display:none}#doc{position:static}}
+</style>
+</head>
+<body>
+<header>
+  <div style="font-size:20px">🗳️</div>
+  <div class="t"><div class="t1">Élections CSE</div><div class="t2">Effectif · sièges · collèges · calendrier · documents</div></div>
+  <div class="b" id="build"></div>
+</header>
+
+<div class="wrap">
+  <div class="card" style="border-color:var(--or)">
+    <div style="font-size:13px;color:var(--doux);line-height:1.7">
+      Module <b>autonome</b> : il fonctionne seul, ne dépend d'aucune autre application et
+      n'envoie rien sur Internet. Tout est enregistré sur cet appareil.
+      Ce qu'il ignore, il le demande — il ne comble jamais un blanc.
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="body"></div>
+</div>
+
+<footer>
+  Ne constitue pas un conseil juridique (loi n° 71-1130 du 31 décembre 1971).<br>
+  Vérifiez les textes en vigueur avant tout acte de procédure.
+</footer>
+
+<div id="doc">
+  <div id="docbar">
+    <button class="btn2" onclick="docFermer()">← Retour</button>
+    <div id="doctitre" style="flex:1;font-size:12px;color:#e8e4d8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+    <button class="btn2" onclick="docWord()" style="background:#2b579a;border-color:#2b579a;color:#fff">Word</button>
+    <button class="btn2" onclick="window.print()">Imprimer</button>
+  </div>
+  <div id="docbody"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   ÉLECTIONS CSE — MODULE AUTONOME
+   Aucune dépendance : ni réseau, ni bibliothèque, ni application hôte.
+   Les règles portent l'article qui les fonde. Rien n'est deviné : ce qui
+   manque est demandé, et l'absence est signalée plutôt que comblée.
+   ══════════════════════════════════════════════════════════════════ */
+var ELEC_BUILD='v2026-08-05.96';
+document.getElementById('build').textContent=ELEC_BUILD;
+
+var LS='elections_cse_v1';
+var D={};
+function load(){ try{ D=JSON.parse(localStorage.getItem(LS)||'{}')||{}; }catch(e){ D={}; } if(!Array.isArray(D.sal)) D.sal=[]; }
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(D)); }catch(e){ alert('Enregistrement impossible : '+e.message); } }
+function set(k,v){ D[k]=v; save(); render(); }
+function setQuiet(k,v){ D[k]=v; save(); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function fr(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function auj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function plus(iso,j,mois,ans){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  if(ans) d.setFullYear(d.getFullYear()+ans);
+  if(mois) d.setMonth(d.getMonth()+mois);
+  if(j) d.setDate(d.getDate()+j);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function jours(a,b){ if(!a||!b) return null; var x=new Date(a+'T00:00:00'), y=new Date(b+'T00:00:00'); if(isNaN(x)||isNaN(y)) return null; return Math.round((y-x)/86400000); }
+function reste(iso){
+  var n=jours(auj(), iso); if(n===null) return '';
+  if(n<0) return ' <b style="color:#e05c5c">— dépassée de '+(-n)+' jour(s)</b>';
+  if(n===0) return ' <b style="color:#e05c5c">— c\'est aujourd\'hui</b>';
+  if(n<=30) return ' <b style="color:#e8c97a">— dans '+n+' jour(s)</b>';
+  return ' <span style="color:#9fb0c4">— dans '+n+' jour(s)</span>';
+}
+
+/* ── Liste déroulante avec « Autre » ─────────────────────────────── */
+function sel(id, opts, val, onch){
+  val=(val==null?'':String(val));
+  var L=(opts||[]).map(function(o){ return (typeof o==='string')?{v:o,lib:o}:o; });
+  var dedans=L.some(function(o){ return o.v===val; });
+  var autre=(val!=='' && !dedans);
+  return '<select id="'+id+'" onchange="selAutre(\''+id+'\')'+(onch?(';'+onch):'')+'">'
+    +'<option value="">— choisir —</option>'
+    + L.map(function(o){ return '<option value="'+esc(o.v)+'"'+((!autre&&o.v===val)?' selected':'')+'>'+esc(o.lib)+'</option>'; }).join('')
+    +'<option value="__autre"'+(autre?' selected':'')+'>Autre — préciser</option></select>'
+    +'<input type="text" id="'+id+'-autre" placeholder="Précisez" value="'+(autre?esc(val):'')+'"'
+    +(onch?(' onchange="'+onch.replace(/"/g,'&quot;')+'"'):'')
+    +' style="margin-top:6px'+(autre?'':';display:none')+'">';
+}
+function selAutre(id){
+  var s=document.getElementById(id), t=document.getElementById(id+'-autre');
+  if(!s||!t) return;
+  var on=(s.value==='__autre'); t.style.display=on?'':'none';
+  if(on){ try{ t.focus(); }catch(e){} } else { t.value=''; }
+}
+function selVal(id){
+  var s=document.getElementById(id); if(!s) return '';
+  if(s.value==='__autre'){ var t=document.getElementById(id+'-autre'); return t?t.value.trim():''; }
+  return s.value;
+}
+function selSet(k,id){ D[k]=selVal(id); save(); render(); }
+
+/* ══════════ EFFECTIF — L.1111-2 et L.1111-3 ══════════ */
+var FAM={
+  cdi:     {lib:'CDI',                              regle:'compte',  art:'L.1111-2, 1°'},
+  domicile:{lib:'Travailleur à domicile',           regle:'compte',  art:'L.1111-2, 1°'},
+  cdd:     {lib:'CDD',                              regle:'prorata', art:'L.1111-2, 2°'},
+  interim: {lib:'Intérim / temporaire',             regle:'prorata', art:'L.1111-2, 2°'},
+  mad:     {lib:'Mis à disposition (ext.)',         regle:'prorata', art:'L.1111-2, 2°'},
+  interm:  {lib:'Travail intermittent',             regle:'prorata', art:'L.1111-2, 2°'},
+  appr:    {lib:'Apprenti',                         regle:'exclu',   art:'L.1111-3, 1°'},
+  cie:     {lib:'Contrat initiative-emploi',        regle:'exclu',   art:'L.1111-3, 2°'},
+  cae:     {lib:'Contrat d’accompagnement',    regle:'exclu',   art:'L.1111-3, 4°'},
+  pro:     {lib:'Contrat de professionnalisation',  regle:'exclu',   art:'L.1111-3, 6°'},
+  stage:   {lib:'Stagiaire',                        regle:'exclu',   art:'pas un contrat de travail'}
+};
+function duree(){ var v=parseFloat(D.duree); return (v&&v>0)?v:35; }
+/* Effectif à une date : CDI comptés pour un, CDD et intérim au prorata du
+   temps de présence sur les douze mois précédents, temps partiel au prorata
+   des heures du contrat, exclusions de L.1111-3. */
+function effectifAt(iso){
+  var Dt=new Date(iso+'T00:00:00'); if(isNaN(Dt)) return null;
+  var D0=new Date(Dt.getTime()); D0.setFullYear(D0.getFullYear()-1);
+  var fen=Math.round((Dt-D0)/86400000)||365;
+  var tot=0, lignes=[], manque=[];
+  (D.sal||[]).forEach(function(s,i){
+    var nom=(s.nom||'').trim()||('salarié n° '+(i+1));
+    if(!s.entree){ manque.push({nom:nom,quoi:'date d’entrée absente'}); return; }
+    if(!s.fam){ manque.push({nom:nom,quoi:'nature du contrat à préciser'}); return; }
+    var R=FAM[s.fam]; if(!R) return;
+    var deb=new Date(s.entree+'T00:00:00'), fin=s.sortie? new Date(s.sortie+'T00:00:00') : null;
+    if(deb>Dt) return;
+    if(fin && fin<=D0) return;
+    if(R.regle==='exclu'){ if(!fin||fin>Dt) lignes.push({nom:nom,val:0,art:R.art,exclu:true}); return; }
+    var h=parseFloat(s.h);
+    if(!(h>0)){ manque.push({nom:nom,quoi:'heures hebdomadaires à préciser'}); return; }
+    var q=Math.min(1, h/duree());
+    if(R.regle==='compte'){
+      if(fin && fin<=Dt) return;
+      tot+=q; lignes.push({nom:nom,val:q,art:R.art,det:(q<1?('quotité '+Math.round(q*100)+' %'):'temps plein')});
+      return;
+    }
+    if(s.rempl===true){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — remplacement',exclu:true}); return; }
+    if(s.rempl===undefined) manque.push({nom:nom,quoi:'remplace-t-il un salarié absent ?'});
+    var a=deb>D0?deb:D0, b=(fin&&fin<Dt)?fin:Dt;
+    var nj=Math.max(0, Math.round((b-a)/86400000));
+    var v=q*nj/fen; tot+=v;
+    lignes.push({nom:nom,val:v,art:R.art,det:nj+' j / '+fen+(q<1?(' · quotité '+Math.round(q*100)+' %'):'')});
+  });
+  lignes.sort(function(x,y){ return y.val-x.val; });
+  return {total:tot, retenu:Math.floor(tot+1e-9), lignes:lignes, manque:manque};
+}
+function serie(n){
+  var t=new Date(); t.setHours(0,0,0,0); var out=[];
+  for(var i=n-1;i>=0;i--){
+    var d=new Date(t.getFullYear(), t.getMonth()-i+1, 0);
+    var partiel=(d>t); if(partiel) d=new Date(t.getTime());
+    var iso=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+    var r=effectifAt(iso);
+    out.push({iso:iso, eff:r?r.total:0, ent:r?r.retenu:0, partiel:partiel});
+  }
+  return out;
+}
+function seuil(s, v){
+  var clos=s.filter(function(p){ return !p.partiel; });
+  var run=0, le=null;
+  for(var i=0;i<clos.length;i++){
+    if(clos[i].ent>=v){ run++; if(run===12 && !le) le=clos[i].iso; } else run=0;
+  }
+  return {atteintLe:le, run:run};
+}
+/* Effectif retenu : celui calculé si le registre est rempli, sinon celui
+   saisi à la main. On dit toujours lequel des deux a servi. */
+function effRetenu(){
+  if((D.sal||[]).length){
+    var r=effectifAt(auj());
+    return {v:r.retenu, exact:r.total, src:'calculé sur '+D.sal.length+' salarié(s)', manque:r.manque, serie:serie(36)};
+  }
+  var m=parseInt(D.effManuel||'',10);
+  if(!isNaN(m)) return {v:m, exact:m, src:'saisi à la main', manque:[], serie:null};
+  return {v:null, exact:null, src:'', manque:[], serie:null};
+}
+
+/* ══════════ SIÈGES ET HEURES — R.2314-1 ══════════ */
+function bareme(eff){
+  var s=0,h=0;
+  if(eff<11) return {sieges:0,heures:0};
+  else if(eff<=24){s=1;h=10;}   else if(eff<=49){s=2;h=10;}
+  else if(eff<=74){s=3;h=18;}   else if(eff<=99){s=4;h=19;}
+  else if(eff<=124){s=5;h=21;}  else if(eff<=149){s=6;h=21;}
+  else if(eff<=174){s=7;h=21;}  else if(eff<=199){s=8;h=21;}
+  else if(eff<=249){s=9;h=22;}  else if(eff<=299){s=10;h=22;}
+  else if(eff<=399){s=11;h=22;} else if(eff<=499){s=12;h=22;}
+  else if(eff<=599){s=13;h=24;} else if(eff<=699){s=14;h=24;}
+  else if(eff<=799){s=14;h=24;} else if(eff<=899){s=15;h=24;}
+  else if(eff<=999){s=16;h=24;} else if(eff<=1249){s=17;h=24;}
+  else if(eff<=1499){s=18;h=24;}else if(eff<=1749){s=20;h=26;}
+  else if(eff<=1999){s=21;h=26;}else if(eff<=2249){s=22;h=26;}
+  else if(eff<=2499){s=23;h=26;}else if(eff<=2999){s=24;h=26;}
+  else if(eff<=3499){s=25;h=26;}else if(eff<=3999){s=26;h=27;}
+  else if(eff<=4499){s=26;h=28;}else if(eff<=4999){s=27;h=28;}
+  else if(eff<=5499){s=28;h=28;}else if(eff<=5999){s=29;h=29;}
+  else if(eff<=6499){s=29;h=29;}else if(eff<=6999){s=30;h=29;}
+  else if(eff<=7499){s=31;h=30;}else if(eff<=7999){s=31;h=30;}
+  else if(eff<=8499){s=32;h=30;}else if(eff<=8999){s=32;h=31;}
+  else if(eff<=9499){s=33;h=31;}else if(eff<=9999){s=34;h=32;}
+  else {s=35;h=34;}
+  return {sieges:s,heures:h};
+}
+
+/* ══════════ ANALYSE ══════════ */
+function analyse(){
+  var A=[], R=[], E=effRetenu();
+  if(E.v===null){
+    A.push({g:'stop',t:'Effectif inconnu',x:'Rien ne peut être établi sans effectif. Saisissez-le à la main, ou renseignez la liste des salariés pour qu’il soit calculé.'});
+    return {A:A,R:R,E:E};
+  }
+  if(E.manque.length){
+    var u={}, L=[];
+    E.manque.forEach(function(m){ var k=m.nom+'|'+m.quoi; if(!u[k]){u[k]=1;L.push(m);} });
+    A.push({g:'question',t:L.length+' information(s) manquante(s) — l’effectif est incomplet',
+      x:L.slice(0,8).map(function(m){ return m.nom+' : '+m.quoi; }).join(' · ')+(L.length>8?(' … et '+(L.length-8)+' autre(s)'):'')});
+  }
+  /* Seuil des onze salariés */
+  if(E.serie){
+    var s11=seuil(E.serie,11);
+    if(s11.atteintLe){
+      A.push({g:'info',t:'Seuil de onze salariés franchi',x:'Douze mois consécutifs à onze salariés ou plus achevés le '+fr(s11.atteintLe)+' (L.2311-2).'});
+    } else {
+      A.push({g:'info',t:'Seuil de onze salariés non franchi',
+        x:'La série en cours compte '+s11.run+' mois sur les douze exigés. La mise en place n’est pas encore obligatoire (L.2311-2), mais le décompte se poursuit.'});
+    }
+  } else if(E.v>=11){
+    A.push({g:'question',t:'Durée du seuil non vérifiée',
+      x:'L’effectif saisi atteint onze salariés, mais l’obligation suppose douze mois consécutifs (L.2311-2). Renseignez la liste des salariés pour que cette condition soit vérifiée au lieu d’être supposée.'});
+  }
+  if(E.v<11){
+    A.push({g:'info',t:'Moins de onze salariés',x:'Aucune obligation de mettre en place un comité en dessous de onze salariés (L.2311-2).'});
+  }
+
+  /* Information du personnel : quatre-vingt-dix jours */
+  if(D.dateInfo){
+    var lim=plus(D.dateInfo,90);
+    R.push({d:lim,q:'Premier tour au plus tard',a:'L.2314-4',
+      x:'Information diffusée le '+fr(D.dateInfo)+' : le premier tour se tient au plus tard le quatre-vingt-dixième jour suivant.'});
+    if(jours(auj(),lim)<0) A.push({g:'stop',t:'Délai de quatre-vingt-dix jours dépassé',x:'Le premier tour devait se tenir au plus tard le '+fr(lim)+' (L.2314-4).'});
+    /* Invitation des organisations syndicales */
+    R.push({d:plus(D.dateInfo,0),q:'Inviter les organisations syndicales à négocier le protocole',a:'L.2314-5',
+      x:'L’invitation part en même temps que l’information du personnel. Les organisations représentatives dans l’entreprise sont invitées par courrier ; les autres, par voie d’affichage.'});
+    if(E.v>=11 && E.v<=20){
+      R.push({d:plus(D.dateInfo,30),q:'Fin du délai de trente jours pour les candidatures',a:'L.2314-5',
+        x:'Dans les entreprises de onze à vingt salariés, les organisations syndicales ne sont invitées à négocier le protocole qu’à la condition qu’au moins un salarié se soit porté candidat dans ce délai.'});
+      A.push({g:'question',t:'Onze à vingt salariés — la dispense a changé de portée',
+        x:'L’absence de candidature dans les trente jours dispense de négocier le protocole (L.2314-5), mais depuis le 8 août 2023 elle ne dispense plus d’organiser les élections : premier tour, puis second tour en cas de carence, et le procès-verbal mentionne les deux tours.'});
+    }
+  } else if(E.v>=11){
+    A.push({g:'question',t:'Information du personnel non datée',
+      x:'Indiquez la date à laquelle l’information a été diffusée, par tout moyen conférant date certaine (L.2314-4). Sans elle, aucune échéance ne peut être calculée.'});
+  }
+
+  /* Scrutin */
+  if(D.tour1){
+    R.push({d:D.tour1,q:'Premier tour',a:'L.2314-29',
+      x:'Le quorum s’apprécie sur les suffrages valablement exprimés : il est atteint si le nombre de votants est au moins égal à la moitié des inscrits.'});
+    R.push({d:plus(D.tour1,15),q:'Second tour, en cas de carence ou de quorum non atteint',a:'L.2314-29',
+      x:'Si le nombre des votants est inférieur à la moitié des électeurs inscrits, il est procédé dans un délai de quinze jours à un second tour, pour lequel les électeurs peuvent voter pour des listes autres que celles présentées par une organisation syndicale. Aucune condition de quorum ne s’applique alors.'});
+    R.push({d:plus(D.tour1,15),q:'Transmission du procès-verbal',a:'L.2314-9',
+      x:'En cas de carence, le procès-verbal est porté à la connaissance des salariés par tout moyen conférant date certaine et transmis dans les quinze jours à l’agent de contrôle de l’inspection du travail, qui en communique copie aux organisations syndicales du département.'});
+    R.push({d:plus(D.tour1,15),q:'Fin du délai de contestation',a:'R.2314-24',
+      x:'Toute contestation relative à l’élection est introduite dans les quinze jours. Le délai court à compter de la proclamation des résultats ou de la publication du procès-verbal de carence.'});
+    var t=parseInt(D.duMandat||'4',10)||4;
+    R.push({d:plus(D.tour1,0,0,t),q:'Terme des mandats',a:'L.2314-33',x:'Mandats de '+t+' ans. Un accord peut les fixer entre deux et quatre ans.'});
+    R.push({d:plus(plus(D.tour1,0,0,t),-90),q:'Information du personnel pour le renouvellement',a:'L.2314-4',
+      x:'Au plus tard quatre-vingt-dix jours avant le terme, pour que le premier tour se tienne dans les délais.'});
+  }
+
+  /* Quorum */
+  var ins=parseInt(D.inscrits||'',10), vot=parseInt(D.votants||'',10);
+  if(!isNaN(ins) && !isNaN(vot) && ins>0){
+    var atteint=(vot*2>=ins);
+    A.push({g:atteint?'info':'question', t:atteint?'Quorum atteint au premier tour':'Quorum non atteint au premier tour',
+      x:vot+' votants pour '+ins+' inscrits, soit '+((vot/ins*100).toFixed(1))+' %. '
+        +(atteint?'Les résultats du premier tour sont acquis ; un second tour n’est ouvert que pour les sièges restés à pourvoir.'
+                 :'Le nombre des votants est inférieur à la moitié des électeurs inscrits : il est procédé dans un délai de quinze jours à un second tour, pour lequel les électeurs peuvent voter pour des listes autres que celles présentées par une organisation syndicale (L.2314-29).')});
+  }
+
+  /* Sièges */
+  if(E.v>=11){
+    var b=bareme(E.v);
+    A.push({g:'info',t:'Sièges à pourvoir',
+      x:b.sieges+' titulaires et '+b.sieges+' suppléants, soit '+(b.sieges*2)+' candidats à présenter. Crédit de '+b.heures+' heures par titulaire et par mois, '+(b.sieges*b.heures)+' heures au total (R.2314-1).'});
+    if(E.v>=25) A.push({g:'info',t:'Deux collèges au moins',
+      x:'À partir de vingt-cinq salariés, le personnel est réparti en deux collèges : ouvriers et employés d’une part, techniciens, agents de maîtrise et cadres d’autre part. Un troisième collège est constitué lorsque le nombre de cadres est au moins égal à vingt-cinq (L.2314-11).'});
+  }
+
+  R.sort(function(a,b){ if(!a.d) return 1; if(!b.d) return -1; return a.d<b.d?-1:(a.d>b.d?1:0); });
+  var o={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return o[a.g]-o[b.g]; });
+  return {A:A,R:R,E:E};
+}
+function alHTML(A){
+  return (A||[]).map(function(a){
+    return '<div class="al '+a.g+'"><div class="h">'+(a.g==='stop'?'⛔':(a.g==='question'?'⚠':'ℹ'))+' '+esc(a.t)+'</div><div>'+esc(a.x)+'</div></div>';
+  }).join('');
+}
+
+/* ══════════ RENDU ══════════ */
+var ONGLETS=[['ent','🏢 Entreprise'],['eff','📐 Effectif'],['proc','📅 Procédure'],['docs','📄 Documents']];
+var T='ent';
+function go(t){ T=t; render(); }
+function render(){
+  document.getElementById('tabs').innerHTML=ONGLETS.map(function(o){
+    return '<button class="tab'+(T===o[0]?' on':'')+'" onclick="go(\''+o[0]+'\')">'+o[1]+'</button>';
+  }).join('');
+  var b=document.getElementById('body');
+  if(T==='ent') b.innerHTML=vueEnt();
+  else if(T==='eff') b.innerHTML=vueEff();
+  else if(T==='proc') b.innerHTML=vueProc();
+  else b.innerHTML=vueDocs();
+}
+
+function vueEnt(){
+  var f=function(lab,k,ph,type){
+    return '<div class="fg"><label class="fl">'+lab+'</label><input type="'+(type||'text')+'" value="'+esc(D[k]||'')+'" placeholder="'+esc(ph||'')+'" onchange="setQuiet(\''+k+'\',this.value)"></div>';
+  };
+  return '<div class="card"><div class="ct">L’entreprise</div>'
+   + f('Raison sociale','nom','Ex : Société TEC')
+   + f('SIRET','siret','')
+   + f('Adresse du siège','adresse','')
+   + f('Nom et qualité du représentant légal','dirigeant','Ex : M. DUPONT, gérant')
+   + f('Convention collective (IDCC et intitulé)','ccn','Ex : 16 — Transports routiers')
+   + '<div class="fg"><label class="fl">Durée du travail de référence (heures hebdomadaires)</label>'
+   + '<input type="number" step="0.5" value="'+esc(D.duree||35)+'" onchange="set(\'duree\',this.value)"></div>'
+   + '<div class="leg">Ces informations figureront sur les documents générés. Elles ne quittent pas cet appareil.</div>'
+   + '</div>';
+}
+
+function vueEff(){
+  var E=effRetenu();
+  var h='<div class="card"><div class="ct">Effectif</div>';
+  if(E.v===null){
+    h+='<div class="al question"><div class="h">⚠ Aucun effectif</div><div>Saisissez-le à la main ci-dessous, ou renseignez la liste des salariés pour qu’il soit calculé selon les articles L.1111-2 et L.1111-3.</div></div>';
+  } else {
+    h+='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">'
+      +'<div><div class="gros">'+E.v+'</div><div class="mini">salariés — '+esc(E.src)+'</div></div>'
+      +(E.exact!==E.v?'<div class="mini">calcul exact : '+E.exact.toFixed(2)+'</div>':'')
+      +'</div>';
+    var b=bareme(E.v);
+    if(b.sieges) h+='<div class="al info"><div class="h">ℹ Sièges — R.2314-1</div><div>'
+      +b.sieges+' titulaires et '+b.sieges+' suppléants · '+b.heures+' h par titulaire et par mois · '+(b.sieges*b.heures)+' h au total.</div></div>';
+  }
+  h+='<div class="fg" style="margin-top:12px"><label class="fl">Effectif saisi à la main (utilisé seulement si la liste des salariés est vide)</label>'
+    +'<input type="number" min="0" value="'+esc(D.effManuel||'')+'" onchange="set(\'effManuel\',this.value)"></div>';
+  if(E.serie){
+    var s=E.serie, max=Math.max(12, Math.max.apply(null, s.map(function(p){return p.eff;})));
+    h+='<div style="display:flex;gap:2px;align-items:flex-end;height:90px;margin-top:12px">'
+      + s.map(function(p){
+          var hh=Math.max(2,Math.round(p.eff/max*88));
+          var c=p.ent>=50?'#e05c5c':(p.ent>=11?'#e8c97a':'#4a6b8a');
+          var st=p.partiel?('background:repeating-linear-gradient(45deg,'+c+','+c+' 3px,rgba(0,0,0,.35) 3px,rgba(0,0,0,.35) 6px)'):('background:'+c);
+          return '<div title="'+p.iso+' : '+p.eff.toFixed(2)+'" style="flex:1;min-width:4px;height:'+hh+'px;'+st+';border-radius:2px 2px 0 0"></div>';
+        }).join('')
+      +'</div><div class="leg">Trente-six mois glissants. La dernière barre, hachurée, est le mois en cours : il n’est pas achevé et ne compte pas dans une série de douze.</div>';
+  }
+  h+='</div>';
+
+  /* Liste des salariés */
+  h+='<div class="card"><div class="ct">Liste des salariés</div>'
+   +'<div class="leg" style="margin-top:0;margin-bottom:10px">Le calcul applique L.1111-2 — les contrats à durée indéterminée comptent pour un, les contrats à durée déterminée et l’intérim au prorata du temps de présence sur les douze mois précédents, le temps partiel au prorata des heures du contrat — et les exclusions de L.1111-3.</div>';
+  var L=D.sal||[];
+  if(!L.length){
+    h+='<div class="mini">Aucun salarié saisi.</div>';
+  } else {
+    h+='<div style="overflow-x:auto"><table><thead><tr><th>Nom</th><th>Contrat</th><th>Entrée</th><th>Sortie</th><th>h/sem.</th><th>Rempl.</th><th></th></tr></thead><tbody>'
+     + L.map(function(s,i){
+        var opts=Object.keys(FAM).map(function(k){ return '<option value="'+k+'"'+(s.fam===k?' selected':'')+'>'+esc(FAM[k].lib)+'</option>'; }).join('');
+        var rem=(FAM[s.fam]&&FAM[s.fam].regle==='prorata');
+        var rv=(s.rempl===true)?'1':((s.rempl===false)?'0':'');
+        return '<tr>'
+          +'<td><input value="'+esc(s.nom||'')+'" onchange="salSet('+i+',\'nom\',this.value)" style="padding:6px;font-size:12.5px"></td>'
+          +'<td><select onchange="salSet('+i+',\'fam\',this.value)" style="padding:6px;font-size:12px"><option value="">— ?</option>'+opts+'</select></td>'
+          +'<td><input type="date" value="'+esc(s.entree||'')+'" onchange="salSet('+i+',\'entree\',this.value)" style="padding:6px;font-size:12px"></td>'
+          +'<td><input type="date" value="'+esc(s.sortie||'')+'" onchange="salSet('+i+',\'sortie\',this.value)" style="padding:6px;font-size:12px"></td>'
+          +'<td><input type="number" step="0.5" value="'+esc(s.h==null?'':s.h)+'" onchange="salSet('+i+',\'h\',this.value)" style="padding:6px;font-size:12px;width:70px"></td>'
+          +'<td>'+(rem?('<select onchange="salSet('+i+',\'rempl\',this.value)" style="padding:6px;font-size:12px"><option value=""'+(rv===''?' selected':'')+'>— ?</option><option value="1"'+(rv==='1'?' selected':'')+'>Oui</option><option value="0"'+(rv==='0'?' selected':'')+'>Non</option></select>'):'<span class="mini">—</span>')+'</td>'
+          +'<td style="text-align:center"><a href="#" onclick="salDel('+i+');return false" style="color:#c0392b;font-weight:700;text-decoration:none">✕</a></td>'
+          +'</tr>';
+       }).join('')
+     +'</tbody></table></div>';
+  }
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'
+    +'<button class="btn2" onclick="salAdd()">+ Ajouter un salarié</button>'
+    +'<button class="btn2" onclick="document.getElementById(\'csv\').click()">Importer un CSV</button>'
+    +'<button class="btn2" onclick="csvModele()">Télécharger le modèle</button>'
+    +'</div>'
+    +'<input type="file" id="csv" accept=".csv,.txt" style="display:none" onchange="csvImport(this)">'
+    +'</div>';
+  return h;
+}
+function salAdd(){ D.sal.push({nom:'',fam:'cdi',entree:'',sortie:'',h:duree()}); save(); render(); }
+function salDel(i){ if(!confirm('Retirer cette ligne ?')) return; D.sal.splice(i,1); save(); render(); }
+function salSet(i,k,v){
+  var s=D.sal[i]; if(!s) return;
+  if(k==='rempl'){ if(v==='') delete s.rempl; else s.rempl=(v==='1'); }
+  else if(k==='h'){ var n=parseFloat(String(v).replace(',','.')); if(isNaN(n)) delete s.h; else s.h=n; }
+  else s[k]=v;
+  save(); render();
+}
+function csvModele(){
+  var t='nom;contrat;entree;sortie;heures;remplacement\n'
+   +'MARTIN Paul;cdi;2021-06-01;;35;\n'
+   +'DURAND Sophie;cdd;2026-02-05;2026-09-30;35;non\n'
+   +'PETIT Karim;appr;2025-09-01;;35;\n'
+   +'\n# contrat : '+Object.keys(FAM).join(', ')
+   +'\n# remplacement : oui / non — uniquement pour CDD, interim, mise a disposition, intermittent\n';
+  var b=new Blob([t],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='modele-salaries.csv'; a.click();
+}
+function csvImport(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var lignes=String(rd.result).split(/\r?\n/).filter(function(l){ return l.trim() && l.trim().charAt(0)!=='#'; });
+    if(!lignes.length){ alert('Fichier vide.'); return; }
+    var sep=(lignes[0].indexOf(';')>=0)?';':',';
+    var ent=lignes[0].toLowerCase();
+    var debut=(ent.indexOf('nom')>=0 && ent.indexOf('contrat')>=0)?1:0;
+    var ajout=0, refus=[];
+    for(var i=debut;i<lignes.length;i++){
+      var c=lignes[i].split(sep).map(function(x){ return x.trim(); });
+      if(!c[0]) continue;
+      var fam=(c[1]||'').toLowerCase();
+      if(fam && !FAM[fam]){ refus.push(c[0]+' — contrat « '+c[1]+' » inconnu'); fam=''; }
+      var r=(c[5]||'').toLowerCase();
+      var o={nom:c[0], fam:fam, entree:c[2]||'', sortie:c[3]||'', h:parseFloat(String(c[4]||'').replace(',','.'))};
+      if(isNaN(o.h)) delete o.h;
+      if(r==='oui') o.rempl=true; else if(r==='non') o.rempl=false;
+      D.sal.push(o); ajout++;
+    }
+    save(); inp.value=''; render();
+    alert(ajout+' ligne(s) importée(s).'+(refus.length?('\n\nÀ compléter à la main :\n'+refus.join('\n')):''));
+  };
+  rd.readAsText(f,'utf-8');
+}
+
+function vueProc(){
+  var r=analyse();
+  var h='<div class="card"><div class="ct">Où en est la procédure ?</div>'
+   +'<div class="fg"><label class="fl">Information du personnel diffusée le (tout moyen conférant date certaine)</label>'
+   +'<input type="date" value="'+esc(D.dateInfo||'')+'" onchange="set(\'dateInfo\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Date du premier tour</label>'
+   +'<input type="date" value="'+esc(D.tour1||'')+'" onchange="set(\'tour1\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Durée des mandats</label>'
+   + sel('e-duM',[{v:'4',lib:'4 ans (durée légale à défaut d’accord)'},{v:'3',lib:'3 ans (accord)'},{v:'2',lib:'2 ans (accord)'}], String(D.duMandat||'4'), 'selSet(\'duMandat\',\'e-duM\')')
+   +'</div>'
+   +'<div class="fg"><label class="fl">Électeurs inscrits</label><input type="number" min="0" value="'+esc(D.inscrits||'')+'" onchange="set(\'inscrits\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Votants au premier tour</label><input type="number" min="0" value="'+esc(D.votants||'')+'" onchange="set(\'votants\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Vote électronique</label>'
+   + sel('e-ve',[{v:'non',lib:'Non — bulletin secret sous enveloppe'},{v:'accord',lib:'Prévu par un accord d’entreprise ou de groupe'},{v:'unilat',lib:'Décision unilatérale de l’employeur, faute d’accord'}], D.votelec||'', 'selSet(\'votelec\',\'e-ve\')')
+   +'</div></div>';
+
+  h+='<div class="card"><div class="ct">Position</div>'+(alHTML(r.A)||'<div class="mini">Renseignez l’effectif et les dates.</div>');
+  if(D.votelec==='unilat') h+='<div class="al question"><div class="h">⚠ Vote électronique par décision unilatérale</div><div>Le recours au vote électronique est ouvert par un accord d’entreprise ou de groupe ; à défaut seulement, l’employeur peut le décider (L.2314-26). La négociation prime : la décision unilatérale ne se conçoit qu’après une tentative réelle de négociation. Un cahier des charges conforme aux articles R.2314-6 et suivants doit être établi et tenu à la disposition des salariés.</div></div>';
+  h+='</div>';
+
+  if(r.R.length){
+    h+='<div class="card"><div class="ct">Calendrier daté</div>'
+     + r.R.map(function(e){
+        return '<div class="etape"><div class="q">'+esc(e.q)+'</div>'
+          +(e.d?('<div class="d">'+fr(e.d)+reste(e.d)+'</div>'):'<div class="mini">sans délai fixe</div>')
+          +'<div class="x">'+esc(e.x)+'</div><div class="a">Article '+esc(e.a)+' du code du travail</div></div>';
+       }).join('')
+     +'</div>';
+  }
+
+  h+='<div class="card"><div class="ct">Les erreurs qui font annuler des élections</div><div style="font-size:12.5px;line-height:1.9">'
+   +'• Diffuser l’information sans date certaine — le point de départ des quatre-vingt-dix jours devient indémontrable.<br>'
+   +'• Omettre d’inviter une organisation syndicale, ou l’inviter hors délai.<br>'
+   +'• N’inviter que les organisations représentatives dans l’entreprise.<br>'
+   +'• Fixer les collèges ou répartir les sièges sans protocole valide.<br>'
+   +'• S’écarter du tableau réglementaire sans la contrepartie exigée.<br>'
+   +'• Méconnaître la représentation équilibrée des femmes et des hommes sur les listes.<br>'
+   +'• Tenir un second tour alors que le quorum était atteint, ou l’inverse.<br>'
+   +'• Ne pas établir de procès-verbal, ou ne pas le transmettre dans les quinze jours.<br>'
+   +'• Recourir au vote électronique sans accord et sans tentative réelle de négociation.'
+   +'</div><div class="leg">Points de vigilance fréquents ; cette liste ne remplace pas l’examen du dossier.</div></div>';
+  return h;
+}
+
+/* ══════════ DOCUMENTS ══════════ */
+function vueDocs(){
+  return '<div class="card"><div class="ct">Documents</div>'
+   +'<div class="leg" style="margin-top:0;margin-bottom:12px">Chaque document reprend les informations saisies. Les mentions non renseignées apparaissent entre crochets : elles sont visibles, pas inventées.</div>'
+   +[['info','Information du personnel sur l’organisation des élections','L.2314-4'],
+     ['os','Invitation des organisations syndicales à négocier le protocole','L.2314-5'],
+     ['pap','Protocole d’accord préélectoral — trame','L.2314-6 · L.2314-13'],
+     ['carence','Procès-verbal de carence','L.2314-9']]
+     .map(function(x){
+       return '<div class="etape" style="border-left-color:#2b579a"><div class="q">'+esc(x[1])+'</div>'
+        +'<div class="a">Article '+x[2]+'</div>'
+        +'<div style="margin-top:8px"><button class="btn2" onclick="doc(\''+x[0]+'\')">Ouvrir</button></div></div>';
+     }).join('')
+   +'</div>';
+}
+function v(k,def){ var x=(D[k]||'').toString().trim(); return x||('['+(def||k.toUpperCase())+']'); }
+function docOuvre(titre, html){
+  document.getElementById('doctitre').textContent=titre;
+  document.getElementById('docbody').innerHTML=html;
+  document.getElementById('doc').style.display='block';
+  window.scrollTo(0,0);
+}
+function docFermer(){ document.getElementById('doc').style.display='none'; }
+function docWord(){
+  var t=document.getElementById('doctitre').textContent||'document';
+  var c=document.getElementById('docbody').innerHTML;
+  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+   +'<head><meta charset="utf-8"><title>'+esc(t)+'</title></head><body style="font-family:\'Times New Roman\',serif;font-size:12pt">'+c+'</body></html>';
+  var b=new Blob(['﻿'+html],{type:'application/msword'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=t.replace(/[^\w\- ]+/g,'')+'.doc'; a.click();
+}
+function doc(k){
+  var E=effRetenu(), b=bareme(E.v||0);
+  var S='margin:0 0 12px';
+  var entete='<p style="'+S+'"><b>'+esc(v('nom','RAISON SOCIALE'))+'</b><br>'+esc(v('adresse','ADRESSE'))
+    +(D.siret?('<br>SIRET '+esc(D.siret)):'')+'</p>';
+  var lieuDate='<p style="'+S+';text-align:right">Fait à '+esc(v('ville','LIEU'))+', le '+fr(auj())+'</p>';
+  var sign='<p style="'+S+';margin-top:28px">'+esc(v('dirigeant','NOM ET QUALITÉ DU REPRÉSENTANT LÉGAL'))+'<br>Pour la société</p>';
+
+  if(k==='info'){
+    var lim=D.dateInfo?fr(plus(D.dateInfo,90)):'[AU PLUS TARD 90 JOURS APRÈS LA PRÉSENTE]';
+    docOuvre('Information du personnel — élections CSE',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">INFORMATION DU PERSONNEL</h2>'
+      +'<p style="text-align:center;'+S+'"><b>Organisation des élections du comité social et économique</b></p>'
+      +'<p style="'+S+'">Le personnel est informé que l’entreprise engage l’organisation des élections des membres de la délégation du personnel au comité social et économique.</p>'
+      +'<p style="'+S+'">Effectif retenu : <b>'+(E.v===null?'[EFFECTIF]':E.v)+'</b> salariés'+(E.src?(' ('+esc(E.src)+')'):'')+'. '
+      +'Nombre de sièges à pourvoir : <b>'+(b.sieges||'[N]')+'</b> titulaires et <b>'+(b.sieges||'[N]')+'</b> suppléants (article R.2314-1 du code du travail).</p>'
+      +'<p style="'+S+'">Le premier tour du scrutin se tiendra au plus tard le <b>'+lim+'</b>, soit au plus tard le quatre-vingt-dixième jour suivant la diffusion de la présente information, conformément à l’article L.2314-4 du code du travail.</p>'
+      +'<p style="'+S+'">Les salariés qui souhaitent se porter candidats sont invités à se faire connaître. Le salarié qui présente sa candidature bénéficie de la protection prévue aux articles L.2411-7, L.2412-3 et L.2413-1 du code du travail à compter du moment où l’employeur a eu connaissance de l’imminence de sa candidature.</p>'
+      +'<p style="'+S+'">Les organisations syndicales sont invitées, par courrier et par voie d’affichage, à négocier le protocole d’accord préélectoral et à établir leurs listes de candidats.</p>'
+      +'<p style="'+S+'"><i>La présente information est diffusée par tout moyen conférant date certaine à sa réception.</i></p>'
+      +lieuDate+sign);
+  }
+  else if(k==='os'){
+    docOuvre('Invitation des organisations syndicales',
+      entete
+      +'<p style="'+S+'">Aux organisations syndicales</p>'
+      +'<p style="'+S+'"><i>Lettre recommandée avec avis de réception et affichage</i></p>'
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">INVITATION À NÉGOCIER LE PROTOCOLE D’ACCORD PRÉÉLECTORAL</h2>'
+      +'<p style="'+S+'">Madame, Monsieur,</p>'
+      +'<p style="'+S+'">La société '+esc(v('nom','RAISON SOCIALE'))+' organise les élections des membres de la délégation du personnel au comité social et économique.</p>'
+      +'<p style="'+S+'">Conformément à l’article L.2314-5 du code du travail, nous vous invitons à négocier le protocole d’accord préélectoral et à établir vos listes de candidats.</p>'
+      +'<p style="'+S+'">La première réunion de négociation se tiendra le <b>'+v('dateNego','DATE')+'</b> à <b>'+v('heureNego','HEURE')+'</b>, à l’adresse suivante : '+esc(v('adresse','ADRESSE'))+'.</p>'
+      +'<p style="'+S+'">Effectif retenu : <b>'+(E.v===null?'[EFFECTIF]':E.v)+'</b> salariés. Sièges à pourvoir : <b>'+(b.sieges||'[N]')+'</b> titulaires et <b>'+(b.sieges||'[N]')+'</b> suppléants (R.2314-1).</p>'
+      +'<p style="'+S+'">Nous vous rappelons que la validité du protocole est subordonnée à sa signature par la majorité des organisations syndicales ayant participé à sa négociation, dont les organisations représentatives ayant recueilli la majorité des suffrages exprimés lors des dernières élections, ou, lorsque ces résultats ne sont pas disponibles, la majorité des organisations représentatives dans l’entreprise (L.2314-6).</p>'
+      +'<p style="'+S+'">Nous vous prions d’agréer, Madame, Monsieur, l’expression de nos salutations distinguées.</p>'
+      +lieuDate+sign);
+  }
+  else if(k==='pap'){
+    docOuvre('Protocole d’accord préélectoral — trame',
+      '<h2 style="text-align:center;text-decoration:underline;font-size:13pt">PROTOCOLE D’ACCORD PRÉÉLECTORAL</h2>'
+      +'<p style="'+S+'">Entre la société '+esc(v('nom','RAISON SOCIALE'))+', '+esc(v('adresse','ADRESSE'))+', représentée par '+esc(v('dirigeant','REPRÉSENTANT LÉGAL'))+',</p>'
+      +'<p style="'+S+'">Et les organisations syndicales soussignées,</p>'
+      +'<p style="'+S+'"><b>Article 1 — Objet.</b> Le présent protocole fixe les modalités d’organisation et de déroulement des élections des membres de la délégation du personnel au comité social et économique.</p>'
+      +'<p style="'+S+'"><b>Article 2 — Effectif et sièges.</b> L’effectif retenu est de <b>'+(E.v===null?'[EFFECTIF]':E.v)+'</b> salariés. Le nombre de sièges est de <b>'+(b.sieges||'[N]')+'</b> titulaires et <b>'+(b.sieges||'[N]')+'</b> suppléants (R.2314-1). Toute réduction du nombre de sièges suppose une contrepartie en volume global d’heures de délégation au moins égale.</p>'
+      +'<p style="'+S+'"><b>Article 3 — Collèges électoraux.</b> '+((E.v||0)>=25?'Le personnel est réparti en deux collèges : ouvriers et employés d’une part, techniciens, agents de maîtrise et cadres d’autre part. Un troisième collège est constitué lorsque le nombre de cadres est au moins égal à vingt-cinq (L.2314-11).':'[RÉPARTITION DES COLLÈGES]')+'</p>'
+      +'<p style="'+S+'"><b>Article 4 — Répartition du personnel et des sièges.</b> [À COMPLÉTER — répartition par collège].</p>'
+      +'<p style="'+S+'"><b>Article 5 — Électorat et éligibilité.</b> Sont électeurs les salariés âgés de seize ans révolus, travaillant depuis trois mois au moins dans l’entreprise et n’ayant fait l’objet d’aucune interdiction, déchéance ou incapacité relative à leurs droits civiques. Sont éligibles les électeurs âgés de dix-huit ans révolus et travaillant dans l’entreprise depuis un an au moins, à l’exception des personnes énumérées à l’article L.2314-19.</p>'
+      +'<p style="'+S+'"><b>Article 6 — Listes et représentation équilibrée.</b> Chaque liste est composée d’un nombre de femmes et d’hommes correspondant à la part de femmes et d’hommes inscrits sur la liste électorale du collège, et les candidats sont présentés alternativement (L.2314-30).</p>'
+      +'<p style="'+S+'"><b>Article 7 — Dates et modalités du scrutin.</b> Premier tour : <b>'+(D.tour1?fr(D.tour1):'[DATE]')+'</b>. Second tour, s’il y a lieu, dans les quinze jours (L.2314-29) : <b>'+(D.tour1?fr(plus(D.tour1,15)):'[DATE]')+'</b>. Modalités : '+(D.votelec==='non'?'vote à bulletin secret sous enveloppe':(D.votelec?'vote électronique':'[À PRÉCISER]'))+'.</p>'
+      +'<p style="'+S+'"><b>Article 8 — Propagande, matériel et dépouillement.</b> [À COMPLÉTER].</p>'
+      +'<p style="'+S+'"><b>Article 9 — Validité.</b> Le présent protocole est valide s’il est signé par la majorité des organisations syndicales ayant participé à sa négociation, dont les organisations représentatives ayant recueilli la majorité des suffrages exprimés lors des dernières élections, ou, à défaut de résultats disponibles, la majorité des organisations représentatives dans l’entreprise (L.2314-6).</p>'
+      +lieuDate
+      +'<p style="'+S+';margin-top:24px">Pour la société — '+esc(v('dirigeant','REPRÉSENTANT LÉGAL'))+'</p>'
+      +'<p style="'+S+'">Pour les organisations syndicales — [SIGNATURES]</p>');
+  }
+  else if(k==='carence'){
+    var ins=D.inscrits||'[N]', vot=D.votants||'[N]';
+    docOuvre('Procès-verbal de carence',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">PROCÈS-VERBAL DE CARENCE</h2>'
+      +'<p style="text-align:center;'+S+'"><b>Élections des membres de la délégation du personnel au comité social et économique</b></p>'
+      +'<p style="'+S+'">Je soussigné '+esc(v('dirigeant','REPRÉSENTANT LÉGAL'))+', représentant légal de la société '+esc(v('nom','RAISON SOCIALE'))+', certifie ce qui suit.</p>'
+      +'<p style="'+S+'">L’information du personnel sur l’organisation des élections a été diffusée le <b>'+(D.dateInfo?fr(D.dateInfo):'[DATE]')+'</b>, par tout moyen conférant date certaine à sa réception. Les organisations syndicales ont été invitées à négocier le protocole d’accord préélectoral.</p>'
+      +'<p style="'+S+'">Le premier tour s’est tenu le <b>'+(D.tour1?fr(D.tour1):'[DATE]')+'</b> : '+esc(String(ins))+' électeurs inscrits, '+esc(String(vot))+' votants. [Aucune candidature n’a été présentée / le quorum n’a pas été atteint].</p>'
+      +'<p style="'+S+'">Le second tour s’est tenu le <b>'+(D.tour1?fr(plus(D.tour1,15)):'[DATE]')+'</b>, ouvert aux candidatures libres : [aucune candidature n’a été présentée].</p>'
+      +'<p style="'+S+'">En conséquence, la carence est constatée : aucun membre de la délégation du personnel au comité social et économique n’a pu être élu.</p>'
+      +'<p style="'+S+'">Le présent procès-verbal est porté à la connaissance des salariés par tout moyen conférant date certaine et transmis, dans les quinze jours, à l’agent de contrôle de l’inspection du travail, qui en communique copie aux organisations syndicales de salariés du département concerné (article L.2314-9 du code du travail).</p>'
+      +'<p style="'+S+'"><i>Note — Dans les entreprises de onze à vingt salariés, l’absence de candidature dans les trente jours suivant l’information dispense de négocier le protocole, mais non d’organiser les deux tours.</i></p>'
+      +lieuDate+sign);
+  }
+}
+
+load(); render();
+</script>
+</body>
+</html>
