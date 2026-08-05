@@ -1,5 +1,5 @@
-/* L'accueil de l'application : quatre familles.
-   « J'embauche · Je gère · Une mesure · Le CSE », présentées comme Nomos
+/* L'accueil de l'application : cinq familles.
+   « J'embauche · Je gère · Une mesure · Je vérifie · Le CSE », comme Nomos
    Traça. Ce test garde ce qui rend ces cartes utilisables : elles mènent
    quelque part, elles se distinguent, et elles se lisent. */
 let chromium;
@@ -27,16 +27,16 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   });
   await page.waitForTimeout(300);
 
-  // ── Les quatre familles ──────────────────────────────────────────
-  console.log('\n— Les quatre familles —');
+  // ── Les cinq familles ────────────────────────────────────────────
+  console.log('\n— Les cinq familles —');
   const fam = await page.evaluate(() => FAM.map(f => ({
     k: f.k, lib: f.lib,
     n: f.groupes.reduce((s, g) => s + g.cartes.length, 0),
     groupes: f.groupes.map(g => g.t)
   })));
   fam.forEach(f => console.log('    ' + f.lib + ' — ' + f.n + ' cartes : ' + f.groupes.join(' / ')));
-  ok(fam.length === 4, 'il y a quatre familles', fam.length);
-  ['J’embauche', 'Je gère', 'Une mesure', 'Le CSE']
+  ok(fam.length === 5, 'il y a cinq familles', fam.length);
+  ['J’embauche', 'Je gère', 'Une mesure', 'Je vérifie', 'Le CSE']
     .forEach(l => ok(fam.some(f => f.lib === l), 'la famille « ' + l + ' » existe'));
   ok(fam.every(f => f.n >= 4), 'chaque famille propose au moins quatre cartes',
      fam.map(f => f.lib + ':' + f.n).join(' · '));
@@ -65,6 +65,36 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   });
   ['Avertissement', 'Mise à pied', 'motif personnel', 'économique', 'Inaptitude', 'conventionnelle']
     .forEach(m => ok(mesures.indexOf(m) >= 0, 'les mesures vont jusqu’à « ' + m + ' »'));
+
+  /* Toutes les pages de l'application, hors configuration, doivent etre
+     atteignables par une famille : sinon un module existe sans que personne
+     ne puisse le trouver autrement que par le menu. */
+  console.log('\n— La couverture —');
+  const couverture = await page.evaluate(() => {
+    const CONFIG = ['app', 'inscription', 'home', 'parametrage', 'rgpd', 'nouveautes', 'csefonc'];
+    const pages = [...document.querySelectorAll('div.page[id^="pg-"]')].map(e => e.id.slice(3));
+    const dans = FAM.flatMap(f => f.groupes.flatMap(g => g.cartes)).map(c => c.page);
+    return pages.filter(p => CONFIG.indexOf(p) < 0 && dans.indexOf(p) < 0);
+  });
+  ok(couverture.length === 0, 'aucun module n’est laissé hors des familles', couverture.join(', '));
+
+  /* Les cartes propres au transport ne doivent pas s'afficher ailleurs. */
+  console.log('\n— Les cartes de secteur —');
+  const parSecteur = async (sec) => page.evaluate(s => {
+    localStorage.setItem('app_secteur::' + jxCompte(), s);
+    sessionStorage.setItem('jte_sector', s);
+    return FAM.flatMap(f => f.groupes.flatMap(g => g.cartes))
+              .filter(c => typeof famConcerne === 'function' ? famConcerne(c) : true)
+              .map(c => c.page);
+  }, sec);
+  const tr = await parSecteur('transport');
+  ok(tr.indexOf('parc') >= 0 && tr.indexOf('temps') >= 0,
+     'le transporteur voit le parc et les temps de conduite');
+  const bq = await parSecteur('banque');
+  ok(bq.indexOf('parc') < 0 && bq.indexOf('temps') < 0 && bq.indexOf('tableau-bord') < 0,
+     'la banque ne voit ni parc, ni temps de conduite, ni échéances de conducteurs',
+     bq.filter(p => ['parc', 'temps', 'tableau-bord'].indexOf(p) >= 0).join(', '));
+  await page.evaluate(() => { sessionStorage.removeItem('jte_sector'); localStorage.removeItem('app_secteur::' + jxCompte()); famRender(); });
 
   // ── Ouvrir une famille ───────────────────────────────────────────
   console.log('\n— L’ouverture d’une famille —');

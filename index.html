@@ -821,7 +821,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.122';
+var JX_BUILD = 'v2026-08-06.123';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -830,6 +830,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.123', d:'5 aout 2026', t:[
+   'CORRECTIF D\'ACCES — apres la saisie du code, le defilement de la page restait bloque. La fenetre de code immobilise la page qui reste derriere ; la fonction qui verifie le code refermait cette fenetre par ses propres moyens, sans relacher le blocage. Sur telephone, l\'application s\'ouvrait figee. Corrige.',
+   'ACCUEIL — une cinquieme famille, « Je verifie » : la foire aux questions, la jurisprudence, le parcours de la relation de travail, l\'analyse d\'un contrat ou d\'une lettre, et le controle-minute. Ce sont les outils qu\'on ouvre quand on doute, pas quand on agit.',
+   'ACCUEIL — les modules qui n\'etaient dans aucune famille y sont entres : registre du personnel et fiches salaries dans « J\'embauche » ; reglement interieur, temps de conduite, alertes d\'echeances et parc de vehicules dans « Je gere », sous un nouveau groupe « Les obligations de l\'entreprise ». Les cartes propres au transport ne s\'affichent que pour ce secteur.'
+ ]},
  {v:'v2026-08-06.122', d:'5 aout 2026', t:[
    'ACCUEIL DE L\'APPLICATION — QUATRE FAMILLES. L\'accueil ne commence plus par une liste de modules mais par quatre entrees : « J\'embauche », « Je gere », « Une mesure », « Le CSE ». On choisit sa famille, on voit ses cartes, rangees par sous-groupes avec un titre qui dit ce qu\'ils contiennent — « Choisir la mesure : commencez ici », « Les sanctions : le contrat continue », « Les ruptures : le contrat prend fin ».',
    'ACCUEIL — la famille « Une mesure » couvre toute l\'echelle, de l\'avertissement au licenciement : avertissement et blame, mise a pied, mutation et retrogradation, licenciement pour motif personnel, licenciement economique et PSE, inaptitude, rupture conventionnelle, indemnites. La famille « Le CSE » reprend les onze modules. Les cartes marquees « Questions → lettre » menent aux assistants qui posent les questions et sortent le courrier.',
@@ -1420,6 +1425,11 @@ async function verifierCode(){
   const inp = document.getElementById('lock-input');
   const err = document.getElementById('lock-error');
   const h = await _sha256(inp.value);
+  /* La fenetre de code bloque le defilement de la page qui reste derriere.
+     Cette fonction la referme par ses propres moyens : il faut donc rendre
+     le defilement ici, sinon l'application s'ouvre immobile. */
+  var _rendre = function(){ try{ document.body.style.overflow=''; }catch(_e){} };
+  _rendre();
   if(h === _ADMIN_HASH){
     try{ sessionStorage.setItem('jte_ok','1'); sessionStorage.setItem('jte_admin','1'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
     document.getElementById('lock-screen').style.display = 'none';
@@ -6903,6 +6913,7 @@ var FAM=[
      {emo:'📋', lib:'Choisir et rédiger le contrat', page:'contrat', tag:'CDI · CDD', chip:'Modèles'}
    ]},
    {t:'LES CAS PARTICULIERS', s:'si vous êtes concerné', pastille:'#d6a842', cartes:[
+     {emo:'👥', lib:'Registre du personnel et fiches salariés', page:'personnel', tag:'Registre'},
      {emo:'📄', lib:'CDD et indemnité de précarité', page:'cdd', tag:'CDD'},
      {emo:'📊', lib:'Classification et statut conventionnel', page:'statut', tag:'Convention'},
      {emo:'🧮', lib:'Coût de l’embauche', page:'calc', tag:'Calcul'}
@@ -6922,7 +6933,13 @@ var FAM=[
    {t:'LE SALAIRE ET LE TEMPS', s:'ce qui se compte tous les mois', pastille:'#4a86c8', cartes:[
      {emo:'💶', lib:'Salaire, minima, primes', page:'remuneration', tag:'Paie'},
      {emo:'⏱️', lib:'Durée du travail, heures supplémentaires, forfaits', page:'temps2', tag:'Temps'},
+     {emo:'🚛', lib:'Temps de conduite et repos', page:'temps', tag:'Conduite', secteurs:['transport']},
      {emo:'🧮', lib:'Calculateurs', page:'calc', tag:'Calcul'}
+   ]},
+   {t:'LES OBLIGATIONS DE L’ENTREPRISE', s:'ce qui se tient à jour', pastille:'#8e79c9', cartes:[
+     {emo:'📜', lib:'Règlement intérieur', page:'ri', tag:'Obligation'},
+     {emo:'🔔', lib:'Alertes d’échéances', page:'tableau-bord', tag:'Échéances', secteurs:['transport']},
+     {emo:'🚚', lib:'Parc de véhicules et contraventions', page:'parc', tag:'Parc', secteurs:['transport']}
    ]},
    {t:'CE QUI NE VA PAS', s:'à traiter sans attendre', pastille:'#e05c5c', cartes:[
      {emo:'🛡️', lib:'Harcèlement et discrimination', page:'harcele', tag:'Protection'},
@@ -6949,6 +6966,21 @@ var FAM=[
      {emo:'🏥', lib:'Inaptitude et reclassement', page:'inapt', tag:'Rupture'},
      {emo:'🤝', lib:'Rupture conventionnelle', page:'rupconv', tag:'Rupture'},
      {emo:'🧮', lib:'Indemnités de rupture', page:'calc', tag:'Calcul'}
+   ]}
+  ]},
+
+ {k:'verif', emo:'🔎', lib:'Je vérifie',
+  det:'Ce qu’on ouvre quand on doute : une question précise, un arrêt, un document à relire, un contrôle à préparer.',
+  c1:'#2f7a91', c2:'#1f5a6b', pastille:'#4a86c8',
+  groupes:[
+   {t:'UNE QUESTION, UNE RÉPONSE', s:'sans chercher dans le Code', pastille:'#46b885', cartes:[
+     {emo:'💬', lib:'FAQ — plus de 1 300 questions', page:'faq', tag:'Questions'},
+     {emo:'⚖️', lib:'Jurisprudence de la Cour de cassation', page:'juris', tag:'Arrêts'},
+     {emo:'🧭', lib:'Parcours de la relation de travail', page:'parcours', tag:'Guide'}
+   ]},
+   {t:'AVANT DE SIGNER, AVANT UN CONTRÔLE', s:'pour ne pas se faire prendre', pastille:'#e05c5c', cartes:[
+     {emo:'🔍', lib:'Analyser un contrat, une lettre, un accord', page:'diag', tag:'Analyse', chip:'Détecte les pièges'},
+     {emo:'🎯', lib:'Contrôle-minute — êtes-vous prêt ?', page:'audit', tag:'Conformité'}
    ]}
   ]},
 
@@ -6987,7 +7019,18 @@ function famOuvrir(k){
   if(a!==k){ try{ var z=document.getElementById('fam-detail'); if(z) z.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
 }
 function famEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-function famNb(f){ var n=0; (f.groupes||[]).forEach(function(g){ n+=(g.cartes||[]).length; }); return n; }
+/* Une carte marquee « secteurs » ne s'affiche que pour ceux-la : le parc de
+   vehicules et les echeances des conducteurs ne concernent pas une banque.
+   Tant qu'aucun secteur n'est choisi, on affiche tout : on ne cache rien sur
+   une supposition. */
+function famConcerne(c){
+  if(!c || !c.secteurs || !c.secteurs.length) return true;
+  var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
+  if(!s){ try{ s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); }catch(e){} }
+  return !s || c.secteurs.indexOf(s)>=0;
+}
+function famCartes(g){ return (g.cartes||[]).filter(famConcerne); }
+function famNb(f){ var n=0; (f.groupes||[]).forEach(function(g){ n+=famCartes(g).length; }); return n; }
 /* Une couleur par carte : c'est ce qui les rend distinguables d'un coup
    d'oeil. Toutes de la meme couleur, elles se confondent. */
 var FAM_PAL=[
@@ -7026,10 +7069,12 @@ function famRender(){
       +'<div class="bd">'+famEsc(f.det)+'</div></div></div>';
     var _famI=0;
     (f.groupes||[]).forEach(function(g){
+      var _L=famCartes(g);
+      if(!_L.length) return;                       // un groupe vide n'a pas de titre
       h+='<div class="fam-titre"><span class="pt" style="background:'+g.pastille+'"></span>'
         +'<span class="tx">'+famEsc(g.t)+'</span><span class="sx">— '+famEsc(g.s)+'</span></div>';
       h+='<div class="fam-cartes">';
-      (g.cartes||[]).forEach(function(c){
+      _L.forEach(function(c){
         var p=famCoul(_famI++);
         h+='<button class="fam-carte" onclick="goPage(\''+c.page+'\')" '
           +'style="background:linear-gradient(150deg,'+p[0]+','+p[1]+')">'
