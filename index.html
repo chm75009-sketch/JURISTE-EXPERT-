@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.98';
+var JX_BUILD = 'v2026-08-05.99';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,24 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ CSE — LA RÉUNION ═══ -->
+<div id="pg-csereu" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Réunion du CSE</div><div class="ts">Convocation · ordre du jour · votes · procès-verbal</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    Préparer une séance et en sortir les documents. La composition vient de « Mon CSE »,
+    l'effectif du socle. Les délais sont contrôlés, les votes recomptés.
+  </div>
+</div>
+<div id="csereu-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{reuOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 <!-- ═══ CSE — CALENDRIER ANNUEL DES RÉUNIONS ═══ -->
 <div id="pg-csecal" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3433,6 +3451,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
   <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
@@ -5349,6 +5368,7 @@ function goPage(id){
   if(id==='csediag'){ try{ csedOnEnter(); }catch(e){} }
   if(id==='moncse'){ try{ mcOnEnter(); }catch(e){} }
   if(id==='csecal'){ try{ calOnEnter(); }catch(e){} }
+  if(id==='csereu'){ try{ reuOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6228,6 +6248,420 @@ function socOuvrirAccord(){
 function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SOC.accord=null; socSave(); socRender(); }
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULE 3.3 : LA REUNION
+   Convocation, ordre du jour, feuille de presence, deliberations,
+   proces-verbal. Les documents reprennent ce qui a ete saisi ; ce qui
+   manque apparait entre crochets, visible et jamais invente.
+   ══════════════════════════════════════════════════════════════════ */
+var REU={};
+var REU_LS='cse_reunions_v1';
+function reuKey(){ return REU_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function reuLoad(){ try{ REU=JSON.parse(localStorage.getItem(reuKey())||'{}')||{}; }catch(e){ REU={}; } if(!Array.isArray(REU.points)) REU.points=[]; if(!Array.isArray(REU.votes)) REU.votes=[]; }
+function reuSave(){ try{ localStorage.setItem(reuKey(), JSON.stringify(REU)); }catch(e){} }
+function reuEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function reuFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function reuPlus(iso,j){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  d.setDate(d.getDate()+j);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function reuSet(k,v){ REU[k]=v; reuSave(); reuRender(); }
+function reuSetQ(k,v){ REU[k]=v; reuSave(); }
+function reuSetSel(k,id){ REU[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; reuSave(); reuRender(); }
+function reuEff(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof socSerie!=='function') return null;
+    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
+  }catch(e){ return null; }
+}
+/* Les elus viennent de « Mon CSE » : on ne redemande pas la composition. */
+function reuElus(){
+  try{ if(typeof mcLoad==='function' && (!MC || !MC.elus)) mcLoad(); }catch(e){}
+  return (typeof MC!=='undefined' && Array.isArray(MC.elus))? MC.elus : [];
+}
+function reuTits(){ return reuElus().filter(function(e){ return e.q==='tit'; }); }
+function reuNomElu(i){ var e=reuElus()[i]; return e? ((e.nom||'').trim()||('élu n° '+(i+1))) : ''; }
+function reuDesigne(k){
+  if(typeof MC==='undefined') return '';
+  var v=MC[k]; if(v===undefined||v==='') return '';
+  return reuNomElu(parseInt(v,10));
+}
+
+var REU_TYPES=[
+  {v:'ord',  lib:'Réunion ordinaire'},
+  {v:'ssct', lib:'Réunion portant sur la santé, la sécurité et les conditions de travail'},
+  {v:'acc',  lib:'Réunion à la suite d’un accident grave ou d’un événement grave'},
+  {v:'dem2', lib:'Réunion à la demande motivée de deux membres (santé, sécurité, conditions de travail)'},
+  {v:'maj',  lib:'Seconde réunion à la demande de la majorité des membres'},
+  {v:'extra',lib:'Réunion extraordinaire — autre motif'}
+];
+var REU_MODES=[
+  {v:'pres',  lib:'En présentiel'},
+  {v:'visio', lib:'En visioconférence'},
+  {v:'mixte', lib:'Mixte — présentiel et visioconférence'}
+];
+var REU_ORIGINES=[
+  {v:'legale',   lib:'Inscrit de plein droit — consultation rendue obligatoire par la loi, le règlement ou un accord'},
+  {v:'conjoint', lib:'Inscrit conjointement par le président et le secrétaire'},
+  {v:'presid',   lib:'Proposé par le président'},
+  {v:'secret',   lib:'Proposé par le secrétaire'}
+];
+
+/* ── Points de l'ordre du jour ── */
+function reuPoints(){ if(!Array.isArray(REU.points)) REU.points=[]; return REU.points; }
+function reuPtAdd(){ reuPoints().push({t:'',o:'conjoint',vote:false}); reuSave(); reuRender(); }
+function reuPtDel(i){ if(!confirm('Retirer ce point ?')) return; reuPoints().splice(i,1); reuSave(); reuRender(); }
+function reuPtSet(i,k,v){ var p=reuPoints()[i]; if(!p) return; p[k]=(k==='vote')?!!v:v; reuSave(); reuRender(); }
+function reuPtMove(i,d){
+  var P=reuPoints(), j=i+d;
+  if(j<0||j>=P.length) return;
+  var t=P[i]; P[i]=P[j]; P[j]=t; reuSave(); reuRender();
+}
+/* ── Présences ── */
+function reuPresent(i){ return (REU.presents||{})[String(i)]===true; }
+function reuTogglePres(i){
+  if(!REU.presents) REU.presents={};
+  REU.presents[String(i)]=!reuPresent(i);
+  reuSave(); reuRender();
+}
+function reuNbPresents(){
+  var n=0; reuElus().forEach(function(e,i){ if(reuPresent(i)) n++; });
+  return n;
+}
+/* ── Délibérations ── */
+function reuVotes(){ if(!Array.isArray(REU.votes)) REU.votes=[]; return REU.votes; }
+function reuVoteAdd(){ reuVotes().push({t:'',pour:'',contre:'',abst:''}); reuSave(); reuRender(); }
+function reuVoteDel(i){ if(!confirm('Retirer cette délibération ?')) return; reuVotes().splice(i,1); reuSave(); reuRender(); }
+function reuVoteSet(i,k,v){ var x=reuVotes()[i]; if(!x) return; x[k]=v; reuSave(); reuRender(); }
+
+/* ══════════ ANALYSE ══════════ */
+function reuAnalyse(){
+  var A=[], eff=reuEff(), E=reuElus(), P=reuPoints();
+
+  /* Convocation et ordre du jour */
+  if(REU.date){
+    var lim=reuPlus(REU.date,-3);
+    if(REU.dateOdj){
+      var ecart=Math.round((new Date(REU.date+'T00:00:00')-new Date(REU.dateOdj+'T00:00:00'))/86400000);
+      if(ecart<3){
+        A.push({gravite:'stop', titre:'Ordre du jour communiqué trop tard',
+          texte:'L’ordre du jour a été communiqué le '+reuFR(REU.dateOdj)+' pour une réunion du '+reuFR(REU.date)+', soit '+ecart+' jour(s) avant. '
+            +'Il doit l’être trois jours au moins avant la réunion (L.2315-30). Le délai n’est pas une formalité : son inobservation est une cause d’annulation des délibérations.'});
+      } else {
+        A.push({gravite:'info', titre:'Délai de communication respecté',
+          texte:'Ordre du jour communiqué le '+reuFR(REU.dateOdj)+', soit '+ecart+' jours avant la réunion (L.2315-30).'});
+      }
+    } else {
+      A.push({gravite:'question', titre:'Date de communication de l’ordre du jour non renseignée',
+        texte:'Pour une réunion le '+reuFR(REU.date)+', l’ordre du jour devait être communiqué au plus tard le '+reuFR(lim)+' (L.2315-30). '
+          +'Il est adressé aux membres, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention de la sécurité sociale.'});
+    }
+    A.push({gravite:'info', titre:'Procès-verbal',
+      texte:'À défaut d’accord, le secrétaire établit et transmet le procès-verbal à l’employeur au plus tard le '+reuFR(reuPlus(REU.date,15))+' (R.2315-25), '
+        +'ou avant la réunion suivante si elle intervient dans ce délai. Il contient au moins le résumé des délibérations et la décision motivée de l’employeur sur les propositions faites lors de la réunion précédente (D.2315-26). '
+        +'Après adoption, il peut être affiché ou diffusé dans l’entreprise par le secrétaire, selon les modalités du règlement intérieur ; l’employeur ne peut s’y opposer (L.2315-35). Sa diffusion hors de l’entreprise est exclue.'});
+  } else {
+    A.push({gravite:'question', titre:'Date de réunion non renseignée',
+      texte:'Sans elle, aucun délai ne peut être vérifié.'});
+  }
+
+  /* Établissement conjoint de l'ordre du jour */
+  if(P.length){
+    var sansConjoint=P.filter(function(p){ return p.o==='presid'||p.o==='secret'; }).length;
+    if(sansConjoint){
+      A.push({gravite:'question', titre:sansConjoint+' point(s) non établi(s) conjointement',
+        texte:'L’ordre du jour est établi conjointement par le président et le secrétaire (L.2315-29). Un point inscrit unilatéralement fragilise la réunion, sauf s’il s’agit d’une consultation rendue obligatoire '
+          +'par une disposition législative, réglementaire ou par un accord : celle-ci est inscrite de plein droit par l’un ou l’autre.'});
+    }
+  } else {
+    A.push({gravite:'question', titre:'Ordre du jour vide',
+      texte:'Aucun point n’est inscrit. Une réunion sans ordre du jour communiqué n’est pas régulièrement tenue (L.2315-29 · L.2315-30).'});
+  }
+
+  /* Motif de la réunion */
+  if(REU.type==='acc'){
+    A.push({gravite:'info', titre:'Réunion à la suite d’un accident ou d’un événement grave',
+      texte:'Le comité est réuni à la suite de tout accident ayant entraîné ou ayant pu entraîner des conséquences graves, ainsi qu’en cas d’événement grave lié à l’activité de l’entreprise ayant porté atteinte ou ayant pu porter atteinte à la santé publique ou à l’environnement (L.2315-27). '
+        +'La réunion s’impose même lorsque aucun salarié n’a finalement été blessé, dès lors que l’accident aurait pu avoir des conséquences graves.'});
+  } else if(REU.type==='dem2'){
+    A.push({gravite:'info', titre:'Réunion à la demande motivée de deux membres',
+      texte:'Deux membres de la délégation du personnel peuvent demander une réunion sur des sujets relevant de la santé, de la sécurité ou des conditions de travail ; l’employeur est alors tenu de l’organiser (L.2315-27). '
+        +'La demande doit être motivée : conservez-la.'});
+  } else if(REU.type==='maj'){
+    A.push({gravite:'info', titre:'Seconde réunion à la demande de la majorité',
+      texte:'Le comité peut tenir une seconde réunion à la demande de la majorité de ses membres (L.2315-28).'});
+  }
+
+  /* Visioconférence */
+  if(REU.mode==='visio'||REU.mode==='mixte'){
+    var n=parseInt(REU.visioAnnee||'',10);
+    if(REU.visioAccord!=='oui'){
+      if(!isNaN(n) && n>3){
+        A.push({gravite:'stop', titre:'Plus de trois réunions en visioconférence dans l’année',
+          texte:'Celle-ci serait la '+n+'e. À défaut d’accord entre l’employeur et les membres élus, le recours à la visioconférence est limité à trois réunions par année civile (L.2315-4).'});
+      } else {
+        A.push({gravite:'question', titre:'Visioconférence — limite de trois réunions',
+          texte:'À défaut d’accord entre l’employeur et les membres élus, le recours à la visioconférence est limité à trois réunions par année civile (L.2315-4). '
+            +(isNaN(n)?'Indiquez le rang de cette réunion dans l’année pour que la limite soit vérifiée.':'Celle-ci est la '+n+'e de l’année.')});
+      }
+    }
+    A.push({gravite:'info', titre:'Conditions techniques de la visioconférence',
+      texte:'Le dispositif doit garantir l’identification des membres et leur participation effective, en assurant la retransmission continue et simultanée du son et de l’image des délibérations (D.2315-1). '
+        +'Lorsqu’il est procédé à un vote à bulletin secret, il doit assurer que l’identité des votants ne peut être mise en relation avec l’expression de leur vote, et que le vote est simultané (D.2315-2).'});
+  }
+
+  /* Présences et majorité */
+  var pres=reuNbPresents(), tits=reuTits().length;
+  if(E.length){
+    A.push({gravite:'info', titre:'Présences',
+      texte:pres+' membre(s) présent(s) sur '+E.length+' élu(s), dont '+tits+' titulaire(s) au comité. '
+        +'Le suppléant assiste aux réunions en l’absence du titulaire (L.2314-1) : vérifiez que la feuille de présence en porte la trace.'});
+    if(eff!==null && eff>=50){
+      A.push({gravite:'info', titre:'Majorité',
+        texte:'Les décisions du comité portant sur ses modalités de fonctionnement et l’organisation de ses travaux sont prises à la majorité des membres présents, soit '
+          +(pres?Math.floor(pres/2)+1:'[N]')+' voix sur '+(pres||'[N]')+' (L.2315-32). Aucun quorum n’est exigé. '
+          +'Le président ne participe pas au vote lorsqu’il consulte les membres élus en tant que délégation du personnel.'});
+    }
+  } else {
+    A.push({gravite:'question', titre:'Aucun élu connu',
+      texte:'La composition du comité vient de la page « Mon CSE ». Renseignez-la pour que la feuille de présence et le calcul de la majorité soient possibles.'});
+  }
+
+  /* Contrôle des délibérations saisies */
+  reuVotes().forEach(function(x,i){
+    var p=parseInt(x.pour||'',10), c=parseInt(x.contre||'',10), a=parseInt(x.abst||'',10);
+    if(isNaN(p)&&isNaN(c)&&isNaN(a)) return;
+    var tot=(isNaN(p)?0:p)+(isNaN(c)?0:c)+(isNaN(a)?0:a);
+    var lib=(x.t||'').trim()||('délibération n° '+(i+1));
+    if(pres && tot>pres){
+      A.push({gravite:'stop', titre:'Plus de voix que de présents — '+lib,
+        texte:tot+' voix exprimées pour '+pres+' membre(s) présent(s). Le décompte est impossible : corrigez la feuille de présence ou le résultat du vote.'});
+    } else if(pres && tot<pres){
+      A.push({gravite:'question', titre:'Voix manquantes — '+lib,
+        texte:tot+' voix exprimées pour '+pres+' présent(s). Les abstentions doivent être décomptées : la majorité s’apprécie sur les membres présents, non sur les seuls suffrages exprimés (L.2315-32).'});
+    }
+    // On n'annonce une issue que si le decompte est possible : plus de voix
+    // que de presents, c'est un resultat invalide, pas un resultat adopte.
+    if(!isNaN(p) && pres && tot<=pres){
+      var seuil=Math.floor(pres/2)+1;
+      A.push({gravite:'info', titre:(p>=seuil?'Adoptée — ':'Rejetée — ')+lib,
+        texte:p+' pour, '+(isNaN(c)?0:c)+' contre, '+(isNaN(a)?0:a)+' abstention(s). Majorité des membres présents : '+seuil+' voix sur '+pres+'.'});
+    }
+  });
+
+  var o={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return o[a.gravite]-o[b.gravite]; });
+  return {alertes:A, eff:eff, elus:E, presents:pres};
+}
+
+/* ══════════ DOCUMENTS ══════════ */
+function reuV(x,def){ var s=(x||'').toString().trim(); return s||('['+def+']'); }
+function reuEnt(){
+  var e=(typeof E!=='undefined'&&E)?E:{};
+  var soc=(typeof RX!=='undefined'&&RX.ent)?RX.ent:{};
+  return { nom:(soc.nom||e.nom||''), adresse:(soc.adresse||e.adresse||''), dirigeant:(soc.gerant||e.dirigeant||'') };
+}
+function reuOdjHTML(){
+  var P=reuPoints();
+  if(!P.length) return '<p>[ORDRE DU JOUR À COMPLÉTER]</p>';
+  return '<ol>'+P.map(function(p){
+    var m={legale:' <i>(inscrit de plein droit — consultation obligatoire)</i>', conjoint:'', presid:' <i>(à l’initiative du président)</i>', secret:' <i>(à l’initiative du secrétaire)</i>'}[p.o]||'';
+    return '<li style="margin-bottom:6px">'+reuEsc((p.t||'').trim()||'[POINT]')+m+(p.vote?' — <b>soumis au vote</b>':'')+'</li>';
+  }).join('')+'</ol>';
+}
+function reuDoc(k){
+  var S='margin:0 0 12px';
+  var ent=reuEnt(), eff=reuEff();
+  var entete='<p style="'+S+'"><b>'+reuEsc(reuV(ent.nom,'RAISON SOCIALE'))+'</b><br>'+reuEsc(reuV(ent.adresse,'ADRESSE'))+'</p>';
+  var sec=reuDesigne('secretaire'), pres=reuDesigne('president')||REU.president||'';
+  var presNom=(typeof MC!=='undefined'&&MC.president)?MC.president:'';
+  var lieuDate='<p style="'+S+';text-align:right">Fait le '+reuFR((function(){var t=new Date();return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);})())+'</p>';
+
+  if(k==='conv'){
+    reuAfficheDoc('Convocation à la réunion du CSE',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">CONVOCATION</h2>'
+      +'<p style="text-align:center;'+S+'"><b>Réunion du comité social et économique</b></p>'
+      +'<p style="'+S+'">Mesdames et Messieurs les membres du comité social et économique sont convoqués à la réunion qui se tiendra le <b>'
+        +reuV(reuFR(REU.date),'DATE')+'</b> à <b>'+reuV(REU.heure,'HEURE')+'</b>, '
+        +({pres:'en présentiel',visio:'en visioconférence',mixte:'en présentiel et en visioconférence'}[REU.mode]||'[MODALITÉ]')
+        +', '+reuEsc(reuV(REU.lieu,'LIEU'))+'.</p>'
+      +'<p style="'+S+'">Nature de la réunion : '+reuEsc((function(){ for(var i=0;i<REU_TYPES.length;i++){ if(REU_TYPES[i].v===REU.type) return REU_TYPES[i].lib; } return '[NATURE]'; })())+'.</p>'
+      +'<p style="'+S+'"><b>Ordre du jour</b>, établi conjointement par le président et le secrétaire (article L.2315-29 du code du travail) :</p>'
+      + reuOdjHTML()
+      +'<p style="'+S+'">Le présent ordre du jour est communiqué aux membres du comité, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention de l’organisme de sécurité sociale, trois jours au moins avant la réunion (article L.2315-30).</p>'
+      +(REU.mode!=='pres'?('<p style="'+S+'"><i>La visioconférence est mise en œuvre dans des conditions garantissant l’identification des membres et leur participation effective, par la retransmission continue et simultanée du son et de l’image des délibérations (article D.2315-1).</i></p>'):'')
+      +lieuDate
+      +'<p style="'+S+';margin-top:24px">Le président du comité social et économique<br>'+reuEsc(reuV(presNom||ent.dirigeant,'NOM ET QUALITÉ'))+'</p>');
+  }
+  else if(k==='presence'){
+    var E2=reuElus();
+    var lignes=E2.length? E2.map(function(e,i){
+        return '<tr><td style="border:1px solid #000;padding:6px">'+reuEsc((e.nom||'').trim()||('élu n° '+(i+1)))+'</td>'
+          +'<td style="border:1px solid #000;padding:6px">'+(e.q==='sup'?'Suppléant':'Titulaire')+'</td>'
+          +'<td style="border:1px solid #000;padding:6px">'+(reuPresent(i)?'Présent':'Absent')+'</td>'
+          +'<td style="border:1px solid #000;padding:6px;width:180px"></td></tr>';
+      }).join('') : '<tr><td colspan="4" style="border:1px solid #000;padding:6px">[LISTE DES ÉLUS À RENSEIGNER DANS « MON CSE »]</td></tr>';
+    reuAfficheDoc('Feuille de présence',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">FEUILLE DE PRÉSENCE</h2>'
+      +'<p style="text-align:center;'+S+'">Réunion du comité social et économique du <b>'+reuV(reuFR(REU.date),'DATE')+'</b></p>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11pt">'
+      +'<tr><th style="border:1px solid #000;padding:6px;text-align:left">Nom</th><th style="border:1px solid #000;padding:6px;text-align:left">Qualité</th>'
+      +'<th style="border:1px solid #000;padding:6px;text-align:left">Présence</th><th style="border:1px solid #000;padding:6px;text-align:left">Signature</th></tr>'
+      +lignes+'</table>'
+      +'<p style="'+S+';margin-top:14px"><i>Le suppléant assiste aux réunions en l’absence du titulaire (article L.2314-1 du code du travail).</i></p>'
+      +'<p style="'+S+'">Président : '+reuEsc(reuV(presNom||ent.dirigeant,'NOM ET QUALITÉ'))
+      +(MC&&MC.collaborateurs?('<br>Collaborateurs assistant le président (trois au plus, voix consultative — article L.2315-23) : '+reuEsc(MC.collaborateurs)):'')+'</p>');
+  }
+  else if(k==='pv'){
+    var V=reuVotes();
+    var nbP=reuNbPresents();
+    var delibs=V.length? V.map(function(x,i){
+        var p=parseInt(x.pour||'',10), c=parseInt(x.contre||'',10), a=parseInt(x.abst||'',10);
+        var seuil=nbP?Math.floor(nbP/2)+1:null;
+        var issue=(seuil!==null && !isNaN(p))? (p>=seuil?'<b>Adoptée</b>':'<b>Rejetée</b>') : '[ISSUE]';
+        return '<p style="'+S+'"><b>'+reuEsc((x.t||'').trim()||('Délibération n° '+(i+1)))+'</b><br>'
+          +'Pour : '+(isNaN(p)?'[N]':p)+' — Contre : '+(isNaN(c)?'[N]':c)+' — Abstentions : '+(isNaN(a)?'[N]':a)+'. '
+          +(seuil!==null?('Majorité des membres présents : '+seuil+' voix sur '+nbP+'. '):'')
+          +issue+'.</p>';
+      }).join('') : '<p style="'+S+'">[AUCUNE DÉLIBÉRATION SAISIE]</p>';
+    reuAfficheDoc('Procès-verbal de la réunion du CSE',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">PROCÈS-VERBAL</h2>'
+      +'<p style="text-align:center;'+S+'">Réunion du comité social et économique du <b>'+reuV(reuFR(REU.date),'DATE')+'</b></p>'
+      +'<p style="'+S+'">La réunion s’est tenue le '+reuV(reuFR(REU.date),'DATE')+' à '+reuV(REU.heure,'HEURE')+', '
+        +({pres:'en présentiel',visio:'en visioconférence',mixte:'en présentiel et en visioconférence'}[REU.mode]||'[MODALITÉ]')+', '+reuEsc(reuV(REU.lieu,'LIEU'))+'. '
+        +nbP+' membre(s) présent(s). L’ordre du jour a été communiqué le '+reuV(reuFR(REU.dateOdj),'DATE')+'.</p>'
+      +'<p style="'+S+'"><b>Ordre du jour</b></p>'+reuOdjHTML()
+      +'<p style="'+S+'"><b>Résumé des délibérations</b></p>'
+      +'<p style="'+S+'">'+reuEsc(reuV(REU.resume,'RÉSUMÉ DES DÉLIBÉRATIONS'))+'</p>'
+      + delibs
+      +'<p style="'+S+'"><b>Décision motivée de l’employeur sur les propositions faites lors de la réunion précédente</b></p>'
+      +'<p style="'+S+'">'+reuEsc(reuV(REU.reponseEmployeur,'DÉCISION MOTIVÉE DE L’EMPLOYEUR'))+'</p>'
+      +'<p style="'+S+'"><i>Le présent procès-verbal contient au moins le résumé des délibérations et la décision motivée de l’employeur sur les propositions faites lors de la réunion précédente (articles L.2315-34 et D.2315-26 du code du travail). '
+        +'Il est établi par le secrétaire et transmis à l’employeur dans les quinze jours suivant la réunion, ou avant la réunion suivante si elle intervient dans ce délai (article R.2315-25). '
+        +'Après adoption, il peut être affiché ou diffusé dans l’entreprise par le secrétaire, selon les modalités fixées par le règlement intérieur du comité (article L.2315-35).</i></p>'
+      +lieuDate
+      +'<p style="'+S+';margin-top:24px">Le secrétaire du comité social et économique<br>'+reuEsc(reuV(sec,'NOM DU SECRÉTAIRE'))+'</p>');
+  }
+}
+/* Affichage : on reutilise la visionneuse de documents de l'application. */
+function reuAfficheDoc(titre, html){
+  var S='font-family:\'Times New Roman\',Times,serif;font-size:11pt;color:#000;line-height:1.7;';
+  var page='<div style="'+S+'">'+html+'</div>';
+  if(typeof showDoc==='function'){ showDoc(titre, page); return; }
+  var w=window.open('','_blank');
+  if(w){ w.document.write('<html><head><meta charset="utf-8"><title>'+reuEsc(titre)+'</title></head><body>'+page+'</body></html>'); w.document.close(); }
+  else alert('Ouverture impossible : autorisez les fenêtres.');
+}
+
+/* ══════════ RENDU ══════════ */
+function reuOnEnter(){ reuLoad(); try{ if(typeof mcLoad==='function') mcLoad(); }catch(e){} reuRender(); }
+function reuRender(){
+  var host=document.getElementById('csereu-body'); if(!host) return;
+  var d=reuAnalyse();
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  var h='';
+
+  h+='<div class="card"><div class="ct">La séance</div>'
+   +'<div class="fg"><label class="fl">Date de la réunion</label><input type="date" value="'+reuEsc(REU.date||'')+'" onchange="reuSet(\'date\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Heure</label><input value="'+reuEsc(REU.heure||'')+'" placeholder="Ex : 14 h 00" onchange="reuSetQ(\'heure\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Lieu</label><input value="'+reuEsc(REU.lieu||'')+'" placeholder="Ex : salle de réunion du siège" onchange="reuSetQ(\'lieu\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Nature de la réunion</label>'+S('reu-type',REU_TYPES,REU.type||'','reuSetSel(\'type\',\'reu-type\')')+'</div>'
+   +'<div class="fg"><label class="fl">Modalité</label>'+S('reu-mode',REU_MODES,REU.mode||'','reuSetSel(\'mode\',\'reu-mode\')')+'</div>'
+   +((REU.mode==='visio'||REU.mode==='mixte')?
+      ('<div class="fg"><label class="fl">Un accord autorise-t-il la visioconférence au-delà de trois réunions ?</label>'
+        +S('reu-va',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui — accord employeur / membres élus'}],REU.visioAccord||'','reuSetSel(\'visioAccord\',\'reu-va\')')+'</div>'
+       +'<div class="fg"><label class="fl">Rang de cette réunion en visioconférence dans l’année civile</label>'
+        +'<input type="number" min="1" value="'+reuEsc(REU.visioAnnee||'')+'" onchange="reuSet(\'visioAnnee\',this.value)"></div>'):'')
+   +'<div class="fg"><label class="fl">Date de communication de l’ordre du jour</label><input type="date" value="'+reuEsc(REU.dateOdj||'')+'" onchange="reuSet(\'dateOdj\',this.value)"></div>'
+   +(REU.date?('<div style="font-size:12px;color:#9fb0c4">Au plus tard le <b style="color:#e8c97a">'+reuFR(reuPlus(REU.date,-3))+'</b> (L.2315-30) · procès-verbal au plus tard le <b style="color:#e8c97a">'+reuFR(reuPlus(REU.date,15))+'</b> (R.2315-25)</div>'):'')
+   +'</div>';
+
+  /* Ordre du jour */
+  h+='<div class="card"><div class="ct">Ordre du jour</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'Établi conjointement par le président et le secrétaire. Les consultations rendues obligatoires par la loi, le règlement ou un accord y sont inscrites de plein droit par l’un ou l’autre (L.2315-29).'
+   +'</div>';
+  var P=reuPoints();
+  if(!P.length) h+='<div style="font-size:12.5px;color:#9fb0c4">Aucun point inscrit.</div>';
+  else h+=P.map(function(p,i){
+    return '<div style="padding:10px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:9px;margin-bottom:8px">'
+      +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+        +'<span style="font-size:12px;color:#9fb0c4;font-weight:700">'+(i+1)+'.</span>'
+        +'<input value="'+reuEsc(p.t||'')+'" placeholder="Intitulé du point" onchange="reuPtSet('+i+',\'t\',this.value)" style="flex:1;padding:7px;font-size:13px">'
+        +'<a href="#" onclick="reuPtMove('+i+',-1);return false" style="color:#9fb0c4;text-decoration:none;font-size:15px">▲</a>'
+        +'<a href="#" onclick="reuPtMove('+i+',1);return false" style="color:#9fb0c4;text-decoration:none;font-size:15px">▼</a>'
+        +'<a href="#" onclick="reuPtDel('+i+');return false" style="color:#c0392b;text-decoration:none;font-weight:700">✕</a>'
+      +'</div>'
+      +'<select onchange="reuPtSet('+i+',\'o\',this.value)" style="width:100%;padding:6px;font-size:12px;margin-bottom:6px">'
+      + REU_ORIGINES.map(function(o){ return '<option value="'+o.v+'"'+(p.o===o.v?' selected':'')+'>'+reuEsc(o.lib)+'</option>'; }).join('')
+      +'</select>'
+      +'<label style="font-size:12.5px;color:#e8e4d8;cursor:pointer"><input type="checkbox" '+(p.vote?'checked':'')+' onchange="reuPtSet('+i+',\'vote\',this.checked)" style="width:auto;margin-right:6px">soumis au vote</label>'
+      +'</div>';
+  }).join('');
+  h+='<div style="margin-top:8px"><button onclick="reuPtAdd()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter un point</button></div></div>';
+
+  /* Présences */
+  h+='<div class="card"><div class="ct">Présences — '+d.presents+' sur '+d.elus.length+'</div>';
+  if(!d.elus.length){
+    h+='<div style="font-size:12.5px;color:#e8c97a">La composition vient de « Mon CSE ».</div>'
+     +'<div style="margin-top:10px"><button class="btn" onclick="goPage(\'moncse\')">Ouvrir Mon CSE</button></div>';
+  } else {
+    h+=d.elus.map(function(e,i){
+      return '<label style="display:flex;gap:8px;align-items:center;padding:7px 0;border-top:1px solid #263a52;font-size:13px;cursor:pointer">'
+        +'<input type="checkbox" '+(reuPresent(i)?'checked':'')+' onchange="reuTogglePres('+i+')" style="width:auto">'
+        +'<span style="flex:1">'+reuEsc((e.nom||'').trim()||('élu n° '+(i+1)))+'</span>'
+        +'<span style="font-size:11.5px;color:#9fb0c4">'+(e.q==='sup'?'suppléant':'titulaire')+'</span>'
+        +'</label>';
+    }).join('');
+  }
+  h+='</div>';
+
+  /* Délibérations */
+  h+='<div class="card"><div class="ct">Délibérations</div>';
+  var V=reuVotes();
+  if(!V.length) h+='<div style="font-size:12.5px;color:#9fb0c4">Aucune délibération saisie.</div>';
+  else h+=V.map(function(x,i){
+    var n=function(k,ph){ return '<input type="number" min="0" placeholder="'+ph+'" value="'+reuEsc(x[k]||'')+'" onchange="reuVoteSet('+i+',\''+k+'\',this.value)" style="width:88px;padding:7px;font-size:12.5px">'; };
+    return '<div style="padding:10px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:9px;margin-bottom:8px">'
+      +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+        +'<input value="'+reuEsc(x.t||'')+'" placeholder="Objet de la délibération" onchange="reuVoteSet('+i+',\'t\',this.value)" style="flex:1;padding:7px;font-size:13px">'
+        +'<a href="#" onclick="reuVoteDel('+i+');return false" style="color:#c0392b;text-decoration:none;font-weight:700">✕</a>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+n('pour','Pour')+n('contre','Contre')+n('abst','Abst.')+'</div>'
+      +'</div>';
+  }).join('');
+  h+='<div style="margin-top:8px"><button onclick="reuVoteAdd()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter une délibération</button></div>'
+   +'<div class="fg" style="margin-top:12px"><label class="fl">Résumé des délibérations (pour le procès-verbal)</label>'
+   +'<textarea rows="4" onchange="reuSetQ(\'resume\',this.value)">'+reuEsc(REU.resume||'')+'</textarea></div>'
+   +'<div class="fg"><label class="fl">Décision motivée de l’employeur sur les propositions de la réunion précédente (D.2315-26)</label>'
+   +'<textarea rows="3" onchange="reuSetQ(\'reponseEmployeur\',this.value)">'+reuEsc(REU.reponseEmployeur||'')+'</textarea></div>'
+   +'</div>';
+
+  /* Contrôles */
+  h+='<div class="card"><div class="ct">Contrôles</div>'
+   + ((typeof jxCohHTML==='function')? jxCohHTML(d.alertes) : '')
+   +'</div>';
+
+  /* Documents */
+  h+='<div class="card"><div class="ct">Documents</div>'
+   +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+   +'<button onclick="reuDoc(\'conv\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Convocation + ordre du jour</button>'
+   +'<button onclick="reuDoc(\'presence\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Feuille de présence</button>'
+   +'<button onclick="reuDoc(\'pv\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Procès-verbal</button>'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px;line-height:1.55">Les mentions non renseignées apparaissent entre crochets : elles sont visibles, pas inventées.</div>'
+   +'</div>';
+
+  host.innerHTML=h;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULE 3.2 : CALENDRIER ANNUEL DES REUNIONS
