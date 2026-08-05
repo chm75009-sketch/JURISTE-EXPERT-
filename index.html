@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.96';
+var JX_BUILD = 'v2026-08-05.97';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,24 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ MON CSE — COMPOSITION ET MANDATS ═══ -->
+<div id="pg-moncse" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Mon CSE</div><div class="ts">Élus · désignations · heures · mandats</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    Qui a été élu, pour combien de temps, avec quels crédits d'heures et quelles désignations.
+    L'effectif vient du socle — il n'est pas redemandé. Chaque contrôle porte l'article qui le fonde.
+  </div>
+</div>
+<div id="moncse-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{mcOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 <!-- ═══ CSE — DIAGNOSTIC ET FEUILLE DE ROUTE ═══ -->
 <div id="pg-csediag" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3396,6 +3414,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
   <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
   <div class="mi" onclick="goPage('socle');closeMenu()"><span style="font-size:18px">📐</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Socle — effectif &amp; seuils</div></div></div>
   <div class="mi" onclick="window.location.href='elections-cse.html'"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">MODULE AUTONOME</span></div></div></div>
@@ -5308,6 +5327,7 @@ function goPage(id){
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
   if(id==='socle'){ try{ socOnEnter(); }catch(e){} }
   if(id==='csediag'){ try{ csedOnEnter(); }catch(e){} }
+  if(id==='moncse'){ try{ mcOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6185,6 +6205,309 @@ function socOuvrirAccord(){
   catch(e){ alert('Ouverture impossible : '+e.message); }
 }
 function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SOC.accord=null; socSave(); socRender(); }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULES 3.0 ET 3.1 : SAISIE INITIALE ET « MON CSE »
+   Qui a ete elu, pour combien de temps, avec quels credits d'heures,
+   quelles designations et quelles protections. Chaque regle porte son
+   article. Ce qui n'est pas renseigne est demande, jamais suppose.
+   ══════════════════════════════════════════════════════════════════ */
+var MC={};
+var MC_LS='cse_instance_v1';
+function mcKey(){ return MC_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function mcLoad(){ try{ MC=JSON.parse(localStorage.getItem(mcKey())||'{}')||{}; }catch(e){ MC={}; } if(!Array.isArray(MC.elus)) MC.elus=[]; }
+function mcSave(){ try{ localStorage.setItem(mcKey(), JSON.stringify(MC)); }catch(e){} }
+function mcEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function mcFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function mcSet(k,v){ MC[k]=v; mcSave(); mcRender(); }
+function mcSetSel(k,id){ MC[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; mcSave(); mcRender(); }
+
+/* Bareme R.2314-1 : sieges et heures. Repris du module Elections. */
+function mcBareme(eff){
+  var s=0,h=0;
+  if(eff<11) return {sieges:0,heures:0};
+  else if(eff<=24){s=1;h=10;}   else if(eff<=49){s=2;h=10;}
+  else if(eff<=74){s=3;h=18;}   else if(eff<=99){s=4;h=19;}
+  else if(eff<=124){s=5;h=21;}  else if(eff<=149){s=6;h=21;}
+  else if(eff<=174){s=7;h=21;}  else if(eff<=199){s=8;h=21;}
+  else if(eff<=249){s=9;h=22;}  else if(eff<=299){s=10;h=22;}
+  else if(eff<=399){s=11;h=22;} else if(eff<=499){s=12;h=22;}
+  else if(eff<=599){s=13;h=24;} else if(eff<=699){s=14;h=24;}
+  else if(eff<=799){s=14;h=24;} else if(eff<=899){s=15;h=24;}
+  else if(eff<=999){s=16;h=24;} else if(eff<=1249){s=17;h=24;}
+  else if(eff<=1499){s=18;h=24;}else if(eff<=1749){s=20;h=26;}
+  else if(eff<=1999){s=21;h=26;}else if(eff<=2249){s=22;h=26;}
+  else if(eff<=2499){s=23;h=26;}else if(eff<=2999){s=24;h=26;}
+  else if(eff<=3499){s=25;h=26;}else if(eff<=3999){s=26;h=27;}
+  else if(eff<=4499){s=26;h=28;}else if(eff<=4999){s=27;h=28;}
+  else if(eff<=5499){s=28;h=28;}else if(eff<=5999){s=29;h=29;}
+  else if(eff<=6499){s=29;h=29;}else if(eff<=6999){s=30;h=29;}
+  else if(eff<=7499){s=31;h=30;}else if(eff<=7999){s=31;h=30;}
+  else if(eff<=8499){s=32;h=30;}else if(eff<=8999){s=32;h=31;}
+  else if(eff<=9499){s=33;h=31;}else if(eff<=9999){s=34;h=32;}
+  else {s=35;h=34;}
+  return {sieges:s,heures:h};
+}
+/* L'effectif vient du socle. On ne le redemande pas. */
+function mcEffectif(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof socSerie!=='function') return null;
+    var s=socSerie(36);
+    return s.length? s[s.length-1].ent : null;
+  }catch(e){ return null; }
+}
+function mcPlus(iso,j,mois,ans){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  if(ans) d.setFullYear(d.getFullYear()+ans);
+  if(mois) d.setMonth(d.getMonth()+mois);
+  if(j) d.setDate(d.getDate()+j);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function mcTerme(){
+  var t=parseInt(MC.duMandat||'4',10)||4;
+  return MC.tour1? mcPlus(MC.tour1,0,0,t) : '';
+}
+
+var MC_COLLEGES=[
+  {v:'1',lib:'1er collège — ouvriers et employés'},
+  {v:'2',lib:'2e collège — techniciens, agents de maîtrise et cadres'},
+  {v:'3',lib:'3e collège — cadres (si au moins vingt-cinq cadres)'}
+];
+var MC_QUALITES=[{v:'tit',lib:'Titulaire'},{v:'sup',lib:'Suppléant'}];
+var MC_SEXES=[{v:'F',lib:'Femme'},{v:'H',lib:'Homme'}];
+var MC_DUREES=[{v:'4',lib:'4 ans (durée légale à défaut d’accord)'},{v:'3',lib:'3 ans (accord)'},{v:'2',lib:'2 ans (accord)'}];
+
+function mcElus(){ if(!Array.isArray(MC.elus)) MC.elus=[]; return MC.elus; }
+function mcTits(){ return mcElus().filter(function(e){ return e.q==='tit'; }); }
+function mcAdd(){ mcElus().push({nom:'',q:'tit',col:'1',sexe:'',heures:''}); mcSave(); mcRender(); }
+function mcDel(i){ if(!confirm('Retirer cet élu ?')) return; mcElus().splice(i,1); mcSave(); mcRender(); }
+function mcElSet(i,k,v){
+  var e=mcElus()[i]; if(!e) return;
+  if(k==='heures'){ var n=parseFloat(String(v).replace(',','.')); if(isNaN(n)) delete e.heures; else e.heures=n; }
+  else e[k]=v;
+  mcSave(); mcRender();
+}
+function mcNoms(){
+  return mcElus().map(function(e,i){ return {v:String(i), lib:((e.nom||'').trim()||('élu n° '+(i+1)))+' — '+(e.q==='sup'?'suppléant':'titulaire')}; });
+}
+function mcNom(i){
+  var e=mcElus()[parseInt(i,10)];
+  return e? ((e.nom||'').trim()||('élu n° '+(parseInt(i,10)+1))) : '';
+}
+
+/* ══════════ ANALYSE DE LA COMPOSITION ══════════ */
+function mcAnalyse(){
+  var A=[], eff=mcEffectif(), L=mcElus(), T=mcTits();
+  var b=(eff!==null)?mcBareme(eff):null;
+
+  if(eff===null){
+    A.push({gravite:'question', titre:'Effectif inconnu',
+      texte:'Le socle ne fournit pas d’effectif : le nombre de sièges et le crédit d’heures ne peuvent pas être contrôlés. Renseignez le registre du personnel.'});
+  }
+
+  /* Nombre de sièges */
+  if(b && b.sieges){
+    if(T.length && T.length!==b.sieges){
+      A.push({gravite:'question', titre:'Nombre de titulaires différent du tableau réglementaire',
+        texte:T.length+' titulaire(s) saisi(s) pour un effectif de '+eff+' salariés, alors que le tableau en prévoit '+b.sieges+' (R.2314-1). '
+          +'Le protocole peut modifier ce nombre, mais toute réduction suppose une contrepartie en volume global d’heures de délégation au moins égale (L.2314-7).'});
+    }
+    if(!L.length){
+      A.push({gravite:'info', titre:'Sièges à pourvoir',
+        texte:b.sieges+' titulaires et '+b.sieges+' suppléants pour un effectif de '+eff+' salariés, avec '+b.heures+' heures par titulaire et par mois (R.2314-1).'});
+    }
+  }
+
+  /* Secrétaire et trésorier : parmi les titulaires (L.2315-23) */
+  if(eff!==null && eff>=50){
+    ['secretaire','tresorier'].forEach(function(k){
+      var lab=(k==='secretaire')?'secrétaire':'trésorier';
+      var v=MC[k];
+      if(v===undefined || v===''){
+        A.push({gravite:'question', titre:'Aucun '+lab+' désigné',
+          texte:'Dans les entreprises d’au moins cinquante salariés, le comité désigne un secrétaire et un trésorier parmi ses membres titulaires (L.2315-23).'});
+        return;
+      }
+      var e=mcElus()[parseInt(v,10)];
+      if(e && e.q!=='tit'){
+        A.push({gravite:'stop', titre:'Le '+lab+' n’est pas un membre titulaire',
+          texte:'« '+((e.nom||'').trim()||('élu n° '+(parseInt(v,10)+1)))+' » est saisi comme suppléant. Le secrétaire et le trésorier sont désignés parmi les membres titulaires (L.2315-23). '
+            +'Une désignation irrégulière expose la délibération à l’annulation.'});
+      }
+    });
+    A.push({gravite:'info', titre:'Personnalité civile et règlement intérieur',
+      texte:'À partir de cinquante salariés, le comité est doté de la personnalité civile et gère son patrimoine (L.2315-23). Il détermine dans un règlement intérieur '
+        +'les modalités de son fonctionnement et de ses rapports avec les salariés (L.2315-24).'});
+  }
+
+  /* Référent harcèlement sexuel */
+  if(!L.length){
+    /* rien à dire tant qu’aucun élu n’est saisi */
+  } else if(MC.referent===undefined || MC.referent===''){
+    A.push({gravite:'stop', titre:'Aucun référent en matière de harcèlement sexuel',
+      texte:'Dans toute entreprise dotée d’un comité, un référent en matière de lutte contre le harcèlement sexuel et les agissements sexistes est désigné par le comité parmi ses membres, '
+        +'sous la forme d’une résolution adoptée à la majorité des membres présents, pour une durée qui prend fin avec celle du mandat (L.2314-1). '
+        +'Cette obligation ne dépend d’aucun seuil d’effectif.'});
+  }
+  if(eff!==null && eff>=250 && (MC.referentEmployeur===undefined || MC.referentEmployeur==='')){
+    A.push({gravite:'question', titre:'Référent employeur non désigné',
+      texte:'Dans les entreprises de plus de deux cent cinquante salariés, l’employeur désigne un référent chargé d’orienter, d’informer et d’accompagner les salariés '
+        +'en matière de lutte contre le harcèlement sexuel et les agissements sexistes (L.1153-5-1). Il s’ajoute au référent du comité, il ne le remplace pas.'});
+  }
+
+  /* Représentant syndical */
+  if(eff!==null && eff>=50){
+    if(eff<300){
+      A.push({gravite:'info', titre:'Représentant syndical — moins de trois cents salariés',
+        texte:'Dans les entreprises de moins de trois cents salariés, le délégué syndical est de droit représentant syndical au comité : aucune désignation distincte n’est nécessaire (L.2314-2). '
+          +'Le seuil s’apprécie au niveau de l’entreprise, et non de l’établissement. La voix du représentant syndical est consultative.'});
+    } else {
+      A.push({gravite:'info', titre:'Représentant syndical — trois cents salariés et plus',
+        texte:'Chaque organisation syndicale représentative dans l’entreprise ou l’établissement peut désigner un représentant syndical au comité, choisi parmi les salariés remplissant les conditions d’éligibilité (L.2314-2). '
+          +'Une organisation ne peut en désigner qu’un seul. Sa voix est consultative.'});
+    }
+  } else if(eff!==null && eff<50 && MC.rs){
+    A.push({gravite:'question', titre:'Représentant syndical dans une entreprise de moins de cinquante salariés',
+      texte:'Vérifiez cette désignation : la jurisprudence retient qu’un représentant syndical au comité ne peut pas être désigné dans une entreprise de moins de cinquante salariés.'});
+  }
+
+  /* Représentation équilibrée */
+  if(T.length){
+    var f=T.filter(function(e){ return e.sexe==='F'; }).length;
+    var hh=T.filter(function(e){ return e.sexe==='H'; }).length;
+    var inc=T.length-f-hh;
+    if(inc){
+      A.push({gravite:'question', titre:'Sexe non renseigné pour '+inc+' titulaire(s)',
+        texte:'La représentation équilibrée des femmes et des hommes ne peut pas être vérifiée tant que le sexe de chaque élu n’est pas renseigné (L.2314-30).'});
+    } else {
+      A.push({gravite:'info', titre:'Composition des titulaires',
+        texte:f+' femme(s) et '+hh+' homme(s). Chaque liste devait comporter une part de femmes et d’hommes correspondant à celle des inscrits du collège, '
+          +'les candidats étant présentés alternativement (L.2314-30). La comparaison avec la liste électorale reste à faire collège par collège.'});
+    }
+  }
+
+  /* Suppléants */
+  if(mcElus().some(function(e){ return e.q==='sup'; })){
+    A.push({gravite:'info', titre:'Rôle des suppléants',
+      texte:'Le suppléant assiste aux réunions en l’absence du titulaire (L.2314-1). Il ne dispose pas d’un crédit d’heures propre, mais le titulaire peut lui transférer une partie du sien, '
+        +'sans qu’un élu puisse disposer sur un mois de plus d’une fois et demie le crédit mensuel d’un titulaire, et avec information écrite de l’employeur huit jours avant (L.2315-9 · R.2315-6).'});
+  }
+
+  /* Mandats et protection */
+  var terme=mcTerme();
+  if(terme){
+    A.push({gravite:'info', titre:'Terme des mandats et protection',
+      texte:'Les mandats prennent fin le '+mcFR(terme)+'. L’ancien élu, comme l’ancien représentant syndical désigné depuis deux ans qui n’est pas reconduit, '
+        +'reste protégé pendant les six premiers mois suivant l’expiration du mandat, soit jusqu’au '+mcFR(mcPlus(terme,0,6))+' (L.2411-5). '
+        +'Le licenciement d’un membre élu, titulaire ou suppléant, ou d’un représentant syndical, ne peut intervenir qu’après autorisation de l’inspecteur du travail.'});
+  } else if(L.length){
+    A.push({gravite:'question', titre:'Date du premier tour manquante',
+      texte:'Sans elle, ni le terme des mandats ni l’échéance de la protection ne peuvent être calculés.'});
+  }
+
+  var o={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return o[a.gravite]-o[b.gravite]; });
+  return {alertes:A, eff:eff, bareme:b, terme:terme};
+}
+
+/* ══════════ RENDU ══════════ */
+function mcOnEnter(){ mcLoad(); mcRender(); }
+function mcRender(){
+  var host=document.getElementById('moncse-body'); if(!host) return;
+  var d=mcAnalyse();
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  var h='';
+
+  /* Synthese */
+  h+='<div class="card"><div class="ct">Le comité en un coup d’œil</div>';
+  if(d.eff===null){
+    h+='<div style="font-size:13px;color:#e8c97a">Effectif inconnu — ouvrez le socle pour le calculer.</div>'
+     +'<div style="margin-top:10px"><button class="btn" onclick="goPage(\'socle\')">Ouvrir le socle</button></div>';
+  } else {
+    var T=mcTits();
+    var hTot=T.reduce(function(a,e){ return a + (e.heures!==undefined && e.heures!=='' ? parseFloat(e.heures) : (d.bareme?d.bareme.heures:0)); },0);
+    h+='<div style="display:flex;flex-wrap:wrap;gap:22px">'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+T.length+'</div><div style="font-size:12px;color:#9fb0c4">titulaire(s)</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+(mcElus().length-T.length)+'</div><div style="font-size:12px;color:#9fb0c4">suppléant(s)</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+Math.round(hTot)+'</div><div style="font-size:12px;color:#9fb0c4">heures / mois au total</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+d.eff+'</div><div style="font-size:12px;color:#9fb0c4">salariés (socle)</div></div>'
+      +'</div>';
+    if(d.terme) h+='<div style="margin-top:12px;font-size:12.5px;color:#9fb0c4">Mandats jusqu’au <b style="color:#e8c97a">'+mcFR(d.terme)+'</b> · protection des anciens élus jusqu’au <b style="color:#e8c97a">'+mcFR(mcPlus(d.terme,0,6))+'</b></div>';
+  }
+  h+='</div>';
+
+  /* 3.0 saisie initiale */
+  h+='<div class="card"><div class="ct">3.0 · Saisie initiale</div>'
+   +'<div class="fg"><label class="fl">Date du premier tour des dernières élections</label>'
+   +'<input type="date" value="'+mcEsc(MC.tour1||'')+'" onchange="mcSet(\'tour1\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Durée des mandats</label>'+S('mc-du',MC_DUREES,String(MC.duMandat||'4'),'mcSetSel(\'duMandat\',\'mc-du\')')+'</div>'
+   +'<div class="fg"><label class="fl">Nombre de collèges retenu par le protocole</label>'
+   +'<input type="number" min="1" max="3" value="'+mcEsc(MC.nbColleges||'')+'" onchange="mcSet(\'nbColleges\',this.value)"></div>'
+   +'</div>';
+
+  /* Les elus */
+  h+='<div class="card"><div class="ct">3.1 · Les élus</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'Le crédit d’heures laissé vide prend la valeur du tableau réglementaire'
+     +(d.bareme&&d.bareme.heures?(' — '+d.bareme.heures+' h par titulaire et par mois pour cet effectif (R.2314-1)'):'')+'. '
+     +'Renseignez-le seulement si le protocole ou un accord a retenu un autre volume.'
+   +'</div>';
+  var L=mcElus();
+  if(!L.length){
+    h+='<div style="font-size:12.5px;color:#9fb0c4">Aucun élu saisi.</div>';
+  } else {
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px">'
+     +'<thead><tr style="color:#9fb0c4;text-align:left;font-size:11.5px">'
+       +'<th style="padding:7px">Nom</th><th style="padding:7px">Qualité</th><th style="padding:7px">Collège</th>'
+       +'<th style="padding:7px">Sexe</th><th style="padding:7px">Heures/mois</th><th style="padding:7px"></th></tr></thead><tbody>'
+     + L.map(function(e,i){
+        var op=function(arr,val,k){
+          return '<select onchange="mcElSet('+i+',\''+k+'\',this.value)" style="width:100%;padding:5px;font-size:12px">'
+            +'<option value="">— ?</option>'
+            + arr.map(function(o){ return '<option value="'+mcEsc(o.v)+'"'+(val===o.v?' selected':'')+'>'+mcEsc(o.lib)+'</option>'; }).join('')
+            +'</select>';
+        };
+        return '<tr style="border-top:1px solid #263a52">'
+          +'<td style="padding:6px"><input value="'+mcEsc(e.nom||'')+'" onchange="mcElSet('+i+',\'nom\',this.value)" style="padding:6px;font-size:12.5px"></td>'
+          +'<td style="padding:6px;min-width:110px">'+op(MC_QUALITES,e.q,'q')+'</td>'
+          +'<td style="padding:6px;min-width:170px">'+op(MC_COLLEGES,e.col,'col')+'</td>'
+          +'<td style="padding:6px;min-width:100px">'+op(MC_SEXES,e.sexe,'sexe')+'</td>'
+          +'<td style="padding:6px"><input type="number" step="0.5" placeholder="'+(d.bareme?d.bareme.heures:'')+'" value="'+mcEsc(e.heures===undefined?'':e.heures)+'" onchange="mcElSet('+i+',\'heures\',this.value)" style="padding:6px;font-size:12px;width:80px"></td>'
+          +'<td style="padding:6px;text-align:center"><a href="#" onclick="mcDel('+i+');return false" style="color:#c0392b;font-weight:700;text-decoration:none">✕</a></td>'
+          +'</tr>';
+       }).join('')
+     +'</tbody></table></div>';
+  }
+  h+='<div style="margin-top:10px"><button onclick="mcAdd()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter un élu</button></div>'
+   +'</div>';
+
+  /* Designations */
+  var noms=mcNoms();
+  h+='<div class="card"><div class="ct">Désignations</div>'
+   +'<div class="fg"><label class="fl">Secrétaire — parmi les membres titulaires (L.2315-23)</label>'+S('mc-sec',noms,MC.secretaire===undefined?'':String(MC.secretaire),'mcSetSel(\'secretaire\',\'mc-sec\')')+'</div>'
+   +'<div class="fg"><label class="fl">Trésorier — parmi les membres titulaires (L.2315-23)</label>'+S('mc-tre',noms,MC.tresorier===undefined?'':String(MC.tresorier),'mcSetSel(\'tresorier\',\'mc-tre\')')+'</div>'
+   +'<div class="fg"><label class="fl">Référent harcèlement sexuel — désigné par le comité parmi ses membres (L.2314-1)</label>'+S('mc-ref',noms,MC.referent===undefined?'':String(MC.referent),'mcSetSel(\'referent\',\'mc-ref\')')+'</div>'
+   +'<div class="fg"><label class="fl">Référent employeur — entreprises de plus de 250 salariés (L.1153-5-1)</label>'
+   +'<input value="'+mcEsc(MC.referentEmployeur||'')+'" placeholder="Nom et fonction" onchange="mcSet(\'referentEmployeur\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Représentant syndical au comité</label>'
+   +'<input value="'+mcEsc(MC.rs||'')+'" placeholder="Nom et organisation" onchange="mcSet(\'rs\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Président — l’employeur ou son représentant, assisté au plus de trois collaborateurs à voix consultative (L.2315-23)</label>'
+   +'<input value="'+mcEsc(MC.president||'')+'" placeholder="Nom et qualité" onchange="mcSet(\'president\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Collaborateurs assistant le président (trois au plus)</label>'
+   +'<input value="'+mcEsc(MC.collaborateurs||'')+'" placeholder="Noms séparés par des virgules" onchange="mcSet(\'collaborateurs\',this.value)"></div>'
+   +'</div>';
+
+  /* Verdict */
+  h+='<div class="card"><div class="ct">Contrôle de la composition</div>'
+   + ((typeof jxCohHTML==='function')? jxCohHTML(d.alertes) : '')
+   + (d.alertes.length?'':'<div style="font-size:13px;color:#9fb0c4">Saisissez les élus pour lancer le contrôle.</div>')
+   +'</div>';
+
+  host.innerHTML=h;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULE 0 : DIAGNOSTIC ET AIGUILLAGE
