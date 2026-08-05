@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.94';
+var JX_BUILD = 'v2026-08-05.95';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6265,6 +6265,67 @@ var CSED_VOTELEC=[
   {v:'unilat',lib:'Decision unilaterale de l\'employeur, faute d\'accord'}
 ];
 
+/* ══════════ EFFECTIFS PAR EXERCICE ══════════
+   Plusieurs obligations ne se declenchent pas sur l'effectif d'un jour mais
+   sur celui constate a la cloture de plusieurs exercices. Et un seuil
+   franchi puis reperdu ne produit pas les memes effets qu'un seuil tenu.
+   Ces effectifs ne peuvent pas etre lus dans le registre — qui ne connait
+   que les salaries de l'entreprise, pas ceux des filiales : ils sont donc
+   demandes, exercice par exercice. */
+function csedExos(){
+  if(!Array.isArray(CSED.exercices)) CSED.exercices=[];
+  return CSED.exercices;
+}
+function csedExosTries(){
+  return csedExos().slice().sort(function(a,b){
+    return String(b.cloture||'').localeCompare(String(a.cloture||''));   // du plus recent au plus ancien
+  });
+}
+function csedExoAdd(){
+  var L=csedExos();
+  var an=new Date().getFullYear() - L.length;
+  L.push({cloture:an+'-12-31', ent:'', fr:'', monde:''});
+  csedSave(); csedRender();
+}
+function csedExoDel(i){
+  var L=csedExos();
+  if(i<0||i>=L.length) return;
+  if(!confirm('Retirer cet exercice ?')) return;
+  L.splice(i,1); csedSave(); csedRender();
+}
+function csedExoSet(i,champ,val){
+  var L=csedExos();
+  if(i<0||i>=L.length) return;
+  L[i][champ]=val; csedSave();
+  if(champ==='cloture') csedRender(); else csedRenderSeuils();
+}
+function csedExoNum(e,champ){
+  var v=parseInt(String((e&&e[champ])||'').replace(/\s/g,''),10);
+  return isNaN(v)?null:v;
+}
+/* Les seuils dont le franchissement se lit d'un exercice a l'autre. */
+var CSED_SEUILS=[
+  {v:11,   lib:'onze salaries — mise en place du comite',            art:'L.2311-2'},
+  {v:50,   lib:'cinquante salaries — attributions etendues',         art:'L.2312-2'},
+  {v:300,  lib:'trois cents salaries — commission sante-securite et commissions obligatoires', art:'L.2315-36 · L.2315-49 · L.2315-50 · L.2315-56'},
+  {v:1000, lib:'mille salaries — commission economique',             art:'L.2315-46'},
+  {v:2000, lib:'deux mille salaries — subvention portee a 0,22 %',   art:'L.2315-61'}
+];
+/* Variation d'un exercice au suivant : franchissement a la hausse ou perte. */
+function csedVariations(){
+  var L=csedExosTries().slice().reverse();          // du plus ancien au plus recent
+  var out=[];
+  for(var i=1;i<L.length;i++){
+    var av=csedExoNum(L[i-1],'ent'), ap=csedExoNum(L[i],'ent');
+    if(av===null||ap===null) continue;
+    CSED_SEUILS.forEach(function(S){
+      if(av<S.v && ap>=S.v) out.push({sens:'hausse', seuil:S, de:L[i-1], a:L[i]});
+      if(av>=S.v && ap<S.v) out.push({sens:'baisse', seuil:S, de:L[i-1], a:L[i]});
+    });
+  }
+  return out;
+}
+
 /* ══════════ LE DIAGNOSTIC ══════════ */
 function csedAnalyse(){
   var A=[], R=[];                       // alertes, feuille de route
@@ -6510,15 +6571,54 @@ function csedAnalyse(){
       texte:'Il faut au moins mille salaries dans les Etats de l\'Espace economique europeen et au moins cent cinquante salaries dans chacun d\'au moins deux de ces Etats (L.2341-1).'});
   }
 
-  /* ── 16. Administrateurs representant les salaries ── */
-  if(N('effFR')>=1000 || N('effMonde')>=5000){
+  /* ── 16. Variation des seuils d'un exercice a l'autre ── */
+  var vars_=csedVariations();
+  vars_.forEach(function(V){
+    if(V.sens==='hausse'){
+      A.push({gravite:'question', titre:'Seuil franchi entre deux exercices — '+V.seuil.v+' salaries',
+        texte:'L\'effectif passe de '+csedExoNum(V.de,'ent')+' a la cloture du '+csedFR(V.de.cloture)+' a '+csedExoNum(V.a,'ent')+' a celle du '+csedFR(V.a.cloture)+' : '
+          +'le seuil de '+V.seuil.lib+' est franchi. Le franchissement ne produit ses effets que si la condition de duree propre a chaque seuil est remplie — '
+          +'l\'effectif a la cloture d\'un exercice ne s\'y substitue pas ('+V.seuil.art+').'});
+    } else {
+      A.push({gravite:'info', titre:'Seuil reperdu entre deux exercices — '+V.seuil.v+' salaries',
+        texte:'L\'effectif retombe de '+csedExoNum(V.de,'ent')+' a '+csedExoNum(V.a,'ent')+' entre les clotures du '+csedFR(V.de.cloture)+' et du '+csedFR(V.a.cloture)+'. '
+          +'Une baisse ne fait pas disparaitre l\'instance en cours de mandat : le comite subsiste jusqu\'au terme, et n\'est pas renouvele si l\'effectif est reste '
+          +'sous onze salaries pendant douze mois consecutifs (L.2313-10).'});
+    }
+  });
+
+  /* ── 17. Administrateurs representant les salaries ── */
+  var exos=csedExosTries();
+  var deuxOK=null, deuxDetail='';
+  if(exos.length>=2){
+    var e1=exos[0], e2=exos[1];
+    var ok1=((csedExoNum(e1,'fr')||0)>=1000)||((csedExoNum(e1,'monde')||0)>=5000);
+    var ok2=((csedExoNum(e2,'fr')||0)>=1000)||((csedExoNum(e2,'monde')||0)>=5000);
+    deuxOK=(ok1&&ok2);
+    deuxDetail='Clotures du '+csedFR(e2.cloture)+' et du '+csedFR(e1.cloture)+' : '
+      +(csedExoNum(e2,'fr')||0)+' puis '+(csedExoNum(e1,'fr')||0)+' salaries permanents en France, '
+      +(csedExoNum(e2,'monde')||0)+' puis '+(csedExoNum(e1,'monde')||0)+' France et etranger.';
+  }
+  var seuilPonctuel = (N('effFR')>=1000 || N('effMonde')>=5000);
+  if(deuxOK===true || (deuxOK===null && seuilPonctuel)){
     var nbCA=N('caMembres');
     var combien = nbCA>8 ? 'deux au moins' : (nbCA>0 ? 'un au moins' : 'un ou deux selon la taille du conseil');
+    if(deuxOK===null){
+      A.push({gravite:'question', titre:'Administrateurs salaries — condition des deux exercices non verifiee',
+        texte:'Le seuil est atteint aujourd\'hui, mais l\'obligation suppose qu\'il le soit a la cloture de DEUX exercices consecutifs '
+          +'(article L.225-27-1 du code de commerce). Saisissez au moins deux exercices ci-dessous pour que ce point soit reellement controle : '
+          +'l\'application ne suppose pas la continuite, elle la verifie.'});
+    }
     A.push({gravite:'stop', titre:'Administrateurs representant les salaries',
-      texte:'La societe emploie, a la cloture de deux exercices consecutifs, au moins mille salaries permanents en France, ou au moins cinq mille en France et a l\'etranger, '
+      texte:(deuxDetail?(deuxDetail+' '):'')
+        +'La societe emploie, a la cloture de deux exercices consecutifs, au moins mille salaries permanents en France, ou au moins cinq mille en France et a l\'etranger, '
         +'filiales comprises : ses statuts doivent prevoir des administrateurs representant les salaries (article L.225-27-1 du code de commerce). '
         +'Leur nombre est de '+combien+(nbCA>0?(' — le conseil compte '+nbCA+' membres'):'')+' : deux au moins lorsque le conseil compte plus de huit membres, un au moins dans le cas contraire. '
         +'Ils ne sont pas pris en compte pour le calcul du nombre minimal et maximal d\'administrateurs.'});
+  } else if(deuxOK===false && seuilPonctuel){
+    A.push({gravite:'info', titre:'Administrateurs salaries — condition des deux exercices non remplie',
+      texte:deuxDetail+' Le seuil n\'est pas atteint a la cloture de deux exercices consecutifs : l\'obligation n\'est pas encore nee '
+        +'(article L.225-27-1 du code de commerce). Elle le sera si la condition est verifiee au prochain exercice.'});
   }
 
   R.sort(function(a,b){ if(!a.date) return 1; if(!b.date) return -1; return a.date<b.date?-1:(a.date>b.date?1:0); });
@@ -6528,6 +6628,31 @@ function csedAnalyse(){
 }
 
 /* ══════════ RENDU ══════════ */
+function csedTableExos(){
+  var L=csedExos();
+  if(!L.length) return '<div style="font-size:12.5px;color:#e8c97a">Aucun exercice saisi : la condition de duree ne peut pas etre verifiee.</div>';
+  var inp=function(i,c,v,ph){
+    return '<input type="number" min="0" placeholder="'+ph+'" value="'+csedEsc(v==null?'':v)+'" onchange="csedExoSet('+i+',\''+c+'\',this.value)" style="width:100%;padding:6px;font-size:12.5px">';
+  };
+  var rows=L.map(function(e,i){
+    return '<tr style="border-top:1px solid #263a52">'
+      +'<td style="padding:6px"><input type="date" value="'+csedEsc(e.cloture||'')+'" onchange="csedExoSet('+i+',\'cloture\',this.value)" style="width:100%;padding:6px;font-size:12.5px"></td>'
+      +'<td style="padding:6px">'+inp(i,'ent',e.ent,'entreprise')+'</td>'
+      +'<td style="padding:6px">'+inp(i,'fr',e.fr,'France')+'</td>'
+      +'<td style="padding:6px">'+inp(i,'monde',e.monde,'monde')+'</td>'
+      +'<td style="padding:6px;text-align:center"><a href="#" onclick="csedExoDel('+i+');return false;" style="color:#c0392b;font-size:15px;font-weight:700;text-decoration:none">\u2715</a></td>'
+      +'</tr>';
+  }).join('');
+  return '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:560px">'
+   +'<thead><tr style="color:#9fb0c4;text-align:left;font-size:11.5px">'
+     +'<th style="padding:6px">Cloture</th>'
+     +'<th style="padding:6px" title="Effectif de l\'entreprise elle-meme, pour suivre la variation des seuils">Entreprise</th>'
+     +'<th style="padding:6px" title="Salaries permanents de la societe et de ses filiales dont le siege est en France">France + filiales</th>'
+     +'<th style="padding:6px" title="Salaries permanents en France et a l\'etranger">France et etranger</th>'
+     +'<th style="padding:6px"></th>'
+   +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function csedRenderSeuils(){ csedRender(); }
 function csedOnEnter(){ csedLoad(); csedRender(); }
 function csedSet(k,v){ CSED[k]=v; csedSave(); csedRender(); }
 function csedSetSel(k,id){ CSED[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; csedSave(); csedRender(); }
@@ -6606,6 +6731,17 @@ function csedRender(){
    +'<input type="number" min="0" value="'+csedEsc(CSED.caMembres||'')+'" onchange="csedSet(\'caMembres\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Installation a regime particulier sur le site</label>'+S('csed-risq',CSED_RISQUE,CSED.siteRisque||'','csedSetSel(\'siteRisque\',\'csed-risq\')')+'</div>'
    +'<div class="fg"><label class="fl">L\'etablissement est-il dans le perimetre d\'un plan de prevention des risques technologiques ?</label>'+S('csed-pprt',CSED_OUINON,CSED.pprt||'','csedSetSel(\'pprt\',\'csed-pprt\')')+'</div>'
+   +'</div>';
+
+  /* Effectifs par exercice — demandes, jamais deduits */
+  h+='<div class="card"><div class="ct">Effectifs a la cloture de chaque exercice</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'Le registre ne connait que les salaries de l\'entreprise : il ignore ceux des filiales, et il ne dit rien des exercices anterieurs. '
+     +'Or plusieurs obligations se lisent sur la <b>duree</b> — deux exercices consecutifs pour les administrateurs salaries — et un seuil '
+     +'franchi puis reperdu n\'a pas les memes effets qu\'un seuil tenu. Saisissez un exercice par ligne, du plus recent au plus ancien.'
+   +'</div>'
+   + csedTableExos()
+   +'<div style="margin-top:10px"><button onclick="csedExoAdd()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter un exercice</button></div>'
    +'</div>';
 
   /* Verdict */
