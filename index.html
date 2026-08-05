@@ -11,6 +11,9 @@
 <meta name="app-version" content="v14">
 <meta name="app-build" content="2026-06-26">
 <style>
+summary::-webkit-details-marker{display:none}
+summary::marker{content:''}
+
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#0f1f2e;color:#e8e4d8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;padding-bottom:80px;min-height:100vh}
 .page{display:none;padding:0 0 96px}
@@ -650,7 +653,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.105';
+var JX_BUILD = 'v2026-08-06.106';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -5669,7 +5672,7 @@ function jxCoherence(ctx){
     var smic=jxSmicMensuel(ctx.heures);
     if(sal < smic-0.5){
       out.push({ gravite:'stop', quoi:'salaire',
-        titre:'Salaire inferieur au SMIC',
+        titre:'Relevez le salaire : il est sous le SMIC',
         texte:'Le salaire saisi ('+sal.toFixed(2)+' €) est inferieur au SMIC applicable ('
           +smic.toFixed(2)+' € brut'+(ctx.heures&&ctx.heures<35?(' pour '+ctx.heures+' h hebdomadaires'):' pour 35 h hebdomadaires')
           +', '+JX_SMIC.source+'). Un contrat ne peut pas etre conclu a ce niveau.' });
@@ -5679,7 +5682,7 @@ function jxCoherence(ctx){
   var mc=parseFloat(String(ctx.minConv||'').replace(',','.'));
   if(sal>0 && mc>0 && sal < mc-0.5){
     out.push({ gravite:'stop', quoi:'salaire',
-      titre:'Salaire inferieur au minimum conventionnel',
+      titre:'Relevez le salaire : il est sous le minimum conventionnel',
       texte:'Vous avez indique un minimum conventionnel de '+mc.toFixed(2)+' € pour ce niveau ; le salaire saisi est de '+sal.toFixed(2)+' €. '
         +'La convention s\'impose a l\'employeur des lors qu\'elle est plus favorable que la loi.' });
   }
@@ -5727,16 +5730,50 @@ function jxCoherence(ctx){
   out.sort(function(a,b){ return ordre[a.gravite]-ordre[b.gravite]; });
   return out;
 }
+/* ══════════════════════════════════════════════════════════════════
+   AFFICHAGE DES ALERTES — une consigne d'abord, le droit derriere.
+   On lit d'abord ce qu'il faut faire, en une ligne. Le fondement et
+   l'explication ne s'ouvrent que si on les demande. Le droit n'est pas
+   supprime : il est range.
+   ══════════════════════════════════════════════════════════════════ */
+/* Extrait les references d'articles du texte, pour les afficher a part
+   plutot que noyees dans la phrase. */
+function jxArticles(txt){
+  var t=String(txt||'');
+  var re=/\b([LRD]\.?\s?\d{4}-\d+(?:-\d+)?)/g, vus={}, out=[], m;
+  while((m=re.exec(t))!==null){
+    var a=m[1].replace(/\s/g,'').replace(/^([LRD])(?!\.)/,'$1.');
+    if(!vus[a]){ vus[a]=1; out.push(a); }
+  }
+  return out;
+}
+/* La premiere phrase du texte : elle suffit presque toujours a comprendre. */
+function jxPremierePhrase(txt){
+  var t=String(txt||'').replace(/<[^>]+>/g,'').trim();
+  var m=t.match(/^[\s\S]{0,190}?[.!?](?=\s|$)/);
+  var p=m? m[0].trim() : t.slice(0,190);
+  return p;
+}
 function jxCohHTML(alertes){
   if(!alertes||!alertes.length) return '';
-  var C={ stop:{c:'#e05c5c',bg:'rgba(224,92,92,.12)',i:'⛔'},
-          question:{c:'#e8c97a',bg:'rgba(232,201,122,.10)',i:'⚠'},
-          info:{c:'#6fa8dc',bg:'rgba(111,168,220,.10)',i:'ℹ'} };
+  var C={ stop:{c:'#e05c5c',bg:'rgba(224,92,92,.10)',i:'⛔',lib:'À FAIRE'},
+          question:{c:'#e8c97a',bg:'rgba(232,201,122,.08)',i:'⚠',lib:'À VÉRIFIER'},
+          info:{c:'#6fa8dc',bg:'rgba(111,168,220,.07)',i:'ℹ',lib:'BON À SAVOIR'} };
   return alertes.map(function(a){
     var s=C[a.gravite]||C.info;
-    return '<div style="margin:8px 0;padding:10px 12px;background:'+s.bg+';border:1px solid '+s.c+';border-radius:10px">'
-      +'<div style="font-size:12.5px;font-weight:800;color:'+s.c+';margin-bottom:3px">'+s.i+' '+jxCohEsc(a.titre)+'</div>'
-      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+jxCohEsc(a.texte)+'</div>'
+    var arts=jxArticles(a.texte);
+    var court=jxPremierePhrase(a.texte);
+    var reste=String(a.texte||'').replace(/<[^>]+>/g,'').trim();
+    var aSuite=(reste.length>court.length+8);
+    return '<div style="margin:9px 0;padding:12px 13px;background:'+s.bg+';border:1px solid '+s.c+';border-radius:11px">'
+      +'<div style="font-size:9.5px;font-weight:800;color:'+s.c+';letter-spacing:.11em;margin-bottom:5px">'+s.i+' '+s.lib+'</div>'
+      +'<div style="font-size:14px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:5px">'+jxCohEsc(a.titre)+'</div>'
+      +'<div style="font-size:12.5px;color:#c9d4e0;line-height:1.6">'+jxCohEsc(court)+'</div>'
+      + (arts.length? ('<div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">'
+          + arts.slice(0,4).map(function(x){ return '<span style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#9fb0c4;border-radius:6px;padding:2px 7px;font-size:10.5px;font-weight:700">'+jxCohEsc(x)+'</span>'; }).join('')
+          +'</div>') : '')
+      + (aSuite? ('<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11.5px;font-weight:700;color:'+s.c+';list-style:none">En savoir plus ▾</summary>'
+          +'<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-top:6px;padding-left:9px;border-left:2px solid rgba(255,255,255,.12)">'+jxCohEsc(reste)+'</div></details>') : '')
       +'</div>';
   }).join('');
 }
@@ -6650,6 +6687,8 @@ function hubCompte(T){
 
 /* ══════════ RENDU ══════════ */
 var _hubCat='';        /* filtre de categorie ; vide = tout */
+var _hubTout='';       /* section dont on a demande l'affichage complet */
+function hubTout(k){ _hubTout=(_hubTout===k)?'':k; hubRender(); }
 function hubSetCat(k){ _hubCat=(_hubCat===k)?'':k; hubRender(); }
 
 function hubVueTaches(){
@@ -6702,6 +6741,11 @@ function hubVueTaches(){
     if(!L.length) return;
     vues++;
     var reste=L.filter(function(t){ return !hubFait(t.id); }).length;
+    /* On n'affiche pas trente cartes d'un coup : trois par section, et le
+       reste sur demande. Une liste qu'on ne peut pas lire ne sert a rien. */
+    var tout=(_hubTout===S.k);
+    var Laff = tout ? L : L.slice(0,3);
+    var caches = L.length - Laff.length;
     h+='<div style="display:flex;gap:9px;align-items:center;margin:16px 0 9px">'
       +'<div style="width:11px;height:11px;border-radius:50%;background:'+S.pastille+';flex-shrink:0"></div>'
       +'<div style="font-size:13.5px;font-weight:800;color:#e8e4d8;letter-spacing:.03em">'+S.lib+'</div>'
@@ -6710,8 +6754,11 @@ function hubVueTaches(){
       +'<div style="font-size:12px;color:#9fb0c4">'+reste+' / '+L.length+'</div>'
       +'</div>'
       +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:10px">'
-      + L.map(hubCarte).join('')
-      +'</div>';
+      + Laff.map(hubCarte).join('')
+      +'</div>'
+      + (caches>0
+          ? ('<div style="margin-top:9px"><button onclick="hubTout(\''+S.k+'\')" style="width:100%;background:#16263c;border:1px dashed #3a4a5f;color:#9fb0c4;border-radius:11px;padding:11px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Voir les '+caches+' autre(s) ▾</button></div>')
+          : (tout && L.length>3 ? ('<div style="margin-top:9px"><button onclick="hubTout(\''+S.k+'\')" style="width:100%;background:#16263c;border:1px dashed #3a4a5f;color:#9fb0c4;border-radius:11px;padding:11px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Réduire ▴</button></div>') : ''));
   });
   if(!vues){
     h+='<div class="card" style="text-align:center;padding:28px">'
@@ -6746,7 +6793,9 @@ function hubCarte(t){
       +'<a href="#" onclick="hubToggleFait(\''+t.id+'\');return false" style="text-decoration:none">'+pastille+'</a>'
     +'</div>'
     +'<div style="font-size:13.5px;font-weight:800;color:#fff;line-height:1.35;'+(fait?'text-decoration:line-through;':'')+'">'+hubEsc(t.titre)+'</div>'
-    +'<div style="font-size:11.5px;color:rgba(255,255,255,.86);line-height:1.5;margin-top:5px;flex:1">'+hubEsc(String(t.detail||'').slice(0,150))+(String(t.detail||'').length>150?'…':'')+'</div>'
+    +'<div style="font-size:11.5px;color:rgba(255,255,255,.88);line-height:1.5;margin-top:5px;flex:1">'
+      + hubEsc((typeof jxPremierePhrase==='function')? jxPremierePhrase(t.detail) : String(t.detail||'').slice(0,150))
+      +'</div>'
     +'<div style="display:flex;gap:6px;align-items:center;margin-top:9px;flex-wrap:wrap">'
       +'<span style="background:rgba(0,0,0,.26);color:#fff;border-radius:7px;padding:3px 8px;font-size:10.5px;font-weight:800;letter-spacing:.04em">'+hubEsc(t.tag||'')+'</span>'
       +(t.date?('<span style="background:rgba(0,0,0,.26);color:'+(retard?'#ffd0d0':'#fff')+';border-radius:7px;padding:3px 8px;font-size:10.5px;font-weight:800">'+hubFR(t.date)+'</span>'):'')
@@ -6796,7 +6845,7 @@ function hubRender(){
     h+='<div style="margin-top:12px;padding:12px;background:'+(P.type==='stop'?'rgba(224,92,92,.12)':'rgba(232,201,122,.10)')+';border:1px solid '+(P.type==='stop'?'#e05c5c':'#e8c97a')+';border-radius:10px">'
       +'<div style="font-size:11px;font-weight:800;color:'+(P.type==='stop'?'#e05c5c':'#e8c97a')+';letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Ce qu’il faut faire maintenant</div>'
       +'<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">'+hubEsc(t)+'</div>'
-      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc(x.slice(0,300))+'</div>'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc((typeof jxPremierePhrase==='function')?jxPremierePhrase(x):x.slice(0,180))+'</div>'
       +(page?('<div style="margin-top:9px"><button onclick="goPage(\''+page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Y aller →</button></div>'):'')
       +'</div>';
   } else if(av.pct===100){
@@ -6841,6 +6890,24 @@ function hubVueDemarrage(){
   return h;
 }
 
+/* Une alerte au tableau de bord : le module, le titre, la premiere phrase,
+   les articles en pastilles, le reste replie. */
+function hubLigneAlerte(a, col, ico){
+  var court=(typeof jxPremierePhrase==='function')? jxPremierePhrase(a.texte) : String(a.texte||'').slice(0,180);
+  var reste=String(a.texte||'').replace(/<[^>]+>/g,'').trim();
+  var arts=(typeof jxArticles==='function')? jxArticles(a.texte) : [];
+  return '<div style="margin:9px 0;padding:12px 13px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid '+col+'">'
+    +'<div style="font-size:9.5px;font-weight:800;color:#9fb0c4;letter-spacing:.1em;margin-bottom:4px">'+ico+' '+hubEsc(a.mod.lib).toUpperCase()+'</div>'
+    +'<div style="font-size:14px;font-weight:700;color:#fff;line-height:1.35;margin-bottom:5px">'+hubEsc(a.titre)+'</div>'
+    +'<div style="font-size:12.5px;color:#c9d4e0;line-height:1.6">'+hubEsc(court)+'</div>'
+    +(arts.length?('<div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">'
+        + arts.slice(0,4).map(function(x){ return '<span style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#9fb0c4;border-radius:6px;padding:2px 7px;font-size:10.5px;font-weight:700">'+hubEsc(x)+'</span>'; }).join('')
+        +'</div>'):'')
+    +((reste.length>court.length+8)?('<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11.5px;font-weight:700;color:'+col+';list-style:none">En savoir plus ▾</summary>'
+        +'<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-top:6px;padding-left:9px;border-left:2px solid rgba(255,255,255,.12)">'+hubEsc(reste)+'</div></details>'):'')
+    +'<div style="margin-top:9px"><button onclick="goPage(\''+a.mod.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:8px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">Y aller →</button></div>'
+    +'</div>';
+}
 function hubVueBord(){
   var A=hubAlertes();
   var par={};
@@ -6866,24 +6933,12 @@ function hubVueBord(){
   var quest=A.filter(function(a){ return a.gravite==='question'; });
   if(bloq.length){
     h+='<div class="card"><div class="ct">'+bloq.length+' anomalie(s) bloquante(s)</div>'
-     + bloq.map(function(a){
-        return '<div class="al" style="margin:8px 0;padding:10px 12px;border-radius:10px;background:rgba(224,92,92,.12);border:1px solid #e05c5c">'
-          +'<div style="font-size:11px;color:#9fb0c4;margin-bottom:2px">'+hubEsc(a.mod.lib)+'</div>'
-          +'<div style="font-size:12.5px;font-weight:800;color:#e05c5c;margin-bottom:3px">⛔ '+hubEsc(a.titre)+'</div>'
-          +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc(a.texte)+'</div>'
-          +'</div>';
-       }).join('')
+     + bloq.map(function(a){ return hubLigneAlerte(a,'#e05c5c','⛔'); }).join('')
      +'</div>';
   }
   if(quest.length){
     h+='<div class="card"><div class="ct">'+quest.length+' point(s) à vérifier</div>'
-     + quest.map(function(a){
-        return '<div style="margin:8px 0;padding:10px 12px;border-radius:10px;background:rgba(232,201,122,.10);border:1px solid #e8c97a">'
-          +'<div style="font-size:11px;color:#9fb0c4;margin-bottom:2px">'+hubEsc(a.mod.lib)+'</div>'
-          +'<div style="font-size:12.5px;font-weight:800;color:#e8c97a;margin-bottom:3px">⚠ '+hubEsc(a.titre)+'</div>'
-          +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc(a.texte)+'</div>'
-          +'</div>';
-       }).join('')
+     + quest.map(function(a){ return hubLigneAlerte(a,'#e8c97a','⚠'); }).join('')
      +'</div>';
   }
   if(!bloq.length && !quest.length){
@@ -7161,9 +7216,9 @@ function cnsAnalyse(){
       A.push({gravite:'question', titre:'Périodicité prévue par l’accord non renseignée',
         texte:'Précisez la périodicité en années que fixe l’accord.'});
     } else if(n>3){
-      A.push({gravite:'stop', titre:'La périodicité dépasse trois ans',
-        texte:'L’accord fixe une périodicité de '+n+' ans. Un accord peut définir le contenu, la périodicité et les modalités des consultations récurrentes, mais la périodicité ne peut excéder trois ans (L.2312-19). '
-          +'La clause est écartée : la périodicité maximale de trois ans s’applique.'});
+      A.push({gravite:'stop', titre:'Consultez tous les trois ans au plus : la clause est écartée',
+        texte:'L’accord fixe une périodicité de '+n+' ans, ce qui est trop long. '
+          +'Un accord peut définir le contenu, la périodicité et les modalités des consultations récurrentes, mais la périodicité ne peut excéder trois ans (L.2312-19).'});
     } else {
       A.push({gravite:'info', titre:'Périodicité fixée par accord',
         texte:'Consultation tous les '+n+' an(s), dans la limite de trois ans (L.2312-19). L’accord peut aussi prévoir un avis unique sur tout ou partie des trois thèmes. '
@@ -7178,9 +7233,10 @@ function cnsAnalyse(){
   /* Base de données économiques, sociales et environnementales */
   var bdOK=(CNS.bdese==='oui');
   if(!bdOK){
-    A.push({gravite:'stop', titre:'Base de données absente — le délai de consultation ne court pas',
-      texte:'Les consultations récurrentes s’appuient sur la base de données économiques, sociales et environnementales, qui en est le support d’information (L.2312-18 · L.2312-21 · L.2312-36). '
-        +'À défaut de mise à disposition, le délai d’examen n’est pas opposable au comité : il ne commence pas à courir, et le comité ne peut donc pas être réputé avoir rendu un avis négatif. '
+    A.push({gravite:'stop', titre:'Mettez en place la base de données avant toute consultation',
+      texte:'Sans elle, le délai de consultation ne court pas et aucun avis ne peut être réputé rendu. '
+        +'Les consultations récurrentes s’appuient sur la base de données économiques, sociales et environnementales, qui en est le support d’information (L.2312-18 · L.2312-21 · L.2312-36). '
+        +'À défaut de mise à disposition, le délai d’examen n’est pas opposable au comité. '
         +'L’absence, l’incomplétude ou le défaut de mise à jour exposent en outre à l’entrave (L.2317-1).'});
   } else {
     A.push({gravite:'info', titre:'Base de données économiques, sociales et environnementales',
@@ -7233,13 +7289,14 @@ function cnsAnalyse(){
     } else if(c.etat==='encours' && c.debut){
       var j=cnsJours(cnsAuj(), lim);
       if(j!==null && j<0){
-        A.push({gravite:'stop', titre:'Délai expiré — '+C.lib,
-          texte:'L’information a été mise à disposition le '+cnsFR(c.debut)+'. À défaut d’accord, le comité est réputé avoir été consulté et avoir rendu un avis négatif à l’expiration du délai de '
-            +mois+' mois, soit le '+cnsFR(lim)+' (L.2312-15 · R.2312-6). Ce délai est dépassé de '+(-j)+' jour(s) : l’avis est réputé négatif, et la consultation est réputée accomplie.'});
+        A.push({gravite:'stop', titre:'Le délai est passé : l’avis est réputé négatif',
+          texte:'Considérez la consultation comme achevée, avec un avis négatif. '
+            +'L’information avait été mise à disposition le '+cnsFR(c.debut)+' ; le délai de '+mois+' mois expirait le '+cnsFR(lim)+', soit il y a '+(-j)+' jour(s). '
+            +'À défaut d’accord, le comité est réputé avoir été consulté et avoir rendu un avis négatif à l’expiration de ce délai (L.2312-15 · R.2312-6).'});
       } else if(j!==null && j<=15){
-        A.push({gravite:'question', titre:'Délai proche — '+C.lib,
-          texte:'Il reste '+j+' jour(s) avant le '+cnsFR(lim)+'. Passé cette date, le comité est réputé avoir rendu un avis négatif (R.2312-6). '
-            +'S’il s’estime insuffisamment informé, il peut saisir le président du tribunal judiciaire, qui statue en la forme des référés (L.2312-15).'});
+        A.push({gravite:'question', titre:'Faites rendre l’avis avant le '+cnsFR(lim),
+          texte:'Il reste '+j+' jour(s). Passé cette date, l’avis est réputé négatif (R.2312-6). '
+            +'Si le comité s’estime insuffisamment informé, il peut saisir le président du tribunal judiciaire, qui statue en la forme des référés (L.2312-15).'});
       }
     }
     if(c.etat==='rendu' && !c.dateAvis){
@@ -7249,8 +7306,8 @@ function cnsAnalyse(){
     if(prochaine){
       var jp=cnsJours(cnsAuj(), prochaine);
       if(jp!==null && jp<0){
-        A.push({gravite:'stop', titre:'Consultation en retard — '+C.lib,
-          texte:'La dernière consultation date du '+cnsFR(c.dernier)+'. Avec une périodicité de '+per+' an(s), la suivante était due le '+cnsFR(prochaine)+', soit il y a '+(-jp)+' jour(s). '
+        A.push({gravite:'stop', titre:'Lancez la consultation : elle est en retard de '+(-jp)+' jour(s)',
+          texte:'Elle était due le '+cnsFR(prochaine)+'. La dernière remonte au '+cnsFR(c.dernier)+', pour une périodicité de '+per+' an(s). '
             +'Omettre une consultation récurrente est susceptible de constituer une entrave au fonctionnement régulier du comité (L.2317-1).'});
       }
     } else if(c.etat!=='encours'){
@@ -7479,12 +7536,12 @@ function rclAnalyse(){
       else if(r.dateRep && rclJours(r.dateRep, lim)<0) retard.push({r:r,lim:lim,tardive:true});
     });
     if(retard.length){
-      A.push({gravite:'stop', titre:retard.length+' réponse(s) hors délai',
-        texte:retard.slice(0,4).map(function(x){
+      A.push({gravite:'stop', titre:'Répondez par écrit : '+retard.length+' réclamation(s) hors délai',
+        texte:'L’employeur répond par écrit au plus tard dans les six jours ouvrables suivant la réunion (L.2315-22). En retard : '
+          +retard.slice(0,4).map(function(x){
             return '« '+((x.r.objet||'').trim().slice(0,50)||'sans objet')+' » — réunion du '+rclFR(x.r.reunion)+', réponse due au plus tard le '+rclFR(x.lim)+(x.tardive?(' , apportée le '+rclFR(x.r.dateRep)):' , non apportée');
           }).join(' · ')
-          +(retard.length>4?(' … et '+(retard.length-4)+' autre(s)'):'')
-          +'. L’employeur répond par écrit au plus tard dans les six jours ouvrables suivant la réunion (L.2315-22).'});
+          +(retard.length>4?(' … et '+(retard.length-4)+' autre(s)'):'')+'.'});
     }
   }
 
@@ -7783,16 +7840,17 @@ function reuAnalyse(){
     if(REU.dateOdj){
       var ecart=Math.round((new Date(REU.date+'T00:00:00')-new Date(REU.dateOdj+'T00:00:00'))/86400000);
       if(ecart<3){
-        A.push({gravite:'stop', titre:'Ordre du jour communiqué trop tard',
-          texte:'L’ordre du jour a été communiqué le '+reuFR(REU.dateOdj)+' pour une réunion du '+reuFR(REU.date)+', soit '+ecart+' jour(s) avant. '
-            +'Il doit l’être trois jours au moins avant la réunion (L.2315-30). Le délai n’est pas une formalité : son inobservation est une cause d’annulation des délibérations.'});
+        A.push({gravite:'stop', titre:'Reportez la réunion ou renvoyez l’ordre du jour',
+          texte:'L’ordre du jour doit partir trois jours au moins avant la réunion ; il est parti '+ecart+' jour(s) avant. '
+            +'Communiqué le '+reuFR(REU.dateOdj)+' pour une réunion du '+reuFR(REU.date)+' (L.2315-30). '
+            +'Ce délai n’est pas une formalité : son inobservation est une cause d’annulation des délibérations.'});
       } else {
         A.push({gravite:'info', titre:'Délai de communication respecté',
           texte:'Ordre du jour communiqué le '+reuFR(REU.dateOdj)+', soit '+ecart+' jours avant la réunion (L.2315-30).'});
       }
     } else {
-      A.push({gravite:'question', titre:'Date de communication de l’ordre du jour non renseignée',
-        texte:'Pour une réunion le '+reuFR(REU.date)+', l’ordre du jour devait être communiqué au plus tard le '+reuFR(lim)+' (L.2315-30). '
+      A.push({gravite:'question', titre:'Envoyez l’ordre du jour au plus tard le '+reuFR(lim),
+        texte:'Trois jours au moins avant la réunion du '+reuFR(REU.date)+' (L.2315-30). '
           +'Il est adressé aux membres, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention de la sécurité sociale.'});
     }
     A.push({gravite:'info', titre:'Procès-verbal',
@@ -7873,8 +7931,8 @@ function reuAnalyse(){
     var tot=(isNaN(p)?0:p)+(isNaN(c)?0:c)+(isNaN(a)?0:a);
     var lib=(x.t||'').trim()||('délibération n° '+(i+1));
     if(pres && tot>pres){
-      A.push({gravite:'stop', titre:'Plus de voix que de présents — '+lib,
-        texte:tot+' voix exprimées pour '+pres+' membre(s) présent(s). Le décompte est impossible : corrigez la feuille de présence ou le résultat du vote.'});
+      A.push({gravite:'stop', titre:'Corrigez le vote : plus de voix que de présents',
+        texte:'Reprenez la feuille de présence ou le résultat du vote. '+tot+' voix exprimées pour '+pres+' membre(s) présent(s) sur « '+lib+' » : le décompte est impossible.'});
     } else if(pres && tot<pres){
       A.push({gravite:'question', titre:'Voix manquantes — '+lib,
         texte:tot+' voix exprimées pour '+pres+' présent(s). Les abstentions doivent être décomptées : la majorité s’apprécie sur les membres présents, non sur les seuls suffrages exprimés (L.2315-32).'});
@@ -8211,9 +8269,9 @@ function calAnalyse(){
       A.push({gravite:'question', titre:'Nombre de réunions prévu par l’accord non renseigné',
         texte:'Vous avez indiqué qu’un accord fixe la périodicité : précisez le nombre de réunions annuelles qu’il prévoit.'});
     } else if(eff>=50 && na<6){
-      A.push({gravite:'stop', titre:'L’accord descend sous le plancher',
-        texte:'L’accord prévoit '+na+' réunion(s) par an. Dans les entreprises d’au moins cinquante salariés, un accord ne peut pas fixer moins de six réunions annuelles (L.2312-19). '
-          +'La clause est écartée : la règle supplétive de '+reg.n+' réunions s’applique.'});
+      A.push({gravite:'stop', titre:'Tenez '+reg.n+' réunions : la clause de l’accord est écartée',
+        texte:'L’accord prévoit '+na+' réunion(s) par an, ce qui est trop peu. '
+          +'Dans les entreprises d’au moins cinquante salariés, un accord ne peut pas fixer moins de six réunions annuelles (L.2312-19) : la règle supplétive de '+reg.n+' réunions s’applique.'});
     } else if(na<reg.n){
       A.push({gravite:'question', titre:'L’accord réduit le nombre de réunions',
         texte:'L’accord prévoit '+na+' réunion(s) là où la règle supplétive en prévoit '+reg.n+'. La clause est licite tant qu’elle reste au-dessus de six, mais elle est moins favorable : vérifiez qu’elle a été négociée dans les formes.'});
@@ -8266,8 +8324,8 @@ function calAnalyse(){
   var S=calSeances();
   var enRetard=S.filter(function(s){ return !s.faite && calJours(calAuj(), s.iso)<0; });
   if(enRetard.length){
-    A.push({gravite:'stop', titre:enRetard.length+' réunion(s) non tenue(s) à la date prévue',
-      texte:'Les échéances du '+enRetard.slice(0,4).map(function(s){ return calFR(s.iso); }).join(', ')
+    A.push({gravite:'stop', titre:'Réunissez le comité : '+enRetard.length+' réunion(s) manquent',
+      texte:'Convoquez sans attendre, ou cochez les réunions déjà tenues. Échéances passées : '+enRetard.slice(0,4).map(function(s){ return calFR(s.iso); }).join(', ')
         +(enRetard.length>4?(' et '+(enRetard.length-4)+' autre(s)'):'')
         +' sont passées sans que la réunion soit marquée comme tenue. Ne pas réunir le comité selon la périodicité légale est susceptible de constituer une entrave à son fonctionnement régulier, punie de 7 500 € d’amende (L.2317-1).'});
   }
@@ -8472,9 +8530,9 @@ function mcAnalyse(){
       }
       var e=mcElus()[parseInt(v,10)];
       if(e && e.q!=='tit'){
-        A.push({gravite:'stop', titre:'Le '+lab+' n’est pas un membre titulaire',
-          texte:'« '+((e.nom||'').trim()||('élu n° '+(parseInt(v,10)+1)))+' » est saisi comme suppléant. Le secrétaire et le trésorier sont désignés parmi les membres titulaires (L.2315-23). '
-            +'Une désignation irrégulière expose la délibération à l’annulation.'});
+        A.push({gravite:'stop', titre:'Désignez un '+lab+' parmi les titulaires',
+          texte:'« '+((e.nom||'').trim()||('élu n° '+(parseInt(v,10)+1)))+' » est un suppléant : la désignation est irrégulière. '
+            +'Le secrétaire et le trésorier sont désignés parmi les membres titulaires (L.2315-23), et une désignation irrégulière expose la délibération à l’annulation.'});
       }
     });
     A.push({gravite:'info', titre:'Personnalité civile et règlement intérieur',
@@ -8486,8 +8544,9 @@ function mcAnalyse(){
   if(!L.length){
     /* rien à dire tant qu’aucun élu n’est saisi */
   } else if(MC.referent===undefined || MC.referent===''){
-    A.push({gravite:'stop', titre:'Aucun référent en matière de harcèlement sexuel',
-      texte:'Dans toute entreprise dotée d’un comité, un référent en matière de lutte contre le harcèlement sexuel et les agissements sexistes est désigné par le comité parmi ses membres, '
+    A.push({gravite:'stop', titre:'Désignez le référent harcèlement sexuel',
+      texte:'Le comité le désigne parmi ses membres, par résolution, quelle que soit la taille de l’entreprise. '
+        +'Dans toute entreprise dotée d’un comité, ce référent en matière de lutte contre le harcèlement sexuel et les agissements sexistes est désigné par le comité parmi ses membres, '
         +'sous la forme d’une résolution adoptée à la majorité des membres présents, pour une durée qui prend fin avec celle du mandat (L.2314-1). '
         +'Cette obligation ne dépend d’aucun seuil d’effectif.'});
   }
@@ -8824,8 +8883,8 @@ function csedAnalyse(){
 
   /* ── 2. Aucun CSE alors que le seuil est franchi ── */
   if(effAtteint && (sit==='aucun'||sit==='expire')){
-    A.push({gravite:'stop', titre:'Le comite doit etre mis en place',
-      texte:'L\'obligation pese sur l\'employeur, et sur lui seul. Faire obstacle a la constitution du comite est puni d\'un an d\'emprisonnement et de 7 500 € d\'amende ; '
+    A.push({gravite:'stop', titre:'Engagez les elections : le comite doit etre mis en place',
+      texte:'C\'est a l\'employeur d\'organiser les elections, et a lui seul. Faire obstacle a la constitution du comite est puni d\'un an d\'emprisonnement et de 7 500 € d\'amende ; '
         +'l\'amende est portee a 37 500 € pour la personne morale (L.2317-1). L\'absence d\'institution representative cause en outre au salarie un prejudice '
         +'que la Cour de cassation tient pour necessaire (Cass. soc. 17 octobre 2018, n° 17-14.392).'});
   }
@@ -8844,8 +8903,8 @@ function csedAnalyse(){
     R.push({date:lim, quoi:'Premier tour au plus tard', art:'L.2314-4',
       det:'Information du personnel diffusee le '+csedFR(CSED.dateInfo)+' : le premier tour se tient au plus tard le quatre-vingt-dixieme jour suivant.'});
     if(csedJours(auj, lim)<0){
-      A.push({gravite:'stop', titre:'Delai de quatre-vingt-dix jours depasse',
-        texte:'L\'information a ete diffusee le '+csedFR(CSED.dateInfo)+'. Le premier tour devait se tenir au plus tard le '+csedFR(lim)+' (L.2314-4).'});
+      A.push({gravite:'stop', titre:'Tenez le premier tour sans delai : l\'echeance est passee',
+        texte:'Le premier tour devait se tenir au plus tard le '+csedFR(lim)+'. L\'information au personnel a ete diffusee le '+csedFR(CSED.dateInfo)+', et le premier tour doit intervenir dans les quatre-vingt-dix jours (L.2314-4).'});
     }
     var lim30=csedPlus(CSED.dateInfo, 30);
     if(effActuel!==null && effActuel>=11 && effActuel<=20){
@@ -8864,8 +8923,8 @@ function csedAnalyse(){
     R.push({date:lm, quoi:'Engager la procedure electorale', art:'L.2314-8',
       det:'Demande recue le '+csedFR(CSED.dateDemande)+' : l\'employeur engage la procedure dans le mois suivant la reception.'});
     if(csedJours(auj, lm)<0 && sit!=='encours'){
-      A.push({gravite:'stop', titre:'Delai d\'un mois depasse',
-        texte:'La demande a ete recue le '+csedFR(CSED.dateDemande)+'. La procedure devait etre engagee au plus tard le '+csedFR(lm)+' (L.2314-8).'});
+      A.push({gravite:'stop', titre:'Engagez la procedure : le delai d\'un mois est passe',
+        texte:'Elle devait etre engagee au plus tard le '+csedFR(lm)+'. La demande d\'un salarie ou d\'une organisation syndicale a ete recue le '+csedFR(CSED.dateDemande)+', et l\'employeur engage la procedure dans le mois (L.2314-8).'});
     }
   }
 
@@ -8923,7 +8982,7 @@ function csedAnalyse(){
           texte:'Un college n\'est plus represente ou le nombre de titulaires est reduit de moitie ou plus, mais l\'evenement survient moins de six mois avant le terme des mandats ('
             +csedFR(termeP)+') : les elections partielles ne sont pas organisees (L.2314-10).'});
       } else {
-        A.push({gravite:'stop', titre:'Elections partielles a organiser',
+        A.push({gravite:'stop', titre:'Organisez des elections partielles',
           texte:(college?'Un college electoral n\'est plus represente. ':'')
             +(moitie?('Le nombre de titulaires est passe a '+restants+' sur '+sieges+', soit la moitie ou moins. '):'')
             +'L\'employeur organise des elections partielles pour pourvoir tous les sieges vacants dans les colleges concernes ; les candidats sont elus pour la duree du mandat restant a courir (L.2314-10).'});
