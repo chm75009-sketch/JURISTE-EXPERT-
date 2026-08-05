@@ -653,7 +653,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.110';
+var JX_BUILD = 'v2026-08-06.111';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -662,6 +662,14 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.111', d:'5 aout 2026', t:[
+   'SECTEUR — l\'application ne se declare plus « transport » par defaut. Tant qu\'aucun secteur n\'est choisi, l\'en-tete indique « Convention non renseignee » au lieu d\'afficher la convention du transport (IDCC 0016), et chaque selecteur de secteur s\'ouvre sur « Choisissez votre secteur ». C\'est ce qui faisait apparaitre la convention du transport sur le compte administrateur en mode « tous secteurs », et sur tout compte cree sans secteur.',
+   'QUESTIONNAIRE DE CONFORMITE — les questions propres au transport (cartes de conducteur, tachygraphe, FCO, licence, documents de bord, frais de casse-croute, garantie annuelle de remuneration) ne sont plus posees aux autres secteurs, et ne faussent donc plus leur score. La question sur les minima conventionnels, elle, est desormais formulee pour toutes les conventions.',
+   'FICHE ENTREPRISE — la fiche de l\'Espace RH n\'est plus creee avec la convention IDCC 16 pre-inscrite.',
+   'STOCKAGE — quand le navigateur refuse d\'enregistrer (memoire pleine, navigation privee), vous etes prevenu une fois au lieu de perdre vos saisies en silence.',
+   'MENAGE — retrait de deux modules entierement inactifs (ancienne page « Jurisprudence » et ancienne « Veille reglementaire », qui remplissaient des zones inexistantes de la page) et de deux fonctions de connexion remplacees depuis longtemps. La jurisprudence reste servie par le module actuel, plus complet.',
+   'TESTS — deux nouveaux garde-fous : la page est desormais ouverte pour de vrai dans un navigateur (aucune exception de l\'accueil jusqu\'aux huit pages CSE), et un controle d\'integrite automatise verifie qu\'aucun bouton n\'appelle une fonction absente et qu\'aucune fonction n\'ecrit dans une zone qui n\'existe pas.'
+ ]},
  {v:'v2026-07-19.90', d:'20 juillet 2026', t:[
    'CONTRÔLE-MINUTE — la carte « Contrôle-minute » de l\'accueil et le bandeau « gratuit, sans code » ouvrent désormais directement la page publique (ils ne réagissaient pas). Cohérence : plus de cadenas trompeur sur ce qui est gratuit. Sur la page, le choix du secteur se fait par de gros boutons visibles (au lieu d\'un menu déroulant), et des boutons Retour / Vider mes réponses / Nouveau test permettent de recommencer.'
  ]},
@@ -1348,6 +1356,7 @@ try{
   <div style="font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px">Configurer votre entreprise</div>
   <label class="ins-label">Secteur d'activité *</label>
   <select class="ins-input" id="ins-secteur" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+  <option value="">— Choisissez votre secteur —</option>
     <option value="transport">Transport routier</option>
     <option value="banque">Banque</option>
     <option value="assurances">Assurances</option>
@@ -1438,6 +1447,7 @@ try{
   <div id="home-secteur-wrap" style="margin:14px 0 8px">
   <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">🏢 Secteur d'activité (pilote toute l'application)</label>
   <select id="home-secteur" onchange="appSetSecteur(this.value)">
+  <option value="">— Choisissez votre secteur —</option>
     <option value="transport">Transport routier (IDCC 0016)</option>
     <option value="banque">Banque (IDCC 2120)</option>
     <option value="assurances">Assurances (IDCC 1672)</option>
@@ -2425,6 +2435,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 <div class="fg"><label class="fl">Secteur / convention collective</label>
 <select id="disc-secteur" onchange="buildDiscMotifs(this.value)">
+  <option value="">— Choisissez votre secteur —</option>
   <option value="transport">Transport routier (IDCC 0016)</option>
   <option value="banque">Banque (IDCC 2120)</option>
   <option value="assurances">Assurances (IDCC 1672)</option>
@@ -2699,6 +2710,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="bl">Secteur / convention collective</div>
 <div class="fg"><label class="fl">Convention collective à mentionner dans le dossier électoral :</label>
 <select id="cse-secteur" onchange="cseSetSecteur()">
+  <option value="">— Choisissez votre secteur —</option>
   <option value="transport">Transport routier (IDCC 0016)</option>
   <option value="banque">Banque (IDCC 2120)</option>
   <option value="assurances">Assurances (IDCC 1672)</option>
@@ -4068,6 +4080,16 @@ Exemple :<br>
 <script>
 (function(){
   var KEY='jx_audit_v1';
+  /* Une question marquee « sec » ne concerne que ce secteur. Sans ce filtre,
+     un cabinet de conseil etait interroge sur les cartes de conducteur et son
+     score de conformite s'en trouvait fausse. */
+  function auditSecteur(){
+    var s=''; try{ s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); }catch(e){}
+    if(!s){ try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){} }
+    if(!s){ try{ s=(typeof E!=='undefined'&&E&&E.secteur)?E.secteur:''; }catch(e){} }
+    return s;
+  }
+  function auditConcerne(o){ if(!o||!o.sec)return true; var s=auditSecteur(); return !s || s===o.sec; }
   var Q=[
    {th:'📌 Affichages, registres & documents',items:[
     {id:'reg',q:'Le registre unique du personnel est-il tenu et à jour (toutes les entrées/sorties, dans l’ordre d’embauche) ?',ref:'L.1221-13 C. trav.',fix:'Constituez vos fiches salariés et l’historique dans l’application (Parcours → fiche salarié).',go:'parcours'},
@@ -4078,12 +4100,13 @@ Exemple :<br>
    ]},
    {th:'📄 Contrats & paie',items:[
     {id:'cdd2j',q:'Tous les contrats sont-ils écrits et signés — les CDD transmis au salarié dans les 2 jours ouvrables ?',ref:'L.1242-13 C. trav.',fix:'Générez des contrats conformes (mentions CDD obligatoires incluses).',go:'contrat'},
-    {id:'minima',q:'Les salaires respectent-ils les minima conventionnels du coefficient, et la GAR est-elle contrôlée en fin d’année ?',ref:'CCN IDCC 0016',fix:'Vérifiez taux horaires et GAR dans le module Rémunération.',go:'remuneration'},
-    {id:'frais',q:'Les frais de déplacement (repas, casse-croûte, découchers) sont-ils payés selon le protocole en vigueur (avenant n° 81, 01/01/2026) ?',ref:'Protocole frais CCN',fix:'Alignez vos indemnités sur le barème en vigueur (module Rémunération).',go:'remuneration'},
+    {id:'minima',q:'Les salaires respectent-ils les minima de la convention collective applicable, pour le coefficient ou le niveau de chaque salarié ?',ref:'L.2253-1 C. trav. · convention collective applicable',fix:'Comparez chaque taux horaire au minimum conventionnel du coefficient, et au SMIC si le minimum conventionnel lui est inférieur.',go:'remuneration'},
+    {id:'frais',sec:'transport',q:'Les frais de déplacement (repas, casse-croûte, découchers) sont-ils payés selon le protocole en vigueur (avenant n° 81, 01/01/2026) ?',ref:'Protocole frais CCN transport (IDCC 0016)',fix:'Alignez vos indemnités sur le barème en vigueur (module Rémunération).',go:'remuneration'},
     {id:'entpro',q:'Les entretiens professionnels sont-ils réalisés tous les 2 ans, avec l’état des lieux récapitulatif à 6 ans ?',ref:'L.6315-1 C. trav.',fix:'Planifiez les entretiens en retard : à défaut, abondement CPF de 3 000 € par salarié (entreprises ≥ 50).'},
     {id:'dsn',q:'Bulletins de paie remis et conservés, DSN transmises dans les délais ?',ref:'L.3243-2 C. trav.',fix:'Vérifiez avec votre service paie / expert-comptable.'}
    ]},
-   {th:'🚚 Conducteurs (spécifique transport)',items:[
+   {th:'🚚 Conducteurs (spécifique transport)',sec:'transport',items:[
+    {id:'gar',q:'La garantie annuelle de rémunération (GAR) est-elle contrôlée et régularisée en fin d’année ?',ref:'CCN IDCC 0016 — accord GAR',fix:'Comparez la rémunération annuelle de chaque salarié au minimum garanti et régularisez l’écart sur la paie de décembre.',go:'remuneration'},
     {id:'valid',q:'Les validités de TOUS les conducteurs sont-elles suivies (permis, CQC, FCO, visite médicale renforcée, ADR, carte de conducteur) ?',ref:'Resp. pénale employeur — Cass. crim. 2003',fix:'Enregistrez chaque conducteur dans le Tableau de bord : alertes automatiques d’échéance.',go:'tableau-bord'},
     {id:'tachy',q:'Les données tachygraphe sont-elles téléchargées dans les délais (carte conducteur ≤ 28 jours, mémoire véhicule ≤ 90 jours) et conservées 12 mois ?',ref:'Règl. UE 165/2014',fix:'Mettez en place un calendrier de téléchargement automatique et un archivage.'},
     {id:'temps',q:'Les temps de conduite/repos et le temps de service sont-ils contrôlés, les dépassements analysés et traités ?',ref:'CE 561/2006 · Décret 83-40',fix:'Utilisez la calculatrice temps de conduite et la fiche hebdomadaire.',go:'temps'},
@@ -4117,8 +4140,10 @@ Exemple :<br>
     var host=document.getElementById('audit-list'); if(!host)return;
     var d=load(),h='';
     Q.forEach(function(g){
+      if(!auditConcerne(g))return;
       h+='<div style="font-weight:800;color:#e8c97a;font-size:13px;margin:14px 0 6px">'+g.th+'</div>';
       g.items.forEach(function(it){
+        if(!auditConcerne(it))return;
         var v=d[it.id]||'';
         h+='<div style="background:rgba(255,255,255,.03);border-radius:10px;padding:10px;margin-bottom:8px">'
           +'<div style="font-size:13px;color:#fff;line-height:1.5;margin-bottom:4px">'+esc(it.q)+'</div>'
@@ -4135,7 +4160,10 @@ Exemple :<br>
   };
   window.auditCalc=function(){
     var d=load(),tot=0,oui=0,manq=[],nonRep=0;
-    Q.forEach(function(g){g.items.forEach(function(it){
+    Q.forEach(function(g){
+      if(!auditConcerne(g))return;
+      g.items.forEach(function(it){
+      if(!auditConcerne(it))return;
       var v=d[it.id]||'';
       if(v==='na')return;
       if(v==='')nonRep++;
@@ -4522,6 +4550,7 @@ Exemple :<br>
 <div class="ct" style="font-size:16px">Choisir la convention</div>
 <div class="fg"><label class="fl">La fiche experte ci-dessous s'adapte au secteur :</label>
 <select id="stat-secteur" onchange="statSetSecteur()">
+  <option value="">— Choisissez votre secteur —</option>
   <option value="transport">Transport routier (IDCC 0016)</option>
   <option value="banque">Banque (IDCC 2120)</option>
   <option value="assurances">Assurances (IDCC 1672)</option>
@@ -4551,6 +4580,7 @@ Exemple :<br>
   <div class="ct" style="font-size:16px">Adapter au secteur</div>
   <div class="fg"><label class="fl">La convention collective, les spécificités et la jurisprudence ci-dessous s'adaptent au secteur choisi :</label>
   <select id="pse-secteur" onchange="pseSetSecteur()">
+  <option value="">— Choisissez votre secteur —</option>
     <option value="transport">Transport routier (IDCC 0016)</option>
     <option value="banque">Banque (IDCC 2120)</option>
     <option value="assurances">Assurances (IDCC 1672)</option>
@@ -4866,7 +4896,8 @@ try{ if(typeof PSE_JURIS!=='undefined' && !PSE_JURIS.some(function(d){return d.s
 ); }catch(e){}
 function statRender(id){
   var s=SECTEURS_STATUT[id], p=SECTEURS_PSE[id], host=document.getElementById('stat-panel');
-  if(!host||!s||!p)return;
+  if(!host)return;
+  if(!s||!p){ host.innerHTML='<div class="al info" style="font-size:12.5px">Choisissez votre secteur ci-dessus pour afficher la synthese qui vous concerne.</div>'; return; }
   function P(x){return '<p style="font-size:13.5px;color:#e8e4d8;line-height:1.6;margin:4px 0">'+pseEsc(x)+'</p>';}
   function C(t,b){return '<div class="card"><div class="ct" style="font-size:16px">'+t+'</div>'+b+'</div>';}
   var vig=s.vigilance.map(function(x){return '<div class="step"><div class="step-num">!</div><div class="step-txt">'+pseEsc(x)+'</div></div>';}).join('');
@@ -4890,7 +4921,7 @@ function statRender(id){
    +C('⚠️ Points de vigilance', vig)
    +C('⚖️ Jurisprudence du secteur ('+s.jurisprudence.length+')', jur);
 }
-function statSetSecteur(){var el=document.getElementById('stat-secteur');var id=el?el.value:'transport';try{localStorage.setItem('secteur_statut',id);}catch(e){}statRender(id);}
+function statSetSecteur(){var el=document.getElementById('stat-secteur');var id=el?el.value:'';jxStockEcrire('secteur_statut',id);statRender(id);}
 function statInit(){var id;try{id=localStorage.getItem('secteur_statut');}catch(e){}id=id||appGetSecteur();var el=document.getElementById('stat-secteur');if(el)el.value=id;statRender(id);}
 
 /* ===== Module XIV — Calculateurs indemnités ===== */
@@ -5149,8 +5180,12 @@ pseJurisRender();
 
 /* ===== Sélecteur multi-secteurs PSE ===== */
 function pseSetSecteur(){
-  var id=document.getElementById('pse-secteur').value; pseSecteurCourant=id; try{localStorage.setItem('secteur_pse',id);}catch(e){}
+  var _e=document.getElementById('pse-secteur'); var id=_e?_e.value:'';
+  pseSecteurCourant=id; jxStockEcrire('secteur_pse',id);
   var s=SECTEURS_PSE[id];
+  if(!s){ var _p=document.getElementById('pse-secteur-panel');
+    if(_p)_p.innerHTML='<div class="al info" style="font-size:12.5px">Choisissez votre secteur ci-dessus : la convention, les preavis, l\u2019indemnite et la jurisprudence en dependent.</div>';
+    return; }
   document.querySelectorAll('#pg-pse .pse-idcc').forEach(function(e){e.textContent='IDCC '+s.idcc;});
   var c6=document.getElementById('pse-cc6');
   if(c6) c6.innerHTML='<b>'+pseEsc(s.nom)+'</b><br><b>Préavis :</b> '+pseEsc(s.preavis)+'<br><b>Indemnité :</b> '+pseEsc(s.indemnite_texte);
@@ -5176,17 +5211,36 @@ pseSetSecteur();
 
 var cseSecteur='transport';
 function cseConvNom(){var s=SECTEURS_PSE[cseSecteur];return s?(s.nom+' (IDCC '+s.idcc+')'):'la convention collective applicable';}
-function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value; try{localStorage.setItem('secteur_cse',cseSecteur);}catch(e){}var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
+function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value; if(typeof jxStockEcrire==='function')jxStockEcrire('secteur_cse',cseSecteur); else try{localStorage.setItem('secteur_cse',cseSecteur);}catch(e){}var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
 cseSetSecteur();
 
 /* ===== Secteur : global (accueil) + indépendant par module ===== */
 var MODS_SECTEUR=[];
 function secGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
-function secSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-function appGetSecteur(){return secGet('app_secteur')||'transport';}
+function secSet(k,v){ if(typeof jxStockEcrire==='function') jxStockEcrire(k,v); else try{localStorage.setItem(k,v);}catch(e){} }
+/* Aucun secteur choisi = aucun secteur, et on le dit. Ecrire « transport »
+   par defaut faisait afficher la convention du transport, ses seuils et sa
+   jurisprudence a des clients qui n'en relevent pas — et a l'administrateur
+   en mode « tous secteurs ». */
+function appGetSecteur(){return secGet('app_secteur')||'';}
+/* Ecriture dans le stockage du navigateur. Un echec (quota depasse,
+   navigation privee, stockage bloque) n'est plus avale : l'utilisateur est
+   prevenu une fois, sinon il croit que sa saisie est enregistree. */
+var _jxStockAlerte=false;
+function jxStockEcrire(cle,valeur){
+  try{ localStorage.setItem(cle,valeur); return true; }
+  catch(e){
+    if(!_jxStockAlerte){
+      _jxStockAlerte=true;
+      try{ alert("Votre navigateur a refuse d\u2019enregistrer les donn\u00e9es (m\u00e9moire pleine ou navigation priv\u00e9e).\n\nVos saisies ne seront pas conserv\u00e9es en quittant la page. Exportez vos documents avant de fermer."); }catch(_){}
+    }
+    return false;
+  }
+}
 function modRender(mod,id){
   var s=SECTEURS_PSE[id], host=document.getElementById('secpanel-'+mod);
-  if(!host||!s)return;
+  if(!host)return;
+  if(!s){ host.innerHTML='<div class="al info" style="font-size:12.5px">Choisissez votre secteur ci-dessus pour afficher la convention collective applicable, les preavis et l\u2019indemnite de licenciement.</div>'; return; }
   var jur=PSE_JURIS.filter(function(d){return d.secteur===id;}).slice(0,3);
   var jh=jur.map(function(d){return '<div class="juris-card"><div style="font-size:13px;font-weight:700;color:#fff">'+pseEsc(d.titre)+'</div><div class="juris-ref">'+pseEsc(d.ref)+'</div><div style="font-size:12px;color:#e8e4d8;margin-top:3px;line-height:1.5">'+pseEsc(d.resume)+'</div><div class="juris-regle"><a href="'+srcLien(d)+'" target="_blank" rel="noopener" style="color:#e8c97a">🔎 Rechercher ↗</a></div></div>';}).join('');
   host.innerHTML='<div class="pse-tri" style="margin-top:6px">'
@@ -5194,7 +5248,7 @@ function modRender(mod,id){
     +'<div class="pse-ref cc"><div class="lab">💶 Indemnité de licenciement</div><p>'+pseEsc(s.indemnite_texte)+'</p></div>'
     +'</div>'+(jh?('<div class="bl" style="margin-top:12px">⚖️ Jurisprudence du secteur</div>'+jh):'');
 }
-function modSecteur(mod){var el=document.getElementById('sec-'+mod);var id=el?el.value:'transport';secSet('secteur_'+mod,id);modRender(mod,id);}
+function modSecteur(mod){var el=document.getElementById('sec-'+mod);var id=el?el.value:'';secSet('secteur_'+mod,id);modRender(mod,id);}
 function modInit(mod){var id=secGet('secteur_'+mod)||appGetSecteur();var el=document.getElementById('sec-'+mod);if(el)el.value=id;modRender(mod,id);}
 /* La convention du client, lue la ou elle a ete saisie, dans cet ordre :
    le socle, la fiche de l'Espace RH, puis a defaut la table des secteurs.
@@ -5276,7 +5330,7 @@ const MINIMA = {'110':12.09,'115':12.09,'117':12.09,'117M':12.09,'118':12.09,'11
 // SMIC vérifié (info.gouv.fr) : 12,02 € au 01/01/2026 puis 12,31 € au 01/06/2026 — à ACTUALISER à chaque revalorisation.
 // Les NAO salaires TRM 2025/2026 ayant échoué (grille du 11/10/2023 inchangée), le SMIC dépasse les coefficients 110 à 128M :
 // le plancher ci-dessous les relève automatiquement.
-var SMIC_H = 12.31;
+var SMIC_H = 12.31;   // SMIC horaire brut au 1er juin 2026 (1 867,02 € pour 35 h) — a reviser a chaque revalorisation
 var MINIMA_RAW = Object.assign({}, MINIMA);   // grille conventionnelle brute (avant plancher), pour détecter le rattrapage SMIC
 Object.keys(MINIMA).forEach(function(k){ if(MINIMA[k] < SMIC_H) MINIMA[k] = SMIC_H; });
 
@@ -10025,7 +10079,7 @@ async function rhSetup(){
   if(p!==p2){ if(msg)msg.textContent='Les deux codes ne correspondent pas.'; return; }
   try{
     var d=await _rhDerive(p,null); _rhKey=d.key; _rhSalt=d.salt;
-    RH.ent={ nom:(typeof E!=='undefined'?E.nom:'')||'', siret:(typeof E!=='undefined'?E.siret:'')||'', naf:'', codeClient:'', adresse:(typeof E!=='undefined'?E.adresse:'')||'', dirigeant:(typeof E!=='undefined'?E.dirigeant:'')||'', email:(typeof E!=='undefined'?E.email:'')||'', tel:(typeof E!=='undefined'?E.tel:'')||'', idcc:'16' };
+    RH.ent={ nom:(typeof E!=='undefined'?E.nom:'')||'', siret:(typeof E!=='undefined'?E.siret:'')||'', naf:'', codeClient:'', adresse:(typeof E!=='undefined'?E.adresse:'')||'', dirigeant:(typeof E!=='undefined'?E.dirigeant:'')||'', email:(typeof E!=='undefined'?E.email:'')||'', tel:(typeof E!=='undefined'?E.tel:'')||'', idcc:'' };  // aucune convention tant que le client ne l'a pas indiquee
     RH.staff=[]; RH.loaded=true;
     await rhSave(); rhRender();
   }catch(e){ if(msg)msg.textContent='Erreur : '+e.message; }
@@ -11501,24 +11555,9 @@ function rxCloud(){
   return h;
 }
 function rxMsg(t){ var e=document.getElementById('rx-msg'); if(e) e.textContent=t||''; }
-function rxSignup(){
-  var code=(document.getElementById('rx-code')||{}).value||''; var pass=(document.getElementById('rx-pass')||{}).value||'';
-  if(code.trim().length<3||pass.length<8){ rxMsg('Code (≥3) + mot de passe (≥8).'); return; }
-  fetch(RX_URL+'/auth/v1/signup',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:JSON.stringify({email:rxEmail(code),password:pass})})
-    .then(function(r){return r.json();}).then(function(d){
-      if(d.access_token){ rxSetSess(d,code); rxRender(); rxCloudPushAll(true); try{ rxCloudPushEnt(); }catch(e){} }
-      else if(d.msg||d.error_description||d.error){ rxMsg('Refusé : '+(d.msg||d.error_description||d.error)); }
-      else { alert('Compte créé. Connectez-vous.'); rxRender(); }
-    }).catch(function(e){ rxMsg('Réseau : '+e.message); });
-}
-function rxLogin(){
-  var code=(document.getElementById('rx-code')||{}).value||''; var pass=(document.getElementById('rx-pass')||{}).value||'';
-  fetch(RX_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':RX_ANON,'Content-Type':'application/json'},body:JSON.stringify({email:rxEmail(code),password:pass})})
-    .then(function(r){return r.json();}).then(function(d){
-      if(d.access_token){ rxSetSess(d,code); alert('Connecté.'); rxPull(false); }
-      else { rxMsg('Connexion refusée : '+(d.error_description||d.msg||'identifiants invalides')); }
-    }).catch(function(e){ rxMsg('Réseau : '+e.message); });
-}
+/* Retire : rxSignup() et rxLogin(), qui lisaient des champs rx-code et
+   rx-pass absents de la page. La connexion au stockage en ligne se fait
+   par rxAutoCloud(), a partir du seul code client. */
 function rxSetSess(d,code){ var uid=(d.user&&d.user.id)||d.id||''; try{ localStorage.setItem(RX_SESS, JSON.stringify({token:d.access_token,uid:uid,code:code})); }catch(e){} }
 /* ══ Cloud AUTOMATIQUE : un seul code ══
    Dès que TEC entre son code, l'appli se connecte seule au cloud avec CE code
@@ -11978,7 +12017,8 @@ function validerInscription(){
   E.adresse=gv('ins-adresse')||'';
   E.dirigeant=gv('ins-dirigeant')||'';
   E.qualite=gv('ins-qualite')||'Gérant';
-  E.secteur=(function(){try{return sessionStorage.getItem('jte_sector');}catch(e){return null;}})()||gv('ins-secteur')||'transport';
+  // Pas de secteur choisi : on laisse vide plutot que de decider a la place du client.
+  E.secteur=(function(){try{return sessionStorage.getItem('jte_sector');}catch(e){return null;}})()||gv('ins-secteur')||'';
   E.activite=gv('ins-activite')||'marchandises';
   E.email=gv('ins-email')||'';
   E.tel=gv('ins-tel')||'';
@@ -11991,7 +12031,6 @@ function validerInscription(){
   chargerConducteurs();
   chargerParc();
   initFicheJours();
-  showJuris('permis');
   goPage('home');
   applyClientSector();
 }
@@ -12008,7 +12047,6 @@ function initApp(){
       chargerConducteurs();
       chargerParc();
       initFicheJours();
-      showJuris('permis');
       goPage('home');
       applyClientSector();
     } else {
@@ -13499,8 +13537,14 @@ function buildDiscMotifs(sec){
   h+='<optgroup label="Fautes générales (tous secteurs)">';DISC_GENERAL.forEach(function(o){h+='<option value="'+o.v+'">'+o.l+'</option>';});h+='</optgroup>';
   sel.innerHTML=h;
 }
-if(document.readyState!=='loading'){try{buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||'transport');}catch(e){}}
-else document.addEventListener('DOMContentLoaded',function(){try{buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||'transport');}catch(e){}});
+function _discInit(){
+  var el=document.getElementById('disc-secteur');
+  var g=(typeof appGetSecteur==='function')?appGetSecteur():'';
+  if(el&&!el.value&&g&&[].some.call(el.options,function(o){return o.value===g;})) el.value=g;
+  buildDiscMotifs(el?el.value:'');
+}
+if(document.readyState!=='loading'){try{_discInit();}catch(e){}}
+else document.addEventListener('DOMContentLoaded',function(){try{_discInit();}catch(e){}});
 
 function analyserSituation(){
   const motif=gv('disc-motif');
@@ -17820,252 +17864,15 @@ ${docPiedPage('Art. L.121-6 C. route — Désignation obligatoire dans les 45 jo
 // ═══════════════════════════════════════
 // MODULE IX — JURISPRUDENCE
 // ═══════════════════════════════════════
-const JURIS_DATA={
-  permis:[
-    {ref:'Cass. soc. 14 novembre 2000',theme:'Permis — Suspension lors du travail',faits:'Conducteur dont le permis est suspendu suite à une infraction commise pendant une livraison.',decision:'L\'employeur a une obligation de rechercher un reclassement temporaire avant tout licenciement.',regle:'La suspension du permis lors de l\'exercice des fonctions impose une recherche de reclassement préalable au licenciement.',textes:'Art. L.1226-2 C. trav.'},
-    {ref:'Cass. soc. 3 mai 2018 — n°16-22.455',theme:'Permis — Reclassement pendant suspension',faits:'Conducteur suspendu de permis — l\'employeur n\'avait pas proposé de poste de reclassement temporaire.',decision:'L\'employeur doit rechercher un reclassement même temporaire (poste sédentaire) pendant la durée de la suspension.',regle:'L\'impossibilité de reclassement doit être réelle et sérieusement recherchée.',textes:'Art. L.1232-1 C. trav.'},
-    {ref:'Cass. soc. 15 janvier 2014 — n°12-22.117',theme:'Permis — Suspension hors travail',faits:'Conducteur suspendu pour alcoolémie lors d\'un déplacement personnel.',decision:'La suspension hors travail peut justifier un licenciement pour CRS si le permis est indispensable et le reclassement impossible.',regle:'Pas de faute grave pour suspension hors travail — licenciement CRS possible si conditions cumulées.',textes:'Art. L.1232-1 C. trav. · Art. L.1235-1 C. trav.'},
-    {ref:'Cass. soc. 3 mai 2011 — n°09-67.464',theme:'Permis — Obligation d\'information',faits:'Conducteur qui n\'a pas informé son employeur du retrait de son permis de conduire.',decision:'Le défaut d\'information de l\'employeur en cas de retrait de permis constitue une faute grave.',regle:'Le conducteur a une obligation d\'information immédiate de l\'employeur — son manquement = faute grave autonome.',textes:'Art. L.1234-1 C. trav.'},
-  ],
-  alcool:[
-    {ref:'Cass. soc. 24 février 2004 — n°01-47.000',theme:'Alcool — Faute grave conducteur PL',faits:'Conducteur poids lourd en état d\'ébriété lors de la prise de service.',decision:'L\'état d\'ébriété d\'un conducteur PL lors du service constitue une faute grave.',regle:'Alcoolémie + conducteur PL en service = faute grave systématique justifiant licenciement immédiat.',textes:'Art. L.1234-1 C. trav. · Art. R.234-1 C. route (0,5 g/L ; 0,2 g/L transport en commun/permis probatoire)'},
-    {ref:'Cass. soc. 27 mars 2012 — n°10-19.915',theme:'Alcool — Validité du test',faits:'Test d\'alcoolémie réalisé par l\'employeur sur un conducteur.',decision:'Le test est valide si le règlement intérieur le prévoit, le poste est à risque et une contre-expertise est possible.',regle:'3 conditions cumulatives : RI prévoit le test + poste à risque + contre-expertise possible.',textes:'Art. L.1121-1 C. trav. · Art. L.1321-1 C. trav.'},
-    {ref:'Cass. soc. 5 décembre 2016 — n°15-19.400',theme:'Alcool — Contrôle aléatoire',faits:'Contrôle aléatoire d\'alcoolémie sur des conducteurs PL.',decision:'Le contrôle aléatoire est licite sur les postes à risque (conducteurs PL) si le RI le prévoit.',regle:'L\'aléatoire est justifié pour les postes présentant des risques pour la sécurité des tiers.',textes:'Art. L.1121-1 C. trav.'},
-  ],
-  tachy:[
-    {ref:'Cass. soc. 13 décembre 2017 — n°16-19.044',theme:'Tachygraphe — Falsification = faute grave',faits:'Conducteur ayant manipulé le disque tachygraphe pour dissimuler des dépassements des temps de conduite.',decision:'La falsification du tachygraphe constitue une faute grave justifiant licenciement sans préavis ni indemnité.',regle:'Falsification tachygraphe = faute grave systématique.',textes:'Art. L.3315-4 C. transports · Art. L.1234-1 C. trav.'},
-    {ref:'Cass. crim. 7 mars 2018',theme:'Tachygraphe — Responsabilité pénale',faits:'Conducteur et employeur poursuivis suite à découverte de manipulations systématiques du tachygraphe.',decision:'La responsabilité pénale du conducteur ET de l\'employeur peut être engagée.',regle:'Double responsabilité pénale — l\'employeur peut être poursuivi s\'il est complice ou bénéficiaire de la fraude.',textes:'Art. L.3315-4 C. transports · Art. 121-7 C. pén.'},
-  ],
-  inaptitude:[
-    {ref:'Cass. soc. 26 janvier 2022 — n°20-21.501',theme:'Inaptitude — Obligation de reclassement',faits:'Conducteur déclaré inapte — l\'employeur n\'avait pas consulté le CSE avant de conclure à l\'impossibilité de reclassement.',decision:'L\'absence de consultation du CSE rend le licenciement sans cause réelle et sérieuse.',regle:'La consultation du CSE est obligatoire pour tout licenciement pour inaptitude d\'origine professionnelle.',textes:'Art. L.1226-10 C. trav.'},
-    {ref:'Principe jurisprudentiel constant',theme:'Inaptitude professionnelle — Indemnités doublées',faits:'Conducteur victime d\'un accident du travail déclaré inapte à son poste.',decision:'L\'indemnité spéciale de licenciement est égale au double de l\'indemnité légale. Le préavis est dû même s\'il n\'est pas exécuté.',regle:'Inaptitude d\'origine professionnelle → indemnités doublées + préavis dû sans exécution.',textes:'Art. L.1226-14 C. trav.'},
-  ],
-  temps:[
-    {ref:'CJUE 19 octobre 2023 — C-509/22',theme:'Temps de conduite — Responsabilité employeur',faits:'Conducteur condamné pour dépassement des temps de conduite — délais imposés par l\'employeur incompatibles avec les repos.',decision:'La responsabilité de l\'employeur est engagée s\'il impose des délais incompatibles avec les temps de repos réglementaires.',regle:'L\'employeur ne peut pas imposer une organisation du travail conduisant inévitablement à des infractions.',textes:'Règlement CE 561/2006 · Art. L.3312-1 C. transports'},
-    {ref:'CJUE 20 décembre 2017 — C-102/16',theme:'Pause — Chargement/déchargement',faits:'Conducteur effectuant des opérations de chargement pendant sa pause de conduite.',decision:'Le temps passé au chargement ou déchargement ne compte pas comme une pause de conduite.',regle:'La pause de conduite de 45 min doit être du temps libre — aucun travail ne peut y être effectué.',textes:'Art. 7 Règlement CE 561/2006'},
-  ],
-  transfert:[
-    {ref:'Cass. soc. 18 novembre 2020 — n°18-24.700',theme:'L.1224-1 — Reprise de marché transport',faits:'Reprise d\'un contrat de transport de marchandises par une nouvelle entreprise — question du transfert des contrats de travail.',decision:'L\'article L.1224-1 s\'applique si le transfert s\'accompagne du transfert d\'une entité économique autonome maintenant son identité (moyens matériels + clientèle).',regle:'Le simple transfert de marché sans reprise des moyens (véhicules, entrepôt) ne suffit pas à déclencher L.1224-1.',textes:'Art. L.1224-1 C. trav. · Directive 2001/23/CE'},
-    {ref:'Cass. soc. 7 juillet 1998 — Arrêt de principe',theme:'L.1224-1 — Entité économique autonome',faits:'Reprise d\'activité de transport incluant les véhicules et le personnel.',decision:'Le transfert d\'une entité économique autonome (personnel + moyens d\'exploitation + clientèle) déclenche le transfert automatique des contrats de travail.',regle:'Si l\'entité économique conserve son identité après le transfert → L.1224-1 s\'applique obligatoirement.',textes:'Art. L.1224-1 C. trav.'},
-  ],
-  divers:[
-    {ref:'Cass. soc. 29 juin 2005 — n°03-44.412',theme:'Géolocalisation — Licéité du contrôle',faits:'Employeur utilisant les données GPS pour constater des manquements du conducteur.',decision:'Les données de géolocalisation peuvent être utilisées à condition que le salarié ait été informé et que le CSE ait été consulté.',regle:'Géolocalisation licite si : information du salarié + consultation CSE + finalités légitimes et PROPORTIONNÉES ; le suivi du temps de travail par géolocalisation n’est licite que si aucun autre moyen ne le permet (Cass. soc. 19/12/2018, n° 17-14.631 ; référentiel CNIL géolocalisation ; RGPD).',textes:'Art. L.2312-38 C. trav. · RGPD art. 6'},
-    {ref:'Loi du 21 décembre 2022 — Abandon de poste',theme:'Abandon de poste — Présomption de démission',faits:'Conducteur absent sans justification pendant plusieurs semaines.',decision:'L\'employeur doit mettre en demeure le salarié (délai 15 jours min.) avant que la présomption de démission puisse jouer.',regle:'Procédure obligatoire : mise en demeure → délai 15 jours → présomption de démission si pas de réponse.',textes:'Art. L.1237-1-1 C. trav.'},
-    {ref:'Cass. soc. constante',theme:'Non bis in idem — Double sanction',faits:'Employeur souhaitant sanctionner un conducteur pour des faits ayant déjà fait l\'objet d\'un avertissement.',decision:'Un même fait ne peut donner lieu qu\'à une seule sanction.',regle:'Principe non bis in idem : interdiction de sanctionner deux fois les mêmes faits.',textes:'Art. L.1331-1 C. trav.'},
-  ]
-};
-
-function showJuris(theme){
-  Object.keys(JURIS_DATA).forEach(k=>{
-    document.getElementById(`juris-tab-${k}`)?.classList.toggle('act',k===theme);
-  });
-  const data=JURIS_DATA[theme]||[];
-  const cont=document.getElementById('juris-content');
-  if(!cont)return;
-  cont.innerHTML=data.map(j=>`<div class="juris-card">
-<div class="juris-ref">${j.ref}</div>
-<div style="font-size:11px;color:#e8c97a;font-weight:600;margin-bottom:6px">${j.theme}</div>
-<div style="font-size:12px;color:#9a9585;margin-bottom:4px"><strong style="color:#6b6660">Faits :</strong> ${j.faits}</div>
-<div style="font-size:12px;color:#e8e4d8;margin-bottom:4px"><strong style="color:#5b9bd5">Décision :</strong> ${j.decision}</div>
-<div style="font-size:11px;color:#6b6660"><strong>Textes visés :</strong> ${j.textes}</div>
-<div class="juris-regle">→ RÈGLE : ${j.regle}</div>
-</div>`).join('');
-}
-
-// ═══════════════════════════════════════
-// MODULE X — VEILLE RÉGLEMENTAIRE
-// ═══════════════════════════════════════
-const VEILLE_DATE_MAJ = '2025-01';
-const VEILLE_REFORMES = [
-  {date:'2023-12-18', titre:'Loi du Plein Emploi', ref:'Loi n°2023-1196', impact:'Création de France Travail (remplace Pôle emploi), conditionnement du RSA à 15h d\'activité hebdomadaire, réforme de l\'apprentissage. Transport : suivi renforcé des apprentis conducteurs.'},
-  {date:'2023-11-29', titre:'Loi Partage de la Valeur', ref:'Loi n°2023-1107', impact:'Obligation pour entreprises de 11 à 49 salariés ayant fait du bénéfice 3 années consécutives de mettre en place dispositif de partage (PPV, intéressement ou participation). Applicable depuis le 1er janvier 2025. CONCERNE LES PME TRANSPORT.'},
-  {date:'2022-12-21', titre:'Loi Marché du Travail', ref:'Loi n°2022-1598', impact:'Abandon de poste = présomption de démission (art. L.1237-1-1). Refus de CDI après CDD : possibilité de refuser sans perdre allocations chômage si proposition similaire. VAE simplifiée.'},
-  {date:'2022-08-16', titre:'Loi Pouvoir d\'achat', ref:'Loi n°2022-1158', impact:'Prime de Partage de la Valeur (PPV) jusqu\'à 3 000 € (ou 6 000 € avec accord d\'intéressement) exonérée de cotisations. Heures sup. plafond exonération porté à 7 500 €/an.'},
-  {date:'2023-03-09', titre:'Loi DDADUE (transposition directive UE)', ref:'Loi n°2023-171', impact:'Conditions de travail transparentes (art. L.1221-5-1) : informations obligatoires à fournir au salarié sous 7 jours / 1 mois. Renforce la documentation contractuelle.'},
-  {date:'2022-07-01', titre:'Décret Gestionnaire de transport', ref:'Décret n°2022-869', impact:'Conditions d\'honorabilité renforcées pour le gestionnaire de transport. Obligation de formation continue. Sanctions DREAL alourdies. À vérifier pour tous les conducteurs et le gestionnaire.'},
-  {date:'2024-04-10', titre:'Réforme assurance chômage', ref:'Décret n°2024-XX', impact:'Modulation de la durée d\'indemnisation selon la conjoncture. Conditions d\'éligibilité ajustées. À vérifier pour vos salariés en fin de CDD.'},
-  {date:'2019-12-24', titre:'Loi d\'Orientation des Mobilités (LOM)', ref:'Loi n°2019-1428', impact:'Forfait Mobilités Durables : exonération de cotisations jusqu\'à 800 €/an pour vélo, covoiturage. Applicable aussi aux conducteurs pour leurs trajets domicile-dépôt.'},
-];
-
-const VEILLE_TEXTES = [
-  {cat:'Temps de travail', items:[
-    {titre:'Décret 83-40 du 26/01/1983', sujet:'Régime du temps de travail dans les transports routiers (durée, repos, équipages)'},
-    {titre:'Règlement (CE) n°561/2006', sujet:'Temps de conduite et de repos — 9h/jour (10h max 2 fois/semaine), 56h/sem max, 90h/2 sem max'},
-    {titre:'Directive 2002/15/CE', sujet:'Aménagement du temps de travail des personnes effectuant des activités mobiles de transport routier'},
-    {titre:'Règlement (UE) n°165/2014', sujet:'Tachygraphes — installation, utilisation, contrôle'},
-    {titre:'Décret 2007-1340 (modifié)', sujet:'Garantie d\'amplitude — repos quotidien — équivalence'},
-  ]},
-  {cat:'Contrats et rémunération', items:[
-    {titre:'Articles L.1221-1 et s. C. trav.', sujet:'Contrat de travail (formation, exécution)'},
-    {titre:'Articles L.3231-1 et s. C. trav.', sujet:'Salaire minimum interprofessionnel de croissance (SMIC)'},
-    {titre:'Articles L.3261-1 et s. C. trav.', sujet:'Indemnités et avantages divers (frais professionnels, repas, déplacement)'},
-    {titre:'CCN IDCC 16 — Avenants ouvriers', sujet:'Salaires minima, prime ancienneté (art. 13), indemnités déplacement'},
-  ]},
-  {cat:'Discipline et licenciement', items:[
-    {titre:'Articles L.1232-1 à L.1235-16', sujet:'Licenciement pour motif personnel — procédure, motif réel et sérieux'},
-    {titre:'Articles L.1332-1 à L.1332-5', sujet:'Discipline — sanctions, prescription 2 mois'},
-    {titre:'Articles L.1234-1 à L.1234-20', sujet:'Préavis et indemnités de licenciement'},
-    {titre:'R.1234-1', sujet:'Calcul indemnité légale : 1/4 mois ≤ 10 ans + 1/3 mois > 10 ans'},
-  ]},
-  {cat:'Représentation du personnel', items:[
-    {titre:'Articles L.2311-1 à L.2317-8', sujet:'Comité Social et Économique (CSE)'},
-    {titre:'L.2314-5 à L.2314-13', sujet:'Élections — PAP, collèges, modalités'},
-    {titre:'L.1111-2 et L.1111-3', sujet:'Calcul de l\'effectif (inclus / exclus)'},
-  ]},
-  {cat:'Santé sécurité', items:[
-    {titre:'Articles L.4121-1 et s.', sujet:'Obligation de sécurité de l\'employeur — DUERP, Document Unique'},
-    {titre:'Décret 2001-1016', sujet:'Document Unique d\'Évaluation des Risques Professionnels'},
-    {titre:'Articles R.4624-22 et s.', sujet:'Suivi médical — visites d\'information et de prévention, visite reprise après 30j'},
-  ]},
-];
-
-const VEILLE_CCN = [
-  {ref:'CCN IDCC 0016', titre:'Transports routiers et activités auxiliaires du transport', date:'Du 21 décembre 1950 — étendue', commentaire:'Convention collective de référence. Avenants nombreux. Toujours vérifier le dernier avenant Salaires (annuel ou semestriel).'},
-  {ref:'Avenant Ouvriers — Salaires', titre:'Revalorisation des salaires minima', date:'Périodicité : 1 à 2 par an selon SMIC', commentaire:'Surveiller les revalorisations annuelles. Affichage obligatoire dans l\'entreprise.'},
-  {ref:'Avenant Frais de déplacement', titre:'Indemnités de repas, casse-croûte, grand déplacement', date:'Revalorisation périodique', commentaire:'Indemnité conventionnelle souvent supérieure aux barèmes URSSAF. Bien appliquer le montant le plus favorable au salarié.'},
-  {ref:'Accord Garantie Annuelle de Rémunération (GAR)', titre:'GAR — Annexe Ouvriers', date:'Avenant régulier', commentaire:'Mécanisme spécifique transport. Régularisation en fin d\'année si rémunération annuelle inférieure au minimum garanti.'},
-  {ref:'Accord Prime Ancienneté', titre:'Article 13 CCN', date:'En vigueur', commentaire:'2% après 2 ans, 4% après 5 ans, 6% après 10 ans, 8% après 15 ans (selon catégorie). Sur salaire minimum.'},
-];
-
-const VEILLE_SOURCES = [
-  {nom:'Légifrance', url:'https://www.legifrance.gouv.fr', desc:'Code du travail, lois, décrets, conventions collectives'},
-  {nom:'URSSAF', url:'https://www.urssaf.fr', desc:'Cotisations sociales, exonérations, barèmes frais'},
-  {nom:'Service Public — Pro', url:'https://entreprendre.service-public.fr', desc:'Guides pratiques employeurs'},
-  {nom:'Ministère du Travail', url:'https://travail-emploi.gouv.fr', desc:'Actualités réglementaires, fiches pratiques'},
-  {nom:'DREETS de votre région', url:'https://dreets.gouv.fr', desc:'Inspection du travail, médiation'},
-  {nom:'Cour de cassation', url:'https://www.courdecassation.fr', desc:'Décisions de jurisprudence sociale'},
-  {nom:'AFT (Association Formation Transport)', url:'https://www.aft-dev.com', desc:'Veille spécialisée transport, formations'},
-  {nom:'FNTR', url:'https://www.fntr.fr', desc:'Fédération nationale des transports routiers — actualité branche'},
-  {nom:'OTRE', url:'https://www.otre.org', desc:'Organisation des Transporteurs Routiers Européens'},
-  {nom:'OPTL', url:'https://www.optl.fr', desc:'Observatoire Prospectif des Métiers — données sectorielles'},
-  {nom:'Bulletin officiel Convention collective', url:'https://www.journal-officiel.gouv.fr/conventions-collectives', desc:'Avenants CCN IDCC 16'},
-];
-
-function showVeille(onglet){
-  ['reformes','textes','ccn','sources','alertes','notes'].forEach(o => {
-    document.getElementById('veille-tab-'+o)?.classList.toggle('act', o === onglet);
-  });
-  const cont = document.getElementById('veille-content');
-  if(!cont) return;
-  let html = '';
-  if(onglet === 'reformes'){
-    html = `<div class="al info" style="font-size:11px;margin-bottom:10px">Mise à jour : ${VEILLE_DATE_MAJ}. Présentation chronologique des réformes ayant impact sur le transport routier.</div>`;
-    html += VEILLE_REFORMES.sort((a,b)=>b.date.localeCompare(a.date)).map(r => `
-<div class="item" style="margin-bottom:8px">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-<strong style="color:#e8c97a;font-size:13px">${r.titre}</strong>
-<span style="font-size:10px;color:#9a9585;flex-shrink:0;margin-left:8px">${new Date(r.date).toLocaleDateString('fr-FR')}</span>
-</div>
-<div style="font-size:10px;color:#6b6660;margin-bottom:6px">${r.ref}</div>
-<div style="font-size:12px;color:#e8e4d8;line-height:1.6">${r.impact}</div>
-</div>`).join('');
-  } else if(onglet === 'textes'){
-    html = `<div class="al info" style="font-size:11px;margin-bottom:10px">Textes principaux applicables au transport routier classés par thème.</div>`;
-    VEILLE_TEXTES.forEach(g => {
-      html += `<div style="margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:#5b9bd5;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">${g.cat}</div>`;
-      g.items.forEach(t => {
-        html += `<div class="item" style="margin-bottom:6px;padding:8px 10px">
-<div style="font-weight:600;color:#e8c97a;font-size:12px;margin-bottom:2px">${t.titre}</div>
-<div style="font-size:11px;color:#9a9585">${t.sujet}</div>
-</div>`;
-      });
-      html += `</div>`;
-    });
-  } else if(onglet === 'ccn'){
-    html = `<div class="al info" style="font-size:11px;margin-bottom:10px">Convention collective IDCC 16 — éléments clés. Toujours vérifier sur Légifrance l'avenant le plus récent.</div>`;
-    html += VEILLE_CCN.map(c => `
-<div class="item" style="margin-bottom:8px">
-<div style="font-weight:600;color:#e8c97a;font-size:13px;margin-bottom:2px">${c.titre}</div>
-<div style="font-size:10px;color:#6b6660;margin-bottom:4px">${c.ref} · ${c.date}</div>
-<div style="font-size:12px;color:#e8e4d8;line-height:1.6">${c.commentaire}</div>
-</div>`).join('');
-  } else if(onglet === 'sources'){
-    html = `<div class="al info" style="font-size:11px;margin-bottom:10px">Sources officielles à consulter régulièrement pour la veille.</div>`;
-    html += VEILLE_SOURCES.map(s => `
-<div class="item" style="margin-bottom:6px;padding:10px">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-<div style="flex:1">
-<div style="font-weight:600;color:#e8c97a;font-size:13px;margin-bottom:3px">${s.nom}</div>
-<div style="font-size:11px;color:#9a9585;margin-bottom:4px">${s.desc}</div>
-<div style="font-size:10px;color:#5b9bd5;word-break:break-all">${s.url}</div>
-</div>
-<a href="${s.url}" target="_blank" rel="noopener" style="background:#c9a84c;color:#000;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:600;font-size:11px;flex-shrink:0;align-self:center">Ouvrir →</a>
-</div>
-</div>`).join('');
-  } else if(onglet === 'alertes'){
-    const alertes = chargerAlertes();
-    html = `<div class="al info" style="font-size:11px;margin-bottom:10px">Ajoutez ici les échéances réglementaires à ne pas manquer (revalorisation SMIC, signature avenant, échéance DREETS, etc.).</div>`;
-    if(alertes.length === 0){
-      html += `<div class="al warn" style="font-size:12px;text-align:center;padding:14px">Aucune alerte pour l'instant.</div>`;
-    } else {
-      const today = new Date();
-      const triees = alertes.sort((a,b) => a.date.localeCompare(b.date));
-      html += triees.map((a, i) => {
-        const dA = new Date(a.date);
-        const joursRestants = Math.round((dA - today) / (1000*60*60*24));
-        const couleur = joursRestants < 0 ? '#e05c5c' : joursRestants < 15 ? '#d4a017' : '#4caf7d';
-        const txt = joursRestants < 0 ? `Échéance dépassée de ${Math.abs(joursRestants)} j` : joursRestants === 0 ? 'Aujourd\'hui' : `Dans ${joursRestants} j`;
-        return `<div class="item" style="margin-bottom:8px;padding:10px;border-left:3px solid ${couleur}">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-<div style="flex:1">
-<div style="font-weight:600;color:#e8c97a;font-size:13px;margin-bottom:3px">${a.titre}</div>
-<div style="font-size:11px;color:#9a9585;margin-bottom:4px">${a.description||''}</div>
-<div style="font-size:11px;color:${couleur};font-weight:600">${new Date(a.date).toLocaleDateString('fr-FR')} — ${txt}</div>
-</div>
-<button onclick="supprimerAlerte(${i})" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);border-radius:6px;padding:4px 8px;color:#e05c5c;cursor:pointer;font-size:11px;flex-shrink:0">✕</button>
-</div>
-</div>`;
-      }).join('');
-    }
-    html += `<div class="card" style="margin-top:12px"><div class="ct">Ajouter une alerte</div>
-<div class="fg"><label class="fl">Titre</label><input id="alerte-titre" placeholder="Ex : Revalorisation SMIC"/></div>
-<div class="fg"><label class="fl">Description</label><input id="alerte-desc" placeholder="Détails / contexte"/></div>
-<div class="fg"><label class="fl">Date d'échéance</label><input type="date" id="alerte-date"/></div>
-<button class="btn-sm" onclick="ajouterAlerte()" style="width:100%;margin-top:8px">+ Ajouter cette alerte</button>
-</div>`;
-  } else if(onglet === 'notes'){
-    const notes = localStorage.getItem('transport_veille_notes') || '';
-    html = `<div class="al info" style="font-size:11px;margin-bottom:10px">Espace libre pour vos notes de veille personnelle (sauvegarde automatique).</div>
-<div class="fg"><label class="fl">Mes notes</label>
-<textarea id="veille-notes" oninput="sauverNotes()" style="width:100%;min-height:280px;font-size:13px;line-height:1.6;font-family:inherit" placeholder="Écrivez ici vos observations, articles à relire, points de vigilance, retours clients, etc.">${notes}</textarea>
-</div>
-<div style="font-size:11px;color:#6b6660;margin-top:6px;font-style:italic">💾 Vos notes sont enregistrées automatiquement dans votre navigateur.</div>`;
-  }
-  cont.innerHTML = html;
-}
-
-function chargerAlertes(){
-  try { return JSON.parse(localStorage.getItem('transport_veille_alertes')||'[]'); } catch(e) { return []; }
-}
-function sauverAlertes(a){
-  try { localStorage.setItem('transport_veille_alertes', JSON.stringify(a)); } catch(e) {}
-}
-function ajouterAlerte(){
-  const titre = gv('alerte-titre');
-  const date = gv('alerte-date');
-  if(!titre || !date){ alert('Veuillez renseigner au minimum le titre et la date.'); return; }
-  const alertes = chargerAlertes();
-  alertes.push({titre, description:gv('alerte-desc')||'', date});
-  sauverAlertes(alertes);
-  showVeille('alertes');
-}
-function supprimerAlerte(i){
-  _confirmer('Supprimer cette alerte ?', () => {
-    const alertes = chargerAlertes();
-    alertes.splice(i,1);
-    sauverAlertes(alertes);
-    showVeille('alertes');
-  });
-}
-function sauverNotes(){
-  try { localStorage.setItem('transport_veille_notes', document.getElementById('veille-notes').value); } catch(e) {}
-}
-// Init affichage onglet par défaut quand on ouvre le module
-const _origGoPage = goPage;
-goPage = function(id){
-  _origGoPage(id);
-  if(id === 'veille') setTimeout(()=>showVeille('reformes'), 50);
-};
+/* Retire : l'ancien module « Jurisprudence » (JURIS_DATA / showJuris) et
+   l'ancien module « Veille reglementaire » (VEILLE_* / showVeille).
+   Les deux ecrivaient dans des conteneurs — juris-content, veille-content,
+   veille-tab-* — qui n'existent nulle part dans la page, et aucune page
+   pg-veille n'a jamais ete declaree : le code ne produisait donc rien.
+   La jurisprudence est desormais servie par JURIS_ALL et jurRender().
+   La veille s'arretait a janvier 2025 ; la reafficher en l'etat aurait
+   presente comme a jour un etat du droit vieux de plus d'un an.
+   Le texte reste consultable dans l'historique git. */
 
 // ═══════════════════════════════════════
 // PARAMÉTRAGE
@@ -19823,7 +19630,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     try{ if(typeof calcTypeChange==='function'&&document.getElementById('calc-type'))calcTypeChange(); }catch(e){}
     try{ if(typeof calcSecteurNote==='function'&&document.getElementById('calc-secteur'))calcSecteurNote(); }catch(e){}
     try{ if(typeof window.diagRender==='function'&&document.getElementById('diag-type'))window.diagRender(); }catch(e){}
-    try{ if(typeof buildDiscMotifs==='function'&&document.getElementById('disc-secteur'))buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||'transport'); }catch(e){}
+    try{ if(typeof buildDiscMotifs==='function'&&document.getElementById('disc-secteur'))buildDiscMotifs((document.getElementById('disc-secteur')||{}).value||''); }catch(e){}
     restore(); // champs dynamiques (questions dq-*, motif) désormais présents
     try{ if(typeof updateDiscMotif==='function'&&(document.getElementById('disc-motif')||{}).value)updateDiscMotif(); }catch(e){}
     document.addEventListener('input',save,true);
@@ -20471,7 +20278,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       if(last && (Date.now()-last)<600000) return;   /* anti-boucle : 1 tentative / 10 min / version */
       sessionStorage.setItem(guard, String(Date.now()));
     }catch(e){}
-    try{ localStorage.setItem('jx_whatsnew', newBuild); }catch(e){}  /* bannière « nouveautés » après redémarrage */
+    try{ localStorage.setItem('jx_whatsnew', newBuild); }catch(e){}  /* memo d'affichage : un echec ici est sans consequence */  /* bannière « nouveautés » après redémarrage */
     try{
       var ov=document.createElement('div');
       ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,16,26,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#e8e2d2;font-family:inherit;text-align:center;padding:24px';

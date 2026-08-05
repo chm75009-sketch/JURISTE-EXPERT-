@@ -1,8 +1,12 @@
 # Tests
 
 ```
-node tests/cse.test.js
+node tests/cse.test.js          # règles CSE : seuils, barèmes, calculs
+node tests/navigateur.test.js   # la page ouverte pour de vrai dans Chromium
+python3 tests/integrite.py      # ce qui est mécaniquement vérifiable
 ```
+
+## 1. `cse.test.js` — les règles
 
 Ces tests existent pour un défaut précis, qui s'est répété : dans les modules
 CSE, **le message affiché et le calcul qui l'applique sont écrits à deux
@@ -33,3 +37,45 @@ Ce que la suite vérifie :
    au-delà de 200 caractères.
 
 À lancer après **toute** modification d'un module CSE.
+
+## 2. `navigateur.test.js` — ce que le client voit
+
+Lire le code ne suffit pas : trois défauts récents ne se voyaient qu'à
+l'écran. Ce test ouvre `index.html` dans Chromium et vérifie, en conditions
+réelles :
+
+- **aucune exception JavaScript** de l'ouverture jusqu'à la dernière page CSE
+  (les erreurs réseau sont ignorées : hors ligne, la sauvegarde en ligne
+  échoue normalement) ;
+- **sans secteur choisi**, l'en-tête écrit « Convention non renseignée » et
+  non « CCN IDCC 0016 » — c'est exactement le défaut signalé sur le compte
+  administrateur ;
+- **secteur Banque**, l'en-tête passe à IDCC 2120 et le questionnaire de
+  conformité cesse de poser des questions sur les cartes de conducteur, le
+  tachygraphe et les frais de casse-croûte ;
+- **secteur Transport**, ces mêmes questions reviennent, GAR comprise ;
+- les huit pages du CSE s'ouvrent l'une après l'autre sans erreur.
+
+Playwright n'est pas une dépendance du projet. S'il est absent, le test le
+dit et sort en succès. Pour l'activer : `npm i playwright`.
+
+## 3. `integrite.py` — ce qui est mécaniquement vérifiable
+
+Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
+deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`
+vers une page absente, `getElementById()` sur un identifiant jamais écrit,
+valeurs de secteur en dur, `onclick` construit avec une valeur non échappée,
+écritures dans le stockage du navigateur dont l'échec est avalé.
+
+C'est ce contrôle qui a mis au jour deux modules entiers — l'ancienne
+jurisprudence et l'ancienne veille réglementaire — qui remplissaient des
+conteneurs inexistants, et le secteur « transport » écrit en dur comme
+valeur par défaut de toute l'application.
+
+Deux points qu'il signale sont des faux positifs connus, à ne pas
+« corriger » :
+
+- les fonctions homonymes (`esc`, `load`, `save`, `render`…) sont locales à
+  leur module et ne s'écrasent pas ;
+- `doc-fullscreen-overlay` est créé par `overlay.id = '…'`, il n'apparaît
+  donc dans aucun attribut `id="…"`.
