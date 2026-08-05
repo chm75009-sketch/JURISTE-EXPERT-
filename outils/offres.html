@@ -538,7 +538,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.88";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.89";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -1696,7 +1696,42 @@ function LS_VUES(){ return LS_VUES_BASE + "::" + dossierActif(); }
 var _offresListe = [];
 function offresVues(){ try{ return JSON.parse(localStorage.getItem(LS_VUES())||"{}")||{}; }catch(e){ return {}; } }
 function saveVues(v){ try{ localStorage.setItem(LS_VUES(), JSON.stringify(v)); }catch(e){} }
-function offreKey(o){ return String((o&&o.id) || (o&&o.origineOffre&&o.origineOffre.urlOrigine) || ((o&&o.intitule)||"")+"|"+((o&&o.entreprise&&o.entreprise.nom)||"")); }
+// Signature stable d'une offre : intitule + employeur + lieu, normalises.
+// Elle ne depend NI de la source (France Travail / Adzuna / Jooble) NI d'un
+// identifiant technique. Une meme annonce retrouvee demain, ou par une autre
+// source, produit la meme signature — donc « consultee » et « postule » se
+// retrouvent d'un jour a l'autre.
+function sigOffre(titre, entreprise, lieu){
+  function n(x){ return norm(String(x||"")).replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g,"-"); }
+  var t=n(titre), e=n(entreprise), l=n(lieu);
+  return (t+"~"+(e||l)).slice(0,120) || "x";
+}
+// Cle de suivi. On privilegie la signature ; l'identifiant technique ne sert
+// que si l'intitule manque.
+function offreKey(o){
+  if(!o) return "";
+  var t=(o.intitule||"").trim();
+  if(t) return "s:"+sigOffre(t, (o.entreprise&&o.entreprise.nom)||"", (o.lieuTravail&&o.lieuTravail.libelle)||"");
+  return String(o.id || (o.origineOffre&&o.origineOffre.urlOrigine) || "");
+}
+// Anciennes cles (identifiant technique ou URL), pour ne pas perdre l'historique
+// deja enregistre avant ce changement.
+function offreKeysLegacy(o){
+  if(!o) return [];
+  var k=[];
+  if(o.id) k.push(String(o.id));
+  if(o.origineOffre && o.origineOffre.urlOrigine) k.push(String(o.origineOffre.urlOrigine));
+  k.push(String((o.intitule||"")+"|"+((o.entreprise&&o.entreprise.nom)||"")));
+  return k;
+}
+// Une offre est-elle deja marquee, sous sa cle actuelle ou une ancienne ?
+function marqueDe(map, o){
+  var k=offreKey(o);
+  if(map[k]) return k;
+  var anc=offreKeysLegacy(o);
+  for(var i=0;i<anc.length;i++){ if(map[anc[i]]) return anc[i]; }
+  return null;
+}
 // Peut-on lire l'annonce en entier ? Seules les offres France Travail ont un
 // endpoint de detail ; les agregateurs ne renvoient qu'un extrait tronque.
 function texteIntegralDisponible(o){
@@ -1819,7 +1854,7 @@ function renderOffresListe(offers){
   if(!liste.length){ box.innerHTML='<div class="hint">Aucune offre à afficher (vérifiez les catégories <b>et les secteurs</b> cochés ci-dessus).</div>'; majVuesCompteur(); return; }
   var posts=offresPost();
   box.innerHTML = liste.map(function(o){
-    var key=offreKey(o), url=offreUrl(o), vue=!!vues[key], post=!!posts[key];
+    var key=offreKey(o), url=offreUrl(o), vue=!!marqueDe(vues,o), post=!!marqueDe(posts,o);
     var meta=[esc((o.entreprise&&o.entreprise.nom)||"employeur non précisé"), esc((o.lieuTravail&&o.lieuTravail.libelle)||""), esc(o.typeContratLibelle||o.typeContrat||"")].filter(Boolean).join(" · ");
     return '<div class="offre-item'+(vue?' vue':'')+(post?' postule':'')+'" data-key="'+esc(key)+'">'
       +'<div class="oi-t">'+esc(o.intitule||"—")+'</div>'
@@ -1867,7 +1902,7 @@ function adzunaToFT(r){
   }
   var lieu = (r.location && (r.location.display_name || (r.location.area||[]).slice(-1)[0])) || "";
   return {
-    id: "adz-"+(r.id||r.adref||Math.random().toString(36).slice(2)),
+    id: "adz-"+(r.id||r.adref||sigOffre(r.title, (r.company&&r.company.display_name), lieu)),
     source: "Adzuna",
     intitule: r.title || "",
     description: r.description || "",
@@ -1882,7 +1917,7 @@ function adzunaToFT(r){
 }
 function joobleToFT(j){
   return {
-    id: "job-"+(j.id||Math.random().toString(36).slice(2)),
+    id: "job-"+(j.id||sigOffre(j.title, j.company, j.location)),
     source: "Jooble",
     intitule: j.title || "",
     description: (j.snippet||"").replace(/<[^>]+>/g," "),
@@ -2512,7 +2547,7 @@ function renderOffers(offers){
     const key = offreKey(o);
     _offreByKey[key] = o;
     const vues = offresVues(), posts = offresPost();
-    const estVue = !!vues[key], estPost = !!posts[key];
+    const estVue = !!marqueDe(vues, o), estPost = !!marqueDe(posts, o);
     const el = document.createElement("div");
     el.className = "offer" + (estVue?" vue":"") + (estPost?" postule":"");
     el.innerHTML =
