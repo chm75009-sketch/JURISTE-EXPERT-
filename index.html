@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-03.90';
+var JX_BUILD = 'v2026-08-05.91';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,26 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ SOCLE TRANSVERSE — effectif, convention, accord ═══ -->
+<div id="pg-socle" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Socle de l'entreprise</div><div class="ts">Effectif · convention collective · accord d'entreprise</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    L'effectif commandé par le registre du personnel détermine <b>tout le reste</b> : l'obligation d'organiser les
+    élections, l'étendue des attributions du comité, le nombre d'élus, le crédit d'heures, les budgets.
+    Il est <b>calculé</b> ici, jamais déclaré — et ce que le registre ne dit pas vous est demandé.
+  </div>
+</div>
+<div id="soc-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement du socle…</div>
+    <button onclick="try{socOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir le socle</button>
+  </div>
+</div>
+<input type="file" id="soc-acc-file" accept=".pdf,.doc,.docx,application/pdf" style="display:none" onchange="socImportAccord(this)">
+</div>
 <div id="pg-cse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Élections CSE</div><div class="ts">Procédure Code du travail · convention paramétrable</div></div>
@@ -3357,6 +3377,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('socle');closeMenu()"><span style="font-size:18px">📐</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Socle — effectif &amp; seuils</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique ferroviaire</div>
@@ -5264,6 +5285,7 @@ function goPage(id){
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
+  if(id==='socle'){ try{ socOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -5301,6 +5323,534 @@ function homeToggle(head){
   var chev=head.querySelector('.home-acc-chev');
   if(chev)chev.textContent=open?'▸':'▾';
 }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   SOCLE TRANSVERSE  (S)  —  alimente le module CSE et tous les autres
+   S.1 Registre du personnel   → l'Espace RH existant, pas de doublon
+   S.2 Moteur d'effectif       → L.1111-2, L.1111-3, L.2311-2, L.2312-2
+   S.3 Convention collective   → IDCC + dispositions plus favorables
+   S.4 Accord d'entreprise     → import, analyse par theme, planchers
+   Rien n'est devine : ce que le registre ne dit pas est demande.
+   ══════════════════════════════════════════════════════════════════ */
+var SOC = { idcc:'', ccn:'', duree:35, plusFav:'', accord:null, themes:{}, sal:{} };
+var SOC_LS = 'soc_data_v1';
+function socKey(){ return SOC_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function socLoad(){
+  try{
+    var d=JSON.parse(localStorage.getItem(socKey())||'null');
+    SOC = { idcc:'', ccn:'', duree:35, plusFav:'', accord:null, themes:{}, sal:{} };
+    if(d){ for(var k in d){ if(Object.prototype.hasOwnProperty.call(d,k)) SOC[k]=d[k]; } }
+    if(!SOC.duree) SOC.duree=35;
+    if(!SOC.sal) SOC.sal={};
+    if(!SOC.themes) SOC.themes={};
+  }catch(e){}
+}
+function socSave(){ try{ localStorage.setItem(socKey(), JSON.stringify(SOC)); }catch(e){} }
+function socEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function socFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function socMois(iso){
+  var M=['janv.','fevr.','mars','avril','mai','juin','juil.','aout','sept.','oct.','nov.','dec.'];
+  var m=String(iso).match(/^(\d{4})-(\d{2})/); if(!m) return '';
+  return M[parseInt(m[2],10)-1]+' '+m[1];
+}
+function socMoisLong(iso){
+  var M=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+  var m=String(iso).match(/^(\d{4})-(\d{2})/); if(!m) return '';
+  return M[parseInt(m[2],10)-1]+' '+m[1];
+}
+
+/* ══════════ S.2 — familles de contrat ══════════
+   La famille est lue sur le libelle saisi au registre. Un libelle qui ne
+   correspond a rien de connu n'est PAS interprete : il est signale. */
+var SOC_FAM = {
+  cdi:     { lib:'CDI',                          regle:'compte',  txt:'L.1111-2, 1°' },
+  cdd:     { lib:'CDD',                          regle:'prorata', txt:'L.1111-2, 2°' },
+  interim: { lib:'Interim / temporaire',         regle:'prorata', txt:'L.1111-2, 2° · L.1251-54' },
+  mad:     { lib:'Mis a disposition (ext.)',     regle:'prorata', txt:'L.1111-2, 2°' },
+  interm:  { lib:'Travail intermittent',         regle:'prorata', txt:'L.1111-2, 2°' },
+  domicile:{ lib:'Travailleur a domicile',       regle:'compte',  txt:'L.1111-2, 1°' },
+  appr:    { lib:'Apprenti',                     regle:'exclu',   txt:'L.1111-3, 1°' },
+  cie:     { lib:'Contrat initiative-emploi',    regle:'exclu',   txt:'L.1111-3, 2°' },
+  cae:     { lib:'Contrat d\'accompagnement',    regle:'exclu',   txt:'L.1111-3, 4°' },
+  pro:     { lib:'Contrat de professionnalisation', regle:'exclu', txt:'L.1111-3, 6°' },
+  stage:   { lib:'Stagiaire',                    regle:'exclu',   txt:'pas un contrat de travail' }
+};
+/* Correspondance libelle du registre -> famille. Uniquement des libelles
+   explicites ; tout le reste reste « a preciser ». */
+var SOC_MAP = [
+  [/^cdi\s*int[ée]rimaire/i,'interim'],
+  [/^cdi/i,'cdi'],
+  [/^cdd/i,'cdd'],
+  [/int[ée]rim/i,'interim'],
+  [/apprenti|apprentissage/i,'appr'],
+  [/professionnalisation/i,'pro'],
+  [/^stage|stagiaire/i,'stage'],
+  [/mise?\s+[àa]\s+disposition/i,'mad'],
+  [/intermittent/i,'interm'],
+  [/domicile/i,'domicile'],
+  [/initiative[- ]emploi/i,'cie'],
+  [/accompagnement dans l['’]emploi/i,'cae']
+];
+function socFamilleAuto(s){
+  var t=String((s&&s.typeContrat)||'').trim();
+  if(!t) return '';
+  for(var i=0;i<SOC_MAP.length;i++){ if(SOC_MAP[i][0].test(t)) return SOC_MAP[i][1]; }
+  return '';
+}
+function socFamille(s){
+  var c=SOC.sal[s.id]||{};
+  return c.fam || socFamilleAuto(s);   // le choix de l'utilisateur prime toujours
+}
+/* Quotite : nombre d'heures hebdomadaires inscrites au contrat.
+   « Temps plein » -> duree legale ou conventionnelle. « Temps partiel 60% »
+   -> 60 % de cette duree. Tout autre libelle n'est pas interprete. */
+function socHeuresAuto(s){
+  var t=String((s&&s.tempsTravail)||'').trim();
+  if(!t) return null;
+  if(/temps\s*plein/i.test(t)) return SOC.duree;
+  var mh=t.match(/(\d+(?:[.,]\d+)?)\s*h/i);
+  if(mh) return parseFloat(mh[1].replace(',','.'));
+  var mp=t.match(/(\d+(?:[.,]\d+)?)\s*%/);
+  if(mp) return SOC.duree*parseFloat(mp[1].replace(',','.'))/100;
+  return null;
+}
+function socHeures(s){
+  var c=SOC.sal[s.id]||{};
+  if(c.h!==undefined && c.h!==null && c.h!=='') return parseFloat(c.h);
+  return socHeuresAuto(s);
+}
+function socRempl(s){ var c=SOC.sal[s.id]||{}; return c.rempl===true; }
+
+/* ══════════ S.2 — calcul de l'effectif a une date ══════════
+   CDI et travailleurs a domicile : comptes pour 1 (L.1111-2, 1°).
+   CDD, interim, mis a disposition, intermittents : au prorata du temps de
+   presence sur les douze mois precedents (L.1111-2, 2°) ; ecartes s'ils
+   remplacent un salarie absent ou dont le contrat est suspendu.
+   Temps partiel, quelle que soit la nature du contrat : heures du contrat
+   divisees par la duree legale ou conventionnelle (L.1111-2, 3°).
+   Apprentis, CIE, CAE, contrats de professionnalisation : exclus (L.1111-3).
+   Les stagiaires ne sont pas titulaires d'un contrat de travail. */
+function socJours(a,b){ return Math.round((b-a)/86400000); }
+function socEffectifAt(iso){
+  var D=new Date(iso+'T00:00:00'); if(isNaN(D)) return null;
+  var D0=new Date(D.getTime()); D0.setFullYear(D0.getFullYear()-1);
+  var fen=socJours(D0,D) || 365;
+  var staff=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
+  var tot=0, lignes=[], manque=[];
+  staff.forEach(function(s){
+    var e=(typeof rxISO==='function')?rxISO(s.entree):(s.entree||'');
+    var so=(typeof rxISO==='function')?rxISO(s.sortie):(s.sortie||'');
+    var fam=socFamille(s);
+    var nom=((s.nom||'')+' '+(s.prenom||'')).trim()||'(sans nom)';
+    if(!e){ manque.push({id:s.id,nom:nom,quoi:'date d\'entree absente'}); return; }
+    if(!fam){ manque.push({id:s.id,nom:nom,quoi:'nature du contrat a preciser'}); return; }
+    var R=SOC_FAM[fam]; if(!R) return;
+    var deb=new Date(e+'T00:00:00'), fin=so? new Date(so+'T00:00:00') : null;
+    if(deb>D) return;                       // pas encore entre
+    if(fin && fin<=D0) return;              // sorti avant la fenetre
+    if(R.regle==='exclu'){
+      if(!fin || fin>D) lignes.push({nom:nom,fam:fam,val:0,txt:R.txt,exclu:true});
+      return;
+    }
+    var h=socHeures(s);
+    if(h===null){ manque.push({id:s.id,nom:nom,quoi:'temps de travail a preciser'}); return; }
+    var quot=Math.min(1, h/(SOC.duree||35));
+    if(R.regle==='compte'){
+      if(fin && fin<=D) return;             // sorti : ne compte plus
+      var v=quot;
+      tot+=v; lignes.push({nom:nom,fam:fam,val:v,txt:R.txt,det:(quot<1?('quotite '+Math.round(quot*100)+' %'):'temps plein')});
+      return;
+    }
+    // prorata temporis sur les douze mois precedents
+    if(socRempl(s)){ lignes.push({nom:nom,fam:fam,val:0,txt:'L.1111-2, 2° — remplacement',exclu:true}); return; }
+    if(SOC.sal[s.id]===undefined || SOC.sal[s.id].rempl===undefined){
+      manque.push({id:s.id,nom:nom,quoi:'remplace-t-il un salarie absent ?'});
+    }
+    var a=deb>D0?deb:D0, b=(fin&&fin<D)?fin:D;
+    var j=Math.max(0, socJours(a,b));
+    var v2=quot*j/fen;
+    tot+=v2;
+    lignes.push({nom:nom,fam:fam,val:v2,txt:R.txt,det:j+' j / '+fen+(quot<1?(' · quotite '+Math.round(quot*100)+' %'):'')});
+  });
+  lignes.sort(function(x,y){ return y.val-x.val; });
+  return { date:iso, total:tot, arrondi:Math.floor(tot+1e-9), lignes:lignes, manque:manque };
+}
+/* Dernier jour de chaque mois, sur n mois glissants. */
+function socSerie(n){
+  var t=new Date(); t.setHours(0,0,0,0);
+  var out=[];
+  for(var i=n-1;i>=0;i--){
+    var d=new Date(t.getFullYear(), t.getMonth()-i+1, 0);
+    // Le mois en cours n'est pas termine : on l'arrete a aujourd'hui plutot que
+    // d'extrapoler une fin de mois qui n'a pas encore eu lieu.
+    var enCours = (d>t);
+    if(enCours) d=new Date(t.getTime());
+    var iso=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+    var r=socEffectifAt(iso);
+    out.push({ iso:iso, eff:r?r.total:0, ent:r?r.arrondi:0, partiel:enCours });
+  }
+  return out;
+}
+/* Douze mois consecutifs au moins egaux au seuil : on renvoie le mois ou la
+   condition a ete remplie pour la douzieme fois, et la longueur de la serie
+   en cours. Le franchissement n'est declare que s'il est constate. */
+function socSeuil(serie, seuil){
+  // Le mois en cours n'est pas acheve : il ne peut pas compter dans les douze
+  // mois consecutifs exiges par la loi. Il est signale a part.
+  var clos=serie.filter(function(p){ return !p.partiel; });
+  var run=0, atteintLe=null;
+  for(var i=0;i<clos.length;i++){
+    if(clos[i].ent>=seuil){ run++; if(run===12 && !atteintLe) atteintLe=clos[i].iso; }
+    else run=0;
+  }
+  var enCours = serie.length ? serie[serie.length-1] : null;
+  return { atteintLe:atteintLe, run:run, seuil:seuil,
+           moisEnCours:(enCours&&enCours.partiel)?enCours:null };
+}
+/* L.2312-2 : lorsque l'effectif atteint 50 salaries pendant douze mois
+   consecutifs, les attributions de la section 3 s'exercent a l'expiration
+   d'un delai de douze mois a compter de cette date. */
+function socPlus12(iso){
+  if(!iso) return '';
+  var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  d.setFullYear(d.getFullYear()+1);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+
+/* ══════════ S.4 — themes de l'accord et planchers d'ordre public ══════════ */
+var SOC_THEMES = [
+  { k:'mandats',  lib:'Duree des mandats',
+    plancher:'Entre deux et quatre ans ; quatre ans a defaut d\'accord.', txt:'L.2314-33' },
+  { k:'elus',     lib:'Nombre d\'elus',
+    plancher:'Le protocole ne peut reduire le nombre de sieges fixe par le tableau reglementaire qu\'en contrepartie d\'un volume global d\'heures au moins egal.', txt:'R.2314-1 · L.2314-7' },
+  { k:'heures',   lib:'Heures de delegation',
+    plancher:'Le volume global ne peut etre inferieur a celui du tableau reglementaire. Report sur douze mois et mutualisation : information de l\'employeur huit jours avant, sans depasser une fois et demie le credit mensuel.', txt:'L.2315-7 a L.2315-9 · R.2315-5 · R.2315-6' },
+  { k:'reunions', lib:'Nombre et periodicite des reunions',
+    plancher:'Au moins six reunions par an. Dans les entreprises d\'au moins cinquante salaries, quatre reunions par an portent en tout ou partie sur la sante, la securite et les conditions de travail.', txt:'L.2315-27 · L.2315-28' },
+  { k:'consult',  lib:'Consultations recurrentes',
+    plancher:'Les trois consultations recurrentes ne peuvent etre supprimees ; leur periodicite ne peut exceder trois ans.', txt:'L.2312-17 · L.2312-19' },
+  { k:'bdese',    lib:'BDESE',
+    plancher:'L\'accord ne peut supprimer les themes que la loi rend obligatoires ni priver le comite des informations necessaires a ses consultations.', txt:'L.2312-21 · L.2312-36' },
+  { k:'visio',    lib:'Visioconference',
+    plancher:'A defaut d\'accord, trois reunions par annee civile au plus. Le dispositif doit garantir l\'identification des membres et leur participation effective ; en cas de vote a bulletin secret, des conditions techniques permettant un vote simultane et anonyme.', txt:'L.2315-4 · D.2315-1 · D.2315-2' },
+  { k:'budgets',  lib:'Budgets',
+    plancher:'Subvention de fonctionnement : 0,20 % de la masse salariale brute jusqu\'a deux mille salaries, 0,22 % au-dela. Un accord ne peut descendre en dessous.', txt:'L.2315-61' }
+];
+var SOC_VERDICTS = {
+  fav:   { lib:'Plus favorable',            eff:'Appliquee',                 col:'#46b885' },
+  moins: { lib:'Moins favorable mais licite', eff:'Appliquee et signalee',   col:'#e8c97a' },
+  sous:  { lib:'Sous le plancher',          eff:'Ecartee — inopposable',     col:'#e05c5c' },
+  neant: { lib:'Non traite par l\'accord',  eff:'Regle legale applicable',   col:'#9fb0c4' }
+};
+
+/* ══════════════════════════════════════════════════════════════════
+   RENDU
+   ══════════════════════════════════════════════════════════════════ */
+var _socTab='eff';
+function socOnEnter(){ socLoad(); try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){} socRender(); }
+function socTab(t){ _socTab=t; socRender(); }
+function _socTabBtn(k,lib){
+  var on=(_socTab===k);
+  return '<button onclick="socTab(\''+k+'\')" style="border:1px solid '+(on?'#c9a84c':'#3a4a5f')+';background:'+(on?'#c9a84c':'#16263c')+';color:'+(on?'#000':'#e8e4d8')+';border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">'+lib+'</button>';
+}
+function socRender(){
+  var host=document.getElementById('soc-body'); if(!host) return;
+  var n=((typeof RX!=='undefined'&&RX.staff)?RX.staff.length:0);
+  host.innerHTML =
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
+    + _socTabBtn('eff','📐 Effectif')
+    + _socTabBtn('reg','📖 Registre ('+n+')')
+    + _socTabBtn('ccn','📗 Convention collective')
+    + _socTabBtn('acc','📄 Accord d\'entreprise')
+    + '</div><div id="soc-tabc"></div>';
+  var c=document.getElementById('soc-tabc');
+  if(_socTab==='eff') socRenderEffectif(c);
+  else if(_socTab==='reg') socRenderRegistre(c);
+  else if(_socTab==='ccn') socRenderCCN(c);
+  else socRenderAccord(c);
+}
+
+/* ── S.1 : renvoi vers le registre existant, jamais un second registre ── */
+function socRenderRegistre(c){
+  var staff=((typeof RX!=='undefined'&&RX.staff)?RX.staff:[]);
+  var actifs=staff.filter(function(s){return !s.sortie;}).length;
+  c.innerHTML =
+   '<div class="card"><div class="ct">S.1 · Registre du personnel</div>'
+   +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65">'
+   +'Le registre unique du personnel (article <b>L.1221-13</b>) est tenu dans l\'Espace RH. '
+   +'Le socle ne le duplique pas : il le lit. Toute correction se fait la-bas et se repercute ici.'
+   +'</div>'
+   +'<div style="margin:14px 0;padding:12px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:10px">'
+     +'<div style="font-size:26px;font-weight:800;color:#fff">'+staff.length+'<span style="font-size:14px;color:#9fb0c4;font-weight:600"> inscrits au registre</span></div>'
+     +'<div style="font-size:13px;color:#9fb0c4;margin-top:2px">dont '+actifs+' en poste a ce jour</div>'
+   +'</div>'
+   +'<button class="btn" onclick="socGoRegistre()">Ouvrir l\'Espace RH</button>'
+   +(staff.length?'':'<div style="margin-top:12px;font-size:12.5px;color:#e8c97a">Le registre est vide : sans lui, aucun effectif ne peut etre calcule.</div>')
+   +'</div>';
+}
+function socGoRegistre(){ try{ if(typeof rxOpen==='function'){ rxOpen(); return; } }catch(e){} if(typeof goPage==='function') goPage('personnel'); }
+
+/* ── S.2 : moteur d'effectif ── */
+function socRenderEffectif(c){
+  var staff=((typeof RX!=='undefined'&&RX.staff)?RX.staff:[]);
+  if(!staff.length){
+    c.innerHTML='<div class="card"><div class="ct">S.2 · Moteur d\'effectif</div>'
+     +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65">Le registre du personnel est vide. L\'effectif se calcule sur les salaries inscrits : il n\'y a rien a calculer tant que le registre n\'est pas rempli.</div>'
+     +'<div style="margin-top:12px"><button class="btn" onclick="socGoRegistre()">Ouvrir l\'Espace RH</button></div></div>';
+    return;
+  }
+  var t=new Date();
+  var auj=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+  var r=socEffectifAt(auj);
+  var serie=socSerie(36);
+  var s11=socSeuil(serie,11), s50=socSeuil(serie,50);
+
+  /* Bandeau : l'effectif du jour */
+  var h='<div class="card"><div class="ct">S.2 · Effectif au '+socFR(auj)+'</div>'
+   +'<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;margin:6px 0 4px">'
+     +'<div><div style="font-size:44px;font-weight:800;color:#fff;line-height:1">'+r.arrondi+'</div>'
+     +'<div style="font-size:12px;color:#9fb0c4">salaries — calcul exact : '+r.total.toFixed(2)+'</div></div>'
+     +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.6;flex:1;min-width:220px">'
+       +'Effectif <b>calcule</b> a partir du registre selon les articles <b>L.1111-2</b> et <b>L.1111-3</b>. '
+       +'Il n\'est jamais declare a la main : ce serait le premier point qu\'un juge verifierait.'
+     +'</div>'
+   +'</div>';
+
+  /* Donnees manquantes : dites, jamais devinees */
+  if(r.manque.length){
+    var vus={}, uniq=[];
+    r.manque.forEach(function(m){ var k=m.id+'|'+m.quoi; if(!vus[k]){ vus[k]=1; uniq.push(m); } });
+    h+='<div style="margin:12px 0;padding:12px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-radius:10px">'
+     +'<div style="font-size:13px;font-weight:800;color:#e8c97a;margin-bottom:6px">⚠ '+uniq.length+' information(s) manquante(s) — l\'effectif affiche est incomplet</div>'
+     +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.7">'
+     + uniq.slice(0,12).map(function(m){ return '• <b>'+socEsc(m.nom)+'</b> — '+socEsc(m.quoi); }).join('<br>')
+     + (uniq.length>12?('<br>• … et '+(uniq.length-12)+' autre(s)'):'')
+     +'</div>'
+     +'<div style="margin-top:10px"><button class="btn" onclick="socTab(\'eff\');socScrollDetail()">Completer ci-dessous</button></div>'
+     +'</div>';
+  }
+  h+='</div>';
+
+  /* Seuils */
+  h+='<div class="card"><div class="ct">Seuils</div>';
+  h+= socBlocSeuil('11 salaries — mise en place du CSE', s11, serie,
+        'Un comite social et economique est mis en place dans les entreprises d\'au moins onze salaries. Sa mise en place n\'est obligatoire que si l\'effectif d\'au moins onze salaries est atteint pendant douze mois consecutifs.',
+        'L.2311-2');
+  h+='<div style="height:10px"></div>';
+  h+= socBlocSeuil('50 salaries — attributions etendues', s50, serie,
+        'Lorsque l\'effectif atteint au moins cinquante salaries pendant douze mois consecutifs, le comite exerce l\'ensemble des attributions recurrentes d\'information et de consultation a l\'expiration d\'un delai de douze mois a compter de cette date.',
+        'L.2312-2');
+  if(s50.atteintLe){
+    h+='<div style="margin-top:10px;padding:10px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.6">'
+      +'Douze mois consecutifs a cinquante salaries acheves le <b>'+socFR(s50.atteintLe)+'</b>. '
+      +'Les attributions de la section 3 s\'exercent a compter du <b>'+socFR(socPlus12(s50.atteintLe))+'</b> (L.2312-2). '
+      +'Si, a cette echeance, le mandat en cours court sur moins d\'un an, le delai part de son renouvellement.'
+      +'</div>';
+  }
+  h+='</div>';
+
+  /* Courbe 36 mois */
+  h+='<div class="card"><div class="ct">Effectif mois par mois (36 mois glissants)</div>'
+   + socGraphe(serie)
+   + '<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.5">Chaque barre est l\'effectif calcule au dernier jour du mois. Jaune : onze salaries ou plus. Rouge : cinquante ou plus. La derniere barre, hachuree, est le mois en cours : il n\'est pas acheve et ne compte pas encore.</div>'
+   + '</div>';
+
+  /* Detail par salarie + completion */
+  h+='<div class="card" id="soc-detail"><div class="ct">Detail du calcul — et informations a completer</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'La nature du contrat est lue sur le libelle du registre. Lorsqu\'elle n\'est pas certaine, elle est demandee ici : rien n\'est suppose a votre place. Votre choix prime toujours sur la lecture automatique.'
+   +'</div>'
+   +'<div class="fg"><label class="fl">Duree du travail de reference (legale ou conventionnelle, en heures hebdomadaires)</label>'
+   +'<input id="soc-duree" type="number" step="0.5" value="'+(SOC.duree||35)+'" onchange="socSetDuree(this.value)"></div>'
+   + socTableSalaries()
+   +'</div>';
+
+  c.innerHTML=h;
+}
+function socScrollDetail(){ var e=document.getElementById('soc-detail'); if(e) e.scrollIntoView({behavior:'smooth',block:'start'}); }
+function socSetDuree(v){ var n=parseFloat(String(v).replace(',','.')); SOC.duree=(n&&n>0)?n:35; socSave(); socRender(); }
+
+function socBlocSeuil(titre, s, serie, texte, art){
+  var ok=!!s.atteintLe;
+  var col= ok?'#e05c5c':'#46b885';
+  var etat= ok
+    ? ('Franchi — douze mois consecutifs acheves le '+socFR(s.atteintLe))
+    : (s.run>0 ? (s.run+' mois consecutif(s) au-dessus du seuil — il en faut douze') : 'Non franchi');
+  return '<div style="padding:12px;background:#0f1b2c;border:1px solid '+col+';border-radius:10px">'
+   +'<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">'+socEsc(titre)+'</div>'
+   +'<div style="font-size:13px;font-weight:700;color:'+col+';margin-bottom:6px">'+socEsc(etat)+'</div>'
+   +(!ok && s.run>0 ? '<div style="font-size:12px;color:#e8c97a;margin-bottom:6px">Serie en cours : encore '+(12-s.run)+' mois a ce niveau et le seuil sera franchi.</div>' : '')
+   +(s.moisEnCours ? '<div style="font-size:11.5px;color:#6b7a8d;margin-bottom:6px">Le mois en cours ('+socEsc(socMoisLong(s.moisEnCours.iso))+', arrete au '+socFR(s.moisEnCours.iso)+') n\'est pas acheve : il ne compte pas encore dans les douze mois. Effectif provisoire : '+s.moisEnCours.eff.toFixed(2)+'.</div>' : '')
+   +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;font-style:italic">'+socEsc(texte)+'</div>'
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:4px">Article '+socEsc(art)+' du code du travail</div>'
+   +'</div>';
+}
+function socGraphe(serie){
+  var max=1; serie.forEach(function(p){ if(p.eff>max) max=p.eff; });
+  max=Math.max(max, 12);
+  var bars=serie.map(function(p){
+    var hh=Math.max(2, Math.round(p.eff/max*110));
+    var col = p.ent>=50 ? '#e05c5c' : (p.ent>=11 ? '#e8c97a' : '#4a6b8a');
+    var sty = p.partiel ? ('background:repeating-linear-gradient(45deg,'+col+','+col+' 3px,rgba(0,0,0,.35) 3px,rgba(0,0,0,.35) 6px)') : ('background:'+col);
+    return '<div title="'+socEsc(socMoisLong(p.iso))+' : '+p.eff.toFixed(2)+(p.partiel?' (mois en cours, arrete au '+socFR(p.iso)+')':'')+'" style="flex:1;min-width:5px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">'
+      +'<div style="width:100%;height:'+hh+'px;'+sty+';border-radius:2px 2px 0 0"></div>'
+      +'</div>';
+  }).join('');
+  var lignes='';
+  [11,50].forEach(function(v){
+    if(v<=max){
+      var y=Math.round(v/max*110);
+      lignes+='<div style="position:absolute;left:0;right:0;bottom:'+y+'px;border-top:1px dashed '+(v===50?'#e05c5c':'#e8c97a')+';opacity:.75"></div>'
+        +'<div style="position:absolute;right:0;bottom:'+(y+1)+'px;font-size:10px;color:'+(v===50?'#e05c5c':'#e8c97a')+';background:#0f1b2c;padding:0 3px">'+v+'</div>';
+    }
+  });
+  var prem=serie.length?socMois(serie[0].iso):'', der=serie.length?socMois(serie[serie.length-1].iso):'';
+  return '<div style="position:relative;padding:6px 0 0"><div style="display:flex;gap:2px;align-items:flex-end;height:118px">'+bars+'</div>'+lignes+'</div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7a8d;margin-top:4px"><span>'+prem+'</span><span>'+der+'</span></div>';
+}
+function socTableSalaries(){
+  var staff=((typeof RX!=='undefined'&&RX.staff)?RX.staff:[]);
+  if(!staff.length) return '';
+  var t=new Date();
+  var auj=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+  var opts=Object.keys(SOC_FAM);
+  var rows=staff.map(function(s){
+    var nom=((s.nom||'')+' '+(s.prenom||'')).trim()||'(sans nom)';
+    var fam=socFamille(s), auto=socFamilleAuto(s);
+    var h=socHeures(s), hAuto=socHeuresAuto(s);
+    var R=fam?SOC_FAM[fam]:null;
+    var sel='<select onchange="socSetFam(\''+socEsc(s.id)+'\',this.value)" style="width:100%;padding:5px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#e8e4d8;font-size:12px;font-family:inherit">'
+      +'<option value=""'+(fam?'':' selected')+'>— a preciser —</option>'
+      + opts.map(function(k){ return '<option value="'+k+'"'+(fam===k?' selected':'')+'>'+socEsc(SOC_FAM[k].lib)+'</option>'; }).join('')
+      +'</select>';
+    var inpH='<input type="number" step="0.5" placeholder="h/sem." value="'+(h===null||h===undefined?'':h)+'" onchange="socSetH(\''+socEsc(s.id)+'\',this.value)" style="width:78px;padding:5px;border-radius:7px;border:1px solid '+(h===null?'#e8c97a':'#3a4a5f')+';background:#0f1b2c;color:#e8e4d8;font-size:12px;font-family:inherit">';
+    var rempl='';
+    if(R && R.regle==='prorata'){
+      var c=SOC.sal[s.id]||{};
+      var v=(c.rempl===true)?'1':((c.rempl===false)?'0':'');
+      rempl='<select onchange="socSetRempl(\''+socEsc(s.id)+'\',this.value)" style="width:100%;padding:5px;border-radius:7px;border:1px solid '+(v===''?'#e8c97a':'#3a4a5f')+';background:#0f1b2c;color:#e8e4d8;font-size:12px;font-family:inherit">'
+        +'<option value=""'+(v===''?' selected':'')+'>— ?</option>'
+        +'<option value="1"'+(v==='1'?' selected':'')+'>Oui — ecarte</option>'
+        +'<option value="0"'+(v==='0'?' selected':'')+'>Non — compte</option>'
+        +'</select>';
+    } else { rempl='<span style="color:#6b7a8d">—</span>'; }
+    var regle = R ? (R.regle==='exclu'?'<span style="color:#e05c5c">Exclu · '+socEsc(R.txt)+'</span>'
+                    : R.regle==='compte'?'<span style="color:#46b885">Compte pour 1 · '+socEsc(R.txt)+'</span>'
+                    : '<span style="color:#e8c97a">Prorata 12 mois · '+socEsc(R.txt)+'</span>')
+                 : '<span style="color:#e8c97a">a preciser</span>';
+    var src = fam && !(SOC.sal[s.id]||{}).fam && auto ? '<div style="font-size:10.5px;color:#6b7a8d">lu au registre : «&nbsp;'+socEsc(s.typeContrat||'')+'&nbsp;»</div>' : '';
+    var srcH = (h!==null && (SOC.sal[s.id]||{}).h===undefined && hAuto!==null) ? '<div style="font-size:10.5px;color:#6b7a8d">«&nbsp;'+socEsc(s.tempsTravail||'')+'&nbsp;»</div>' : '';
+    return '<tr style="border-top:1px solid #263a52">'
+      +'<td style="padding:7px;color:#e8e4d8;font-weight:600">'+socEsc(nom)+(s.sortie?'<div style="font-size:10.5px;color:#e05c5c">sorti le '+socFR((typeof rxISO==='function')?rxISO(s.sortie):s.sortie)+'</div>':'')+'</td>'
+      +'<td style="padding:7px;min-width:170px">'+sel+src+'</td>'
+      +'<td style="padding:7px">'+inpH+srcH+'</td>'
+      +'<td style="padding:7px;min-width:120px">'+rempl+'</td>'
+      +'<td style="padding:7px;font-size:11.5px">'+regle+'</td>'
+      +'</tr>';
+  }).join('');
+  return '<div style="overflow-x:auto;margin-top:10px"><table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:720px">'
+   +'<thead><tr style="color:#9fb0c4;text-align:left;font-size:11.5px">'
+     +'<th style="padding:7px">Salarie</th><th style="padding:7px">Nature du contrat</th>'
+     +'<th style="padding:7px">Heures/sem.</th><th style="padding:7px">Remplacement ?</th><th style="padding:7px">Regle appliquee</th>'
+   +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function _socSal(id){ if(!SOC.sal[id]) SOC.sal[id]={}; return SOC.sal[id]; }
+function socSetFam(id,v){ var c=_socSal(id); if(v) c.fam=v; else delete c.fam; socSave(); socRender(); }
+function socSetH(id,v){ var c=_socSal(id); var n=parseFloat(String(v).replace(',','.')); if(String(v).trim()==='' || isNaN(n)) delete c.h; else c.h=n; socSave(); socRender(); }
+function socSetRempl(id,v){ var c=_socSal(id); if(v==='') delete c.rempl; else c.rempl=(v==='1'); socSave(); socRender(); }
+
+/* ── S.3 : convention collective ── */
+function socRenderCCN(c){
+  var idcc=SOC.idcc || ((typeof RX!=='undefined'&&RX.ent&&RX.ent.idcc)?RX.ent.idcc:'');
+  c.innerHTML =
+   '<div class="card"><div class="ct">S.3 · Convention collective</div>'
+   +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
+     +'La convention peut prevoir des dispositions plus favorables que la loi : elles s\'appliquent alors a la place de celle-ci. '
+     +'Le socle les transmet a tous les modules — CSE compris — pour qu\'aucun ecran n\'affiche une regle legale la ou une regle conventionnelle plus favorable existe.'
+   +'</div>'
+   +'<div class="fg"><label class="fl">IDCC</label><input id="soc-idcc" value="'+socEsc(idcc)+'" placeholder="Ex : 16"></div>'
+   +'<div class="fg"><label class="fl">Intitule de la convention</label><input id="soc-ccn" value="'+socEsc(SOC.ccn||'')+'" placeholder="Ex : Transports routiers et activites auxiliaires du transport"></div>'
+   +'<div class="fg"><label class="fl">Dispositions plus favorables identifiees (representation du personnel)</label>'
+     +'<textarea id="soc-plusfav" rows="6" placeholder="Ex : nombre d\'elus superieur au tableau reglementaire ; credit d\'heures majore ; reunions mensuelles…">'+socEsc(SOC.plusFav||'')+'</textarea></div>'
+   +'<button class="btn" onclick="socSaveCCN()">Enregistrer</button>'
+   +'<div id="soc-ccn-ok" style="display:none;margin-top:8px;color:#46b885;font-size:13px">✓ Enregistre</div>'
+   +'</div>';
+}
+function socSaveCCN(){
+  var g=function(i){ var e=document.getElementById(i); return e?e.value.trim():''; };
+  SOC.idcc=g('soc-idcc'); SOC.ccn=g('soc-ccn'); SOC.plusFav=g('soc-plusfav');
+  socSave();
+  var k=document.getElementById('soc-ccn-ok'); if(k){ k.style.display='block'; setTimeout(function(){k.style.display='none';},2200); }
+}
+
+/* ── S.4 : accord d'entreprise ── */
+function socRenderAccord(c){
+  var a=SOC.accord;
+  var h='<div class="card"><div class="ct">S.4 · Accord d\'entreprise</div>'
+   +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
+     +'Deposez l\'accord, puis indiquez theme par theme ce qu\'il prevoit. Le socle le confronte au plancher d\'ordre public : '
+     +'une clause plus favorable est appliquee ; une clause moins favorable mais licite est appliquee et signalee ; '
+     +'une clause qui descend sous le plancher est ecartee comme inopposable.'
+   +'</div>';
+  if(a){
+    h+='<div style="padding:12px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:10px;margin-bottom:12px">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff">📄 '+socEsc(a.nom)+'</div>'
+      +'<div style="font-size:12px;color:#9fb0c4;margin-top:2px">'+Math.round((a.taille||0)/1024)+' Ko · depose le '+socFR(a.le||'')+'</div>'
+      +'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">'
+        +'<button class="btn" onclick="socOuvrirAccord()">Ouvrir</button>'
+        +'<button onclick="socSupprAccord()" style="border:1px solid rgba(224,92,92,.5);background:rgba(224,92,92,.12);color:#e88;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Retirer</button>'
+      +'</div></div>';
+  } else {
+    h+='<button class="btn" onclick="document.getElementById(\'soc-acc-file\').click()">Deposer l\'accord (PDF ou Word)</button>'
+      +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Le fichier reste sur cet appareil. Il n\'est envoye nulle part.</div>';
+  }
+  h+='</div>';
+
+  h+='<div class="card"><div class="ct">S.4.1 a S.4.4 · Analyse par theme</div>';
+  SOC_THEMES.forEach(function(T){
+    var v=SOC.themes[T.k]||{};
+    var verd=v.v||'neant';
+    var V=SOC_VERDICTS[verd];
+    h+='<div style="padding:12px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+V.col+';border-radius:10px;margin-bottom:10px">'
+      +'<div style="font-size:13.5px;font-weight:800;color:#fff">'+socEsc(T.lib)+'</div>'
+      +'<div style="font-size:11.5px;color:#6b7a8d;margin:2px 0 8px">Plancher d\'ordre public — '+socEsc(T.txt)+'</div>'
+      +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.6;font-style:italic;margin-bottom:10px">'+socEsc(T.plancher)+'</div>'
+      +'<div class="fg" style="margin-bottom:8px"><label class="fl">Ce que prevoit l\'accord</label>'
+        +'<textarea rows="2" onchange="socSetTheme(\''+T.k+'\',\'t\',this.value)" placeholder="Citez la clause">'+socEsc(v.t||'')+'</textarea></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+        +'<select onchange="socSetTheme(\''+T.k+'\',\'v\',this.value)" style="padding:7px;border-radius:8px;border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-size:12.5px;font-family:inherit">'
+        + Object.keys(SOC_VERDICTS).map(function(k){ return '<option value="'+k+'"'+(verd===k?' selected':'')+'>'+socEsc(SOC_VERDICTS[k].lib)+'</option>'; }).join('')
+        +'</select>'
+        +'<span style="font-size:12.5px;font-weight:700;color:'+V.col+'">→ '+socEsc(V.eff)+'</span>'
+      +'</div>'
+      +(verd==='sous'?'<div style="margin-top:8px;padding:9px;background:rgba(224,92,92,.12);border:1px solid rgba(224,92,92,.5);border-radius:8px;font-size:12.5px;color:#e88;line-height:1.6">Clause ecartee : elle deroge a une regle d\'ordre public. Elle est inopposable aux salaries et au comite ; la regle legale s\'applique a sa place.</div>':'')
+      +(verd==='moins'?'<div style="margin-top:8px;padding:9px;background:rgba(232,201,122,.10);border:1px solid rgba(232,201,122,.5);border-radius:8px;font-size:12.5px;color:#e8c97a;line-height:1.6">Clause appliquee, mais signalee : elle est moins favorable que la regle suppletive. Verifiez qu\'elle a bien ete negociee dans les formes.</div>':'')
+      +'</div>';
+  });
+  h+='</div>';
+  c.innerHTML=h;
+}
+function socSetTheme(k,champ,val){ if(!SOC.themes[k]) SOC.themes[k]={}; SOC.themes[k][champ]=val; socSave(); if(champ==='v') socRender(); }
+function socImportAccord(input){
+  var f=input.files&&input.files[0]; if(!f) return;
+  if(f.size>4*1024*1024){ alert('Fichier trop lourd (4 Mo maximum) : il ne tiendrait pas dans le stockage local.'); input.value=''; return; }
+  var rd=new FileReader();
+  rd.onload=function(){
+    var t=new Date();
+    SOC.accord={ nom:f.name, taille:f.size, type:f.type, le:t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2), data:String(rd.result) };
+    try{ socSave(); }catch(e){ alert('Stockage local sature : '+e.message); return; }
+    input.value=''; socRender();
+  };
+  rd.readAsDataURL(f);
+}
+function socOuvrirAccord(){
+  var a=SOC.accord; if(!a||!a.data) return;
+  try{ var w=window.open(); if(w) w.document.write('<iframe src="'+a.data+'" style="position:fixed;inset:0;width:100%;height:100%;border:0"></iframe>'); }
+  catch(e){ alert('Ouverture impossible : '+e.message); }
+}
+function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SOC.accord=null; socSave(); socRender(); }
+
 
 /* ===== ESPACE RH TEC (module injecté) ===== */
 /* ══════════════════════════════════════════════════════════════════
