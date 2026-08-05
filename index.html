@@ -428,6 +428,44 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
     line-height:1;cursor:pointer;font-family:inherit;z-index:100000;
     box-shadow:0 2px 10px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .jx-fermer:active{transform:scale(.94)}
+
+/* ── Accueil par familles : tuiles de categorie, puis cartes colorees ── */
+.fam-tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:2px 0 16px}
+@media(min-width:560px){ .fam-tuiles{grid-template-columns:repeat(4,1fr)} }
+.fam-tuile{position:relative;padding:13px 12px 12px;border-radius:15px;cursor:pointer;
+  font-family:inherit;text-align:left;border:1.5px solid transparent;
+  transition:transform .12s,box-shadow .12s}
+.fam-tuile:active{transform:scale(.97)}
+.fam-tuile .fi{font-size:22px;line-height:1;display:block;margin-bottom:6px}
+.fam-tuile .fn{font-size:13px;font-weight:800;line-height:1.2;display:block}
+.fam-tuile .fc{display:inline-block;margin-top:7px;padding:2px 9px;border-radius:20px;
+  font-size:12px;font-weight:800;background:rgba(255,255,255,.22)}
+.fam-tuile[aria-pressed="true"]{box-shadow:0 0 0 3px rgba(255,255,255,.22) inset}
+
+.fam-bandeau{display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:14px;
+  margin-bottom:16px;border:1px solid rgba(255,255,255,.10)}
+.fam-bandeau .be{font-size:24px;flex:0 0 auto}
+.fam-bandeau .bt{font-size:15px;font-weight:800;color:#fff;line-height:1.25}
+.fam-bandeau .bd{font-size:12.5px;color:#cfc8b8;line-height:1.5;margin-top:2px}
+
+.fam-titre{display:flex;align-items:center;gap:9px;margin:18px 0 10px}
+.fam-titre .pt{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.fam-titre .tx{font-size:14px;font-weight:800;color:#fff;letter-spacing:.01em}
+.fam-titre .sx{font-size:12.5px;color:#8fa0b4;font-weight:500}
+
+.fam-cartes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.fam-carte{position:relative;min-height:118px;padding:13px 13px 40px;border-radius:15px;
+  cursor:pointer;font-family:inherit;text-align:left;border:none;overflow:hidden;
+  transition:transform .12s}
+.fam-carte:active{transform:scale(.975)}
+.fam-carte .ce{font-size:23px;line-height:1;display:block;margin-bottom:8px}
+.fam-carte .ct2{font-size:13.5px;font-weight:800;color:#fff;line-height:1.3;display:block;
+  text-shadow:0 1px 2px rgba(0,0,0,.18)}
+.fam-carte .cq{position:absolute;top:11px;right:11px;padding:3px 9px;border-radius:20px;
+  background:rgba(255,255,255,.92);color:#1a2433;font-size:11px;font-weight:800}
+.fam-carte .cb{position:absolute;left:13px;bottom:11px;font-size:10.5px;font-weight:800;
+  color:rgba(255,255,255,.75);letter-spacing:.05em;text-transform:uppercase}
+
   #abo-screen .jx-fermer{border-color:rgba(60,48,24,.28);background:rgba(255,253,247,.94);color:#23282b;
     box-shadow:0 2px 12px rgba(60,48,24,.16)}
 </style>
@@ -783,7 +821,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.121';
+var JX_BUILD = 'v2026-08-06.122';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -792,6 +830,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.122', d:'5 aout 2026', t:[
+   'ACCUEIL DE L\'APPLICATION — QUATRE FAMILLES. L\'accueil ne commence plus par une liste de modules mais par quatre entrees : « J\'embauche », « Je gere », « Une mesure », « Le CSE ». On choisit sa famille, on voit ses cartes, rangees par sous-groupes avec un titre qui dit ce qu\'ils contiennent — « Choisir la mesure : commencez ici », « Les sanctions : le contrat continue », « Les ruptures : le contrat prend fin ».',
+   'ACCUEIL — la famille « Une mesure » couvre toute l\'echelle, de l\'avertissement au licenciement : avertissement et blame, mise a pied, mutation et retrogradation, licenciement pour motif personnel, licenciement economique et PSE, inaptitude, rupture conventionnelle, indemnites. La famille « Le CSE » reprend les onze modules. Les cartes marquees « Questions → lettre » menent aux assistants qui posent les questions et sortent le courrier.',
+   'ACCUEIL — les anciennes rubriques ne disparaissent pas : elles passent dans un bloc replie, « Tous les modules — la liste complete ». Le choix de famille est retenu d\'une visite a l\'autre.'
+ ]},
  {v:'v2026-08-06.121', d:'5 aout 2026', t:[
    'ORDRE DES RUBRIQUES — l\'application passait d\'« Embauche & contrats » a « Rupture du contrat », et ne parlait de la vie du contrat qu\'apres. Les rubriques avaient ete ajoutees au fil du temps, jamais relues comme un parcours. Elles suivent desormais la vie de la relation de travail : on embauche, le contrat vit, il se rompt — a l\'accueil comme dans le menu.',
    'MENU — les assistants guides « J\'embauche un salarie » et « Je veux rompre un contrat » etaient tout en bas, apres la configuration et juste avant le bouton de deconnexion. Ce sont les portes d\'entree de l\'application : ils sont remontes en tete du menu.'
@@ -1652,6 +1695,8 @@ try{
 </div>
 <div class="home-wrap">
 
+  <div id="fam-zone" style="margin:14px 0 4px"></div>
+
   <div id="home-secteur-wrap" style="margin:14px 0 8px">
   <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">🏢 Secteur d'activité (pilote toute l'application)</label>
   <select id="home-secteur" onchange="appSetSecteur(this.value)">
@@ -1718,7 +1763,10 @@ try{
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
 
-  <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
+  <details id="home-tous" style="margin-top:22px">
+  <summary style="cursor:pointer;list-style:none;padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);font-size:13.5px;font-weight:700;color:#e8c97a">📚 Tous les modules — la liste complète</summary>
+  <div style="padding-top:10px">
+<div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
   <div class="wz-tiles" style="margin-top:0">
     <div class="wz-tile" style="--g1:#1c3a5e;--g2:#0f2440" onclick="rxOpen()">
       <div class="wz-em">👥</div>
@@ -2054,6 +2102,8 @@ try{
       </div>
     </div>
   </div>
+  </div>
+</details>
 </div>
 </div>
 
@@ -6833,6 +6883,169 @@ function cseEffectifSaisi(){
     return best;
   }catch(e){ return null; }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   ACCUEIL PAR FAMILLES
+   Quatre entrees : j'embauche, je gere, une mesure disciplinaire, le CSE.
+   On choisit une famille, on voit ses cartes. Chaque carte mene soit a un
+   assistant qui pose des questions et sort un courrier, soit a la page qui
+   traite le sujet.
+   ══════════════════════════════════════════════════════════════════════ */
+var FAM_LS='accueil_famille_v1';
+var FAM=[
+ {k:'embauche', emo:'🧑‍💼', lib:'J’embauche',
+  det:'Choisir le bon contrat, l’écrire sans oublier de mention, déclarer le salarié.',
+  c1:'#3a6fd8', c2:'#2a5099', pastille:'#5b9bd5',
+  groupes:[
+   {t:'PAR OÙ COMMENCER', s:'l’assistant pose les questions', pastille:'#46b885', cartes:[
+     {emo:'🧭', lib:'Assistant — j’embauche un salarié', page:'embauche', tag:'Guidé', chip:'Questions → contrat'},
+     {emo:'📋', lib:'Choisir et rédiger le contrat', page:'contrat', tag:'CDI · CDD', chip:'Modèles'}
+   ]},
+   {t:'LES CAS PARTICULIERS', s:'si vous êtes concerné', pastille:'#d6a842', cartes:[
+     {emo:'📄', lib:'CDD et indemnité de précarité', page:'cdd', tag:'CDD'},
+     {emo:'📊', lib:'Classification et statut conventionnel', page:'statut', tag:'Convention'},
+     {emo:'🧮', lib:'Coût de l’embauche', page:'calc', tag:'Calcul'}
+   ]}
+  ]},
+
+ {k:'gere', emo:'📆', lib:'Je gère',
+  det:'La vie du contrat au quotidien : absences, maladie, accident, salaire, horaires.',
+  c1:'#2f9e6e', c2:'#1e7050', pastille:'#46b885',
+  groupes:[
+   {t:'LES ABSENCES', s:'ce qui suspend le contrat', pastille:'#46b885', cartes:[
+     {emo:'🏖️', lib:'Congés payés', page:'absences', tag:'Congés'},
+     {emo:'🤒', lib:'Maladie et arrêt de travail', page:'absences', tag:'Maladie'},
+     {emo:'🚑', lib:'Accident du travail et maladie professionnelle', page:'absences', tag:'AT / MP'},
+     {emo:'👶', lib:'Maternité, paternité, parentalité', page:'absences', tag:'Famille'}
+   ]},
+   {t:'LE SALAIRE ET LE TEMPS', s:'ce qui se compte tous les mois', pastille:'#4a86c8', cartes:[
+     {emo:'💶', lib:'Salaire, minima, primes', page:'remuneration', tag:'Paie'},
+     {emo:'⏱️', lib:'Durée du travail, heures supplémentaires, forfaits', page:'temps2', tag:'Temps'},
+     {emo:'🧮', lib:'Calculateurs', page:'calc', tag:'Calcul'}
+   ]},
+   {t:'CE QUI NE VA PAS', s:'à traiter sans attendre', pastille:'#e05c5c', cartes:[
+     {emo:'🛡️', lib:'Harcèlement et discrimination', page:'harcele', tag:'Protection'},
+     {emo:'⚖️', lib:'Qualifier un harcèlement moral', page:'harcmoral', tag:'Qualification'}
+   ]}
+  ]},
+
+ {k:'disc', emo:'⚖️', lib:'Une mesure',
+  det:'De l’avertissement au licenciement : choisir la mesure juste, puis la conduire sans faute de procédure.',
+  c1:'#d4762e', c2:'#a8531b', pastille:'#e0a35c',
+  groupes:[
+   {t:'CHOISIR LA MESURE', s:'commencez ici', pastille:'#e05c5c', cartes:[
+     {emo:'🧭', lib:'Quelle mesure pour quels faits ?', page:'disciplinaire', tag:'Guidé', chip:'Questions → lettre'},
+     {emo:'🚪', lib:'Assistant — je romps un contrat', page:'rupture', tag:'Guidé', chip:'Questions → lettre'}
+   ]},
+   {t:'LES SANCTIONS', s:'le contrat continue', pastille:'#d6a842', cartes:[
+     {emo:'✉️', lib:'Avertissement, blâme', page:'disciplinaire', tag:'Sanction'},
+     {emo:'⏸️', lib:'Mise à pied disciplinaire', page:'disciplinaire', tag:'Sanction'},
+     {emo:'🔁', lib:'Mutation, rétrogradation', page:'disciplinaire', tag:'Sanction'}
+   ]},
+   {t:'LES RUPTURES', s:'le contrat prend fin', pastille:'#e05c5c', cartes:[
+     {emo:'📑', lib:'Licenciement pour motif personnel', page:'licenc', tag:'Rupture'},
+     {emo:'📉', lib:'Licenciement économique et PSE', page:'pse', tag:'Rupture'},
+     {emo:'🏥', lib:'Inaptitude et reclassement', page:'inapt', tag:'Rupture'},
+     {emo:'🤝', lib:'Rupture conventionnelle', page:'rupconv', tag:'Rupture'},
+     {emo:'🧮', lib:'Indemnités de rupture', page:'calc', tag:'Calcul'}
+   ]}
+  ]},
+
+ {k:'cse', emo:'🗳️', lib:'Le CSE',
+  det:'Le comité, de sa mise en place à ses budgets. Chaque module pose ses questions et sort ses documents.',
+  c1:'#7a5cc4', c2:'#553c94', pastille:'#8e79c9',
+  groupes:[
+   {t:'PAR OÙ COMMENCER', s:'le guide répond pour vous', pastille:'#46b885', cartes:[
+     {emo:'🏛️', lib:'Mon espace CSE — tout le comité', page:'csehub', tag:'Guidé', chip:'Questions → plan'},
+     {emo:'🧭', lib:'Où en suis-je ?', page:'csediag', tag:'Diagnostic'},
+     {emo:'📐', lib:'Mon effectif et mes seuils', page:'socle', tag:'Effectif'}
+   ]},
+   {t:'METTRE EN PLACE', s:'avant d’avoir un comité', pastille:'#4a86c8', cartes:[
+     {emo:'🗳️', lib:'Organiser les élections', page:'cse', tag:'Élections'},
+     {emo:'🗂️', lib:'Quelles pièces à quelle étape', page:'csedos', tag:'Dossier'},
+     {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'}
+   ]},
+   {t:'FAIRE VIVRE LE COMITÉ', s:'une fois qu’il est élu', pastille:'#d6a842', cartes:[
+     {emo:'📅', lib:'Calendrier des réunions', page:'csecal', tag:'Calendrier'},
+     {emo:'🗣️', lib:'Préparer une réunion', page:'csereu', tag:'Réunion'},
+     {emo:'📝', lib:'Réclamations', page:'csercl', tag:'Réclamations'},
+     {emo:'📈', lib:'Consultations récurrentes', page:'csecns', tag:'Consultations'},
+     {emo:'💶', lib:'Budgets et comptes', page:'csebud', tag:'Budgets'},
+     {emo:'⚙️', lib:'Fonctionnement — la référence', page:'csefonc', tag:'Référence'}
+   ]}
+  ]}
+];
+
+function famChoisie(){
+  try{ return localStorage.getItem(FAM_LS)||''; }catch(e){ return ''; }
+}
+function famOuvrir(k){
+  var a=famChoisie();
+  try{ if(a===k) localStorage.removeItem(FAM_LS); else localStorage.setItem(FAM_LS,k); }catch(e){}
+  famRender();
+  if(a!==k){ try{ var z=document.getElementById('fam-detail'); if(z) z.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
+}
+function famEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function famNb(f){ var n=0; (f.groupes||[]).forEach(function(g){ n+=(g.cartes||[]).length; }); return n; }
+/* Une couleur par carte : c'est ce qui les rend distinguables d'un coup
+   d'oeil. Toutes de la meme couleur, elles se confondent. */
+var FAM_PAL=[
+  ['#6b4dc2','#4a3196'], ['#2a86a8','#1c6480'], ['#357f5c','#245a41'],
+  ['#b8611f','#8e4514'], ['#b03f5c','#883047'], ['#3a6fb0','#26527e'],
+  ['#96721f','#6f5416'], ['#3f8f6b','#2b6a4e'], ['#7a58ac','#573b7e'],
+  ['#b4543a','#8a3d28'], ['#2f7a91','#20596b'], ['#8a6f36','#665128']
+];
+function famCoul(i){ return FAM_PAL[i % FAM_PAL.length]; }
+
+function famRender(){
+  var z=document.getElementById('fam-zone'); if(!z) return;
+  var sel=famChoisie(), h='';
+
+  h+='<div class="fam-tuiles">';
+  FAM.forEach(function(f){
+    var on=(sel===f.k);
+    h+='<button class="fam-tuile" aria-pressed="'+(on?'true':'false')+'" onclick="famOuvrir(\''+f.k+'\')" '
+      +'style="background:linear-gradient(150deg,'+f.c1+','+f.c2+');color:#fff">'
+      +'<span class="fi">'+f.emo+'</span>'
+      +'<span class="fn">'+famEsc(f.lib)+'</span>'
+      +'<span class="fc">'+famNb(f)+'</span>'
+      +'</button>';
+  });
+  h+='</div>';
+
+  h+='<div id="fam-detail">';
+  var f=null; FAM.forEach(function(x){ if(x.k===sel) f=x; });
+  if(!f){
+    h+='<div class="fam-bandeau" style="background:rgba(255,255,255,.04)">'
+      +'<span class="be">👆</span><div><div class="bt">Choisissez ce que vous avez à faire</div>'
+      +'<div class="bd">Quatre familles. Chacune vous pose les questions utiles, puis sort les documents.</div></div></div>';
+  } else {
+    h+='<div class="fam-bandeau" style="background:linear-gradient(120deg,'+f.c1+'26,'+f.c2+'14);border-color:'+f.c1+'55">'
+      +'<span class="be">'+f.emo+'</span><div><div class="bt">'+famEsc(f.lib)+'</div>'
+      +'<div class="bd">'+famEsc(f.det)+'</div></div></div>';
+    var _famI=0;
+    (f.groupes||[]).forEach(function(g){
+      h+='<div class="fam-titre"><span class="pt" style="background:'+g.pastille+'"></span>'
+        +'<span class="tx">'+famEsc(g.t)+'</span><span class="sx">— '+famEsc(g.s)+'</span></div>';
+      h+='<div class="fam-cartes">';
+      (g.cartes||[]).forEach(function(c){
+        var p=famCoul(_famI++);
+        h+='<button class="fam-carte" onclick="goPage(\''+c.page+'\')" '
+          +'style="background:linear-gradient(150deg,'+p[0]+','+p[1]+')">'
+          +(c.chip?('<span class="cq">'+famEsc(c.chip)+'</span>'):'')
+          +'<span class="ce">'+c.emo+'</span>'
+          +'<span class="ct2">'+famEsc(c.lib)+'</span>'
+          +'<span class="cb">'+famEsc(c.tag||'')+'</span>'
+          +'</button>';
+      });
+      h+='</div>';
+    });
+  }
+  h+='</div>';
+  z.innerHTML=h;
+}
+try{ if(document.readyState!=='loading') famRender(); else document.addEventListener('DOMContentLoaded', famRender); }catch(e){}
 
 /* ══════════════════════════════════════════════════════════════════════
    HARCELEMENT MORAL — LA GRILLE DE QUALIFICATION

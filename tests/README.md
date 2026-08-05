@@ -6,6 +6,7 @@ node tests/budgets.test.js        # les budgets : des euros, au centime
 node tests/navigateur.test.js     # la page ouverte pour de vrai dans Chromium
 node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un autre
 node tests/accueil.test.js        # l'écran d'accueil : ordre de lecture et lisibilité
+node tests/familles.test.js       # les quatre familles de l'application
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
