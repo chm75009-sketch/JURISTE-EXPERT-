@@ -668,7 +668,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.115';
+var JX_BUILD = 'v2026-08-06.116';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -677,6 +677,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.116', d:'5 aout 2026', t:[
+   'NOUVEAU MODULE — HARCELEMENT MORAL, LA QUALIFICATION. L\'article L.1152-1 pose une definition generale ; ce sont les juges qui lui donnent sa matiere. Le module pose les questions — combien de faits, sur quelle duree, quel auteur, s\'agit-il d\'une politique d\'entreprise, de quelles pieces disposez-vous, qu\'a fait l\'employeur — et donne pour chaque reponse l\'arret qui la fonde. Un fait unique est exclu (22 janvier 2014) ; un meme fait repete suffit (26 janvier 2016) ; deux faits distincts suffisent (11 mars 2025) ; la duree n\'est pas une condition (6 avril 2011) ; l\'atteinte n\'a pas a etre realisee ; aucun lien de subordination n\'est requis (Pont du Gard) ; le harcelement institutionnel est identifie (France Telecom).',
+   'HARCELEMENT MORAL — les faits retenus par les juges et les faits ecartes, chacun avec son arret : la notion se definit autant par ce qu\'elle rejette que par ce qu\'elle retient. Le regime de la preuve de l\'article L.1154-1, la recevabilite d\'un enregistrement obtenu a l\'insu de son auteur, l\'appreciation d\'ensemble des faits — jamais un a un. Ce que l\'employeur doit demontrer pour s\'exonerer : information et formation en amont, reaction adaptee en aval, les deux cumulativement.',
+   'HARCELEMENT MORAL — chronologie des faits : notez chaque fait, sa date, son auteur et la piece qui l\'etablit, et editez le tableau. La vraie question n\'est pas « avez-vous un temoin ? » mais « avez-vous documente ? ». Les reponses sont confrontees entre elles : un fait unique declare sur plusieurs mois, une politique d\'entreprise attribuee a un collegue sans lien hierarchique, une prevention sans reaction — chaque contradiction est signalee.',
+   'ACCUEIL — la page d\'accueil ne proposait qu\'une entree pour le comite social et economique alors que le menu en compte onze : tout le module CSE etait invisible pour qui n\'ouvre pas le menu. L\'accueil reprend desormais les memes entrees, dans le meme ordre et sous les memes noms.'
+ ]},
  {v:'v2026-08-06.115', d:'5 aout 2026', t:[
    'CORRECTIF BUDGET — le seuil de deux mille salaries etait mal applique a trois endroits. L\'article L.2315-61 vise les entreprises « d\'au moins deux mille salaries » : le taux de 0,22 % s\'applique DES deux mille, il n\'a pas a etre depasse. Le diagnostic, le guide et la fiche des planchers conventionnels annoncaient 0,20 % a deux mille salaries pile. Sur cent millions d\'euros de masse salariale, l\'ecart representait vingt mille euros de subvention par an.'
  ]},
@@ -1725,13 +1731,68 @@ try{
         <div class="hcard-body"><div class="t">Harcèlement &amp; discrimination</div><div class="d">Prévention, charge de la preuve aménagée, nullité, jurisprudence.</div><div class="m">Protection</div></div>
         <div class="chev">›</div>
       </div>
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();goPage('harcmoral')">
+        <div class="hcard-ic">⚖️</div>
+        <div class="hcard-body"><div class="t">Harcèlement moral — la qualification</div><div class="d">Répétition, durée, atteinte, auteur, preuve : ce que les juges retiennent et ce qu’ils écartent, arrêt par arrêt. Chronologie des faits à éditer.</div><div class="m">Qualification</div></div>
+        <div class="chev">›</div>
+      </div>
   </div>
 
-  <div class="home-sec">🗳️ Représentation du personnel</div>
+  <div class="home-sec">🗳️ Comité social et économique</div>
   <div class="home-grid">
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1;border-color:#c9a84c" onclick="event.stopPropagation();goPage('csehub')">
+        <div class="hcard-ic">🏛️</div>
+        <div class="hcard-body"><div class="t" style="color:#e8c97a">Mon espace CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">TOUT LE MODULE</span></div><div class="d">Un seul endroit qui couvre tout : le guide question par question, ce qu’il reste à faire, l’agenda, le classeur et la base documentaire.</div><div class="m">Tout le comité</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('csediag')">
+        <div class="hcard-ic">🧭</div>
+        <div class="hcard-body"><div class="t">CSE — Diagnostic</div><div class="d">Où vous en êtes : mandats, seuils franchis, commissions dues, ce qui manque.</div><div class="m">Diagnostic</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('moncse')">
+        <div class="hcard-ic">👥</div>
+        <div class="hcard-body"><div class="t">Mon CSE — composition</div><div class="d">Sièges, élus, bureau, référent harcèlement, heures de délégation, fin des mandats.</div><div class="m">Composition</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('csecal')">
+        <div class="hcard-ic">📅</div>
+        <div class="hcard-body"><div class="t">Calendrier du CSE</div><div class="d">Nombre de réunions dû, dates, alertes avant chaque séance et avant l’ordre du jour.</div><div class="m">Calendrier</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('csereu')">
+        <div class="hcard-ic">🗣️</div>
+        <div class="hcard-body"><div class="t">Réunion du CSE</div><div class="d">Convocation, ordre du jour conjoint, feuille de présence, votes, procès-verbal.</div><div class="m">Réunion</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#d6a842;grid-column:1/-1" onclick="event.stopPropagation();goPage('csercl')">
+        <div class="hcard-ic">📝</div>
+        <div class="hcard-body"><div class="t">Réclamations</div><div class="d">Note à deux jours, réponse à six, registre spécial — le bon régime selon la taille.</div><div class="m">Réclamations</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#d6a842;grid-column:1/-1" onclick="event.stopPropagation();goPage('csecns')">
+        <div class="hcard-ic">📈</div>
+        <div class="hcard-body"><div class="t">Consultations récurrentes</div><div class="d">Les trois consultations, la périodicité, les délais d’avis et la BDESE.</div><div class="m">Consultations</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e0a35c;grid-column:1/-1" onclick="event.stopPropagation();goPage('csebud')">
+        <div class="hcard-ic">💶</div>
+        <div class="hcard-body"><div class="t">Budgets du comité</div><div class="d">0,20 % ou 0,22 %, ce qui manque au centime, l’effet de cliquet des activités sociales, les transferts, les comptes.</div><div class="m">Budgets</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#8e79c9;grid-column:1/-1" onclick="event.stopPropagation();goPage('socle')">
+        <div class="hcard-ic">📐</div>
+        <div class="hcard-body"><div class="t">Socle — effectif &amp; seuils</div><div class="d">L’effectif mois par mois, les exclusions légales, les seuils franchis et depuis quand.</div><div class="m">Effectif</div></div>
+        <div class="chev">›</div>
+      </div>
       <div class="hcard" style="--accent:#5b9bd5;grid-column:1/-1" onclick="event.stopPropagation();goPage('cse')">
         <div class="hcard-ic">🗳️</div>
-        <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">Effectif, nombre de sièges, électeurs/éligibles, quorum, PAP, listes, PV.</div><div class="m">CSE</div></div>
+        <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">Effectif, nombre de sièges, électeurs et éligibles, quorum, protocole, listes, procès-verbal.</div><div class="m">Élections</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#8e79c9;grid-column:1/-1" onclick="event.stopPropagation();goPage('csefonc')">
+        <div class="hcard-ic">⚙️</div>
+        <div class="hcard-body"><div class="t">Fonctionnement du CSE</div><div class="d">La référence complète : attributions, moyens, expertises, comptabilité, délit d’entrave.</div><div class="m">Référence</div></div>
         <div class="chev">›</div>
       </div>
   </div>
@@ -2588,6 +2649,27 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 </div>
 </div>
 
+
+<!-- ═══ HARCÈLEMENT MORAL — GRILLE DE QUALIFICATION ═══ -->
+<div id="pg-harcmoral" class="page">
+<div class="topbar"><button onclick="goPage('harcele')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Harcèlement moral</div><div class="ts">Qualification · faits retenus et écartés · preuve</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    L'article L.1152-1 pose une définition générale. Ce sont les juges qui lui donnent sa matière —
+    aussi bien par les faits qu'ils retiennent que par ceux qu'ils écartent. Répondez aux questions :
+    le module dit, pour chaque réponse, ce que la Cour de cassation en a jugé, et avec quel arrêt.
+    <div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">D'après les publications de Mounir CHIKHAOUI, juillet et août 2026.</div>
+  </div>
+</div>
+<div id="harcm-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{hmOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 
 <!-- ═══ CSE — LES BUDGETS ═══ -->
 <div id="pg-csebud" class="page">
@@ -3570,6 +3652,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('temps2');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de travail &amp; forfaits</div></div></div>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
+  <div class="mi" onclick="goPage('harcmoral');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement moral — qualification</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
   <div class="mi" onclick="goPage('csehub');closeMenu()"><span style="font-size:18px">🏛️</span><div><div style="font-size:13px;font-weight:600;color:#e8c97a">Mon espace CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">TOUT LE MODULE</span></div></div></div>
   <div class="mi" onclick="goPage('csecns');closeMenu()"><span style="font-size:18px">📈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Consultations récurrentes</div></div></div>
@@ -3580,7 +3663,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
   <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
   <div class="mi" onclick="goPage('socle');closeMenu()"><span style="font-size:18px">📐</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Socle — effectif &amp; seuils</div></div></div>
-  <div class="mi" onclick="window.location.href='elections-cse.html'"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">MODULE AUTONOME</span></div></div></div>
+  <div class="mi" onclick="window.location.href='elections-cse.html'"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE — page séparée <span style="color:#5c8bd6;font-size:10px;font-weight:700">S’OUVRE SEULE</span></div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique ferroviaire</div>
@@ -4298,6 +4381,11 @@ Exemple :<br>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card"><div class="ct">🛡️ Harcèlement &amp; discrimination — cadre</div><div class="al info" style="font-size:12px">Dispositions d'ordre public (Code du travail), applicables <b>tous secteurs</b>. L'employeur est tenu d'une <b>obligation de sécurité</b> incluant la prévention du harcèlement.</div></div>
+<div class="card" style="border-color:#c9a84c">
+  <div class="ct" style="font-size:16px">Qualifier un harcèlement moral</div>
+  <div style="font-size:12.5px;color:#cfc8b8;line-height:1.7;margin-bottom:10px">Le texte pose les conditions ; la jurisprudence les définit. Un module dédié pose les questions — combien de faits, sur quelle durée, quel auteur, quelles pièces — et donne pour chaque réponse l’arrêt qui la fonde, avec les faits retenus et les faits écartés.</div>
+  <button onclick="goPage('harcmoral')" style="padding:11px 16px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Ouvrir la grille de qualification →</button>
+</div>
 <div class="card"><div class="ct" style="font-size:16px">Harcèlement moral (L.1152-1)</div><div class="step"><div class="step-num">•</div><div class="step-txt">Agissements répétés ayant pour objet ou effet une <b>dégradation des conditions de travail</b> susceptible de porter atteinte aux droits et à la dignité, d'altérer la santé ou de compromettre l'avenir professionnel.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>Prévention obligatoire</b> : actions de prévention, information, procédure interne ; <b>référent harcèlement</b> au CSE (et dans les entreprises ≥ 250 salariés côté employeur).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Tout licenciement / sanction lié à un harcèlement subi ou dénoncé (de bonne foi) est <b>nul</b>.</div></div></div>
 <div class="card"><div class="ct" style="font-size:16px">Harcèlement sexuel &amp; agissement sexiste (L.1153-1, L.1142-2-1)</div><div class="step"><div class="step-num">•</div><div class="step-txt">Propos ou comportements à connotation sexuelle ou sexiste répétés ; ou pression grave même non répétée, dans le but d'obtenir un acte de nature sexuelle.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Mêmes protections : nullité des sanctions, obligation de prévention, affichage des textes.</div></div></div>
 <div class="card"><div class="ct" style="font-size:16px">Discrimination (L.1132-1)</div><div class="step"><div class="step-num">•</div><div class="step-txt">Interdiction de toute mesure fondée sur un <b>critère prohibé</b> (origine, sexe, âge, état de santé, handicap, grossesse, activités syndicales, orientation sexuelle, convictions…).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Mesure discriminatoire = <b>nulle</b> ; réintégration possible et réparation intégrale du préjudice.</div></div></div>
@@ -6543,6 +6631,417 @@ function cseEffectifSaisi(){
     });
     return best;
   }catch(e){ return null; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   HARCELEMENT MORAL — LA GRILLE DE QUALIFICATION
+   Source : publications de Mounir CHIKHAOUI, juillet-aout 2026.
+   Chaque reponse renvoie a l'arret qui la fonde. Les reponses sont
+   confrontees entre elles : « un seul fait » et « repete pendant des mois »
+   ne peuvent pas etre vrais ensemble, et c'est de cette distinction que
+   depend toute la qualification.
+   ══════════════════════════════════════════════════════════════════════ */
+var HM={};
+var HM_LS='harcelement_moral_v1';
+function hmKey(){ return HM_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function hmLoad(){ try{ HM=JSON.parse(localStorage.getItem(hmKey())||'{}')||{}; }catch(e){ HM={}; } if(!Array.isArray(HM.faits)) HM.faits=[]; }
+function hmSave(){ try{ localStorage.setItem(hmKey(), JSON.stringify(HM)); }catch(e){} }
+function hmEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function hmSet(k,v){ HM[k]=v; hmSave(); hmRender(); }
+function hmFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+
+/* ══════════ LE TEXTE ══════════ */
+var HM_L1152 = 'Aucun salarié ne doit subir les agissements répétés de harcèlement moral qui ont pour objet ou pour effet une dégradation de ses conditions de travail susceptible de porter atteinte à ses droits et à sa dignité, d’altérer sa santé physique ou mentale ou de compromettre son avenir professionnel.';
+
+/* ══════════ LES QUESTIONS ══════════ */
+var HM_REPETITION=[
+  {v:'unique',   lib:'Un seul fait, survenu une seule fois'},
+  {v:'memerep',  lib:'Un même fait, répété dans le temps'},
+  {v:'deux',     lib:'Deux faits distincts'},
+  {v:'plusieurs',lib:'Plusieurs faits, de natures différentes'},
+  {v:'autre',    lib:'Autre'}
+];
+var HM_DUREE=[
+  {v:'jours',    lib:'Quelques jours'},
+  {v:'semaines', lib:'Quelques semaines'},
+  {v:'mois',     lib:'Plusieurs mois'},
+  {v:'annees',   lib:'Plus d’un an'},
+  {v:'inconnu',  lib:'Je ne sais pas encore'},
+  {v:'autre',    lib:'Autre'}
+];
+var HM_ATTEINTE=[
+  {v:'constatee',lib:'Oui — dégradation des conditions de travail ou santé déjà atteinte'},
+  {v:'risque',   lib:'Non, pas encore — mais la situation le rend possible'},
+  {v:'inconnu',  lib:'Je ne sais pas'},
+  {v:'autre',    lib:'Autre'}
+];
+var HM_AUTEUR=[
+  {v:'employeur',lib:'L’employeur lui-même'},
+  {v:'superieur',lib:'Un supérieur hiérarchique'},
+  {v:'collegue', lib:'Un ou plusieurs collègues, sans lien hiérarchique'},
+  {v:'externe',  lib:'Une personne extérieure à l’entreprise (client, prestataire, usager)'},
+  {v:'plusieurs',lib:'Plusieurs personnes'},
+  {v:'autre',    lib:'Autre'}
+];
+var HM_POLITIQUE=[
+  {v:'non',      lib:'Non — la situation vise une ou plusieurs personnes déterminées'},
+  {v:'oui',      lib:'Oui — cela découle d’une politique d’entreprise appliquée à tout ou partie du personnel'},
+  {v:'inconnu',  lib:'Je ne sais pas'},
+  {v:'autre',    lib:'Autre'}
+];
+var HM_PREUVES=[
+  {v:'courriers', lib:'Courriers ou courriels'},
+  {v:'medecine',  lib:'Avis ou écrits du médecin du travail'},
+  {v:'certificats',lib:'Certificats médicaux'},
+  {v:'attestations',lib:'Attestations de témoins'},
+  {v:'sanctions', lib:'Sanctions, évaluations, décisions écrites'},
+  {v:'enregistrement',lib:'Un enregistrement fait à l’insu de son auteur'},
+  {v:'rien',      lib:'Rien d’écrit pour l’instant'}
+];
+var HM_PREV=[
+  {v:'oui',     lib:'Oui — information et formation menées avant les faits'},
+  {v:'non',     lib:'Non'},
+  {v:'inconnu', lib:'Je ne sais pas'},
+  {v:'autre',   lib:'Autre'}
+];
+var HM_REACTION=[
+  {v:'immediate',lib:'Oui — mesures prises dès la révélation des faits'},
+  {v:'enquete',  lib:'Une enquête interne a été ouverte, sans autre mesure'},
+  {v:'rien',     lib:'Rien n’a été fait'},
+  {v:'inconnu',  lib:'Je ne sais pas'},
+  {v:'autre',    lib:'Autre'}
+];
+
+function hmLib(tab,v){ var o=null; tab.forEach(function(x){ if(x.v===v) o=x; }); return o?o.lib:''; }
+function hmPreuves(){ if(!Array.isArray(HM.preuves)) HM.preuves=[]; return HM.preuves; }
+function hmTogglePreuve(v){
+  var L=hmPreuves(), i=L.indexOf(v);
+  if(i<0) L.push(v); else L.splice(i,1);
+  if(v!=='rien'){ var j=L.indexOf('rien'); if(j>=0) L.splice(j,1); }
+  else { HM.preuves=['rien']; }
+  hmSave(); hmRender();
+}
+
+/* ══════════ L'ANALYSE ══════════ */
+function hmAnalyse(){
+  hmLoad();
+  var A=[];
+  var rep=HM.repetition||'', dur=HM.duree||'', att=HM.atteinte||'', aut=HM.auteur||'',
+      pol=HM.politique||'', prev=HM.prevention||'', rea=HM.reaction||'', P=hmPreuves();
+
+  /* ── 1. La répétition ── */
+  if(!rep){
+    A.push({g:'question', t:'Combien de faits ?',
+      x:'C’est la première condition du texte : les agissements doivent être répétés. Répondez à la question ci-dessus.', a:'L.1152-1'});
+  } else if(rep==='unique'){
+    A.push({g:'stop', t:'Un fait unique ne suffit pas',
+      x:'Le fait survenu une seule fois, sans répétition, est exclu de la qualification de harcèlement moral. Cela ne veut pas dire qu’il est sans conséquence : il peut relever d’une autre qualification — sanction injustifiée, manquement à l’obligation de sécurité, violence, discrimination.',
+      a:'Cass. soc., 22 janvier 2014, n° 12-29.131'});
+  } else if(rep==='memerep'){
+    A.push({g:'ok', t:'Un même fait répété suffit',
+      x:'Le pluriel du texte n’exige pas des faits de nature différente. Exiger des agissements de natures différentes reviendrait à ajouter à la loi une condition qu’elle ne comporte pas.',
+      a:'Cass. crim., 26 janvier 2016, n° 14-80.455'});
+  } else if(rep==='deux'){
+    A.push({g:'ok', t:'Deux faits distincts suffisent',
+      x:'À défaut de répétition d’un fait unique, deux faits distincts suffisent à caractériser la répétition exigée par le texte.',
+      a:'Cass. soc., 11 mars 2025, n° 23-16.415'});
+  } else if(rep==='plusieurs'){
+    A.push({g:'ok', t:'La répétition est établie',
+      x:'Plusieurs faits, de natures différentes ou non, satisfont la condition de répétition.',
+      a:'L.1152-1 · Cass. crim., 26 janvier 2016, n° 14-80.455'});
+  }
+
+  /* ── 2. La durée ── */
+  if(dur && dur!=='inconnu' && dur!=='autre'){
+    A.push({g:'info', t:'La durée n’est pas une condition',
+      x:'Le texte n’exige aucune durée minimale. Le harcèlement moral a été retenu sur dix-sept jours.',
+      a:'Cass. soc., 6 avril 2011, n° 09-71.170'});
+  }
+
+  /* ── 3. L'atteinte ── */
+  if(att==='risque'){
+    A.push({g:'ok', t:'L’atteinte n’a pas à être réalisée',
+      x:'Le texte dit « susceptible ». Ni la dégradation effective des conditions de travail ni l’altération avérée de la santé ne sont exigées.',
+      a:'Cass. soc., 11 mars 2025, n° 23-16.415'});
+  } else if(att==='constatee'){
+    A.push({g:'info', t:'L’atteinte est constatée — elle n’avait pas à l’être',
+      x:'La dégradation déjà réalisée renforce le dossier, mais elle n’est pas une condition : le texte se satisfait d’une atteinte « susceptible » de se produire.',
+      a:'L.1152-1 · Cass. soc., 11 mars 2025, n° 23-16.415'});
+  }
+
+  /* ── 4. L'auteur ── */
+  if(aut && aut!=='autre'){
+    if(aut==='collegue' || aut==='externe'){
+      A.push({g:'ok', t:'Aucun lien de subordination n’est requis',
+        x:'Ce sont les faits qui définissent le harcèlement, et non la qualité de leur auteur. Il peut être commis par l’employeur, un supérieur, un collègue, ou une personne étrangère à l’entreprise.',
+        a:'Cass. soc., 1er mars 2011, n° 09-69.616 — Restaurants du Pont du Gard'});
+    } else if(aut==='superieur'){
+      A.push({g:'ok', t:'Les méthodes de gestion peuvent constituer un harcèlement',
+        x:'Peuvent caractériser un harcèlement moral les méthodes de gestion mises en œuvre par un supérieur hiérarchique dès lors qu’elles se manifestent, pour un salarié déterminé, par des agissements répétés produisant les effets visés par le texte.',
+        a:'Cass. soc., 10 novembre 2009, n° 07-45.321 — Salon vacances loisirs'});
+    }
+  }
+
+  /* ── 5. Le harcèlement institutionnel ── */
+  if(pol==='oui'){
+    A.push({g:'ok', t:'Harcèlement moral institutionnel',
+      x:'La chambre criminelle vise les agissements consistant à arrêter et mettre en œuvre, en connaissance de cause, une politique d’entreprise ayant pour objet ou pour effet de dégrader les conditions de travail de tout ou partie des salariés, aux fins de réduire les effectifs ou d’atteindre tout autre objectif managérial, économique ou financier. Il n’est plus nécessaire d’identifier des victimes personnellement visées.',
+      a:'Cass. crim., 21 janvier 2025, n° 22-87.145 — France Télécom'});
+  }
+
+  /* ── 6. L'intention ── */
+  A.push({g:'info', t:'L’intention de nuire n’est pas exigée',
+    x:'Le texte vise les agissements qui ont « pour objet ou pour effet » la dégradation : l’effet suffit, sans qu’une volonté de nuire ait à être démontrée.',
+    a:'Cass. soc., 10 novembre 2009, n° 08-41.497'});
+
+  /* ── 7. La preuve ── */
+  if(P.length===0){
+    A.push({g:'question', t:'De quels éléments disposez-vous ?',
+      x:'La loi n’exige pas de la victime qu’elle prouve le harcèlement, mais qu’elle présente des éléments de fait précis et concordants le laissant supposer. C’est ensuite à l’employeur de démontrer que ses décisions reposent sur des éléments objectifs étrangers à tout harcèlement.', a:'L.1154-1'});
+  } else if(P.length===1 && P[0]==='rien'){
+    A.push({g:'stop', t:'Sans élément de fait, la présomption ne joue pas',
+      x:'Des accusations générales, des critiques et une attestation ne suffisent pas : il faut des faits précis, datés et concordants. Le simple ressenti ou des affirmations vagues ne franchissent pas le seuil de la présomption. La vraie question n’est pas « avez-vous un témoin ? » mais « avez-vous documenté ? ».',
+      a:'Cass. soc., 9 juin 2010, n° 09-40.544'});
+  } else {
+    A.push({g:'ok', t:'La charge de la preuve ne pèse pas sur le salarié',
+      x:'Le salarié présente des éléments laissant supposer le harcèlement ; il appartient alors à l’employeur de prouver que ses décisions sont justifiées par des éléments objectifs étrangers à tout harcèlement.',
+      a:'L.1154-1 · Cass. soc., 7 juillet 2021, n° 19-20.320'});
+    if(P.indexOf('enregistrement')>=0){
+      A.push({g:'info', t:'Un enregistrement obtenu à l’insu de son auteur peut être recevable',
+        x:'Une preuve par nature illicite est recevable dès lors qu’elle est indispensable à l’exercice du droit à la preuve et proportionnée au but poursuivi. Si un tel procédé est admis, les modes de preuve licites et non intrusifs le sont a fortiori.',
+        a:'Cass. soc., 10 juillet 2024, n° 23-14.900 · Cass. ass. plén., 22 décembre 2023, n° 20-20.648'});
+    }
+    if(P.indexOf('certificats')>=0){
+      A.push({g:'info', t:'Les certificats médicaux entrent dans l’appréciation d’ensemble',
+        x:'Le juge doit rechercher si les éléments invoqués, pris dans leur ensemble, laissent supposer l’existence d’un harcèlement — certificats médicaux compris.',
+        a:'Cass. soc., 18 décembre 2024, n° 23-21.649'});
+    }
+  }
+
+  /* ── 8. L'appréciation d'ensemble ── */
+  A.push({g:'info', t:'Les faits s’apprécient dans leur ensemble, jamais un à un',
+    x:'Plusieurs faits peuvent, séparément, sembler sans conséquence. Le juge doit examiner l’ensemble des faits invoqués et rechercher s’ils laissent supposer, pris dans leur globalité, l’existence d’un harcèlement. L’analyse fait par fait est censurée.',
+    a:'Cass. soc., 11 mars 2026, n° 24-21.502'});
+
+  /* ── 9. Ce que l'employeur doit démontrer ── */
+  if(prev==='non' || rea==='rien'){
+    A.push({g:'stop', t:'L’employeur ne pourra pas s’exonérer',
+      x:'Depuis la transposition de l’arrêt Air France au harcèlement moral, l’employeur est tenu d’une obligation de moyens renforcée : il ne s’exonère qu’en démontrant, cumulativement, l’information et la formation en amont, et une réaction adaptée dès qu’il est informé des faits. L’une des deux manque ici.',
+      a:'Cass. soc., 25 novembre 2015, n° 14-24.444 · Cass. soc., 1er juin 2016, n° 14-19.702'});
+  } else if(rea==='enquete'){
+    A.push({g:'stop', t:'Une enquête ne suffit pas à exonérer l’employeur',
+      x:'L’enquête interne n’est pas obligatoire en soi : l’employeur peut satisfaire à son obligation sans enquête s’il a pris d’autres mesures suffisantes. Mais l’inverse est vrai aussi — une réaction immédiate ne suffit pas, l’employeur doit justifier d’actions de prévention, information et formation, menées en amont.',
+      a:'Cass. soc., 12 juin 2024, n° 23-13.975 · Cass. soc., 1er juin 2016, n° 14-19.702'});
+  } else if(prev==='oui' && rea==='immediate'){
+    A.push({g:'info', t:'Les deux exigences de l’employeur semblent réunies',
+      x:'Information et formation en amont, réaction adaptée en aval : ce sont les deux conditions cumulatives de l’exonération. Leur réalité se démontre par des pièces, pas par une déclaration.',
+      a:'Cass. soc., 1er juin 2016, n° 14-19.702'});
+  }
+
+  /* ── 10. Les mots employés ── */
+  A.push({g:'info', t:'Le salarié n’a pas à prononcer le mot « harcèlement »',
+    x:'C’est la révélation des faits qui déclenche l’obligation d’agir de l’employeur, non les mots employés pour les décrire.',
+    a:'Cass. soc., 8 janvier 2025, n° 23-19.996'});
+
+  /* ══════════ CONFRONTATION DES REPONSES ══════════ */
+  var C=[];
+  if(rep==='unique' && (dur==='mois'||dur==='annees'||dur==='semaines')){
+    C.push('Vous indiquez un fait unique, mais une durée de '+hmLib(HM_DUREE,dur).toLowerCase()+
+      '. Si la situation s’étend dans le temps, c’est qu’un fait se répète ou que d’autres s’y ajoutent : reprenez la première question. Un même fait répété suffit.');
+  }
+  if(rep==='unique' && P.length>1){
+    C.push('Vous décrivez un fait unique mais plusieurs sources de preuve. Vérifiez si ces pièces ne documentent pas, en réalité, plusieurs faits successifs : c’est cette répétition qui commande la qualification.');
+  }
+  if(pol==='oui' && aut==='collegue'){
+    C.push('Une politique d’entreprise et un auteur sans lien hiérarchique se combinent mal : le harcèlement institutionnel suppose des agissements décidés et mis en œuvre au niveau de la direction. Précisez qui arrête cette politique.');
+  }
+  if(att==='constatee' && P.indexOf('certificats')<0 && P.indexOf('medecine')<0){
+    C.push('Vous indiquez une atteinte déjà constatée, sans pièce médicale ni écrit du médecin du travail. L’atteinte n’a pas à être prouvée pour que le harcèlement soit retenu — mais si vous l’invoquez, elle doit pouvoir être établie.');
+  }
+  if(prev==='oui' && rea==='rien'){
+    C.push('Information et formation en amont, mais aucune réaction une fois les faits révélés : les deux exigences sont cumulatives, la première ne rachète pas l’absence de la seconde.');
+  }
+  if(rep && rep!=='unique' && P.length===1 && P[0]==='rien'){
+    C.push('Les faits sont répétés mais rien n’est documenté. C’est le point faible du dossier : datez chaque fait, retrouvez les écrits, les décisions, les échanges. La présomption ne s’ouvre que sur des faits précis et concordants.');
+  }
+
+  return {alertes:A, coherence:C};
+}
+
+/* ══════════ LES CAS ══════════ */
+var HM_RETENUS=[
+  {f:'Mutation irrégulière avec changement de résidence, puis poste de chargé de mission peu à peu vidé de son contenu.', a:'Cass. soc., 3 décembre 2008, n° 07-41.491'},
+  {f:'Refus de laisser reprendre le travail au retour de congé maternité, retrait de responsabilités et mise à pied injustifiée de huit jours.', a:'Cass. soc., 7 juillet 2009, n° 07-44.590'},
+  {f:'Changements quotidiens de tâches et interdiction faite aux autres salariés de lui adresser la parole.', a:'Cass. soc., 6 avril 2011, n° 09-71.170'},
+  {f:'Affectation dans un local exigu, sans chauffage correct, sans outils de travail, isolé des collègues, avec des réflexions mettant en doute son équilibre psychologique.', a:'Cass. soc., 29 juin 2005, n° 03-44.055'},
+  {f:'Plus aucun travail fourni pendant plus de deux ans, avec obligation de se présenter chaque jour dans les locaux d’une société tierce.', a:'Cass. soc., 19 octobre 2010, n° 09-42.391'},
+  {f:'Mise à l’écart organisée par six collègues d’une aide-soignante après un aménagement de planning perçu comme un privilège.', a:'Cass. crim., 26 janvier 2016, n° 14-80.455'},
+  {f:'Avertissement injustifié et absence de consultation de la salariée sur la fixation de ses congés, l’employeur ne justifiant pas que ces faits étaient étrangers à tout harcèlement.', a:'Cass. soc., 11 mars 2025, n° 23-16.415'},
+  {f:'Absence d’aide de l’équipe, privation des moyens de travail, suppression de l’accès au répertoire ressources.', a:'Cass. soc., 11 mars 2026, n° 24-21.502'},
+  {f:'Pressions exercées pour faire accepter une rupture conventionnelle.', a:'Cass. soc., 10 juillet 2024, n° 23-14.900'},
+  {f:'Pression continuelle, reproches incessants, ordres et contre-ordres destinés à diviser l’équipe, se traduisant pour le salarié par une mise à l’écart et une communication réduite à un tableau d’affichage.', a:'Cass. soc., 10 novembre 2009, n° 07-45.321'},
+  {f:'Politique de déflation des effectifs ayant pour objet de dégrader les conditions de travail afin de contraindre les salariés à la mobilité ou au départ, l’objectif indicatif étant devenu impératif.', a:'Cass. crim., 21 janvier 2025, n° 22-87.145'}
+];
+var HM_ECARTES=[
+  {f:'Deux sanctions disciplinaires en un mois, même irrégulières, ne constituent pas en soi un harcèlement.', a:'Cass. soc., 16 juin 2004, n° 02-41.795, inédit'},
+  {f:'Le fait unique, non répété, est exclu de la qualification.', a:'Cass. soc., 22 janvier 2014, n° 12-29.131'},
+  {f:'Des accusations générales, des tracts critiques et une attestation ne suffisent pas : il faut des faits précis, datés et concordants.', a:'Cass. soc., 9 juin 2010, n° 09-40.544'},
+  {f:'Une mésentente réciproque entre collègues n’est pas un harcèlement : la qualification suppose que la responsabilité de chacun soit établie, et non un conflit aux torts partagés.', a:'Cass. soc., 4 novembre 2015, n° 14-12.281'},
+  {f:'Les décisions de gestion légitimes — évaluations, réorganisations, sanctions justifiées — échappent à la qualification si l’employeur démontre qu’elles reposent sur des éléments objectifs.', a:'Jurisprudence constante · L.1154-1'}
+];
+var HM_ACTEURS=[
+  {q:'Le législateur', r:'Il pose un principe assorti d’une définition générale et abstraite.', a:'L.1152-1'},
+  {q:'L’employeur', r:'Tenu autrefois d’une obligation de sécurité de résultat, il l’est aujourd’hui d’une obligation de moyens renforcée : il s’exonère en démontrant, cumulativement, l’information et la formation en amont, et une réaction adaptée dès qu’il est informé.', a:'Cass. soc., 25 novembre 2015, n° 14-24.444 · Cass. soc., 1er juin 2016, n° 14-19.702'},
+  {q:'Le salarié', r:'Il n’a pas à prouver le harcèlement, mais à établir des faits qui le laissent supposer. Il n’a pas non plus à employer le mot « harcèlement » : c’est la révélation des faits qui déclenche l’obligation d’agir.', a:'L.1154-1 · Cass. soc., 8 janvier 2025, n° 23-19.996'},
+  {q:'Le juge', r:'Il vérifie si les faits invoqués, pris dans leur ensemble, laissent supposer un harcèlement — sans les apprécier un à un.', a:'Cass. soc., 11 mars 2026, n° 24-21.502'}
+];
+
+/* ══════════ LA CHRONOLOGIE DES FAITS ══════════ */
+function hmFaits(){ if(!Array.isArray(HM.faits)) HM.faits=[]; return HM.faits; }
+function hmFaitAdd(){ hmFaits().push({date:'', quoi:'', qui:'', preuve:''}); hmSave(); hmRender(); }
+function hmFaitDel(i){ if(!confirm('Retirer ce fait ?')) return; hmFaits().splice(i,1); hmSave(); hmRender(); }
+function hmFaitSet(i,k,v){ var f=hmFaits()[i]; if(!f) return; f[k]=v; hmSave(); }
+function hmFaitSetR(i,k,v){ var f=hmFaits()[i]; if(!f) return; f[k]=v; hmSave(); hmRender(); }
+
+/* ══════════ L'AFFICHAGE ══════════ */
+function hmOnEnter(){ hmLoad(); hmRender(); }
+function hmRender(){
+  var host=document.getElementById('harcm-body'); if(!host) return;
+  var R=hmAnalyse(), h='';
+
+  h+='<div class="card"><div class="ct">Le texte</div>'
+    +'<div style="font-size:13px;color:#e8e4d8;line-height:1.75;font-style:italic">« '+hmEsc(HM_L1152)+' »</div>'
+    +'<div style="font-size:11px;color:#9a9585;margin-top:6px">Article L.1152-1 du code du travail</div></div>';
+
+  /* Les questions */
+  h+='<div class="card"><div class="ct">Votre situation</div>';
+  h+=hmSelect('Combien de faits, et de quelle nature ?', HM_REPETITION, HM.repetition||'', 'repetition');
+  h+=hmSelect('Sur quelle durée ?', HM_DUREE, HM.duree||'', 'duree');
+  h+=hmSelect('Les conditions de travail ou la santé sont-elles déjà atteintes ?', HM_ATTEINTE, HM.atteinte||'', 'atteinte');
+  h+=hmSelect('Qui est l’auteur des faits ?', HM_AUTEUR, HM.auteur||'', 'auteur');
+  h+=hmSelect('Cela découle-t-il d’une politique d’entreprise ?', HM_POLITIQUE, HM.politique||'', 'politique');
+  h+='<div class="fg"><label class="fl">De quels éléments disposez-vous ? (plusieurs réponses possibles)</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">';
+  HM_PREUVES.forEach(function(o){
+    var on=hmPreuves().indexOf(o.v)>=0;
+    h+='<button onclick="hmTogglePreuve(\''+o.v+'\')" style="padding:8px 11px;border-radius:9px;cursor:pointer;font-family:inherit;font-size:12px;'
+      +(on?'border:1px solid #c9a84c;background:rgba(201,168,76,.16);color:#e8c97a;font-weight:700':'border:1px solid rgba(255,255,255,.18);background:#12283b;color:#cfc8b8')
+      +'">'+(on?'✓ ':'')+hmEsc(o.lib)+'</button>';
+  });
+  h+='</div></div>';
+  h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:#e8c97a">Ce que l’employeur a fait</summary><div style="padding-top:8px">';
+  h+=hmSelect('Information et formation menées avant les faits ?', HM_PREV, HM.prevention||'', 'prevention');
+  h+=hmSelect('Qu’a fait l’employeur une fois informé ?', HM_REACTION, HM.reaction||'', 'reaction');
+  h+='</div></details>';
+  h+='</div>';
+
+  /* Les contradictions entre réponses */
+  if(R.coherence.length){
+    h+='<div class="card" style="border-color:#d6a842"><div class="ct">Ce qui ne concorde pas dans vos réponses</div>';
+    R.coherence.forEach(function(c){
+      h+='<div style="border-left:3px solid #d6a842;padding:7px 0 7px 11px;margin-bottom:9px;font-size:12.5px;color:#cfc8b8;line-height:1.65">'+hmEsc(c)+'</div>';
+    });
+    h+='</div>';
+  }
+
+  /* Ce que la jurisprudence en dit */
+  h+='<div class="card"><div class="ct">Ce que la jurisprudence en dit</div>';
+  R.alertes.forEach(function(a){
+    var col=(a.g==='stop')?'#e05c5c':(a.g==='question')?'#d6a842':(a.g==='ok')?'#3f9b7a':'#5b9bd5';
+    h+='<div style="border-left:3px solid '+col+';padding:8px 0 8px 11px;margin-bottom:11px">'
+      +'<div style="font-size:13.5px;font-weight:700;color:#fff;margin-bottom:3px">'+hmEsc(a.t)+'</div>'
+      +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.65">'+hmEsc(a.x)+'</div>'
+      +'<div style="font-size:11px;color:#9a9585;margin-top:5px">'+hmEsc(a.a)+'</div></div>';
+  });
+  h+='</div>';
+
+  /* La chronologie */
+  h+='<div class="card"><div class="ct">Votre chronologie</div>'
+    +'<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">Un fait daté et documenté vaut mieux qu’un récit. Notez chaque fait, sa date, son auteur et la pièce qui l’établit : c’est cette liste que le juge examinera dans son ensemble.</div>';
+  hmFaits().forEach(function(f,i){
+    h+='<div style="border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;margin-bottom:9px">'
+      +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">'
+      +'<input type="date" value="'+hmEsc(f.date)+'" onchange="hmFaitSetR('+i+',\'date\',this.value)" style="flex:1">'
+      +'<button onclick="hmFaitDel('+i+')" style="padding:6px 10px;border:1px solid #7a4a4a;border-radius:8px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:11.5px;cursor:pointer;font-family:inherit">Retirer</button></div>'
+      +'<div class="fg"><label class="fl">Ce qui s’est passé</label><input value="'+hmEsc(f.quoi)+'" placeholder="Décrivez le fait, précisément" onchange="hmFaitSet('+i+',\'quoi\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Par qui</label><input value="'+hmEsc(f.qui)+'" placeholder="Nom et fonction" onchange="hmFaitSet('+i+',\'qui\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Pièce qui l’établit</label><input value="'+hmEsc(f.preuve)+'" placeholder="Courriel du 12/03, attestation de M. X, avis du médecin du travail…" onchange="hmFaitSet('+i+',\'preuve\',this.value)"></div>'
+      +'</div>';
+  });
+  h+='<button onclick="hmFaitAdd()" style="padding:11px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit">+ Ajouter un fait</button>';
+  if(hmFaits().length) h+='<button onclick="hmDoc()" style="margin-left:8px;padding:11px 16px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Éditer la chronologie</button>';
+  h+='</div>';
+
+  /* Les cas */
+  h+='<div class="card"><div class="ct">Les faits retenus par les juges</div>';
+  HM_RETENUS.forEach(function(c){
+    h+='<div style="border-left:3px solid #3f9b7a;padding:7px 0 7px 11px;margin-bottom:9px">'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hmEsc(c.f)+'</div>'
+      +'<div style="font-size:11px;color:#9a9585;margin-top:4px">'+hmEsc(c.a)+'</div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="card"><div class="ct">Les faits écartés</div>'
+    +'<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">La notion se définit autant par ce qu’elle rejette que par ce qu’elle retient.</div>';
+  HM_ECARTES.forEach(function(c){
+    h+='<div style="border-left:3px solid #e05c5c;padding:7px 0 7px 11px;margin-bottom:9px">'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hmEsc(c.f)+'</div>'
+      +'<div style="font-size:11px;color:#9a9585;margin-top:4px">'+hmEsc(c.a)+'</div></div>';
+  });
+  h+='</div>';
+
+  /* Les quatre acteurs */
+  h+='<div class="card"><div class="ct">Une notion, quatre acteurs</div>';
+  HM_ACTEURS.forEach(function(o){
+    h+='<div style="margin-bottom:11px">'
+      +'<div style="font-size:13px;font-weight:700;color:#e8c97a">'+hmEsc(o.q)+'</div>'
+      +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.65">'+hmEsc(o.r)+'</div>'
+      +'<div style="font-size:11px;color:#9a9585;margin-top:3px">'+hmEsc(o.a)+'</div></div>';
+  });
+  h+='<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:6px;font-style:italic">Cette construction n’est pas terminée.</div></div>';
+
+  host.innerHTML=h;
+}
+
+function hmSelect(lib, tab, val, cle){
+  var h='<div class="fg"><label class="fl">'+hmEsc(lib)+'</label>'
+    +'<select onchange="hmSet(\''+cle+'\',this.value)">'
+    +'<option value=""'+(val===''?' selected':'')+'>— à préciser —</option>';
+  tab.forEach(function(o){ h+='<option value="'+o.v+'"'+(val===o.v?' selected':'')+'>'+hmEsc(o.lib)+'</option>'; });
+  h+='</select>';
+  if(val==='autre') h+='<input value="'+hmEsc(HM[cle+'Autre']||'')+'" placeholder="Précisez" onchange="hmSet(\''+cle+'Autre\',this.value)" style="margin-top:6px">';
+  return h+'</div>';
+}
+
+/* ══════════ LA CHRONOLOGIE, EDITEE ══════════ */
+function hmDoc(){
+  var L=hmFaits().slice().sort(function(a,b){ return String(a.date||'').localeCompare(String(b.date||'')); });
+  if(!L.length){ alert('Ajoutez au moins un fait.'); return; }
+  var ent={}; try{ ent=(typeof E!=='undefined'&&E)?E:{}; }catch(e){}
+  var S='font-family:Georgia,serif;font-size:11pt;line-height:1.55;color:#111';
+  var h='<div style="'+S+';max-width:19cm;margin:0 auto;padding:18px">';
+  h+='<h1 style="font-size:15pt;margin:0 0 4px">Chronologie des faits</h1>';
+  h+='<p style="font-size:10pt;color:#444;margin:0 0 16px">'+hmEsc(ent.nom||'')+'</p>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:10.5pt">'
+    +'<tr><th style="text-align:left;padding:5px 6px;border-bottom:1.5px solid #333;width:3cm">Date</th>'
+    +'<th style="text-align:left;padding:5px 6px;border-bottom:1.5px solid #333">Fait</th>'
+    +'<th style="text-align:left;padding:5px 6px;border-bottom:1.5px solid #333;width:4cm">Auteur</th>'
+    +'<th style="text-align:left;padding:5px 6px;border-bottom:1.5px solid #333;width:5cm">Pièce</th></tr>';
+  L.forEach(function(f){
+    h+='<tr><td style="padding:5px 6px;border-bottom:1px solid #eee;vertical-align:top">'+hmEsc(hmFR(f.date)||'—')+'</td>'
+      +'<td style="padding:5px 6px;border-bottom:1px solid #eee;vertical-align:top">'+hmEsc(f.quoi||'')+'</td>'
+      +'<td style="padding:5px 6px;border-bottom:1px solid #eee;vertical-align:top">'+hmEsc(f.qui||'')+'</td>'
+      +'<td style="padding:5px 6px;border-bottom:1px solid #eee;vertical-align:top">'+hmEsc(f.preuve||'')+'</td></tr>';
+  });
+  h+='</table>';
+  h+='<p style="font-size:9.5pt;color:#555;margin-top:18px;line-height:1.55">Ces faits sont présentés ensemble, et non isolément : il appartient au juge de rechercher s’ils laissent supposer, pris dans leur globalité, l’existence d’un harcèlement moral (Cass. soc., 11 mars 2026, n° 24-21.502). Le salarié n’a pas à prouver le harcèlement, mais à présenter des éléments le laissant supposer ; il incombe alors à l’employeur de démontrer que ses décisions reposent sur des éléments objectifs étrangers à tout harcèlement (article L.1154-1 du code du travail).</p>';
+  h+='</div>';
+  try{
+    var w=window.open('','_blank');
+    if(!w){ alert('Autorisez les fenêtres pour éditer le document.'); return; }
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Chronologie des faits</title></head><body>'+h+'</body></html>');
+    w.document.close();
+    setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
+  }catch(e){ alert('Impossible d’ouvrir le document : '+e.message); }
 }
 
 var BUD={};

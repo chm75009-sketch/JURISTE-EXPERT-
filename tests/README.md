@@ -5,6 +5,7 @@ node tests/cse.test.js            # règles CSE : seuils, barèmes, calculs
 node tests/budgets.test.js        # les budgets : des euros, au centime
 node tests/navigateur.test.js     # la page ouverte pour de vrai dans Chromium
 node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un autre
+node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
 ```
 
@@ -102,7 +103,30 @@ fiche **par l'application elle-même**, on se déconnecte, on revient en
 administrateur — rien du client ne doit subsister — puis on retourne dans le
 dossier client, qui doit tout retrouver intact.
 
-## 5. `integrite.py` — ce qui est mécaniquement vérifiable
+## 5. `harcelement.test.js` — chaque réponse, son arrêt
+
+Ce module dit à un salarié si sa situation entre dans la qualification de
+harcèlement moral. Une réponse fausse l'envoie au conseil de prud'hommes
+pour rien, ou l'en dissuade à tort. Le test vérifie donc, pour chaque
+réponse possible, **ce que le module affirme et l'arrêt qu'il cite** :
+
+- fait unique → exclu, arrêt du 22 janvier 2014 ;
+- même fait répété → suffit, arrêt du 26 janvier 2016 — et le module ne dit
+  pas en même temps l'inverse ;
+- deux faits distincts → suffisent, arrêt du 11 mars 2025 ;
+- auteur sans lien hiérarchique → aucun lien de subordination requis,
+  Pont du Gard ;
+- politique d'entreprise → harcèlement institutionnel, France Télécom ;
+- enregistrement clandestin → recevable sous conditions, assemblée plénière
+  du 22 décembre 2023 ;
+- prévention sans réaction, ou enquête seule → l'employeur ne s'exonère pas.
+
+Et les confrontations entre réponses : fait unique déclaré sur plusieurs
+mois, politique d'entreprise attribuée à un collègue, prévention sans
+réaction. Le test contrôle aussi que les onze entrées CSE du menu figurent
+sur l'accueil et qu'aucune carte de l'accueil ne mène à une page absente.
+
+## 6. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`
