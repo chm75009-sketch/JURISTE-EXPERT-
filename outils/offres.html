@@ -67,6 +67,7 @@
     padding:11px 13px;margin:8px 0;background:var(--accent-soft);transition:background .15s,opacity .15s}
   .offre-item .oi-t{font-weight:700;font-size:14px;color:var(--ink)}
   .offre-item .oi-m{font-size:12px;color:var(--muted);margin:3px 0 5px}
+  .offre-item .oi-src{font-weight:700;color:#2f6f4f;background:#e8f4ee;border-radius:6px;padding:1px 6px}
   .offre-item .oi-link{font-size:12.5px;font-weight:600}
   .offre-item.vue{border-left-color:#9aa2af;background:#eceef1;opacity:.72}
   .offre-item.vue .oi-t{color:#6b7280;font-weight:600}
@@ -424,6 +425,11 @@
         <label class="chip on" id="chipSecAutre"><input type="checkbox" id="secAutre" checked> Autres secteurs <b id="cntSecAutre" style="opacity:.7"></b></label>
         <a href="#" id="secBankOnly" style="font-size:12px;font-weight:600;color:var(--accent)">▸ banques uniquement</a>
       </div>
+      <div id="rowSources" style="display:none;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <span style="font-size:12.5px;color:var(--muted);font-weight:600" title="Site qui diffuse l'offre, lu sur le lien de l'annonce.">Source :</span>
+        <span id="chipsSources" style="display:contents"></span>
+        <a href="#" id="srcToutes" style="font-size:12px;font-weight:600;color:var(--accent)">▸ toutes les sources</a>
+      </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;padding-top:8px;border-top:1px solid #eee">
         <span style="font-size:12.5px;color:var(--muted);font-weight:600">Transmettre cette liste :</span>
         <button type="button" class="btn" id="partMail">✉️ Transférer par mail</button>
@@ -538,7 +544,7 @@
 // Pour changer le code : remplace ce hash. Génère-le avec, dans une console Node :
 //   require('crypto').createHash('sha256').update('TON_CODE').digest('hex')
 const PASS_HASH = "deddebcdf29ee021597a6109755a2e4df95e36fd2003eeedefb763614e3be367";
-var OFFRES_BUILD = "v2026-08-03.89";   // MEME numero que Juris Expert MCH (un seul pour tout)
+var OFFRES_BUILD = "v2026-08-03.90";   // MEME numero que Juris Expert MCH (un seul pour tout)
 const LS_PROXY = "ft_proxy_url";
 const LS_AUTH  = "ft_admin_ok";
 // Adresse du relais par défaut (non secrète) : évite d'avoir à la configurer sur chaque appareil.
@@ -843,6 +849,9 @@ if($("partCsv")) $("partCsv").addEventListener("click", function(){
   if(!_listeAffichee.length){ statutPartage("Aucune offre à transmettre."); return; }
   telecharger(nomFichier("csv"), partageCsv(), "text/csv");
   statutPartage("✓ Tableur téléchargé — ouvrable dans Excel.");
+});
+if($("srcToutes")) $("srcToutes").addEventListener("click", function(e){
+  e.preventDefault(); SRC_ETEINTES = {}; renderOffresListe();
 });
 if($("secBankOnly")) $("secBankOnly").addEventListener("click", function(e){
   e.preventDefault();
@@ -1248,6 +1257,121 @@ var SEC_CONS = [
   "commissariat aux comptes","expertise comptable","cabinet d audit","societe de services"
 ];
 var SEC_LABELS = { bank:"Banque & finance", assu:"Assurance", cons:"Conseil & audit", autre:"Autres secteurs" };
+
+/* ══════════════════════════════════════════════════════════════════
+   SOURCE DE L'OFFRE  (France Travail / APEC / LinkedIn / ...)
+   Aucune deduction : on lit ce que la reponse contient reellement,
+   dans cet ordre :
+     1. le champ `source` pose par nos convertisseurs (Adzuna, Jooble) ;
+     2. le partenaire declare par l'API France Travail, s'il est fourni ;
+     3. le nom d'hote de l'URL d'origine, traduit en libelle connu ;
+     4. a defaut d'URL, l'offre vient du flux France Travail lui-meme.
+   ══════════════════════════════════════════════════════════════════ */
+var SRC_HOTES = [
+  ["apec.fr",                 "APEC"],
+  ["candidat.francetravail",  "France Travail"],
+  ["francetravail.fr",        "France Travail"],
+  ["pole-emploi.fr",          "France Travail"],
+  ["linkedin.",               "LinkedIn"],
+  ["indeed.",                 "Indeed"],
+  ["welcometothejungle.",     "Welcome to the Jungle"],
+  ["hellowork.",              "HelloWork"],
+  ["cadremploi.",             "Cadremploi"],
+  ["cadres.apec",             "APEC"],
+  ["monster.",                "Monster"],
+  ["meteojob.",               "Meteojob"],
+  ["jobteaser.",              "JobTeaser"],
+  ["glassdoor.",              "Glassdoor"],
+  ["talent.com",              "Talent.com"],
+  ["michaelpage.",            "Michael Page"],
+  ["pagepersonnel.",          "Page Personnel"],
+  ["hays.",                   "Hays"],
+  ["fedlegal.",               "Fed Légal"],
+  ["fedgroup.",               "Fed Group"],
+  ["robertwalters.",          "Robert Walters"],
+  ["expectra.",               "Expectra"],
+  ["randstad.",               "Randstad"],
+  ["adecco.",                 "Adecco"],
+  ["manpower.",               "Manpower"],
+  ["lefigaro.",               "Figaro Emploi"],
+  ["figaro-emploi",           "Figaro Emploi"],
+  ["emploi-collectivites.",   "Emploi Collectivités"],
+  ["emploi-territorial.",     "Emploi Territorial"],
+  ["choisirleservicepublic.", "Choisir le service public"],
+  ["carrieres-juridiques.",   "Carrières Juridiques"],
+  ["village-justice.",        "Village de la Justice"],
+  ["villagejustice.",         "Village de la Justice"],
+  ["lesjeudis.",              "Les Jeudis"],
+  ["keljob.",                 "Keljob"],
+  ["regionsjob.",             "RegionsJob"],
+  ["stepstone.",              "StepStone"],
+  ["jobijoba.",               "Jobijoba"],
+  ["optioncarriere.",         "Option Carrière"],
+  ["adzuna.",                 "Adzuna"],
+  ["jooble.",                 "Jooble"]
+];
+function hoteDe(url){
+  var s = String(url||"");
+  var m = s.match(/^https?:\/\/([^\/?#]+)/i);
+  if(!m) return "";
+  return m[1].toLowerCase().replace(/^www\./,"");
+}
+function sourceOffre(o){
+  if(!o) return "Source inconnue";
+  var oo = o.origineOffre || {};
+  // 1. partenaire declare par France Travail
+  var parts = oo.partenaires;
+  if(parts && parts.length && parts[0] && parts[0].nom) return String(parts[0].nom);
+  // 2. site reellement pointe par le lien de l'annonce : c'est lui qui diffuse.
+  //    Prioritaire sur l'agregateur qui nous a transmis l'offre (Adzuna, Jooble),
+  //    sinon une annonce APEC relayee par Adzuna serait etiquetee « Adzuna ».
+  var h = hoteDe(oo.urlOrigine);
+  if(h){
+    for(var i=0;i<SRC_HOTES.length;i++){
+      if(h.indexOf(SRC_HOTES[i][0]) >= 0) return SRC_HOTES[i][1];
+    }
+  }
+  // 3. agregateur qui nous a transmis l'offre
+  if(o.source) return String(o.source);
+  // 4. hote non repertorie : on l'affiche tel quel
+  if(h) return h;
+  // 5. pas d'URL du tout : l'offre est servie par le flux France Travail
+  if(o.id) return "France Travail";
+  return "Source inconnue";
+}
+/* Sources decochees par l'utilisateur (libelle -> true). */
+var SRC_ETEINTES = {};
+function sourceActive(lbl){ return !SRC_ETEINTES[lbl]; }
+/* Construit la barre de puces « Source : » a partir des offres reellement
+   presentes. La liste n'est pas figee : elle suit les resultats du jour. */
+function majChipsSources(liste){
+  var row = $("rowSources"), box = $("chipsSources");
+  if(!row || !box) return;
+  var cnt = {}, ordre = [];
+  (liste||[]).forEach(function(o){
+    var s = sourceOffre(o);
+    if(!(s in cnt)){ cnt[s]=0; ordre.push(s); }
+    cnt[s]++;
+  });
+  ordre.sort(function(a,b){ return cnt[b]-cnt[a] || a.localeCompare(b,"fr"); });
+  // On oublie les sources absentes des resultats courants
+  Object.keys(SRC_ETEINTES).forEach(function(k){ if(!(k in cnt)) delete SRC_ETEINTES[k]; });
+  if(!ordre.length){ row.style.display="none"; box.innerHTML=""; return; }
+  row.style.display = "flex";
+  box.innerHTML = ordre.map(function(s){
+    var on = sourceActive(s);
+    return '<label class="chip'+(on?' on':'')+'" data-src="'+esc(s)+'">'
+         + '<input type="checkbox" class="ckSrc" data-src="'+esc(s)+'"'+(on?' checked':'')+'> '
+         + esc(s)+' <b style="opacity:.7">('+cnt[s]+')</b></label>';
+  }).join("");
+  Array.prototype.forEach.call(box.querySelectorAll(".ckSrc"), function(ck){
+    ck.addEventListener("change", function(){
+      var s = ck.getAttribute("data-src");
+      if(ck.checked) delete SRC_ETEINTES[s]; else SRC_ETEINTES[s]=true;
+      renderOffresListe();
+    });
+  });
+}
 
 function secteurTexte(o){
   return " " + norm([(o&&o.entreprise&&o.entreprise.nom)||"", o.intitule||"", o.description||""].join(" ")) + " ";
@@ -1848,6 +1972,9 @@ function renderOffresListe(offers){
   // Filtrage par secteur
   var sa=secteursActifs();
   liste = liste.filter(function(o){ return sa[secteurOffre(o)]; });
+  // Puces « Source » : construites sur les offres restantes, puis filtrage
+  majChipsSources(liste);
+  liste = liste.filter(function(o){ return sourceActive(sourceOffre(o)); });
   _listeAffichee = liste;   // ce qui est a l'ecran est ce qui sera transmis
   // Non consultées d'abord
   liste.sort(function(a,b){ return (vues[offreKey(a)]?1:0)-(vues[offreKey(b)]?1:0); });
@@ -1858,7 +1985,7 @@ function renderOffresListe(offers){
     var meta=[esc((o.entreprise&&o.entreprise.nom)||"employeur non précisé"), esc((o.lieuTravail&&o.lieuTravail.libelle)||""), esc(o.typeContratLibelle||o.typeContrat||"")].filter(Boolean).join(" · ");
     return '<div class="offre-item'+(vue?' vue':'')+(post?' postule':'')+'" data-key="'+esc(key)+'">'
       +'<div class="oi-t">'+esc(o.intitule||"—")+'</div>'
-      +'<div class="oi-m">'+meta+' · <span style="opacity:.85">'+esc(classifyRel(o))+'</span> · <span style="opacity:.7">'+esc(secteurLabel(o))+'</span></div>'
+      +'<div class="oi-m">'+meta+' · <span style="opacity:.85">'+esc(classifyRel(o))+'</span> · <span style="opacity:.7">'+esc(secteurLabel(o))+'</span> · <span class="oi-src">'+esc(sourceOffre(o))+'</span></div>'
       +'<div class="oi-foot">'
       +(url? '<a href="'+esc(url)+'" target="_blank" rel="noopener" class="oi-link" data-key="'+esc(key)+'">voir l\'offre ↗</a>' : '<span class="muted" style="font-size:12px">(lien indisponible)</span>')
       +'<label class="oi-post"><input type="checkbox" class="oi-postcb" data-key="'+esc(key)+'"'+(post?' checked':'')+'> j\'ai postulé</label>'
