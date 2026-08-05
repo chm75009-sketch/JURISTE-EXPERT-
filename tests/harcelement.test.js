@@ -112,7 +112,12 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   console.log('\n— Les constantes —');
   r = await analyse({ repetition: 'deux', preuves: ['courriers'] });
   ok(r.titres.some(t => /jamais un à un/.test(t)), 'l’appréciation d’ensemble est rappelée');
-  ok(r.titres.some(t => /L’intention de nuire n’est pas exigée/.test(t)), 'l’intention n’est pas exigée');
+  ok(r.titres.some(t => /L’intention de nuire n’est pas à démontrer/.test(t)), 'l’intention n’est pas exigée');
+  // C'est le contresens le plus frequent : il doit etre lu en premier, pas
+  // trouve au milieu d'une liste que personne ne fait defiler.
+  ok(/L’intention de nuire n’est pas à démontrer/.test(r.titres[0]),
+     'et c’est la toute première chose que le module dit', r.titres[0]);
+  ok(/08-41\.497/.test(r.arrets), 'l’arrêt du 10 novembre 2009 est cité');
   ok(r.titres.some(t => /n’a pas à prononcer le mot/.test(t)), 'le mot « harcèlement » n’est pas requis');
   ok(/24-21\.502/.test(r.arrets), 'l’arrêt du 11 mars 2026 est cité');
 
@@ -129,6 +134,14 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
      'les faits retenus sont affichés');
   ok(/mésentente/.test(txt), 'les faits écartés sont affichés');
   ok(!/undefined|NaN|\[object/.test(txt), 'aucun « undefined » à l’écran');
+  ok(/pour objet <?b?>?ou pour effet|pour objet ou pour effet/.test(txt.replace(/\s+/g, ' ')),
+     'le « pour objet ou pour effet » est rappelé sur la page');
+  // Le chapeau est dans l'en-tete de la page, au-dessus de la zone calculee.
+  const chapeau = await page.evaluate(() => (document.getElementById('pg-harcmoral') || {}).textContent || '');
+  ok(/aucune intention de nuire à démontrer/i.test(chapeau),
+     'la page annonce d’emblée qu’aucune intention n’est à démontrer');
+  ok(/pas de harcèlement à prouver/i.test(chapeau),
+     'et que le salarié n’a pas à prouver le harcèlement');
 
   // ── Les trois chemins d'accès ────────────────────────────────────
   console.log('\n— L’accueil et le menu —');

@@ -668,7 +668,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.116';
+var JX_BUILD = 'v2026-08-06.117';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -677,6 +677,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.117', d:'5 aout 2026', t:[
+   'HARCELEMENT MORAL — l\'intention de nuire n\'a pas a etre demontree, et le module le dit maintenant en premier, avant meme les questions. C\'est le contresens le plus frequent sur cette qualification : le texte vise ce qui a « pour objet OU pour effet » la degradation, et l\'effet suffit a lui seul. Rien n\'est donc a prouver sur les motifs de l\'auteur — un manager convaincu de bien faire peut harceler (Cass. soc., 10 novembre 2009, n° 08-41.497). Le passage sur le harcelement institutionnel precise a son tour que « en connaissance de cause » porte sur la mise en oeuvre de la politique, non sur une volonte de nuire a un salarie.'
+ ]},
  {v:'v2026-08-06.116', d:'5 aout 2026', t:[
    'NOUVEAU MODULE — HARCELEMENT MORAL, LA QUALIFICATION. L\'article L.1152-1 pose une definition generale ; ce sont les juges qui lui donnent sa matiere. Le module pose les questions — combien de faits, sur quelle duree, quel auteur, s\'agit-il d\'une politique d\'entreprise, de quelles pieces disposez-vous, qu\'a fait l\'employeur — et donne pour chaque reponse l\'arret qui la fonde. Un fait unique est exclu (22 janvier 2014) ; un meme fait repete suffit (26 janvier 2016) ; deux faits distincts suffisent (11 mars 2025) ; la duree n\'est pas une condition (6 avril 2011) ; l\'atteinte n\'a pas a etre realisee ; aucun lien de subordination n\'est requis (Pont du Gard) ; le harcelement institutionnel est identifie (France Telecom).',
    'HARCELEMENT MORAL — les faits retenus par les juges et les faits ecartes, chacun avec son arret : la notion se definit autant par ce qu\'elle rejette que par ce qu\'elle retient. Le regime de la preuve de l\'article L.1154-1, la recevabilite d\'un enregistrement obtenu a l\'insu de son auteur, l\'appreciation d\'ensemble des faits — jamais un a un. Ce que l\'employeur doit demontrer pour s\'exonerer : information et formation en amont, reaction adaptee en aval, les deux cumulativement.',
@@ -2660,6 +2663,10 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
     L'article L.1152-1 pose une définition générale. Ce sont les juges qui lui donnent sa matière —
     aussi bien par les faits qu'ils retiennent que par ceux qu'ils écartent. Répondez aux questions :
     le module dit, pour chaque réponse, ce que la Cour de cassation en a jugé, et avec quel arrêt.
+    <div style="font-size:12.5px;color:#e8c97a;margin-top:10px;line-height:1.7"><b>Deux idées fausses, avant de commencer.</b>
+    Il n'y a <b>aucune intention de nuire à démontrer</b> : le texte vise ce qui a « pour objet <b>ou pour effet</b> »
+    la dégradation, et l'effet suffit. Et il n'y a <b>pas de harcèlement à prouver</b> : le salarié présente des faits
+    qui le laissent supposer, c'est à l'employeur de démontrer qu'ils sont étrangers à tout harcèlement.</div>
     <div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">D'après les publications de Mounir CHIKHAOUI, juillet et août 2026.</div>
   </div>
 </div>
@@ -6729,6 +6736,13 @@ function hmAnalyse(){
   var rep=HM.repetition||'', dur=HM.duree||'', att=HM.atteinte||'', aut=HM.auteur||'',
       pol=HM.politique||'', prev=HM.prevention||'', rea=HM.reaction||'', P=hmPreuves();
 
+  /* ── En tete : ce qui n'est PAS demande. C'est l'erreur la plus frequente
+        sur cette qualification — on croit devoir demontrer une volonte de
+        nuire. Le texte dit « pour objet OU pour effet » : l'effet suffit. ── */
+  A.push({g:'ok', t:'L’intention de nuire n’est pas à démontrer',
+    x:'C’est le contresens le plus fréquent. Le texte vise les agissements qui ont « pour objet ou pour effet » la dégradation : l’effet suffit à lui seul. Il n’y a donc rien à prouver sur les motifs de l’auteur, ni sur sa volonté de nuire. Un manager convaincu de bien faire peut harceler.',
+    a:'Cass. soc., 10 novembre 2009, n° 08-41.497 · L.1152-1'});
+
   /* ── 1. La répétition ── */
   if(!rep){
     A.push({g:'question', t:'Combien de faits ?',
@@ -6785,14 +6799,9 @@ function hmAnalyse(){
   /* ── 5. Le harcèlement institutionnel ── */
   if(pol==='oui'){
     A.push({g:'ok', t:'Harcèlement moral institutionnel',
-      x:'La chambre criminelle vise les agissements consistant à arrêter et mettre en œuvre, en connaissance de cause, une politique d’entreprise ayant pour objet ou pour effet de dégrader les conditions de travail de tout ou partie des salariés, aux fins de réduire les effectifs ou d’atteindre tout autre objectif managérial, économique ou financier. Il n’est plus nécessaire d’identifier des victimes personnellement visées.',
+      x:'La chambre criminelle vise les agissements consistant à arrêter et mettre en œuvre, en connaissance de cause, une politique d’entreprise ayant pour objet ou pour effet de dégrader les conditions de travail de tout ou partie des salariés, aux fins de réduire les effectifs ou d’atteindre tout autre objectif managérial, économique ou financier. Il n’est plus nécessaire d’identifier des victimes personnellement visées. « En connaissance de cause » porte sur la mise en œuvre de la politique, non sur une volonté de nuire à un salarié : là encore, l’effet suffit.',
       a:'Cass. crim., 21 janvier 2025, n° 22-87.145 — France Télécom'});
   }
-
-  /* ── 6. L'intention ── */
-  A.push({g:'info', t:'L’intention de nuire n’est pas exigée',
-    x:'Le texte vise les agissements qui ont « pour objet ou pour effet » la dégradation : l’effet suffit, sans qu’une volonté de nuire ait à être démontrée.',
-    a:'Cass. soc., 10 novembre 2009, n° 08-41.497'});
 
   /* ── 7. La preuve ── */
   if(P.length===0){
@@ -6879,7 +6888,7 @@ var HM_RETENUS=[
   {f:'Avertissement injustifié et absence de consultation de la salariée sur la fixation de ses congés, l’employeur ne justifiant pas que ces faits étaient étrangers à tout harcèlement.', a:'Cass. soc., 11 mars 2025, n° 23-16.415'},
   {f:'Absence d’aide de l’équipe, privation des moyens de travail, suppression de l’accès au répertoire ressources.', a:'Cass. soc., 11 mars 2026, n° 24-21.502'},
   {f:'Pressions exercées pour faire accepter une rupture conventionnelle.', a:'Cass. soc., 10 juillet 2024, n° 23-14.900'},
-  {f:'Pression continuelle, reproches incessants, ordres et contre-ordres destinés à diviser l’équipe, se traduisant pour le salarié par une mise à l’écart et une communication réduite à un tableau d’affichage.', a:'Cass. soc., 10 novembre 2009, n° 07-45.321'},
+  {f:'Pression continuelle, reproches incessants, ordres et contre-ordres divisant l’équipe, se traduisant pour le salarié par une mise à l’écart, un mépris affiché et une communication réduite à un tableau d’affichage. (Ce que les juges ont relevé dans cette affaire : la description des faits, non une condition de la qualification.)', a:'Cass. soc., 10 novembre 2009, n° 07-45.321'},
   {f:'Politique de déflation des effectifs ayant pour objet de dégrader les conditions de travail afin de contraindre les salariés à la mobilité ou au départ, l’objectif indicatif étant devenu impératif.', a:'Cass. crim., 21 janvier 2025, n° 22-87.145'}
 ];
 var HM_ECARTES=[
