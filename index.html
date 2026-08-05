@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.102';
+var JX_BUILD = 'v2026-08-06.103';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6548,11 +6548,221 @@ var HUB_BDESE=[
 function hubBd(k){ return (HUB.bdese||{})[k]||''; }
 function hubSetBd(k,v){ if(!HUB.bdese) HUB.bdese={}; HUB.bdese[k]=v; hubSave(); hubRender(); }
 
+
+/* ══════════════════════════════════════════════════════════════════
+   MON ESPACE CSE — VUE « À FAIRE »
+   Meme grammaire que les tableaux de bord de terrain : des tuiles de
+   categorie avec leur compteur, des sections a pastille, et des cartes
+   qui se cochent. Ce qui change ici : chaque carte porte l'article qui
+   l'impose et l'echeance qui la date. Rien n'est decoratif.
+   ══════════════════════════════════════════════════════════════════ */
+var HUB_CATS=[
+  {k:'bloquant', lib:'Obligatoire',  emo:'⛔', c1:'#e05c5c', c2:'#b8352f', det:'Ce qui ne peut pas attendre — une obligation non satisfaite'},
+  {k:'echeance', lib:'Échéances',    emo:'📅', c1:'#4a86c8', c2:'#2f5f96', det:'Ce qui est daté — réunions, avis, transmissions'},
+  {k:'verifier', lib:'À vérifier',   emo:'⚠️', c1:'#d6a842', c2:'#a87f22', det:'Ce qui est probablement irrégulier, ou qu’il manque pour trancher'},
+  {k:'document', lib:'Documents',    emo:'🗂️', c1:'#3f9b7a', c2:'#2a6d55', det:'Les pièces que la taille et la situation appellent'}
+];
+var HUB_SECTIONS=[
+  {k:'maintenant', lib:'MAINTENANT',        sous:'ne peut pas attendre',        pastille:'#e05c5c'},
+  {k:'date',       lib:'À DATE FIXE',       sous:'échéance calculée',           pastille:'#4a86c8'},
+  {k:'situation',  lib:'SELON LA SITUATION',sous:'si l’entreprise est concernée',pastille:'#d6a842'},
+  {k:'dossier',    lib:'AU DOSSIER',        sous:'à produire et à conserver',   pastille:'#3f9b7a'}
+];
+/* Emoji par module : reperage visuel, jamais porteur de sens juridique. */
+var HUB_EMO={ 'Diagnostic':'🧭', 'Composition du comité':'👥', 'Calendrier des réunions':'📅',
+  'Réunion en préparation':'🗣️', 'Réclamations':'📝', 'Consultations récurrentes':'📈' };
+
+function hubFait(id){ return (HUB.faites||{})[id]===true; }
+function hubToggleFait(id){
+  if(!HUB.faites) HUB.faites={};
+  if(HUB.faites[id]) delete HUB.faites[id]; else HUB.faites[id]=true;
+  hubSave(); hubRender();
+}
+/* Identifiant stable : une tache doit se retrouver cochee d'une session a
+   l'autre, meme si l'ordre des alertes change. */
+function hubIdTache(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,72);
+}
+
+/* ══════════ LA LISTE DES TACHES ══════════ */
+function hubTaches(){
+  var T=[];
+  /* 1. Les anomalies, par gravite */
+  hubAlertes().forEach(function(a){
+    var bloq=(a.gravite==='stop');
+    if(a.gravite==='info') return;                 // les rappels ne sont pas des taches
+    T.push({
+      id:'al-'+hubIdTache(a.mod.k+'-'+a.titre),
+      emo:HUB_EMO[a.mod.lib]||'⚖️',
+      titre:a.titre,
+      detail:a.texte,
+      cat:bloq?'bloquant':'verifier',
+      section:bloq?'maintenant':'situation',
+      tag:a.mod.lib,
+      page:a.mod.page
+    });
+  });
+  /* 2. Les echeances datees */
+  hubEcheances().forEach(function(e){
+    var j=hubJours(hubAuj(), e.date);
+    T.push({
+      id:'ec-'+hubIdTache(e.date+'-'+e.quoi),
+      emo:'📅',
+      titre:e.quoi,
+      detail:'Échéance du '+hubFR(e.date)+(e.art?(' · article '+e.art):''),
+      cat:'echeance',
+      section:(j!==null&&j<0)?'maintenant':'date',
+      tag:e.mod,
+      date:e.date,
+      page:e.page
+    });
+  });
+  /* 3. Les documents du classeur qui ne sont ni produits ni sans objet */
+  hubClasseur().forEach(function(x){
+    var e=hubEtat(x.k);
+    if(e==='fait'||e==='so') return;
+    T.push({
+      id:'doc-'+hubIdTache(x.k),
+      emo:'🗂️',
+      titre:x.lib,
+      detail:x.quand+' · article '+x.art,
+      cat:'document',
+      section:'dossier',
+      tag:'Classeur',
+      doc:x.doc,
+      page:x.page,
+      cle:x.k
+    });
+  });
+  return T;
+}
+function hubCompte(T){
+  var c={bloquant:0, echeance:0, verifier:0, document:0};
+  T.forEach(function(t){ if(!hubFait(t.id)) c[t.cat]++; });
+  return c;
+}
+
 /* ══════════ RENDU ══════════ */
-var HUB_ONGLETS=[['demarrage','▶︎ Démarrage'],['bord','📊 Tableau de bord'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE']];
-var _hubT='demarrage';
+var _hubCat='';        /* filtre de categorie ; vide = tout */
+function hubSetCat(k){ _hubCat=(_hubCat===k)?'':k; hubRender(); }
+
+function hubVueTaches(){
+  var T=hubTaches(), c=hubCompte(T);
+  var h='';
+
+  /* Les tuiles de categorie */
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin-bottom:12px">';
+  HUB_CATS.forEach(function(C){
+    var on=(_hubCat===C.k), n=c[C.k]||0;
+    h+='<button onclick="hubSetCat(\''+C.k+'\')" style="text-align:left;border:1px solid '+(on?C.c1:'rgba(255,255,255,.10)')+';'
+      +'background:'+(on?('linear-gradient(160deg,'+C.c1+','+C.c2+')'):'#16263c')+';'
+      +'border-radius:13px;padding:12px 13px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#e8e4d8')+'">'
+      +'<div style="font-size:19px;line-height:1;margin-bottom:5px">'+C.emo+'</div>'
+      +'<div style="font-size:13px;font-weight:800">'+C.lib+'</div>'
+      +'<div style="font-size:23px;font-weight:800;color:'+(on?'#fff':(n?C.c1:'#6b7a8d'))+';line-height:1.1">'+n+'</div>'
+      +'</button>';
+  });
+  h+='</div>';
+
+  /* Le bandeau explicatif de la categorie choisie */
+  if(_hubCat){
+    var C=null; HUB_CATS.forEach(function(x){ if(x.k===_hubCat) C=x; });
+    if(C){
+      h+='<div style="display:flex;gap:11px;align-items:flex-start;padding:12px 13px;background:rgba(255,255,255,.03);'
+        +'border:1px solid '+C.c1+';border-radius:13px;margin-bottom:14px">'
+        +'<div style="font-size:20px">'+C.emo+'</div>'
+        +'<div><div style="font-size:14px;font-weight:800;color:'+C.c1+'">'+C.lib+'</div>'
+        +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.55">'+hubEsc(C.det)+'</div></div>'
+        +'<div style="flex:1"></div>'
+        +'<button onclick="hubSetCat(\''+C.k+'\')" style="background:none;border:none;color:#9fb0c4;font-size:18px;cursor:pointer">✕</button>'
+        +'</div>';
+    }
+  }
+
+  /* Les sections */
+  var vues=0;
+  HUB_SECTIONS.forEach(function(S){
+    var L=T.filter(function(t){
+      if(_hubCat && t.cat!==_hubCat) return false;
+      return t.section===S.k;
+    });
+    /* Les taches cochees passent en fin de section, elles ne disparaissent pas */
+    L.sort(function(a,b){
+      var fa=hubFait(a.id)?1:0, fb=hubFait(b.id)?1:0;
+      if(fa!==fb) return fa-fb;
+      if(a.date&&b.date) return a.date<b.date?-1:(a.date>b.date?1:0);
+      return 0;
+    });
+    if(!L.length) return;
+    vues++;
+    var reste=L.filter(function(t){ return !hubFait(t.id); }).length;
+    h+='<div style="display:flex;gap:9px;align-items:center;margin:16px 0 9px">'
+      +'<div style="width:11px;height:11px;border-radius:50%;background:'+S.pastille+';flex-shrink:0"></div>'
+      +'<div style="font-size:13.5px;font-weight:800;color:#e8e4d8;letter-spacing:.03em">'+S.lib+'</div>'
+      +'<div style="font-size:12px;color:#6b7a8d">— '+S.sous+'</div>'
+      +'<div style="flex:1"></div>'
+      +'<div style="font-size:12px;color:#9fb0c4">'+reste+' / '+L.length+'</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:10px">'
+      + L.map(hubCarte).join('')
+      +'</div>';
+  });
+  if(!vues){
+    h+='<div class="card" style="text-align:center;padding:28px">'
+      +'<div style="font-size:34px;margin-bottom:8px">✓</div>'
+      +'<div style="font-size:14px;font-weight:700;color:#46b885">Rien à faire dans cette catégorie</div>'
+      +'<div style="font-size:12.5px;color:#9fb0c4;margin-top:5px">Tout est traité, ou les informations manquent encore pour qu’une tâche apparaisse.</div>'
+      +'</div>';
+  }
+
+  /* Le bouton flottant vers le classeur */
+  h+='<div style="position:sticky;bottom:14px;display:flex;justify-content:center;margin-top:18px;pointer-events:none">'
+    +'<button onclick="hubGo(\'classeur\')" style="pointer-events:auto;background:linear-gradient(160deg,#2b3d8f,#1d2a66);border:1px solid rgba(255,255,255,.14);'
+    +'color:#fff;border-radius:28px;padding:13px 22px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 22px rgba(0,0,0,.45)">'
+    +'🗂️ Mes documents</button>'
+    +'</div>';
+  return h;
+}
+
+function hubCarte(t){
+  var C=null; HUB_CATS.forEach(function(x){ if(x.k===t.cat) C=x; });
+  if(!C) C=HUB_CATS[3];
+  var fait=hubFait(t.id);
+  var retard=(t.date && hubJours(hubAuj(), t.date)<0);
+  var pastille = fait
+    ? '<span style="background:rgba(70,184,133,.22);border:1px solid #46b885;color:#8ee0bd;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:800;white-space:nowrap">☑ Fait</span>'
+    : '<span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:800;white-space:nowrap">☐ À faire</span>';
+  return '<div style="position:relative;border-radius:15px;padding:13px;min-height:132px;display:flex;flex-direction:column;'
+    +'background:linear-gradient(155deg,'+C.c1+','+C.c2+');opacity:'+(fait?'.55':'1')+';overflow:hidden">'
+    +'<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">'
+      +'<div style="font-size:22px;line-height:1">'+t.emo+'</div>'
+      +'<div style="flex:1"></div>'
+      +'<a href="#" onclick="hubToggleFait(\''+t.id+'\');return false" style="text-decoration:none">'+pastille+'</a>'
+    +'</div>'
+    +'<div style="font-size:13.5px;font-weight:800;color:#fff;line-height:1.35;'+(fait?'text-decoration:line-through;':'')+'">'+hubEsc(t.titre)+'</div>'
+    +'<div style="font-size:11.5px;color:rgba(255,255,255,.86);line-height:1.5;margin-top:5px;flex:1">'+hubEsc(String(t.detail||'').slice(0,150))+(String(t.detail||'').length>150?'…':'')+'</div>'
+    +'<div style="display:flex;gap:6px;align-items:center;margin-top:9px;flex-wrap:wrap">'
+      +'<span style="background:rgba(0,0,0,.26);color:#fff;border-radius:7px;padding:3px 8px;font-size:10.5px;font-weight:800;letter-spacing:.04em">'+hubEsc(t.tag||'')+'</span>'
+      +(t.date?('<span style="background:rgba(0,0,0,.26);color:'+(retard?'#ffd0d0':'#fff')+';border-radius:7px;padding:3px 8px;font-size:10.5px;font-weight:800">'+hubFR(t.date)+'</span>'):'')
+      +'<div style="flex:1"></div>'
+      +(t.doc?('<button onclick="hubDoc(\''+t.doc[0]+'\',\''+t.doc[1]+'\')" style="background:rgba(255,255,255,.92);border:none;color:#12233a;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Générer</button>'):'')
+      +(t.page?('<button onclick="goPage(\''+t.page+'\')" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit">Ouvrir</button>'):'')
+    +'</div>'
+    +'</div>';
+}
+
+/* ══════════ RENDU ══════════ */
+var HUB_ONGLETS=[['taches','✅ À faire'],['demarrage','▶︎ Démarrage'],['bord','📊 Tableau de bord'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE']];
+var _hubT='taches';
 function hubGo(t){ _hubT=t; hubRender(); }
-function hubOnEnter(){ hubLoad(); if(hubAvancement().faites) _hubT='bord'; hubRender(); }
+function hubOnEnter(){
+  hubLoad();
+  // Une entreprise qui n'a encore rien renseigne commence par le demarrage :
+  // une liste de taches vide ne dirait rien d'utile.
+  _hubT = hubAvancement().faites ? 'taches' : 'demarrage';
+  hubRender();
+}
 function hubRender(){
   var host=document.getElementById('csehub-body'); if(!host) return;
   var av=hubAvancement();
@@ -6589,7 +6799,8 @@ function hubRender(){
   }
   h+='</div>';
 
-  if(_hubT==='demarrage') h+=hubVueDemarrage();
+  if(_hubT==='taches') h+=hubVueTaches();
+  else if(_hubT==='demarrage') h+=hubVueDemarrage();
   else if(_hubT==='bord') h+=hubVueBord();
   else if(_hubT==='agenda') h+=hubVueAgenda();
   else if(_hubT==='classeur') h+=hubVueClasseur();
