@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.92';
+var JX_BUILD = 'v2026-08-05.93';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,25 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ CSE — DIAGNOSTIC ET FEUILLE DE ROUTE ═══ -->
+<div id="pg-csediag" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">CSE — Diagnostic</div><div class="ts">Obligation · échéances · feuille de route</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    Ce diagnostic part de <b>l'effectif calculé au socle</b> et de la situation réelle de l'entreprise.
+    Il dit s'il y a obligation, à quelles dates, et sur quel article. Ce qu'il ignore, il le demande —
+    il ne comble jamais un blanc.
+  </div>
+</div>
+<div id="csediag-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement du diagnostic…</div>
+    <button onclick="try{csedOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir le diagnostic</button>
+  </div>
+</div>
+</div>
 <!-- ═══ SOCLE TRANSVERSE — effectif, convention, accord ═══ -->
 <div id="pg-socle" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3377,6 +3396,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
   <div class="mi" onclick="goPage('socle');closeMenu()"><span style="font-size:18px">📐</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Socle — effectif &amp; seuils</div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
@@ -5286,6 +5306,7 @@ function goPage(id){
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
   if(id==='socle'){ try{ socOnEnter(); }catch(e){} }
+  if(id==='csediag'){ try{ csedOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6163,6 +6184,349 @@ function socOuvrirAccord(){
   catch(e){ alert('Ouverture impossible : '+e.message); }
 }
 function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SOC.accord=null; socSave(); socRender(); }
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULE 0 : DIAGNOSTIC ET AIGUILLAGE
+   Lit l'effectif du socle, interroge la situation de l'entreprise et
+   en tire une position datee : obligation ou non, echeances, risque.
+   Chaque conclusion porte l'article qui la fonde. Rien n'est devine :
+   ce qui manque est demande et l'absence est signalee.
+   ══════════════════════════════════════════════════════════════════ */
+var CSED = {};
+var CSED_LS='cse_diag_v1';
+function csedKey(){ return CSED_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function csedLoad(){ try{ CSED=JSON.parse(localStorage.getItem(csedKey())||'{}')||{}; }catch(e){ CSED={}; } }
+function csedSave(){ try{ localStorage.setItem(csedKey(), JSON.stringify(CSED)); }catch(e){} }
+function csedEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function csedFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function csedAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function csedPlus(iso, j, mois, ans){
+  if(!iso) return '';
+  var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  if(ans) d.setFullYear(d.getFullYear()+ans);
+  if(mois) d.setMonth(d.getMonth()+mois);
+  if(j) d.setDate(d.getDate()+j);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function csedJours(a,b){
+  if(!a||!b) return null;
+  var d1=new Date(a+'T00:00:00'), d2=new Date(b+'T00:00:00');
+  if(isNaN(d1)||isNaN(d2)) return null;
+  return Math.round((d2-d1)/86400000);
+}
+function csedEcheance(iso){
+  if(!iso) return '';
+  var n=csedJours(csedAuj(), iso);
+  if(n===null) return '';
+  if(n<0) return ' <b style="color:#e05c5c">— depassee de '+(-n)+' jour(s)</b>';
+  if(n===0) return ' <b style="color:#e05c5c">— c\'est aujourd\'hui</b>';
+  if(n<=30) return ' <b style="color:#e8c97a">— dans '+n+' jour(s)</b>';
+  return ' <span style="color:#9fb0c4">— dans '+n+' jour(s)</span>';
+}
+
+/* Effectif : on le prend au socle, jamais ailleurs. */
+function csedEffectif(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof socSerie!=='function') return null;
+    var serie=socSerie(36);
+    return { serie:serie, s11:socSeuil(serie,11), s50:socSeuil(serie,50),
+             actuel:serie.length?serie[serie.length-1]:null,
+             staff:((typeof RX!=='undefined'&&RX.staff)?RX.staff.length:0) };
+  }catch(e){ return null; }
+}
+/* Onze salaries ou plus pendant les douze derniers mois clos ? */
+function csedSous11Depuis12(eff){
+  if(!eff||!eff.serie) return false;
+  var clos=eff.serie.filter(function(p){ return !p.partiel; });
+  if(clos.length<12) return false;
+  return clos.slice(-12).every(function(p){ return p.ent<11; });
+}
+
+var CSED_SITUATIONS=[
+  {v:'aucun',   lib:'Aucun CSE n\'a jamais ete mis en place'},
+  {v:'carence', lib:'Pas de CSE — un proces-verbal de carence a ete etabli'},
+  {v:'encours', lib:'Un CSE est en place, les mandats sont en cours'},
+  {v:'expire',  lib:'Un CSE existait, les mandats sont arrives a terme'}
+];
+var CSED_DUREES=[{v:'4',lib:'4 ans (duree legale a defaut d\'accord)'},{v:'3',lib:'3 ans (accord)'},{v:'2',lib:'2 ans (accord)'}];
+var CSED_OUINON=[{v:'oui',lib:'Oui'},{v:'non',lib:'Non'}];
+var CSED_VOTELEC=[
+  {v:'non',lib:'Non envisage — vote a bulletin secret sous enveloppe'},
+  {v:'accord',lib:'Prevu par un accord d\'entreprise ou de groupe'},
+  {v:'unilat',lib:'Decision unilaterale de l\'employeur, faute d\'accord'}
+];
+
+/* ══════════ LE DIAGNOSTIC ══════════ */
+function csedAnalyse(){
+  var A=[], R=[];                       // alertes, feuille de route
+  var eff=csedEffectif();
+  var sit=CSED.situation||'';
+  var duree=parseInt(CSED.duree||'4',10)||4;
+  var auj=csedAuj();
+  var effAtteint = eff && eff.s11 && eff.s11.atteintLe;
+  var effActuel = (eff&&eff.actuel)?eff.actuel.ent:null;
+
+  /* ── L'effectif d'abord : sans lui, rien n'est dit ── */
+  if(!eff || !eff.staff){
+    A.push({gravite:'stop', titre:'Effectif inconnu',
+      texte:'Le registre du personnel est vide. Aucune obligation ne peut etre etablie sans effectif : renseignez le registre, puis le socle.'});
+    return {alertes:A, route:R, eff:eff};
+  }
+  if(!sit){
+    A.push({gravite:'question', titre:'Situation non renseignee',
+      texte:'Indiquez d\'abord ou en est l\'entreprise : aucun CSE, carence, mandats en cours, mandats expires.'});
+  }
+
+  /* ── 1. Le seuil de onze salaries ── */
+  if(!effAtteint){
+    var run=(eff.s11&&eff.s11.run)||0;
+    A.push({gravite:'info', titre:'Seuil de onze salaries non franchi',
+      texte:'Les douze mois consecutifs a onze salaries ne sont pas acheves'
+        +(run>0?(' — la serie en cours compte '+run+' mois'):'')
+        +'. La mise en place du comite n\'est pas encore obligatoire (L.2311-2). Le decompte se poursuit chaque mois.'});
+  } else {
+    A.push({gravite:'info', titre:'Seuil de onze salaries franchi',
+      texte:'Douze mois consecutifs a onze salaries ou plus acheves le '+csedFR(eff.s11.atteintLe)+' (L.2311-2).'});
+  }
+
+  /* ── 2. Aucun CSE alors que le seuil est franchi ── */
+  if(effAtteint && (sit==='aucun'||sit==='expire')){
+    A.push({gravite:'stop', titre:'Le comite doit etre mis en place',
+      texte:'L\'obligation pese sur l\'employeur, et sur lui seul. Faire obstacle a la constitution du comite est puni d\'un an d\'emprisonnement et de 7 500 € d\'amende ; '
+        +'l\'amende est portee a 37 500 € pour la personne morale (L.2317-1). L\'absence d\'institution representative cause en outre au salarie un prejudice '
+        +'que la Cour de cassation tient pour necessaire (Cass. soc. 17 octobre 2018, n° 17-14.392).'});
+  }
+
+  /* ── 3. Entreprise de onze a vingt salaries : la regle a change ── */
+  if(effActuel!==null && effActuel>=11 && effActuel<=20 && sit!=='encours'){
+    A.push({gravite:'question', titre:'Onze a vingt salaries — absence de candidat',
+      texte:'L\'employeur n\'invite les organisations syndicales a negocier le protocole preelectoral qu\'a la condition qu\'au moins un salarie se soit porte candidat '
+        +'dans les trente jours suivant l\'information du personnel (L.2314-5). Attention : depuis le 8 aout 2023, cette dispense ne porte que sur la negociation du protocole. '
+        +'Elle ne dispense plus d\'organiser les elections : il faut tenir un premier tour, puis un second en cas de carence, et le proces-verbal mentionne les deux tours.'});
+  }
+
+  /* ── 4. Information du personnel et delai de quatre-vingt-dix jours ── */
+  if(CSED.dateInfo){
+    var lim=csedPlus(CSED.dateInfo, 90);
+    R.push({date:lim, quoi:'Premier tour au plus tard', art:'L.2314-4',
+      det:'Information du personnel diffusee le '+csedFR(CSED.dateInfo)+' : le premier tour se tient au plus tard le quatre-vingt-dixieme jour suivant.'});
+    if(csedJours(auj, lim)<0){
+      A.push({gravite:'stop', titre:'Delai de quatre-vingt-dix jours depasse',
+        texte:'L\'information a ete diffusee le '+csedFR(CSED.dateInfo)+'. Le premier tour devait se tenir au plus tard le '+csedFR(lim)+' (L.2314-4).'});
+    }
+    var lim30=csedPlus(CSED.dateInfo, 30);
+    if(effActuel!==null && effActuel>=11 && effActuel<=20){
+      R.push({date:lim30, quoi:'Fin du delai de trente jours pour les candidatures', art:'L.2314-5',
+        det:'Passe ce delai sans candidature, les organisations syndicales n\'ont pas a etre invitees a negocier le protocole — mais les elections restent a organiser.'});
+    }
+  } else if(effAtteint && (sit==='aucun'||sit==='expire')){
+    A.push({gravite:'question', titre:'Information du personnel non datee',
+      texte:'Indiquez la date a laquelle l\'information de l\'organisation des elections a ete diffusee au personnel, par tout moyen conferant date certaine (L.2314-4). '
+        +'Sans elle, le calendrier ne peut pas etre calcule.'});
+  }
+
+  /* ── 5. Demande d'un salarie ou d'une organisation syndicale ── */
+  if(CSED.dateDemande){
+    var lm=csedPlus(CSED.dateDemande, 0, 1);
+    R.push({date:lm, quoi:'Engager la procedure electorale', art:'L.2314-8',
+      det:'Demande recue le '+csedFR(CSED.dateDemande)+' : l\'employeur engage la procedure dans le mois suivant la reception.'});
+    if(csedJours(auj, lm)<0 && sit!=='encours'){
+      A.push({gravite:'stop', titre:'Delai d\'un mois depasse',
+        texte:'La demande a ete recue le '+csedFR(CSED.dateDemande)+'. La procedure devait etre engagee au plus tard le '+csedFR(lm)+' (L.2314-8).'});
+    }
+  }
+
+  /* ── 6. Proces-verbal de carence ── */
+  if(sit==='carence'){
+    if(CSED.datePV){
+      var t15=csedPlus(CSED.datePV, 15), t6=csedPlus(CSED.datePV, 0, 6);
+      R.push({date:t15, quoi:'Transmission du proces-verbal a l\'inspection du travail', art:'L.2314-9',
+        det:'Le proces-verbal est porte a la connaissance des salaries par tout moyen conferant date certaine et transmis dans les quinze jours a l\'agent de controle de l\'inspection du travail, qui en communique copie aux organisations syndicales du departement.'});
+      R.push({date:t6, quoi:'Fin du delai de six mois', art:'L.2314-8',
+        det:'Apres l\'etablissement d\'un proces-verbal de carence, une nouvelle demande d\'organisation des elections ne peut etre presentee qu\'a l\'expiration d\'un delai de six mois.'});
+      if(csedJours(auj,t6)>=0){
+        A.push({gravite:'info', titre:'Periode de six mois en cours',
+          texte:'Une nouvelle demande ne pourra etre presentee qu\'a compter du '+csedFR(t6)+' (L.2314-8). Cela ne dispense pas d\'organiser les elections a l\'echeance des quatre ans (L.2314-4).'});
+      }
+    } else {
+      A.push({gravite:'question', titre:'Date du proces-verbal de carence manquante',
+        texte:'Sans elle, ni le delai de quinze jours de transmission a l\'inspection du travail, ni celui de six mois ne peuvent etre calcules.'});
+    }
+  }
+
+  /* ── 7. Mandats en cours : terme et renouvellement ── */
+  if((sit==='encours'||sit==='expire') && CSED.dateElec){
+    var terme=csedPlus(CSED.dateElec, 0, 0, duree);
+    var infoAvant=csedPlus(terme, -90);
+    R.push({date:infoAvant, quoi:'Diffuser l\'information du personnel pour le renouvellement', art:'L.2314-4',
+      det:'Le premier tour doit se tenir au plus tard le quatre-vingt-dixieme jour suivant l\'information : pour un terme au '+csedFR(terme)+', l\'information part au plus tard le '+csedFR(infoAvant)+'.'});
+    R.push({date:terme, quoi:'Terme des mandats', art:'L.2314-33',
+      det:'Mandats de '+duree+' ans a compter du premier tour du '+csedFR(CSED.dateElec)+'.'});
+    if(sit==='encours' && csedJours(auj,terme)<0){
+      A.push({gravite:'stop', titre:'Mandats echus',
+        texte:'Les mandats sont arrives a terme le '+csedFR(terme)+'. Corrigez la situation declaree ou engagez le renouvellement.'});
+    }
+    /* Effectif retombe sous onze au moment du renouvellement */
+    if(csedSous11Depuis12(eff)){
+      A.push({gravite:'info', titre:'Effectif sous onze salaries depuis douze mois',
+        texte:'A l\'expiration des mandats, l\'instance n\'est pas renouvelee si l\'effectif est reste en dessous de onze salaries pendant au moins douze mois consecutifs (L.2313-10). '
+          +'Une baisse d\'effectif en cours de mandat, elle, ne supprime pas le comite : il subsiste jusqu\'au terme.'});
+    }
+  } else if(sit==='encours' && !CSED.dateElec){
+    A.push({gravite:'question', titre:'Date du premier tour manquante',
+      texte:'Sans la date du premier tour des dernieres elections, le terme des mandats et l\'echeance de renouvellement ne peuvent pas etre calcules.'});
+  }
+
+  /* ── 8. Elections partielles ── */
+  if(sit==='encours'){
+    var sieges=parseInt(CSED.sieges||'0',10), restants=parseInt(CSED.restants||'0',10);
+    var moitie = (sieges>0 && restants>=0 && restants<=sieges/2);
+    var college = (CSED.collegeVide==='oui');
+    if(sieges>0 && (moitie||college)){
+      var termeP = CSED.dateElec ? csedPlus(CSED.dateElec, 0, 0, duree) : '';
+      var reste = termeP ? csedJours(auj, termeP) : null;
+      if(reste!==null && reste<182){
+        A.push({gravite:'info', titre:'Elections partielles non requises',
+          texte:'Un college n\'est plus represente ou le nombre de titulaires est reduit de moitie ou plus, mais l\'evenement survient moins de six mois avant le terme des mandats ('
+            +csedFR(termeP)+') : les elections partielles ne sont pas organisees (L.2314-10).'});
+      } else {
+        A.push({gravite:'stop', titre:'Elections partielles a organiser',
+          texte:(college?'Un college electoral n\'est plus represente. ':'')
+            +(moitie?('Le nombre de titulaires est passe a '+restants+' sur '+sieges+', soit la moitie ou moins. '):'')
+            +'L\'employeur organise des elections partielles pour pourvoir tous les sieges vacants dans les colleges concernes ; les candidats sont elus pour la duree du mandat restant a courir (L.2314-10).'});
+        R.push({date:'', quoi:'Organiser les elections partielles', art:'L.2314-10',
+          det:'Sur la base des dispositions en vigueur lors de l\'election precedente.'});
+      }
+    }
+  }
+
+  /* ── 9. Franchissement du seuil de cinquante en cours de mandat ── */
+  if(eff.s50 && eff.s50.atteintLe){
+    var d50=csedPlus(eff.s50.atteintLe, 0, 12);
+    R.push({date:d50, quoi:'Attributions etendues du comite', art:'L.2312-2',
+      det:'Douze mois consecutifs a cinquante salaries acheves le '+csedFR(eff.s50.atteintLe)+' : les attributions de la section 3 s\'exercent a l\'expiration d\'un delai de douze mois a compter de cette date. '
+        +'Si le mandat en cours court alors sur moins d\'un an, ce delai part de son renouvellement.'});
+    A.push({gravite:'question', titre:'Seuil de cinquante salaries franchi en cours de mandat',
+      texte:'Le franchissement ouvre les attributions etendues au '+csedFR(d50)+' (L.2312-2), et avec elles la commission sante-securite lorsque ses conditions sont reunies, '
+        +'les consultations recurrentes, la base de donnees economiques, sociales et environnementales et les budgets. Le nombre de sieges et le credit d\'heures sont a revoir au prochain renouvellement.'});
+  }
+
+  /* ── 10. Vote electronique ── */
+  if(CSED.votelec==='unilat'){
+    A.push({gravite:'question', titre:'Vote electronique par decision unilaterale',
+      texte:'Le recours au vote electronique est ouvert par un accord d\'entreprise ou de groupe ; a defaut seulement, l\'employeur peut le decider (L.2314-26). '
+        +'La negociation prime : la decision unilaterale ne se concoit qu\'apres une tentative reelle de negociation. Un cahier des charges conforme aux articles R.2314-6 et suivants doit etre etabli et tenu a la disposition des salaries.'});
+  } else if(CSED.votelec==='accord'){
+    A.push({gravite:'info', titre:'Vote electronique par accord',
+      texte:'Un cahier des charges conforme aux articles R.2314-6 et suivants doit etre etabli dans le cadre de l\'accord et tenu a la disposition des salaries au lieu de travail (L.2314-26). '
+        +'L\'organisation du vote incombe a l\'entreprise, y compris pour les elections partielles.'});
+  }
+
+  R.sort(function(a,b){ if(!a.date) return 1; if(!b.date) return -1; return a.date<b.date?-1:(a.date>b.date?1:0); });
+  var ordre={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return ordre[a.gravite]-ordre[b.gravite]; });
+  return {alertes:A, route:R, eff:eff};
+}
+
+/* ══════════ RENDU ══════════ */
+function csedOnEnter(){ csedLoad(); csedRender(); }
+function csedSet(k,v){ CSED[k]=v; csedSave(); csedRender(); }
+function csedSetSel(k,id){ CSED[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; csedSave(); csedRender(); }
+function csedRender(){
+  var host=document.getElementById('csediag-body'); if(!host) return;
+  var d=csedAnalyse();
+  var eff=d.eff;
+  var sit=CSED.situation||'';
+  var effActuel=(eff&&eff.actuel)?eff.actuel.ent:null;
+
+  var h='';
+  /* Bandeau effectif */
+  h+='<div class="card"><div class="ct">Ce que dit le socle</div>';
+  if(!eff||!eff.staff){
+    h+='<div style="font-size:13px;color:#e8c97a;line-height:1.65">Le registre du personnel est vide. Le diagnostic ne peut rien affirmer sans effectif.</div>'
+      +'<div style="margin-top:12px"><button class="btn" onclick="goPage(\'socle\')">Ouvrir le socle</button></div>';
+  } else {
+    h+='<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">'
+      +'<div><div style="font-size:38px;font-weight:800;color:#fff;line-height:1">'+(effActuel===null?'—':effActuel)+'</div>'
+      +'<div style="font-size:12px;color:#9fb0c4">salaries a ce jour</div></div>'
+      +'<div style="flex:1;min-width:220px;font-size:12.5px;color:#9fb0c4;line-height:1.6">'
+        +(eff.s11.atteintLe
+           ? ('Douze mois consecutifs a onze salaries acheves le <b style="color:#e8c97a">'+csedFR(eff.s11.atteintLe)+'</b>.')
+           : ('Serie en cours a onze salaries : <b>'+(eff.s11.run||0)+'</b> mois sur douze.'))
+        +(eff.s50.atteintLe?('<br>Cinquante salaries atteints pendant douze mois au <b style="color:#e05c5c">'+csedFR(eff.s50.atteintLe)+'</b>.'):'')
+      +'</div></div>'
+      +'<div style="margin-top:10px"><button onclick="goPage(\'socle\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12.5px;cursor:pointer;font-family:inherit">Revoir le detail du calcul</button></div>';
+  }
+  h+='</div>';
+
+  /* Questionnaire */
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  h+='<div class="card"><div class="ct">Ou en est l\'entreprise ?</div>'
+   +'<div class="fg"><label class="fl">Situation actuelle *</label>'+S('csed-sit',CSED_SITUATIONS,sit,'csedSetSel(\'situation\',\'csed-sit\')')+'</div>';
+  if(sit==='encours'||sit==='expire'){
+    h+='<div class="fg"><label class="fl">Date du premier tour des dernieres elections</label>'
+      +'<input type="date" value="'+csedEsc(CSED.dateElec||'')+'" onchange="csedSet(\'dateElec\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Duree des mandats</label>'+S('csed-duree',CSED_DUREES,String(CSED.duree||'4'),'csedSetSel(\'duree\',\'csed-duree\')')+'</div>';
+  }
+  if(sit==='encours'){
+    h+='<div class="fg"><label class="fl">Nombre de sieges de titulaires prevus</label>'
+      +'<input type="number" min="0" value="'+csedEsc(CSED.sieges||'')+'" onchange="csedSet(\'sieges\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Nombre de titulaires encore en fonction</label>'
+      +'<input type="number" min="0" value="'+csedEsc(CSED.restants||'')+'" onchange="csedSet(\'restants\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Un college electoral n\'est-il plus represente ?</label>'+S('csed-col',CSED_OUINON,CSED.collegeVide||'','csedSetSel(\'collegeVide\',\'csed-col\')')+'</div>';
+  }
+  if(sit==='carence'){
+    h+='<div class="fg"><label class="fl">Date du proces-verbal de carence</label>'
+      +'<input type="date" value="'+csedEsc(CSED.datePV||'')+'" onchange="csedSet(\'datePV\',this.value)"></div>';
+  }
+  h+='<div class="fg"><label class="fl">Information du personnel diffusee le (tout moyen conferant date certaine)</label>'
+    +'<input type="date" value="'+csedEsc(CSED.dateInfo||'')+'" onchange="csedSet(\'dateInfo\',this.value)"></div>'
+    +'<div class="fg"><label class="fl">Demande d\'un salarie ou d\'une organisation syndicale recue le</label>'
+    +'<input type="date" value="'+csedEsc(CSED.dateDemande||'')+'" onchange="csedSet(\'dateDemande\',this.value)"></div>'
+    +'<div class="fg"><label class="fl">Vote electronique</label>'+S('csed-ve',CSED_VOTELEC,CSED.votelec||'','csedSetSel(\'votelec\',\'csed-ve\')')+'</div>'
+   +'</div>';
+
+  /* Verdict */
+  h+='<div class="card"><div class="ct">Position</div>'
+   + ((typeof jxCohHTML==='function')? jxCohHTML(d.alertes) : '')
+   + (d.alertes.length?'':'<div style="font-size:13px;color:#9fb0c4">Renseignez la situation pour obtenir une position.</div>')
+   +'</div>';
+
+  /* Feuille de route */
+  if(d.route.length){
+    h+='<div class="card"><div class="ct">Feuille de route datee</div>'
+     + d.route.map(function(r){
+        return '<div style="padding:10px 12px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid #c9a84c;border-radius:9px;margin-bottom:8px">'
+          +'<div style="font-size:13px;font-weight:800;color:#fff">'+csedEsc(r.quoi)+'</div>'
+          +(r.date?('<div style="font-size:12.5px;color:#e8c97a;font-weight:700;margin:2px 0">'+csedFR(r.date)+csedEcheance(r.date)+'</div>'):'<div style="font-size:12.5px;color:#9fb0c4;margin:2px 0">sans delai fixe</div>')
+          +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6">'+csedEsc(r.det)+'</div>'
+          +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:3px">Article '+csedEsc(r.art)+' du code du travail</div>'
+          +'</div>';
+       }).join('')
+     +'</div>';
+  }
+
+  /* Erreurs a eviter */
+  h+='<div class="card"><div class="ct">Les erreurs qui font annuler des elections</div>'
+   +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.9">'
+   +'• Diffuser l\'information du personnel sans date certaine — le point de depart des quatre-vingt-dix jours devient indemontrable (L.2314-4).<br>'
+   +'• Omettre d\'inviter les organisations syndicales, ou les inviter hors delai (L.2314-5).<br>'
+   +'• Ne pas inviter <b>toutes</b> les organisations qui doivent l\'etre, y compris celles qui ne sont pas representatives dans l\'entreprise.<br>'
+   +'• Fixer les colleges ou repartir les sieges sans protocole valide, ou en s\'ecartant du tableau reglementaire sans la contrepartie exigee.<br>'
+   +'• Meconnaitre la representation equilibree des femmes et des hommes sur les listes.<br>'
+   +'• Tenir un second tour alors que le quorum etait atteint au premier, ou l\'inverse.<br>'
+   +'• Laisser l\'employeur ou son representant participer au depouillement au-dela de son role.<br>'
+   +'• Ne pas etablir de proces-verbal, ou ne pas le transmettre dans les quinze jours (L.2314-9).<br>'
+   +'• Recourir au vote electronique sans accord et sans tentative reelle de negociation, ou sans cahier des charges tenu a disposition (L.2314-26 · R.2314-6).'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px;line-height:1.5">Cette liste signale des points de vigilance frequents ; elle ne remplace pas l\'examen du dossier.</div>'
+   +'</div>';
+
+  host.innerHTML=h;
+}
+
 
 
 /* ===== ESPACE RH TEC (module injecté) ===== */
