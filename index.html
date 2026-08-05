@@ -653,7 +653,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.108';
+var JX_BUILD = 'v2026-08-06.109';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6482,6 +6482,12 @@ function hubEcheances(){
     (c.seances||[]).forEach(function(s){
       if(s.faite) return;
       out.push({date:s.iso, quoi:'Réunion n° '+s.n, art:(c.reg?c.reg.art:''), mod:'Calendrier', page:'csecal'});
+      // La date d'envoi de l'ordre du jour est une echeance a part entiere :
+      // c'est elle qu'on rate, pas la reunion.
+      if(typeof calPlus==='function'){
+        var o=calPlus(s.iso,-3);
+        if(o && hubJours(hubAuj(), o)>=0) out.push({date:o, quoi:'Envoyer l’ordre du jour de la réunion n° '+s.n, art:'L.2315-30', mod:'Calendrier', page:'csecal'});
+      }
     });
   }catch(e){}
   try{
@@ -7134,6 +7140,7 @@ function guidePlan(){
     [/^Attributions etendues/, function(){ return {q:'Vos obligations envers les élus s’élargissent', p:'Votre effectif a franchi cinquante salariés : il faut désormais les consulter sur la marche de l’entreprise.'}; }],
     [/^Avis réputé négatif/, function(){ return {q:'Date limite pour que les élus donnent leur avis', p:'Passé ce jour, la loi considère qu’ils ont dit non, et vous pouvez avancer.'}; }],
     [/^Consultation due/, function(){ return {q:'Demandez leur avis aux élus', p:'C’est le rendez-vous annuel prévu par la loi.'}; }],
+    [/^Envoyer l['’]ordre du jour de la réunion n° (\d+)/, function(m){ return {q:'Envoyez la liste des sujets de la réunion n° '+m[1], p:'Au plus tard ce jour-là : trois jours pleins avant la réunion. Vous la préparez avec le secrétaire du comité.'}; }],
     [/^Réunion préparée/, function(){ return {q:'La réunion que vous êtes en train de préparer', p:'Vérifiez que la liste des sujets est partie à temps.'}; }],
     [/^Fin du delai de six mois/, function(){ return {q:'À partir de cette date, on peut vous redemander un vote', p:'Six mois se sont écoulés depuis que la carence a été constatée.'}; }]
   ];
@@ -8669,6 +8676,18 @@ function calEff(){
 function calSet(k,v){ CAL[k]=v; calSave(); calRender(); }
 function calSetSel(k,id){ CAL[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; calSave(); calRender(); }
 
+/* Ce qui peut fixer le nombre de reunions. Le code du travail n'est qu'un
+   minimum : la convention de branche peut prevoir davantage et s'applique
+   alors, a defaut d'accord d'entreprise. L'accord d'entreprise, lui, prime
+   sur la branche — le fonctionnement du comite n'est pas un domaine reserve
+   a la branche (L.2253-3). */
+var CAL_SOURCES=[
+  {v:'non', lib:'Le code du travail seul'},
+  {v:'ccn', lib:'La convention collective de branche'},
+  {v:'oui', lib:'Un accord d’entreprise'},
+  {v:'deux',lib:'Les deux — convention de branche et accord d’entreprise'}
+];
+
 /* ── Regime de periodicite selon l'effectif ── */
 function calRegime(eff){
   if(eff===null) return null;
@@ -8682,14 +8701,22 @@ function calRegime(eff){
    salaries (L.2312-19). */
 function calNombre(reg){
   if(!reg) return null;
-  if(CAL.accord!=='oui') return reg.n;
-  var n=parseInt(CAL.nbAccord||'',10);
-  if(isNaN(n) || n<=0) return reg.n;
-  // Un accord qui descend sous six reunions annuelles est ecarte : le
-  // calendrier suit alors la regle supletive, comme le dit l'alerte.
   var eff=calEff();
-  if(eff!==null && eff>=50 && n<6) return reg.n;
-  return n;
+  var src=CAL.accord||'';
+  var nE=parseInt(CAL.nbAccord||'',10);   // accord d'entreprise
+  var nC=parseInt(CAL.nbCCN||'',10);      // convention de branche
+  var val=function(n){
+    if(isNaN(n) || n<=0) return null;
+    // Une clause sous six reunions annuelles est ecartee au-dela de
+    // cinquante salaries : le calendrier suit alors la regle supletive.
+    if(eff!==null && eff>=50 && n<6) return null;
+    return n;
+  };
+  // L'accord d'entreprise prime sur la branche (L.2253-3).
+  if(src==='oui'||src==='deux'){ var a=val(nE); if(a!==null) return a; }
+  // A defaut d'accord d'entreprise, la convention de branche s'applique.
+  if(src==='ccn'||src==='deux'){ var c=val(nC); if(c!==null) return c; }
+  return reg.n;
 }
 /* Les douze prochaines echeances a partir de la premiere reunion. */
 function calSeances(){
@@ -8731,8 +8758,33 @@ function calAnalyse(){
     texte:'Soit '+reg.n+' réunion(s) par an au titre de la règle supplétive (article '+reg.art+' du code du travail).'
       +(eff>=50?' Un accord peut fixer un autre nombre, sans pouvoir descendre en dessous de six réunions annuelles (L.2312-19).':'')});
 
+  /* Convention de branche */
+  if(CAL.accord==='ccn'||CAL.accord==='deux'){
+    var nc=parseInt(CAL.nbCCN||'',10);
+    if(isNaN(nc)||nc<=0){
+      A.push({gravite:'question', titre:'Renseignez ce que prévoit votre convention collective',
+        texte:'Vous avez indiqué que la convention de branche fixe le nombre de réunions : indiquez lequel. '
+          +'Le code du travail n’est qu’un minimum ; une convention qui prévoit davantage s’applique, faute d’accord d’entreprise.'});
+    } else if(CAL.accord==='deux'){
+      var ne=parseInt(CAL.nbAccord||'',10);
+      if(!isNaN(ne) && ne>0 && ne<nc){
+        A.push({gravite:'question', titre:'Votre accord d’entreprise prévoit moins que la convention',
+          texte:'C’est l’accord d’entreprise qui s’applique — '+ne+' réunions contre '+nc+' dans la convention de branche. '
+            +'Depuis 2017, l’accord d’entreprise prime sur la branche même lorsqu’il est moins favorable, sauf dans les domaines que la loi réserve à la branche ; '
+            +'le fonctionnement du comité n’en fait pas partie (L.2253-3). Vérifiez tout de même que votre convention ne comporte pas de clause de verrouillage.'});
+      } else if(!isNaN(ne) && ne>0 && ne>nc){
+        A.push({gravite:'info', titre:'Votre accord d’entreprise est plus favorable que la convention',
+          texte:ne+' réunions contre '+nc+' dans la convention de branche. C’est l’accord d’entreprise qui s’applique.'});
+      }
+    } else {
+      A.push({gravite:'info', titre:'C’est votre convention collective qui s’applique',
+        texte:'Elle prévoit '+nc+' réunions par an, là où le code du travail en impose '+reg.n+'. '
+          +'Faute d’accord d’entreprise, c’est la convention de branche qui fixe la règle.'});
+    }
+  }
+
   /* Accord d'entreprise sur le nombre de reunions */
-  if(CAL.accord==='oui'){
+  if(CAL.accord==='oui'||CAL.accord==='deux'){
     var na=parseInt(CAL.nbAccord||'',10);
     if(isNaN(na) || na<=0){
       A.push({gravite:'question', titre:'Nombre de réunions prévu par l’accord non renseigné',
@@ -8789,8 +8841,42 @@ function calAnalyse(){
         +'Le dispositif doit garantir l’identification des membres et leur participation effective ; lorsqu’il est procédé à un vote à bulletin secret, il doit assurer des conditions techniques permettant un vote simultané et anonyme (D.2315-1 · D.2315-2).'});
   }
 
-  /* Retards constatés sur le calendrier */
+  /* ── Ce qui vient : une reunion s'annonce avant, elle ne se constate
+     pas apres. On previent sur la seance a venir et sur la date limite
+     d'envoi de l'ordre du jour, qui tombe trois jours plus tot. ── */
   var S=calSeances();
+  var aVenir=S.filter(function(s){ return !s.faite && calJours(calAuj(), s.iso)>=0; })
+              .sort(function(a,b){ return a.iso<b.iso?-1:1; });
+  if(aVenir.length){
+    var p=aVenir[0];
+    var jp=calJours(calAuj(), p.iso);
+    var odj=calPlus(p.iso,-3);
+    var jo=calJours(calAuj(), odj);
+    if(jo<0){
+      A.push({gravite:'stop', titre:'Envoyez l’ordre du jour : la date limite est passée',
+        texte:'La réunion n° '+p.n+' est le '+calFR(p.iso)+' et l’ordre du jour devait partir le '+calFR(odj)+', soit il y a '+(-jo)+' jour(s). '
+          +'Il est communiqué trois jours au moins avant la réunion (L.2315-30) ; à défaut, les délibérations sont exposées à l’annulation. Reportez la séance ou envoyez-le immédiatement.'});
+    } else if(jo<=7){
+      A.push({gravite:'stop', titre:'Envoyez l’ordre du jour avant le '+calFR(odj),
+        texte:'Il reste '+jo+' jour(s). La réunion n° '+p.n+' se tient le '+calFR(p.iso)+'. '
+          +'L’ordre du jour est établi conjointement par le président et le secrétaire, et communiqué trois jours au moins avant la réunion (L.2315-29 · L.2315-30).'});
+    } else if(jp<=21){
+      A.push({gravite:'question', titre:'Prochaine réunion le '+calFR(p.iso)+' — préparez-la',
+        texte:'Dans '+jp+' jour(s). L’ordre du jour doit être arrêté avec le secrétaire et communiqué au plus tard le '+calFR(odj)+' (L.2315-30). '
+          +'Le procès-verbal suivra dans les quinze jours (R.2315-25).'});
+    } else {
+      A.push({gravite:'info', titre:'Prochaine réunion le '+calFR(p.iso),
+        texte:'Dans '+jp+' jour(s). Ordre du jour à communiquer au plus tard le '+calFR(odj)+', procès-verbal au plus tard le '+calFR(calPlus(p.iso,15))+'.'});
+    }
+    if(aVenir.length>1){
+      A.push({gravite:'info', titre:'Les '+(aVenir.length-1)+' séance(s) suivantes',
+        texte:aVenir.slice(1,5).map(function(s){ return 'n° '+s.n+' le '+calFR(s.iso); }).join(' · ')
+          +(aVenir.length>5?(' … et '+(aVenir.length-5)+' autre(s)'):'')
+          +'. Chacune appelle un ordre du jour trois jours avant et un procès-verbal dans les quinze jours.'});
+    }
+  }
+
+  /* Retards constatés sur le calendrier */
   var enRetard=S.filter(function(s){ return !s.faite && calJours(calAuj(), s.iso)<0; });
   if(enRetard.length){
     A.push({gravite:'stop', titre:'Réunissez le comité : '+enRetard.length+' réunion(s) manquent',
@@ -8828,11 +8914,17 @@ function calRender(){
   h+='<div class="card"><div class="ct">Paramètres</div>'
    +'<div class="fg"><label class="fl">Date de la première réunion de l’année</label>'
    +'<input type="date" value="'+calEsc(CAL.premiere||'')+'" onchange="calSet(\'premiere\',this.value)"></div>'
-   +'<div class="fg"><label class="fl">Un accord fixe-t-il le nombre de réunions ?</label>'
-   + S('cal-acc',[{v:'non',lib:'Non — règle supplétive du code du travail'},{v:'oui',lib:'Oui — accord d’entreprise'}], CAL.accord||'', 'calSetSel(\'accord\',\'cal-acc\')')
-   +'</div>'
-   +(CAL.accord==='oui'?('<div class="fg"><label class="fl">Nombre de réunions annuelles prévu par l’accord</label>'
+   +'<div class="fg"><label class="fl">Qu’est-ce qui fixe le nombre de réunions chez vous ?</label>'
+   + S('cal-acc',CAL_SOURCES, CAL.accord||'', 'calSetSel(\'accord\',\'cal-acc\')')
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:5px;line-height:1.5">'
+     +'Le code du travail fixe un minimum. Votre convention collective peut prévoir davantage : elle s’applique alors, faute d’accord d’entreprise. '
+     +'Un accord d’entreprise, lui, prime sur la branche, y compris s’il est moins favorable — le fonctionnement du comité n’est pas un domaine réservé à la branche (L.2253-3).'
+   +'</div></div>'
+   +((CAL.accord==='oui'||CAL.accord==='deux')?('<div class="fg"><label class="fl">Nombre de réunions annuelles prévu par l’accord d’entreprise</label>'
       +'<input type="number" min="1" value="'+calEsc(CAL.nbAccord||'')+'" onchange="calSet(\'nbAccord\',this.value)"></div>'):'')
+   +((CAL.accord==='ccn'||CAL.accord==='deux')?('<div class="fg"><label class="fl">Nombre de réunions annuelles prévu par la convention collective'
+      +((typeof SOC!=='undefined'&&SOC.ccn)?(' — '+calEsc(SOC.ccn)):'')+'</label>'
+      +'<input type="number" min="1" value="'+calEsc(CAL.nbCCN||'')+'" onchange="calSet(\'nbCCN\',this.value)"></div>'):'')
    +'<div class="fg"><label class="fl">Recours à la visioconférence</label>'
    + S('cal-vis',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], CAL.visio||'', 'calSetSel(\'visio\',\'cal-vis\')')
    +'</div></div>';
