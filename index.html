@@ -653,7 +653,22 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.111';
+/* Le compte actif. Tout ce qui appartient a un dossier client — la fiche
+   entreprise, le secteur, le registre du personnel, les modules CSE — est
+   range sous cette cle. Un cabinet ouvre plusieurs dossiers depuis le meme
+   navigateur : sans cela, le dernier client ouvert reste affiche pour tous
+   les suivants, et signe leurs documents. */
+function jxCompte(){
+  try{
+    if(sessionStorage.getItem('jte_admin')==='1') return 'admin';
+    var c=sessionStorage.getItem('jte_code'); if(c) return 'c_'+c;
+    var s=sessionStorage.getItem('jte_sector'); if(s) return 's_'+s;
+  }catch(e){}
+  return 'local';
+}
+/* La fiche entreprise, rangee par compte. */
+function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
+var JX_BUILD = 'v2026-08-06.112';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -662,6 +677,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.112', d:'5 aout 2026', t:[
+   'CLOISONNEMENT DES DOSSIERS — un cabinet qui ouvre plusieurs dossiers depuis le meme navigateur voyait le client precedent rester affiche : son nom en haut de l\'ecran, sa convention collective, son dirigeant au bas des documents, et cela meme apres deconnexion et reconnexion avec un autre compte. La fiche entreprise, le secteur et la session en ligne sont desormais rattaches au compte, plus a l\'appareil.',
+   'DECONNEXION — le code du client precedent restait en memoire apres la deconnexion : la sauvegarde en ligne s\'y reconnectait toute seule. La deconnexion efface maintenant le code, la session en ligne et la fiche affichee.',
+   'REPRISE — la fiche saisie avant cette version appartenait a un dossier precis, que l\'application ne peut pas deviner : elle demande a quel compte la rattacher au lieu de choisir a votre place. Un refus est memorise, et la fiche reste proposee lors de la connexion au bon dossier.'
+ ]},
  {v:'v2026-08-06.111', d:'5 aout 2026', t:[
    'SECTEUR — l\'application ne se declare plus « transport » par defaut. Tant qu\'aucun secteur n\'est choisi, l\'en-tete indique « Convention non renseignee » au lieu d\'afficher la convention du transport (IDCC 0016), et chaque selecteur de secteur s\'ouvre sur « Choisissez votre secteur ». C\'est ce qui faisait apparaitre la convention du transport sur le compte administrateur en mode « tous secteurs », et sur tout compte cree sans secteur.',
    'QUESTIONNAIRE DE CONFORMITE — les questions propres au transport (cartes de conducteur, tachygraphe, FCO, licence, documents de bord, frais de casse-croute, garantie annuelle de remuneration) ne sont plus posees aux autres secteurs, et ne faussent donc plus leur score. La question sur les minima conventionnels, elle, est desormais formulee pour toutes les conventions.',
@@ -4921,8 +4941,8 @@ function statRender(id){
    +C('⚠️ Points de vigilance', vig)
    +C('⚖️ Jurisprudence du secteur ('+s.jurisprudence.length+')', jur);
 }
-function statSetSecteur(){var el=document.getElementById('stat-secteur');var id=el?el.value:'';jxStockEcrire('secteur_statut',id);statRender(id);}
-function statInit(){var id;try{id=localStorage.getItem('secteur_statut');}catch(e){}id=id||appGetSecteur();var el=document.getElementById('stat-secteur');if(el)el.value=id;statRender(id);}
+function statSetSecteur(){var el=document.getElementById('stat-secteur');var id=el?el.value:'';secSet('secteur_statut',id);statRender(id);}
+function statInit(){var id=secGet('secteur_statut')||appGetSecteur();var el=document.getElementById('stat-secteur');if(el)el.value=id;statRender(id);}
 
 /* ===== Module XIV — Calculateurs indemnités ===== */
 var BAREME_GE11=[[0,1],[1,2],[3,3.5],[3,4],[3,5],[3,6],[3,7],[3,8],[3,8],[3,9],[3,10],[3,10.5],[3,11],[3,11.5],[3,12],[3,13],[3,13.5],[3,14],[3,14.5],[3,15],[3,15.5],[3,16],[3,16.5],[3,17],[3,17.5],[3,18],[3,18.5],[3,19],[3,19.5],[3,20],[3,20]];
@@ -5181,7 +5201,7 @@ pseJurisRender();
 /* ===== Sélecteur multi-secteurs PSE ===== */
 function pseSetSecteur(){
   var _e=document.getElementById('pse-secteur'); var id=_e?_e.value:'';
-  pseSecteurCourant=id; jxStockEcrire('secteur_pse',id);
+  pseSecteurCourant=id; secSet('secteur_pse',id);
   var s=SECTEURS_PSE[id];
   if(!s){ var _p=document.getElementById('pse-secteur-panel');
     if(_p)_p.innerHTML='<div class="al info" style="font-size:12.5px">Choisissez votre secteur ci-dessus : la convention, les preavis, l\u2019indemnite et la jurisprudence en dependent.</div>';
@@ -5211,13 +5231,17 @@ pseSetSecteur();
 
 var cseSecteur='transport';
 function cseConvNom(){var s=SECTEURS_PSE[cseSecteur];return s?(s.nom+' (IDCC '+s.idcc+')'):'la convention collective applicable';}
-function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value; if(typeof jxStockEcrire==='function')jxStockEcrire('secteur_cse',cseSecteur); else try{localStorage.setItem('secteur_cse',cseSecteur);}catch(e){}var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
+function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value; if(typeof secSet==='function')secSet('secteur_cse',cseSecteur);var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
 cseSetSecteur();
 
 /* ===== Secteur : global (accueil) + indépendant par module ===== */
 var MODS_SECTEUR=[];
-function secGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
-function secSet(k,v){ if(typeof jxStockEcrire==='function') jxStockEcrire(k,v); else try{localStorage.setItem(k,v);}catch(e){} }
+/* Le secteur est une donnee du dossier, pas de l'appareil : « formation »
+   choisi pour un client faisait afficher sa convention (IDCC 1516) a tous
+   les comptes suivants. */
+function secCle(k){ return k+'::'+((typeof jxCompte==='function')?jxCompte():'local'); }
+function secGet(k){try{return localStorage.getItem(secCle(k));}catch(e){return null;}}
+function secSet(k,v){ if(typeof jxStockEcrire==='function') jxStockEcrire(secCle(k),v); else try{localStorage.setItem(secCle(k),v);}catch(e){} }
 /* Aucun secteur choisi = aucun secteur, et on le dit. Ecrire « transport »
    par defaut faisait afficher la convention du transport, ses seuils et sa
    jurisprudence a des clients qui n'en relevent pas — et a l'administrateur
@@ -10328,7 +10352,7 @@ async function rhSaveEnt(){
   var gvv=function(id){ var el=document.getElementById('ent-'+id); return el?el.value.trim():''; };
   RH.ent={ nom:gvv('nom'), siret:gvv('siret'), naf:gvv('naf'), codeClient:gvv('codeClient'), adresse:gvv('adresse'), dirigeant:gvv('dirigeant'), email:gvv('email'), tel:gvv('tel'), idcc:gvv('idcc')||'16' };
   // synchronise l'objet entreprise global (documents) sans écraser si vide
-  try{ if(typeof E!=='undefined'){ if(RH.ent.nom)E.nom=RH.ent.nom; if(RH.ent.siret)E.siret=RH.ent.siret; if(RH.ent.adresse)E.adresse=RH.ent.adresse; if(RH.ent.dirigeant)E.dirigeant=RH.ent.dirigeant; if(RH.ent.email)E.email=RH.ent.email; if(RH.ent.tel)E.tel=RH.ent.tel; try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){} } }catch(e){}
+  try{ if(typeof E!=='undefined'){ if(RH.ent.nom)E.nom=RH.ent.nom; if(RH.ent.siret)E.siret=RH.ent.siret; if(RH.ent.adresse)E.adresse=RH.ent.adresse; if(RH.ent.dirigeant)E.dirigeant=RH.ent.dirigeant; if(RH.ent.email)E.email=RH.ent.email; if(RH.ent.tel)E.tel=RH.ent.tel; try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){} } }catch(e){}
   await rhSave(); try{ if(typeof sbPushEntreprise==='function') sbPushEntreprise(); }catch(e){} alert('Entreprise enregistrée.'); rhRender();
 }
 
@@ -10771,7 +10795,7 @@ async function sbPull(silent){
   if(!e.error && e.data && e.data.length){
     var row=e.data[0];
     try{ if(typeof E!=='undefined'){ E.nom=row.nom||E.nom; E.siret=row.siret||E.siret; E.adresse=row.adresse||E.adresse; E.dirigeant=row.dirigeant||E.dirigeant; E.email=row.email||E.email; E.tel=row.tel||E.tel;
-      localStorage.setItem('juris_transport', JSON.stringify(E)); if(typeof updateHeroTop==='function') updateHeroTop(); } }catch(x){}
+      localStorage.setItem(jxEntKey(), JSON.stringify(E)); if(typeof updateHeroTop==='function') updateHeroTop(); } }catch(x){}
     RH.ent={ nom:row.nom||'', siret:row.siret||'', naf:row.naf||'', codeClient:row.code_client||'', adresse:row.adresse||'', dirigeant:row.dirigeant||'', email:row.email||'', tel:row.tel||'', idcc:row.idcc||'16' };
   }
   // personnel
@@ -10881,14 +10905,7 @@ function rxEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){re
    Chaque compte (admin, ou chaque code client) a son propre espace local :
    sur un même téléphone, deux comptes différents ne voient JAMAIS les mêmes
    données. La clé dépend du compte connecté. */
-function rxAccountId(){
-  try{
-    if(sessionStorage.getItem('jte_admin')==='1') return 'admin';
-    var c=sessionStorage.getItem('jte_code'); if(c) return 'c_'+c;
-    var s=sessionStorage.getItem('jte_sector'); if(s) return 's_'+s;
-  }catch(e){}
-  return 'local';
-}
+function rxAccountId(){ return jxCompte(); }   /* une seule definition : jxCompte() */
 function rxKey(){ return RX_LS+'::'+rxAccountId(); }
 function rxLoad(){
   try{
@@ -10922,7 +10939,7 @@ function rxRecover(){
   if(st.data.settings && !(RX.settings&&RX.settings.alertDays)) RX.settings=st.data.settings;
   rxSaveLocal();
   /* propage aussi les coordonnées vers la fiche entreprise globale (documents) */
-  try{ if(typeof E!=='undefined' && E && RX.ent){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem('juris_transport',JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+  try{ if(typeof E!=='undefined' && E && RX.ent){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
   rxRender();
 }
 /* Ancien registre unique (avant la séparation par compte) : proposé une fois au
@@ -10976,7 +10993,7 @@ function rxPrefillEntFromRegistry(){
         if(RX.ent.gerant) E.dirigeant=RX.ent.gerant;
         if(RX.ent.email) E.email=RX.ent.email;
         if(RX.ent.tel) E.tel=RX.ent.tel;
-        localStorage.setItem('juris_transport',JSON.stringify(E));
+        localStorage.setItem(jxEntKey(),JSON.stringify(E));
         if(typeof updateHeroTop==='function') updateHeroTop();
       }
     }catch(e){}
@@ -11522,7 +11539,7 @@ function rxSaveEnt(){
   var g=function(k){ var el=document.getElementById('rxe-'+k); return el?el.value.trim():''; };
   RX.ent={ nom:g('nom'), gerant:g('gerant'), siret:g('siret'), naf:g('naf'), adresse:g('adresse'), email:g('email'), tel:g('tel'), idcc:g('idcc')||'16' };
   rxSaveLocal();
-  try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem('juris_transport',JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+  try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
   try{ rxCloudPushEnt(); }catch(e){}
   alert('Entreprise enregistrée.'); rxRender();
 }
@@ -11686,7 +11703,7 @@ function rxPullEnt(){ if(!rxSess()) return;
     .then(function(r){return r.json();}).then(function(d){
       if(!Array.isArray(d)) return;
       if(d.length){ var r=d[0]; RX.ent={ nom:r.nom||'', gerant:r.dirigeant||'', siret:r.siret||'', naf:r.naf||'', adresse:r.adresse||'', email:r.email||'', tel:r.tel||'', idcc:r.idcc||'16' }; rxSaveLocal();
-        try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem('juris_transport',JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+        try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
         try{ rxRender(); }catch(e){}
       } else if(RX.ent&&RX.ent.nom){ rxCloudPushEnt(); }  // cloud vide, on envoie la fiche locale
     }).catch(function(){});
@@ -11880,7 +11897,14 @@ try{
   setTimeout(jxFab, 200);
 }catch(e){}
 function deconnexion(){
-  try{ sessionStorage.removeItem('jte_ok'); sessionStorage.removeItem('jte_admin'); sessionStorage.removeItem('jte_sector'); sessionStorage.removeItem('jte_secchosen'); sessionStorage.removeItem('jte_trial'); }catch(e){}
+  /* jte_code restait en place : le compte du client precedent restait actif,
+     la sauvegarde en ligne s'y reconnectait, et son nom restait en en-tete. */
+  try{ ['jte_ok','jte_admin','jte_sector','jte_secchosen','jte_trial','jte_code'].forEach(function(k){ sessionStorage.removeItem(k); }); }catch(e){}
+  try{ localStorage.removeItem(RX_SESS); }catch(e){}
+  /* La fiche affichee repart vide : elle sera relue sous le compte suivant. */
+  try{ if(typeof E!=='undefined' && E){ E={ nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'marchandises', email:'', tel:'', effectif:'moins11', org:'fntr', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'' }; } }catch(e){}
+  try{ if(typeof RX!=='undefined' && RX){ RX.staff=[]; RX.ent={}; RX.parc=[]; } }catch(e){}
+  try{ if(typeof updateHeroTop==='function') updateHeroTop(); }catch(e){}
   try{ window.CLIENT_SECTEUR=''; }catch(e){}
   try{ closeMenu(); }catch(e){}
   try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
@@ -11979,7 +12003,7 @@ function applyClientSector(retry){
     // Secteur effectif : imposé par le code/choix (client ou admin) ; sinon fiche entreprise (client)
     var sec = codeSec || (admin ? '' : ((typeof E!=='undefined' && E && E.secteur) ? E.secteur : ''));
     window.CLIENT_SECTEUR = sec;
-    if(!admin && codeSec && typeof E!=='undefined' && E && E.secteur!==codeSec){ E.secteur=codeSec; try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){} }
+    if(!admin && codeSec && typeof E!=='undefined' && E && E.secteur!==codeSec){ E.secteur=codeSec; try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){} }
     if(!retry) setTimeout(function(){ try{ applyClientSector(true); }catch(e){} }, 500);
     // Badge + sélecteur admin
     var badge=document.getElementById('client-secteur-badge');
@@ -12024,7 +12048,7 @@ function validerInscription(){
   E.tel=gv('ins-tel')||'';
   E.effectif=gv('ins-effectif')||'moins11';
   E.org=gv('ins-org')||'fntr';
-  try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){}
+  try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
   updateHeroTop();
   document.getElementById('pg-inscription').style.display='none';
   document.getElementById('pg-app').style.display='block';
@@ -12035,9 +12059,38 @@ function validerInscription(){
   applyClientSector();
 }
 
+/* Avant cette version, la fiche entreprise etait rangee sous une cle unique,
+   partagee par tous les comptes de l'appareil. Cette fiche appartient a un
+   client precis, et l'application ne peut pas deviner lequel : elle demande.
+   Un refus est memorise pour ce compte, et la fiche reste disponible pour le
+   compte auquel elle appartient reellement. */
+function jxRepriseFiche(){
+  try{
+    var k=jxEntKey(), a=localStorage.getItem(k);
+    if(a) return a;
+    var vieux=localStorage.getItem('juris_transport');
+    if(!vieux) return null;
+    var refus='jx_fiche_refus::'+jxCompte();
+    try{ if(localStorage.getItem(refus)==='1') return null; }catch(_){}
+    var nom=''; try{ nom=(JSON.parse(vieux)||{}).nom||''; }catch(_){}
+    var ok=false;
+    try{
+      ok=confirm('Cloisonnement des dossiers clients\n\n'
+        +'Une fiche entreprise'+(nom?(' \u00ab '+nom+' \u00bb'):'')+' a ete saisie sur cet appareil a une epoque ou '
+        +'une seule fiche servait a tous les comptes.\n\n'
+        +'Voulez-vous la rattacher au compte actuellement connecte (\u00ab '+jxCompte()+' \u00bb) ?\n\n'
+        +'Repondez Annuler si cette fiche appartient a un autre dossier : elle vous sera reproposee '
+        +'lors de la connexion a ce dossier.');
+    }catch(_){ ok=false; }
+    if(!ok){ try{ localStorage.setItem(refus,'1'); }catch(_){}; return null; }
+    localStorage.setItem(k, vieux);
+    localStorage.removeItem('juris_transport');
+    return vieux;
+  }catch(e){ return null; }
+}
 function initApp(){
   try{
-    const s=typeof localStorage!=='undefined'?localStorage.getItem('juris_transport'):null;
+    const s=typeof localStorage!=='undefined'?jxRepriseFiche():null;
     if(s){
       E=JSON.parse(s);
       updateHeroTop();
@@ -17892,7 +17945,7 @@ function sauvegarderParametres(){
     if(el)E[k]=el.value;
   });
   E.qualite=gv('p-qualite')||E.qualite;
-  try{localStorage.setItem('juris_transport',JSON.stringify(E));}catch(e){}
+  try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
   updateHeroTop();
   show('p-saved');
   setTimeout(()=>hide('p-saved'),2500);

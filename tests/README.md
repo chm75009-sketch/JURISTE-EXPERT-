@@ -1,9 +1,10 @@
 # Tests
 
 ```
-node tests/cse.test.js          # règles CSE : seuils, barèmes, calculs
-node tests/navigateur.test.js   # la page ouverte pour de vrai dans Chromium
-python3 tests/integrite.py      # ce qui est mécaniquement vérifiable
+node tests/cse.test.js            # règles CSE : seuils, barèmes, calculs
+node tests/navigateur.test.js     # la page ouverte pour de vrai dans Chromium
+node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un autre
+python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
 ```
 
 ## 1. `cse.test.js` — les règles
@@ -59,7 +60,26 @@ réelles :
 Playwright n'est pas une dépendance du projet. S'il est absent, le test le
 dit et sort en succès. Pour l'activer : `npm i playwright`.
 
-## 3. `integrite.py` — ce qui est mécaniquement vérifiable
+## 3. `cloisonnement.test.js` — un dossier ne déborde pas sur un autre
+
+C'est le test le plus important du lot, parce que le défaut qu'il garde était
+le plus grave : un cabinet ouvre plusieurs dossiers clients depuis le même
+navigateur, et le client précédent restait affiché — son nom en en-tête, sa
+convention collective, son dirigeant au bas des documents — y compris après
+déconnexion et reconnexion avec un autre compte.
+
+Trois données étaient rattachées à l'appareil au lieu du compte : la fiche
+entreprise (`juris_transport`), le secteur (`app_secteur` et ses variantes
+par module), et le code client (`jte_code`, que la déconnexion n'effaçait
+pas — la sauvegarde en ligne se reconnectait donc toute seule au dossier
+précédent).
+
+Le test joue le parcours complet : on ouvre un dossier client, on remplit la
+fiche **par l'application elle-même**, on se déconnecte, on revient en
+administrateur — rien du client ne doit subsister — puis on retourne dans le
+dossier client, qui doit tout retrouver intact.
+
+## 4. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`

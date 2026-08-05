@@ -1,0 +1,90 @@
+/* Parcours réel : le cabinet ouvre le dossier d'un client depuis son code,
+   remplit la fiche par l'application elle-même, se déconnecte, puis revient
+   avec son propre compte administrateur. */
+let chromium;
+try { ({ chromium } = require('playwright')); }
+catch (e) { console.log('Playwright absent — test de cloisonnement ignore.'); process.exit(0); }
+const CHROME = process.env.CHROME_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
+const URL = 'file://' + require('path').resolve(__dirname, '..', 'index.html');
+
+let echecs = 0;
+const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; console.log('  ECHEC ' + m + (d ? ' — ' + d : '')); } };
+
+(async () => {
+  const nav = await chromium.launch(require('fs').existsSync(CHROME) ? { executablePath: CHROME } : {});
+  const page = await (await nav.newContext()).newPage();
+  page.on('dialog', d => d.dismiss());          // aucune reprise n'est acceptée
+  await page.goto(URL, { waitUntil: 'load' });
+  await page.waitForTimeout(900);
+
+  // ── Le client TEC, ouvert avec son code ───────────────────────────
+  await page.evaluate(() => {
+    sessionStorage.setItem('jte_ok', '1');
+    sessionStorage.setItem('jte_code', 'tec2026');
+    sessionStorage.setItem('jte_sector', 'formation');
+  });
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForTimeout(900);
+  await page.evaluate(() => {
+    document.getElementById('ins-nom').value = 'TEC';
+    document.getElementById('ins-dirigeant').value = 'M. GERANT TEC';
+    document.getElementById('ins-secteur').value = 'formation';
+    validerInscription();                        // l'application enregistre elle-même
+    appSetSecteur('formation');
+  });
+  await page.waitForTimeout(500);
+  console.log('\n— Dossier client TEC —');
+  const h1 = await page.evaluate(() => document.getElementById('top-nom').textContent);
+  console.log('  en-tête : ' + JSON.stringify(h1));
+  ok(/TEC/.test(h1) && /1516/.test(h1), 'le client voit bien son nom et sa convention');
+  console.log('  clés    : ' + JSON.stringify(await page.evaluate(
+    () => Object.keys(localStorage).filter(k => /juris_transport|app_secteur/.test(k)))));
+
+  // ── Déconnexion, puis le compte du cabinet ────────────────────────
+  await page.evaluate(() => deconnexion());
+  await page.waitForTimeout(400);
+  await page.evaluate(() => {
+    sessionStorage.setItem('jte_ok', '1');
+    sessionStorage.setItem('jte_admin', '1');
+  });
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForTimeout(1100);
+  await page.evaluate(() => { try { initApp(); } catch (e) {} });
+  await page.waitForTimeout(700);
+
+  console.log('\n— Compte administrateur (MCH) —');
+  const h2 = await page.evaluate(() => document.getElementById('top-nom').textContent);
+  console.log('  en-tête : ' + JSON.stringify(h2));
+  ok(!/TEC/i.test(h2), 'le nom du client n’apparaît plus', h2);
+  ok(!/1516/.test(h2), 'la convention du client n’apparaît plus', h2);
+  ok(await page.evaluate(() => !(typeof E !== 'undefined' && E.nom)), 'la fiche entreprise est vide',
+     await page.evaluate(() => (typeof E !== 'undefined' ? E.nom : null)));
+  ok(await page.evaluate(() => !(typeof E !== 'undefined' && E.dirigeant)), 'aucun dirigeant hérité',
+     await page.evaluate(() => (typeof E !== 'undefined' ? E.dirigeant : null)));
+  ok(await page.evaluate(() => rxAccountId()) === 'admin', 'le compte actif est bien « admin »');
+  ok(await page.evaluate(() => appGetSecteur()) === '', 'aucun secteur hérité');
+  console.log('  clés    : ' + JSON.stringify(await page.evaluate(
+    () => Object.keys(localStorage).filter(k => /juris_transport|app_secteur/.test(k)))));
+
+  // ── Retour chez le client : il doit tout retrouver ────────────────
+  await page.evaluate(() => deconnexion());
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    sessionStorage.setItem('jte_ok', '1');
+    sessionStorage.setItem('jte_code', 'tec2026');
+    sessionStorage.setItem('jte_sector', 'formation');
+  });
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForTimeout(1100);
+  await page.evaluate(() => { try { initApp(); } catch (e) {} });
+  await page.waitForTimeout(700);
+  console.log('\n— Retour dans le dossier TEC —');
+  const h3 = await page.evaluate(() => document.getElementById('top-nom').textContent);
+  console.log('  en-tête : ' + JSON.stringify(h3));
+  ok(/TEC/.test(h3), 'le client retrouve sa fiche intacte', h3);
+  ok(/1516/.test(h3), 'et sa convention', h3);
+
+  await nav.close();
+  console.log('\n' + (echecs ? echecs + ' ECHEC(S)' : 'tout est vert'));
+  process.exit(echecs ? 1 : 0);
+})();
