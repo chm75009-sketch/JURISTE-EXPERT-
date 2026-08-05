@@ -5,6 +5,7 @@ node tests/cse.test.js            # règles CSE : seuils, barèmes, calculs
 node tests/budgets.test.js        # les budgets : des euros, au centime
 node tests/navigateur.test.js     # la page ouverte pour de vrai dans Chromium
 node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un autre
+node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
 ```
@@ -126,7 +127,25 @@ mois, politique d'entreprise attribuée à un collègue, prévention sans
 réaction. Le test contrôle aussi que les onze entrées CSE du menu figurent
 sur l'accueil et qu'aucune carte de l'accueil ne mène à une page absente.
 
-## 6. `integrite.py` — ce qui est mécaniquement vérifiable
+## 6. `dossier.test.js` — les pièces de chaque étape
+
+Ce module dit à un employeur ce qu'il doit avoir sur la table. Une pièce
+oubliée dans la liste, et c'est une réunion à refaire — ou une élection
+annulable. Le test contrôle la **présence effective** de chaque pièce clé
+avec son article, en prenant pour cas type la réunion de négociation du
+protocole préélectoral : liste des électeurs et ses conditions (L.2314-18),
+liste des éligibles et les siennes (L.2314-19), assimilés employeur
+électeurs mais non éligibles, proportion femmes-hommes (L.2314-30), nombre
+de sièges (R.2314-1), les deux répartitions (L.2314-13), mis à disposition
+(L.2314-23), vote électronique (L.2314-26).
+
+Il vérifie aussi les délais annoncés (90 jours, 15 jours, 3 jours), les
+numéros de formulaire officiels, le filtrage par effectif (8 / 30 / 50 /
+300 salariés), la stabilité des identifiants de pièce — une case cochée
+doit le rester — et l'absence de doublon d'identifiant sur les quinze
+étapes.
+
+## 7. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`

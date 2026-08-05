@@ -668,7 +668,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.117';
+var JX_BUILD = 'v2026-08-06.118';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -677,6 +677,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.118', d:'5 aout 2026', t:[
+   'NOUVEAU MODULE — LE DOSSIER, ETAPE PAR ETAPE. Une reunion se perd rarement sur le fond : elle se perd parce qu\'une piece manque. Quinze etapes, de l\'etablissement de l\'effectif jusqu\'aux commissions, et pour chacune ce qu\'il faut avoir ENVOYE AVANT et a quelle date, ce qu\'il faut avoir EN SEANCE, ce qu\'il faut PRODUIRE APRES. Chaque piece porte son article, qui l\'etablit, et le module renvoie a l\'endroit ou la produire.',
+   'DOSSIER — exemple de la reunion de negociation du protocole preelectoral : quatorze pieces a poser sur la table, dont la liste des electeurs par college (seize ans revolus, trois mois d\'anciennete, droits civiques — L.2314-18), la liste des eligibles (dix-huit ans, un an d\'anciennete, exclusions familiales — L.2314-19), la mention des salaries assimiles a l\'employeur qui sont electeurs mais non eligibles, la proportion de femmes et d\'hommes par college sans laquelle aucune liste paritaire ne peut etre etablie (L.2314-30), le nombre de sieges (R.2314-1), les deux repartitions (L.2314-13), le sort des mis a disposition (L.2314-23) et, le cas echeant, le vote electronique (L.2314-26).',
+   'DOSSIER — les etapes affichees dependent de l\'effectif : le formalisme des reclamations disparait a cinquante salaries, les consultations et les budgets apparaissent, les commissions a trois cents. Chaque piece se coche « prete » ou « sans objet », et un bordereau de pieces s\'edite pour la seance.'
+ ]},
  {v:'v2026-08-06.117', d:'5 aout 2026', t:[
    'HARCELEMENT MORAL — l\'intention de nuire n\'a pas a etre demontree, et le module le dit maintenant en premier, avant meme les questions. C\'est le contresens le plus frequent sur cette qualification : le texte vise ce qui a « pour objet OU pour effet » la degradation, et l\'effet suffit a lui seul. Rien n\'est donc a prouver sur les motifs de l\'auteur — un manager convaincu de bien faire peut harceler (Cass. soc., 10 novembre 2009, n° 08-41.497). Le passage sur le harcelement institutionnel precise a son tour que « en connaissance de cause » porte sur la mise en oeuvre de la politique, non sur une volonte de nuire a un salarie.'
  ]},
@@ -1783,6 +1788,11 @@ try{
         <div class="hcard-body"><div class="t">Budgets du comité</div><div class="d">0,20 % ou 0,22 %, ce qui manque au centime, l’effet de cliquet des activités sociales, les transferts, les comptes.</div><div class="m">Budgets</div></div>
         <div class="chev">›</div>
       </div>
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();goPage('csedos')">
+        <div class="hcard-ic">🗂️</div>
+        <div class="hcard-body"><div class="t">Le dossier, étape par étape</div><div class="d">Quelles pièces avoir à chaque étape : envoyées avant, posées en séance, produites après. Bordereau à éditer.</div><div class="m">Dossier</div></div>
+        <div class="chev">›</div>
+      </div>
       <div class="hcard" style="--accent:#8e79c9;grid-column:1/-1" onclick="event.stopPropagation();goPage('socle')">
         <div class="hcard-ic">📐</div>
         <div class="hcard-body"><div class="t">Socle — effectif &amp; seuils</div><div class="d">L’effectif mois par mois, les exclusions légales, les seuils franchis et depuis quand.</div><div class="m">Effectif</div></div>
@@ -2674,6 +2684,27 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
   <div style="padding:24px;text-align:center;color:#9fb0c4">
     <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
     <button onclick="try{hmOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ CSE — LE DOSSIER, ÉTAPE PAR ÉTAPE ═══ -->
+<div id="pg-csedos" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Le dossier, étape par étape</div><div class="ts">Ce qu’il faut avoir, et quand</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    Une réunion se perd rarement sur le fond : elle se perd parce qu’une pièce manque.
+    Choisissez l’étape où vous en êtes. Le module dit ce qui doit être <b>parti avant</b> et à quelle date,
+    ce qu’il faut <b>avoir en séance</b>, et ce qu’il faut <b>produire après</b>. Cochez au fur et à mesure,
+    puis éditez le bordereau des pièces.
+  </div>
+</div>
+<div id="csedos-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{dosOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
   </div>
 </div>
 </div>
@@ -3665,6 +3696,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('csecns');closeMenu()"><span style="font-size:18px">📈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Consultations récurrentes</div></div></div>
   <div class="mi" onclick="goPage('csercl');closeMenu()"><span style="font-size:18px">📝</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réclamations</div></div></div>
   <div class="mi" onclick="goPage('csebud');closeMenu()"><span style="font-size:18px">💶</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Budgets du comité</div></div></div>
+  <div class="mi" onclick="goPage('csedos');closeMenu()"><span style="font-size:18px">🗂️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Dossier — étape par étape</div></div></div>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
@@ -7053,6 +7085,418 @@ function hmDoc(){
   }catch(e){ alert('Impossible d’ouvrir le document : '+e.message); }
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CSE — LE DOSSIER, ETAPE PAR ETAPE  (etape 3.7)
+   Une reunion se perd rarement sur le fond : elle se perd parce qu'une
+   piece manque. Pour chaque etape : ce qui doit etre parti AVANT et a
+   quelle date, ce qu'il faut avoir EN SEANCE, ce qu'il faut produire APRES.
+   Le contenu reprend le calendrier electoral en dix etapes deja verifie
+   dans l'application, et le classeur du module global.
+   ══════════════════════════════════════════════════════════════════════ */
+var DOS={};
+var DOS_LS='cse_dossier_v1';
+function dosKey(){ return DOS_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function dosLoad(){ try{ DOS=JSON.parse(localStorage.getItem(dosKey())||'{}')||{}; }catch(e){ DOS={}; } if(!DOS.etats) DOS.etats={}; }
+function dosSave(){ try{ localStorage.setItem(dosKey(), JSON.stringify(DOS)); }catch(e){} }
+function dosEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function dosEff(){ return (typeof cseEffectif==='function')?cseEffectif():null; }
+
+/* Identifiant stable d'une piece : elle doit rester cochee d'une session a
+   l'autre, meme si l'ordre change. */
+function dosId(etape, bloc, lib){
+  return etape+'/'+bloc+'/'+String(lib||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,56);
+}
+function dosEtat(id){ return (DOS.etats||{})[id]||''; }
+function dosSetEtat(id,v){ if(!DOS.etats) DOS.etats={}; if(v) DOS.etats[id]=v; else delete DOS.etats[id]; dosSave(); dosRender(); }
+function dosOuvrir(k){ DOS.ouverte=(DOS.ouverte===k)?'':k; dosSave(); dosRender(); }
+
+/* ══════════ LES ETAPES ══════════
+   min : effectif a partir duquel l'etape existe. max : au-dela, elle
+   n'existe plus sous cette forme. */
+function dosEtapes(){
+  var E=[];
+
+  E.push({k:'effectif', num:'1', lib:'Établir l’effectif', min:0,
+    quand:'Avant toute convocation — l’effectif commande tout le reste',
+    art:'L.1111-2 · L.1111-3',
+    avant:[
+      {lib:'Registre unique du personnel, à jour de toutes les entrées et sorties', art:'L.1221-13', qui:'Employeur', page:'socle'},
+      {lib:'Décompte de l’effectif mois par mois sur les douze derniers mois', art:'L.1111-2', qui:'Employeur', page:'socle'},
+      {lib:'Justificatif des salariés exclus du décompte : apprentis, contrats de professionnalisation pendant l’action de formation, contrats de remplacement', art:'L.1111-3', qui:'Employeur', page:'socle'},
+      {lib:'Contrats des salariés mis à disposition, avec la date de début de présence dans les locaux', art:'L.1111-2, 2°', qui:'Employeur'},
+      {lib:'Relevé des temps partiels, avec la durée contractuelle de chacun', art:'L.1111-2', qui:'Employeur'}
+    ],
+    seance:[], apres:[
+      {lib:'Tableau de l’effectif daté et signé, conservé au dossier — c’est lui qui sera opposé en cas de contestation', art:'L.1111-2', qui:'Employeur', page:'socle'}
+    ]});
+
+  E.push({k:'information', num:'2', lib:'Informer le personnel', min:11,
+    quand:'Le premier tour doit avoir lieu au plus tard quatre-vingt-dix jours après cette information',
+    art:'L.2314-4',
+    avant:[
+      {lib:'Note d’information au personnel, précisant la date envisagée du premier tour', art:'L.2314-4', qui:'Employeur', page:'cse'},
+      {lib:'Choix du moyen de diffusion : il doit donner date certaine (affichage daté, courriel, intranet horodaté)', art:'L.2314-4', qui:'Employeur'}
+    ],
+    seance:[], apres:[
+      {lib:'Preuve de la diffusion et de sa date — photographie de l’affichage, accusé de réception, journal d’envoi', art:'L.2314-4', qui:'Employeur'}
+    ]});
+
+  E.push({k:'invitation', num:'3', lib:'Inviter les organisations syndicales', min:11,
+    quand:'L’invitation doit être reçue au moins quinze jours avant la première réunion de négociation. En cas de renouvellement, l’invitation part deux mois avant la fin des mandats',
+    art:'L.2314-5',
+    avant:[
+      {lib:'Courrier d’invitation aux organisations syndicales représentatives dans l’entreprise, à celles ayant constitué une section syndicale, et à celles affiliées à une organisation représentative au niveau national', art:'L.2314-5', qui:'Employeur', page:'cse'},
+      {lib:'Affichage de l’invitation, pour les organisations qui ne reçoivent pas de courrier', art:'L.2314-5', qui:'Employeur'},
+      {lib:'Preuve d’envoi et de réception — la date de réception est celle qui compte pour le délai de quinze jours', art:'L.2314-5', qui:'Employeur'}
+    ],
+    seance:[], apres:[
+      {lib:'Si aucune organisation ne répond : constat de l’absence de réponse, qui ouvre la voie à la décision unilatérale', art:'L.2314-5 · L.2314-13', qui:'Employeur'}
+    ]});
+
+  E.push({k:'pap', num:'4', lib:'La réunion de négociation du protocole', min:11,
+    quand:'Après le délai de quinze jours suivant la réception de l’invitation, et avant le premier tour',
+    art:'L.2314-6 · L.2314-13',
+    avant:[
+      {lib:'Convocation à la réunion, avec l’ordre du jour et les projets communiqués aux organisations', art:'L.2314-5', qui:'Employeur'},
+      {lib:'Projet de protocole d’accord préélectoral adressé avant la séance, pour que les organisations puissent l’examiner', art:'L.2314-6', qui:'Employeur', page:'cse'}
+    ],
+    seance:[
+      {lib:'Le décompte de l’effectif, avec son détail mois par mois — c’est la base de tout le reste', art:'L.1111-2', qui:'Employeur', page:'socle'},
+      {lib:'Le nombre de sièges à pourvoir, titulaires et suppléants, selon le barème réglementaire', art:'R.2314-1', qui:'Employeur', page:'moncse'},
+      {lib:'Le projet de répartition du personnel dans les collèges électoraux', art:'L.2314-13', qui:'Employeur', page:'cse'},
+      {lib:'Le projet de répartition des sièges entre les collèges', art:'L.2314-13', qui:'Employeur', page:'cse'},
+      {lib:'La liste des électeurs par collège — seize ans révolus, trois mois d’ancienneté, aucune interdiction, déchéance ou incapacité relative aux droits civiques', art:'L.2314-18', qui:'Employeur', page:'cse'},
+      {lib:'Le sort des salariés mis à disposition et des intérimaires : électeurs dans l’entreprise utilisatrice s’ils y sont présents depuis douze mois continus et choisissent d’y voter', art:'L.2314-23', qui:'Employeur', page:'cse'},
+      {lib:'La liste des éligibles par collège — dix-huit ans révolus, un an d’ancienneté, hors conjoint, partenaire, concubin, ascendants, descendants, frères, sœurs et alliés au même degré de l’employeur', art:'L.2314-19', qui:'Employeur', page:'cse'},
+      {lib:'La mention des salariés assimilés à l’employeur : électeurs, mais non éligibles', art:'L.2314-18 · loi n° 2022-1598 du 21 décembre 2022', qui:'Employeur', page:'cse'},
+      {lib:'La proportion de femmes et d’hommes dans chaque collège — sans elle, les listes paritaires ne peuvent pas être établies', art:'L.2314-30', qui:'Employeur', page:'cse'},
+      {lib:'Le calendrier proposé : dates et heures des deux tours, lieu du scrutin, plages d’ouverture du bureau de vote', art:'L.2314-6', qui:'Négocié'},
+      {lib:'Les modalités matérielles : bulletins, enveloppes, isoloir, composition du bureau de vote, date limite de dépôt des candidatures', art:'L.2314-6 · R.2314-7', qui:'Négocié'},
+      {lib:'Le cas échéant, les modalités du vote électronique — ouvert par accord ; à défaut seulement, par décision unilatérale de l’employeur', art:'L.2314-26', qui:'Négocié'},
+      {lib:'La durée des mandats retenue : quatre ans, ou entre deux et quatre ans si un accord le prévoit', art:'L.2314-33 · L.2314-34', qui:'Négocié'},
+      {lib:'La feuille de présence de la réunion de négociation', art:'L.2314-6', qui:'Employeur'}
+    ],
+    apres:[
+      {lib:'Le protocole signé, avec vérification de la double condition de majorité : majorité des organisations ayant participé à la négociation, dont les organisations représentatives ayant recueilli la majorité des suffrages exprimés aux dernières élections', art:'L.2314-6', qui:'Employeur', page:'cse'},
+      {lib:'Le procès-verbal de la réunion de négociation, y compris en cas de désaccord — c’est lui qui établit ce qui a été discuté', art:'L.2314-6', qui:'Employeur'},
+      {lib:'En cas de désaccord sur la répartition : la saisine de l’autorité administrative', art:'L.2314-13', qui:'Employeur'}
+    ]});
+
+  E.push({k:'listes', num:'5', lib:'Établir et afficher les listes électorales', min:11,
+    quand:'L’affichage ouvre le délai de contestation de trois jours',
+    art:'R.2314-24',
+    avant:[
+      {lib:'Listes électorales arrêtées par collège, distinguant électeurs et éligibles', art:'L.2314-18 · L.2314-19', qui:'Employeur', page:'cse'}
+    ],
+    seance:[], apres:[
+      {lib:'Affichage daté des listes — c’est cette date qui fait courir le délai de contestation', art:'R.2314-24', qui:'Employeur'},
+      {lib:'Registre des réclamations sur l’électorat, s’il y en a', art:'R.2314-24', qui:'Employeur'}
+    ]});
+
+  E.push({k:'candidatures', num:'6', lib:'Recevoir les candidatures', min:11,
+    quand:'À la date fixée par le protocole. Au premier tour, le dépôt est réservé aux organisations syndicales',
+    art:'L.2314-5 · L.2314-30',
+    avant:[], seance:[], apres:[
+      {lib:'Listes de candidats déposées, avec la date et l’heure de dépôt', art:'L.2314-5', qui:'Organisations syndicales'},
+      {lib:'Contrôle de la représentation équilibrée : candidatures alternées, à proportion de la part de femmes et d’hommes dans le collège', art:'L.2314-30', qui:'Employeur', page:'cse'},
+      {lib:'Accusé de réception de chaque liste', art:'L.2314-30', qui:'Employeur'}
+    ]});
+
+  E.push({k:'tour1', num:'7', lib:'Le premier tour', min:11,
+    quand:'Au plus tard quatre-vingt-dix jours après l’information du personnel',
+    art:'L.2314-4 · L.2314-29',
+    avant:[
+      {lib:'Matériel de vote conforme au protocole : bulletins, enveloppes, urnes scellées, isoloir', art:'L.2314-6', qui:'Employeur'},
+      {lib:'Pour les salariés en déplacement, les modalités prévues au protocole : vote par correspondance, vote anticipé, ou large plage d’ouverture', art:'R.2314-7', qui:'Employeur'}
+    ],
+    seance:[
+      {lib:'Listes d’émargement par collège', art:'L.2314-18', qui:'Bureau de vote'},
+      {lib:'Composition du bureau de vote', art:'L.2314-6', qui:'Bureau de vote'}
+    ],
+    apres:[
+      {lib:'Décompte du quorum : la moitié des électeurs inscrits, apprécié par collège sur les suffrages valablement exprimés', art:'L.2314-29', qui:'Bureau de vote', page:'cse'},
+      {lib:'Procès-verbal de dépouillement, signé par le bureau', art:'R.2314-22', qui:'Bureau de vote'}
+    ]});
+
+  E.push({k:'tour2', num:'8', lib:'Le second tour', min:11,
+    quand:'Dans les quinze jours du premier tour, si le quorum n’est pas atteint, s’il y a carence, ou s’il reste des sièges non pourvus. Les candidatures sont libres',
+    art:'L.2314-29',
+    avant:[
+      {lib:'Constat écrit de ce qui déclenche le second tour : quorum non atteint, absence de candidature, ou sièges restés vacants', art:'L.2314-29', qui:'Employeur'},
+      {lib:'Information sur l’ouverture des candidatures libres', art:'L.2314-29', qui:'Employeur'}
+    ],
+    seance:[
+      {lib:'Listes d’émargement du second tour', art:'L.2314-18', qui:'Bureau de vote'}
+    ],
+    apres:[
+      {lib:'Procès-verbal du second tour', art:'R.2314-22', qui:'Bureau de vote'}
+    ]});
+
+  E.push({k:'pv', num:'9', lib:'Proclamer et transmettre', min:11,
+    quand:'Le procès-verbal est transmis dans les quinze jours',
+    art:'R.2314-22 · L.2314-9',
+    avant:[], seance:[], apres:[
+      {lib:'Procès-verbal sur formulaire officiel — titulaires 15822*04, suppléants 15823*04', art:'R.2314-22', qui:'Bureau de vote'},
+      {lib:'En l’absence de candidat, procès-verbal de carence — formulaire 15248*05', art:'L.2314-9', qui:'Employeur', page:'cse'},
+      {lib:'Transmission au centre de traitement des élections professionnelles, dans les quinze jours', art:'R.2314-22', qui:'Employeur'},
+      {lib:'Affichage des résultats dans l’entreprise', art:'R.2314-22', qui:'Employeur'},
+      {lib:'Conservation des bulletins et des émargements, jusqu’à l’expiration des délais de contestation — trois jours sur l’électorat, quinze jours sur la régularité', art:'R.2314-24', qui:'Employeur'}
+    ]});
+
+  E.push({k:'installation', num:'10', lib:'Installer le comité', min:11,
+    quand:'À la première réunion suivant la proclamation',
+    art:'L.2315-23 · L.2314-1',
+    avant:[
+      {lib:'Convocation à la première réunion, adressée aux titulaires et aux suppléants', art:'L.2315-27', qui:'Employeur', page:'csereu'}
+    ],
+    seance:[
+      {lib:'Résolution désignant le secrétaire, et le trésorier dans les entreprises d’au moins cinquante salariés', art:'L.2315-23', qui:'Comité', page:'moncse'},
+      {lib:'Résolution désignant le référent en matière de harcèlement sexuel et d’agissements sexistes', art:'L.2314-1', qui:'Comité', page:'moncse'},
+      {lib:'Feuille de présence', art:'L.2314-1', qui:'Employeur', page:'csereu'}
+    ],
+    apres:[
+      {lib:'Procès-verbal de la réunion d’installation', art:'R.2315-25', qui:'Secrétaire', page:'csereu'},
+      {lib:'Liste nominative des élus, affichée et tenue à jour', art:'L.2314-1', qui:'Employeur', page:'moncse'}
+    ]});
+
+  E.push({k:'reunion', num:'11', lib:'Chaque réunion ordinaire', min:11,
+    quand:'L’ordre du jour est communiqué au moins trois jours avant la séance',
+    art:'L.2315-29 · L.2315-30',
+    avant:[
+      {lib:'Ordre du jour établi conjointement par l’employeur et le secrétaire', art:'L.2315-29', qui:'Employeur et secrétaire', page:'csereu'},
+      {lib:'Convocation adressée aux membres, avec l’ordre du jour', art:'L.2315-30', qui:'Employeur', page:'csereu'},
+      {lib:'Documents nécessaires à l’examen des points inscrits, joints à la convocation', art:'L.2315-30', qui:'Employeur'}
+    ],
+    seance:[
+      {lib:'Feuille de présence', art:'L.2314-1', qui:'Employeur', page:'csereu'},
+      {lib:'Le procès-verbal de la séance précédente, pour approbation', art:'R.2315-25', qui:'Secrétaire', page:'csereu'}
+    ],
+    apres:[
+      {lib:'Procès-verbal de la réunion', art:'R.2315-25 · D.2315-26', qui:'Secrétaire', page:'csereu'},
+      {lib:'Affichage ou diffusion du procès-verbal après adoption', art:'L.2315-35', qui:'Secrétaire'}
+    ]});
+
+  E.push({k:'reclamations', num:'12', lib:'Les réclamations', min:11, max:49,
+    quand:'La note écrite est remise deux jours ouvrables avant la réunion ; la réponse est portée au registre dans les six jours',
+    art:'L.2315-22',
+    avant:[
+      {lib:'Note écrite exposant l’objet des demandes, remise deux jours ouvrables avant la réunion', art:'L.2315-22', qui:'Membres élus', page:'csercl'}
+    ],
+    seance:[
+      {lib:'Le registre spécial, pour y porter les demandes et les réponses', art:'L.2315-22', qui:'Employeur', page:'csercl'}
+    ],
+    apres:[
+      {lib:'Réponse motivée transcrite au registre dans les six jours ouvrables suivant la réunion', art:'L.2315-22', qui:'Employeur', page:'csercl'},
+      {lib:'Registre tenu à la disposition des salariés un jour ouvrable par quinzaine, en dehors du temps de travail', art:'L.2315-22', qui:'Employeur', page:'csercl'}
+    ]});
+
+  E.push({k:'consultations', num:'13', lib:'Les consultations récurrentes', min:50,
+    quand:'Chaque année, sauf périodicité différente fixée par accord, dans la limite de trois ans',
+    art:'L.2312-17 · L.2312-19',
+    avant:[
+      {lib:'Base de données économiques, sociales et environnementales, tenue à jour et accessible — sans elle, le délai d’avis ne court pas', art:'L.2312-18 · L.2312-36 · R.2312-12', qui:'Employeur', page:'csecns'},
+      {lib:'Informations propres à la consultation engagée, mises à disposition à l’ouverture du délai', art:'L.2312-15', qui:'Employeur', page:'csecns'}
+    ],
+    seance:[
+      {lib:'Les documents de la consultation, sur la table', art:'L.2312-15', qui:'Employeur'},
+      {lib:'Le cas échéant, le rapport de l’expert désigné', art:'L.2315-87 · L.2315-88 · L.2315-91', qui:'Expert'}
+    ],
+    apres:[
+      {lib:'Avis motivé du comité, portant mention des conséquences environnementales', art:'L.2312-8 · L.2312-15', qui:'Comité', page:'csecns'},
+      {lib:'Réponse motivée de l’employeur à l’avis rendu sur les orientations stratégiques', art:'L.2312-24', qui:'Employeur', page:'csecns'},
+      {lib:'Avis sur les informations en matière de durabilité, si l’entreprise y est assujettie', art:'L.2312-17', qui:'Comité', page:'csecns'}
+    ]});
+
+  E.push({k:'budgets', num:'14', lib:'Les budgets et les comptes', min:50,
+    quand:'Chaque année, arrêté des comptes puis approbation en séance plénière dédiée',
+    art:'L.2315-61 · L.2315-68 · L.2315-69',
+    avant:[
+      {lib:'Attestation de la masse salariale brute de l’exercice — gains soumis à cotisations, hors indemnités de rupture du contrat à durée indéterminée', art:'L.2315-61', qui:'Employeur', page:'csebud'},
+      {lib:'Relevé des versements effectivement opérés au titre du fonctionnement et des activités sociales', art:'L.2315-61 · L.2312-81', qui:'Employeur', page:'csebud'}
+    ],
+    seance:[
+      {lib:'Comptes annuels du comité, selon le régime applicable à ses ressources', art:'L.2315-64 · L.2315-65 · L.2315-67 · L.2315-73', qui:'Trésorier', page:'csebud'},
+      {lib:'Rapport présentant l’activité et la gestion financière du comité', art:'L.2315-69', qui:'Trésorier'}
+    ],
+    apres:[
+      {lib:'Procès-verbal de la séance plénière d’approbation des comptes — cette séance est distincte de celle qui traite des autres points', art:'L.2315-68', qui:'Secrétaire'},
+      {lib:'Portée à la connaissance des salariés des comptes et du rapport', art:'L.2315-69', qui:'Comité'},
+      {lib:'Conservation des pièces comptables pendant dix ans', art:'L.2315-69', qui:'Trésorier'}
+    ]});
+
+  E.push({k:'commissions', num:'15', lib:'Les commissions et les instances', min:300,
+    quand:'Dès le franchissement du seuil, et en tout cas à la mise en place du comité',
+    art:'L.2315-36 · L.2315-46',
+    avant:[], seance:[
+      {lib:'Résolution instituant la commission santé, sécurité et conditions de travail, et désignant ses membres', art:'L.2315-36', qui:'Comité', page:'csediag'},
+      {lib:'Résolution instituant la commission économique, dans les entreprises d’au moins mille salariés', art:'L.2315-46', qui:'Comité', page:'csediag'}
+    ],
+    apres:[
+      {lib:'Règlement intérieur du comité, fixant notamment les modalités de fonctionnement des commissions', art:'L.2315-24', qui:'Comité'},
+      {lib:'Informations trimestrielles mises à disposition par la base de données', art:'L.2312-69 · R.2312-21', qui:'Employeur'}
+    ]});
+
+  var eff=dosEff();
+  if(eff===null) return E;
+  return E.filter(function(x){
+    if(x.min!==undefined && eff<x.min) return false;
+    if(x.max!==undefined && eff>x.max) return false;
+    return true;
+  });
+}
+
+var DOS_BLOCS=[
+  {k:'avant',  lib:'À avoir envoyé avant', emo:'📤', c:'#4a86c8'},
+  {k:'seance', lib:'À avoir en séance',    emo:'📁', c:'#c9a84c'},
+  {k:'apres',  lib:'À produire après',     emo:'📥', c:'#3f9b7a'}
+];
+var DOS_ETATS=[
+  {v:'',        lib:'À faire',      c:'#9a9585'},
+  {v:'pret',    lib:'Prêt',         c:'#3f9b7a'},
+  {v:'sansobj', lib:'Sans objet',   c:'#6b7a8d'}
+];
+
+/* Combien de pieces, combien de pretes, pour une etape. */
+function dosCompte(e){
+  var tot=0, pret=0, so=0;
+  DOS_BLOCS.forEach(function(b){
+    (e[b.k]||[]).forEach(function(p){
+      var st=dosEtat(dosId(e.k,b.k,p.lib));
+      if(st==='sansobj'){ so++; return; }
+      tot++; if(st==='pret') pret++;
+    });
+  });
+  return {tot:tot, pret:pret, so:so};
+}
+
+/* ══════════ L'ANALYSE, pour le module global ══════════ */
+function dosAnalyse(){
+  dosLoad();
+  var A=[], eff=dosEff(), E=dosEtapes();
+  if(eff===null){
+    A.push({gravite:'question', titre:'Effectif inconnu',
+      texte:'Les étapes qui vous concernent dépendent de la taille de l’entreprise. Renseignez le registre du personnel, ou l’effectif du dernier exercice clos.'});
+    return {alertes:A, etapes:E};
+  }
+  var ouverte=DOS.ouverte||'';
+  E.forEach(function(e){
+    var c=dosCompte(e);
+    if(!c.tot) return;
+    if(e.k===ouverte && c.pret<c.tot){
+      A.push({gravite:'stop', titre:'Dossier incomplet — '+e.lib,
+        texte:'Il manque '+(c.tot-c.pret)+' pièce(s) sur '+c.tot+' pour cette étape. Une réunion se perd rarement sur le fond : elle se perd parce qu’une pièce manque.'});
+    }
+  });
+  return {alertes:A, etapes:E};
+}
+
+/* ══════════ L'AFFICHAGE ══════════ */
+function dosOnEnter(){ dosLoad(); dosRender(); }
+function dosRender(){
+  var host=document.getElementById('csedos-body'); if(!host) return;
+  dosLoad();
+  var eff=dosEff(), E=dosEtapes(), h='';
+
+  h+='<div class="card"><div class="ct">Où vous en êtes</div>';
+  if(eff===null) h+='<div style="font-size:13px;color:#e8c97a">Effectif inconnu — toutes les étapes sont affichées. Renseignez le socle pour n’avoir que celles qui vous concernent.</div>';
+  else h+='<div style="font-size:13.5px;color:#e8e4d8;line-height:1.7">Effectif retenu : <b>'+eff+'</b> salarié(s). <b>'+E.length+'</b> étapes vous concernent.</div>';
+  h+='</div>';
+
+  /* Les tuiles */
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
+  E.forEach(function(e){
+    var c=dosCompte(e), fini=(c.tot>0 && c.pret===c.tot), on=(DOS.ouverte===e.k);
+    var col=fini?'#3f9b7a':(c.pret>0?'#d6a842':'#4a86c8');
+    h+='<button onclick="dosOuvrir(\''+e.k+'\')" style="flex:1 1 150px;text-align:left;padding:11px 12px;border-radius:11px;cursor:pointer;font-family:inherit;'
+      +(on?('border:1.5px solid '+col+';background:rgba(255,255,255,.07)'):'border:1px solid rgba(255,255,255,.14);background:#12283b')+'">'
+      +'<div style="font-size:10.5px;color:#9a9585;font-weight:700;letter-spacing:.06em">ÉTAPE '+dosEsc(e.num)+'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:#fff;line-height:1.35;margin:3px 0 5px">'+dosEsc(e.lib)+'</div>'
+      +'<div style="font-size:11.5px;color:'+col+';font-weight:700">'+(fini?'✓ complet':(c.pret+' / '+c.tot+' pièce'+(c.tot>1?'s':'')))+'</div>'
+      +'</button>';
+  });
+  h+='</div>';
+
+  /* L'étape ouverte */
+  var ouv=null; E.forEach(function(e){ if(e.k===DOS.ouverte) ouv=e; });
+  if(!ouv){
+    h+='<div class="card"><div style="font-size:13px;color:#9fb0c4;line-height:1.7">Choisissez une étape ci-dessus pour voir les pièces qu’elle appelle.</div></div>';
+  } else {
+    h+='<div class="card" style="border-color:#c9a84c">'
+      +'<div style="font-size:10.5px;color:#9a9585;font-weight:700;letter-spacing:.06em">ÉTAPE '+dosEsc(ouv.num)+'</div>'
+      +'<div class="ct" style="font-size:17px;margin-top:2px">'+dosEsc(ouv.lib)+'</div>'
+      +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.7">'+dosEsc(ouv.quand)+'.</div>'
+      +'<div style="font-size:11px;color:#9a9585;margin-top:5px">'+dosEsc(ouv.art)+'</div></div>';
+
+    DOS_BLOCS.forEach(function(b){
+      var L=ouv[b.k]||[];
+      if(!L.length) return;
+      h+='<div class="card"><div class="ct">'+b.emo+' '+b.lib+'</div>';
+      L.forEach(function(p){
+        var id=dosId(ouv.k,b.k,p.lib), st=dosEtat(id);
+        var col=(st==='pret')?'#3f9b7a':(st==='sansobj')?'#6b7a8d':b.c;
+        h+='<div style="border-left:3px solid '+col+';padding:9px 0 9px 11px;margin-bottom:11px">'
+          +'<div style="font-size:12.8px;color:'+((st==='sansobj')?'#7b8794':'#e8e4d8')+';line-height:1.6'+((st==='sansobj')?';text-decoration:line-through':'')+'">'+dosEsc(p.lib)+'</div>'
+          +'<div style="font-size:11px;color:#9a9585;margin-top:4px">'+dosEsc(p.art)+(p.qui?(' · '+dosEsc(p.qui)):'')+'</div>'
+          +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">';
+        DOS_ETATS.forEach(function(o){
+          var on=(st===o.v);
+          h+='<button onclick="dosSetEtat(\''+id+'\',\''+o.v+'\')" style="padding:6px 10px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:11.5px;'
+            +(on?('border:1px solid '+o.c+';background:rgba(255,255,255,.10);color:'+o.c+';font-weight:700'):'border:1px solid rgba(255,255,255,.16);background:#12283b;color:#9fb0c4')
+            +'">'+(on?'✓ ':'')+o.lib+'</button>';
+        });
+        if(p.page) h+='<button onclick="goPage(\''+p.page+'\')" style="padding:6px 10px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:11.5px;border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.10);color:#e8c97a">L’établir →</button>';
+        h+='</div></div>';
+      });
+      h+='</div>';
+    });
+
+    h+='<div class="card"><div class="ct">Le bordereau</div>'
+      +'<div style="font-size:12.5px;color:#cfc8b8;line-height:1.7;margin-bottom:10px">Le bordereau récapitule les pièces de cette étape, leur fondement et leur état. Il se joint au dossier et se présente en séance.</div>'
+      +'<button onclick="dosDoc()" style="padding:11px 16px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit">Éditer le bordereau de pièces</button></div>';
+  }
+
+  host.innerHTML=h;
+}
+
+/* ══════════ LE BORDEREAU ══════════ */
+function dosDoc(){
+  var E=dosEtapes(), ouv=null;
+  E.forEach(function(e){ if(e.k===DOS.ouverte) ouv=e; });
+  if(!ouv){ alert('Choisissez d’abord une étape.'); return; }
+  var ent={}; try{ ent=(typeof E!=='undefined'&&E)?E:{}; }catch(e){}
+  var S='font-family:Georgia,serif;font-size:11pt;line-height:1.5;color:#111';
+  var h='<div style="'+S+';max-width:19cm;margin:0 auto;padding:18px">';
+  h+='<h1 style="font-size:15pt;margin:0 0 3px">Bordereau de pièces</h1>';
+  h+='<p style="font-size:11.5pt;margin:0 0 3px"><b>Étape '+dosEsc(ouv.num)+' — '+dosEsc(ouv.lib)+'</b></p>';
+  h+='<p style="font-size:10pt;color:#444;margin:0 0 4px">'+dosEsc(ent.nom||'')+'</p>';
+  h+='<p style="font-size:10pt;color:#444;margin:0 0 16px">'+dosEsc(ouv.quand)+'. — '+dosEsc(ouv.art)+'</p>';
+  DOS_BLOCS.forEach(function(b){
+    var L=ouv[b.k]||[];
+    if(!L.length) return;
+    h+='<h2 style="font-size:12pt;margin:15px 0 5px;border-bottom:1px solid #ccc;padding-bottom:3px">'+b.lib+'</h2>';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:10pt">';
+    L.forEach(function(p,i){
+      var st=dosEtat(dosId(ouv.k,b.k,p.lib));
+      var lab=(st==='pret')?'Pièce jointe':(st==='sansobj')?'Sans objet':'À fournir';
+      h+='<tr><td style="padding:5px 6px;border-bottom:1px solid #eee;width:1.2cm;vertical-align:top">'+(i+1)+'.</td>'
+        +'<td style="padding:5px 6px;border-bottom:1px solid #eee;vertical-align:top">'+dosEsc(p.lib)
+        +'<div style="font-size:8.5pt;color:#666;margin-top:2px">'+dosEsc(p.art)+(p.qui?(' — '+dosEsc(p.qui)):'')+'</div></td>'
+        +'<td style="padding:5px 6px;border-bottom:1px solid #eee;width:3.2cm;vertical-align:top;text-align:right">'+lab+'</td></tr>';
+    });
+    h+='</table>';
+  });
+  h+='<p style="font-size:9pt;color:#555;margin-top:20px;line-height:1.5">Bordereau établi à partir des dispositions citées en regard de chaque pièce. Il ne dispense pas de vérifier les stipulations de la convention collective et du protocole d’accord préélectoral, qui peuvent ajouter des exigences.</p>';
+  h+='</div>';
+  try{
+    var w=window.open('','_blank');
+    if(!w){ alert('Autorisez les fenêtres pour éditer le document.'); return; }
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Bordereau de pièces</title></head><body>'+h+'</body></html>');
+    w.document.close();
+    setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
+  }catch(e){ alert('Impossible d’ouvrir le document : '+e.message); }
+}
+
 var BUD={};
 var BUD_LS='cse_budgets_v1';
 function budKey(){ return BUD_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
@@ -7563,7 +8007,8 @@ var HUB_MODULES=[
   {k:'reunion',       lib:'Réunion en préparation',  page:'csereu',  fn:function(){ return (typeof reuAnalyse==='function')?reuAnalyse():null; }},
   {k:'reclamations',  lib:'Réclamations',            page:'csercl',  fn:function(){ return (typeof rclAnalyse==='function')?rclAnalyse():null; }},
   {k:'consultations', lib:'Consultations récurrentes',page:'csecns', fn:function(){ return (typeof cnsAnalyse==='function')?cnsAnalyse():null; }},
-  {k:'budgets',       lib:'Budgets',                 page:'csebud',  fn:function(){ return (typeof budAnalyse==='function')?budAnalyse():null; }}
+  {k:'budgets',       lib:'Budgets',                 page:'csebud',  fn:function(){ return (typeof budAnalyse==='function')?budAnalyse():null; }},
+  {k:'dossier',       lib:'Dossier par étape',       page:'csedos',  fn:function(){ return (typeof dosAnalyse==='function')?dosAnalyse():null; }}
 ];
 function hubAlertes(){
   var out=[];
@@ -7728,7 +8173,7 @@ var HUB_SECTIONS=[
 ];
 /* Emoji par module : reperage visuel, jamais porteur de sens juridique. */
 var HUB_EMO={ 'Diagnostic':'🧭', 'Composition du comité':'👥', 'Calendrier des réunions':'📅',
-  'Réunion en préparation':'🗣️', 'Réclamations':'📝', 'Consultations récurrentes':'📈', 'Budgets':'💶' };
+  'Réunion en préparation':'🗣️', 'Réclamations':'📝', 'Consultations récurrentes':'📈', 'Budgets':'💶', 'Dossier par étape':'🗂️' };
 
 function hubFait(id){ return (HUB.faites||{})[id]===true; }
 function hubToggleFait(id){
