@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.101';
+var JX_BUILD = 'v2026-08-06.102';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,18 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ MODULE CSE GLOBAL ═══ -->
+<div id="pg-csehub" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Mon espace CSE</div><div class="ts">Tout le comité, en un seul endroit</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div id="csehub-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{hubOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 <!-- ═══ CSE — CONSULTATIONS RÉCURRENTES ═══ -->
 <div id="pg-csecns" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3488,6 +3500,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('csehub');closeMenu()"><span style="font-size:18px">🏛️</span><div><div style="font-size:13px;font-weight:600;color:#e8c97a">Mon espace CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">TOUT LE MODULE</span></div></div></div>
   <div class="mi" onclick="goPage('csecns');closeMenu()"><span style="font-size:18px">📈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Consultations récurrentes</div></div></div>
   <div class="mi" onclick="goPage('csercl');closeMenu()"><span style="font-size:18px">📝</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réclamations</div></div></div>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
@@ -5410,6 +5423,7 @@ function goPage(id){
   if(id==='csereu'){ try{ reuOnEnter(); }catch(e){} }
   if(id==='csercl'){ try{ rclOnEnter(); }catch(e){} }
   if(id==='csecns'){ try{ cnsOnEnter(); }catch(e){} }
+  if(id==='csehub'){ try{ hubOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6292,6 +6306,456 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
 
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULE GLOBAL
+   Un seul endroit qui couvre tout : on demande les informations
+   indispensables, et l'application en tire la procedure a suivre, le
+   calendrier, les documents et le classeur. Interactif, pas informatif :
+   chaque reponse deplace la suite.
+   ══════════════════════════════════════════════════════════════════ */
+var HUB={};
+var HUB_LS='cse_hub_v1';
+function hubKey(){ return HUB_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function hubLoad(){
+  try{ HUB=JSON.parse(localStorage.getItem(hubKey())||'{}')||{}; }catch(e){ HUB={}; }
+  if(!HUB.classeur) HUB.classeur={};
+  if(!HUB.bdese) HUB.bdese={};
+  /* On charge tous les sous-modules : le module global les lit, il ne les
+     duplique pas. */
+  // Appel direct, pas de resolution dynamique : une fonction absente doit
+  // faire echouer le chargement de son module, pas disparaitre en silence.
+  try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){}
+  try{ if(typeof socLoad==='function') socLoad(); }catch(e){}
+  try{ if(typeof csedLoad==='function') csedLoad(); }catch(e){}
+  try{ if(typeof mcLoad==='function') mcLoad(); }catch(e){}
+  try{ if(typeof calLoad==='function') calLoad(); }catch(e){}
+  try{ if(typeof reuLoad==='function') reuLoad(); }catch(e){}
+  try{ if(typeof rclLoad==='function') rclLoad(); }catch(e){}
+  try{ if(typeof cnsLoad==='function') cnsLoad(); }catch(e){}
+}
+function hubSave(){ try{ localStorage.setItem(hubKey(), JSON.stringify(HUB)); }catch(e){} }
+function hubEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function hubFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function hubAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function hubJours(a,b){ if(!a||!b) return null; var x=new Date(a+'T00:00:00'), y=new Date(b+'T00:00:00'); if(isNaN(x)||isNaN(y)) return null; return Math.round((y-x)/86400000); }
+function hubReste(iso){
+  var n=hubJours(hubAuj(), iso); if(n===null) return '';
+  if(n<0) return '<b style="color:#e05c5c">dépassée de '+(-n)+' j</b>';
+  if(n===0) return '<b style="color:#e05c5c">aujourd’hui</b>';
+  if(n<=30) return '<b style="color:#e8c97a">dans '+n+' j</b>';
+  return '<span style="color:#9fb0c4">dans '+n+' j</span>';
+}
+function hubEff(){
+  try{ if(typeof socSerie!=='function') return null; var s=socSerie(36); return s.length? s[s.length-1].ent : null; }catch(e){ return null; }
+}
+
+/* ══════════ CE QU'ON DEMANDE, ET RIEN DE PLUS ══════════
+   Chaque reponse est ecrite directement dans le sous-module concerne :
+   le module global ne cree pas une seconde source de verite. */
+var HUB_QUESTIONS=[
+  { k:'effectif', lib:'Combien de salariés ?', mod:'socle',
+    lire:function(){ var e=hubEff(); return (e===null)?'':String(e); },
+    aide:'Calculé sur le registre du personnel, selon L.1111-2 et L.1111-3.',
+    action:'socle', actionLib:'Ouvrir le socle' },
+  { k:'situation', lib:'Où en est le comité ?', mod:'diagnostic',
+    lire:function(){ try{ return CSED.situation||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.situation=v; csedSave(); },
+    choix:function(){ return CSED_SITUATIONS; } },
+  { k:'tour1', lib:'Date du premier tour des dernières élections', mod:'diagnostic', type:'date',
+    lire:function(){ try{ return CSED.dateElec||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.dateElec=v; csedSave(); try{ MC.tour1=v; mcSave(); }catch(e){} },
+    si:function(){ try{ return CSED.situation==='encours'||CSED.situation==='expire'; }catch(e){ return false; } } },
+  { k:'duMandat', lib:'Durée des mandats', mod:'diagnostic',
+    lire:function(){ try{ return String(CSED.duree||'4'); }catch(e){ return '4'; } },
+    ecrire:function(v){ CSED.duree=v; csedSave(); try{ MC.duMandat=v; mcSave(); }catch(e){} },
+    choix:function(){ return CSED_DUREES; } },
+  { k:'dateInfo', lib:'Information du personnel sur les élections diffusée le', mod:'diagnostic', type:'date',
+    lire:function(){ try{ return CSED.dateInfo||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.dateInfo=v; csedSave(); },
+    si:function(){ try{ return CSED.situation==='aucun'||CSED.situation==='expire'||CSED.situation==='carence'; }catch(e){ return false; } } },
+  { k:'premiere', lib:'Première réunion de l’année', mod:'calendrier', type:'date',
+    lire:function(){ try{ return CAL.premiere||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CAL.premiere=v; calSave(); } },
+  { k:'accord', lib:'Un accord d’entreprise règle-t-il le fonctionnement du comité ?', mod:'calendrier',
+    lire:function(){ try{ return CAL.accord||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CAL.accord=v; calSave(); try{ CNS.accord=v; cnsSave(); }catch(e){} },
+    choix:function(){ return [{v:'non',lib:'Non — règles supplétives du code du travail'},{v:'oui',lib:'Oui'}]; } },
+  { k:'bdese', lib:'La base de données économiques, sociales et environnementales est-elle en place ?', mod:'consultations',
+    lire:function(){ try{ return CNS.bdese||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CNS.bdese=v; cnsSave(); },
+    choix:function(){ return [{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}]; },
+    si:function(){ var e=hubEff(); return e!==null && e>=50; } }
+];
+function hubQuestions(){
+  return HUB_QUESTIONS.filter(function(q){ return !q.si || q.si(); });
+}
+function hubRepondu(q){
+  var v='';
+  try{ v=q.lire()||''; }catch(e){ v=''; }
+  return String(v).trim()!=='';
+}
+function hubAvancement(){
+  var Q=hubQuestions(), n=0;
+  Q.forEach(function(q){ if(hubRepondu(q)) n++; });
+  return {faites:n, total:Q.length, pct:Q.length?Math.round(n/Q.length*100):0};
+}
+function hubRep(k,v){
+  var q=null;
+  HUB_QUESTIONS.forEach(function(x){ if(x.k===k) q=x; });
+  if(!q||!q.ecrire) return;
+  q.ecrire(v); hubSave(); hubRender();
+}
+function hubRepSel(k,id){ hubRep(k, (typeof jxSelectVal==='function')?jxSelectVal(id):''); }
+
+/* ══════════ AGREGATION DE TOUS LES SOUS-MODULES ══════════ */
+var HUB_MODULES=[
+  {k:'diagnostic',    lib:'Diagnostic',              page:'csediag', fn:function(){ return (typeof csedAnalyse==='function')?csedAnalyse():null; }},
+  {k:'composition',   lib:'Composition du comité',   page:'moncse',  fn:function(){ return (typeof mcAnalyse==='function')?mcAnalyse():null; }},
+  {k:'calendrier',    lib:'Calendrier des réunions', page:'csecal',  fn:function(){ return (typeof calAnalyse==='function')?calAnalyse():null; }},
+  {k:'reunion',       lib:'Réunion en préparation',  page:'csereu',  fn:function(){ return (typeof reuAnalyse==='function')?reuAnalyse():null; }},
+  {k:'reclamations',  lib:'Réclamations',            page:'csercl',  fn:function(){ return (typeof rclAnalyse==='function')?rclAnalyse():null; }},
+  {k:'consultations', lib:'Consultations récurrentes',page:'csecns', fn:function(){ return (typeof cnsAnalyse==='function')?cnsAnalyse():null; }}
+];
+function hubAlertes(){
+  var out=[];
+  HUB_MODULES.forEach(function(M){
+    var r=null;
+    try{ r=M.fn(); }catch(e){ r=null; }
+    if(!r) return;
+    var A=r.alertes||r.A||[];
+    A.forEach(function(a){
+      out.push({ mod:M, gravite:(a.gravite||a.g||'info'), titre:(a.titre||a.t||''), texte:(a.texte||a.x||'') });
+    });
+  });
+  var o={stop:0,question:1,info:2};
+  out.sort(function(a,b){ return (o[a.gravite]-o[b.gravite]) || a.mod.lib.localeCompare(b.mod.lib,'fr'); });
+  return out;
+}
+/* Toutes les echeances datees, tous modules confondus. */
+function hubEcheances(){
+  var out=[];
+  try{
+    var d=csedAnalyse();
+    (d.route||[]).forEach(function(r){ if(r.date) out.push({date:r.date, quoi:r.quoi, art:r.art, mod:'Diagnostic', page:'csediag'}); });
+  }catch(e){}
+  try{
+    var c=calAnalyse();
+    (c.seances||[]).forEach(function(s){
+      if(s.faite) return;
+      out.push({date:s.iso, quoi:'Réunion n° '+s.n, art:(c.reg?c.reg.art:''), mod:'Calendrier', page:'csecal'});
+    });
+  }catch(e){}
+  try{
+    var n=cnsAnalyse();
+    (n.lignes||[]).forEach(function(L){
+      if(L.lim && L.c && L.c.etat==='encours') out.push({date:L.lim, quoi:'Avis réputé négatif — '+L.C.lib, art:'R.2312-6', mod:'Consultations', page:'csecns'});
+      if(L.prochaine) out.push({date:L.prochaine, quoi:'Consultation due — '+L.C.lib, art:L.C.art, mod:'Consultations', page:'csecns'});
+    });
+  }catch(e){}
+  try{
+    if(typeof REU!=='undefined' && REU.date){
+      out.push({date:REU.date, quoi:'Réunion préparée', art:'', mod:'Réunion', page:'csereu'});
+    }
+  }catch(e){}
+  out.sort(function(a,b){ return a.date<b.date?-1:(a.date>b.date?1:0); });
+  return out;
+}
+/* La prochaine action : la premiere echeance non passee, ou la premiere
+   anomalie bloquante s'il y en a une. */
+function hubProchaine(){
+  var A=hubAlertes().filter(function(a){ return a.gravite==='stop'; });
+  if(A.length) return {type:'stop', a:A[0]};
+  var E=hubEcheances().filter(function(e){ return hubJours(hubAuj(), e.date)>=0; });
+  if(E.length) return {type:'echeance', e:E[0]};
+  var Q=hubQuestions().filter(function(q){ return !hubRepondu(q); });
+  if(Q.length) return {type:'question', q:Q[0]};
+  return null;
+}
+
+/* ══════════ LE CLASSEUR ══════════
+   Tous les documents a produire, avec l'article qui les impose, leur etat
+   et, quand il existe, le generateur qui les produit. */
+function hubClasseur(){
+  var eff=hubEff(), L=[];
+  var sit=''; try{ sit=CSED.situation||''; }catch(e){}
+  var A=function(o){ L.push(o); };
+
+  A({k:'registre', lib:'Registre unique du personnel', art:'L.1221-13', quand:'Dès le premier salarié', page:'socle'});
+  if(eff===null || eff>=11){
+    A({k:'info-elec', lib:'Information du personnel sur l’organisation des élections', art:'L.2314-4', quand:'Au plus tard 90 jours avant le premier tour', doc:['elec','info']});
+    A({k:'invit-os', lib:'Invitation des organisations syndicales à négocier le protocole', art:'L.2314-5', quand:'En même temps que l’information du personnel', doc:['elec','os']});
+    A({k:'pap', lib:'Protocole d’accord préélectoral', art:'L.2314-6 · L.2314-13', quand:'Avant le premier tour', doc:['elec','pap']});
+    A({k:'listes', lib:'Listes électorales par collège', art:'L.2314-18 · L.2314-19', quand:'Avant le premier tour'});
+    A({k:'pv-elec', lib:'Procès-verbal des élections, ou procès-verbal de carence', art:'L.2314-9', quand:'Transmis dans les 15 jours', doc:['elec','carence']});
+  }
+  if(eff!==null && eff>=11){
+    A({k:'odj', lib:'Ordre du jour de chaque réunion', art:'L.2315-29 · L.2315-30', quand:'Communiqué 3 jours au moins avant', doc:['reu','conv']});
+    A({k:'convoc', lib:'Convocation aux réunions', art:'L.2315-30', quand:'Avec l’ordre du jour', doc:['reu','conv']});
+    A({k:'presence', lib:'Feuille de présence', art:'L.2314-1', quand:'À chaque réunion', doc:['reu','presence']});
+    A({k:'pv-reu', lib:'Procès-verbal de réunion', art:'R.2315-25 · D.2315-26', quand:'Dans les 15 jours', doc:['reu','pv']});
+  }
+  if(eff!==null && eff<50 && eff>=11){
+    A({k:'note-recl', lib:'Note écrite des réclamations', art:'L.2315-22', quand:'2 jours ouvrables avant la réunion', doc:['rcl','note']});
+    A({k:'registre-recl', lib:'Registre spécial des réclamations', art:'L.2315-22', quand:'Tenu à disposition 1 jour ouvrable par quinzaine', doc:['rcl','registre']});
+  } else if(eff!==null && eff>=50){
+    A({k:'registre-recl', lib:'Registre des réclamations (facultatif)', art:'L.2312-5 · L.2312-8', quand:'Tenu volontairement', doc:['rcl','registre']});
+    A({k:'ri-cse', lib:'Règlement intérieur du comité', art:'L.2315-24', quand:'Dès la mise en place'});
+    A({k:'bdese', lib:'Base de données économiques, sociales et environnementales', art:'L.2312-18 · L.2312-36', quand:'En permanence'});
+    A({k:'avis-strat', lib:'Avis sur les orientations stratégiques, et réponse argumentée', art:'L.2312-24', quand:'À chaque consultation', page:'csecns'});
+    A({k:'avis-eco', lib:'Avis sur la situation économique et financière', art:'L.2312-25', quand:'À chaque consultation', page:'csecns'});
+    A({k:'avis-social', lib:'Avis sur la politique sociale, les conditions de travail et l’emploi', art:'L.2312-26', quand:'À chaque consultation', page:'csecns'});
+    A({k:'comptes', lib:'Comptes annuels du comité et rapport d’activité et de gestion', art:'L.2315-64 · L.2315-69', quand:'Chaque année'});
+  }
+  if(eff!==null && eff>=11){
+    A({k:'referent', lib:'Résolution désignant le référent harcèlement sexuel', art:'L.2314-1', quand:'Dès la mise en place', page:'moncse'});
+  }
+  if(eff!==null && eff>=250){
+    A({k:'referent-emp', lib:'Désignation du référent employeur harcèlement sexuel', art:'L.1153-5-1', quand:'En permanence', page:'moncse'});
+  }
+  if(eff!==null && eff>=300){
+    A({k:'cssct', lib:'Résolution instituant la commission santé, sécurité et conditions de travail', art:'L.2315-36', quand:'Dès la mise en place'});
+  }
+  return L;
+}
+function hubEtat(k){ return (HUB.classeur||{})[k]||''; }
+function hubSetEtat(k,v){ if(!HUB.classeur) HUB.classeur={}; HUB.classeur[k]=v; hubSave(); hubRender(); }
+function hubDoc(mod, sous){
+  if(mod==='reu' && typeof reuDoc==='function'){ reuDoc(sous); return; }
+  if(mod==='rcl' && typeof rclDoc==='function'){ rclDoc(sous); return; }
+  if(mod==='elec'){
+    alert('Ce document est produit par le module Élections CSE, qui est autonome.\n\nIl s’ouvre dans une page à part.');
+    try{ window.location.href='elections-cse.html'; }catch(e){}
+    return;
+  }
+  alert('Aucun générateur n’est encore rattaché à ce document. Il figure au classeur pour que son absence soit visible.');
+}
+
+/* ══════════ LA BASE BDESE ══════════ */
+var HUB_BDESE=[
+  {k:'inv-social', lib:'Investissement social', det:'Emploi, évolution et répartition des contrats précaires, des stages et des emplois à temps partiel, formation professionnelle, évolution professionnelle et conditions de travail.'},
+  {k:'inv-mat',    lib:'Investissement matériel et immatériel', det:'Évolution des actifs nets d’amortissement et de dépréciations éventuelles, et, le cas échéant, dépenses de recherche et développement.'},
+  {k:'egalite',    lib:'Égalité professionnelle entre les femmes et les hommes', det:'Diagnostic et analyse de la situation comparée, égalité de rémunération, évolution des taux de promotion respectifs par métiers.'},
+  {k:'fonds',      lib:'Fonds propres, endettement et impôts', det:'Capitaux propres, emprunts et dettes financières, impôts et taxes.'},
+  {k:'remuneration',lib:'Ensemble des éléments de la rémunération des salariés et dirigeants', det:'Évolution des rémunérations salariales, épargne salariale, rémunération des dirigeants.'},
+  {k:'asc',        lib:'Activités sociales et culturelles', det:'Montant de la contribution aux activités sociales et culturelles du comité, mécénat.'},
+  {k:'financeurs', lib:'Rémunération des financeurs', det:'Rémunération des actionnaires et de l’actionnariat salarié.'},
+  {k:'flux',       lib:'Flux financiers à destination de l’entreprise', det:'Aides publiques, réductions d’impôts, exonérations et réductions de cotisations sociales, crédits d’impôts, mécénat.'},
+  {k:'partenariats',lib:'Partenariats', det:'Partenariats conclus pour produire des services ou des produits pour une autre entreprise, ou en bénéficier.'},
+  {k:'environnement',lib:'Conséquences environnementales de l’activité de l’entreprise', det:'Politique générale en matière environnementale, économie circulaire, changement climatique.'}
+];
+function hubBd(k){ return (HUB.bdese||{})[k]||''; }
+function hubSetBd(k,v){ if(!HUB.bdese) HUB.bdese={}; HUB.bdese[k]=v; hubSave(); hubRender(); }
+
+/* ══════════ RENDU ══════════ */
+var HUB_ONGLETS=[['demarrage','▶︎ Démarrage'],['bord','📊 Tableau de bord'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE']];
+var _hubT='demarrage';
+function hubGo(t){ _hubT=t; hubRender(); }
+function hubOnEnter(){ hubLoad(); if(hubAvancement().faites) _hubT='bord'; hubRender(); }
+function hubRender(){
+  var host=document.getElementById('csehub-body'); if(!host) return;
+  var av=hubAvancement();
+  var h='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">'
+    + HUB_ONGLETS.map(function(o){
+        var on=(_hubT===o[0]);
+        return '<button onclick="hubGo(\''+o[0]+'\')" style="border:1px solid '+(on?'#c9a84c':'#3a4a5f')+';background:'+(on?'#c9a84c':'#16263c')+';color:'+(on?'#000':'#e8e4d8')+';border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">'+o[1]+'</button>';
+      }).join('')
+    +'</div>';
+
+  /* Barre d'avancement, toujours visible */
+  h+='<div class="card" style="border-color:#c9a84c">'
+   +'<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">'
+     +'<div style="flex:1;min-width:180px">'
+       +'<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:5px">Informations indispensables : '+av.faites+' sur '+av.total+'</div>'
+       +'<div style="height:8px;background:#0f1b2c;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+av.pct+'%;background:'+(av.pct===100?'#46b885':'#c9a84c')+'"></div></div>'
+     +'</div>'
+     +'<div style="font-size:22px;font-weight:800;color:'+(av.pct===100?'#46b885':'#e8c97a')+'">'+av.pct+' %</div>'
+   +'</div>';
+  var P=hubProchaine();
+  if(P){
+    var t='', x='', page='';
+    if(P.type==='stop'){ t='À traiter en priorité — '+P.a.mod.lib; x=P.a.titre+' — '+P.a.texte; page=P.a.mod.page; }
+    else if(P.type==='echeance'){ t='Prochaine échéance — '+hubFR(P.e.date)+' ('+hubReste(P.e.date).replace(/<[^>]+>/g,'')+')'; x=P.e.quoi+(P.e.art?(' · article '+P.e.art):''); page=P.e.page; }
+    else { t='Information manquante'; x=P.q.lib; page=(P.q.action||''); }
+    h+='<div style="margin-top:12px;padding:12px;background:'+(P.type==='stop'?'rgba(224,92,92,.12)':'rgba(232,201,122,.10)')+';border:1px solid '+(P.type==='stop'?'#e05c5c':'#e8c97a')+';border-radius:10px">'
+      +'<div style="font-size:11px;font-weight:800;color:'+(P.type==='stop'?'#e05c5c':'#e8c97a')+';letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Ce qu’il faut faire maintenant</div>'
+      +'<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">'+hubEsc(t)+'</div>'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc(x.slice(0,300))+'</div>'
+      +(page?('<div style="margin-top:9px"><button onclick="goPage(\''+page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Y aller →</button></div>'):'')
+      +'</div>';
+  } else if(av.pct===100){
+    h+='<div style="margin-top:12px;font-size:12.5px;color:#46b885">Aucune anomalie bloquante et aucune échéance à venir enregistrée.</div>';
+  }
+  h+='</div>';
+
+  if(_hubT==='demarrage') h+=hubVueDemarrage();
+  else if(_hubT==='bord') h+=hubVueBord();
+  else if(_hubT==='agenda') h+=hubVueAgenda();
+  else if(_hubT==='classeur') h+=hubVueClasseur();
+  else h+=hubVueBdese();
+
+  host.innerHTML=h;
+}
+
+function hubVueDemarrage(){
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  var h='<div class="card"><div class="ct">Les informations indispensables</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:14px">'
+     +'Répondez ici une seule fois. Chaque réponse est écrite dans le module concerné — il n’y a pas de seconde saisie, '
+     +'et l’application en tire aussitôt la procédure, le calendrier et les documents.'
+   +'</div>';
+  hubQuestions().forEach(function(q){
+    var v=''; try{ v=q.lire()||''; }catch(e){}
+    var ok=hubRepondu(q);
+    h+='<div style="padding:11px;background:#0f1b2c;border:1px solid '+(ok?'#46b885':'#3a4a5f')+';border-left:3px solid '+(ok?'#46b885':'#c9a84c')+';border-radius:9px;margin-bottom:9px">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px">'+hubEsc(q.lib)+'</div>';
+    if(q.choix){
+      h+=S('hub-'+q.k, q.choix(), v, 'hubRepSel(\''+q.k+'\',\'hub-'+q.k+'\')');
+    } else if(q.type==='date'){
+      h+='<input type="date" value="'+hubEsc(v)+'" onchange="hubRep(\''+q.k+'\',this.value)">';
+    } else {
+      h+='<div style="font-size:20px;font-weight:800;color:'+(ok?'#fff':'#e8c97a')+'">'+(ok?hubEsc(v):'non renseigné')+'</div>';
+    }
+    if(q.aide) h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:6px">'+hubEsc(q.aide)+'</div>';
+    if(q.action) h+='<div style="margin-top:8px"><button onclick="goPage(\''+q.action+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+hubEsc(q.actionLib||'Ouvrir')+'</button></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function hubVueBord(){
+  var A=hubAlertes();
+  var par={};
+  A.forEach(function(a){ if(!par[a.mod.k]) par[a.mod.k]={mod:a.mod, stop:0, question:0, info:0}; par[a.mod.k][a.gravite]++; });
+  var h='<div class="card"><div class="ct">Les modules</div>';
+  HUB_MODULES.forEach(function(M){
+    var p=par[M.k]||{stop:0,question:0,info:0};
+    var col=p.stop?'#e05c5c':(p.question?'#e8c97a':'#46b885');
+    h+='<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #263a52">'
+      +'<div style="width:9px;height:9px;border-radius:50%;background:'+col+';flex-shrink:0"></div>'
+      +'<div style="flex:1;font-size:13px;font-weight:600;color:#e8e4d8">'+hubEsc(M.lib)+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;white-space:nowrap">'
+        +(p.stop?('<b style="color:#e05c5c">'+p.stop+' bloquant</b> · '):'')
+        +(p.question?('<span style="color:#e8c97a">'+p.question+' à vérifier</span> · '):'')
+        +'<span style="color:#6b7a8d">'+p.info+' rappel(s)</span>'
+      +'</div>'
+      +'<button onclick="goPage(\''+M.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">→</button>'
+      +'</div>';
+  });
+  h+='</div>';
+
+  var bloq=A.filter(function(a){ return a.gravite==='stop'; });
+  var quest=A.filter(function(a){ return a.gravite==='question'; });
+  if(bloq.length){
+    h+='<div class="card"><div class="ct">'+bloq.length+' anomalie(s) bloquante(s)</div>'
+     + bloq.map(function(a){
+        return '<div class="al" style="margin:8px 0;padding:10px 12px;border-radius:10px;background:rgba(224,92,92,.12);border:1px solid #e05c5c">'
+          +'<div style="font-size:11px;color:#9fb0c4;margin-bottom:2px">'+hubEsc(a.mod.lib)+'</div>'
+          +'<div style="font-size:12.5px;font-weight:800;color:#e05c5c;margin-bottom:3px">⛔ '+hubEsc(a.titre)+'</div>'
+          +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc(a.texte)+'</div>'
+          +'</div>';
+       }).join('')
+     +'</div>';
+  }
+  if(quest.length){
+    h+='<div class="card"><div class="ct">'+quest.length+' point(s) à vérifier</div>'
+     + quest.map(function(a){
+        return '<div style="margin:8px 0;padding:10px 12px;border-radius:10px;background:rgba(232,201,122,.10);border:1px solid #e8c97a">'
+          +'<div style="font-size:11px;color:#9fb0c4;margin-bottom:2px">'+hubEsc(a.mod.lib)+'</div>'
+          +'<div style="font-size:12.5px;font-weight:800;color:#e8c97a;margin-bottom:3px">⚠ '+hubEsc(a.titre)+'</div>'
+          +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hubEsc(a.texte)+'</div>'
+          +'</div>';
+       }).join('')
+     +'</div>';
+  }
+  if(!bloq.length && !quest.length){
+    h+='<div class="card"><div style="font-size:13px;color:#46b885">Aucune anomalie bloquante, aucun point à vérifier.</div></div>';
+  }
+  return h;
+}
+
+function hubVueAgenda(){
+  var E=hubEcheances();
+  if(!E.length) return '<div class="card"><div class="ct">Agenda</div><div style="font-size:13px;color:#9fb0c4">Aucune échéance datée. Renseignez les dates au démarrage.</div></div>';
+  var passe=E.filter(function(e){ return hubJours(hubAuj(), e.date)<0; });
+  var venir=E.filter(function(e){ return hubJours(hubAuj(), e.date)>=0; });
+  var ligne=function(e){
+    return '<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid #263a52">'
+      +'<div style="min-width:86px;font-size:12.5px;font-weight:800;color:#e8c97a">'+hubFR(e.date)+'</div>'
+      +'<div style="flex:1">'
+        +'<div style="font-size:13px;color:#e8e4d8">'+hubEsc(e.quoi)+'</div>'
+        +'<div style="font-size:11.5px;color:#6b7a8d">'+hubEsc(e.mod)+(e.art?(' · '+hubEsc(e.art)):'')+'</div>'
+      +'</div>'
+      +'<div style="font-size:11.5px;white-space:nowrap">'+hubReste(e.date)+'</div>'
+      +'<button onclick="goPage(\''+e.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:8px;padding:5px 9px;font-size:11.5px;cursor:pointer;font-family:inherit">→</button>'
+      +'</div>';
+  };
+  var h='';
+  if(venir.length) h+='<div class="card"><div class="ct">À venir — '+venir.length+'</div>'+venir.map(ligne).join('')+'</div>';
+  if(passe.length) h+='<div class="card"><div class="ct" style="color:#e05c5c">Échéances passées — '+passe.length+'</div>'+passe.map(ligne).join('')+'</div>';
+  return h;
+}
+
+var HUB_ETATS=[{v:'',lib:'— à produire'},{v:'fait',lib:'Produit'},{v:'so',lib:'Sans objet'}];
+function hubVueClasseur(){
+  var C=hubClasseur();
+  var faits=C.filter(function(x){ return hubEtat(x.k)==='fait'; }).length;
+  var so=C.filter(function(x){ return hubEtat(x.k)==='so'; }).length;
+  var h='<div class="card"><div class="ct">Classeur — '+faits+' produit(s), '+so+' sans objet, '+(C.length-faits-so)+' à produire</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
+     +'Tous les documents que la taille et la situation de l’entreprise appellent, avec l’article qui les impose. '
+     +'Ce qui n’est pas produit reste visible : le classeur ne masque pas une absence.'
+   +'</div>';
+  C.forEach(function(x){
+    var e=hubEtat(x.k);
+    var col=(e==='fait')?'#46b885':((e==='so')?'#6b7a8d':'#e8c97a');
+    h+='<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+col+';border-radius:9px;margin-bottom:9px">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff">'+hubEsc(x.lib)+'</div>'
+      +'<div style="font-size:11.5px;color:#6b7a8d;margin:2px 0 6px">Article '+hubEsc(x.art)+' · '+hubEsc(x.quand)+'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+        +'<select onchange="hubSetEtat(\''+x.k+'\',this.value)" style="width:auto;padding:6px;font-size:12px">'
+        + HUB_ETATS.map(function(o){ return '<option value="'+o.v+'"'+(e===o.v?' selected':'')+'>'+hubEsc(o.lib)+'</option>'; }).join('')
+        +'</select>'
+        +(x.doc?('<button onclick="hubDoc(\''+x.doc[0]+'\',\''+x.doc[1]+'\')" style="background:#2b579a;border:none;color:#fff;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Générer</button>'):'')
+        +(x.page?('<button onclick="goPage(\''+x.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Ouvrir le module</button>'):'')
+      +'</div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function hubVueBdese(){
+  var eff=hubEff();
+  var h='<div class="card"><div class="ct">Base de données économiques, sociales et environnementales</div>';
+  if(eff!==null && eff<50){
+    h+='<div style="font-size:13px;color:#9fb0c4;line-height:1.7">Effectif de <b>'+eff+'</b> salariés. La base de données est prévue pour les entreprises d’au moins cinquante salariés (L.2312-18).</div></div>';
+    return h;
+  }
+  var faits=HUB_BDESE.filter(function(t){ return hubBd(t.k)==='fait'; }).length;
+  h+='<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
+   +'Dix thèmes obligatoires (L.2312-36). Leur contenu précis est fixé par décret et diffère selon que l’entreprise atteint ou non trois cents salariés '
+   +'(R.2312-8 en dessous, R.2312-9 au-dessus)'+(eff!==null?(' — ici, <b>'+(eff>=300?'R.2312-9':'R.2312-8')+'</b>'):'')+'. '
+   +'Un accord peut en définir l’organisation, l’architecture et le contenu, sans supprimer les thèmes obligatoires ni priver le comité des informations nécessaires à ses consultations (L.2312-21).'
+   +'</div>'
+   +'<div style="font-size:13px;font-weight:800;color:'+(faits===HUB_BDESE.length?'#46b885':'#e8c97a')+';margin-bottom:10px">'+faits+' thème(s) renseigné(s) sur '+HUB_BDESE.length+'</div>';
+  HUB_BDESE.forEach(function(t){
+    var e=hubBd(t.k);
+    var col=(e==='fait')?'#46b885':'#e8c97a';
+    h+='<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+col+';border-radius:9px;margin-bottom:9px">'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<label style="flex:1;font-size:13px;font-weight:700;color:#fff;cursor:pointer">'
+        +'<input type="checkbox" '+(e==='fait'?'checked':'')+' onchange="hubSetBd(\''+t.k+'\',this.checked?\'fait\':\'\')" style="width:auto;margin-right:8px">'
+        + hubEsc(t.lib)+'</label>'
+      +'</div>'
+      +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:5px">'+hubEsc(t.det)+'</div>'
+      +'</div>';
+  });
+  h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.55">La base porte sur l’année en cours, les deux années précédentes et, sous forme de perspectives, les trois années suivantes.</div>';
+  h+='</div>';
+  return h;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULE 3.5 : CONSULTATIONS RECURRENTES
