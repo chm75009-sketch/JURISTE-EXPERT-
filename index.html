@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.91';
+var JX_BUILD = 'v2026-08-05.92';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -5322,6 +5322,319 @@ function homeToggle(head){
   body.style.display=open?'none':'';
   var chev=head.querySelector('.home-acc-chev');
   if(chev)chev.textContent=open?'▸':'▾';
+}
+
+
+
+/* ══════════════════════════════════════════════════════════════════
+   LISTES DEROULANTES + CONTROLE DE COHERENCE  (module transverse)
+   Deux regles valables pour TOUS les modules :
+   1. une liste deroulante chaque fois qu'un choix ferme est possible,
+      toujours avec « Autre — preciser » et un champ libre ;
+   2. les choix sont confrontes entre eux (poste, classification, statut,
+      salaire, convention) et l'ecart est signale, jamais corrige d'office.
+   Rien n'est devine : ce qui n'est pas verifiable est demande ou signale.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── SMIC : valeur datee, modifiable. Jamais codee en dur sans sa date. ── */
+var JX_SMIC = { h:12.31, mens35:1867.02, depuis:'2026-06-01', source:'SMIC au 1er juin 2026' };
+function jxSmicLoad(){
+  try{ var d=JSON.parse(localStorage.getItem('jx_smic_v1')||'null'); if(d&&d.h) JX_SMIC=d; }catch(e){}
+}
+function jxSmicMensuel(heuresHebdo){
+  var h=parseFloat(heuresHebdo);
+  if(!h||h<=0||h>=35) return JX_SMIC.mens35;
+  return JX_SMIC.mens35*h/35;                 // temps partiel : proratisation
+}
+
+/* ── Grilles de classification par convention ──
+   Structure des niveaux uniquement. Les montants des grilles changent a
+   chaque avenant : ils ne sont pas codes ici, ils sont demandes. */
+var JX_GRILLES = {
+  banque: {
+    idcc:'2120', label:'Niveau de classification',
+    note:'Onze niveaux : techniciens des metiers de la banque A a G, cadres H a K.',
+    niveaux:[
+      {v:'A',lib:'Niveau A — technicien',cadre:false},{v:'B',lib:'Niveau B — technicien',cadre:false},
+      {v:'C',lib:'Niveau C — technicien',cadre:false},{v:'D',lib:'Niveau D — technicien',cadre:false},
+      {v:'E',lib:'Niveau E — technicien',cadre:false},{v:'F',lib:'Niveau F — technicien',cadre:false},
+      {v:'G',lib:'Niveau G — technicien',cadre:false},
+      {v:'H',lib:'Niveau H — cadre',cadre:true},{v:'I',lib:'Niveau I — cadre',cadre:true},
+      {v:'J',lib:'Niveau J — cadre',cadre:true},{v:'K',lib:'Niveau K — cadre',cadre:true}
+    ],
+    postes:['Charge d\'accueil','Charge de clientele particuliers','Conseiller clientele professionnels',
+      'Charge d\'affaires entreprises','Conseiller en gestion de patrimoine','Gestionnaire back-office',
+      'Analyste credit','Analyste risques','Controleur de gestion','Juriste bancaire',
+      'Charge de conformite','Directeur d\'agence','Responsable de secteur']
+  },
+  assurances: {
+    idcc:'1672', label:'Classe',
+    note:'Sept classes numerotees de 1 a 7 par ordre croissant de competences ; classes 1 a 4 non-cadres, classes 5 a 7 cadres.',
+    niveaux:[
+      {v:'1',lib:'Classe 1 — non-cadre',cadre:false},{v:'2',lib:'Classe 2 — non-cadre',cadre:false},
+      {v:'3',lib:'Classe 3 — non-cadre',cadre:false},{v:'4',lib:'Classe 4 — non-cadre',cadre:false},
+      {v:'5',lib:'Classe 5 — cadre',cadre:true},{v:'6',lib:'Classe 6 — cadre',cadre:true},
+      {v:'7',lib:'Classe 7 — cadre',cadre:true}
+    ],
+    postes:['Gestionnaire de contrats','Gestionnaire sinistres','Conseiller commercial',
+      'Inspecteur commercial','Souscripteur','Actuaire','Charge d\'indemnisation',
+      'Juriste assurance','Controleur interne','Responsable d\'agence']
+  },
+  syntec: {
+    idcc:'1486', label:'Position',
+    note:'Deux grilles : ETAM (positions 1.1 a 3.3) et Ingenieurs et Cadres (positions 1.1 a 3.3). Le coefficient se saisit a part.',
+    niveaux:[
+      {v:'ETAM 1.1',lib:'ETAM — position 1.1',cadre:false},{v:'ETAM 1.2',lib:'ETAM — position 1.2',cadre:false},
+      {v:'ETAM 2.1',lib:'ETAM — position 2.1',cadre:false},{v:'ETAM 2.2',lib:'ETAM — position 2.2',cadre:false},
+      {v:'ETAM 2.3',lib:'ETAM — position 2.3',cadre:false},{v:'ETAM 3.1',lib:'ETAM — position 3.1',cadre:false},
+      {v:'ETAM 3.2',lib:'ETAM — position 3.2',cadre:false},{v:'ETAM 3.3',lib:'ETAM — position 3.3',cadre:false},
+      {v:'IC 1.1',lib:'Ingenieur / cadre — position 1.1',cadre:true},{v:'IC 1.2',lib:'Ingenieur / cadre — position 1.2',cadre:true},
+      {v:'IC 2.1',lib:'Ingenieur / cadre — position 2.1',cadre:true},{v:'IC 2.2',lib:'Ingenieur / cadre — position 2.2',cadre:true},
+      {v:'IC 2.3',lib:'Ingenieur / cadre — position 2.3',cadre:true},{v:'IC 3.1',lib:'Ingenieur / cadre — position 3.1',cadre:true},
+      {v:'IC 3.2',lib:'Ingenieur / cadre — position 3.2',cadre:true},{v:'IC 3.3',lib:'Ingenieur / cadre — position 3.3',cadre:true}
+    ],
+    postes:['Assistant administratif','Technicien support','Developpeur','Chef de projet',
+      'Consultant','Ingenieur d\'etudes','Architecte technique','Analyste fonctionnel',
+      'Charge d\'etudes','Manager de mission','Directeur de projet']
+  },
+  enseignement: {
+    idcc:'3218', label:'Strate / categorie',
+    note:'Strate et filiere : enseignants, education, personnels administratifs et de service, cadres.',
+    niveaux:[
+      {v:'Enseignant',lib:'Filiere enseignement',cadre:null},
+      {v:'Education',lib:'Filiere education',cadre:null},
+      {v:'Administratif',lib:'Personnel administratif',cadre:false},
+      {v:'Service',lib:'Personnel de service',cadre:false},
+      {v:'Cadre',lib:'Cadre',cadre:true}
+    ],
+    postes:['Enseignant','Professeur documentaliste','Surveillant','Educateur',
+      'Secretaire de direction','Comptable','Agent d\'entretien','Chef d\'etablissement']
+  },
+  formation: {
+    idcc:'1516', label:'Palier',
+    note:'Palier et coefficient : personnels administratifs et techniques, formateurs, cadres.',
+    niveaux:[
+      {v:'A',lib:'Personnel administratif et technique — palier A',cadre:false},
+      {v:'B',lib:'Personnel administratif et technique — palier B',cadre:false},
+      {v:'C',lib:'Formateur — palier C',cadre:false},
+      {v:'D',lib:'Formateur — palier D',cadre:false},
+      {v:'E',lib:'Formateur — palier E',cadre:false},
+      {v:'F',lib:'Cadre — palier F',cadre:true},
+      {v:'G',lib:'Cadre — palier G',cadre:true}
+    ],
+    postes:['Formateur','Formateur referent','Coordinateur pedagogique','Conseiller en formation',
+      'Assistant de formation','Secretaire','Responsable pedagogique','Directeur de centre']
+  },
+  ensindep: {
+    idcc:'2691', label:'Categorie',
+    note:'Categorie et coefficient : enseignants, education, administratifs, cadres.',
+    niveaux:[
+      {v:'Enseignant',lib:'Enseignant',cadre:null},
+      {v:'Education',lib:'Education',cadre:null},
+      {v:'Administratif',lib:'Administratif',cadre:false},
+      {v:'Cadre',lib:'Cadre',cadre:true}
+    ],
+    postes:['Enseignant','Formateur','Surveillant','Secretaire','Comptable','Directeur']
+  },
+  batiment: {
+    idcc:'1596/1597 · 2609 · 2420', label:'Classification',
+    note:'Ouvriers (IDCC 1596 ou 1597 selon l\'effectif), ETAM (IDCC 2609), cadres (IDCC 2420). Les minima ouvriers et ETAM sont regionaux.',
+    niveaux:[
+      {v:'O I p1',lib:'Ouvrier — niveau I position 1',cadre:false},
+      {v:'O I p2',lib:'Ouvrier — niveau I position 2',cadre:false},
+      {v:'O II',lib:'Ouvrier — niveau II',cadre:false},
+      {v:'O III p1',lib:'Ouvrier — niveau III position 1',cadre:false},
+      {v:'O III p2',lib:'Ouvrier — niveau III position 2',cadre:false},
+      {v:'O IV p1',lib:'Ouvrier — niveau IV position 1 (chef d\'equipe)',cadre:false},
+      {v:'O IV p2',lib:'Ouvrier — niveau IV position 2',cadre:false},
+      {v:'ETAM A',lib:'ETAM — niveau A',cadre:false},{v:'ETAM B',lib:'ETAM — niveau B',cadre:false},
+      {v:'ETAM C',lib:'ETAM — niveau C',cadre:false},{v:'ETAM D',lib:'ETAM — niveau D',cadre:false},
+      {v:'ETAM E',lib:'ETAM — niveau E',cadre:false},{v:'ETAM F',lib:'ETAM — niveau F',cadre:false},
+      {v:'ETAM G',lib:'ETAM — niveau G',cadre:false},{v:'ETAM H',lib:'ETAM — niveau H',cadre:false},
+      {v:'Cadre A',lib:'Cadre — position A',cadre:true},{v:'Cadre B',lib:'Cadre — position B',cadre:true},
+      {v:'Cadre C',lib:'Cadre — position C',cadre:true}
+    ],
+    postes:['Manoeuvre','Macon','Coffreur','Ferrailleur','Charpentier','Couvreur','Plaquiste',
+      'Electricien','Plombier','Peintre','Grutier','Conducteur d\'engins','Chef d\'equipe',
+      'Chef de chantier','Conducteur de travaux','Metreur','Dessinateur-projeteur']
+  }
+};
+function jxGrille(sec){ return JX_GRILLES[sec] || null; }
+function jxNiveauInfo(sec, v){
+  var g=jxGrille(sec); if(!g||!v) return null;
+  for(var i=0;i<g.niveaux.length;i++){ if(g.niveaux[i].v===v) return g.niveaux[i]; }
+  return null;   // niveau saisi librement : on ne lui prete aucun statut
+}
+
+/* ── Emplois caracteristiques d'une autre branche ──
+   Sert uniquement a poser une question, jamais a conclure : la convention
+   applicable est determinee par l'activite principale de l'entreprise. */
+var JX_MARQUEURS = [
+  { br:'transport routier', mots:['chauffeur','conducteur routier','conducteur pl','conducteur spl','cariste','demenageur','ambulancier','exploitation transport','affreteur'] },
+  { br:'batiment',          mots:['macon','coffreur','ferrailleur','couvreur','plaquiste','charpentier','grutier','conducteur d engins','chef de chantier','conducteur de travaux'] },
+  { br:'sante',             mots:['infirmier','aide soignant','kinesitherapeute','medecin','sage femme','auxiliaire de puericulture'] },
+  { br:'hotellerie-restauration', mots:['cuisinier','commis de cuisine','serveur','plongeur','chef de rang','receptionniste d hotel','barman'] },
+  { br:'commerce de detail',mots:['caissier','hote de caisse','vendeur en magasin','employe libre service'] },
+  { br:'securite privee',   mots:['agent de securite','agent de surveillance','maitre chien'] },
+  { br:'proprete',          mots:['agent de proprete','agent de nettoyage'] },
+  { br:'coiffure / esthetique', mots:['coiffeur','estheticienne','estheticien'] }
+];
+function jxNorm(s){
+  return String(s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+}
+function jxBrancheDuPoste(poste){
+  var p=' '+jxNorm(poste)+' ';
+  for(var i=0;i<JX_MARQUEURS.length;i++){
+    for(var j=0;j<JX_MARQUEURS[i].mots.length;j++){
+      if(p.indexOf(' '+JX_MARQUEURS[i].mots[j]+' ')>=0) return JX_MARQUEURS[i].br;
+    }
+  }
+  return '';
+}
+/* Secteur de l'application -> branche correspondante, pour comparer. */
+var JX_SEC_BRANCHE = { transport:'transport routier', batiment:'batiment' };
+
+/* Postes qui supposent un exercice de l'encadrement. */
+var JX_ENCADRE = ['directeur','directrice','responsable','chef de service','chef d etablissement',
+  'chef de chantier','conducteur de travaux','manager','chef de projet','directeur de projet',
+  'chef de departement','head of','dsi','drh','daf'];
+function jxPosteEncadrant(poste){
+  var p=' '+jxNorm(poste)+' ';
+  for(var i=0;i<JX_ENCADRE.length;i++){ if(p.indexOf(' '+JX_ENCADRE[i])>=0) return true; }
+  return false;
+}
+/* Postes d'execution : incompatibles a premiere vue avec un niveau de cadre. */
+var JX_EXECUTION = ['manoeuvre','agent d entretien','agent de nettoyage','plongeur','standardiste',
+  'hote d accueil','hotesse d accueil','coursier','magasinier','employe libre service','caissier'];
+function jxPosteExecution(poste){
+  var p=' '+jxNorm(poste)+' ';
+  for(var i=0;i<JX_EXECUTION.length;i++){ if(p.indexOf(' '+JX_EXECUTION[i])>=0) return true; }
+  return false;
+}
+
+/* ══════════ MOTEUR DE COHERENCE ══════════
+   ctx = { secteur, convLabel, poste, niveau, salaire, heures, minConv,
+           typeContrat, age }
+   Renvoie une liste { gravite:'stop'|'question'|'info', titre, texte, quoi } */
+function jxCoherence(ctx){
+  ctx=ctx||{};
+  try{ jxSmicLoad(); }catch(e){}
+  var out=[];
+  var sal=parseFloat(String(ctx.salaire||'').replace(',','.'));
+  var nInfo=jxNiveauInfo(ctx.secteur, ctx.niveau);
+  var g=jxGrille(ctx.secteur);
+
+  /* 1. Le salaire ne peut pas etre inferieur au SMIC. */
+  if(sal>0){
+    var smic=jxSmicMensuel(ctx.heures);
+    if(sal < smic-0.5){
+      out.push({ gravite:'stop', quoi:'salaire',
+        titre:'Salaire inferieur au SMIC',
+        texte:'Le salaire saisi ('+sal.toFixed(2)+' €) est inferieur au SMIC applicable ('
+          +smic.toFixed(2)+' € brut'+(ctx.heures&&ctx.heures<35?(' pour '+ctx.heures+' h hebdomadaires'):' pour 35 h hebdomadaires')
+          +', '+JX_SMIC.source+'). Un contrat ne peut pas etre conclu a ce niveau.' });
+    }
+  }
+  /* 2. Ni au minimum conventionnel, lorsqu'il a ete renseigne. */
+  var mc=parseFloat(String(ctx.minConv||'').replace(',','.'));
+  if(sal>0 && mc>0 && sal < mc-0.5){
+    out.push({ gravite:'stop', quoi:'salaire',
+      titre:'Salaire inferieur au minimum conventionnel',
+      texte:'Vous avez indique un minimum conventionnel de '+mc.toFixed(2)+' € pour ce niveau ; le salaire saisi est de '+sal.toFixed(2)+' €. '
+        +'La convention s\'impose a l\'employeur des lors qu\'elle est plus favorable que la loi.' });
+  }
+  /* 3. Poste d'encadrement classe en non-cadre. */
+  if(ctx.poste && nInfo && nInfo.cadre===false && jxPosteEncadrant(ctx.poste)){
+    out.push({ gravite:'question', quoi:'niveau',
+      titre:'Encadrement classe en non-cadre',
+      texte:'Le poste « '+ctx.poste+' » suppose l\'exercice d\'un encadrement, mais « '+(nInfo.lib||ctx.niveau)+' » est un niveau non-cadre. '
+        +'Verifiez la position retenue : la classification se determine par les fonctions reellement exercees, non par l\'intitule.' });
+  }
+  /* 4. Poste d'execution classe cadre. */
+  if(ctx.poste && nInfo && nInfo.cadre===true && jxPosteExecution(ctx.poste)){
+    out.push({ gravite:'question', quoi:'niveau',
+      titre:'Poste d\'execution classe cadre',
+      texte:'« '+ctx.poste+' » est classe « '+(nInfo.lib||ctx.niveau)+' », qui releve du statut cadre. '
+        +'Ce classement est possible, mais il est inhabituel : verifiez-le.' });
+  }
+  /* 5. Emploi caracteristique d'une autre branche que la convention retenue. */
+  if(ctx.poste){
+    var br=jxBrancheDuPoste(ctx.poste);
+    var brSec=JX_SEC_BRANCHE[ctx.secteur]||'';
+    if(br && br!==brSec){
+      out.push({ gravite:'question', quoi:'poste',
+        titre:'Emploi etranger a la convention retenue',
+        texte:'« '+ctx.poste+' » est un emploi caracteristique de la branche « '+br+' », alors que la convention retenue est '
+          +(ctx.convLabel||'celle du secteur choisi')+'. La convention applicable depend de l\'activite principale de l\'entreprise, '
+          +'et non de l\'emploi du salarie — mais un tel ecart merite verification.' });
+    }
+  }
+  /* 6. Statut cadre : consequence a ne pas oublier. */
+  if(nInfo && nInfo.cadre===true){
+    out.push({ gravite:'info', quoi:'niveau',
+      titre:'Statut cadre',
+      texte:'Pour un cadre, l\'employeur verse une cotisation de prevoyance d\'au moins 1,50 % de la tranche 1 '
+        +'(article 7 de l\'accord national interprofessionnel du 17 novembre 2017).' });
+  }
+  /* 7. Minimum conventionnel non renseigne : on le demande, on ne l'invente pas. */
+  if(sal>0 && !(mc>0) && g){
+    out.push({ gravite:'info', quoi:'salaire',
+      titre:'Minimum conventionnel non verifie',
+      texte:'Le minimum du niveau n\'a pas ete saisi. Les grilles changent a chaque avenant : '
+        +'l\'application ne les invente pas. Relevez le minimum sur la grille en vigueur et indiquez-le pour que le controle soit complet.' });
+  }
+  var ordre={stop:0,question:1,info:2};
+  out.sort(function(a,b){ return ordre[a.gravite]-ordre[b.gravite]; });
+  return out;
+}
+function jxCohHTML(alertes){
+  if(!alertes||!alertes.length) return '';
+  var C={ stop:{c:'#e05c5c',bg:'rgba(224,92,92,.12)',i:'⛔'},
+          question:{c:'#e8c97a',bg:'rgba(232,201,122,.10)',i:'⚠'},
+          info:{c:'#6fa8dc',bg:'rgba(111,168,220,.10)',i:'ℹ'} };
+  return alertes.map(function(a){
+    var s=C[a.gravite]||C.info;
+    return '<div style="margin:8px 0;padding:10px 12px;background:'+s.bg+';border:1px solid '+s.c+';border-radius:10px">'
+      +'<div style="font-size:12.5px;font-weight:800;color:'+s.c+';margin-bottom:3px">'+s.i+' '+jxCohEsc(a.titre)+'</div>'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+jxCohEsc(a.texte)+'</div>'
+      +'</div>';
+  }).join('');
+}
+function jxCohEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function jxCohBloquant(alertes){ return (alertes||[]).some(function(a){ return a.gravite==='stop'; }); }
+
+/* ══════════ LISTE DEROULANTE AVEC « AUTRE » ══════════
+   opts : tableau de chaines, ou d'objets {v, lib}. Une valeur absente de la
+   liste bascule automatiquement le champ sur « Autre » et la conserve. */
+function jxSelect(id, opts, val, onchange, vide){
+  val=(val==null?'':String(val));
+  var liste=(opts||[]).map(function(o){ return (typeof o==='string')?{v:o,lib:o}:o; });
+  var dansListe=liste.some(function(o){ return o.v===val; });
+  var autre=(val!=='' && !dansListe);
+  var oc=onchange?(' '+onchange):'';
+  var h='<select id="'+id+'" onchange="jxSelAutre(\''+id+'\')'+(onchange?(';'+onchange):'')+'" style="width:100%">'
+    +'<option value="">'+jxCohEsc(vide||'— choisir —')+'</option>'
+    + liste.map(function(o){ return '<option value="'+jxCohEsc(o.v)+'"'+((!autre&&o.v===val)?' selected':'')+'>'+jxCohEsc(o.lib)+'</option>'; }).join('')
+    +'<option value="__autre"'+(autre?' selected':'')+'>Autre — preciser</option>'
+    +'</select>'
+    +'<input type="text" id="'+id+'-autre" placeholder="Precisez" value="'+(autre?jxCohEsc(val):'')+'"'
+      +' oninput="'+(onchange?onchange.replace(/"/g,'&quot;'):'')+'"'
+      +' style="width:100%;margin-top:6px'+(autre?'':';display:none')+'">';
+  return h;
+}
+function jxSelAutre(id){
+  var s=document.getElementById(id), t=document.getElementById(id+'-autre');
+  if(!s||!t) return;
+  var on=(s.value==='__autre');
+  t.style.display=on?'':'none';
+  if(on){ try{ t.focus(); }catch(e){} } else { t.value=''; }
+}
+function jxSelectVal(id){
+  var s=document.getElementById(id); if(!s) return '';
+  if(s.value==='__autre'){ var t=document.getElementById(id+'-autre'); return t?t.value.trim():''; }
+  return s.value;
 }
 
 
@@ -15921,36 +16234,75 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
       +fg('Adresse',inp('wz-adr','Ex : 12 rue des Lilas, 95100 Argenteuil','text',A.adr));
     var tert=isTert(), doc=secDoc();
     if(bat){
-      h+=fg('Poste / métier *',inp('wz-poste-bat','Ex : Maçon, Coffreur, Chef d’équipe','text',A.posteLab))
-        +fg('Classification (niveau / position) *',inp('wz-classif-bat','Ex : Niveau II position 1 — coeff. 185','text',A.coeff))
+      h+=fg('Poste / métier *',jxSelect('wz-poste-bat',(jxGrille('batiment')||{}).postes||[],A.posteLab,'wzCoh()'))
+        +fg('Classification (niveau / position) *',jxSelect('wz-classif-bat',(jxGrille('batiment')||{}).niveaux||[],A.coeff,'wzCoh()'))
         +loi('Grille du Bâtiment applicable : ouvriers IDCC 1596/1597 selon l’effectif, ETAM IDCC 2609, cadres IDCC 2420. Les minima ouvriers/ETAM sont <b>régionaux</b> : vérifiez l’avenant régional en vigueur.')
         +fg('Poste à risque particulier (travail en hauteur, amiante, plomb) ? *','<select id="wz-risque"><option value="">— choisir —</option><option value="oui"'+(A.risque==='oui'?' selected':'')+'>Oui — suivi individuel renforcé (SIR)</option><option value="non"'+(A.risque==='non'?' selected':'')+'>Non — suivi standard</option></select>');
     } else if(tert){
-      h+=fg('Poste / fonction *',inp('wz-poste-bat','Ex : Chargé d’études, Gestionnaire, Formateur','text',A.posteLab))
-        +fg(esc(doc.classifLabel)+' *',inp('wz-classif-bat','Ex : '+esc(doc.classifHint.split('(')[0]).slice(0,40),'text',A.coeff))
-        +loi(esc(doc.conv)+'. Minimum applicable : '+esc(doc.minima)+' — à vérifier sur la grille conventionnelle en vigueur.');
+      var gr=jxGrille(curSec())||{niveaux:[],postes:[]};
+      h+=fg('Poste / fonction *',jxSelect('wz-poste-bat',gr.postes||[],A.posteLab,'wzCoh()'))
+        +fg(esc(doc.classifLabel)+' *',jxSelect('wz-classif-bat',gr.niveaux||[],A.coeff,'wzCoh()'))
+        +loi(esc(doc.conv)+'. Minimum applicable : '+esc(doc.minima)+' — à vérifier sur la grille conventionnelle en vigueur.'+(gr.note?('<br>'+esc(gr.note)):''));
     } else {
-      h+=fg('Catégorie du poste (CCN transport) *','<select id="wz-cat">'+cats+'</select>')
+      h+=fg('Catégorie du poste (CCN transport) *','<select id="wz-cat" onchange="wzCoh()">'+cats+'</select>')
         +loi('Le coefficient détermine automatiquement le <b>salaire minimum</b>, la <b>période d’essai</b> et le <b>préavis</b> conventionnels.')
         +fg('Le salarié conduira-t-il des véhicules ? *','<select id="wz-conducteur"><option value="">— choisir —</option><option value="oui"'+(A.conducteur==='oui'?' selected':'')+'>Oui — conducteur</option><option value="non"'+(A.conducteur==='non'?' selected':'')+'>Non — sédentaire</option></select>');
     }
-    h+=fg('Salaire mensuel brut (€) *',inp('wz-sal','Ex : 2200','number',A.salaire));
+    h+=fg('Salaire mensuel brut (€) *','<input id="wz-sal" type="number" placeholder="Ex : 2200" value="'+esc(A.salaire||'')+'" oninput="wzCoh()">');
+    h+=fg('Minimum conventionnel de ce niveau (€/mois) — relevé sur la grille en vigueur','<input id="wz-minconv" type="number" placeholder="Laisser vide si non vérifié" value="'+esc(A.minConv||'')+'" oninput="wzCoh()">');
+    h+=fg('Durée hebdomadaire (heures)','<input id="wz-heures" type="number" step="0.5" placeholder="35" value="'+esc(A.heures||'')+'" oninput="wzCoh()">');
+    h+='<div id="wz-coh"></div>';
     if(!cdd)h+=fg('Date d’embauche *',inp('wz-emb','','date',A.debut));
     box(h+btns('wzSalarieNext()',cdd?'cdd-dates':'start'));
-    if(!bat&&A.cat){var c=document.getElementById('wz-cat');if(c)c.value=A.cat;}};
+    if(!bat&&A.cat){var c=document.getElementById('wz-cat');if(c)c.value=A.cat;}
+    try{ wzCoh(); }catch(e){}};
+  /* Confrontation des choix entre eux — poste, classification, salaire,
+     convention. Le controle est affiche en direct ; il ne corrige rien. */
+  window.wzCoh=function(){
+    var box=document.getElementById('wz-coh'); if(!box) return null;
+    var bat=isBat(), tert=isTert();
+    if(!bat&&!tert){
+      // Transport : le poste et le coefficient viennent de la liste conventionnelle
+      var cc=document.getElementById('wz-cat'), oo=cc&&cc.options[cc.selectedIndex];
+      var alT=jxCoherence({
+        secteur:'transport',
+        convLabel:'la convention collective des transports routiers (IDCC 16)',
+        poste:oo?String(oo.text).replace(/\s*—.*$/,''):'',
+        niveau:oo?(oo.dataset.coeff||''):'',
+        salaire:V('wz-sal'),
+        minConv:(oo&&oo.dataset.seuil)?'':V('wz-minconv'),
+        heures:V('wz-heures')
+      });
+      box.innerHTML=jxCohHTML(alT.filter(function(x){ return x.quoi!=='niveau'; }));
+      return alT;
+    }
+    var sec=bat?'batiment':curSec(), doc=secDoc();
+    var alertes=jxCoherence({
+      secteur:sec,
+      convLabel:(doc&&doc.conv)||((jxGrille(sec)||{}).idcc?('la convention IDCC '+jxGrille(sec).idcc):''),
+      poste:jxSelectVal('wz-poste-bat'),
+      niveau:jxSelectVal('wz-classif-bat'),
+      salaire:V('wz-sal'),
+      minConv:V('wz-minconv'),
+      heures:V('wz-heures')
+    });
+    box.innerHTML=jxCohHTML(alertes);
+    return alertes;
+  };
   window.wzPickFiche=function(i){if(i==='')return;var f=salList()[parseInt(i,10)];if(!f)return;
     var m={'wz-nom':f.nom,'wz-adr':f.adr,'wz-sal':f.sal};Object.keys(m).forEach(function(k){var e=document.getElementById(k);if(e&&m[k])e.value=m[k];});};
   window.wzSalarieNext=function(){A.civ=V('wz-civ');A.nom=V('wz-nom');A.naissance=V('wz-naissance');A.lieuNaiss=V('wz-lieu');A.nationalite=V('wz-nat');A.ss=V('wz-ss');A.adr=V('wz-adr');A.salaire=V('wz-sal');
     var bat=isBat(), tert=isTert();
     if(A.type!=='cdd')A.debut=V('wz-emb');
     if(!A.nom){alert('Le nom du salarié est obligatoire.');return;}
+    A.minConv=V('wz-minconv');A.heures=V('wz-heures');
     if(bat){
-      A.posteLab=V('wz-poste-bat');A.coeff=V('wz-classif-bat');A.risque=V('wz-risque');A.conducteur='non';A.seuil='151.67';A.pe='';
+      A.posteLab=jxSelectVal('wz-poste-bat');A.coeff=jxSelectVal('wz-classif-bat');A.risque=V('wz-risque');A.conducteur='non';A.seuil='151.67';A.pe='';
       if(!A.posteLab){alert('Le poste / métier est obligatoire.');return;}
       if(!A.coeff){alert('La classification (niveau / position) est obligatoire.');return;}
       if(!A.risque){alert('Précisez si le poste est à risque (cela change le suivi médical : SIR ou standard).');return;}
     } else if(tert){
-      A.posteLab=V('wz-poste-bat');A.coeff=V('wz-classif-bat');A.risque='non';A.conducteur='non';A.seuil='151.67';A.pe='';
+      A.posteLab=jxSelectVal('wz-poste-bat');A.coeff=jxSelectVal('wz-classif-bat');A.risque='non';A.conducteur='non';A.seuil='151.67';A.pe='';
       if(!A.posteLab){alert('Le poste / fonction est obligatoire.');return;}
       if(!A.coeff){alert('La classification est obligatoire.');return;}
     } else {
@@ -15959,6 +16311,19 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     }
     if(!A.salaire){alert('Le salaire est obligatoire.');return;}
     if(!A.debut){alert('La date d’embauche est obligatoire.');return;}
+    /* Cohérence : une anomalie bloquante arrête la génération ; une simple
+       interrogation est signalée et laissée à l'appréciation de l'utilisateur. */
+    try{ var al=wzCoh();
+      if(al && jxCohBloquant(al)){
+        var s=al.filter(function(x){return x.gravite==='stop';});
+        alert('⛔ '+s.map(function(x){return x.titre+' — '+x.texte;}).join('\n\n'));
+        return;
+      }
+      var q=(al||[]).filter(function(x){return x.gravite==='question';});
+      if(q.length && !confirm('⚠ '+q.length+' incohérence(s) relevée(s) :\n\n'
+        +q.map(function(x){return '• '+x.titre+' : '+x.texte;}).join('\n\n')
+        +'\n\nPoursuivre malgré tout ?')) return;
+    }catch(e){}
     if(!bat&&!tert){var c=document.getElementById('wz-cat'),o=c&&c.options[c.selectedIndex];
       A.coeff=o?(o.dataset.coeff||''):'';A.posteLab=o?o.text.replace(/\s*—.*$/,''):'';A.seuil=o?(o.dataset.seuil||'169'):'169';A.pe=o?(o.dataset.pe||'2'):'2';}
     wzSaveFiche();wzGo('result');};
