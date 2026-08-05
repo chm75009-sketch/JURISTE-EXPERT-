@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.99';
+var JX_BUILD = 'v2026-08-06.100';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,25 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ CSE — RÉCLAMATIONS ═══ -->
+<div id="pg-csercl" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Réclamations</div><div class="ts">Toutes tailles · délais · registre</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    L'attribution existe dès onze salariés et se poursuit au-delà de cinquante. Mais le formalisme —
+    note à deux jours ouvrables, réponse à six, registre spécial — ne vaut qu'en dessous de cinquante.
+    Le module applique le bon régime et dit lequel.
+  </div>
+</div>
+<div id="csercl-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{rclOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 <!-- ═══ CSE — LA RÉUNION ═══ -->
 <div id="pg-csereu" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3451,6 +3470,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('csercl');closeMenu()"><span style="font-size:18px">📝</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réclamations</div></div></div>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
@@ -5369,6 +5389,7 @@ function goPage(id){
   if(id==='moncse'){ try{ mcOnEnter(); }catch(e){} }
   if(id==='csecal'){ try{ calOnEnter(); }catch(e){} }
   if(id==='csereu'){ try{ reuOnEnter(); }catch(e){} }
+  if(id==='csercl'){ try{ rclOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6249,6 +6270,330 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
 
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULE 3.4 : RECLAMATIONS INDIVIDUELLES ET COLLECTIVES
+   Toutes les tailles d'entreprise. L'attribution existe des onze
+   salaries (L.2312-5) et se poursuit au-dela de cinquante, le comite
+   exercant aussi les attributions de la section des moins de cinquante
+   (L.2312-8). En revanche, le formalisme de L.2315-22 — note ecrite deux
+   jours ouvrables avant, reponse ecrite dans les six jours ouvrables,
+   registre special — figure dans les dispositions particulieres aux
+   entreprises de moins de cinquante salaries et n'est pas etendu au-dela.
+   Le module applique donc deux regimes, et dit lequel il applique.
+   ══════════════════════════════════════════════════════════════════ */
+var RCL={};
+var RCL_LS='cse_reclamations_v1';
+function rclKey(){ return RCL_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function rclLoad(){ try{ RCL=JSON.parse(localStorage.getItem(rclKey())||'{}')||{}; }catch(e){ RCL={}; } if(!Array.isArray(RCL.liste)) RCL.liste=[]; }
+function rclSave(){ try{ localStorage.setItem(rclKey(), JSON.stringify(RCL)); }catch(e){} }
+function rclEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function rclFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function rclAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function rclJours(a,b){ if(!a||!b) return null; var x=new Date(a+'T00:00:00'), y=new Date(b+'T00:00:00'); if(isNaN(x)||isNaN(y)) return null; return Math.round((y-x)/86400000); }
+/* Jours ouvrables : tous les jours sauf le dimanche. */
+function rclPlusOuvrables(iso,n){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  var k=0; while(k<n){ d.setDate(d.getDate()+1); if(d.getDay()!==0) k++; }
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function rclMoinsOuvrables(iso,n){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  var k=0; while(k<n){ d.setDate(d.getDate()-1); if(d.getDay()!==0) k++; }
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function rclEff(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof socSerie!=='function') return null;
+    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
+  }catch(e){ return null; }
+}
+function rclSet(k,v){ RCL[k]=v; rclSave(); rclRender(); }
+
+/* Regime applicable selon la taille. */
+function rclRegime(eff){
+  if(eff===null) return null;
+  if(eff<11) return {code:'aucun', lib:'Moins de onze salariés — pas de comité, donc pas de délégation pour présenter les réclamations', formalise:false};
+  if(eff<50) return {code:'petit', lib:'Onze à quarante-neuf salariés — formalisme légal complet', formalise:true};
+  if(eff<300) return {code:'moyen', lib:'Cinquante à deux cent quatre-vingt-dix-neuf salariés — attribution maintenue, formalisme libre', formalise:false};
+  return {code:'grand', lib:'Trois cents salariés et plus — attribution maintenue, formalisme libre', formalise:false};
+}
+
+var RCL_CATS=[
+  {v:'salaires',   lib:'Salaires'},
+  {v:'code',       lib:'Application du code du travail'},
+  {v:'protection', lib:'Protection sociale, santé et sécurité'},
+  {v:'conv',       lib:'Convention et accords applicables dans l’entreprise'},
+  {v:'autre',      lib:'Autre'}
+];
+var RCL_NATURES=[
+  {v:'reclam', lib:'Réclamation — application d’une règle existante'},
+  {v:'revend', lib:'Revendication — demande d’un avantage nouveau'}
+];
+var RCL_ETATS=[
+  {v:'ouverte',  lib:'Ouverte — en attente de réponse'},
+  {v:'repondue', lib:'Réponse apportée'},
+  {v:'close',    lib:'Close'}
+];
+
+function rclListe(){ if(!Array.isArray(RCL.liste)) RCL.liste=[]; return RCL.liste; }
+function rclAdd(){
+  rclListe().unshift({date:rclAuj(), auteur:'', concerne:'', cat:'', nature:'reclam', objet:'', reunion:'', reponse:'', dateRep:'', etat:'ouverte'});
+  rclSave(); rclRender();
+}
+function rclDel(i){ if(!confirm('Retirer cette réclamation ?')) return; rclListe().splice(i,1); rclSave(); rclRender(); }
+function rclEdit(i,k,v){ var r=rclListe()[i]; if(!r) return; r[k]=v; rclSave(); rclRender(); }
+function rclEditQ(i,k,v){ var r=rclListe()[i]; if(!r) return; r[k]=v; rclSave(); }
+
+/* ══════════ ANALYSE ══════════ */
+function rclAnalyse(){
+  var A=[], eff=rclEff(), reg=rclRegime(eff), L=rclListe();
+
+  if(eff===null){
+    A.push({gravite:'question', titre:'Effectif inconnu',
+      texte:'Le régime applicable dépend de la taille de l’entreprise. Renseignez le registre du personnel, puis le socle.'});
+  } else if(reg.code==='aucun'){
+    A.push({gravite:'info', titre:reg.lib,
+      texte:'En dessous de onze salariés, il n’y a pas de délégation du personnel pour porter les réclamations. Le salarié s’adresse directement à l’employeur, et peut saisir l’inspection du travail ou le conseil de prud’hommes.'});
+  } else if(reg.formalise){
+    A.push({gravite:'info', titre:reg.lib,
+      texte:'Les membres remettent à l’employeur une note écrite exposant l’objet des demandes deux jours ouvrables avant la date à laquelle ils doivent être reçus. '
+        +'L’employeur répond par écrit au plus tard dans les six jours ouvrables suivant la réunion. Les demandes et les réponses motivées sont transcrites sur un registre spécial, ou annexées à ce registre, '
+        +'tenu à la disposition des salariés de l’établissement pendant un jour ouvrable par quinzaine, en dehors du temps de travail (L.2315-22).'});
+  } else {
+    A.push({gravite:'info', titre:reg.lib,
+      texte:'L’attribution demeure : le comité présente à l’employeur les réclamations individuelles et collectives relatives aux salaires, à l’application du code du travail et des autres dispositions légales, '
+        +'notamment de protection sociale, ainsi que des conventions et accords applicables (L.2312-5), le comité des entreprises d’au moins cinquante salariés exerçant également les attributions de la section des entreprises de moins de cinquante salariés (L.2312-8). '
+        +'En revanche, la note à deux jours, la réponse à six jours et le registre spécial de L.2315-22 figurent dans les dispositions particulières aux entreprises de moins de cinquante salariés et ne sont pas étendus au-delà : '
+        +'les réclamations sont présentées en réunion et la réponse motivée de l’employeur figure au procès-verbal (D.2315-26). Le règlement intérieur du comité peut en organiser les modalités (L.2315-24).'});
+  }
+
+  /* Contrôle réclamation / revendication */
+  var revend=L.filter(function(r){ return r.nature==='revend'; });
+  if(revend.length){
+    A.push({gravite:'question', titre:revend.length+' demande(s) qualifiée(s) de revendication',
+      texte:'Une réclamation tend à l’application d’une règle déjà en vigueur — loi, règlement, convention, accord, contrat. Une revendication demande un avantage nouveau : elle ne relève pas de cette attribution '
+        +'mais de la négociation collective, donc du délégué syndical. Requalifier une revendication en réclamation expose la réponse de l’employeur à être opposée hors de son objet.'});
+  }
+
+  /* Retards de réponse — régime formalisé seulement */
+  if(reg && reg.formalise){
+    var retard=[];
+    L.forEach(function(r,i){
+      if(r.etat==='close') return;
+      if(!r.reunion) return;
+      var lim=rclPlusOuvrables(r.reunion,6);
+      if(!r.dateRep && rclJours(rclAuj(), lim)<0) retard.push({r:r,lim:lim});
+      else if(r.dateRep && rclJours(r.dateRep, lim)<0) retard.push({r:r,lim:lim,tardive:true});
+    });
+    if(retard.length){
+      A.push({gravite:'stop', titre:retard.length+' réponse(s) hors délai',
+        texte:retard.slice(0,4).map(function(x){
+            return '« '+((x.r.objet||'').trim().slice(0,50)||'sans objet')+' » — réunion du '+rclFR(x.r.reunion)+', réponse due au plus tard le '+rclFR(x.lim)+(x.tardive?(' , apportée le '+rclFR(x.r.dateRep)):' , non apportée');
+          }).join(' · ')
+          +(retard.length>4?(' … et '+(retard.length-4)+' autre(s)'):'')
+          +'. L’employeur répond par écrit au plus tard dans les six jours ouvrables suivant la réunion (L.2315-22).'});
+    }
+  }
+
+  /* Réclamations sans réponse, tous régimes */
+  var ouvertes=L.filter(function(r){ return r.etat!=='close' && !r.dateRep; });
+  if(ouvertes.length){
+    A.push({gravite:'question', titre:ouvertes.length+' réclamation(s) sans réponse enregistrée',
+      texte:'Une réponse écrite et motivée protège autant l’employeur que le salarié : c’est elle qui fait la preuve du traitement de la demande. '
+        +(reg&&reg.formalise?'':'À défaut de délai légal ici, fixez-en un dans le règlement intérieur du comité (L.2315-24) et tenez-vous-y.')});
+  }
+
+  /* Objets incomplets */
+  var vides=L.filter(function(r){ return !(r.objet||'').trim(); }).length;
+  if(vides){
+    A.push({gravite:'question', titre:vides+' réclamation(s) sans objet renseigné',
+      texte:'Une demande dont l’objet n’est pas écrit ne peut être ni instruite ni opposée.'});
+  }
+
+  var o={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return o[a.gravite]-o[b.gravite]; });
+  return {alertes:A, eff:eff, reg:reg, liste:L};
+}
+
+/* ══════════ DOCUMENTS ══════════ */
+function rclDoc(k){
+  var S='margin:0 0 12px';
+  var eff=rclEff(), reg=rclRegime(eff), L=rclListe();
+  var ent=(typeof RX!=='undefined'&&RX.ent)?RX.ent:((typeof E!=='undefined'&&E)?E:{});
+  var nom=(ent.nom||'[RAISON SOCIALE]'), adr=(ent.adresse||'[ADRESSE]');
+  var entete='<p style="'+S+'"><b>'+rclEsc(nom)+'</b><br>'+rclEsc(adr)+'</p>';
+
+  if(k==='registre'){
+    var lignes=L.length? L.map(function(r,i){
+        var cat=(function(){ for(var j=0;j<RCL_CATS.length;j++){ if(RCL_CATS[j].v===r.cat) return RCL_CATS[j].lib; } return '[CATÉGORIE]'; })();
+        return '<tr>'
+          +'<td style="border:1px solid #000;padding:5px;vertical-align:top">'+(i+1)+'</td>'
+          +'<td style="border:1px solid #000;padding:5px;vertical-align:top">'+rclEsc(rclFR(r.date)||'[DATE]')+'</td>'
+          +'<td style="border:1px solid #000;padding:5px;vertical-align:top">'+rclEsc((r.auteur||'').trim()||'[ÉLU]')+'</td>'
+          +'<td style="border:1px solid #000;padding:5px;vertical-align:top">'+rclEsc(cat)+'</td>'
+          +'<td style="border:1px solid #000;padding:5px;vertical-align:top">'+rclEsc((r.objet||'').trim()||'[OBJET]')+'</td>'
+          +'<td style="border:1px solid #000;padding:5px;vertical-align:top">'+rclEsc((r.reponse||'').trim()||'[RÉPONSE MOTIVÉE DE L’EMPLOYEUR]')
+            +(r.dateRep?('<br><i>le '+rclFR(r.dateRep)+'</i>'):'')+'</td>'
+          +'</tr>';
+      }).join('') : '<tr><td colspan="6" style="border:1px solid #000;padding:6px">[AUCUNE RÉCLAMATION ENREGISTRÉE]</td></tr>';
+    rclAfficheDoc('Registre des réclamations',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">REGISTRE DES RÉCLAMATIONS</h2>'
+      +'<p style="text-align:center;'+S+'">Comité social et économique</p>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:10.5pt">'
+      +'<tr><th style="border:1px solid #000;padding:5px;text-align:left">N°</th>'
+      +'<th style="border:1px solid #000;padding:5px;text-align:left">Date</th>'
+      +'<th style="border:1px solid #000;padding:5px;text-align:left">Élu</th>'
+      +'<th style="border:1px solid #000;padding:5px;text-align:left">Objet</th>'
+      +'<th style="border:1px solid #000;padding:5px;text-align:left">Demande</th>'
+      +'<th style="border:1px solid #000;padding:5px;text-align:left">Réponse motivée de l’employeur</th></tr>'
+      +lignes+'</table>'
+      +(reg&&reg.formalise
+        ? ('<p style="'+S+';margin-top:14px"><i>Les demandes des membres de la délégation du personnel et les réponses motivées de l’employeur sont transcrites sur ce registre, ou annexées à celui-ci. '
+           +'Il est tenu à la disposition des salariés de l’établissement pendant un jour ouvrable par quinzaine, en dehors du temps de travail, ainsi qu’à celle de l’agent de contrôle de l’inspection du travail (article L.2315-22 du code du travail).</i></p>')
+        : ('<p style="'+S+';margin-top:14px"><i>Le registre spécial prévu à l’article L.2315-22 du code du travail relève des dispositions particulières aux entreprises de moins de cinquante salariés. '
+           +'Le présent registre est tenu volontairement : il constitue une trace du traitement des réclamations, dont la réponse motivée figure également au procès-verbal des réunions (article D.2315-26).</i></p>')));
+  }
+  else if(k==='note'){
+    var ouv=L.filter(function(r){ return r.etat!=='close'; });
+    var reunion=RCL.prochaine||'';
+    var pts=ouv.length? '<ol>'+ouv.map(function(r){
+        return '<li style="margin-bottom:8px"><b>'+rclEsc((r.objet||'').trim()||'[OBJET]')+'</b>'
+          +(r.concerne?('<br>Salarié concerné : '+rclEsc(r.concerne)):'')
+          +'</li>';
+      }).join('')+'</ol>' : '<p>[AUCUNE DEMANDE EN COURS]</p>';
+    rclAfficheDoc('Note écrite des réclamations',
+      entete
+      +'<h2 style="text-align:center;text-decoration:underline;font-size:13pt">NOTE ÉCRITE</h2>'
+      +'<p style="text-align:center;'+S+'"><b>Objet des demandes présentées par la délégation du personnel</b></p>'
+      +'<p style="'+S+'">À l’attention de la direction.</p>'
+      +'<p style="'+S+'">Les membres de la délégation du personnel au comité social et économique exposent ci-après l’objet des demandes qu’ils présenteront lors de la réunion du <b>'
+        +(reunion?rclFR(reunion):'[DATE]')+'</b>.</p>'
+      +pts
+      +(reg&&reg.formalise
+        ? ('<p style="'+S+'">La présente note est remise à l’employeur deux jours ouvrables avant la date à laquelle les membres doivent être reçus'
+           +(reunion?(', soit au plus tard le <b>'+rclFR(rclMoinsOuvrables(reunion,2))+'</b>'):'')
+           +'. L’employeur répond par écrit au plus tard dans les six jours ouvrables suivant la réunion'
+           +(reunion?(', soit le <b>'+rclFR(rclPlusOuvrables(reunion,6))+'</b>'):'')
+           +' (article L.2315-22 du code du travail).</p>')
+        : ('<p style="'+S+'">Ces demandes seront présentées en réunion ; la réponse motivée de l’employeur figurera au procès-verbal (article D.2315-26 du code du travail).</p>'))
+      +'<p style="'+S+';margin-top:24px">Pour la délégation du personnel<br>[NOM ET SIGNATURE]</p>');
+  }
+}
+function rclAfficheDoc(titre, html){
+  var S='font-family:\'Times New Roman\',Times,serif;font-size:11pt;color:#000;line-height:1.7;';
+  var page='<div style="'+S+'">'+html+'</div>';
+  if(typeof showDoc==='function'){ showDoc(titre, page); return; }
+  var w=window.open('','_blank');
+  if(w){ w.document.write('<html><head><meta charset="utf-8"><title>'+rclEsc(titre)+'</title></head><body>'+page+'</body></html>'); w.document.close(); }
+  else alert('Ouverture impossible : autorisez les fenêtres.');
+}
+
+/* ══════════ RENDU ══════════ */
+function rclOnEnter(){ rclLoad(); rclRender(); }
+function rclRender(){
+  var host=document.getElementById('csercl-body'); if(!host) return;
+  var d=rclAnalyse();
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  var h='';
+
+  /* Régime */
+  h+='<div class="card"><div class="ct">Régime applicable</div>';
+  if(d.eff===null){
+    h+='<div style="font-size:13px;color:#e8c97a">Effectif inconnu.</div>'
+     +'<div style="margin-top:10px"><button class="btn" onclick="goPage(\'socle\')">Ouvrir le socle</button></div>';
+  } else {
+    var ouv=d.liste.filter(function(r){ return r.etat!=='close'; }).length;
+    h+='<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end">'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+d.eff+'</div><div style="font-size:12px;color:#9fb0c4">salariés (socle)</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+d.liste.length+'</div><div style="font-size:12px;color:#9fb0c4">réclamation(s)</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:'+(ouv?'#e8c97a':'#46b885')+';line-height:1">'+ouv+'</div><div style="font-size:12px;color:#9fb0c4">en cours</div></div>'
+      +'<div style="flex:1;min-width:230px;font-size:12.5px;color:#9fb0c4;line-height:1.6">'+rclEsc(d.reg?d.reg.lib:'')+'</div>'
+      +'</div>';
+    if(d.reg && d.reg.formalise){
+      h+='<div class="fg" style="margin-top:14px"><label class="fl">Date de la prochaine réunion — pour calculer les délais</label>'
+        +'<input type="date" value="'+rclEsc(RCL.prochaine||'')+'" onchange="rclSet(\'prochaine\',this.value)"></div>';
+      if(RCL.prochaine){
+        h+='<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7">'
+          +'Note écrite remise au plus tard le <b style="color:#e8c97a">'+rclFR(rclMoinsOuvrables(RCL.prochaine,2))+'</b> (deux jours ouvrables avant)<br>'
+          +'Réponse écrite de l’employeur au plus tard le <b style="color:#e8c97a">'+rclFR(rclPlusOuvrables(RCL.prochaine,6))+'</b> (six jours ouvrables après)'
+          +'</div>';
+      }
+    } else if(d.reg && d.reg.code!=='aucun'){
+      h+='<div class="fg" style="margin-top:14px"><label class="fl">Date de la prochaine réunion</label>'
+        +'<input type="date" value="'+rclEsc(RCL.prochaine||'')+'" onchange="rclSet(\'prochaine\',this.value)"></div>'
+        +'<div style="font-size:12px;color:#6b7a8d;line-height:1.6">Aucun délai légal ne s’impose ici : la réponse motivée figure au procès-verbal. Un délai peut être fixé par le règlement intérieur du comité (L.2315-24).</div>';
+    }
+  }
+  h+='</div>';
+
+  /* La liste */
+  h+='<div class="card"><div class="ct">Les réclamations</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'Une <b>réclamation</b> tend à l’application d’une règle déjà en vigueur. Une <b>revendication</b> demande un avantage nouveau : elle relève de la négociation collective, non de cette attribution. '
+     +'Le module vous laisse qualifier, et signale les revendications.'
+   +'</div>';
+  var L=d.liste;
+  if(!L.length) h+='<div style="font-size:12.5px;color:#9fb0c4">Aucune réclamation enregistrée.</div>';
+  else h+=L.map(function(r,i){
+    var col=(r.etat==='close')?'#46b885':((r.dateRep)?'#6fa8dc':'#e8c97a');
+    var sl=function(id,arr,val,k){
+      return '<select onchange="rclEdit('+i+',\''+k+'\',this.value)" style="width:100%;padding:6px;font-size:12px">'
+        +'<option value="">— ?</option>'
+        + arr.map(function(o){ return '<option value="'+rclEsc(o.v)+'"'+(val===o.v?' selected':'')+'>'+rclEsc(o.lib)+'</option>'; }).join('')
+        +'</select>';
+    };
+    return '<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+col+';border-radius:9px;margin-bottom:10px">'
+      +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">'
+        +'<span style="font-size:12px;color:#9fb0c4;font-weight:700">n° '+(i+1)+'</span>'
+        +'<input type="date" value="'+rclEsc(r.date||'')+'" onchange="rclEdit('+i+',\'date\',this.value)" style="width:auto;padding:6px;font-size:12px">'
+        +'<span style="flex:1"></span>'
+        +'<a href="#" onclick="rclDel('+i+');return false" style="color:#c0392b;text-decoration:none;font-weight:700">✕</a>'
+      +'</div>'
+      +'<div class="fg" style="margin-bottom:8px"><label class="fl">Objet de la demande</label>'
+        +'<textarea rows="2" onchange="rclEditQ('+i+',\'objet\',this.value)" placeholder="Ce qui est demandé, et sur quel fondement">'+rclEsc(r.objet||'')+'</textarea></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+        +'<div style="flex:1;min-width:150px"><label class="fl">Élu qui présente</label><input value="'+rclEsc(r.auteur||'')+'" onchange="rclEditQ('+i+',\'auteur\',this.value)" style="padding:6px;font-size:12.5px"></div>'
+        +'<div style="flex:1;min-width:150px"><label class="fl">Salarié concerné (si individuelle)</label><input value="'+rclEsc(r.concerne||'')+'" onchange="rclEditQ('+i+',\'concerne\',this.value)" style="padding:6px;font-size:12.5px"></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+        +'<div style="flex:1;min-width:180px"><label class="fl">Objet relatif à</label>'+sl('c',RCL_CATS,r.cat,'cat')+'</div>'
+        +'<div style="flex:1;min-width:180px"><label class="fl">Nature</label>'+sl('n',RCL_NATURES,r.nature,'nature')+'</div>'
+        +'<div style="flex:1;min-width:150px"><label class="fl">État</label>'+sl('e',RCL_ETATS,r.etat,'etat')+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+        +'<div style="flex:1;min-width:150px"><label class="fl">Présentée en réunion du</label><input type="date" value="'+rclEsc(r.reunion||'')+'" onchange="rclEdit('+i+',\'reunion\',this.value)" style="padding:6px;font-size:12px"></div>'
+        +'<div style="flex:1;min-width:150px"><label class="fl">Réponse apportée le</label><input type="date" value="'+rclEsc(r.dateRep||'')+'" onchange="rclEdit('+i+',\'dateRep\',this.value)" style="padding:6px;font-size:12px"></div>'
+      +'</div>'
+      +(r.reunion&&d.reg&&d.reg.formalise
+        ? ('<div style="font-size:11.5px;color:#6b7a8d;margin-bottom:8px">Note au plus tard le '+rclFR(rclMoinsOuvrables(r.reunion,2))+' · réponse au plus tard le <b style="color:#e8c97a">'+rclFR(rclPlusOuvrables(r.reunion,6))+'</b></div>')
+        : '')
+      +'<div class="fg" style="margin-bottom:0"><label class="fl">Réponse motivée de l’employeur</label>'
+        +'<textarea rows="2" onchange="rclEditQ('+i+',\'reponse\',this.value)">'+rclEsc(r.reponse||'')+'</textarea></div>'
+      +'</div>';
+  }).join('');
+  h+='<div style="margin-top:8px"><button onclick="rclAdd()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter une réclamation</button></div></div>';
+
+  /* Contrôles */
+  h+='<div class="card"><div class="ct">Contrôles</div>'
+   + ((typeof jxCohHTML==='function')? jxCohHTML(d.alertes) : '')
+   +'</div>';
+
+  /* Documents */
+  h+='<div class="card"><div class="ct">Documents</div>'
+   +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+   +'<button onclick="rclDoc(\'note\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Note écrite des demandes</button>'
+   +'<button onclick="rclDoc(\'registre\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Registre des réclamations</button>'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px;line-height:1.55">Le registre porte la mention du régime réellement applicable : obligatoire en dessous de cinquante salariés, tenu volontairement au-delà.</div>'
+   +'</div>';
+
+  host.innerHTML=h;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULE 3.3 : LA REUNION
