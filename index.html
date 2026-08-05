@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.100';
+var JX_BUILD = 'v2026-08-06.101';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,24 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ CSE — CONSULTATIONS RÉCURRENTES ═══ -->
+<div id="pg-csecns" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Consultations récurrentes</div><div class="ts">Orientations · économie · politique sociale</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    Les trois consultations de l'article L.2312-17, avec le délai d'examen calculé et daté :
+    passé ce délai, l'avis est réputé négatif et la consultation réputée accomplie.
+  </div>
+</div>
+<div id="csecns-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{cnsOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 <!-- ═══ CSE — RÉCLAMATIONS ═══ -->
 <div id="pg-csercl" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3470,6 +3488,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('csecns');closeMenu()"><span style="font-size:18px">📈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Consultations récurrentes</div></div></div>
   <div class="mi" onclick="goPage('csercl');closeMenu()"><span style="font-size:18px">📝</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réclamations</div></div></div>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
@@ -5390,6 +5409,7 @@ function goPage(id){
   if(id==='csecal'){ try{ calOnEnter(); }catch(e){} }
   if(id==='csereu'){ try{ reuOnEnter(); }catch(e){} }
   if(id==='csercl'){ try{ rclOnEnter(); }catch(e){} }
+  if(id==='csecns'){ try{ cnsOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6271,6 +6291,259 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
 
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULE 3.5 : CONSULTATIONS RECURRENTES
+   Les trois consultations de L.2312-17, leurs delais d'avis, la base de
+   donnees economiques, sociales et environnementales. Le delai est
+   calcule et le point de bascule vers l'avis repute negatif est date.
+   ══════════════════════════════════════════════════════════════════ */
+var CNS={};
+var CNS_LS='cse_consultations_v1';
+function cnsKey(){ return CNS_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function cnsLoad(){ try{ CNS=JSON.parse(localStorage.getItem(cnsKey())||'{}')||{}; }catch(e){ CNS={}; } if(!CNS.c) CNS.c={}; }
+function cnsSave(){ try{ localStorage.setItem(cnsKey(), JSON.stringify(CNS)); }catch(e){} }
+function cnsEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function cnsFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function cnsAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function cnsPlus(iso,j,mois,ans){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  if(ans) d.setFullYear(d.getFullYear()+ans);
+  if(mois) d.setMonth(d.getMonth()+mois);
+  if(j) d.setDate(d.getDate()+j);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function cnsJours(a,b){ if(!a||!b) return null; var x=new Date(a+'T00:00:00'), y=new Date(b+'T00:00:00'); if(isNaN(x)||isNaN(y)) return null; return Math.round((y-x)/86400000); }
+function cnsReste(iso){
+  var n=cnsJours(cnsAuj(), iso); if(n===null) return '';
+  if(n<0) return ' <b style="color:#e05c5c">— dépassé de '+(-n)+' jour(s)</b>';
+  if(n===0) return ' <b style="color:#e05c5c">— c\'est aujourd\'hui</b>';
+  if(n<=15) return ' <b style="color:#e8c97a">— dans '+n+' jour(s)</b>';
+  return ' <span style="color:#9fb0c4">— dans '+n+' jour(s)</span>';
+}
+function cnsEff(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof socSerie!=='function') return null;
+    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
+  }catch(e){ return null; }
+}
+function cnsSet(k,v){ CNS[k]=v; cnsSave(); cnsRender(); }
+function cnsSetSel(k,id){ CNS[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; cnsSave(); cnsRender(); }
+function cnsC(k){ if(!CNS.c) CNS.c={}; if(!CNS.c[k]) CNS.c[k]={}; return CNS.c[k]; }
+function cnsCSet(k,champ,v){ cnsC(k)[champ]=v; cnsSave(); cnsRender(); }
+function cnsCSetQ(k,champ,v){ cnsC(k)[champ]=v; cnsSave(); }
+
+/* Les trois consultations recurrentes (L.2312-17). */
+var CNS_LISTE=[
+  {k:'strat', lib:'Orientations stratégiques de l’entreprise', art:'L.2312-17, 1° · L.2312-24',
+   det:'Le comité émet un avis sur les orientations stratégiques définies par l’organe chargé de l’administration ou de la surveillance, et sur leurs conséquences sur l’activité, l’emploi, l’évolution des métiers et des compétences, l’organisation du travail, le recours à la sous-traitance, à l’intérim, aux contrats temporaires et aux stages. '
+      +'Il peut proposer des orientations alternatives ; cet avis est transmis à l’organe compétent, qui formule une réponse argumentée. Le comité en reçoit communication et peut y répondre.'},
+  {k:'eco',   lib:'Situation économique et financière de l’entreprise', art:'L.2312-17, 2° · L.2312-25',
+   det:'La consultation porte notamment sur la politique de recherche et de développement technologique, y compris l’utilisation du crédit d’impôt pour les dépenses de recherche, et sur l’utilisation du crédit d’impôt pour la compétitivité et l’emploi lorsqu’il est applicable.'},
+  {k:'social',lib:'Politique sociale de l’entreprise, conditions de travail et emploi', art:'L.2312-17, 3° · L.2312-26',
+   det:'Elle porte notamment sur l’évolution de l’emploi, les qualifications, le programme pluriannuel de formation, les actions de formation, l’apprentissage, les conditions d’accueil en stage, les conditions de travail, les congés et l’aménagement du temps de travail, la durée du travail, l’égalité professionnelle entre les femmes et les hommes et les modalités d’exercice du droit d’expression.'}
+];
+var CNS_ETATS=[
+  {v:'nonlancee', lib:'Non lancée'},
+  {v:'encours',   lib:'En cours — information mise à disposition'},
+  {v:'rendu',     lib:'Avis rendu'},
+  {v:'reputee',   lib:'Avis réputé négatif — délai expiré'}
+];
+var CNS_EXPERTISES=[
+  {v:'aucune',  lib:'Aucune expertise — délai d’un mois'},
+  {v:'une',     lib:'Une expertise — délai de deux mois'},
+  {v:'plusieurs', lib:'Expertises au comité central et dans un ou plusieurs comités d’établissement — délai de trois mois'}
+];
+/* Delai d'examen a defaut d'accord (R.2312-6). */
+function cnsDelaiMois(exp){
+  if(exp==='une') return 2;
+  if(exp==='plusieurs') return 3;
+  return 1;
+}
+function cnsPeriodicite(){
+  if(CNS.accord!=='oui') return 1;            // regle suppletive : annuelle
+  var n=parseInt(CNS.periodicite||'',10);
+  if(isNaN(n) || n<=0) return 1;
+  // Une clause qui depasse trois ans est ecartee : le calcul suit alors le
+  // plafond legal, comme le dit l'alerte (L.2312-19).
+  return Math.min(n, 3);
+}
+
+/* ══════════ ANALYSE ══════════ */
+function cnsAnalyse(){
+  var A=[], eff=cnsEff();
+
+  if(eff===null){
+    A.push({gravite:'question', titre:'Effectif inconnu',
+      texte:'Les consultations récurrentes concernent les entreprises d’au moins cinquante salariés. Renseignez le registre du personnel, puis le socle.'});
+  } else if(eff<50){
+    A.push({gravite:'info', titre:'Moins de cinquante salariés',
+      texte:'Les trois consultations récurrentes de l’article L.2312-17 relèvent des attributions du comité dans les entreprises d’au moins cinquante salariés. '
+        +'En dessous, le comité conserve ses attributions propres — réclamations, santé et sécurité, droits d’alerte — mais n’est pas soumis à ces consultations.'});
+    return {alertes:A, eff:eff, lignes:[]};
+  }
+
+  /* Périodicité */
+  var per=cnsPeriodicite();
+  if(CNS.accord==='oui'){
+    var n=parseInt(CNS.periodicite||'',10);
+    if(isNaN(n)||n<=0){
+      A.push({gravite:'question', titre:'Périodicité prévue par l’accord non renseignée',
+        texte:'Précisez la périodicité en années que fixe l’accord.'});
+    } else if(n>3){
+      A.push({gravite:'stop', titre:'La périodicité dépasse trois ans',
+        texte:'L’accord fixe une périodicité de '+n+' ans. Un accord peut définir le contenu, la périodicité et les modalités des consultations récurrentes, mais la périodicité ne peut excéder trois ans (L.2312-19). '
+          +'La clause est écartée : la périodicité maximale de trois ans s’applique.'});
+    } else {
+      A.push({gravite:'info', titre:'Périodicité fixée par accord',
+        texte:'Consultation tous les '+n+' an(s), dans la limite de trois ans (L.2312-19). L’accord peut aussi prévoir un avis unique sur tout ou partie des trois thèmes. '
+          +'Il ne peut en revanche supprimer aucune des trois consultations.'});
+    }
+  } else {
+    A.push({gravite:'info', titre:'Périodicité annuelle',
+      texte:'À défaut d’accord, les trois consultations sont annuelles (L.2312-17). Un accord peut en définir le contenu, la périodicité — sans excéder trois ans — et les modalités, '
+        +'et prévoir un avis unique sur tout ou partie des thèmes (L.2312-19).'});
+  }
+
+  /* Base de données économiques, sociales et environnementales */
+  if(CNS.bdese!=='oui'){
+    A.push({gravite:'stop', titre:'Base de données économiques, sociales et environnementales absente',
+      texte:'Les consultations récurrentes s’appuient sur la base de données économiques, sociales et environnementales, qui rassemble les informations nécessaires (L.2312-18 · L.2312-21 · L.2312-36). '
+        +'Sans elle, le comité peut soutenir qu’il n’a pas été mis en mesure de rendre un avis éclairé.'});
+  } else {
+    A.push({gravite:'info', titre:'Base de données économiques, sociales et environnementales',
+      texte:'La mise à disposition des éléments d’information par la base vaut communication des rapports et informations au comité (L.2312-18). '
+        +'Un accord peut en définir l’organisation, l’architecture et le contenu, sans pouvoir supprimer les thèmes rendus obligatoires ni priver le comité des informations nécessaires à ses consultations (L.2312-21).'});
+  }
+
+  /* Chaque consultation */
+  var lignes=[];
+  CNS_LISTE.forEach(function(C){
+    var c=cnsC(C.k);
+    var exp=c.exp||'aucune';
+    var mois=cnsDelaiMois(exp);
+    var lim=c.debut? cnsPlus(c.debut,0,mois) : '';
+    var prochaine=c.dernier? cnsPlus(c.dernier,0,0,per) : '';
+    lignes.push({C:C, c:c, mois:mois, lim:lim, prochaine:prochaine});
+
+    if(c.etat==='encours' && c.debut){
+      var j=cnsJours(cnsAuj(), lim);
+      if(j!==null && j<0){
+        A.push({gravite:'stop', titre:'Délai expiré — '+C.lib,
+          texte:'L’information a été mise à disposition le '+cnsFR(c.debut)+'. À défaut d’accord, le comité est réputé avoir été consulté et avoir rendu un avis négatif à l’expiration du délai de '
+            +mois+' mois, soit le '+cnsFR(lim)+' (L.2312-15 · R.2312-6). Ce délai est dépassé de '+(-j)+' jour(s) : l’avis est réputé négatif, et la consultation est réputée accomplie.'});
+      } else if(j!==null && j<=15){
+        A.push({gravite:'question', titre:'Délai proche — '+C.lib,
+          texte:'Il reste '+j+' jour(s) avant le '+cnsFR(lim)+'. Passé cette date, le comité est réputé avoir rendu un avis négatif (R.2312-6). '
+            +'S’il s’estime insuffisamment informé, il peut saisir le président du tribunal judiciaire, qui statue en la forme des référés (L.2312-15).'});
+      }
+    }
+    if(c.etat==='rendu' && !c.dateAvis){
+      A.push({gravite:'question', titre:'Date de l’avis non renseignée — '+C.lib,
+        texte:'Sans elle, l’échéance de la prochaine consultation ne peut pas être calculée.'});
+    }
+    if(prochaine){
+      var jp=cnsJours(cnsAuj(), prochaine);
+      if(jp!==null && jp<0){
+        A.push({gravite:'stop', titre:'Consultation en retard — '+C.lib,
+          texte:'La dernière consultation date du '+cnsFR(c.dernier)+'. Avec une périodicité de '+per+' an(s), la suivante était due le '+cnsFR(prochaine)+', soit il y a '+(-jp)+' jour(s). '
+            +'Omettre une consultation récurrente est susceptible de constituer une entrave au fonctionnement régulier du comité (L.2317-1).'});
+      }
+    } else if(c.etat!=='encours'){
+      A.push({gravite:'question', titre:'Date de la dernière consultation manquante — '+C.lib,
+        texte:'Sans elle, il est impossible de dire si la consultation est à jour.'});
+    }
+  });
+
+  /* Orientations stratégiques : la réponse argumentée */
+  var s=cnsC('strat');
+  if(s.etat==='rendu' && s.reponse!=='oui'){
+    A.push({gravite:'question', titre:'Réponse argumentée de l’organe compétent non enregistrée',
+      texte:'Le comité peut proposer des orientations alternatives. Son avis est transmis à l’organe chargé de l’administration ou de la surveillance, qui formule une réponse argumentée ; '
+        +'le comité en reçoit communication et peut y répondre (L.2312-24). L’absence de réponse prive la consultation d’une partie de son objet.'});
+  }
+
+  var o={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return o[a.gravite]-o[b.gravite]; });
+  return {alertes:A, eff:eff, lignes:lignes, per:per};
+}
+
+/* ══════════ RENDU ══════════ */
+function cnsOnEnter(){ cnsLoad(); cnsRender(); }
+function cnsRender(){
+  var host=document.getElementById('csecns-body'); if(!host) return;
+  var d=cnsAnalyse();
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  var h='';
+
+  h+='<div class="card"><div class="ct">Cadre</div>';
+  if(d.eff===null){
+    h+='<div style="font-size:13px;color:#e8c97a">Effectif inconnu.</div>'
+     +'<div style="margin-top:10px"><button class="btn" onclick="goPage(\'socle\')">Ouvrir le socle</button></div>';
+  } else if(d.eff<50){
+    h+='<div style="font-size:13px;color:#9fb0c4;line-height:1.7">Effectif de <b>'+d.eff+'</b> salariés. Les trois consultations récurrentes ne s’appliquent qu’à partir de cinquante salariés.</div>';
+  } else {
+    h+='<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;margin-bottom:12px">'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+d.eff+'</div><div style="font-size:12px;color:#9fb0c4">salariés (socle)</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+d.per+'</div><div style="font-size:12px;color:#9fb0c4">an(s) de périodicité</div></div>'
+      +'</div>'
+      +'<div class="fg"><label class="fl">Un accord fixe-t-il le contenu, la périodicité ou les modalités ?</label>'
+      + S('cns-acc',[{v:'non',lib:'Non — règle supplétive, consultation annuelle'},{v:'oui',lib:'Oui — accord d’entreprise'}], CNS.accord||'', 'cnsSetSel(\'accord\',\'cns-acc\')')
+      +'</div>'
+      +(CNS.accord==='oui'?('<div class="fg"><label class="fl">Périodicité prévue par l’accord, en années (trois au plus)</label>'
+        +'<input type="number" min="1" max="3" value="'+cnsEsc(CNS.periodicite||'')+'" onchange="cnsSet(\'periodicite\',this.value)"></div>'):'')
+      +'<div class="fg"><label class="fl">La base de données économiques, sociales et environnementales est-elle en place ?</label>'
+      + S('cns-bd',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], CNS.bdese||'', 'cnsSetSel(\'bdese\',\'cns-bd\')')
+      +'</div>';
+  }
+  h+='</div>';
+
+  /* Les trois consultations */
+  if(d.eff!==null && d.eff>=50){
+    d.lignes.forEach(function(L){
+      var C=L.C, c=L.c;
+      var etat=c.etat||'nonlancee';
+      var col={nonlancee:'#9fb0c4',encours:'#e8c97a',rendu:'#46b885',reputee:'#e05c5c'}[etat]||'#9fb0c4';
+      h+='<div class="card" style="border-left:3px solid '+col+'"><div class="ct">'+cnsEsc(C.lib)+'</div>'
+       +'<div style="font-size:12px;color:#6b7a8d;margin-bottom:8px">Article '+cnsEsc(C.art)+' du code du travail</div>'
+       +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'+cnsEsc(C.det)+'</div>'
+       +'<div class="fg"><label class="fl">État</label>'+S('cns-e-'+C.k,CNS_ETATS,etat,'cnsCSet(\''+C.k+'\',\'etat\',jxSelectVal(\'cns-e-'+C.k+'\'))')+'</div>'
+       +'<div class="fg"><label class="fl">Expertise</label>'+S('cns-x-'+C.k,CNS_EXPERTISES,c.exp||'aucune','cnsCSet(\''+C.k+'\',\'exp\',jxSelectVal(\'cns-x-'+C.k+'\'))')+'</div>'
+       +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+         +'<div style="flex:1;min-width:160px"><label class="fl">Information mise à disposition le</label>'
+         +'<input type="date" value="'+cnsEsc(c.debut||'')+'" onchange="cnsCSet(\''+C.k+'\',\'debut\',this.value)"></div>'
+         +'<div style="flex:1;min-width:160px"><label class="fl">Avis rendu le</label>'
+         +'<input type="date" value="'+cnsEsc(c.dateAvis||'')+'" onchange="cnsCSet(\''+C.k+'\',\'dateAvis\',this.value)"></div>'
+         +'<div style="flex:1;min-width:160px"><label class="fl">Dernière consultation achevée le</label>'
+         +'<input type="date" value="'+cnsEsc(c.dernier||'')+'" onchange="cnsCSet(\''+C.k+'\',\'dernier\',this.value)"></div>'
+       +'</div>';
+      if(c.debut && L.lim){
+        h+='<div style="margin-top:6px;padding:9px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:8px;font-size:12.5px;color:#9fb0c4;line-height:1.6">'
+          +'Délai d’examen : <b>'+L.mois+' mois</b> — avis réputé négatif à compter du <b style="color:#e8c97a">'+cnsFR(L.lim)+'</b>'+cnsReste(L.lim)+' (L.2312-15 · R.2312-6)'
+          +'</div>';
+      }
+      if(L.prochaine){
+        h+='<div style="margin-top:6px;font-size:12.5px;color:#9fb0c4">Prochaine consultation due le <b style="color:#e8c97a">'+cnsFR(L.prochaine)+'</b>'+cnsReste(L.prochaine)+'</div>';
+      }
+      if(C.k==='strat'){
+        h+='<div class="fg" style="margin-top:10px"><label class="fl">L’organe compétent a-t-il formulé une réponse argumentée à l’avis ? (L.2312-24)</label>'
+          + S('cns-rep',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], c.reponse||'', 'cnsCSet(\'strat\',\'reponse\',jxSelectVal(\'cns-rep\'))')+'</div>';
+      }
+      h+='<div class="fg" style="margin-top:10px;margin-bottom:0"><label class="fl">Avis du comité — texte</label>'
+        +'<textarea rows="3" onchange="cnsCSetQ(\''+C.k+'\',\'avis\',this.value)">'+cnsEsc(c.avis||'')+'</textarea></div>'
+        +'</div>';
+    });
+  }
+
+  h+='<div class="card"><div class="ct">Contrôles</div>'
+   + ((typeof jxCohHTML==='function')? jxCohHTML(d.alertes) : '')
+   +'</div>';
+
+  host.innerHTML=h;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULE 3.4 : RECLAMATIONS INDIVIDUELLES ET COLLECTIVES
