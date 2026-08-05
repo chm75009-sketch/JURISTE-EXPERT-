@@ -653,7 +653,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.109';
+var JX_BUILD = 'v2026-08-06.110';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -5196,8 +5196,37 @@ function modRender(mod,id){
 }
 function modSecteur(mod){var el=document.getElementById('sec-'+mod);var id=el?el.value:'transport';secSet('secteur_'+mod,id);modRender(mod,id);}
 function modInit(mod){var id=secGet('secteur_'+mod)||appGetSecteur();var el=document.getElementById('sec-'+mod);if(el)el.value=id;modRender(mod,id);}
+/* La convention du client, lue la ou elle a ete saisie, dans cet ordre :
+   le socle, la fiche de l'Espace RH, puis a defaut la table des secteurs.
+   « IDCC 0016 » etait ecrit en dur : tout client hors transport voyait la
+   convention du transport en haut de son ecran. */
+var JX_IDCC_SECTEUR={ transport:'16', banque:'2120', assurances:'1672', syntec:'1486',
+  enseignement:'3218', formation:'1516', ensindep:'2691', batiment:'1596' };
+function jxConventionClient(){
+  var idcc='', nom='';
+  try{ if(typeof SOC!=='undefined' && SOC){ idcc=SOC.idcc||idcc; nom=SOC.ccn||nom; } }catch(e){}
+  try{ if(!idcc && typeof RX!=='undefined' && RX.ent) idcc=RX.ent.idcc||''; }catch(e){}
+  try{ if(!idcc && typeof RH!=='undefined' && RH.ent) idcc=RH.ent.idcc||''; }catch(e){}
+  if(!idcc){
+    var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
+    idcc=JX_IDCC_SECTEUR[s]||'';
+  }
+  idcc=String(idcc||'').replace(/[^0-9]/g,'');
+  return { idcc:idcc, nom:nom, libelle: idcc? ('CCN IDCC '+((idcc.length<4)?('0000'+idcc).slice(-4):idcc)) : '' };
+}
 function updateHeroTop(){
-  var t=document.getElementById('top-nom'); if(t)t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+'CCN IDCC 0016';
+  var c=jxConventionClient();
+  var t=document.getElementById('top-nom');
+  if(t) t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+(c.libelle||'Convention non renseignée');
+  var h=document.getElementById('hero-secteur');
+  if(h){
+    var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
+    var LAB={ transport:'Transport routier de marchandises', banque:'Banque', assurances:'Assurances',
+      syntec:'Bureaux d’études et conseil', enseignement:'Enseignement privé', formation:'Organismes de formation',
+      ensindep:'Enseignement privé indépendant', batiment:'Bâtiment' };
+    var lib=c.nom || LAB[s] || '';
+    h.textContent = (lib? lib : 'Votre secteur') + (c.libelle? (' — '+c.libelle) : '');
+  }
 }
 function appSetSecteur(id){
   secSet('app_secteur',id);
@@ -6269,6 +6298,8 @@ function socSaveCCN(){
   var g=function(i){ var e=document.getElementById(i); return e?e.value.trim():''; };
   SOC.idcc=g('soc-idcc'); SOC.ccn=g('soc-ccn'); SOC.plusFav=g('soc-plusfav');
   socSave();
+  // L'en-tete affiche la convention : il doit suivre immediatement.
+  try{ if(typeof updateHeroTop==='function') updateHeroTop(); }catch(e){}
   var k=document.getElementById('soc-ccn-ok'); if(k){ k.style.display='block'; setTimeout(function(){k.style.display='none';},2200); }
 }
 
@@ -8446,8 +8477,14 @@ function reuDoc(k){
   var S='margin:0 0 12px';
   var ent=reuEnt(), eff=reuEff();
   var entete='<p style="'+S+'"><b>'+reuEsc(reuV(ent.nom,'RAISON SOCIALE'))+'</b><br>'+reuEsc(reuV(ent.adresse,'ADRESSE'))+'</p>';
-  var sec=reuDesigne('secretaire'), pres=reuDesigne('president')||REU.president||'';
-  var presNom=(typeof MC!=='undefined'&&MC.president)?MC.president:'';
+  var sec=reuDesigne('secretaire');
+  /* Le president du comite, c'est l'employeur ou son representant. Si personne
+     n'a ete designe dans « Mon CSE », on reprend le dirigeant de la fiche
+     entreprise — mais on le dit, au lieu de le faire signer en silence. */
+  var presNom=(typeof MC!=='undefined'&&MC.president)?String(MC.president).trim():'';
+  var presDefaut=(!presNom && ent.dirigeant)?String(ent.dirigeant).trim():'';
+  var presAff=presNom||presDefaut||'';
+  var presNote=presDefaut?' <span style="font-size:9pt;color:#666">(dirigeant de la société, à confirmer comme président du comité)</span>':'';
   var lieuDate='<p style="'+S+';text-align:right">Fait le '+reuFR((function(){var t=new Date();return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);})())+'</p>';
 
   if(k==='conv'){
@@ -8465,7 +8502,7 @@ function reuDoc(k){
       +'<p style="'+S+'">Le présent ordre du jour est communiqué aux membres du comité, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention de l’organisme de sécurité sociale, trois jours au moins avant la réunion (article L.2315-30).</p>'
       +(REU.mode!=='pres'?('<p style="'+S+'"><i>La visioconférence est mise en œuvre dans des conditions garantissant l’identification des membres et leur participation effective, par la retransmission continue et simultanée du son et de l’image des délibérations (article D.2315-1).</i></p>'):'')
       +lieuDate
-      +'<p style="'+S+';margin-top:24px">Le président du comité social et économique<br>'+reuEsc(reuV(presNom||ent.dirigeant,'NOM ET QUALITÉ'))+'</p>');
+      +'<p style="'+S+';margin-top:24px">Le président du comité social et économique<br>'+reuEsc(reuV(presAff,'NOM ET QUALITÉ'))+presNote+'</p>');
   }
   else if(k==='presence'){
     var E2=reuElus();
@@ -8484,7 +8521,7 @@ function reuDoc(k){
       +'<th style="border:1px solid #000;padding:6px;text-align:left">Présence</th><th style="border:1px solid #000;padding:6px;text-align:left">Signature</th></tr>'
       +lignes+'</table>'
       +'<p style="'+S+';margin-top:14px"><i>Le suppléant assiste aux réunions en l’absence du titulaire (article L.2314-1 du code du travail).</i></p>'
-      +'<p style="'+S+'">Président : '+reuEsc(reuV(presNom||ent.dirigeant,'NOM ET QUALITÉ'))
+      +'<p style="'+S+'">Président : '+reuEsc(reuV(presAff,'NOM ET QUALITÉ'))+presNote
       +(MC&&MC.collaborateurs?('<br>Collaborateurs assistant le président (trois au plus, voix consultative — article L.2315-23) : '+reuEsc(MC.collaborateurs)):'')+'</p>');
   }
   else if(k==='pv'){
@@ -9039,6 +9076,12 @@ var MC_SEXES=[{v:'F',lib:'Femme'},{v:'H',lib:'Homme'}];
 var MC_DUREES=[{v:'4',lib:'4 ans (durée légale à défaut d’accord)'},{v:'3',lib:'3 ans (accord)'},{v:'2',lib:'2 ans (accord)'}];
 
 function mcElus(){ if(!Array.isArray(MC.elus)) MC.elus=[]; return MC.elus; }
+/* Le dirigeant enregistre sur la fiche entreprise, s'il y en a un. */
+function mcDirigeant(){
+  try{ if(typeof RX!=='undefined' && RX.ent && RX.ent.gerant) return String(RX.ent.gerant).trim(); }catch(e){}
+  try{ if(typeof E!=='undefined' && E && E.dirigeant) return String(E.dirigeant).trim(); }catch(e){}
+  return '';
+}
 function mcTits(){ return mcElus().filter(function(e){ return e.q==='tit'; }); }
 function mcAdd(){ mcElus().push({nom:'',q:'tit',col:'1',sexe:'',heures:''}); mcSave(); mcRender(); }
 function mcDel(i){ if(!confirm('Retirer cet élu ?')) return; mcElus().splice(i,1); mcSave(); mcRender(); }
@@ -9254,7 +9297,12 @@ function mcRender(){
    +'<div class="fg"><label class="fl">Représentant syndical au comité</label>'
    +'<input value="'+mcEsc(MC.rs||'')+'" placeholder="Nom et organisation" onchange="mcSet(\'rs\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Président — l’employeur ou son représentant, assisté au plus de trois collaborateurs à voix consultative (L.2315-23)</label>'
-   +'<input value="'+mcEsc(MC.president||'')+'" placeholder="Nom et qualité" onchange="mcSet(\'president\',this.value)"></div>'
+   +'<input value="'+mcEsc(MC.president||'')+'" placeholder="'+mcEsc(mcDirigeant()||'Nom et qualité')+'" onchange="mcSet(\'president\',this.value)">'
+   +(!(MC.president||'').trim() && mcDirigeant()
+      ? ('<div style="font-size:11.5px;color:#e8c97a;margin-top:5px;line-height:1.5">Tant que ce champ est vide, les documents portent « '+mcEsc(mcDirigeant())+' », dirigeant de la société, avec la mention qu’il reste à confirmer comme président du comité. '
+         +'L’employeur peut se faire représenter : indiquez alors la personne qui préside réellement.</div>')
+      : '')
+   +'</div>'
    +'<div class="fg"><label class="fl">Collaborateurs assistant le président (trois au plus)</label>'
    +'<input value="'+mcEsc(MC.collaborateurs||'')+'" placeholder="Noms séparés par des virgules" onchange="mcSet(\'collaborateurs\',this.value)"></div>'
    +'</div>';
