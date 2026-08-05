@@ -21,8 +21,11 @@ Ce que la suite vérifie :
 
 1. **Les bornes de seuil, des deux côtés** — 10/11, 49/50, 299/300, 999/1000,
    1999/2000. C'est la seule façon de voir un `>=` écrit à la place d'un `>`.
-   Le seuil de la subvention à 0,22 % est bien testé à 2000 **et** à 2001 :
-   il se déclenche *au-delà* de deux mille, pas à deux mille.
+   Le seuil de la subvention à 0,22 % est testé à 1999, **2000** et 2001 :
+   l'article L.2315-61 vise les entreprises « d'au moins deux mille
+   salariés », donc il se déclenche **à** deux mille. Ce test disait
+   l'inverse, et trois endroits du code le suivaient : à 2 000 salariés
+   pile, l'application annonçait 0,20 % au lieu de 0,22 %.
 2. **Message contre comportement** — chaque alerte qui annonce une conséquence
    est suivie d'une assertion sur la fonction qui l'applique.
 3. **Le barème R.2314-1**, tranche par tranche, y compris la dernière

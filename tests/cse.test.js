@@ -232,9 +232,16 @@ test('seuil de 1000 : commission economique', () => {
   assert(contient(ctx.csedAnalyse().alertes, /Commission economique/), '1000 : commission economique');
 });
 
-test('seuil de 2000 : la subvention passe a 0,22 % AU-DELA de 2000, pas a 2000', () => {
+/* Article L.2315-61 : « 0,22 % de la masse salariale brute dans les
+   entreprises D'AU MOINS deux mille salaries ». Le seuil est atteint a
+   2 000, il n'a pas a etre depasse. Ce test disait l'inverse, et le code
+   du diagnostic et du guide le suivait : a 2 000 salaries pile,
+   l'application annoncait 0,20 % au lieu de 0,22 %. */
+test('seuil de 2000 : la subvention est a 0,22 % DES 2000, pas au-dela', () => {
+  entreprise(1999, { csed: { siteRisque: 'non' } });
+  assert(!contient(ctx.csedAnalyse().alertes, /0,22/), '1999 : encore 0,20 %');
   entreprise(2000, { csed: { siteRisque: 'non' } });
-  assert(!contient(ctx.csedAnalyse().alertes, /0,22/), '2000 pile : encore 0,20 %');
+  assert(contient(ctx.csedAnalyse().alertes, /0,22/), '2000 pile : deja 0,22 %');
   entreprise(2001, { csed: { siteRisque: 'non' } });
   assert(contient(ctx.csedAnalyse().alertes, /0,22/), '2001 : 0,22 %');
 });
