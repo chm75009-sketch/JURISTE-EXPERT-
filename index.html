@@ -653,7 +653,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.106';
+var JX_BUILD = 'v2026-08-06.107';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6806,15 +6806,371 @@ function hubCarte(t){
     +'</div>';
 }
 
+
+/* ══════════════════════════════════════════════════════════════════
+   GUIDE PAS A PAS — pour quelqu'un qui n'a jamais fait de droit
+   Une question a la fois, en francais ordinaire. Aucun terme juridique
+   n'est employe sans etre explique dans la phrase qui le precede.
+   A la fin : un plan d'action date, en langage courant.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Le glossaire : chaque mot du metier, dit simplement ── */
+var GUIDE_MOTS=[
+  {m:'CSE', d:'Le comité social et économique. Ce sont les représentants du personnel, élus par les salariés. On dit aussi « le comité ».'},
+  {m:'Effectif', d:'Le nombre de personnes qui travaillent dans l’entreprise. Il se compte selon des règles précises : un apprenti ne compte pas, un mi-temps compte pour un demi.'},
+  {m:'Élection', d:'Le vote par lequel les salariés choisissent leurs représentants. Il se déroule en deux tours.'},
+  {m:'Carence', d:'La situation où personne ne s’est présenté au vote, ou pas assez de votants. On l’écrit dans un document officiel.'},
+  {m:'Mandat', d:'La durée pendant laquelle un élu reste en fonction. Quatre ans en général.'},
+  {m:'Ordre du jour', d:'La liste des sujets qui seront abordés à la réunion. Elle s’envoie à l’avance.'},
+  {m:'Procès-verbal', d:'Le compte rendu écrit de la réunion. Il dit ce qui a été décidé.'},
+  {m:'Consultation', d:'Le moment où l’employeur demande son avis au comité avant de décider. L’avis ne lie pas l’employeur, mais il doit être demandé.'},
+  {m:'Réclamation', d:'Une demande d’un salarié pour que la règle soit appliquée — un salaire mal payé, un congé refusé à tort.'},
+  {m:'Revendication', d:'Une demande d’un avantage nouveau — une prime qui n’existe pas encore. Ce n’est pas la même chose qu’une réclamation, et cela ne passe pas par le comité.'},
+  {m:'BDESE', d:'Un dossier, papier ou informatique, où l’employeur range les chiffres de l’entreprise pour que les élus puissent les consulter quand ils veulent.'},
+  {m:'Entrave', d:'Le fait d’empêcher le comité de fonctionner. C’est un délit, puni d’une amende.'},
+  {m:'Titulaire et suppléant', d:'Le titulaire siège aux réunions. Le suppléant le remplace quand il est absent.'}
+];
+
+/* ── Les etapes du guide ──
+   Chaque etape ecrit sa reponse dans le module concerne : le guide ne
+   cree pas une saisie de plus, il remplit celles qui existent. */
+var GUIDE_ETAPES=[
+  {
+    k:'accueil', type:'texte',
+    titre:'Ce guide va vous dire quoi faire',
+    corps:'Vous allez répondre à quelques questions simples sur votre entreprise. '
+      +'À la fin, vous aurez la liste de ce que vous devez faire, avec les dates, et les courriers à envoyer.<br><br>'
+      +'Aucune connaissance juridique n’est nécessaire. Chaque mot compliqué est expliqué au moment où il apparaît.'
+  },
+  {
+    k:'effectif', type:'info',
+    titre:'Combien de personnes travaillent chez vous ?',
+    aide:'Ce nombre commande tout le reste. En dessous de 11 personnes, vous n’avez rien à faire. À partir de 11, vous devez organiser un vote. À partir de 50, les obligations s’élargissent.',
+    lire:function(){ var e=hubEff(); return (e===null)?null:e; },
+    vide:'Vous n’avez pas encore rempli la liste de vos salariés. Le guide ne peut pas deviner ce nombre : il faut la remplir une fois.',
+    bouton:'Remplir la liste des salariés', page:'socle'
+  },
+  {
+    k:'situation', type:'choix',
+    titre:'Avez-vous déjà des représentants du personnel élus ?',
+    aide:'On les appelle « le comité » ou « le CSE ». Ce sont des salariés élus par leurs collègues pour porter leurs demandes et être consultés sur les décisions de l’entreprise.',
+    opts:[
+      {v:'encours', lib:'Oui, ils sont en place', sous:'Des élections ont eu lieu et les élus sont en fonction'},
+      {v:'expire',  lib:'Oui, mais leur mandat est fini', sous:'Il faut refaire un vote'},
+      {v:'carence', lib:'Non, personne ne s’est présenté', sous:'Un vote a eu lieu mais il n’y avait pas de candidat'},
+      {v:'aucun',   lib:'Non, il n’y en a jamais eu', sous:'Aucune élection n’a jamais été organisée'}
+    ],
+    lire:function(){ try{ return CSED.situation||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.situation=v; csedSave(); }
+  },
+  {
+    k:'tour1', type:'date',
+    titre:'Quand a eu lieu le vote ?',
+    aide:'La date du premier jour de vote. Elle sert à calculer quand les mandats se terminent, et donc quand il faudra revoter.',
+    si:function(){
+      var x=hubEff(); if(x!==null && x<11) return false;
+      try{ return CSED.situation==='encours'||CSED.situation==='expire'; }catch(y){ return false; }
+    },
+    lire:function(){ try{ return CSED.dateElec||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.dateElec=v; csedSave(); try{ MC.tour1=v; mcSave(); }catch(e){} }
+  },
+  {
+    k:'dateInfo', type:'date',
+    titre:'Avez-vous déjà prévenu les salariés qu’un vote allait avoir lieu ?',
+    aide:'Avant d’organiser le vote, vous devez informer tout le personnel. Cette date déclenche un compte à rebours : le vote doit avoir lieu dans les 90 jours. Laissez vide si ce n’est pas encore fait.',
+    si:function(){
+      var e=hubEff(); if(e!==null && e<11) return false;    // rien a organiser en dessous de onze
+      try{ return CSED.situation==='aucun'||CSED.situation==='expire'||CSED.situation==='carence'; }catch(x){ return false; }
+    },
+    lire:function(){ try{ return CSED.dateInfo||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.dateInfo=v; csedSave(); },
+    facultatif:true
+  },
+  {
+    k:'premiere', type:'date',
+    titre:'Quand est prévue votre prochaine réunion avec les élus ?',
+    aide:'Vous devez réunir le comité régulièrement — tous les mois ou tous les deux mois selon votre taille. À partir de cette date, le guide vous fabrique le calendrier de l’année.',
+    si:function(){
+      var e=hubEff(); if(e!==null && e<11) return false;
+      try{ return CSED.situation==='encours'; }catch(x){ return false; }
+    },
+    lire:function(){ try{ return CAL.premiere||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CAL.premiere=v; calSave(); },
+    facultatif:true
+  },
+  {
+    k:'accord', type:'choix',
+    titre:'Avez-vous signé un accord avec les syndicats sur le fonctionnement du comité ?',
+    aide:'Un accord d’entreprise peut changer certaines règles — le nombre de réunions, par exemple. Si vous n’en avez pas, ce sont les règles du code du travail qui s’appliquent. C’est le cas le plus fréquent.',
+    si:function(){ var e=hubEff(); return e===null || e>=11; },
+    opts:[
+      {v:'non', lib:'Non', sous:'Les règles du code du travail s’appliquent'},
+      {v:'oui', lib:'Oui', sous:'Un accord a été signé'}
+    ],
+    lire:function(){ try{ return CAL.accord||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CAL.accord=v; calSave(); try{ CNS.accord=v; cnsSave(); }catch(e){} }
+  },
+  {
+    k:'bdese', type:'choix',
+    titre:'Avez-vous un dossier où les élus peuvent consulter les chiffres de l’entreprise ?',
+    aide:'La loi l’appelle « BDESE ». C’est un classeur, papier ou informatique, où vous rangez les chiffres — emploi, salaires, investissements, environnement. Les élus doivent pouvoir y accéder quand ils veulent. Sans ce dossier, vous ne pouvez pas les consulter valablement.',
+    si:function(){ var e=hubEff(); return e!==null && e>=50; },
+    opts:[
+      {v:'oui', lib:'Oui, il existe', sous:'Les élus peuvent le consulter'},
+      {v:'non', lib:'Non', sous:'Il faudra le créer'}
+    ],
+    lire:function(){ try{ return CNS.bdese||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CNS.bdese=v; cnsSave(); }
+  }
+];
+function guideEtapes(){ return GUIDE_ETAPES.filter(function(e){ return !e.si || e.si(); }); }
+
+var _gPas=0;
+function guideAller(n){
+  var E=guideEtapes();
+  _gPas=Math.max(0, Math.min(n, E.length));   // E.length = ecran du plan
+  hubRender();
+}
+function guideRep(k,v){
+  var e=null; GUIDE_ETAPES.forEach(function(x){ if(x.k===k) e=x; });
+  if(e&&e.ecrire) e.ecrire(v);
+  hubSave();
+  guideAller(_gPas+1);
+}
+function guideRepDate(k,v){
+  var e=null; GUIDE_ETAPES.forEach(function(x){ if(x.k===k) e=x; });
+  if(e&&e.ecrire) e.ecrire(v);
+  hubSave(); hubRender();
+}
+
+/* ══════════ LE PLAN, EN LANGAGE COURANT ══════════
+   On repart des alertes et des echeances, mais on les dit autrement :
+   ce qu'il faut faire, pour quand, et pourquoi en une ligne. */
+function guidePlan(){
+  var P=[], eff=hubEff();
+  var sit=''; try{ sit=CSED.situation||''; }catch(e){}
+
+  if(eff===null){
+    P.push({q:'Remplissez la liste de vos salariés', d:'', p:'Sans elle, rien ne peut être calculé.', page:'socle'});
+    return P;
+  }
+  if(eff<11){
+    P.push({q:'Vous n’avez rien à faire pour l’instant', d:'',
+      p:'En dessous de 11 salariés, la loi n’impose pas de représentants du personnel. Revenez ici si votre effectif augmente.', fin:true});
+    return P;
+  }
+
+  /* Mise en place ou renouvellement */
+  if(sit==='aucun'||sit==='expire'||sit==='carence'){
+    var di=''; try{ di=CSED.dateInfo||''; }catch(e){}
+    if(!di){
+      P.push({q:'Prévenez tous vos salariés qu’un vote va avoir lieu', d:'Dès que possible',
+        p:'C’est la première étape obligatoire. Gardez une preuve de la date : un courrier remis contre signature, un affichage daté, un courriel avec accusé.',
+        doc:['elec','info']});
+      P.push({q:'Invitez les syndicats à en discuter avec vous', d:'Le même jour',
+        p:'Même si vous n’avez pas de syndicat dans l’entreprise, vous devez les inviter.',
+        doc:['elec','os']});
+    } else {
+      var lim=hubJours? '' : '';
+      var d90=(typeof csedPlus==='function')? csedPlus(di,90) : '';
+      P.push({q:'Organisez le premier tour du vote', d:d90?('Au plus tard le '+hubFR(d90)):'',
+        p:'Vous avez prévenu le personnel le '+hubFR(di)+'. À partir de là, vous avez 90 jours.',
+        page:'csediag'});
+      P.push({q:'S’il n’y a pas assez de candidats, faites un second tour', d:'Dans les 15 jours après le premier',
+        p:'Au second tour, n’importe quel salarié peut se présenter, même sans syndicat.'});
+      P.push({q:'Si personne ne se présente, écrivez-le noir sur blanc', d:'',
+        p:'C’est le « procès-verbal de carence ». Vous l’affichez et vous l’envoyez à l’inspection du travail dans les 15 jours. Sans ce document, vous êtes réputé n’avoir rien fait.',
+        doc:['elec','carence']});
+    }
+  }
+
+  /* Vie courante du comite */
+  if(sit==='encours'){
+    var prem=''; try{ prem=CAL.premiere||''; }catch(e){}
+    P.push({q:'Réunissez les élus régulièrement', d:(eff<50?'Une fois par mois':(eff<300?'Une fois tous les deux mois':'Une fois par mois')),
+      p:'C’est une obligation. Ne pas réunir le comité est un délit, puni de 7 500 € d’amende.',
+      page:'csecal'});
+    P.push({q:'Envoyez la liste des sujets 3 jours avant chaque réunion', d:'',
+      p:'On l’appelle « l’ordre du jour ». Vous la préparez avec le secrétaire du comité, pas tout seul.',
+      doc:['reu','conv']});
+    P.push({q:'Écrivez un compte rendu après chaque réunion', d:'Dans les 15 jours',
+      p:'C’est le « procès-verbal ». C’est le secrétaire du comité qui le rédige, pas vous.',
+      doc:['reu','pv']});
+    if(eff<50){
+      P.push({q:'Répondez par écrit aux demandes des élus', d:'Dans les 6 jours ouvrables',
+        p:'Les élus vous remettent leurs demandes 2 jours ouvrables avant la réunion. Vos réponses se rangent dans un registre que les salariés peuvent consulter.',
+        doc:['rcl','registre']});
+    }
+    if(eff>=50){
+      P.push({q:'Demandez trois fois par an l’avis des élus sur la marche de l’entreprise', d:'Une fois par an pour chacun des trois sujets',
+        p:'Les trois sujets : où va l’entreprise, comment elle se porte financièrement, et comment elle traite son personnel. Vous demandez l’avis ; vous n’êtes pas obligé de le suivre.',
+        page:'csecns'});
+      var bd=''; try{ bd=CNS.bdese||''; }catch(e){}
+      if(bd!=='oui'){
+        P.push({q:'Créez le dossier de chiffres accessible aux élus', d:'Avant toute demande d’avis',
+          p:'Sans ce dossier, les élus peuvent dire qu’ils n’ont pas eu de quoi se prononcer — et tout ce que vous avez décidé peut être remis en cause.',
+          page:'csecns'});
+      }
+    }
+    P.push({q:'Vérifiez qu’un référent harcèlement a été désigné', d:'',
+      p:'Les élus doivent en choisir un parmi eux. C’est obligatoire quelle que soit la taille de l’entreprise.',
+      page:'moncse'});
+  }
+
+  /* Les echeances reelles viennent completer le plan, dites simplement.
+     Un guide qui reparle technique a la derniere ligne perd son lecteur. */
+  var TRAD=[
+    [/^Réunion n° (\d+)/, function(m){ return {q:'Tenez la réunion n° '+m[1]+' avec les élus', p:'Pensez à envoyer la liste des sujets trois jours avant.'}; }],
+    [/^Premier tour/, function(){ return {q:'Organisez le premier jour de vote', p:'C’est la date limite : au-delà, vous êtes en retard.'}; }],
+    [/^Second tour/, function(){ return {q:'Organisez le second jour de vote, s’il est nécessaire', p:'Il l’est si personne ne s’est présenté au premier, ou si trop peu de gens ont voté.'}; }],
+    [/^Terme des mandats/, function(){ return {q:'Les élus arrivent en fin de mandat', p:'Il faudra réorganiser un vote avant cette date.'}; }],
+    [/^Diffuser l['’]information du personnel pour le renouvellement/, function(){ return {q:'Prévenez les salariés qu’il faut revoter', p:'Au plus tard à cette date, pour que le vote ait lieu dans les temps.'}; }],
+    [/^Engager la procedure/, function(){ return {q:'Lancez l’organisation du vote', p:'Un salarié ou un syndicat vous l’a demandé : vous avez un mois pour commencer.'}; }],
+    [/^Transmission du proces-verbal/, function(){ return {q:'Envoyez le document à l’inspection du travail', p:'Vous avez quinze jours. Gardez la preuve de l’envoi.'}; }],
+    [/^Fin du délai de contestation/, function(){ return {q:'Passé cette date, le vote ne peut plus être contesté', p:'Quinze jours après la proclamation des résultats.'}; }],
+    [/^Attributions etendues/, function(){ return {q:'Vos obligations envers les élus s’élargissent', p:'Votre effectif a franchi cinquante salariés : il faut désormais les consulter sur la marche de l’entreprise.'}; }],
+    [/^Avis réputé négatif/, function(){ return {q:'Date limite pour que les élus donnent leur avis', p:'Passé ce jour, la loi considère qu’ils ont dit non, et vous pouvez avancer.'}; }],
+    [/^Consultation due/, function(){ return {q:'Demandez leur avis aux élus', p:'C’est le rendez-vous annuel prévu par la loi.'}; }],
+    [/^Fin du delai de six mois/, function(){ return {q:'À partir de cette date, on peut vous redemander un vote', p:'Six mois se sont écoulés depuis que la carence a été constatée.'}; }]
+  ];
+  function guideDire(t){
+    for(var i=0;i<TRAD.length;i++){
+      var m=String(t||'').match(TRAD[i][0]);
+      if(m) return TRAD[i][1](m);
+    }
+    return {q:t, p:''};
+  }
+  try{
+    hubEcheances().filter(function(e){ return hubJours(hubAuj(), e.date)>=0; }).slice(0,4).forEach(function(e){
+      var t=guideDire(e.quoi);
+      P.push({q:t.q, d:'Le '+hubFR(e.date), p:t.p, page:e.page, date:e.date});
+    });
+  }catch(e){}
+  return P;
+}
+
+/* ══════════ RENDU DU GUIDE ══════════ */
+function hubVueGuide(){
+  var E=guideEtapes();
+  var h='';
+
+  /* Fil d'avancement */
+  h+='<div style="display:flex;gap:5px;margin-bottom:16px">';
+  for(var i=0;i<=E.length;i++){
+    h+='<div style="flex:1;height:5px;border-radius:3px;background:'+((i<=_gPas)?'#c9a84c':'#233549')+'"></div>';
+  }
+  h+='</div>';
+
+  /* Ecran final : le plan */
+  if(_gPas>=E.length){
+    var P=guidePlan();
+    h+='<div class="card" style="border-color:#46b885">'
+      +'<div style="font-size:10px;font-weight:800;color:#46b885;letter-spacing:.12em;margin-bottom:6px">VOTRE PLAN</div>'
+      +'<div style="font-size:20px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:6px">Voici ce que vous devez faire</div>'
+      +'<div style="font-size:13px;color:#9fb0c4;line-height:1.6">Dans l’ordre. Chaque point est une action concrète ; les documents se génèrent d’un clic.</div>'
+      +'</div>';
+    P.forEach(function(x,i){
+      h+='<div class="card" style="border-left:3px solid '+(x.fin?'#46b885':'#c9a84c')+'">'
+        +'<div style="display:flex;gap:11px;align-items:flex-start">'
+          +'<div style="width:27px;height:27px;border-radius:50%;background:'+(x.fin?'#46b885':'#c9a84c')+';color:#0f1f2e;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(x.fin?'✓':(i+1))+'</div>'
+          +'<div style="flex:1">'
+            +'<div style="font-size:15.5px;font-weight:800;color:#fff;line-height:1.35">'+hubEsc(x.q)+'</div>'
+            +(x.d?('<div style="font-size:13px;font-weight:700;color:#e8c97a;margin-top:3px">'+hubEsc(x.d)+'</div>'):'')
+            +(x.p?('<div style="font-size:13px;color:#9fb0c4;line-height:1.65;margin-top:6px">'+hubEsc(x.p)+'</div>'):'')
+            +((x.doc||x.page)?('<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'
+              +(x.doc?('<button onclick="hubDoc(\''+x.doc[0]+'\',\''+x.doc[1]+'\')" style="background:#2b579a;border:none;color:#fff;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">Écrire le document</button>'):'')
+              +(x.page?('<button onclick="goPage(\''+x.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">Ouvrir l’écran</button>'):'')
+              +'</div>'):'')
+          +'</div>'
+        +'</div></div>';
+    });
+    h+='<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'
+      +'<button onclick="guideAller('+(E.length-1)+')" style="flex:1;min-width:130px;background:#16263c;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:11px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">← Revenir aux questions</button>'
+      +'<button onclick="hubGo(\'taches\')" style="flex:1;min-width:130px;background:#c9a84c;border:none;color:#0f1f2e;border-radius:11px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Voir le détail →</button>'
+      +'</div>'
+      + guideGlossaire();
+    return h;
+  }
+
+  /* Une etape */
+  var e=E[_gPas];
+  h+='<div class="card">'
+    +'<div style="font-size:10px;font-weight:800;color:#9fb0c4;letter-spacing:.12em;margin-bottom:8px">'
+      + (e.type==='texte' ? 'BIENVENUE' : ('QUESTION '+_gPas+' SUR '+(E.length-1)))
+    +'</div>'
+    +'<div style="font-size:21px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:'+(e.aide||e.corps?'10px':'16px')+'">'+hubEsc(e.titre)+'</div>'
+    + (e.corps?('<div style="font-size:14px;color:#c9d4e0;line-height:1.7;margin-bottom:14px">'+e.corps+'</div>'):'')
+    + (e.aide?('<div style="font-size:13px;color:#9fb0c4;line-height:1.65;margin-bottom:16px;padding:11px 12px;background:rgba(255,255,255,.03);border-left:2px solid #c9a84c;border-radius:0 9px 9px 0">'+hubEsc(e.aide)+'</div>'):'');
+
+  if(e.type==='texte'){
+    h+='<button onclick="guideAller(1)" style="width:100%;background:#c9a84c;border:none;color:#0f1f2e;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">Commencer →</button>';
+  }
+  else if(e.type==='info'){
+    var v=e.lire();
+    if(v===null||v===''){
+      h+='<div style="font-size:13.5px;color:#e8c97a;line-height:1.65;margin-bottom:14px">'+hubEsc(e.vide||'')+'</div>'
+        +'<button onclick="goPage(\''+e.page+'\')" style="width:100%;background:#c9a84c;border:none;color:#0f1f2e;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">'+hubEsc(e.bouton||'Ouvrir')+'</button>';
+    } else {
+      var msg = (v<11) ? 'Moins de 11 personnes : vous n’avez pas d’obligation de mettre en place un comité.'
+              : (v<50) ? 'Entre 11 et 49 personnes : vous devez organiser un vote et réunir les élus tous les mois.'
+              : (v<300)? 'Entre 50 et 299 personnes : vous devez en plus les consulter sur la marche de l’entreprise.'
+              : 'À partir de 300 personnes : les obligations sont les plus étendues.';
+      h+='<div style="text-align:center;margin-bottom:14px">'
+        +'<div style="font-size:52px;font-weight:800;color:#fff;line-height:1">'+v+'</div>'
+        +'<div style="font-size:13px;color:#9fb0c4">personnes, d’après votre liste</div></div>'
+        +'<div style="font-size:14px;color:#e8c97a;line-height:1.6;text-align:center;margin-bottom:16px">'+hubEsc(msg)+'</div>'
+        +'<button onclick="guideAller('+(_gPas+1)+')" style="width:100%;background:#c9a84c;border:none;color:#0f1f2e;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">Continuer →</button>';
+    }
+  }
+  else if(e.type==='choix'){
+    var cur=e.lire();
+    h+=e.opts.map(function(o){
+      var on=(cur===o.v);
+      return '<button onclick="guideRep(\''+e.k+'\',\''+o.v+'\')" style="width:100%;text-align:left;background:'+(on?'rgba(201,168,76,.16)':'#0f1b2c')+';'
+        +'border:1px solid '+(on?'#c9a84c':'#3a4a5f')+';border-radius:12px;padding:14px;margin-bottom:9px;cursor:pointer;font-family:inherit">'
+        +'<div style="font-size:15px;font-weight:800;color:#fff">'+(on?'✓ ':'')+hubEsc(o.lib)+'</div>'
+        +(o.sous?('<div style="font-size:12.5px;color:#9fb0c4;margin-top:3px;line-height:1.5">'+hubEsc(o.sous)+'</div>'):'')
+        +'</button>';
+    }).join('');
+  }
+  else if(e.type==='date'){
+    var d0=e.lire();
+    h+='<input type="date" value="'+hubEsc(d0||'')+'" onchange="guideRepDate(\''+e.k+'\',this.value)" style="font-size:17px;padding:14px;margin-bottom:12px">'
+      +'<button onclick="guideAller('+(_gPas+1)+')" style="width:100%;background:'+((d0||e.facultatif)?'#c9a84c':'#26374d')+';border:none;color:'+((d0||e.facultatif)?'#0f1f2e':'#9fb0c4')+';border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">'
+      +((d0||!e.facultatif)?'Continuer →':'Je ne sais pas encore →')+'</button>';
+  }
+  h+='</div>';
+
+  /* Navigation */
+  h+='<div style="display:flex;gap:8px;margin-top:4px">'
+    +(_gPas>0?('<button onclick="guideAller('+(_gPas-1)+')" style="flex:1;background:#16263c;border:1px solid #3a4a5f;color:#9fb0c4;border-radius:11px;padding:11px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">← Précédent</button>'):'')
+    +((_gPas>0)?('<button onclick="guideAller('+E.length+')" style="flex:1;background:#16263c;border:1px solid #3a4a5f;color:#9fb0c4;border-radius:11px;padding:11px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Voir mon plan →</button>'):'')
+    +'</div>';
+  return h;
+}
+
+/* Le glossaire, replie, en bas du plan. */
+function guideGlossaire(){
+  return '<div class="card" style="margin-top:14px"><div class="ct">Les mots qu’on emploie</div>'
+   + GUIDE_MOTS.map(function(m){
+      return '<details style="border-top:1px solid #263a52;padding:9px 0">'
+        +'<summary style="cursor:pointer;font-size:14px;font-weight:700;color:#e8c97a;list-style:none">'+hubEsc(m.m)+'</summary>'
+        +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65;margin-top:6px">'+hubEsc(m.d)+'</div></details>';
+     }).join('')
+   +'</div>';
+}
+
 /* ══════════ RENDU ══════════ */
-var HUB_ONGLETS=[['taches','✅ À faire'],['demarrage','▶︎ Démarrage'],['bord','📊 Tableau de bord'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE']];
-var _hubT='taches';
+var HUB_ONGLETS=[['guide','🧑‍🏫 Guide'],['taches','✅ À faire'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE'],['bord','📊 Détail'],['demarrage','▶︎ Réponses']];
+var _hubT='guide';
 function hubGo(t){ _hubT=t; hubRender(); }
 function hubOnEnter(){
   hubLoad();
   // Une entreprise qui n'a encore rien renseigne commence par le demarrage :
   // une liste de taches vide ne dirait rien d'utile.
-  _hubT = hubAvancement().faites ? 'taches' : 'demarrage';
+  // Le guide est la porte d'entree : il parle a quelqu'un qui n'a jamais
+  // fait de droit. Les autres vues sont pour qui sait deja ou il va.
+  _hubT='guide';
   hubRender();
 }
 function hubRender(){
@@ -6826,6 +7182,8 @@ function hubRender(){
         return '<button onclick="hubGo(\''+o[0]+'\')" style="border:1px solid '+(on?'#c9a84c':'#3a4a5f')+';background:'+(on?'#c9a84c':'#16263c')+';color:'+(on?'#000':'#e8e4d8')+';border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">'+o[1]+'</button>';
       }).join('')
     +'</div>';
+
+  if(_hubT==='guide'){ h+=hubVueGuide(); host.innerHTML=h; return; }
 
   /* Barre d'avancement, toujours visible */
   h+='<div class="card" style="border-color:#c9a84c">'
@@ -6853,7 +7211,8 @@ function hubRender(){
   }
   h+='</div>';
 
-  if(_hubT==='taches') h+=hubVueTaches();
+  if(_hubT==='guide') h+=hubVueGuide();
+  else if(_hubT==='taches') h+=hubVueTaches();
   else if(_hubT==='demarrage') h+=hubVueDemarrage();
   else if(_hubT==='bord') h+=hubVueBord();
   else if(_hubT==='agenda') h+=hubVueAgenda();
