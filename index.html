@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.103';
+var JX_BUILD = 'v2026-08-06.104';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6450,7 +6450,8 @@ function hubEcheances(){
   try{
     var n=cnsAnalyse();
     (n.lignes||[]).forEach(function(L){
-      if(L.lim && L.c && L.c.etat==='encours') out.push({date:L.lim, quoi:'Avis réputé négatif — '+L.C.lib, art:'R.2312-6', mod:'Consultations', page:'csecns'});
+      // Sans base de donnees, le delai ne court pas : rien a inscrire a l'agenda.
+      if(L.lim && L.c && L.c.etat==='encours' && CNS.bdese==='oui') out.push({date:L.lim, quoi:'Avis réputé négatif — '+L.C.lib, art:'R.2312-6', mod:'Consultations', page:'csecns'});
       if(L.prochaine) out.push({date:L.prochaine, quoi:'Consultation due — '+L.C.lib, art:L.C.art, mod:'Consultations', page:'csecns'});
     });
   }catch(e){}
@@ -6502,11 +6503,12 @@ function hubClasseur(){
   } else if(eff!==null && eff>=50){
     A({k:'registre-recl', lib:'Registre des réclamations (facultatif)', art:'L.2312-5 · L.2312-8', quand:'Tenu volontairement', doc:['rcl','registre']});
     A({k:'ri-cse', lib:'Règlement intérieur du comité', art:'L.2315-24', quand:'Dès la mise en place'});
-    A({k:'bdese', lib:'Base de données économiques, sociales et environnementales', art:'L.2312-18 · L.2312-36', quand:'En permanence'});
+    A({k:'bdese', lib:'Base de données économiques, sociales et environnementales', art:'L.2312-18 · L.2312-36 · R.2312-12', quand:'En permanence, tenue à jour'});
     A({k:'avis-strat', lib:'Avis sur les orientations stratégiques, et réponse argumentée', art:'L.2312-24', quand:'À chaque consultation', page:'csecns'});
     A({k:'avis-eco', lib:'Avis sur la situation économique et financière', art:'L.2312-25', quand:'À chaque consultation', page:'csecns'});
     A({k:'avis-social', lib:'Avis sur la politique sociale, les conditions de travail et l’emploi', art:'L.2312-26', quand:'À chaque consultation', page:'csecns'});
     A({k:'comptes', lib:'Comptes annuels du comité et rapport d’activité et de gestion', art:'L.2315-64 · L.2315-69', quand:'Chaque année'});
+    A({k:'env', lib:'Mention des conséquences environnementales dans chaque avis', art:'L.2312-8', quand:'À chaque consultation', page:'csecns'});
   }
   if(eff!==null && eff>=11){
     A({k:'referent', lib:'Résolution désignant le référent harcèlement sexuel', art:'L.2314-1', quand:'Dès la mise en place', page:'moncse'});
@@ -6516,6 +6518,8 @@ function hubClasseur(){
   }
   if(eff!==null && eff>=300){
     A({k:'cssct', lib:'Résolution instituant la commission santé, sécurité et conditions de travail', art:'L.2315-36', quand:'Dès la mise en place'});
+    A({k:'trim', lib:'Informations trimestrielles mises à disposition par la base', art:'L.2312-69 · R.2312-21', quand:'Chaque trimestre'});
+    A({k:'bdese-info', lib:'Base de données tenue sur support informatique', art:'R.2312-12', quand:'En permanence'});
   }
   return L;
 }
@@ -6965,6 +6969,66 @@ function hubVueBdese(){
   });
   h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.55">La base porte sur l’année en cours, les deux années précédentes et, sous forme de perspectives, les trois années suivantes.</div>';
   h+='</div>';
+
+  /* Le regime de la base : support, acces, mise a jour, sanction */
+  var R=function(t,x,a){
+    return '<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid #c9a84c;border-radius:9px;margin-bottom:9px">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff">'+hubEsc(t)+'</div>'
+      +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.6;margin-top:4px">'+hubEsc(x)+'</div>'
+      +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:4px">'+hubEsc(a)+'</div></div>';
+  };
+  h+='<div class="card"><div class="ct">Le régime de la base</div>'
+   + R('Support',
+       (eff!==null&&eff>=300)
+         ? 'À partir de trois cents salariés, la base est tenue sur un support informatique. En dessous, le support informatique ou papier est admis.'
+         : 'En dessous de trois cents salariés, la base peut être tenue sur support informatique ou papier. À partir de trois cents salariés, le support informatique s’impose.',
+       'Article R.2312-12 du code du travail')
+   + R('Accès',
+       'La base est accessible en permanence aux membres de la délégation du personnel du comité, titulaires comme suppléants, aux membres de la délégation du personnel du comité central et aux délégués syndicaux. '
+       +'Les personnes ayant accès sont tenues à une obligation de discrétion à l’égard des informations présentées comme confidentielles et pour la durée indiquée par l’employeur.',
+       'Articles L.2312-18 et L.2312-36')
+   + R('Mise à jour',
+       'La mise à jour est une obligation permanente. Un retard ou une lacune de mise à jour s’assimile à un défaut de mise à disposition : la base doit refléter l’état réel de l’entreprise, non celui de l’exercice précédent.',
+       'Article L.2312-18')
+   + R('Conséquence sur les délais',
+       'À défaut de base, ou lorsqu’elle est incomplète, le délai d’examen n’est pas opposable au comité : il ne court pas, et le comité ne peut être réputé avoir rendu un avis négatif. '
+       +'C’est la sanction la plus immédiate, avant même l’entrave.',
+       'Articles L.2312-15 et R.2312-6')
+   + R('Sanction',
+       'L’absence, l’incomplétude ou l’inaccessibilité de la base peuvent caractériser une entrave au fonctionnement régulier du comité, punie de 7 500 € d’amende, portée à 37 500 € pour la personne morale.',
+       'Article L.2317-1')
+   +'</div>';
+
+  /* Informations trimestrielles a partir de trois cents salaries */
+  if(eff!==null && eff>=300){
+    h+='<div class="card"><div class="ct">Informations trimestrielles — à partir de trois cents salariés</div>'
+     +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7">'
+       +'Chaque trimestre, l’employeur met à la disposition du comité, par la base de données :<br>'
+       +'• l’évolution générale des commandes et l’exécution des programmes de production ;<br>'
+       +'• les éventuels retards de paiement de cotisations sociales par l’entreprise ;<br>'
+       +'• l’évolution des effectifs et de la qualification des salariés par sexe.'
+     +'</div>'
+     +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-top:8px">'
+       +'Le troisième point retrace mois par mois le nombre de salariés en contrat à durée indéterminée, en contrat à durée déterminée, à temps partiel, temporaires, appartenant à une entreprise extérieure, et le nombre de contrats de professionnalisation.'
+     +'</div>'
+     +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Articles L.2312-69 et R.2312-21 du code du travail</div>'
+     +'</div>';
+  }
+
+  /* La dimension environnementale */
+  h+='<div class="card" style="border-left:3px solid #3f9b7a"><div class="ct">La dimension environnementale</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7">'
+     +'La loi Climat et Résilience a fait de la base une base <b>économique, sociale et environnementale</b>, en y ajoutant un dixième thème. '
+     +'Mais elle a fait davantage : le comité est désormais informé et consulté sur les <b>conséquences environnementales</b> des mesures relevant de ses attributions — '
+     +'gestion et évolution économique et financière de l’entreprise, organisation du travail, formation professionnelle, techniques de production.'
+   +'</div>'
+   +'<div style="font-size:12.5px;color:#e8c97a;line-height:1.7;margin-top:9px">'
+     +'Conséquence pratique : ce n’est pas seulement une rubrique à remplir. C’est une dimension à traiter dans chacune des trois consultations récurrentes et à chaque consultation ponctuelle. '
+     +'Un avis muet sur ce point est attaquable.'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Article L.2312-8 du code du travail · loi n° 2021-1104 du 22 août 2021</div>'
+   +'</div>';
+
   return h;
 }
 
@@ -7084,15 +7148,24 @@ function cnsAnalyse(){
   }
 
   /* Base de données économiques, sociales et environnementales */
-  if(CNS.bdese!=='oui'){
-    A.push({gravite:'stop', titre:'Base de données économiques, sociales et environnementales absente',
-      texte:'Les consultations récurrentes s’appuient sur la base de données économiques, sociales et environnementales, qui rassemble les informations nécessaires (L.2312-18 · L.2312-21 · L.2312-36). '
-        +'Sans elle, le comité peut soutenir qu’il n’a pas été mis en mesure de rendre un avis éclairé.'});
+  var bdOK=(CNS.bdese==='oui');
+  if(!bdOK){
+    A.push({gravite:'stop', titre:'Base de données absente — le délai de consultation ne court pas',
+      texte:'Les consultations récurrentes s’appuient sur la base de données économiques, sociales et environnementales, qui en est le support d’information (L.2312-18 · L.2312-21 · L.2312-36). '
+        +'À défaut de mise à disposition, le délai d’examen n’est pas opposable au comité : il ne commence pas à courir, et le comité ne peut donc pas être réputé avoir rendu un avis négatif. '
+        +'L’absence, l’incomplétude ou le défaut de mise à jour exposent en outre à l’entrave (L.2317-1).'});
   } else {
     A.push({gravite:'info', titre:'Base de données économiques, sociales et environnementales',
       texte:'La mise à disposition des éléments d’information par la base vaut communication des rapports et informations au comité (L.2312-18). '
         +'Un accord peut en définir l’organisation, l’architecture et le contenu, sans pouvoir supprimer les thèmes rendus obligatoires ni priver le comité des informations nécessaires à ses consultations (L.2312-21).'});
   }
+
+  /* Consequences environnementales — loi Climat et Resilience */
+  A.push({gravite:'question', titre:'Conséquences environnementales — attribution transversale',
+    texte:'Depuis la loi Climat et Résilience, le comité est informé et consulté sur les conséquences environnementales des mesures relevant de ses attributions : '
+      +'décisions relatives à la gestion et à l’évolution économique et financière de l’entreprise, à l’organisation du travail, à la formation professionnelle et aux techniques de production (L.2312-8). '
+      +'Ce n’est pas seulement un thème de la base de données : c’est une dimension à traiter dans chacune des trois consultations récurrentes et à chaque consultation ponctuelle. '
+      +'Vérifiez que les avis rendus la mentionnent — un avis muet sur ce point est attaquable.'});
 
   /* Chaque consultation */
   var lignes=[];
@@ -7104,7 +7177,11 @@ function cnsAnalyse(){
     var prochaine=c.dernier? cnsPlus(c.dernier,0,0,per) : '';
     lignes.push({C:C, c:c, mois:mois, lim:lim, prochaine:prochaine});
 
-    if(c.etat==='encours' && c.debut){
+    if(c.etat==='encours' && c.debut && !bdOK){
+      A.push({gravite:'question', titre:'Délai suspendu — '+C.lib,
+        texte:'L’information a été mise à disposition le '+cnsFR(c.debut)+', mais la base de données n’est pas en place. '
+          +'Le délai d’examen ne court pas tant que le comité n’a pas reçu les informations nécessaires : aucune date d’avis réputé négatif n’est donc calculée ici.'});
+    } else if(c.etat==='encours' && c.debut){
       var j=cnsJours(cnsAuj(), lim);
       if(j!==null && j<0){
         A.push({gravite:'stop', titre:'Délai expiré — '+C.lib,
@@ -7195,9 +7272,13 @@ function cnsRender(){
          +'<div style="flex:1;min-width:160px"><label class="fl">Dernière consultation achevée le</label>'
          +'<input type="date" value="'+cnsEsc(c.dernier||'')+'" onchange="cnsCSet(\''+C.k+'\',\'dernier\',this.value)"></div>'
        +'</div>';
-      if(c.debut && L.lim){
+      if(c.debut && L.lim && CNS.bdese==='oui'){
         h+='<div style="margin-top:6px;padding:9px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:8px;font-size:12.5px;color:#9fb0c4;line-height:1.6">'
           +'Délai d’examen : <b>'+L.mois+' mois</b> — avis réputé négatif à compter du <b style="color:#e8c97a">'+cnsFR(L.lim)+'</b>'+cnsReste(L.lim)+' (L.2312-15 · R.2312-6)'
+          +'</div>';
+      } else if(c.debut && CNS.bdese!=='oui'){
+        h+='<div style="margin-top:6px;padding:9px;background:rgba(224,92,92,.12);border:1px solid #e05c5c;border-radius:8px;font-size:12.5px;color:#e8e4d8;line-height:1.6">'
+          +'Aucune échéance n’est calculée : à défaut de base de données, le délai d’examen n’est pas opposable au comité.'
           +'</div>';
       }
       if(L.prochaine){
