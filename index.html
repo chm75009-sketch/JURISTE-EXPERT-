@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.93';
+var JX_BUILD = 'v2026-08-05.94';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6252,6 +6252,13 @@ var CSED_SITUATIONS=[
 ];
 var CSED_DUREES=[{v:'4',lib:'4 ans (duree legale a defaut d\'accord)'},{v:'3',lib:'3 ans (accord)'},{v:'2',lib:'2 ans (accord)'}];
 var CSED_OUINON=[{v:'oui',lib:'Oui'},{v:'non',lib:'Non'}];
+var CSED_RISQUE=[
+  {v:'non',lib:'Aucune installation a regime particulier'},
+  {v:'inb',lib:'Au moins une installation nucleaire de base (INB)'},
+  {v:'seveso',lib:'Installation classee Seveso seuil haut'},
+  {v:'souterrain',lib:'Stockage souterrain de produits dangereux'},
+  {v:'plusieurs',lib:'Plusieurs de ces installations'}
+];
 var CSED_VOTELEC=[
   {v:'non',lib:'Non envisage — vote a bulletin secret sous enveloppe'},
   {v:'accord',lib:'Prevu par un accord d\'entreprise ou de groupe'},
@@ -6424,6 +6431,96 @@ function csedAnalyse(){
         +'L\'organisation du vote incombe a l\'entreprise, y compris pour les elections partielles.'});
   }
 
+  /* ══════════ GRANDS EFFECTIFS, GROUPES, SITES A RISQUE ══════════ */
+  var N=function(k){ var v=parseInt(CSED[k]||'0',10); return isNaN(v)?0:v; };
+  var effReel = (effActuel!==null?effActuel:0);
+
+  /* ── 11. Commission sante, securite et conditions de travail ── */
+  var risque=CSED.siteRisque||'';
+  if(risque && risque!=='non'){
+    var libR = { inb:'une installation nucleaire de base', seveso:'une installation classee Seveso seuil haut',
+                 souterrain:'un stockage souterrain de produits dangereux', plusieurs:'plusieurs installations a regime particulier' }[risque]
+               || 'une installation a regime particulier';
+    A.push({gravite:'stop', titre:'Commission sante-securite obligatoire — quel que soit l\'effectif',
+      texte:'L\'etablissement comprend '+libR+'. Dans les etablissements mentionnes a l\'article L.4521-1, la commission sante, securite et conditions de travail '
+        +'est obligatoire sans condition d\'effectif (L.2315-36). Le seuil de trois cents salaries est indifferent ici.'});
+    A.push({gravite:'question', titre:'Commission sante-securite elargie aux entreprises exterieures',
+      texte:'En situation de co-activite, la commission est elargie aux representants des chefs d\'entreprises exterieures et de leurs salaries, '
+        +'lorsqu\'un point de l\'ordre du jour tend a definir des regles communes de securite dans l\'etablissement ou a observer les mesures de prevention '
+        +'definies conjointement (L.4523-11). Ces representants ont voix consultative. Les conditions de l\'elargissement sont fixees par accord de branche, '
+        +'d\'entreprise ou d\'etablissement ; a defaut, par les articles R.4523-5 et suivants.'});
+    R.push({date:'', quoi:'Mettre en place la commission sante-securite et organiser son elargissement', art:'L.2315-36 · L.4521-1 · L.4523-11',
+      det:'Designation des membres par le comite parmi ses elus, et definition des conditions d\'elargissement aux entreprises exterieures.'});
+  } else if(effReel>=300){
+    A.push({gravite:'stop', titre:'Commission sante-securite obligatoire',
+      texte:'L\'effectif atteint trois cents salaries : la commission sante, securite et conditions de travail est obligatoire, '
+        +'dans l\'entreprise comme dans chaque etablissement distinct d\'au moins trois cents salaries (L.2315-36). '
+        +'En deca, elle peut etre instituee par accord, ou imposee par l\'inspection du travail lorsque la nature des activites, l\'agencement ou l\'equipement des locaux le justifient (L.2315-37).'});
+  }
+  if(CSED.pprt==='oui'){
+    A.push({gravite:'question', titre:'Comite interentreprises de sante et de securite au travail',
+      texte:'Dans le perimetre d\'un plan de prevention des risques technologiques (article L.515-15 du code de l\'environnement), '
+        +'un comite interentreprises de sante et de securite au travail est cree par l\'autorite administrative. Il assure la coordination entre les comites '
+        +'des etablissements concernes et previent les risques nes des interferences entre leurs activites et installations (L.4524-1).'});
+  }
+
+  /* ── 12. Commissions selon l'effectif ── */
+  if(effReel>=300){
+    A.push({gravite:'info', titre:'Commissions obligatoires a trois cents salaries',
+      texte:'Trois commissions s\'ajoutent : formation (L.2315-49), egalite professionnelle entre les femmes et les hommes (L.2315-56), '
+        +'information et aide au logement (L.2315-50).'});
+  }
+  if(effReel>=1000){
+    A.push({gravite:'info', titre:'Commission economique',
+      texte:'A partir de mille salaries, une commission economique est constituee au sein du comite (L.2315-46).'});
+  }
+  if(effReel>2000){
+    A.push({gravite:'info', titre:'Subvention de fonctionnement portee a 0,22 %',
+      texte:'Au-dela de deux mille salaries, la subvention de fonctionnement passe de 0,20 % a 0,22 % de la masse salariale brute (L.2315-61). '
+        +'Un accord ne peut pas descendre sous ce plancher.'});
+  }
+
+  /* ── 13. Etablissements distincts : comite central ── */
+  if(N('etabs')>1){
+    A.push({gravite:'stop', titre:'Comite social et economique central et comites d\'etablissement',
+      texte:'L\'entreprise compte '+N('etabs')+' etablissements distincts : un comite est mis en place dans chacun, et un comite central est constitue au niveau de l\'entreprise (L.2313-1). '
+        +'Le nombre et le perimetre des etablissements distincts sont fixes par accord d\'entreprise ; a defaut d\'accord et de delegue syndical, par decision de l\'employeur, '
+        +'susceptible de contestation devant l\'autorite administrative.'});
+    R.push({date:'', quoi:'Fixer le nombre et le perimetre des etablissements distincts', art:'L.2313-1 et suivants',
+      det:'Par accord d\'entreprise en priorite ; la decision unilaterale n\'intervient qu\'a defaut.'});
+  }
+
+  /* ── 14. Groupe ── */
+  if(CSED.groupe==='oui'){
+    A.push({gravite:'question', titre:'Comite de groupe',
+      texte:'Un comite de groupe est constitue au sein du groupe forme par une entreprise dominante et les entreprises qu\'elle controle ou sur lesquelles elle exerce une influence dominante (L.2331-1). '
+        +'Il se distingue du comite central : il recoit une information economique et financiere sur l\'ensemble du groupe.'});
+  }
+
+  /* ── 15. Dimension communautaire ── */
+  if(N('effEEE')>=1000 && N('etatsEEE')>=2){
+    A.push({gravite:'stop', titre:'Comite d\'entreprise europeen',
+      texte:'L\'entreprise emploie '+N('effEEE')+' salaries dans les Etats de l\'Espace economique europeen, dont au moins cent cinquante dans '+N('etatsEEE')+' Etats differents : '
+        +'elle est de dimension communautaire et un comite d\'entreprise europeen, ou une procedure d\'information et de consultation, doit etre institue (L.2341-1 et L.2341-2). '
+        +'La negociation s\'engage a l\'initiative de l\'employeur ou a la demande ecrite de cent salaries relevant d\'au moins deux etablissements situes dans deux Etats differents.'});
+    R.push({date:'', quoi:'Constituer le groupe special de negociation', art:'L.2341-1 · L.2341-2',
+      det:'Composition et fonctionnement adaptes par accord entre la direction et les representants des salaries des differents pays.'});
+  } else if(N('effEEE')>0){
+    A.push({gravite:'info', titre:'Dimension communautaire non atteinte',
+      texte:'Il faut au moins mille salaries dans les Etats de l\'Espace economique europeen et au moins cent cinquante salaries dans chacun d\'au moins deux de ces Etats (L.2341-1).'});
+  }
+
+  /* ── 16. Administrateurs representant les salaries ── */
+  if(N('effFR')>=1000 || N('effMonde')>=5000){
+    var nbCA=N('caMembres');
+    var combien = nbCA>8 ? 'deux au moins' : (nbCA>0 ? 'un au moins' : 'un ou deux selon la taille du conseil');
+    A.push({gravite:'stop', titre:'Administrateurs representant les salaries',
+      texte:'La societe emploie, a la cloture de deux exercices consecutifs, au moins mille salaries permanents en France, ou au moins cinq mille en France et a l\'etranger, '
+        +'filiales comprises : ses statuts doivent prevoir des administrateurs representant les salaries (article L.225-27-1 du code de commerce). '
+        +'Leur nombre est de '+combien+(nbCA>0?(' — le conseil compte '+nbCA+' membres'):'')+' : deux au moins lorsque le conseil compte plus de huit membres, un au moins dans le cas contraire. '
+        +'Ils ne sont pas pris en compte pour le calcul du nombre minimal et maximal d\'administrateurs.'});
+  }
+
   R.sort(function(a,b){ if(!a.date) return 1; if(!b.date) return -1; return a.date<b.date?-1:(a.date>b.date?1:0); });
   var ordre={stop:0,question:1,info:2};
   A.sort(function(a,b){ return ordre[a.gravite]-ordre[b.gravite]; });
@@ -6486,6 +6583,29 @@ function csedRender(){
     +'<div class="fg"><label class="fl">Demande d\'un salarie ou d\'une organisation syndicale recue le</label>'
     +'<input type="date" value="'+csedEsc(CSED.dateDemande||'')+'" onchange="csedSet(\'dateDemande\',this.value)"></div>'
     +'<div class="fg"><label class="fl">Vote electronique</label>'+S('csed-ve',CSED_VOTELEC,CSED.votelec||'','csedSetSel(\'votelec\',\'csed-ve\')')+'</div>'
+   +'</div>';
+
+  /* Structure du groupe et sites a regime particulier */
+  h+='<div class="card"><div class="ct">Structure, groupe et sites a regime particulier</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'Ces reponses commandent les instances qui s\'ajoutent au comite : comite central, comite de groupe, comite d\'entreprise europeen, '
+     +'administrateurs salaries, et la commission sante-securite obligatoire sans condition d\'effectif.'
+   +'</div>'
+   +'<div class="fg"><label class="fl">Nombre d\'etablissements distincts</label>'
+   +'<input type="number" min="1" value="'+csedEsc(CSED.etabs||'')+'" onchange="csedSet(\'etabs\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">L\'entreprise appartient-elle a un groupe ?</label>'+S('csed-grp',CSED_OUINON,CSED.groupe||'','csedSetSel(\'groupe\',\'csed-grp\')')+'</div>'
+   +'<div class="fg"><label class="fl">Effectif dans les Etats de l\'Espace economique europeen</label>'
+   +'<input type="number" min="0" value="'+csedEsc(CSED.effEEE||'')+'" onchange="csedSet(\'effEEE\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Nombre d\'Etats de l\'EEE ou l\'entreprise emploie au moins 150 salaries</label>'
+   +'<input type="number" min="0" value="'+csedEsc(CSED.etatsEEE||'')+'" onchange="csedSet(\'etatsEEE\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Salaries permanents en France (societe et filiales)</label>'
+   +'<input type="number" min="0" value="'+csedEsc(CSED.effFR||'')+'" onchange="csedSet(\'effFR\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Salaries permanents en France et a l\'etranger</label>'
+   +'<input type="number" min="0" value="'+csedEsc(CSED.effMonde||'')+'" onchange="csedSet(\'effMonde\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Nombre de membres du conseil d\'administration</label>'
+   +'<input type="number" min="0" value="'+csedEsc(CSED.caMembres||'')+'" onchange="csedSet(\'caMembres\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Installation a regime particulier sur le site</label>'+S('csed-risq',CSED_RISQUE,CSED.siteRisque||'','csedSetSel(\'siteRisque\',\'csed-risq\')')+'</div>'
+   +'<div class="fg"><label class="fl">L\'etablissement est-il dans le perimetre d\'un plan de prevention des risques technologiques ?</label>'+S('csed-pprt',CSED_OUINON,CSED.pprt||'','csedSetSel(\'pprt\',\'csed-pprt\')')+'</div>'
    +'</div>';
 
   /* Verdict */
