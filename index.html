@@ -360,13 +360,74 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .pse-verdict b{display:block;font-size:15px;margin-bottom:4px}
 .pse-line{display:flex;justify-content:space-between;gap:10px;border-top:1px dashed var(--ligne);padding:6px 0;font-size:12.5px}
 .pse-line span:last-child{font-weight:700;color:#fff;text-align:right}
+
+  /* ── Refonte de l'accueil : en-tete, banniere, six blocs, pied ──
+     La page est sur fond clair (--paper). Toutes les couleurs viennent des
+     variables definies plus haut : rien n'est ecrit en dur. */
+  #accueil-screen header{flex-wrap:wrap;gap:8px}
+  #accueil-screen .hact{flex:0 0 auto}
+  #accueil-screen .hsec{display:flex;align-items:center;gap:8px;flex:1 1 100%;order:3;
+    border-top:1px solid var(--line);padding-top:11px;margin-top:4px}
+  #accueil-screen .hsec label{font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap;flex:0 0 auto}
+  /* La regle globale « input,select,textarea » est ecrite pour le theme
+     sombre, avec !important : on la neutralise ici, l'accueil est clair. */
+  #accueil-screen .hsec select{flex:1 1 auto;min-width:0;padding:9px 30px 9px 11px!important;border-radius:9px!important;
+    border:1px solid var(--line)!important;border-width:1px!important;
+    background-color:var(--card)!important;color:var(--ink)!important;
+    font-size:13px!important;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;width:auto;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23807b6f' d='M1 1l5 5 5-5'/></svg>")!important;
+    background-repeat:no-repeat!important;background-position:right 11px center!important;background-size:12px 8px!important}
+  #accueil-screen .hsec select:focus{border-color:var(--green)!important;background-color:#fff!important;
+    outline:2px solid rgba(31,90,73,.25)!important}
+  #accueil-screen .hsec select option{background:#fff;color:var(--ink)}
+  #accueil-screen .hidcc{font-size:11.5px;color:var(--green);font-weight:800;white-space:nowrap;flex:0 0 auto}
+
+  #accueil-screen .ctarow{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  #accueil-screen .cta1,#accueil-screen .cta2{flex:1 1 210px;display:flex;align-items:center;gap:12px;
+    padding:14px 15px;border-radius:13px;text-decoration:none;cursor:pointer;font-family:inherit;
+    border:1px solid transparent;text-align:left}
+  #accueil-screen .cta1{background:var(--cream);border-color:rgba(243,234,212,.5)}
+  #accueil-screen .cta2{background:var(--brass-l);border-color:var(--brass)}
+  #accueil-screen .cta1 .e,#accueil-screen .cta2 .e{font-size:22px;flex:0 0 auto;line-height:1}
+  #accueil-screen .cta1 .w,#accueil-screen .cta2 .w{min-width:0}
+  #accueil-screen .cta1 .t,#accueil-screen .cta2 .t{display:block;font-size:14.5px;font-weight:800;
+    color:var(--green-d);line-height:1.25}
+  #accueil-screen .cta1 .u,#accueil-screen .cta2 .u{display:block;font-size:11.5px;
+    color:rgba(35,40,43,.66);margin-top:2px;line-height:1.4}
+
+  #accueil-screen .b6{display:grid;grid-template-columns:1fr;gap:11px;margin-top:4px}
+  @media(min-width:560px){ #accueil-screen .b6{grid-template-columns:1fr 1fr} }
+  #accueil-screen .bc{display:block;padding:15px 16px;border-radius:15px;text-decoration:none;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);box-shadow:var(--sh);position:relative;
+    transition:border-color .15s,transform .15s}
+  #accueil-screen .bc:hover{border-color:var(--brass);transform:translateY(-1px)}
+  #accueil-screen .bc .bh{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  #accueil-screen .bc .be{font-size:21px;flex:0 0 auto;line-height:1}
+  #accueil-screen .bc .bt{font-size:15px;font-weight:800;color:var(--ink);line-height:1.25}
+  #accueil-screen .bc .bpts{margin:0;padding:0;list-style:none;text-transform:none}
+  #accueil-screen .bc .bpts li{font-size:12.5px;color:var(--ink2);line-height:1.55;font-weight:400;
+    letter-spacing:normal;text-transform:none;padding-left:14px;position:relative;margin-bottom:3px}
+  #accueil-screen .bc .bpts li::before{content:"•";position:absolute;left:2px;color:var(--brass)}
+  #accueil-screen .bc .bk{position:absolute;top:13px;right:14px;font-size:12px;opacity:.45}
+
+  #accueil-screen .fmaj{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;
+    background:rgba(63,143,108,.10);border:1px solid rgba(63,143,108,.28);color:var(--ok);
+    font-size:11.5px;font-weight:700;margin-bottom:10px}
+
+  /* Les ecrans d'acces s'ouvrent PAR-DESSUS la page, ils ne la remplacent plus. */
+  #lock-screen,#abo-screen{backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+  .jx-fermer{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.28);color:#e8e4d8;font-size:19px;
+    line-height:1;cursor:pointer;font-family:inherit;z-index:5}
+  #abo-screen .jx-fermer{border-color:rgba(60,48,24,.22);background:rgba(255,255,255,.85);color:#23282b}
 </style>
 </head>
 <body>
 
 <!-- ÉCRAN DE VERROUILLAGE -->
-<div id="lock-screen" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1a2f44,#0f1c2b);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px">
-  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(212,160,23,0.4);border-radius:16px;padding:32px 24px;max-width:340px;width:100%;text-align:center">
+<div id="lock-screen" onclick="if(event.target===this)jxFermerFenetres()" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1a2f44,#0f1c2b);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px">
+  <div style="position:relative;background:rgba(255,255,255,0.06);border:1px solid rgba(212,160,23,0.4);border-radius:16px;padding:32px 24px;max-width:340px;width:100%;text-align:center">
+    <button class="jx-fermer" onclick="jxFermerFenetres()" aria-label="Fermer">×</button>
     <div style="font-size:32px;margin-bottom:10px">🔒</div>
     <div style="color:#e8c97a;font-size:18px;font-weight:700;margin-bottom:6px">Juris Expert MCH</div>
     <div style="color:#9a9585;font-size:13px;margin-bottom:20px">Accès protégé — entrez le code</div>
@@ -475,19 +536,67 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
         <div class="mono">MCH</div>
         <div class="brand-t"><div class="n">Juris Expert MCH</div><div class="s">Droit du travail · Tous secteurs <span id="hdr-build" style="display:inline-block;margin-left:6px;padding:1px 7px;border-radius:20px;background:#e8c97a;color:#123;font-size:10.5px;font-weight:800;letter-spacing:.02em;vertical-align:1px" title="Version chargée dans ce navigateur">…</span></div></div>
       </div>
-      <div class="hact"><a class="login" onclick="accueilShowLock();return false">Se connecter</a><div class="menu" onclick="accueilShowAbo()">☰</div></div>
+      <div class="hact"><a class="login" onclick="accueilShowLock();return false">🔑 Espace abonné</a></div>
+      <div class="hsec">
+        <label for="vit-secteur">Votre secteur</label>
+        <select id="vit-secteur" onchange="vitSecteur(this.value)">
+          <option value="">— Choisissez votre convention —</option>
+          <option value="transport">Transport routier</option>
+          <option value="banque">Banque</option>
+          <option value="assurances">Assurances</option>
+          <option value="syntec">Syntec — conseil, informatique</option>
+          <option value="batiment">Bâtiment</option>
+          <option value="enseignement">Enseignement privé — EPNL</option>
+          <option value="ensindep">Enseignement privé indépendant</option>
+          <option value="formation">Organismes de formation</option>
+          <option value="hcr">Hôtels, cafés, restaurants</option>
+          <option value="autre">Une autre convention</option>
+        </select>
+        <span class="hidcc" id="vit-idcc"></span>
+      </div>
     </header>
 
     <section class="heroband">
-      <span class="kick"><span class="dot"></span>Base à jour au 12 juillet 2026</span>
-      <h1 class="serif">Votre juriste du travail, <em>dans la poche.</em></h1>
-      <p>Embauche, rupture, discipline, paie, représentation du personnel : chaque situation devient une suite de questions simples — et les bons documents sortent, prêts à signer.</p>
-      <div class="secrow">
-        <span class="sec on">Transport</span><span class="sec">HCR</span><span class="sec">Bâtiment</span><span class="sec">Banque</span><span class="sec">Assurances</span>
-        <span class="sec">Syntec</span><span class="sec">Enseignement privé (EPNL)</span><span class="sec">Ens. privé indépendant</span><span class="sec">Organismes de formation</span><span class="sec">Tous secteurs</span>
+      <h1 class="serif">Votre assistant juridique RH, <em>pas à pas.</em></h1>
+      <p>Choisissez votre situation, répondez à des questions simples, et repartez avec vos actes et vos démarches conformes.</p>
+      <div class="ctarow">
+        <a class="cta1" href="controle-minute.html">
+          <span class="e">🎯</span>
+          <span class="w"><span class="t">Essai gratuit</span><span class="u">Contrôle-minute de conformité — sans code</span></span>
+        </a>
+        <a class="cta2" onclick="accueilShowAbo();return false">
+          <span class="e">⚡</span>
+          <span class="w"><span class="t">Lancer un dossier</span><span class="u">Accès complet — abonnés</span></span>
+        </a>
       </div>
-      <p style="font-size:12.5px;color:rgba(232,228,216,.72);margin-top:10px;line-height:1.55">Ces secteurs sont couverts <b>en profondeur</b> (IDCC, spécificités, jurisprudence, documents adaptés). Pour <b>toute autre convention collective</b>, choisissez « <b>Tous secteurs / Autre</b> » et indiquez votre <b>IDCC</b> : l'app raisonne sur la base du <b>Code du travail</b> (applicable à tous) et vous signale les points où votre convention peut prévoir des règles plus favorables à vérifier.</p>
     </section>
+
+    <div class="lab"><h2>Que voulez-vous faire&nbsp;?</h2><div class="rule"></div></div>
+    <div class="b6">
+      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
+        <div class="bh"><span class="be">🧑‍💼</span><span class="bt">Embauche &amp; contrats</span></div>
+        <ul class="bpts"><li>Rédaction CDI, CDD, apprentissage</li><li>Déclaration d’embauche et fiche de poste</li><li>Période d’essai et renouvellement</li></ul></a>
+
+      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
+        <div class="bh"><span class="be">⚖️</span><span class="bt">Discipline &amp; sanctions</span></div>
+        <ul class="bpts"><li>Procédure disciplinaire guidée</li><li>Convocation, entretien, avertissement</li><li>Délais de prescription des faits</li></ul></a>
+
+      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
+        <div class="bh"><span class="be">🚪</span><span class="bt">Ruptures du contrat</span></div>
+        <ul class="bpts"><li>Rupture conventionnelle</li><li>Licenciement et inaptitude</li><li>Calculateur d’indemnités</li></ul></a>
+
+      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
+        <div class="bh"><span class="be">🗳️</span><span class="bt">Comité social et économique</span></div>
+        <ul class="bpts"><li>Élections : rétroplanning de J−90 à J+15</li><li>Procès-verbaux, quorums, sièges</li><li>Réunions, consultations, budgets, dossier par étape</li></ul></a>
+
+      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
+        <div class="bh"><span class="be">🔎</span><span class="bt">Analyse de documents</span></div>
+        <ul class="bpts"><li>Audit d’un contrat ou d’un accord</li><li>Détection des clauses nulles</li><li>Vérification des pièges et des délais</li></ul></a>
+
+      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
+        <div class="bh"><span class="be">🧮</span><span class="bt">Calculs &amp; salaires</span></div>
+        <ul class="bpts"><li>Coût employeur</li><li>Maintien de salaire et paie</li><li>Heures supplémentaires</li></ul></a>
+    </div>
 
     <div class="access">
       <a class="af" href="controle-minute.html" style="text-decoration:none;cursor:pointer">🎯 Contrôle-minute <b>gratuit</b>, sans code →</a>
@@ -515,7 +624,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
         <span class="doc">Émargement</span><span class="doc">PV 1ᵉʳ tour</span><span class="doc">PV 2ᵉ tour</span>
         <span class="doc">PV de carence</span><span class="doc">Affichage</span><span class="doc">+ 4 autres</span>
       </div>
-      <div class="legal">Tout est calculé : <b>quorum sur les votants</b> (L.2314-29), <b>répartition des sièges</b> (R.2314-1), <b>parité femmes-hommes</b> (L.2314-30), <b>double majorité du PAP</b>, <b>transmission au CTEP</b> sous 15 jours.</div>
+      <div class="legal">Le quorum, la répartition des sièges, la représentation équilibrée femmes-hommes, la majorité du protocole et la transmission à l'administration : tout est calculé, et chaque règle appliquée est citée <b>dans le module</b>.</div>
       <a class="cta" onclick="accueilShowAbo();return false">Ouvrir le module Élections CSE →</a>
     </div>
 
@@ -527,7 +636,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
         <div class="stat"><div class="sv">Délais</div><div class="sk">&amp; prescriptions</div></div>
         <div class="stat"><div class="sv">Pièges</div><div class="sk">clauses nulles détectées</div></div>
       </div>
-      <div class="legal">Repère les <b>négations</b> (« aucune indemnité de fin de contrat… »), les <b>faits hors délai</b> (prescription 2 mois — L.1332-4), les <b>clauses nulles</b> (non-concurrence sans contrepartie…) et les <b>salaires sous le minimum</b>.</div>
+      <div class="legal">Repère les <b>négations</b> (« aucune indemnité de fin de contrat… »), les <b>faits hors délai</b>, les <b>clauses nulles</b> (non-concurrence sans contrepartie…) et les <b>salaires sous le minimum</b>.</div>
       <a class="cta" onclick="accueilShowAbo();return false">Analyser un document →</a>
     </div>
 
@@ -537,22 +646,16 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       <a class="fc" style="--c:var(--alert)" onclick="accueilShowAbo();return false"><div class="ic">🔔</div><div><div class="tt">Alertes d'échéances</div><div class="dd">Titres, habilitations, visites médicales : les dates limites de vos salariés, surveillées.</div><span class="chip"><span class="pt"></span>3 à renouveler</span></div><div class="chev">🔒</div></a>
     </div>
 
-    <div class="lab"><h2>Que voulez-vous faire&nbsp;?</h2><div class="rule"></div></div>
-    <div class="grid">
-      <a class="tile" onclick="accueilShowAbo();return false"><span class="go">🔒</span><div class="badge">🧑‍💼</div><div class="tn">J'embauche</div><div class="td">CDI, CDD, apprentissage — le bon contrat, guidé.</div></a>
-      <a class="tile" onclick="accueilShowAbo();return false"><span class="go">🔒</span><div class="badge">🚪</div><div class="tn">Je romps un contrat</div><div class="td">Licenciement, rupture conv., inaptitude, CDD.</div></a>
-      <a class="tile" onclick="accueilShowAbo();return false"><span class="go">🔒</span><div class="badge">⚖️</div><div class="tn">Discipline</div><div class="td">La sanction juste, la procédure, les lettres.</div></a>
-      <a class="tile" onclick="accueilShowAbo();return false"><span class="go">🔒</span><div class="badge">🧮</div><div class="tn">Calculs</div><div class="td">Rémunération, indemnités, coût employeur.</div></a>
-      <a class="tile" onclick="accueilShowAbo();return false"><span class="go">🔒</span><div class="badge">📋</div><div class="tn">Contrats &amp; modèles</div><div class="td">DPAE, fiche de poste, règlement intérieur…</div></a>
-      <a class="tile" onclick="accueilShowAbo();return false"><span class="go">🔒</span><div class="badge">📚</div><div class="tn">FAQ &amp; jurisprudence</div><div class="td">Vos droits et obligations, expliqués.</div></a>
-    </div>
-
     <div class="trust">
       <div class="row"><span class="k">✓</span><div><b>Multisectoriel.</b> <span>Votre convention collective (transport, banque, assurances, Syntec…) pilote chaque réponse et chaque document.</span></div></div>
       <div class="row"><span class="k">✓</span><div><b>Sources officielles.</b> <span>Code du travail, conventions collectives, jurisprudence de la Cour de cassation — vérifiées sur Légifrance.</span></div></div>
     </div>
 
-    <footer>Conçu par <b>Mounir CHIKHAOUI</b><br>Outil d'aide à la décision — ne constitue pas un conseil juridique (loi n° 71-1130 du 31/12/1971).</footer>
+    <footer>
+      <span class="fmaj"><span class="dot"></span>Base juridique à jour au 12 juillet 2026</span><br>
+      Conçu par <b>Mounir CHIKHAOUI</b><br>
+      Outil d'aide à la décision — ne constitue pas un conseil juridique (loi n° 71-1130 du 31/12/1971).
+    </footer>
   </div>
 </div>
 
@@ -592,7 +695,8 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   #abo-screen .a-ok p{font-size:13px;color:var(--ink2);line-height:1.6;max-width:34ch;margin:0 auto}
 </style>
 <div id="abo-screen">
-  <div class="col">
+  <div class="col" style="position:relative">
+    <button class="jx-fermer" onclick="jxFermerFenetres()" aria-label="Fermer">×</button>
     <div class="a-head">
       <div class="a-mono">MCH</div>
       <h1 class="serif">Recevoir votre mot de passe</h1>
@@ -668,7 +772,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.118';
+var JX_BUILD = 'v2026-08-06.119';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -677,6 +781,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.119', d:'5 aout 2026', t:[
+   'ECRAN D\'ACCUEIL ENTIEREMENT REORGANISE, d\'apres le diagnostic transmis. Quatre niveaux de lecture : un en-tete avec la marque, un selecteur de secteur unique et l\'acces abonne ; une banniere avec une accroche et deux boutons — l\'essai gratuit et l\'acces complet ; six blocs de besoins metier immediatement en dessous ; un pied de page avec la date de la base juridique et les mentions legales.',
+   'ACCUEIL — les formulaires d\'acces ne remplacent plus la page. La fiche d\'abonnement et le deverrouillage s\'ouvrent par-dessus, avec une croix de fermeture, la touche Echap, et le clic a cote. On ne perd plus sa lecture. Le bouton ☰ de l\'en-tete ouvrait un formulaire de vente : il a disparu.',
+   'ACCUEIL — « Que voulez-vous faire ? » remonte juste sous la banniere, a la place des deux longs blocs de presentation qui l\'enterraient. Les six blocs remplacent l\'ancienne rangee de tuiles et annoncent chacun trois choses concretes. Les references d\'articles quittent l\'ecran d\'accueil : elles restent la ou elles servent, dans les fiches et les formulaires.',
+   'ACCUEIL — un seul choix de secteur, dans l\'en-tete, a la place de la rangee de dix badges et du paragraphe qui la suivait. Il affiche l\'IDCC correspondant et se retrouve dans la fiche entreprise ; un code client qui impose un secteur reste prioritaire.'
+ ]},
  {v:'v2026-08-06.118', d:'5 aout 2026', t:[
    'NOUVEAU MODULE — LE DOSSIER, ETAPE PAR ETAPE. Une reunion se perd rarement sur le fond : elle se perd parce qu\'une piece manque. Quinze etapes, de l\'etablissement de l\'effectif jusqu\'aux commissions, et pour chacune ce qu\'il faut avoir ENVOYE AVANT et a quelle date, ce qu\'il faut avoir EN SEANCE, ce qu\'il faut PRODUIRE APRES. Chaque piece porte son article, qui l\'etablit, et le module renvoie a l\'endroit ou la produire.',
    'DOSSIER — exemple de la reunion de negociation du protocole preelectoral : quatorze pieces a poser sur la table, dont la liste des electeurs par college (seize ans revolus, trois mois d\'anciennete, droits civiques — L.2314-18), la liste des eligibles (dix-huit ans, un an d\'anciennete, exclusions familiales — L.2314-19), la mention des salaries assimiles a l\'employeur qui sont electeurs mais non eligibles, la proportion de femmes et d\'hommes par college sans laquelle aucune liste paritaire ne peut etre etablie (L.2314-30), le nombre de sieges (R.2314-1), les deux repartitions (L.2314-13), le sort des mis a disposition (L.2314-23) et, le cas echeant, le vote electronique (L.2314-26).',
@@ -1290,11 +1400,34 @@ async function verifierCode(){
   }
 }
 // ===== Accueil public (vitrine) : affiché avant le code, sauf si déjà déverrouillé =====
+/* Le secteur choisi sur l'accueil, avant toute connexion. Il ne decide de
+   rien tout seul : il affiche la convention correspondante, et sert de
+   proposition au moment de creer la fiche entreprise. Un code client qui
+   impose un secteur reste prioritaire. */
+var VIT_IDCC={ transport:'0016', banque:'2120', assurances:'1672', syntec:'1486',
+  batiment:'1596', enseignement:'3218', ensindep:'2691', formation:'1516', hcr:'1979' };
+function vitSecteur(v){
+  try{ if(v) sessionStorage.setItem('jx_sec_pref', v); else sessionStorage.removeItem('jx_sec_pref'); }catch(e){}
+  var z=document.getElementById('vit-idcc');
+  if(z) z.textContent = v? (VIT_IDCC[v]? ('IDCC '+VIT_IDCC[v]) : 'IDCC à préciser') : '';
+}
+function vitSecteurInit(){
+  var v=''; try{ v=sessionStorage.getItem('jx_sec_pref')||''; }catch(e){}
+  var s=document.getElementById('vit-secteur');
+  if(s && v && [].some.call(s.options,function(o){return o.value===v;})) s.value=v;
+  vitSecteur(v);
+}
+try{ if(document.readyState!=='loading') vitSecteurInit(); else document.addEventListener('DOMContentLoaded', vitSecteurInit); }catch(e){}
+
 var ABO_EMAIL = 'r.t.h@orange.fr'; // adresse qui reçoit les demandes d'abonnement
 var WEB3_KEY = 'c6f1d9e3-470a-4176-a5f7-46c3ffc20744'; // clé Web3Forms (envoi des demandes → ABO_EMAIL)
+/* L'accueil reste en place : seules les fenetres s'ouvrent et se ferment
+   par-dessus. On ne perd jamais sa lecture. */
 function _accueilHideAll(){
-  ['accueil-screen','lock-screen','abo-screen'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+  ['lock-screen','abo-screen'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+  try{ document.body.style.overflow=''; }catch(e){}
 }
+function jxFermerFenetres(){ _accueilHideAll(); }
 function accueilShow(){
   _accueilHideAll();
   var a=document.getElementById('accueil-screen'); if(a) a.style.display='block';
@@ -1302,12 +1435,23 @@ function accueilShow(){
 }
 function accueilShowLock(){
   _accueilHideAll();
+  var a=document.getElementById('accueil-screen'); if(a) a.style.display='block';   // la page reste derriere
   var l=document.getElementById('lock-screen'); if(l) l.style.display='flex';
+  try{ document.body.style.overflow='hidden'; }catch(e){}
   setTimeout(function(){ var i=document.getElementById('lock-input'); if(i) i.focus(); }, 80);
 }
+/* Echap ferme la fenetre ouverte. */
+try{ document.addEventListener('keydown', function(ev){
+  if(ev.key==='Escape'){
+    var l=document.getElementById('lock-screen'), a=document.getElementById('abo-screen');
+    if((l&&l.style.display!=='none'&&l.style.display!=='')||(a&&a.style.display!=='none'&&a.style.display!=='')) jxFermerFenetres();
+  }
+}); }catch(e){}
 // Clic sur un module réservé → fiche d'abonnement (secteur + coordonnées → mot de passe)
 function accueilShowAbo(){
   _accueilHideAll();
+  var acc=document.getElementById('accueil-screen'); if(acc) acc.style.display='block';   // la page reste derriere
+  try{ document.body.style.overflow='hidden'; }catch(e){}
   var f=document.getElementById('abo-form'); if(f) f.style.display='';
   var k=document.getElementById('abo-ok'); if(k) k.style.display='none';
   var st=document.getElementById('abo-stamp'); if(st){ try{ st.textContent=(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+' · envoi → '+ABO_EMAIL; }catch(e){} }
@@ -13461,7 +13605,8 @@ function validerInscription(){
   E.dirigeant=gv('ins-dirigeant')||'';
   E.qualite=gv('ins-qualite')||'Gérant';
   // Pas de secteur choisi : on laisse vide plutot que de decider a la place du client.
-  E.secteur=(function(){try{return sessionStorage.getItem('jte_sector');}catch(e){return null;}})()||gv('ins-secteur')||'';
+  E.secteur=(function(){try{return sessionStorage.getItem('jte_sector');}catch(e){return null;}})()||gv('ins-secteur')
+    ||(function(){try{return sessionStorage.getItem('jx_sec_pref')||'';}catch(e){return '';}})()||'';
   E.activite=gv('ins-activite')||'marchandises';
   E.email=gv('ins-email')||'';
   E.tel=gv('ins-tel')||'';

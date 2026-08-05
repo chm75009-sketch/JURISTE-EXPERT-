@@ -5,6 +5,7 @@ node tests/cse.test.js            # règles CSE : seuils, barèmes, calculs
 node tests/budgets.test.js        # les budgets : des euros, au centime
 node tests/navigateur.test.js     # la page ouverte pour de vrai dans Chromium
 node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un autre
+node tests/accueil.test.js        # l'écran d'accueil : ordre de lecture et lisibilité
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
@@ -145,7 +146,26 @@ numéros de formulaire officiels, le filtrage par effectif (8 / 30 / 50 /
 doit le rester — et l'absence de doublon d'identifiant sur les quinze
 étapes.
 
-## 7. `integrite.py` — ce qui est mécaniquement vérifiable
+## 7. `accueil.test.js` — l'écran d'accueil
+
+C'est la première chose qu'un client voit. Le diagnostic reprochait trois
+choses ; le test vérifie qu'elles ne peuvent pas revenir :
+
+- **l'ordre de lecture** : bannière → « Que voulez-vous faire ? » → modules
+  de démonstration → pied de page. Si un bloc repasse devant, le test tombe ;
+- **les fenêtres d'accès** ne remplacent plus la page : l'accueil reste
+  affiché derrière, la croix existe, Échap referme, le défilement est rendu ;
+- **aucune référence d'article** sur l'écran d'accueil — la recherche est
+  faite sur le texte rendu, pas sur le code ;
+- **la lisibilité réelle** : le rapport de contraste de chaque titre, chaque
+  puce et chaque bouton est calculé et doit dépasser 4,5:1.
+
+Ce dernier point n'est pas décoratif. Les six blocs avaient d'abord été
+écrits avec les couleurs du thème sombre sur une page qui est claire :
+du crème pâle sur du crème. Structure impeccable, texte invisible — aucun
+test de structure ne l'aurait vu.
+
+## 8. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`
