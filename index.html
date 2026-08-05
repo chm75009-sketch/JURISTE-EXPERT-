@@ -650,7 +650,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-05.97';
+var JX_BUILD = 'v2026-08-05.98';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -2544,6 +2544,25 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ MODULE VI — CSE ═══ -->
+<!-- ═══ CSE — CALENDRIER ANNUEL DES RÉUNIONS ═══ -->
+<div id="pg-csecal" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Calendrier du CSE</div><div class="ts">Réunions · ordre du jour · procès-verbal</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div class="card" style="border-color:#c9a84c">
+  <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
+    La périodicité dépend de l'effectif, qui vient du socle. Le calendrier de l'année est engendré à
+    partir de la date de la première réunion, avec pour chaque séance la date limite de l'ordre du jour
+    et celle du procès-verbal.
+  </div>
+</div>
+<div id="csecal-body" style="padding:0 14px 20px">
+  <div style="padding:24px;text-align:center;color:#9fb0c4">
+    <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
+    <button onclick="try{calOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir</button>
+  </div>
+</div>
+</div>
 <!-- ═══ MON CSE — COMPOSITION ET MANDATS ═══ -->
 <div id="pg-moncse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -3414,6 +3433,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
   <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
+  <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
   <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
   <div class="mi" onclick="goPage('socle');closeMenu()"><span style="font-size:18px">📐</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Socle — effectif &amp; seuils</div></div></div>
@@ -5328,6 +5348,7 @@ function goPage(id){
   if(id==='socle'){ try{ socOnEnter(); }catch(e){} }
   if(id==='csediag'){ try{ csedOnEnter(); }catch(e){} }
   if(id==='moncse'){ try{ mcOnEnter(); }catch(e){} }
+  if(id==='csecal'){ try{ calOnEnter(); }catch(e){} }
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
@@ -6206,6 +6227,256 @@ function socOuvrirAccord(){
 }
 function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SOC.accord=null; socSave(); socRender(); }
 
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CSE — MODULE 3.2 : CALENDRIER ANNUEL DES REUNIONS
+   Periodicite selon l'effectif, ordre du jour, convocations, proces-verbal.
+   Le calendrier est engendre a partir de l'effectif du socle et de la date
+   de la premiere reunion. Chaque delai porte son article.
+   ══════════════════════════════════════════════════════════════════ */
+var CAL={};
+var CAL_LS='cse_calendrier_v1';
+function calKey(){ return CAL_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function calLoad(){ try{ CAL=JSON.parse(localStorage.getItem(calKey())||'{}')||{}; }catch(e){ CAL={}; } if(!Array.isArray(CAL.faites)) CAL.faites=[]; }
+function calSave(){ try{ localStorage.setItem(calKey(), JSON.stringify(CAL)); }catch(e){} }
+function calEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function calFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function calAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function calPlus(iso,j,mois){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  if(mois) d.setMonth(d.getMonth()+mois);
+  if(j) d.setDate(d.getDate()+j);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function calJours(a,b){ if(!a||!b) return null; var x=new Date(a+'T00:00:00'), y=new Date(b+'T00:00:00'); if(isNaN(x)||isNaN(y)) return null; return Math.round((y-x)/86400000); }
+/* Jours ouvrables : du lundi au samedi, le dimanche excepte. */
+function calMoinsOuvrables(iso, n){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  var k=0;
+  while(k<n){ d.setDate(d.getDate()-1); if(d.getDay()!==0) k++; }
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function calPlusOuvrables(iso, n){
+  if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  var k=0;
+  while(k<n){ d.setDate(d.getDate()+1); if(d.getDay()!==0) k++; }
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function calEff(){
+  try{
+    if(typeof socLoad==='function') socLoad();
+    if(typeof rxLoad==='function') rxLoad();
+    if(typeof socSerie!=='function') return null;
+    var s=socSerie(36); return s.length? s[s.length-1].ent : null;
+  }catch(e){ return null; }
+}
+function calSet(k,v){ CAL[k]=v; calSave(); calRender(); }
+function calSetSel(k,id){ CAL[k]=(typeof jxSelectVal==='function')?jxSelectVal(id):''; calSave(); calRender(); }
+
+/* ── Regime de periodicite selon l'effectif ── */
+function calRegime(eff){
+  if(eff===null) return null;
+  if(eff<11) return {code:'aucun', lib:'Moins de onze salariés — pas de comité', n:0, pas:0, art:'L.2311-2'};
+  if(eff<50) return {code:'petit', lib:'Onze à quarante-neuf salariés — au moins une réunion par mois', n:12, pas:1, art:'L.2315-21'};
+  if(eff<300) return {code:'moyen', lib:'Cinquante à deux cent quatre-vingt-dix-neuf salariés — au moins une réunion tous les deux mois', n:6, pas:2, art:'L.2315-28'};
+  return {code:'grand', lib:'Trois cents salariés et plus — au moins une réunion par mois', n:12, pas:1, art:'L.2315-28'};
+}
+/* Le nombre retenu : celui de l'accord s'il existe, sans pouvoir descendre
+   sous six reunions annuelles pour les entreprises d'au moins cinquante
+   salaries (L.2312-19). */
+function calNombre(reg){
+  if(!reg) return null;
+  if(CAL.accord!=='oui') return reg.n;
+  var n=parseInt(CAL.nbAccord||'',10);
+  if(isNaN(n) || n<=0) return reg.n;
+  // Un accord qui descend sous six reunions annuelles est ecarte : le
+  // calendrier suit alors la regle supletive, comme le dit l'alerte.
+  var eff=calEff();
+  if(eff!==null && eff>=50 && n<6) return reg.n;
+  return n;
+}
+/* Les douze prochaines echeances a partir de la premiere reunion. */
+function calSeances(){
+  var eff=calEff(), reg=calRegime(eff);
+  if(!reg || !reg.n || !CAL.premiere) return [];
+  var n=calNombre(reg);
+  var pas=(n>0)?(12/n):reg.pas;
+  var out=[];
+  for(var i=0;i<n;i++){
+    var d=new Date(CAL.premiere+'T00:00:00'); if(isNaN(d)) return [];
+    d.setMonth(d.getMonth()+Math.round(i*pas));
+    var iso=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+    out.push({n:i+1, iso:iso, faite:(CAL.faites||[]).indexOf(iso)>=0});
+  }
+  return out;
+}
+function calToggle(iso){
+  if(!Array.isArray(CAL.faites)) CAL.faites=[];
+  var i=CAL.faites.indexOf(iso);
+  if(i>=0) CAL.faites.splice(i,1); else CAL.faites.push(iso);
+  calSave(); calRender();
+}
+
+/* ══════════ ANALYSE ══════════ */
+function calAnalyse(){
+  var A=[], eff=calEff(), reg=calRegime(eff);
+  if(eff===null){
+    A.push({gravite:'stop', titre:'Effectif inconnu',
+      texte:'La périodicité des réunions dépend de l’effectif. Renseignez le registre du personnel, puis le socle.'});
+    return {alertes:A, eff:eff, reg:null, seances:[]};
+  }
+  if(!reg || reg.code==='aucun'){
+    A.push({gravite:'info', titre:'Moins de onze salariés',
+      texte:'Aucun comité n’est obligatoire en dessous de onze salariés (L.2311-2), donc aucune périodicité de réunions.'});
+    return {alertes:A, eff:eff, reg:reg, seances:[]};
+  }
+  var n=calNombre(reg);
+  A.push({gravite:'info', titre:reg.lib,
+    texte:'Soit '+reg.n+' réunion(s) par an au titre de la règle supplétive (article '+reg.art+' du code du travail).'
+      +(eff>=50?' Un accord peut fixer un autre nombre, sans pouvoir descendre en dessous de six réunions annuelles (L.2312-19).':'')});
+
+  /* Accord d'entreprise sur le nombre de reunions */
+  if(CAL.accord==='oui'){
+    var na=parseInt(CAL.nbAccord||'',10);
+    if(isNaN(na) || na<=0){
+      A.push({gravite:'question', titre:'Nombre de réunions prévu par l’accord non renseigné',
+        texte:'Vous avez indiqué qu’un accord fixe la périodicité : précisez le nombre de réunions annuelles qu’il prévoit.'});
+    } else if(eff>=50 && na<6){
+      A.push({gravite:'stop', titre:'L’accord descend sous le plancher',
+        texte:'L’accord prévoit '+na+' réunion(s) par an. Dans les entreprises d’au moins cinquante salariés, un accord ne peut pas fixer moins de six réunions annuelles (L.2312-19). '
+          +'La clause est écartée : la règle supplétive de '+reg.n+' réunions s’applique.'});
+    } else if(na<reg.n){
+      A.push({gravite:'question', titre:'L’accord réduit le nombre de réunions',
+        texte:'L’accord prévoit '+na+' réunion(s) là où la règle supplétive en prévoit '+reg.n+'. La clause est licite tant qu’elle reste au-dessus de six, mais elle est moins favorable : vérifiez qu’elle a été négociée dans les formes.'});
+    } else {
+      A.push({gravite:'info', titre:'L’accord est au moins aussi favorable',
+        texte:'L’accord prévoit '+na+' réunion(s) par an, contre '+reg.n+' au titre de la règle supplétive. C’est lui qui s’applique.'});
+    }
+  }
+
+  /* Santé, sécurité et conditions de travail */
+  if(eff>=50){
+    A.push({gravite:'question', titre:'Quatre réunions par an consacrées à la santé et à la sécurité',
+      texte:'Au moins quatre réunions annuelles portent, en tout ou partie, sur les attributions du comité en matière de santé, de sécurité et de conditions de travail (L.2315-27). '
+        +'Elles s’imputent sur le nombre total de réunions, elles ne s’y ajoutent pas. L’agent de contrôle de l’inspection du travail et l’agent des services de prévention de la sécurité sociale y sont invités.'});
+  }
+
+  /* Ordre du jour et convocation */
+  A.push({gravite:'info', titre:'Ordre du jour',
+    texte:'L’ordre du jour est établi conjointement par le président et le secrétaire (L.2315-29). Les consultations rendues obligatoires par une disposition législative, réglementaire ou par un accord y sont inscrites de plein droit par l’un ou l’autre. '
+      +'Il est communiqué par le président aux membres, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention, trois jours au moins avant la réunion (L.2315-30).'});
+
+  /* Délibérations */
+  if(eff>=50){
+    A.push({gravite:'info', titre:'Délibérations',
+      texte:'Les décisions du comité portant sur ses modalités de fonctionnement et l’organisation de ses travaux sont prises à la majorité des membres présents (L.2315-32). '
+        +'Le président ne participe pas au vote lorsqu’il consulte les membres en tant que délégation du personnel.'});
+  }
+
+  /* Réclamations : entreprises de moins de cinquante salariés */
+  if(eff<50){
+    A.push({gravite:'info', titre:'Réclamations — note écrite et réponse',
+      texte:'Les membres remettent à l’employeur une note écrite exposant l’objet des demandes deux jours ouvrables avant la date à laquelle ils doivent être reçus. '
+        +'L’employeur répond par écrit au plus tard dans les six jours ouvrables suivant la réunion. Les demandes et les réponses motivées sont transcrites sur un registre spécial, ou annexées à ce registre, '
+        +'tenu à la disposition des salariés pendant un jour ouvrable par quinzaine, en dehors du temps de travail (L.2315-22).'});
+  }
+
+  /* Procès-verbal */
+  A.push({gravite:'info', titre:'Procès-verbal',
+    texte:'À défaut d’accord, le procès-verbal est établi par le secrétaire et transmis à l’employeur dans les quinze jours suivant la réunion, ou avant la réunion suivante si elle intervient dans ce délai (R.2315-25). '
+      +'Ce délai est de trois jours dans le cadre de la consultation sur un projet de licenciement collectif pour motif économique, et d’un jour lorsque l’entreprise est en redressement ou en liquidation judiciaire.'});
+
+  /* Visioconférence */
+  if(CAL.visio==='oui'){
+    A.push({gravite:'question', titre:'Visioconférence',
+      texte:'À défaut d’accord entre l’employeur et les membres élus, le recours à la visioconférence est limité à trois réunions par année civile (L.2315-4). '
+        +'Le dispositif doit garantir l’identification des membres et leur participation effective ; lorsqu’il est procédé à un vote à bulletin secret, il doit assurer des conditions techniques permettant un vote simultané et anonyme (D.2315-1 · D.2315-2).'});
+  }
+
+  /* Retards constatés sur le calendrier */
+  var S=calSeances();
+  var enRetard=S.filter(function(s){ return !s.faite && calJours(calAuj(), s.iso)<0; });
+  if(enRetard.length){
+    A.push({gravite:'stop', titre:enRetard.length+' réunion(s) non tenue(s) à la date prévue',
+      texte:'Les échéances du '+enRetard.slice(0,4).map(function(s){ return calFR(s.iso); }).join(', ')
+        +(enRetard.length>4?(' et '+(enRetard.length-4)+' autre(s)'):'')
+        +' sont passées sans que la réunion soit marquée comme tenue. Ne pas réunir le comité selon la périodicité légale est susceptible de constituer une entrave à son fonctionnement régulier, punie de 7 500 € d’amende (L.2317-1).'});
+  }
+
+  var o={stop:0,question:1,info:2};
+  A.sort(function(a,b){ return o[a.gravite]-o[b.gravite]; });
+  return {alertes:A, eff:eff, reg:reg, seances:S, n:n};
+}
+
+/* ══════════ RENDU ══════════ */
+function calOnEnter(){ calLoad(); calRender(); }
+function calRender(){
+  var host=document.getElementById('csecal-body'); if(!host) return;
+  var d=calAnalyse();
+  var S=(typeof jxSelect==='function')?jxSelect:function(){return '';};
+  var h='';
+
+  h+='<div class="card"><div class="ct">Périodicité applicable</div>';
+  if(d.eff===null){
+    h+='<div style="font-size:13px;color:#e8c97a">Effectif inconnu.</div>'
+     +'<div style="margin-top:10px"><button class="btn" onclick="goPage(\'socle\')">Ouvrir le socle</button></div>';
+  } else {
+    h+='<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end">'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+(d.n||0)+'</div><div style="font-size:12px;color:#9fb0c4">réunion(s) par an</div></div>'
+      +'<div><div style="font-size:34px;font-weight:800;color:#fff;line-height:1">'+d.eff+'</div><div style="font-size:12px;color:#9fb0c4">salariés (socle)</div></div>'
+      +'<div style="flex:1;min-width:220px;font-size:12.5px;color:#9fb0c4;line-height:1.6">'+(d.reg?calEsc(d.reg.lib):'')+'</div>'
+      +'</div>';
+  }
+  h+='</div>';
+
+  h+='<div class="card"><div class="ct">Paramètres</div>'
+   +'<div class="fg"><label class="fl">Date de la première réunion de l’année</label>'
+   +'<input type="date" value="'+calEsc(CAL.premiere||'')+'" onchange="calSet(\'premiere\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Un accord fixe-t-il le nombre de réunions ?</label>'
+   + S('cal-acc',[{v:'non',lib:'Non — règle supplétive du code du travail'},{v:'oui',lib:'Oui — accord d’entreprise'}], CAL.accord||'', 'calSetSel(\'accord\',\'cal-acc\')')
+   +'</div>'
+   +(CAL.accord==='oui'?('<div class="fg"><label class="fl">Nombre de réunions annuelles prévu par l’accord</label>'
+      +'<input type="number" min="1" value="'+calEsc(CAL.nbAccord||'')+'" onchange="calSet(\'nbAccord\',this.value)"></div>'):'')
+   +'<div class="fg"><label class="fl">Recours à la visioconférence</label>'
+   + S('cal-vis',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], CAL.visio||'', 'calSetSel(\'visio\',\'cal-vis\')')
+   +'</div></div>';
+
+  /* Le calendrier */
+  if(d.seances.length){
+    h+='<div class="card"><div class="ct">Calendrier — et les délais de chaque séance</div>'
+     +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+       +'Cochez une réunion tenue. Les dates rappelées pour chaque séance sont celles de l’ordre du jour et du procès-verbal'
+       +(d.eff<50?', ainsi que celles de la note de réclamations et de la réponse de l’employeur':'')+'.'
+     +'</div>'
+     + d.seances.map(function(s){
+        var retard=(!s.faite && calJours(calAuj(), s.iso)<0);
+        var odj=calPlus(s.iso,-3), pv=calPlus(s.iso,15);
+        var det='Ordre du jour communiqué au plus tard le <b>'+calFR(odj)+'</b> (L.2315-30) · procès-verbal au plus tard le <b>'+calFR(pv)+'</b> (R.2315-25)';
+        if(d.eff<50){
+          det+='<br>Note écrite des réclamations au plus tard le <b>'+calFR(calMoinsOuvrables(s.iso,2))+'</b> · réponse écrite de l’employeur au plus tard le <b>'+calFR(calPlusOuvrables(s.iso,6))+'</b> (L.2315-22)';
+        }
+        return '<div style="padding:10px 12px;background:#0f1b2c;border:1px solid '+(retard?'#e05c5c':(s.faite?'#46b885':'#3a4a5f'))+';border-left:3px solid '+(retard?'#e05c5c':(s.faite?'#46b885':'#c9a84c'))+';border-radius:9px;margin-bottom:8px;opacity:'+(s.faite?'.72':'1')+'">'
+          +'<div style="display:flex;gap:10px;align-items:center">'
+            +'<label style="font-size:13px;font-weight:800;color:#fff;cursor:pointer;flex:1">'
+            +'<input type="checkbox" '+(s.faite?'checked':'')+' onchange="calToggle(\''+s.iso+'\')" style="width:auto;margin-right:8px"> '
+            +'Réunion n° '+s.n+' — '+calFR(s.iso)+'</label>'
+            +(retard?'<span style="font-size:11.5px;color:#e05c5c;font-weight:700">non tenue</span>':(s.faite?'<span style="font-size:11.5px;color:#46b885;font-weight:700">tenue</span>':''))
+          +'</div>'
+          +'<div style="font-size:12px;color:#9fb0c4;line-height:1.7;margin-top:5px">'+det+'</div>'
+          +'</div>';
+       }).join('')
+     +'</div>';
+  } else if(d.reg && d.reg.n && !CAL.premiere){
+    h+='<div class="card"><div style="font-size:13px;color:#e8c97a">Indiquez la date de la première réunion pour que le calendrier soit engendré.</div></div>';
+  }
+
+  h+='<div class="card"><div class="ct">Ce qui s’impose à chaque réunion</div>'
+   + ((typeof jxCohHTML==='function')? jxCohHTML(d.alertes) : '')
+   +'</div>';
+
+  host.innerHTML=h;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    CSE — MODULES 3.0 ET 3.1 : SAISIE INITIALE ET « MON CSE »
