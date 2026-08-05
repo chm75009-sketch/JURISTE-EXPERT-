@@ -783,7 +783,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.120';
+var JX_BUILD = 'v2026-08-06.121';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -792,6 +792,10 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.121', d:'5 aout 2026', t:[
+   'ORDRE DES RUBRIQUES — l\'application passait d\'« Embauche & contrats » a « Rupture du contrat », et ne parlait de la vie du contrat qu\'apres. Les rubriques avaient ete ajoutees au fil du temps, jamais relues comme un parcours. Elles suivent desormais la vie de la relation de travail : on embauche, le contrat vit, il se rompt — a l\'accueil comme dans le menu.',
+   'MENU — les assistants guides « J\'embauche un salarie » et « Je veux rompre un contrat » etaient tout en bas, apres la configuration et juste avant le bouton de deconnexion. Ce sont les portes d\'entree de l\'application : ils sont remontes en tete du menu.'
+ ]},
  {v:'v2026-08-06.120', d:'5 aout 2026', t:[
    'CORRECTIF — ON PEUT TOUJOURS REVENIR EN ARRIERE. Sur l\'ecran « Recevoir votre mot de passe », la seule sortie etait un lien « ← Accueil » place tout en bas du formulaire : sur un telephone, des qu\'on remplit le premier champ, le clavier le recouvre. Une croix de fermeture reste desormais fixee en haut a droite, quelle que soit la position dans le formulaire, avec une cible tactile de 44 pixels ; un lien « ← Revenir a l\'accueil » figure aussi en tete ; la touche Echap et le clic a cote referment egalement la fenetre.'
  ]},
@@ -1837,6 +1841,30 @@ try{
       </div>
   </div>
 
+  <div class="home-sec">🕒 Vie du contrat</div>
+  <div class="home-grid">
+      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps2')">
+        <div class="hcard-ic">⏱️</div>
+        <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures supplémentaires, forfait-jours, spécificités par secteur.</div><div class="m">Durée du travail</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('absences')">
+        <div class="hcard-ic">🏥</div>
+        <div class="hcard-body"><div class="t">Absences &amp; congés</div><div class="d">Maladie · AT/MP · maternité/paternité · congés payés · maintien de salaire · reprise.</div><div class="m">Absences</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('harcele')">
+        <div class="hcard-ic">🛡️</div>
+        <div class="hcard-body"><div class="t">Harcèlement &amp; discrimination</div><div class="d">Prévention, charge de la preuve aménagée, nullité, jurisprudence.</div><div class="m">Protection</div></div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();goPage('harcmoral')">
+        <div class="hcard-ic">⚖️</div>
+        <div class="hcard-body"><div class="t">Harcèlement moral — la qualification</div><div class="d">Répétition, durée, atteinte, auteur, preuve : ce que les juges retiennent et ce qu’ils écartent, arrêt par arrêt. Chronologie des faits à éditer.</div><div class="m">Qualification</div></div>
+        <div class="chev">›</div>
+      </div>
+  </div>
+
   <div class="home-sec">⚖️ Rupture du contrat</div>
   <div class="home-grid">
       <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('licenc')">
@@ -1876,30 +1904,6 @@ try{
       <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('calc')">
         <div class="hcard-ic">🧮</div>
         <div class="hcard-body"><div class="t">Calculateurs d’indemnités</div><div class="d">Licenciement, barème Macron, congés payés, préavis, précarité, rupture conventionnelle, retraite.</div><div class="m">Calculs</div></div>
-        <div class="chev">›</div>
-      </div>
-  </div>
-
-  <div class="home-sec">🕒 Vie du contrat</div>
-  <div class="home-grid">
-      <div class="hcard" style="--accent:#e0a83a;grid-column:1/-1" onclick="event.stopPropagation();goPage('temps2')">
-        <div class="hcard-ic">⏱️</div>
-        <div class="hcard-body"><div class="t">Temps de travail &amp; forfaits</div><div class="d">Heures supplémentaires, forfait-jours, spécificités par secteur.</div><div class="m">Durée du travail</div></div>
-        <div class="chev">›</div>
-      </div>
-      <div class="hcard" style="--accent:#46b885;grid-column:1/-1" onclick="event.stopPropagation();goPage('absences')">
-        <div class="hcard-ic">🏥</div>
-        <div class="hcard-body"><div class="t">Absences &amp; congés</div><div class="d">Maladie · AT/MP · maternité/paternité · congés payés · maintien de salaire · reprise.</div><div class="m">Absences</div></div>
-        <div class="chev">›</div>
-      </div>
-      <div class="hcard" style="--accent:#e76a6a;grid-column:1/-1" onclick="event.stopPropagation();goPage('harcele')">
-        <div class="hcard-ic">🛡️</div>
-        <div class="hcard-body"><div class="t">Harcèlement &amp; discrimination</div><div class="d">Prévention, charge de la preuve aménagée, nullité, jurisprudence.</div><div class="m">Protection</div></div>
-        <div class="chev">›</div>
-      </div>
-      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();goPage('harcmoral')">
-        <div class="hcard-ic">⚖️</div>
-        <div class="hcard-body"><div class="t">Harcèlement moral — la qualification</div><div class="d">Répétition, durée, atteinte, auteur, preuve : ce que les juges retiennent et ce qu’ils écartent, arrêt par arrêt. Chronologie des faits à éditer.</div><div class="m">Qualification</div></div>
         <div class="chev">›</div>
       </div>
   </div>
@@ -3829,6 +3833,9 @@ Exemple :<br>
 <div style="padding:8px">
   <div class="mi" onclick="goPage('home');closeMenu()"><span style="font-size:18px">◈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Accueil</div></div></div>
   <div class="mi" onclick="goPage('parcours');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parcours (pas-à-pas)</div></div></div>
+  <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Actions guidées</div>
+  <div class="mi" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start');closeMenu()"><span style="font-size:18px">🧑‍💼</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">J'embauche un salarié (assistant)</div></div></div>
+  <div class="mi" onclick="goPage('rupture');if(typeof wzrGo==='function')wzrGo('start');closeMenu()"><span style="font-size:18px">🚪</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Je veux rompre un contrat (assistant)</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Comprendre &amp; rechercher</div>
   <div class="mi" onclick="goPage('faq');closeMenu()"><span style="font-size:18px">💬</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">FAQ salariés</div></div></div>
   <div class="mi" onclick="goPage('diag');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Analyse d’un document</div></div></div>
@@ -3837,6 +3844,11 @@ Exemple :<br>
   <div class="mi" onclick="goPage('contrat');closeMenu()"><span style="font-size:18px">📋</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Embauche &amp; contrats</div></div></div>
   <div class="mi" onclick="goPage('cdd');closeMenu()"><span style="font-size:18px">📄</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CDD &amp; précarité</div></div></div>
   <div class="mi" onclick="goPage('statut');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Statut conventionnel</div></div></div>
+  <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Vie du contrat</div>
+  <div class="mi" onclick="goPage('temps2');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de travail &amp; forfaits</div></div></div>
+  <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
+  <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
+  <div class="mi" onclick="goPage('harcmoral');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement moral — qualification</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Rupture du contrat</div>
   <div class="mi" onclick="goPage('licenc');closeMenu()"><span style="font-size:18px">📑</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Procédure de licenciement</div></div></div>
   <div class="mi" onclick="goPage('disciplinaire');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Discipline &amp; sanctions</div></div></div>
@@ -3844,11 +3856,6 @@ Exemple :<br>
   <div class="mi" onclick="goPage('inapt');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Inaptitude &amp; reclassement</div></div></div>
   <div class="mi" onclick="goPage('pse');closeMenu()"><span style="font-size:18px">🛟</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">PSE / licenciement éco.</div></div></div>
   <div class="mi" onclick="goPage('calc');closeMenu()"><span style="font-size:18px">🧮</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calculateurs d’indemnités</div></div></div>
-  <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Vie du contrat</div>
-  <div class="mi" onclick="goPage('temps2');closeMenu()"><span style="font-size:18px">⏱️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Temps de travail &amp; forfaits</div></div></div>
-  <div class="mi" onclick="goPage('absences');closeMenu()"><span style="font-size:18px">🏥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Absences &amp; congés</div></div></div>
-  <div class="mi" onclick="goPage('harcele');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement &amp; discrim.</div></div></div>
-  <div class="mi" onclick="goPage('harcmoral');closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Harcèlement moral — qualification</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Représentation du personnel</div>
   <div class="mi" onclick="goPage('csehub');closeMenu()"><span style="font-size:18px">🏛️</span><div><div style="font-size:13px;font-weight:600;color:#e8c97a">Mon espace CSE <span style="color:#5c8bd6;font-size:10px;font-weight:700">TOUT LE MODULE</span></div></div></div>
   <div class="mi" onclick="goPage('csecns');closeMenu()"><span style="font-size:18px">📈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Consultations récurrentes</div></div></div>
@@ -3880,9 +3887,6 @@ Exemple :<br>
   <div class="mi" onclick="goPage('parametrage');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Paramétrage entreprise</div></div></div>
   <div class="mi" onclick="goPage('rgpd');closeMenu()"><span style="font-size:18px">🔒</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Charte RGPD / confidentialité</div></div></div>
   <div class="mi" onclick="goPage('nouveautes');closeMenu()"><span style="font-size:18px">🆕</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Nouveautés & mises à jour</div></div></div>
-  <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Actions guidées</div>
-  <div class="mi" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start');closeMenu()"><span style="font-size:18px">🧑‍💼</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">J'embauche un salarié (assistant)</div></div></div>
-  <div class="mi" onclick="goPage('rupture');if(typeof wzrGo==='function')wzrGo('start');closeMenu()"><span style="font-size:18px">🚪</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Je veux rompre un contrat (assistant)</div></div></div>
   <div style="margin:12px 4px 4px"><button onclick="deconnexion()" style="width:100%;padding:12px;border:1px solid rgba(224,92,92,.5);border-radius:10px;background:rgba(224,92,92,.12);color:#e88;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">🔒 Se déconnecter</button></div>
 </div>
 <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:#6b6660;line-height:1.5">Ne constitue pas un conseil juridique (loi n°71-1130 du 31/12/1971)</div>

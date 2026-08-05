@@ -96,6 +96,31 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   console.log('    contraste le plus faible : ' +
     Math.min(...contraste.map(c => c.r)).toFixed(2) + ':1');
 
+  /* L'ordre des rubriques dans l'application suit la vie du contrat :
+     on embauche, le contrat vit, il se rompt. « Rupture » figurait avant
+     « Vie du contrat », a l'accueil comme dans le menu. */
+  console.log('\n— L’ordre des rubriques —');
+  const rub = await page.evaluate(() => {
+    const t = i => [...document.querySelectorAll(i)].map(e => e.textContent.trim());
+    return {
+      accueil: t('#pg-home .home-sec'),
+      menu: [...document.querySelectorAll('#menu-panel div')]
+        .filter(e => /text-transform:\s*uppercase/.test(e.getAttribute('style') || ''))
+        .map(e => e.textContent.trim())
+    };
+  });
+  const rang = (L, m) => L.findIndex(x => x.indexOf(m) >= 0);
+  ['accueil', 'menu'].forEach(ou => {
+    const L = rub[ou];
+    const e = rang(L, 'Embauche'), v = rang(L, 'Vie du contrat'), r = rang(L, 'Rupture');
+    ok(e >= 0 && v > e && r > v,
+       ou + ' : embauche → vie du contrat → rupture, dans cet ordre',
+       L.filter(x => /Embauche|Vie du|Rupture/.test(x)).join(' → '));
+  });
+  ok(rang(rub.menu, 'Actions guidées') === 0,
+     'menu : les assistants guidés sont en tête, pas après la configuration',
+     rub.menu[0]);
+
   // ── Plus de droit sur l'écran d'accueil ──────────────────────────
   console.log('\n— Le texte juridique —');
   const txt = await page.evaluate(() => document.getElementById('accueil-screen').innerText);
