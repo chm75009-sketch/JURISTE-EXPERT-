@@ -653,7 +653,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
 var JX_MAJ = '12 juillet 2026';
-var JX_BUILD = 'v2026-08-06.107';
+var JX_BUILD = 'v2026-08-06.108';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -6911,6 +6911,46 @@ var GUIDE_ETAPES=[
     ecrire:function(v){ CAL.accord=v; calSave(); try{ CNS.accord=v; cnsSave(); }catch(e){} }
   },
   {
+    k:'etabs', type:'nombre',
+    titre:'Sur combien de sites votre entreprise est-elle installée ?',
+    aide:'Si vous avez plusieurs sites qui fonctionnent de façon assez autonome, il faut des élus dans chacun, plus une instance qui les réunit au niveau de l’entreprise. Répondez 1 si vous n’avez qu’un seul lieu.',
+    si:function(){ var e=hubEff(); return e!==null && e>=50; },
+    lire:function(){ try{ return CSED.etabs||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.etabs=v; csedSave(); }
+  },
+  {
+    k:'groupe', type:'choix',
+    titre:'Votre entreprise appartient-elle à un groupe ?',
+    aide:'C’est-à-dire : une autre société la contrôle, ou elle-même en contrôle d’autres. Si oui, une instance supplémentaire réunit les représentants de toutes les sociétés du groupe.',
+    si:function(){ var e=hubEff(); return e!==null && e>=50; },
+    opts:[{v:'non',lib:'Non',sous:'Une société indépendante'},{v:'oui',lib:'Oui',sous:'Elle contrôle ou est contrôlée par d’autres sociétés'}],
+    lire:function(){ try{ return CSED.groupe||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.groupe=v; csedSave(); }
+  },
+  {
+    k:'europe', type:'nombre',
+    titre:'Combien de salariés avez-vous en Europe, tous pays confondus ?',
+    aide:'Si vous dépassez 1 000 salariés en Europe, avec au moins 150 dans deux pays différents, vous devez mettre en place une instance européenne. Répondez avec le total France comprise ; laissez vide si vous n’êtes qu’en France.',
+    si:function(){ var e=hubEff(); return e!==null && e>=300; },
+    lire:function(){ try{ return CSED.effEEE||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.effEEE=v; csedSave(); },
+    facultatif:true
+  },
+  {
+    k:'risque', type:'choix',
+    titre:'Y a-t-il sur l’un de vos sites une installation dangereuse ?',
+    aide:'Une installation nucléaire, une usine classée Seveso seuil haut, ou un stockage souterrain de produits dangereux. Si c’est le cas, une commission sécurité devient obligatoire quelle que soit votre taille.',
+    si:function(){ var e=hubEff(); return e!==null && e>=11; },
+    opts:[
+      {v:'non',lib:'Non',sous:'Aucune installation de ce type'},
+      {v:'inb',lib:'Oui, une installation nucléaire',sous:''},
+      {v:'seveso',lib:'Oui, un site Seveso seuil haut',sous:''},
+      {v:'souterrain',lib:'Oui, un stockage souterrain de produits dangereux',sous:''}
+    ],
+    lire:function(){ try{ return CSED.siteRisque||''; }catch(e){ return ''; } },
+    ecrire:function(v){ CSED.siteRisque=v; csedSave(); }
+  },
+  {
     k:'bdese', type:'choix',
     titre:'Avez-vous un dossier où les élus peuvent consulter les chiffres de l’entreprise ?',
     aide:'La loi l’appelle « BDESE ». C’est un classeur, papier ou informatique, où vous rangez les chiffres — emploi, salaires, investissements, environnement. Les élus doivent pouvoir y accéder quand ils veulent. Sans ce dossier, vous ne pouvez pas les consulter valablement.',
@@ -7002,8 +7042,10 @@ function guidePlan(){
         doc:['rcl','registre']});
     }
     if(eff>=50){
-      P.push({q:'Demandez trois fois par an l’avis des élus sur la marche de l’entreprise', d:'Une fois par an pour chacun des trois sujets',
-        p:'Les trois sujets : où va l’entreprise, comment elle se porte financièrement, et comment elle traite son personnel. Vous demandez l’avis ; vous n’êtes pas obligé de le suivre.',
+      var perG=1; try{ perG=(typeof cnsPeriodicite==='function')? cnsPeriodicite() : 1; }catch(e){}
+      P.push({q:'Demandez l’avis des élus sur la marche de l’entreprise', d:(perG>1?('Tous les '+perG+' ans pour chacun des trois sujets'):'Une fois par an pour chacun des trois sujets'),
+        p:'Les trois sujets : où va l’entreprise, comment elle se porte financièrement, et comment elle traite son personnel. Vous demandez l’avis ; vous n’êtes pas obligé de le suivre.'
+          +(perG>1?' Votre accord espace ces rendez-vous, ce que la loi permet dans la limite de trois ans.':''),
         page:'csecns'});
       var bd=''; try{ bd=CNS.bdese||''; }catch(e){}
       if(bd!=='oui'){
@@ -7015,6 +7057,67 @@ function guidePlan(){
     P.push({q:'Vérifiez qu’un référent harcèlement a été désigné', d:'',
       p:'Les élus doivent en choisir un parmi eux. C’est obligatoire quelle que soit la taille de l’entreprise.',
       page:'moncse'});
+  }
+
+  /* ── Ce qui s'ajoute quand l'entreprise grandit ──
+     Sans ces points, le plan serait faux pour une grande structure : il
+     donnerait a croire que tout est couvert alors qu'il manque l'essentiel. */
+  var N=function(k){ var v=0; try{ v=parseInt(CSED[k]||'0',10); }catch(e){} return isNaN(v)?0:v; };
+  var risque=''; try{ risque=CSED.siteRisque||''; }catch(e){}
+
+  if(risque && risque!=='non'){
+    P.push({q:'Créez la commission sécurité — c’est obligatoire chez vous', d:'Sans condition de taille',
+      p:'Vous avez une installation dangereuse sur un site. Cette commission s’occupe de la santé et de la sécurité. Elle doit s’ouvrir aux entreprises extérieures qui travaillent chez vous quand on y parle de règles de sécurité communes.',
+      page:'csediag'});
+  } else if(eff>=300){
+    P.push({q:'Créez la commission santé et sécurité', d:'Obligatoire à partir de 300 salariés',
+      p:'Une commission spécialisée, composée d’élus, qui prépare le travail du comité sur la sécurité et les conditions de travail.',
+      page:'csediag'});
+  }
+  if(eff>=300){
+    P.push({q:'Créez trois commissions supplémentaires', d:'Obligatoire à partir de 300 salariés',
+      p:'Une pour la formation, une pour l’égalité entre les femmes et les hommes, une pour le logement des salariés.',
+      page:'csediag'});
+    P.push({q:'Donnez aux élus des chiffres tous les trois mois', d:'Chaque trimestre',
+      p:'Les commandes, la production, les éventuels retards de paiement de cotisations, et l’évolution des effectifs mois par mois.',
+      page:'csehub'});
+  }
+  if(eff>=1000){
+    P.push({q:'Créez la commission économique', d:'Obligatoire à partir de 1 000 salariés',
+      p:'Elle examine les documents économiques et financiers de l’entreprise.',
+      page:'csediag'});
+  }
+  if(eff>2000){
+    P.push({q:'Versez 0,22 % de la masse salariale au comité pour son fonctionnement', d:'Chaque année',
+      p:'C’est 0,20 % en dessous de 2 000 salariés, 0,22 % au-dessus. Cette somme est distincte du budget des activités sociales.',
+      page:'csediag'});
+  }
+  if(N('etabs')>1){
+    P.push({q:'Mettez des élus sur chaque site, et une instance qui les réunit', d:'',
+      p:'Vous avez '+N('etabs')+' sites. Chacun a ses élus, et une instance centrale traite ce qui concerne toute l’entreprise. Le découpage se négocie avec les syndicats en priorité.',
+      page:'csediag'});
+  }
+  var grp=''; try{ grp=CSED.groupe||''; }catch(e){}
+  if(grp==='oui'){
+    P.push({q:'Mettez en place l’instance du groupe', d:'',
+      p:'Elle réunit des représentants de toutes les sociétés du groupe et reçoit l’information économique sur l’ensemble.',
+      page:'csediag'});
+  }
+  if(N('effEEE')>=1000){
+    P.push({q:'Mettez en place l’instance européenne', d:'',
+      p:'Vous avez '+N('effEEE')+' salariés en Europe. Si au moins 150 d’entre eux travaillent dans deux pays différents, une instance européenne s’impose. Elle se négocie avec des représentants de chaque pays.',
+      page:'csediag'});
+  }
+  if(N('effFR')>=1000 || N('effMonde')>=5000){
+    P.push({q:'Faites entrer des salariés au conseil d’administration', d:'',
+      p:'Au-delà de 1 000 salariés en France ou 5 000 dans le monde, sur deux exercices de suite, vos statuts doivent prévoir des administrateurs élus par les salariés. Deux au moins si votre conseil compte plus de huit membres.',
+      page:'csediag'});
+  }
+  var du=''; try{ du=CNS.durabilite||''; }catch(e){}
+  if(du==='oui'){
+    P.push({q:'Demandez aussi leur avis sur vos publications environnementales', d:'Une fois par an',
+      p:'Si vous publiez un rapport de durabilité, les élus doivent être consultés dessus — et aussi sur la façon dont vous récoltez et vérifiez ces chiffres. Vous pouvez le faire pendant l’un des trois rendez-vous annuels.',
+      page:'csecns'});
   }
 
   /* Les echeances reelles viennent completer le plan, dites simplement.
@@ -7031,6 +7134,7 @@ function guidePlan(){
     [/^Attributions etendues/, function(){ return {q:'Vos obligations envers les élus s’élargissent', p:'Votre effectif a franchi cinquante salariés : il faut désormais les consulter sur la marche de l’entreprise.'}; }],
     [/^Avis réputé négatif/, function(){ return {q:'Date limite pour que les élus donnent leur avis', p:'Passé ce jour, la loi considère qu’ils ont dit non, et vous pouvez avancer.'}; }],
     [/^Consultation due/, function(){ return {q:'Demandez leur avis aux élus', p:'C’est le rendez-vous annuel prévu par la loi.'}; }],
+    [/^Réunion préparée/, function(){ return {q:'La réunion que vous êtes en train de préparer', p:'Vérifiez que la liste des sujets est partie à temps.'}; }],
     [/^Fin du delai de six mois/, function(){ return {q:'À partir de cette date, on peut vous redemander un vote', p:'Six mois se sont écoulés depuis que la carence a été constatée.'}; }]
   ];
   function guideDire(t){
@@ -7067,7 +7171,7 @@ function hubVueGuide(){
     h+='<div class="card" style="border-color:#46b885">'
       +'<div style="font-size:10px;font-weight:800;color:#46b885;letter-spacing:.12em;margin-bottom:6px">VOTRE PLAN</div>'
       +'<div style="font-size:20px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:6px">Voici ce que vous devez faire</div>'
-      +'<div style="font-size:13px;color:#9fb0c4;line-height:1.6">Dans l’ordre. Chaque point est une action concrète ; les documents se génèrent d’un clic.</div>'
+      +'<div style="font-size:13px;color:#9fb0c4;line-height:1.6">'+P.length+' point(s), dans l’ordre. Chaque point est une action concrète ; les documents se génèrent d’un clic.</div>'
       +'</div>';
     P.forEach(function(x,i){
       h+='<div class="card" style="border-left:3px solid '+(x.fin?'#46b885':'#c9a84c')+'">'
@@ -7132,6 +7236,12 @@ function hubVueGuide(){
         +(o.sous?('<div style="font-size:12.5px;color:#9fb0c4;margin-top:3px;line-height:1.5">'+hubEsc(o.sous)+'</div>'):'')
         +'</button>';
     }).join('');
+  }
+  else if(e.type==='nombre'){
+    var n0=e.lire();
+    h+='<input type="number" min="0" value="'+hubEsc(n0||'')+'" onchange="guideRepDate(\''+e.k+'\',this.value)" style="font-size:19px;padding:14px;margin-bottom:12px">'
+      +'<button onclick="guideAller('+(_gPas+1)+')" style="width:100%;background:'+((n0||e.facultatif)?'#c9a84c':'#26374d')+';border:none;color:'+((n0||e.facultatif)?'#0f1f2e':'#9fb0c4')+';border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">'
+      +((n0||!e.facultatif)?'Continuer →':'Je ne sais pas encore →')+'</button>';
   }
   else if(e.type==='date'){
     var d0=e.lire();
