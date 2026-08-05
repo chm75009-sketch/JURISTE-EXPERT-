@@ -668,7 +668,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.112';
+var JX_BUILD = 'v2026-08-06.113';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -677,6 +677,10 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.113', d:'5 aout 2026', t:[
+   'COMPTE ADMINISTRATEUR — le compte du cabinet n\'est pas le dossier d\'une entreprise cliente : aucune fiche client ne lui est plus proposee ni rattachee, et son en-tete indique desormais « Mode administrateur · tous secteurs » au lieu d\'une raison sociale et d\'une convention collective.',
+   'PARAMETRAGE — la page indique sous quel compte la fiche affichee est enregistree, et un bouton permet de la retirer de ce compte seul : « Ce n\'est pas mon entreprise ». Les autres dossiers ouverts sur l\'appareil ne sont pas touches.'
+ ]},
  {v:'v2026-08-06.112', d:'5 aout 2026', t:[
    'CLOISONNEMENT DES DOSSIERS — un cabinet qui ouvre plusieurs dossiers depuis le meme navigateur voyait le client precedent rester affiche : son nom en haut de l\'ecran, sa convention collective, son dirigeant au bas des documents, et cela meme apres deconnexion et reconnexion avec un autre compte. La fiche entreprise, le secteur et la session en ligne sont desormais rattaches au compte, plus a l\'appareil.',
    'DECONNEXION — le code du client precedent restait en memoire apres la deconnexion : la sauvegarde en ligne s\'y reconnectait toute seule. La deconnexion efface maintenant le code, la session en ligne et la fiche affichee.',
@@ -3463,6 +3467,8 @@ Exemple :<br>
 <div class="fg"><label class="fl">Qualité</label><select id="p-qualite"><option>Gérant</option><option>Président</option><option>Directeur Général</option></select></div>
 <div class="fg"><label class="fl">Email</label><input type="email" id="p-email"/></div>
 <div class="fg"><label class="fl">Téléphone</label><input id="p-tel"/></div>
+<div id="p-fiche-compte" style="font-size:11.5px;color:#9a9585;margin-top:10px;line-height:1.6"></div>
+<button onclick="jxViderFiche()" style="margin-top:8px;padding:10px 14px;border:1px solid #7a4a4a;border-radius:9px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:12.5px;cursor:pointer;font-family:inherit">Ce n’est pas mon entreprise — retirer cette fiche de ce compte</button>
 </div>
 
 <div class="card">
@@ -5294,8 +5300,15 @@ function jxConventionClient(){
 }
 function updateHeroTop(){
   var c=jxConventionClient();
+  /* Le compte du cabinet n'a ni raison sociale ni convention a afficher :
+     il donne acces a tous les secteurs. L'annoncer evite de faire croire
+     qu'un dossier client est ouvert. */
+  var admin=false; try{ admin=(sessionStorage.getItem('jte_admin')==='1'); }catch(e){}
   var t=document.getElementById('top-nom');
-  if(t) t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+(c.libelle||'Convention non renseignée');
+  if(t){
+    if(admin && !(typeof E!=='undefined' && E && E.nom)) t.textContent='Mode administrateur · tous secteurs';
+    else t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+(c.libelle||'Convention non renseignée');
+  }
   var h=document.getElementById('hero-secteur');
   if(h){
     var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
@@ -12070,6 +12083,9 @@ function jxRepriseFiche(){
     if(a) return a;
     var vieux=localStorage.getItem('juris_transport');
     if(!vieux) return null;
+    /* Le compte administrateur est celui du cabinet, pas d'une entreprise
+       cliente : on ne lui propose jamais la fiche d'un dossier. */
+    if(jxCompte()==='admin') return null;
     var refus='jx_fiche_refus::'+jxCompte();
     try{ if(localStorage.getItem(refus)==='1') return null; }catch(_){}
     var nom=''; try{ nom=(JSON.parse(vieux)||{}).nom||''; }catch(_){}
@@ -12087,6 +12103,30 @@ function jxRepriseFiche(){
     localStorage.removeItem('juris_transport');
     return vieux;
   }catch(e){ return null; }
+}
+/* Retire la fiche entreprise du compte connecte, et de lui seul : les autres
+   dossiers ouverts sur cet appareil ne sont pas touches. */
+function jxViderFiche(){
+  var nom=(typeof E!=='undefined'&&E&&E.nom)?E.nom:'';
+  if(!confirm('Retirer la fiche'+(nom?(' « '+nom+' »'):'')+' du compte « '+jxCompte()+' » ?\n\n'
+    +'Les autres dossiers ouverts sur cet appareil ne sont pas touches. Cette action ne supprime rien en ligne.')) return;
+  try{ localStorage.removeItem(jxEntKey()); }catch(e){}
+  try{ localStorage.removeItem('juris_transport'); }catch(e){}
+  try{ localStorage.setItem('jx_fiche_refus::'+jxCompte(),'1'); }catch(e){}
+  try{ E={ nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'marchandises', email:'', tel:'', effectif:'moins11', org:'fntr', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'' }; }catch(e){}
+  try{ chargerParametres(); }catch(e){}
+  try{ updateHeroTop(); }catch(e){}
+  try{ jxFicheCompte(); }catch(e){}
+  alert('Fiche retiree de ce compte.');
+}
+/* Dit sous quel compte la fiche affichee est enregistree : sur un appareil
+   qui sert a plusieurs dossiers, c'est la seule facon de le savoir. */
+function jxFicheCompte(){
+  var z=document.getElementById('p-fiche-compte'); if(!z) return;
+  var nom=(typeof E!=='undefined'&&E&&E.nom)?E.nom:'';
+  z.innerHTML='Cette fiche est enregistrée sous le compte <b>'+String(jxCompte()).replace(/[<>&]/g,'')+'</b>'
+    +(nom?(' et porte la raison sociale <b>'+String(nom).replace(/[<>&]/g,'')+'</b>'):' et ne porte encore aucune raison sociale')
+    +'. Elle n’est visible d’aucun autre dossier ouvert sur cet appareil.';
 }
 function initApp(){
   try{
@@ -17931,6 +17971,7 @@ ${docPiedPage('Art. L.121-6 C. route — Désignation obligatoire dans les 45 jo
 // PARAMÉTRAGE
 // ═══════════════════════════════════════
 function chargerParametres(){
+  try{ jxFicheCompte(); }catch(e){}
   ['nom','siret','adresse','dirigeant','email','tel','licence','gestionnaire','dreal','cph','spst','retraite','mutuelle'].forEach(k=>{
     const el=document.getElementById('p-'+k);
     if(el&&E[k])el.value=E[k];

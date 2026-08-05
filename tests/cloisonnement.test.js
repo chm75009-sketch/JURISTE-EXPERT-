@@ -13,7 +13,8 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
 (async () => {
   const nav = await chromium.launch(require('fs').existsSync(CHROME) ? { executablePath: CHROME } : {});
   const page = await (await nav.newContext()).newPage();
-  page.on('dialog', d => d.dismiss());          // aucune reprise n'est acceptée
+  const dialogues = [];
+  page.on('dialog', d => { dialogues.push(d.message()); d.dismiss(); });
   await page.goto(URL, { waitUntil: 'load' });
   await page.waitForTimeout(900);
 
@@ -63,6 +64,10 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
      await page.evaluate(() => (typeof E !== 'undefined' ? E.dirigeant : null)));
   ok(await page.evaluate(() => rxAccountId()) === 'admin', 'le compte actif est bien « admin »');
   ok(await page.evaluate(() => appGetSecteur()) === '', 'aucun secteur hérité');
+  ok(/Mode administrateur/i.test(h2), 'l’en-tête dit ce qu’est ce compte', h2);
+  ok(!dialogues.some(m => /TEC/i.test(m)),
+     'aucune proposition de reprendre la fiche du client sur le compte du cabinet',
+     dialogues.join(' | '));
   console.log('  clés    : ' + JSON.stringify(await page.evaluate(
     () => Object.keys(localStorage).filter(k => /juris_transport|app_secteur/.test(k)))));
 
