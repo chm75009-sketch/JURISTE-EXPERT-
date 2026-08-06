@@ -69,7 +69,7 @@ const ok = (c, m, d) => {
     const src = fs.readFileSync(path.resolve(__dirname, '..', f), 'utf8');
     const liens = (src.replace(/<!--[\s\S]*?-->/g, '').match(/avocat-aj/g) || []).length;
     if (f === 'index.html')
-      ok(liens === 2, 'deux accès voulus : l\'accueil avant connexion, et l\'accueil de l\'application',
+      ok(liens === 1, 'un seul accès au site, et il est réservé à l\'administrateur',
         liens + ' occurrence(s)');
     else
       ok(liens === 0, 'aucun renvoi vers le site depuis : ' + f);
@@ -211,6 +211,31 @@ const ok = (c, m, d) => {
   ok(!(await etroit.locator('#av-pv').isDisabled()),
     'une fois défilé, la flèche gauche s\'allume');
   await etroit.close();
+
+
+  /* ── 4 bis. L'accès au cabinet est réservé à l'administrateur ───────── */
+  console.log('\n— L\'accès depuis Juris Expert —');
+  {
+    const app = 'file://' + path.resolve(__dirname, '..', 'index.html');
+    for (const [role, admin] of [['un abonné', false], ['l\'administrateur', true]]) {
+      const q = await (await nav.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+      await q.goto(app, { waitUntil: 'load' });
+      await q.waitForTimeout(700);
+      await q.evaluate(a => {
+        sessionStorage.setItem('jte_ok', '1');
+        if (a) sessionStorage.setItem('jte_admin', '1'); else sessionStorage.removeItem('jte_admin');
+        document.getElementById('pg-inscription').style.display = 'none';
+        document.getElementById('pg-app').style.display = 'block';
+        document.getElementById('accueil-screen').style.display = 'none';
+        if (typeof jxGardeAdmin === 'function') jxGardeAdmin();
+        goPage('home');
+      }, admin);
+      await q.waitForTimeout(300);
+      const vu = await q.locator('#lien-cabinet-admin').isVisible();
+      ok(vu === admin, 'pour ' + role + ', l\'accès est ' + (admin ? 'visible' : 'masqué'));
+      await q.close();
+    }
+  }
 
   /* ── 5 bis. Le calculateur de délais ────────────────────────────────── */
   console.log('\n— Le délai qui court —');

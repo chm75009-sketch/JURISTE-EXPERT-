@@ -816,11 +816,6 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       <span class="fmaj"><span class="dot"></span>Base juridique à jour au 12 juillet 2026</span><br>
       Conçu par <b>Mounir CHIKHAOUI</b><br>
       Outil d'aide à la décision — ne constitue pas un conseil juridique (loi n° 71-1130 du 31/12/1971).
-      <!-- Accès au site du cabinet CJ AVOCATS. Il vit dans le même dépôt, donc
-           il se met en ligne par le même déploiement : une modification poussée
-           ici est en ligne sans aucune manipulation. Le lien reste discret —
-           une ligne de pied de page, aucune entrée de menu. -->
-      <br><a class="lien-cabinet" href="./avocat-aj/">Cabinet CJ Avocats — Maître A. J., Argenteuil →</a>
     </footer>
   </div>
 </div>
@@ -2053,7 +2048,7 @@ try{
 
   <!-- Accès au site du cabinet CJ AVOCATS, depuis l'accueil de l'application.
        Même dépôt, donc même déploiement : ce qui est poussé est en ligne. -->
-  <a href="./avocat-aj/" style="display:flex;align-items:center;gap:11px;margin-top:22px;
+  <a id="lien-cabinet-admin" href="./avocat-aj/" style="display:none;align-items:center;gap:11px;margin-top:22px;
      padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);
      border:1px solid rgba(232,201,122,.28);text-decoration:none;color:#e8c97a;
      font-size:13.5px;font-weight:700">
@@ -15725,6 +15720,10 @@ function jxGardeAdmin(){
     var e=document.getElementById(id);
     if(e && !a) e.style.display='none';
   });
+  /* L'acces au site du cabinet est reserve a l'administrateur : il part
+     masque dans le HTML et n'est montre qu'ici, une fois la session connue. */
+  try{ var lc=document.getElementById('lien-cabinet-admin');
+       if(lc) lc.style.display = a ? 'flex' : 'none'; }catch(e){}
   return a;
 }
 function jxRefusAdmin(){
