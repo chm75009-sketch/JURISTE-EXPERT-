@@ -517,6 +517,22 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .fam-carte .cb{position:absolute;left:13px;bottom:11px;font-size:10.5px;font-weight:800;
   color:rgba(255,255,255,.75);letter-spacing:.05em;text-transform:uppercase}
 
+/* Les modules mis de cote faute d'effectif suffisant. */
+.fam-hors{margin-top:18px;border:1px dashed rgba(255,255,255,.16);border-radius:13px;
+  background:rgba(255,255,255,.025)}
+.fam-hors>summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:12.5px;
+  font-weight:700;color:#9fb0c4}
+.fam-hors>summary::-webkit-details-marker{display:none}
+.fam-hors>summary::before{content:"▸ ";color:#c9a84c}
+.fam-hors[open]>summary::before{content:"▾ "}
+.fam-hors-l{display:grid;gap:7px;padding:0 12px 4px}
+.fam-hors-l button{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);cursor:pointer;
+  font-family:inherit;color:#cfd8e3}
+.fam-hors-l .hl{display:block;font-size:13px;font-weight:700;color:#e2e8ef;line-height:1.3}
+.fam-hors-l .hs{display:block;font-size:11.5px;color:#8fa0b4;margin-top:3px}
+.fam-hors-n{padding:8px 14px 12px;font-size:11.5px;color:#7f8fa3;line-height:1.55}
+
   #abo-screen .jx-fermer{border-color:rgba(60,48,24,.28);background:rgba(255,253,247,.94);color:#23282b;
     box-shadow:0 2px 12px rgba(60,48,24,.16)}
 </style>
@@ -934,7 +950,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.130';
+var JX_BUILD = 'v2026-08-06.131';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -943,6 +959,15 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.131', d:'6 aout 2026', t:[
+   'TOUS LES SEUILS D\'EFFECTIF, TOUTES BRANCHES. La liste proposee a la creation du dossier s\'arretait a « 250 salaries et plus ». Au-dessus, le droit du travail continue de compter : 300 (commissions du comite, bilan social, GEPP), 500 (infirmier, dispositif anticorruption), 750 (bareme du handicap), 1 000 (conge de reclassement, administrateurs salaries, comite europeen), 2 000 (subvention portee a 0,22 %), 5 000 (second administrateur salarie), et le bareme du nombre d\'elus monte jusqu\'a 10 000 (R.2314-1). Treize tranches, une par seuil, qui se suivent sans trou.',
+   'Chaque obligation est citee avec son article. Trente-et-une d\'entre elles sont controlees par un test, seuil par seuil et article par article.',
+   'DEUX REGLES DE FRANCHISSEMENT, QUI NE SE CONFONDENT PAS. Le comite social et economique se compte sur DOUZE MOIS consecutifs (L.2312-2). L\'effectif « securite sociale » — cotisations, participation, obligation d\'emploi, local de restauration — se compte sur CINQ ANNEES CIVILES consecutives (L.130-1 du code de la securite sociale, depuis la loi PACTE). Un franchissement a la baisse produit son effet des la premiere annee.',
+   'LES MODULES SUIVENT LA TAILLE DE L\'ENTREPRISE. A neuf salaries, les huit modules qui supposent un comite sont mis de cote ; a onze, les elections reviennent ; les consultations recurrentes et les budgets attendent cinquante. Rien n\'est supprime : les modules mis de cote restent consultables, sous un intitule qui dit a partir de quel effectif ils s\'appliquent et sur quel article. Effectif inconnu : rien n\'est masque — l\'application ne suppose pas.',
+   'Des que le registre du personnel est tenu, c\'est lui qui fait foi : l\'effectif est calcule (L.1111-2 et L.1111-3), la tranche declaree ne sert plus.',
+   'LE MODULE « MON EFFECTIF ET MES SEUILS » les affiche tous, avec ce que chacun declenche, l\'article qui le dit, et lesquels sont atteints — il n\'en montrait que deux, 11 et 50. Il s\'affiche desormais meme quand le registre est vide : c\'est justement le moment ou on vient le consulter.',
+   'Ce qui n\'est pas en vigueur n\'est pas presente comme une obligation : le seuil de 100 salaries de la directive (UE) 2023/970 sur la transparence salariale figure a part, comme annonce, sa transposition francaise n\'etant pas publiee a ce jour.'
+ ]},
  {v:'v2026-08-06.130', d:'6 aout 2026', t:[
    'CORRECTIF IMPORTANT — UN DOSSIER PAR SECTEUR D\'ESSAI. Signale : « je suis dans assurance, il vient d\'ou cet effectif de 72 ? ». Il venait du registre du personnel — 83 inscrits — saisi en essayant un AUTRE secteur. Le compte du cabinet ne designait qu\'un seul dossier, quel que soit le secteur ouvert : le registre, l\'effectif, les seuils, les budgets et la fiche entreprise etaient partages entre tous les essais. Changer de secteur changeait la convention citee, pas le dossier ouvert.',
    'Chaque secteur essaye a desormais son dossier. Ouvrir « Assurances » apres « Banque » donne un registre vide, aucun effectif, aucune fiche — et revenir sur « Banque » retrouve tout, intact. Un compte CLIENT ne change pas : son secteur est fixe par son code, il n\'a qu\'un dossier.',
@@ -3953,6 +3978,9 @@ Exemple :<br>
 <div class="fg"><label class="fl">Activité principale</label>
 <select id="p-activite" onchange="try{jxAutreMaj('p-activite','p-activite-autre')}catch(e){}"><option value="">— À préciser —</option><option value="autre">Autre — préciser</option></select>
 <input id="p-activite-autre" placeholder="Précisez votre activité principale" style="display:none;margin-top:6px"/></div>
+<div class="fg"><label class="fl">Effectif</label>
+<select id="p-effectif" onchange="try{sauvegarderParametres();famRender()}catch(e){}"><option value="">— À préciser —</option></select>
+<div class="fh">Il commande ce que l’application vous montre : les modules dont le seuil n’est pas atteint sont mis de côté, jamais supprimés. Dès que le registre du personnel est tenu, c’est lui qui fait foi — l’effectif est alors calculé, pas déclaré (L.1111-2 et L.1111-3).</div></div>
 <div class="fg"><label class="fl">Organisation patronale</label>
 <select id="p-org" onchange="try{jxAutreMaj('p-org','p-org-autre')}catch(e){}"><option value="">— À préciser —</option><option value="autre">Autre — préciser</option></select>
 <input id="p-org-autre" placeholder="Précisez votre organisation patronale" style="display:none;margin-top:6px"/></div>
@@ -6834,7 +6862,11 @@ function socRenderEffectif(c){
   if(!staff.length){
     c.innerHTML='<div class="card"><div class="ct">S.2 · Moteur d\'effectif</div>'
      +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65">Le registre du personnel est vide. L\'effectif se calcule sur les salaries inscrits : il n\'y a rien a calculer tant que le registre n\'est pas rempli.</div>'
-     +'<div style="margin-top:12px"><button class="btn" onclick="socGoRegistre()">Ouvrir l\'Espace RH</button></div></div>';
+     +'<div style="margin-top:12px"><button class="btn" onclick="socGoRegistre()">Ouvrir l\'Espace RH</button></div></div>'
+     /* Le tableau des seuils ne depend pas du registre : c'est la reference,
+        et c'est justement ce qu'on vient chercher quand on n'a encore rien
+        saisi. Il s'affichait auparavant apres ce point de sortie. */
+     + socTousSeuils([]);
     return;
   }
   var t=new Date();
@@ -6887,6 +6919,9 @@ function socRenderEffectif(c){
   }
   h+='</div>';
 
+  /* Tous les seuils, toutes branches — pas seulement ceux du comite. */
+  h+= socTousSeuils(serie);
+
   /* Courbe 36 mois */
   h+='<div class="card"><div class="ct">Effectif mois par mois (36 mois glissants)</div>'
    + socGraphe(serie)
@@ -6904,6 +6939,52 @@ function socRenderEffectif(c){
    +'</div>';
 
   c.innerHTML=h;
+}
+/* La liste complete des seuils. Elle est construite depuis JX_SEUILS, et de
+   lui seul : le tableau est la source unique, ici comme sur la fiche
+   d'entreprise et comme pour le filtrage des modules. */
+function socTousSeuils(serie){
+  var eff=null;
+  try{ if(serie && serie.length) eff=serie[serie.length-1].ent; }catch(e){}
+  if(eff===null){ try{ eff=cseEffectif(); }catch(e){} }
+  var h='<div class="card"><div class="ct">Tous les seuils du droit du travail</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
+   +(eff===null
+      ? 'Votre effectif n’est pas connu : aucun seuil n’est déclaré atteint. Tenez le registre du personnel, ou saisissez l’effectif du dernier exercice clos.'
+      : 'Effectif retenu : <b>'+eff+'</b>. Les seuils atteints sont marqués.')
+   +'</div>';
+  JX_SEUILS.forEach(function(x){
+    var atteint=(eff!==null && eff>=x.n);
+    h+='<div style="margin-bottom:9px;padding:11px 12px;border-radius:11px;'
+      +(atteint?'border:1px solid rgba(90,180,130,.45);background:rgba(90,180,130,.09)'
+               :'border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.025)')+'">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">'
+      +'<span style="font-size:13.5px;font-weight:800;color:'+(atteint?'#8fe0b4':'#e2e8ef')+'">'
+      +(atteint?'✓ ':'')+socEsc(x.lib)+'</span>'
+      +(eff!==null&&!atteint?'<span style="font-size:11.5px;color:#7f8fa3">non atteint</span>':'')
+      +'</div>';
+    if(x.regle) h+='<div style="font-size:11.5px;color:#8fa0b4;margin-top:3px">Franchissement : '+socEsc(x.regle)+'</div>';
+    h+='<ul style="margin:7px 0 0;padding-left:17px;font-size:12.5px;color:#cfd8e3;line-height:1.65">';
+    x.o.forEach(function(p){
+      h+='<li>'+socEsc(p[0])+' <span style="color:#8fa0b4;font-size:11.5px">('+socEsc(p[1])+')</span></li>';
+    });
+    h+='</ul></div>';
+  });
+  /* Ce qui est annonce mais pas en vigueur est presente comme tel. */
+  JX_SEUILS_AVENIR.forEach(function(x){
+    h+='<div style="margin-bottom:9px;padding:11px 12px;border-radius:11px;'
+      +'border:1px dashed rgba(224,168,58,.45);background:rgba(224,168,58,.07)">'
+      +'<div style="font-size:13.5px;font-weight:800;color:#e0a83a">'+socEsc(x.lib)+'</div>'
+      +'<ul style="margin:7px 0 0;padding-left:17px;font-size:12.5px;color:#cfd8e3;line-height:1.65">';
+    x.o.forEach(function(p){ h+='<li>'+socEsc(p[0])+'</li>'; });
+    h+='</ul></div>';
+  });
+  h+='<div style="font-size:11.5px;color:#7f8fa3;line-height:1.6;margin-top:10px">'
+   +'Deux règles de franchissement, à ne pas confondre : le comité social et économique se compte sur <b>douze mois consécutifs</b> (L.2312-2) ; '
+   +'l’effectif « sécurité sociale » — cotisations, participation, obligation d’emploi — sur <b>cinq années civiles consécutives</b> (L.130-1 du code de la sécurité sociale, depuis la loi PACTE du 22 mai 2019). '
+   +'Un franchissement à la baisse produit son effet dès la première année.'
+   +'</div></div>';
+  return h;
 }
 function socScrollDetail(){ var e=document.getElementById('soc-detail'); if(e) e.scrollIntoView({behavior:'smooth',block:'start'}); }
 function socSetDuree(v){ var n=parseFloat(String(v).replace(',','.')); SOC.duree=(n&&n>0)?n:35; socSave(); socRender(); }
@@ -7110,6 +7191,149 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
 /* Un chiffre sans origine ne vaut rien : « il vient d'ou, cet effectif ? »
    etait la question, et l'application ne repondait nulle part. Elle renvoie
    maintenant le nombre ET sa source. */
+/* ══════════════════════════════════════════════════════════════════════
+   LES SEUILS D'EFFECTIF — TOUTES BRANCHES
+   La liste proposee a la creation du dossier s'arretait a « 250 salaries et
+   plus ». Au-dessus, le droit du travail continue de compter : 300 pour les
+   commissions du comite, 500 pour l'infirmier et le dispositif
+   anticorruption, 750 pour le bareme du handicap, 1 000 pour le conge de
+   reclassement et les administrateurs salaries, 2 000 pour la subvention de
+   0,22 %, 5 000 pour le second administrateur salarie, et le bareme du
+   nombre d'elus (R.2314-1) monte jusqu'a « 10 000 et plus ».
+
+   DEUX REGLES DE FRANCHISSEMENT, a ne pas confondre :
+     — CSE : douze mois consecutifs (L.2312-2) ;
+     — effectif « securite sociale » (cotisations, participation, OETH,
+       FNAL...) : cinq annees civiles consecutives (L.130-1 du code de la
+       securite sociale, depuis la loi PACTE du 22 mai 2019).
+   Un franchissement a la baisse produit son effet des la premiere annee.
+   ══════════════════════════════════════════════════════════════════════ */
+var JX_SEUILS=[
+ {n:1, lib:'Dès le premier salarié', regle:'', o:[
+   ['Document unique d’évaluation des risques professionnels','R.4121-1'],
+   ['Registre unique du personnel','L.1221-13'],
+   ['Adhésion à un service de prévention et de santé au travail','L.4622-1'],
+   ['Désignation d’un salarié compétent en santé et sécurité','L.4644-1'],
+   ['Affichages obligatoires — horaires, sécurité, harcèlement, égalité, inspection du travail','D.3171-2, L.1153-5'],
+   ['Prise en charge de 50 % de l’abonnement de transport public','L.3261-2'],
+   ['Complémentaire santé collective','L.911-7 c. séc. soc.'],
+   ['Organisation des secours et matériel de premiers soins','R.4224-14']
+ ]},
+ {n:11, lib:'11 salariés', regle:'douze mois consécutifs (L.2312-2)', o:[
+   ['Mise en place du comité social et économique — élections obligatoires','L.2311-2'],
+   ['Versement mobilité','L.2333-64 CGCT']
+ ]},
+ {n:20, lib:'20 salariés', regle:'cinq années civiles consécutives (L.130-1 c. séc. soc.)', o:[
+   ['Obligation d’emploi de travailleurs handicapés — 6 % de l’effectif','L.5212-1, L.5212-2'],
+   ['Déclaration de l’obligation d’emploi par la DSN','L.5212-5']
+ ]},
+ {n:50, lib:'50 salariés', regle:'CSE : douze mois (L.2312-2) — le reste : cinq années civiles (L.130-1 c. séc. soc.)', o:[
+   ['CSE : attributions élargies, consultations récurrentes, droit d’alerte, recours à l’expert','L.2312-8, L.2312-17'],
+   ['Budget de fonctionnement du CSE — 0,20 % de la masse salariale','L.2315-61'],
+   ['Règlement intérieur','L.1311-2'],
+   ['Base de données économiques, sociales et environnementales','L.2312-18'],
+   ['Participation aux résultats de l’entreprise','L.3322-2'],
+   ['Index de l’égalité professionnelle entre les femmes et les hommes','L.1142-8'],
+   ['Délégué syndical','L.2143-3'],
+   ['Plan de sauvegarde de l’emploi — à partir de 10 licenciements sur 30 jours','L.1233-61'],
+   ['Local de restauration','R.4228-22']
+ ]},
+ {n:200, lib:'200 salariés', regle:'', o:[
+   ['Local syndical commun mis à disposition des sections','L.2142-8'],
+   ['Infirmier en établissement industriel','R.4623-32']
+ ]},
+ {n:250, lib:'250 salariés', regle:'cinq années civiles consécutives (L.130-1 c. séc. soc.)', o:[
+   ['Référent handicap','L.5213-6-1'],
+   ['Contribution supplémentaire à l’apprentissage, si le quota d’alternants n’est pas atteint','art. 1609 quinvicies CGI']
+ ]},
+ {n:300, lib:'300 salariés', regle:'', o:[
+   ['Commission santé, sécurité et conditions de travail','L.2315-36'],
+   ['Commission de la formation','L.2315-49'],
+   ['Commission de l’égalité professionnelle','L.2315-56'],
+   ['Commission d’information et d’aide au logement','L.2315-50'],
+   ['Commission économique','L.2315-46'],
+   ['Bilan social annuel','L.2312-28'],
+   ['Négociation sur la gestion des emplois et des parcours professionnels, tous les trois ans','L.2242-2'],
+   ['Information trimestrielle du comité','L.2312-69']
+ ]},
+ {n:500, lib:'500 salariés', regle:'', o:[
+   ['Infirmier dans les établissements autres qu’industriels','R.4623-32'],
+   ['Dispositif de prévention de la corruption — seulement si le chiffre d’affaires dépasse aussi 100 M€, les deux conditions étant cumulatives','loi n°2016-1691 du 9 déc. 2016, art. 17']
+ ]},
+ {n:750, lib:'750 salariés', regle:'', o:[
+   ['Contribution handicap portée à 600 fois le SMIC horaire par bénéficiaire manquant','barème de l’obligation d’emploi']
+ ]},
+ {n:1000, lib:'1 000 salariés', regle:'', o:[
+   ['Congé de reclassement en licenciement économique','L.1233-71'],
+   ['Administrateurs salariés au conseil d’administration','L.225-27-1 c. com.'],
+   ['Local syndical propre à chaque section','L.2142-8'],
+   ['Comité d’entreprise européen — si 150 salariés au moins dans deux États','L.2341-1'],
+   ['Publication des écarts de représentation femmes-hommes parmi les cadres dirigeants','L.1142-11']
+ ]},
+ {n:2000, lib:'2 000 salariés', regle:'', o:[
+   ['Subvention de fonctionnement du CSE portée à 0,22 % de la masse salariale','L.2315-61']
+ ]},
+ {n:5000, lib:'5 000 salariés', regle:'', o:[
+   ['Second administrateur salarié — seuil apprécié dans le monde','L.225-27-1 c. com.']
+ ]},
+ {n:10000, lib:'10 000 salariés', regle:'', o:[
+   ['Dernière tranche du barème du nombre d’élus au comité','R.2314-1']
+ ]}
+];
+/* Annonce, pas encore en vigueur : ne pas la presenter comme une obligation.
+   La directive (UE) 2023/970 vise les entreprises d'au moins 100 salaries ;
+   sa transposition francaise n'est pas publiee a ce jour. */
+var JX_SEUILS_AVENIR=[
+ {n:100, lib:'100 salariés — à venir', o:[
+   ['Publication des écarts de rémunération femmes-hommes — directive (UE) 2023/970, transposition française non publiée à ce jour','directive (UE) 2023/970']
+ ]}
+];
+
+/* Les tranches proposees a la creation du dossier : une borne par seuil, et
+   pas une de plus. « 250 et plus » regroupait a tort tout ce qui suit. */
+function jxTranches(){
+  var B=JX_SEUILS.map(function(x){ return x.n; }), L=[];
+  B.forEach(function(n,i){
+    var suiv=B[i+1];
+    /* Un espace insecable tous les trois chiffres : « 1 000 », pas « 1000 ». */
+    var f=function(x){ return String(x).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f'); };
+    L.push({ v:String(n), min:n, max:suiv? (suiv-1) : null,
+      lib: suiv ? (f(n)+' à '+f(suiv-1)+' salariés') : (f(n)+' salariés et plus') });
+  });
+  L[0].lib='1 à 10 salariés';
+  return L;
+}
+function jxTranchesMaj(){
+  var e=document.getElementById('ins-effectif'); if(!e) return;
+  var garde=e.value;
+  var h='<option value="">— À préciser —</option>';
+  jxTranches().forEach(function(t){ h+='<option value="'+t.v+'">'+t.lib+'</option>'; });
+  e.innerHTML=h;
+  if(garde) e.value=garde;
+}
+try{ jxTranchesMaj(); }catch(e){}
+
+/* Le plus grand effectif que l'entreprise puisse avoir, d'apres ce qu'on
+   sait d'elle. Il sert a masquer ce qui ne peut PAS s'appliquer — jamais a
+   affirmer ce qui s'applique. Inconnu : on ne masque rien. */
+function jxEffectifMax(){
+  try{
+    var n=(typeof cseEffectif==='function')?cseEffectif():null;
+    if(n!==null && isFinite(n)) return n;                 // calcule : on le connait
+    var d=(typeof E!=='undefined' && E && E.effectif)?String(E.effectif):'';
+    if(!d) return null;
+    var t=null; jxTranches().forEach(function(x){ if(x.v===d) t=x; });
+    if(!t) return null;
+    return (t.max===null) ? Infinity : t.max;             // borne haute de la tranche
+  }catch(e){ return null; }
+}
+/* Ce que le seuil declenche, en une phrase — pour dire pourquoi une carte
+   est mise de cote plutot que de la faire disparaitre sans explication. */
+function jxSeuilLib(n){
+  var o=null; JX_SEUILS.forEach(function(x){ if(x.n===n) o=x; });
+  return o ? o.lib : (n+' salariés');
+}
+
 function cseEffectifSource(){
   try{
     if(typeof socLoad==='function') socLoad();
@@ -7426,6 +7650,16 @@ function insProfilMaj(){
 function parProfilMaj(){
   var v=''; try{ v=secCourant(); }catch(e){}
   var p=secProfil(v);
+  /* Les memes tranches que sur la fiche de creation : une seule source. */
+  try{
+    var pe=document.getElementById('p-effectif');
+    if(pe && typeof jxTranches==='function'){
+      var h='<option value="">— À préciser —</option>';
+      jxTranches().forEach(function(t){ h+='<option value="'+t.v+'">'+t.lib+'</option>'; });
+      pe.innerHTML=h;
+      pe.value=((typeof E!=='undefined'&&E&&E.effectif)?E.effectif:'')||'';
+    }
+  }catch(e){}
   var e=document.getElementById('p-sub');
   if(e) e.textContent='Coordonnées · Activité · '+(p.autor?'Autorisations':'Organismes sociaux');
   var ea=(typeof E!=='undefined'&&E)?E:{};
@@ -7697,13 +7931,48 @@ function famEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){r
    vehicules et les echeances des conducteurs ne concernent pas une banque.
    Tant qu'aucun secteur n'est choisi, on affiche tout : on ne cache rien sur
    une supposition. */
+/* A partir de quel effectif un module a un sens. Seuls y figurent les
+   modules dont le seuil est ecrit dans un texte, cite en regard. Un module
+   absent de cette table s'affiche toujours : dans le doute, on montre. */
+var FAM_SEUIL={
+  cse:     [11,'L.2311-2'],    // organiser les elections
+  csedos:  [11,'L.2311-2'],    // les pieces de chaque etape des elections
+  moncse:  [11,'L.2311-2'],    // composition, bureau, referent
+  csecal:  [11,'L.2315-27'],   // calendrier des reunions
+  csereu:  [11,'L.2315-27'],   // preparer une reunion
+  csercl:  [11,'L.2312-5'],    // reclamations
+  csecns:  [50,'L.2312-17'],   // consultations recurrentes
+  csebud:  [50,'L.2315-61'],   // budgets
+  ri:      [50,'L.1311-2']     // reglement interieur
+  /* Volontairement absents : « Mon effectif et mes seuils » et « Ou en
+     suis-je ? » — ce sont eux qui repondent a la question du seuil, les
+     masquer sous onze salaries serait absurde. Et « Licenciement economique
+     et PSE » : le licenciement economique n'a pas de seuil, seul le plan de
+     sauvegarde en a un. */
+};
+/* Vrai quand le module ne PEUT PAS s'appliquer, au vu de ce qu'on sait de
+   l'effectif. Effectif inconnu : rien n'est mis de cote. */
+function famHorsTaille(c){
+  try{
+    var sl=FAM_SEUIL[c&&c.page]; if(!sl) return false;
+    var m=jxEffectifMax(); if(m===null) return false;
+    return m < sl[0];
+  }catch(e){ return false; }
+}
 function famConcerne(c){
   if(!c || !c.secteurs || !c.secteurs.length) return true;
   var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
   if(!s){ try{ s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); }catch(e){} }
   return !s || c.secteurs.indexOf(s)>=0;
 }
-function famCartes(g){ return (g.cartes||[]).filter(famConcerne); }
+function famCartes(g){ return (g.cartes||[]).filter(famConcerne).filter(function(c){ return !famHorsTaille(c); }); }
+/* Les modules mis de cote pour cette taille d'entreprise — pas perdus. */
+function famCartesHors(f){
+  var L=[]; (f.groupes||[]).forEach(function(g){
+    (g.cartes||[]).filter(famConcerne).forEach(function(c){ if(famHorsTaille(c)) L.push(c); });
+  });
+  return L;
+}
 function famNb(f){ var n=0; (f.groupes||[]).forEach(function(g){ n+=famCartes(g).length; }); return n; }
 /* Une couleur par carte : c'est ce qui les rend distinguables d'un coup
    d'oeil. Toutes de la meme couleur, elles se confondent. */
@@ -7787,6 +8056,24 @@ function famRender(){
       });
       h+='</div>';
     });
+    /* Ce qui ne s'applique pas a cette taille : mis de cote, jamais efface,
+       avec le seuil et l'article qui le commandent. */
+    var _hors=famCartesHors(f);
+    if(_hors.length){
+      var _m=jxEffectifMax();
+      h+='<details class="fam-hors"><summary>'
+        +_hors.length+' module'+(_hors.length>1?'s':'')+' ne vous concerne'+(_hors.length>1?'nt':'')+' pas à '
+        +(_m===Infinity?'cet effectif':(_m+' salarié'+(_m>1?'s':'')))+'</summary>'
+        +'<div class="fam-hors-l">';
+      _hors.forEach(function(c){
+        var sl=FAM_SEUIL[c.page];
+        h+='<button onclick="goPage(\''+c.page+'\')">'
+          +'<span class="hl">'+famEsc(c.lib)+'</span>'
+          +'<span class="hs">à partir de '+sl[0]+' salariés — '+famEsc(sl[1])+'</span></button>';
+      });
+      h+='</div><div class="fam-hors-n">Rien n’est supprimé : ces modules restent consultables. '
+        +'Ils sont mis de côté parce que le seuil qui les déclenche n’est pas atteint.</div></details>';
+    }
   }
   h+='</div>';
   z.innerHTML=h;
@@ -14626,6 +14913,8 @@ function validerInscription(){
   E.activiteAutre=gv('ins-activite-autre')||'';
   E.email=gv('ins-email')||'';
   E.tel=gv('ins-tel')||'';
+  /* La tranche d'effectif commande ce qui est affiche : elle est relue par
+     famHorsTaille() a chaque rendu de l'accueil. */
   E.effectif=gv('ins-effectif')||'';
   E.org=gv('ins-org')||'';
   E.orgAutre=gv('ins-org-autre')||'';
@@ -20566,6 +20855,7 @@ function sauvegarderParametres(){
   E.qualite=gv('p-qualite')||E.qualite;
   E.activite=gv('p-activite')||'';
   E.org=gv('p-org')||'';
+  E.effectif=gv('p-effectif')||'';
   try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
   updateHeroTop();
   show('p-saved');

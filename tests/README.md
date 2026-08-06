@@ -12,6 +12,7 @@ node tests/garde.test.js          # l'admin reste l'admin, l'effectif d'abord, l
 node tests/retour.test.js         # AUCUNE page sans retour — les 42 sont ouvertes et vérifiées
 node tests/fiche.test.js          # la fiche entreprise suit le secteur choisi, secteur par secteur
 node tests/presentation.test.js   # la mise en page, mesurée en pixels sur un téléphone
+node tests/seuils.test.js         # tous les seuils d'effectif, et les modules qui s'y adaptent
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
@@ -245,6 +246,39 @@ Ce qu'il a fallu corriger, et ce qu'il garde :
 Il vérifie aussi qu'**une seule chose annonce le secteur actif**. Le badge
 disait « tous secteurs » pendant que l'en-tête affichait « CCN IDCC 1516 » :
 deux lectures différentes de la même donnée, et le doute pour l'utilisateur.
+
+## 10. `seuils.test.js` — tous les seuils, et l'application qui s'y adapte
+
+La liste d'effectif proposée à la création du dossier s'arrêtait à **« 250
+salariés et plus »**. Au-dessus, le droit du travail continue de compter :
+300, 500, 750, 1 000, 2 000, 5 000, et le barème du nombre d'élus
+(R.2314-1) monte jusqu'à **10 000**.
+
+Le test contrôle **31 obligations, seuil par seuil et article par article** —
+du document unique (R.4121-1) à la dernière tranche du barème. Un seuil qui
+disparaîtrait du tableau, ou un article qui changerait, le fait tomber.
+
+Il garde aussi ce que le tableau ne doit pas confondre :
+
+- **deux règles de franchissement distinctes** — le CSE se compte sur *douze
+  mois consécutifs* (L.2312-2), l'effectif « sécurité sociale » sur *cinq
+  années civiles consécutives* (L.130-1 c. séc. soc., depuis la loi PACTE) ;
+- **ce qui n'est pas en vigueur** n'est pas présenté comme une obligation :
+  le seuil de 100 salariés de la directive (UE) 2023/970 figure à part, sa
+  transposition française n'étant pas publiée à ce jour ;
+- **les tranches se suivent** sans trou ni chevauchement, une par seuil.
+
+Puis le tri qui en découle. À 9 salariés, les huit modules qui supposent un
+comité sont mis de côté ; à 11, les élections reviennent ; les consultations
+récurrentes et les budgets attendent 50. Deux garde-fous :
+
+- « Mon effectif et mes seuils » et « Où en suis-je ? » **restent toujours
+  visibles** — ce sont eux qui répondent à la question du seuil ;
+- **effectif inconnu, rien n'est masqué** : l'application ne suppose pas.
+
+Et le test vérifie que dès que le registre du personnel est tenu, c'est lui
+qui fait foi : l'effectif est calculé (L.1111-2, L.1111-3), la tranche
+déclarée ne sert plus — même si elle annonce 5 000 salariés.
 
 ## 10. `integrite.py` — ce qui est mécaniquement vérifiable
 
