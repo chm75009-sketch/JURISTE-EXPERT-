@@ -119,9 +119,9 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     const out = {};
     appSetSecteur('banque'); jxRechargerDossier();
     out.dosBanque = jxCompte();
-    RX.staff = [{ id: 'a', nom: 'A', entree: '2020-01-01' },
-                { id: 'b', nom: 'B', entree: '2020-01-01' },
-                { id: 'c', nom: 'C', entree: '2020-01-01' }];
+    RX.staff = ['a', 'b', 'c'].map(k =>
+      ({ id: k, nom: k.toUpperCase(), entree: '2020-01-01',
+         typeContrat: 'CDI', tempsTravail: 'Temps plein' }));
     rxSaveLocal();
     out.banqueAvant = RX.staff.length;
 

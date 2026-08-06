@@ -950,7 +950,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.134';
+var JX_BUILD = 'v2026-08-06.135';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -959,6 +959,16 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.135', d:'6 aout 2026', t:[
+   'CORRECTIF MAJEUR — LE NOMBRE D\'ELUS AU COMITE ETAIT FAUX D\'UN SIEGE, de 50 a 299 salaries. A soixante salaries l\'application annoncait TROIS titulaires ; l\'article R.2314-1 en prevoit QUATRE. Ce nombre est repris dans le protocole preelectoral : un protocole qui annonce un siege de moins expose l\'election a l\'annulation. Le decalage courait sur toute la plage — 50-74 : 4 et non 3 ; 75-99 : 5 ; 100-124 : 6 ; 125-149 : 7 ; 150-174 : 8 ; 175-199 : 9 ; 200-249 : 10 ; 250-299 : 11. La colonne des heures de delegation, elle, etait juste.',
+   'CORRECTIF — LES INTERIMAIRES ETAIENT ANNONCES ELECTEURS DANS L\'ENTREPRISE UTILISATRICE. Ils ne le sont jamais : ils votent dans leur entreprise de travail temporaire, meme s\'ils comptent dans votre effectif. Seuls les SALARIES MIS A DISPOSITION peuvent voter chez l\'utilisateur, apres douze mois continus et sur option (L.2314-23). Inscrire un interimaire sur la liste electorale de l\'utilisatrice est une cause d\'annulation du scrutin.',
+   'CORRECTIF — LA COMMISSION ECONOMIQUE etait annoncee obligatoire a 300 salaries. L.2315-46 la reserve aux entreprises d\'AU MOINS MILLE salaries. L\'application ecrivait d\'ailleurs 1 000 a cinq autres endroits : le tableau des seuils contredisait le reste de l\'application.',
+   'LE SECTEUR CHOISI EST ENFIN SUIVI PARTOUT. Treize fonctions lisaient le secteur a un endroit ou il n\'est ecrit que lorsqu\'un code d\'acces l\'impose. Consequence : un dossier « Banque » ouvert dans l\'application produisait un CONTRAT DE TRAVAIL citant la convention des transports routiers, IDCC 0016 — de meme pour la fiche de poste, la checklist d\'embauche, le bulletin type et le reglement interieur. Toutes lisent desormais la meme source.',
+   'UNE SEULE TABLE DE CONVENTIONS. Le meme fait etait ecrit dans trois tables divergentes : pour le batiment, l\'en-tete affirmait « IDCC 1596 » quand le Socle disait, a juste titre, qu\'il y a quatre conventions et qu\'aucune ne peut etre imposee. Les deux copies sont supprimees.',
+   'UN REGISTRE INCOMPLET N\'EST PLUS UN EFFECTIF DE ZERO. Six salaries inscrits sans nature de contrat : l\'application annoncait « 0 salarie — votre effectif », ecrasait la tranche declaree et mettait de cote huit modules du comite. Elle dit maintenant ce qui manque, et a qui il manque.',
+   'L\'ACCUEIL SE RAFRAICHIT. Il ne se reconstruisait jamais : le bandeau d\'effectif, les compteurs de familles et la liste des modules mis de cote restaient figes jusqu\'au rechargement complet de l\'application.',
+   'LE REPORT ATTEINT SIX CHAMPS DE PLUS et declenche les calculs. Il posait la valeur puis emettait un evenement que ces champs n\'ecoutent pas : « Effectif : 60 » s\'affichait sans aucun resultat en dessous. Sont desormais repris : le PSE (qui partait d\'un effectif de 50 ecrit en dur), l\'analyse de conformite, la masse salariale entre Budgets et Fonctionnement, et le plancher du bareme d\'indemnites — qui appliquait « onze salaries ou plus » a une entreprise de trois.'
+ ]},
  {v:'v2026-08-06.134', d:'6 aout 2026', t:[
    'L\'EFFECTIF RENSEIGNE A L\'OUVERTURE EST ENFIN RECONNU. Signale : « pourquoi il me dit effectif n\'est pas reconnu alors que je l\'ai renseigne a l\'ouverture ? ». La lecture de l\'effectif n\'avait que deux sources — le registre du personnel, puis l\'effectif du dernier exercice clos — et ignorait purement la tranche indiquee a la creation du dossier. L\'accueil repondait donc « votre effectif n\'est pas connu » a quelqu\'un qui venait de le renseigner. Deux modules qui ne se parlaient pas.',
    'La tranche est desormais une troisieme source, reconnue pour ce qu\'elle est : un intervalle, pas un chiffre. L\'accueil affiche « 50 a 199 salaries — effectif declare » et ce que cette tranche declenche a coup sur : comite obligatoire, reglement interieur, budgets, consultations.',
@@ -4744,7 +4754,7 @@ Exemple :<br>
      un cabinet de conseil etait interroge sur les cartes de conducteur et son
      score de conformite s'en trouvait fausse. */
   function auditSecteur(){
-    var s=''; try{ s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); }catch(e){}
+    var s=''; try{ s=(typeof secCourant==='function'?secCourant():''); }catch(e){}
     if(!s){ try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){} }
     if(!s){ try{ s=(typeof E!=='undefined'&&E&&E.secteur)?E.secteur:''; }catch(e){} }
     return s;
@@ -5258,7 +5268,7 @@ Exemple :<br>
 <div class="card">
   <div class="bl">Étape 0 · Audit préalable</div>
   <div class="ct" style="font-size:16px">Un PSE est-il obligatoire&nbsp;?</div>
-  <div class="fg"><label class="fl">Effectif de l'entreprise (ETP)</label><input id="pse-eff" type="number" value="50" min="0"></div>
+  <div class="fg"><label class="fl">Effectif de l'entreprise (ETP)</label><input id="pse-eff" type="number" min="0" placeholder="Effectif de l’entreprise"></div>
   <div class="fg"><label class="fl">Nombre de licenciements envisagés</label><input id="pse-nb" type="number" value="10" min="0"></div>
   <div class="fg"><label class="fl">Sur une même période de…</label><select id="pse-per"><option value="30">30 jours</option><option value="90">3 mois</option></select></div>
   <div class="fg"><label class="fl">Appartenance à un groupe&nbsp;?</label><select id="pse-grp"><option value="oui">Oui</option><option value="non">Non</option></select></div>
@@ -5925,16 +5935,22 @@ function modInit(mod){var id=secGet('secteur_'+mod)||appGetSecteur();var el=docu
    le socle, la fiche de l'Espace RH, puis a defaut la table des secteurs.
    « IDCC 0016 » etait ecrit en dur : tout client hors transport voyait la
    convention du transport en haut de son ecran. */
-var JX_IDCC_SECTEUR={ transport:'16', banque:'2120', assurances:'1672', syntec:'1486',
-  enseignement:'3218', formation:'1516', ensindep:'2691', batiment:'1596' };
+/* JX_IDCC_SECTEUR supprimee : troisieme table d'IDCC, divergente des
+   deux autres. Pour le batiment elle affirmait « 1596 » quand SEC_PROFIL
+   dit — a juste titre — qu'il y a quatre conventions et qu'aucune ne peut
+   etre imposee. La source unique est SEC_PROFIL[].idccNum. */
 function jxConventionClient(){
   var idcc='', nom='';
   try{ if(typeof SOC!=='undefined' && SOC){ idcc=SOC.idcc||idcc; nom=SOC.ccn||nom; } }catch(e){}
   try{ if(!idcc && typeof RX!=='undefined' && RX.ent) idcc=RX.ent.idcc||''; }catch(e){}
   try{ if(!idcc && typeof RH!=='undefined' && RH.ent) idcc=RH.ent.idcc||''; }catch(e){}
   if(!idcc){
-    var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
-    idcc=JX_IDCC_SECTEUR[s]||'';
+    /* Meme lecture du secteur que le reste de l'application : appGetSecteur()
+       ignorait le verrouillage par code d'acces, et l'en-tete annoncait
+       « Convention non renseignee » a un client dont le secteur etait pourtant
+       impose. Et une seule table d'IDCC : celle de SEC_PROFIL. */
+    var s=''; try{ s=(typeof secCourant==='function'?secCourant():''); }catch(e){}
+    try{ idcc=(secProfil(s).idccNum)||''; }catch(e){ idcc=''; }
   }
   idcc=String(idcc||'').replace(/[^0-9]/g,'');
   return { idcc:idcc, nom:nom, libelle: idcc? ('CCN IDCC '+((idcc.length<4)?('0000'+idcc).slice(-4):idcc)) : '' };
@@ -6216,6 +6232,10 @@ function goPage(id){
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
+  /* L'accueil se reconstruit a chaque visite : sans cela le bandeau
+     d'effectif, les compteurs de familles et la liste des modules mis de
+     cote restaient figes jusqu'au rechargement complet de l'application. */
+  if(id==='home'){ try{ famRender(); }catch(e){} }
   if(id==='parametrage'){ try{ chargerParametres(); }catch(e){} }
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
   if(id==='socle'){ try{ socOnEnter(); }catch(e){} }
@@ -6232,7 +6252,7 @@ function goPage(id){
 }
 function applyRISector(){
   try{
-    var sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');
+    var sec=(typeof secCourant==='function'?secCourant():'');
     var bat=(sec==='batiment');
     var doc=(typeof SECTOR_DOC!=='undefined'?SECTOR_DOC[sec]:null);
     var tert=!!doc;
@@ -7120,7 +7140,9 @@ function socSetRempl(id,v){ var c=_socSal(id); if(v==='') delete c.rempl; else c
 function socRenderCCN(c){
   /* Ce que le secteur choisi a la creation du dossier dit deja. */
   var _i={}; try{ _i=jxInfos(); }catch(e){ _i={}; }
-  var idcc=SOC.idcc || ((typeof RX!=='undefined'&&RX.ent&&RX.ent.idcc)?RX.ent.idcc:'') || (_i.idcc||'');
+  /* Ordre : la saisie explicite du client, puis le secteur choisi, puis
+     seulement la fiche RH — qui portait une valeur de secours transport. */
+  var idcc=SOC.idcc || (_i.idcc||'') || ((typeof RX!=='undefined'&&RX.ent&&RX.ent.idcc)?RX.ent.idcc:'');
   var ccn=SOC.ccn || (_i.ccn||'');
   var repris=(!SOC.idcc && !!(_i.idcc||_i.ccn));
   var multi=null; try{ multi=SEC_CONV_MULTI[_i.secteur]||null; }catch(e){}
@@ -7311,7 +7333,7 @@ var JX_SEUILS=[
    ['Commission de la formation','L.2315-49'],
    ['Commission de l’égalité professionnelle','L.2315-56'],
    ['Commission d’information et d’aide au logement','L.2315-50'],
-   ['Commission économique','L.2315-46'],
+
    ['Bilan social annuel','L.2312-28'],
    ['Négociation sur la gestion des emplois et des parcours professionnels, tous les trois ans','L.2242-2'],
    ['Information trimestrielle du comité','L.2312-69']
@@ -7324,6 +7346,7 @@ var JX_SEUILS=[
    ['Contribution handicap portée à 600 fois le SMIC horaire par bénéficiaire manquant','barème de l’obligation d’emploi']
  ]},
  {n:1000, lib:'1 000 salariés', regle:'', o:[
+   ['Commission économique du CSE — à défaut d’accord, à partir de mille salariés','L.2315-46',''],
    ['Congé de reclassement en licenciement économique','L.1233-71',''],
    ['Contribution à la revitalisation du bassin d’emploi','L.1233-84',''],
    ['Administrateurs salariés au conseil d’administration','L.225-27-1 c. com.'],
@@ -7384,6 +7407,12 @@ function jxInfos(){
     i.idcc=p.idccNum||''; i.ccn=p.ccnLib||'';
   }catch(e){}
   try{ i.effectif=cseEffectif(); }catch(e){}
+  /* Les bornes de la tranche declaree : elles servent quand aucun effectif
+     n'est calcule, et seulement pour ce qu'elles permettent d'affirmer. */
+  try{
+    var _s=cseEffectifSource();
+    if(_s.src==='tranche') i.borne={min:_s.min,max:_s.max,lib:_s.lib};
+  }catch(e){}
   try{
     if(typeof E!=='undefined' && E){
       i.tranche=E.effectif||''; i.nom=(E.nom==='[ENTREPRISE]')?'':(E.nom||'');
@@ -7398,7 +7427,10 @@ function jxInfos(){
 var JX_REPORT=[
   ['soc-idcc','idcc'], ['soc-ccn','ccn'],
   ['cse-secteur','secteur'], ['disc-secteur','secteur'],
-  ['cse-eff-direct','effectifTxt'], ['csf-eff','effectifTxt'], ['ri-effectif','trancheRI'],
+  ['cse-eff-direct','effectifTxt'], ['csf-eff','effectifTxt'], ['csf-eff2','effectifTxt'],
+  ['pse-eff','effectifTxt'], ['diag-effectif','effectifTxt'],
+  ['ri-effectif','trancheRI'], ['calc-eff','effSeuil11'],
+  ['csf-masse','masseTxt'],
   ['au-email','email'], ['au-tel','tel']
 ];
 /* La tranche attendue par le module « Reglement interieur » : ses options
@@ -7407,9 +7439,34 @@ function jxValeurReport(cle, i){
   if(cle==='effectifTxt') return (i.effectif===null)?'':String(i.effectif);
   if(cle==='trancheRI'){
     /* Ce module n'a que deux etats : le reglement interieur est obligatoire
-       a partir de cinquante salaries (L.1311-2), facultatif en dessous. */
-    if(i.effectif===null) return '';
-    return (i.effectif>=50)?'50plus':'moins20';
+       a partir de cinquante salaries (L.1311-2), facultatif en dessous.
+       On accepte aussi la tranche declaree, mais seulement quand elle est
+       tout entiere d'un cote du seuil — sinon on ne tranche pas. */
+    var b=i.borne;
+    if(i.effectif!==null) return (i.effectif>=50)?'50plus':'moins20';
+    if(b && b.min>=50) return '50plus';
+    if(b && b.max!==null && b.max<50) return 'moins20';
+    return '';
+  }
+  if(cle==='effSeuil11'){
+    /* Le bareme de L.1235-3 a deux planchers : moins de onze salaries, ou
+       onze et plus. Le module partait sur « onze et plus » quel que soit
+       l'effectif reel — un plancher surevalue pour une entreprise de trois. */
+    var c=i.borne;
+    if(i.effectif!==null) return (i.effectif>=11)?'ge11':'lt11';
+    if(c && c.min>=11) return 'ge11';
+    if(c && c.max!==null && c.max<11) return 'lt11';
+    return '';
+  }
+  if(cle==='masseTxt'){
+    /* La masse salariale saisie dans le module Budgets : elle etait
+       redemandee a l'identique par la page Fonctionnement. */
+    try{
+      if(typeof budLoad==='function') budLoad();
+      var L=(typeof BUD!=='undefined' && BUD.exos)?BUD.exos:[];
+      for(var k=L.length-1;k>=0;k--){ if(L[k] && String(L[k].masse||'').trim()!=='') return String(L[k].masse); }
+    }catch(e){}
+    return '';
   }
   return i[cle]||'';
 }
@@ -7436,6 +7493,10 @@ function jxReport(){
         if(!ok) return;
       }
       el.value=v;
+      /* Les deux evenements : ces champs ecoutent « oninput », pas « onchange ».
+         La valeur s'affichait et le calcul ne partait pas — « Effectif : 60 »
+         sans aucun resultat en dessous. */
+      try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
       try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
       el.setAttribute('data-jx-repris','1');
       el.title='Repris de votre fiche d’entreprise — modifiable';
@@ -7488,8 +7549,20 @@ function cseEffectifSource(){
           plus exact, mois par mois, exclusions de L.1111-3 comprises. */
     var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
     if(st.length && typeof socSerie==='function'){
+      /* Un salarie dont la nature du contrat ou le temps de travail n'est pas
+         renseigne ne peut pas etre compte : l'application le dit, elle ne le
+         compte pas zero. Sans ce controle, six salaries au registre donnaient
+         « 0 salarie — votre effectif », ecrasaient la tranche declaree et
+         mettaient de cote huit modules du comite. */
+      var _m=0;
+      try{
+        var t=new Date(), auj=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
+        var r=socEffectifAt(auj); _m=(r&&r.manque)?r.manque.length:0;
+      }catch(_){}
+      if(_m>0) return { n:null, src:'incomplet', declare:false, manque:_m, inscrits:st.length,
+        txt:'registre incomplet — '+_m+' salarié'+(_m>1?'s':'')+' sur '+st.length+' dont le contrat ou le temps de travail reste à préciser' };
       var s=socSerie(36);
-      if(s.length) return { n:s[s.length-1].ent, src:'registre',
+      if(s.length) return { n:s[s.length-1].ent, src:'registre', declare:false,
         txt:'calculé d’après votre registre du personnel — '+st.length+' inscrit'+(st.length>1?'s':'') };
     }
     /* 2. A defaut, l'effectif saisi a la main pour le dernier exercice
@@ -8143,7 +8216,7 @@ function famHorsTaille(c){
 function famConcerne(c){
   if(!c || !c.secteurs || !c.secteurs.length) return true;
   var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
-  if(!s){ try{ s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); }catch(e){} }
+  if(!s){ try{ s=(typeof secCourant==='function'?secCourant():''); }catch(e){} }
   return !s || c.secteurs.indexOf(s)>=0;
 }
 function famCartes(g){ return (g.cartes||[]).filter(famConcerne).filter(function(c){ return !famHorsTaille(c); }); }
@@ -8188,6 +8261,15 @@ function famRender(){
       +'<span><span class="et">'+famEsc(_s.lib)+' — effectif déclaré</span>'
       +(_pd.length?('<span class="ed">'+famEsc(_pd.join(' · '))+'</span>'):'')
       +'<span class="ed" style="opacity:.85">Une tranche, pas un chiffre : le nombre d’élus, les budgets et les seuils franchis demandent un effectif calculé. Tenez le registre du personnel.</span>'
+      +'<span class="ed" style="opacity:.7">dossier : '+famEsc(jxDossierLib())+'</span></span>'
+      +'<span class="ec">›</span></button>';
+  } else if(eff===null && _s.src==='incomplet'){
+    h+='<button class="eff-bandeau vide" onclick="goPage(\'socle\')">'
+      +'<span class="en">!</span>'
+      +'<span><span class="et">Registre incomplet — l’effectif ne peut pas être calculé</span>'
+      +'<span class="ed">'+famEsc(_s.manque)+' salarié'+(_s.manque>1?'s':'')+' sur '+famEsc(_s.inscrits)
+      +' n’'+(_s.manque>1?'ont':'a')+' ni nature de contrat ni temps de travail renseignés. '
+      +'L’effectif se calcule sur ces deux données (L.1111-2) : sans elles, l’application ne compte pas zéro, elle vous le dit.</span>'
       +'<span class="ed" style="opacity:.7">dossier : '+famEsc(jxDossierLib())+'</span></span>'
       +'<span class="ec">›</span></button>';
   } else if(eff===null){
@@ -12133,10 +12215,12 @@ function mcBareme(eff){
   var s=0,h=0;
   if(eff<11) return {sieges:0,heures:0};
   else if(eff<=24){s=1;h=10;}   else if(eff<=49){s=2;h=10;}
-  else if(eff<=74){s=3;h=18;}   else if(eff<=99){s=4;h=19;}
-  else if(eff<=124){s=5;h=21;}  else if(eff<=149){s=6;h=21;}
-  else if(eff<=174){s=7;h=21;}  else if(eff<=199){s=8;h=21;}
-  else if(eff<=249){s=9;h=22;}  else if(eff<=299){s=10;h=22;}
+  /* R.2314-1 : de 50 a 299 salaries, la colonne des sieges avait un cran de
+     retard — 3 titulaires annonces la ou le texte en prevoit 4. Corrige. */
+  else if(eff<=74){s=4;h=18;}   else if(eff<=99){s=5;h=19;}
+  else if(eff<=124){s=6;h=21;}  else if(eff<=149){s=7;h=21;}
+  else if(eff<=174){s=8;h=21;}  else if(eff<=199){s=9;h=21;}
+  else if(eff<=249){s=10;h=22;} else if(eff<=299){s=11;h=22;}
   else if(eff<=399){s=11;h=22;} else if(eff<=499){s=12;h=22;}
   else if(eff<=599){s=13;h=24;} else if(eff<=699){s=14;h=24;}
   else if(eff<=799){s=14;h=24;} else if(eff<=899){s=15;h=24;}
@@ -14001,7 +14085,10 @@ function rxPrefillEntFromRegistry(){
     if(code){ for(var i=0;i<reg.length;i++){ if(String(reg[i].code)===String(code)){ m=reg[i]; break; } } }
     if(!m && sec){ var c=reg.filter(function(r){return r.sec===sec;}); if(c.length===1) m=c[0]; }
     if(!m) return;
-    var IDCC={transport:'16',banque:'2120',assurances:'1672',syntec:'1486',enseignement:'3218',formation:'1516',ensindep:'2691',batiment:'1596'};
+    /* Une seule table d'IDCC : celle de SEC_PROFIL. Cette copie locale
+       affirmait « 1596 » pour le batiment, quand SEC_PROFIL dit — a juste
+       titre — qu'il y a quatre conventions et qu'aucune ne peut etre imposee. */
+    var IDCC={}; try{ SEC_LISTE.forEach(function(x){ IDCC[x.v]=secProfil(x.v).idccNum||''; }); }catch(e){}
     RX.ent=RX.ent||{};
     RX.ent.nom=m.client||''; RX.ent.gerant=m.gerant||''; RX.ent.siret=m.siret||'';
     RX.ent.naf=m.naf||''; RX.ent.adresse=m.adresse||''; RX.ent.email=m.email||''; RX.ent.tel=m.tel||'';
@@ -14562,7 +14649,9 @@ function rxEnt(){
 }
 function rxSaveEnt(){
   var g=function(k){ var el=document.getElementById('rxe-'+k); return el?el.value.trim():''; };
-  RX.ent={ nom:g('nom'), gerant:g('gerant'), siret:g('siret'), naf:g('naf'), adresse:g('adresse'), email:g('email'), tel:g('tel'), idcc:g('idcc')||'16' };
+  RX.ent={ nom:g('nom'), gerant:g('gerant'), siret:g('siret'), naf:g('naf'), adresse:g('adresse'), email:g('email'), tel:g('tel'), /* Plus de valeur de secours propre au transport : un IDCC absent reste
+     absent, il n'est pas remplace par celui d'un autre secteur. */
+    idcc:g('idcc')||((typeof jxInfos==='function')?(jxInfos().idcc||''):'') };
   rxSaveLocal();
   try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
   try{ rxCloudPushEnt(); }catch(e){}
@@ -15035,7 +15124,7 @@ function _sectorDone(sec,pageId){
 }
 function sectorGuard(pageId){
   try{
-    var sec=''; try{ sec=sessionStorage.getItem('jte_sector')||''; }catch(e){}
+    var sec=''; try{ sec=(typeof secCourant==='function'?secCourant():''); }catch(e){}
     var show = sec && sec!=='transport' && TRANSPORT_ONLY[pageId] && !_sectorDone(sec,pageId);
     var g=document.getElementById('sector-guard');
     if(show){
@@ -15305,7 +15394,10 @@ function checkSalaire(){
 }
 
 function genContrat(){
-  try{ var _sec0=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_sec0==='batiment'){ return genContratBatiment(); } if(_sec0&&typeof isTertiaireSec==='function'&&isTertiaireSec(_sec0)){ return genContratGenerique(_sec0); } }catch(e){}
+  /* secCourant() et non jte_sector : ce dernier n'est pose que par un code
+     d'acces sectoriel. Un secteur choisi dans l'application le laissait vide,
+     et le document sortait au format transport. */
+  try{ var _sec0=(typeof secCourant==='function'?secCourant():''); if(_sec0==='batiment'){ return genContratBatiment(); } if(_sec0&&typeof isTertiaireSec==='function'&&isTertiaireSec(_sec0)){ return genContratGenerique(_sec0); } }catch(e){}
   const nom=gv('c-nom')||'[NOM]';
   const poste=gv('c-poste')||'[POSTE]';
   const coeff=gv('c-coeff')||'[COEFF]';
@@ -15634,7 +15726,7 @@ Poste : ${gv('c-poste')||'[POSTE]'}</p>
 }
 
 function genFichePoste(){
-  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genFichePosteBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genFichePosteGenerique(_s); } }catch(e){}
+  try{ var _s=(typeof secCourant==='function'?secCourant():''); if(_s==='batiment'){ return genFichePosteBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genFichePosteGenerique(_s); } }catch(e){}
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.8;`;
   const poste=gv('c-poste')||'[POSTE]';
   const coeff=gv('c-coeff')||'[COEFF]';
@@ -15685,7 +15777,7 @@ ${document.getElementById('c-has-adr')?.checked?'<li>Certificat ADR en cours de 
 }
 
 function genChecklistEmbauche(){
-  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genChecklistEmbaucheBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genChecklistEmbaucheGenerique(_s); } }catch(e){}
+  try{ var _s=(typeof secCourant==='function'?secCourant():''); if(_s==='batiment'){ return genChecklistEmbaucheBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genChecklistEmbaucheGenerique(_s); } }catch(e){}
   const nom=gv('c-nom')||'[NOM]';
   const S=`font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:2;`;
   const html=`<div style="${S}">
@@ -16053,7 +16145,7 @@ ${nuitsDep>0?`Découchers 1 repas + nuitée (${nuitsDep} × 52,31 €) : ${indem
 
 function applyTempsSector(){
   try{
-    var sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');
+    var sec=(typeof secCourant==='function'?secCourant():'');
     var bat=(sec==='batiment');
     var doc=(typeof SECTOR_DOC!=='undefined'?SECTOR_DOC[sec]:null);
     var tert=!!doc;
@@ -16091,7 +16183,7 @@ function calcTempsBatiment(){
 }
 function applyRemunerationSector(){
   try{
-    var sec=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');
+    var sec=(typeof secCourant==='function'?secCourant():'');
     var bat=(sec==='batiment');
     var doc=(typeof SECTOR_DOC!=='undefined'?SECTOR_DOC[sec]:null);
     var tert=!!doc;
@@ -16209,7 +16301,7 @@ function calcCarence(){
 }
 
 function genBulletinType(){
-  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genBulletinTypeBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genBulletinTypeGenerique(_s); } }catch(e){}
+  try{ var _s=(typeof secCourant==='function'?secCourant():''); if(_s==='batiment'){ return genBulletinTypeBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genBulletinTypeGenerique(_s); } }catch(e){}
   const S=`font-family:'Times New Roman',serif;font-size:10pt;color:#000;line-height:1.7;`;
   const coeff=gv('rem-coeff');
   const heures=parseFloat(gv('rem-heures'))||169;
@@ -16346,7 +16438,7 @@ function genBulletinTypeGenerique(sec){
 // MODULE IV — RÈGLEMENT INTÉRIEUR
 // ═══════════════════════════════════════
 function genRI(){
-  try{ var _s=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(_s==='batiment'){ return genRIBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genRITertiaire(_s); } }catch(e){}
+  try{ var _s=(typeof secCourant==='function'?secCourant():''); if(_s==='batiment'){ return genRIBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genRITertiaire(_s); } }catch(e){}
   const eff=gv('ri-effectif');
   const adr=document.getElementById('ri-adr')?.checked;
   const alcool=document.getElementById('ri-alcool')?.checked;
@@ -17260,14 +17352,15 @@ function cseBareme(eff){
   if(eff<11){return {sieges:0,heures:0};}
   else if(eff<=24){sieges=1;heures=10;}
   else if(eff<=49){sieges=2;heures=10;}
-  else if(eff<=74){sieges=3;heures=18;}
-  else if(eff<=99){sieges=4;heures=19;}
-  else if(eff<=124){sieges=5;heures=21;}
-  else if(eff<=149){sieges=6;heures=21;}
-  else if(eff<=174){sieges=7;heures=21;}
-  else if(eff<=199){sieges=8;heures=21;}
-  else if(eff<=249){sieges=9;heures=22;}
-  else if(eff<=299){sieges=10;heures=22;}
+  /* R.2314-1 : la colonne des sieges avait un cran de retard de 50 a 299. */
+  else if(eff<=74){sieges=4;heures=18;}
+  else if(eff<=99){sieges=5;heures=19;}
+  else if(eff<=124){sieges=6;heures=21;}
+  else if(eff<=149){sieges=7;heures=21;}
+  else if(eff<=174){sieges=8;heures=21;}
+  else if(eff<=199){sieges=9;heures=21;}
+  else if(eff<=249){sieges=10;heures=22;}
+  else if(eff<=299){sieges=11;heures=22;}
   else if(eff<=399){sieges=11;heures=22;}
   else if(eff<=499){sieges=12;heures=22;}
   else if(eff<=599){sieges=13;heures=24;}

@@ -313,9 +313,22 @@ test('accord d’entreprise : il prime sur la convention de branche', () => {
 /* ══════════════════════════════════════════════════════════════════
    3. LE BAREME DES SIEGES — R.2314-1
    ══════════════════════════════════════════════════════════════════ */
+/* CE TABLEAU A DÉJÀ MENTI UNE FOIS, ET C'EST INSTRUCTIF.
+   Il annonçait 3 titulaires à 50 salariés, 4 à 75, 5 à 100 : la colonne des
+   sièges avait un cran de retard sur toute la plage 50-299. Le test passait
+   au vert parce qu'il avait été écrit **d'après le code**, pas d'après le
+   texte — il recopiait le défaut au lieu de le trouver. Le nombre de sièges
+   est injecté dans le protocole préélectoral : un protocole qui en annonce
+   un de moins expose l'élection à l'annulation.
+   Les valeurs ci-dessous ont été confrontées à des sources extérieures :
+   50-74 = 4 titulaires (18 h), 75-99 = 5 (19 h), 100-124 = 6 (21 h),
+   125-149 = 7, 200-249 = 10, 250-299 = 11.
+   Ne modifie JAMAIS une ligne de ce tableau pour faire passer le test :
+   va d'abord lire R.2314-1. */
 const BAREME = [
   [10, 0, 0], [11, 1, 10], [24, 1, 10], [25, 2, 10], [49, 2, 10],
-  [50, 3, 18], [74, 3, 18], [75, 4, 19], [99, 4, 19], [100, 5, 21],
+  [50, 4, 18], [74, 4, 18], [75, 5, 19], [99, 5, 19], [100, 6, 21],
+  [124, 6, 21], [125, 7, 21], [200, 10, 22], [249, 10, 22], [250, 11, 22], [299, 11, 22],
   [300, 11, 22], [500, 13, 24], [1500, 20, 26], [9999, 34, 32], [10000, 35, 34], [12000, 35, 34]
 ];
 BAREME.forEach(([n, sieges, heures]) => {

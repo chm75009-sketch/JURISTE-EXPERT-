@@ -42,11 +42,12 @@ const ATTENDUS = [
   [250,   /L\.5213-6-1/,     'référent handicap'],
   [250,   /1609 quinvicies/, 'contribution supplémentaire à l’apprentissage'],
   [300,   /L\.2315-36/,      'commission santé-sécurité'],
-  [300,   /L\.2315-46/,      'commission économique'],
+
   [300,   /L\.2312-28/,      'bilan social'],
   [300,   /L\.2242-2/,       'négociation GEPP'],
   [500,   /2016-1691/,       'dispositif anticorruption'],
   [750,   /600 fois/,        'contribution handicap majorée'],
+  [1000,  /L\.2315-46/,      'commission économique — mille salariés, pas trois cents'],
   [1000,  /L\.1233-71/,      'congé de reclassement'],
   [1000,  /L\.1233-84/,      'contribution à la revitalisation'],
   [1000,  /L\.225-27-1/,     'administrateurs salariés'],
@@ -237,8 +238,9 @@ const ATTENDUS = [
      jamais declare (L.1111-2, L.1111-3). */
   const calcule = await page.evaluate(() => {
     E.effectif = '5000';                       // declaration volontairement fausse
-    RX.staff = [{ id: 'a', nom: 'A', entree: '2020-01-01' },
-                { id: 'b', nom: 'B', entree: '2020-01-01' }];
+    RX.staff = ['a', 'b'].map(k =>
+      ({ id: k, nom: k.toUpperCase(), entree: '2020-01-01',
+         typeContrat: 'CDI', tempsTravail: 'Temps plein' }));
     rxSaveLocal();
     return { max: jxEffectifMax(), eff: cseEffectif() };
   });
