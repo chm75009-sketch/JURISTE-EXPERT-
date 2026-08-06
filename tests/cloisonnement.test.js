@@ -71,6 +71,41 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   console.log('  clés    : ' + JSON.stringify(await page.evaluate(
     () => Object.keys(localStorage).filter(k => /juris_transport|app_secteur/.test(k)))));
 
+  /* Signale depuis un telephone : sur le compte administrateur, le socle
+     affichait « Registre (83) » — les salaries du client. Trois cles avaient
+     ete cloisonnees ; onze autres ne l'etaient pas. On les verifie toutes. */
+  console.log('\n— Aucune donnée de dossier hors du compte —');
+  const restes = await page.evaluate(() => {
+    const PREFS = ['jx_smic_v1', 'offres_visible', 'jx_whatsnew', 'rx_sess_v1', 'cm_admin_sess', 'jte_'];
+    return Object.keys(localStorage)
+      .filter(k => k.indexOf('::') < 0)
+      .filter(k => !PREFS.some(p => k.indexOf(p) === 0));
+  });
+  ok(restes.length === 0, 'aucune donnée de dossier n’est rangée hors d’un compte', restes.join(', '));
+
+  const vuParAdmin = await page.evaluate(() => {
+    if (typeof rxLoad === 'function') rxLoad();
+    return {
+      staff: (typeof RX !== 'undefined' && RX.staff) ? RX.staff.length : 0,
+      effectif: (typeof cseEffectif === 'function') ? cseEffectif() : null
+    };
+  });
+  ok(vuParAdmin.staff === 0, 'le cabinet ne voit aucun salarié du client', vuParAdmin.staff);
+  ok(vuParAdmin.effectif === null, 'et aucun effectif', vuParAdmin.effectif);
+
+  /* Le compte administrateur n'herite jamais des donnees laissees sous
+     l'ancienne cle commune : ce n'est le dossier d'aucune entreprise. */
+  const heritage = await page.evaluate(() => {
+    localStorage.setItem('jx_salaries_v1', JSON.stringify([{ nom: 'ANCIEN' }]));
+    localStorage.setItem('je_registre', JSON.stringify([{ nom: 'ANCIEN' }]));
+    jxReprise();
+    return { admin: jxCompte(),
+             repris: localStorage.getItem(jxCle('jx_salaries_v1')),
+             reste: localStorage.getItem('jx_salaries_v1') };
+  });
+  ok(heritage.admin === 'admin' && heritage.repris === null,
+     'le compte administrateur n’adopte pas l’ancien registre commun', JSON.stringify(heritage));
+
   // ── Retour chez le client : il doit tout retrouver ────────────────
   await page.evaluate(() => deconnexion());
   await page.waitForTimeout(300);

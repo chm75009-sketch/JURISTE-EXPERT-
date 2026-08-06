@@ -821,7 +821,36 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.124';
+
+/* ══════════════════════════════════════════════════════════════════
+   TOUTE DONNEE D'UN DOSSIER PORTE LE COMPTE DANS SA CLE.
+   Ne restent communes a l'appareil que les preferences d'affichage et les
+   constantes juridiques : elles n'appartiennent a personne.
+   ══════════════════════════════════════════════════════════════════ */
+function jxCle(nom){ return nom+'::'+jxCompte(); }
+
+/* Les donnees enregistrees avant le cloisonnement sont rattachees au compte
+   a la premiere ouverture — jamais au compte administrateur, qui n'est le
+   dossier d'aucune entreprise. */
+var JX_CLES_DOSSIER=['je_registre','jx_salaries_v1','jx_fields_v1','transport_nom_salaries',
+  'jt_conducteurs','jt_vehicules','jt_contraventions','jt_etat',
+  'tec_rh_v1','tec_cloud_cfg','tec_cloud_sess','app_auteur'];
+function jxReprise(){
+  var c=jxCompte();
+  if(c==='admin') return;                       // le cabinet n'herite d'aucun client
+  JX_CLES_DOSSIER.forEach(function(n){
+    try{
+      var k=jxCle(n);
+      if(localStorage.getItem(k)!==null) return;          // deja rattache
+      var v=localStorage.getItem(n);
+      if(v===null) return;                                 // rien a reprendre
+      localStorage.setItem(k, v);
+      localStorage.removeItem(n);                          // le compte suivant repart propre
+    }catch(e){}
+  });
+}
+try{ jxReprise(); }catch(e){}
+var JX_BUILD = 'v2026-08-06.125';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -830,6 +859,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.125', d:'6 aout 2026', t:[
+   'CLOISONNEMENT — CORRECTIF MAJEUR. Sur le compte administrateur, le socle affichait le registre et l\'effectif d\'un client. Trois cles avaient ete rattachees au compte lors de la correction precedente ; le releve complet du stockage en a revele DOUZE autres qui ne l\'etaient pas, dont le registre du personnel (« jx_salaries_v1 », « je_registre ») et la sauvegarde automatique de tous les champs saisis (« jx_fields_v1 »). Toutes les donnees d\'un dossier portent desormais le compte dans leur cle. Ne restent communes a l\'appareil que les preferences d\'affichage et les constantes juridiques, qui n\'appartiennent a personne.',
+   'CLOISONNEMENT — les donnees enregistrees avant cette separation sont rattachees au compte a la premiere ouverture, pour que personne ne perde rien — mais jamais au compte administrateur, qui n\'est le dossier d\'aucune entreprise.',
+   'SECTEUR — on peut en changer depuis n\'importe quelle page. Un bouton dans la barre du haut, present partout, ouvre la liste des huit conventions plus « aucun secteur ». L\'en-tete suit le choix. Sur un compte client verrouille par son code, le bouton affiche le secteur avec un cadenas et la liste n\'est pas cliquable : le verrou reste un verrou.'
+ ]},
  {v:'v2026-08-06.124', d:'5 aout 2026', t:[
    'ACCUEIL — la famille « Une mesure » reprend son nom exact : « Mesures disciplinaires ».'
  ]},
@@ -1333,8 +1367,8 @@ async function _validAlgoCode(code){
   return (sig === good) ? _IDX_SEC[idx] : null;
 }
 var SECTEUR_LAB_CG={transport:'Transport routier',banque:'Banque',assurances:'Assurances',syntec:'Syntec',enseignement:'Enseignement privé (EPNL)',formation:'Organismes de formation',ensindep:'Enseignement privé indépendant',batiment:'Bâtiment (IDCC 1596/1597 · 2609 · 2420)'};
-function _regLoad(){ try{ return JSON.parse(localStorage.getItem('je_registre')||'[]'); }catch(e){ return []; } }
-function _regSave(a){ try{ localStorage.setItem('je_registre', JSON.stringify(a)); }catch(e){} }
+function _regLoad(){ try{ return JSON.parse(localStorage.getItem(jxCle('je_registre'))||'[]'); }catch(e){ return []; } }
+function _regSave(a){ try{ localStorage.setItem(jxCle('je_registre'), JSON.stringify(a)); }catch(e){} }
 function _escReg(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function _regDate(t){ try{ return new Date(t).toLocaleDateString('fr-FR'); }catch(e){ return ''; } }
 async function cgGenerer(){
@@ -1693,7 +1727,26 @@ try{
       <small id="top-nom">CCN IDCC 0016</small>
     </div>
   </div>
-  <button class="home-burger" onclick="openMenu()">☰</button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button id="sec-chip" onclick="secOuvrir()" title="Changer de secteur"
+      style="display:none;align-items:center;gap:6px;padding:8px 11px;border-radius:20px;
+      border:1px solid rgba(201,168,76,.45);background:rgba(201,168,76,.12);color:#e8c97a;
+      font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;max-width:44vw;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></button>
+    <button class="home-burger" onclick="openMenu()">☰</button>
+  </div>
+</div>
+
+<!-- Choix du secteur, ouvrable depuis n'importe quelle page -->
+<div id="sec-ov" onclick="if(event.target===this)secFermer()" style="display:none;position:fixed;inset:0;z-index:99993;background:rgba(6,14,22,.78);padding:18px;overflow-y:auto">
+  <div style="max-width:420px;margin:40px auto;background:#12283b;border:1px solid rgba(201,168,76,.4);border-radius:16px;padding:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div style="font-size:16px;font-weight:800;color:#e8c97a">Secteur d’activité</div>
+      <button onclick="secFermer()" aria-label="Fermer" style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#e8e4d8;font-size:19px;cursor:pointer;font-family:inherit">×</button>
+    </div>
+    <div id="sec-ov-note" style="font-size:12.5px;color:#9fb0c4;line-height:1.6;margin-bottom:12px"></div>
+    <div id="sec-ov-liste"></div>
+  </div>
 </div>
 
 
@@ -5689,7 +5742,13 @@ function updateHeroTop(){
   var admin=false; try{ admin=(sessionStorage.getItem('jte_admin')==='1'); }catch(e){}
   var t=document.getElementById('top-nom');
   if(t){
-    if(admin && !(typeof E!=='undefined' && E && E.nom)) t.textContent='Mode administrateur · tous secteurs';
+    if(admin && !(typeof E!=='undefined' && E && E.nom)){
+      /* Le cabinet peut changer de secteur a tout moment pour faire des
+         essais : l'en-tete doit dire lequel est actif, sinon on teste a
+         l'aveugle. Sans secteur choisi, il dit qu'il n'y en a pas. */
+      t.textContent = c.libelle ? ('Mode administrateur · '+c.libelle)
+                                : 'Mode administrateur · tous secteurs';
+    }
     else t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+(c.libelle||'Convention non renseignée');
   }
   var h=document.getElementById('hero-secteur');
@@ -5709,6 +5768,8 @@ function appSetSecteur(id){
   var ce=document.getElementById('cse-secteur');if(ce)ce.value=id; secSet('secteur_cse',id); if(typeof cseSetSecteur==='function')cseSetSecteur();
   MODS_SECTEUR.forEach(function(m){var el=document.getElementById('sec-'+m);if(el)el.value=id;secSet('secteur_'+m,id);modRender(m,id);});
   updateHeroTop();
+  try{ if(typeof secChipMaj==='function') secChipMaj(); }catch(e){}
+  try{ if(typeof famRender==='function') famRender(); }catch(e){}
 }
 (function(){
   var hs=document.getElementById('home-secteur');if(hs)hs.value=appGetSecteur();
@@ -6897,6 +6958,83 @@ function cseEffectifSaisi(){
   }catch(e){ return null; }
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHANGER DE SECTEUR, DEPUIS N'IMPORTE QUELLE PAGE
+   Le selecteur n'existait que sur l'accueil. Il est desormais dans la barre
+   du haut, donc atteignable partout. Un compte client verrouille par son
+   code voit son secteur mais ne peut pas en changer : le verrou reste un
+   verrou. Le compte administrateur en change en un geste.
+   ══════════════════════════════════════════════════════════════════════ */
+var SEC_LISTE=[
+  {v:'transport',    lib:'Transport routier',                 idcc:'0016'},
+  {v:'banque',       lib:'Banque',                            idcc:'2120'},
+  {v:'assurances',   lib:'Assurances',                        idcc:'1672'},
+  {v:'syntec',       lib:'Syntec — conseil, informatique',    idcc:'1486'},
+  {v:'batiment',     lib:'Bâtiment',                          idcc:'1596'},
+  {v:'enseignement', lib:'Enseignement privé — EPNL',         idcc:'3218'},
+  {v:'ensindep',     lib:'Enseignement privé indépendant',    idcc:'2691'},
+  {v:'formation',    lib:'Organismes de formation',           idcc:'1516'}
+];
+function secVerrouille(){
+  try{ return !!(sessionStorage.getItem('jte_sector')||''); }catch(e){ return false; }
+}
+function secCourant(){
+  var s=''; try{ s=sessionStorage.getItem('jte_sector')||''; }catch(e){}
+  if(!s){ try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){} }
+  return s;
+}
+function secChipMaj(){
+  var b=document.getElementById('sec-chip'); if(!b) return;
+  var s=secCourant(), o=null;
+  SEC_LISTE.forEach(function(x){ if(x.v===s) o=x; });
+  b.style.display='inline-flex';
+  b.textContent = (secVerrouille()?'🔒 ':'🏢 ') + (o? o.lib : 'Choisir un secteur');
+  b.title = secVerrouille()? 'Secteur imposé par votre code d’accès' : 'Changer de secteur';
+}
+function secOuvrir(){
+  var ov=document.getElementById('sec-ov'); if(!ov) return;
+  var s=secCourant(), verrou=secVerrouille();
+  var n=document.getElementById('sec-ov-note');
+  if(n) n.textContent = verrou
+    ? 'Votre code d’accès fixe le secteur : il pilote les conventions, les documents et les questions posées. Il ne peut pas être changé ici.'
+    : 'Le secteur pilote la convention citée, les documents produits et les questions posées. Vous pouvez en changer à tout moment.';
+  var L=document.getElementById('sec-ov-liste'), h='';
+  SEC_LISTE.forEach(function(o){
+    var on=(o.v===s);
+    h+='<button '+(verrou?'disabled':('onclick="secChoisir(\''+o.v+'\')"'))
+      +' style="display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;'
+      +'margin-bottom:7px;padding:12px 13px;border-radius:11px;font-family:inherit;font-size:13.5px;text-align:left;'
+      +(on?'border:1.5px solid #c9a84c;background:rgba(201,168,76,.14);color:#e8c97a;font-weight:800'
+          :'border:1px solid rgba(255,255,255,.14);background:#16263c;color:#e8e4d8')
+      +(verrou?';opacity:.55;cursor:not-allowed':';cursor:pointer')+'">'
+      +'<span>'+(on?'✓ ':'')+o.lib+'</span>'
+      +'<span style="font-size:11.5px;color:#9fb0c4;font-weight:700">IDCC '+o.idcc+'</span></button>';
+  });
+  if(!verrou){
+    h+='<button onclick="secChoisir(\'\')" style="display:block;width:100%;margin-top:4px;padding:11px;border-radius:11px;'
+      +'border:1px dashed rgba(255,255,255,.22);background:transparent;color:#9fb0c4;font-family:inherit;font-size:12.5px;cursor:pointer">'
+      +'Aucun secteur — raisonner sur le seul code du travail</button>';
+  }
+  if(L) L.innerHTML=h;
+  ov.style.display='block';
+  try{ document.body.style.overflow='hidden'; }catch(e){}
+}
+function secFermer(){
+  var ov=document.getElementById('sec-ov'); if(ov) ov.style.display='none';
+  try{ document.body.style.overflow=''; }catch(e){}
+}
+function secChoisir(v){
+  if(secVerrouille()) return;
+  try{ if(typeof appSetSecteur==='function') appSetSecteur(v); }catch(e){}
+  secChipMaj(); secFermer();
+  try{ if(typeof famRender==='function') famRender(); }catch(e){}
+  try{ if(typeof updateHeroTop==='function') updateHeroTop(); }catch(e){}
+}
+try{ document.addEventListener('keydown', function(ev){
+  if(ev.key==='Escape'){ var o=document.getElementById('sec-ov'); if(o&&o.style.display==='block') secFermer(); }
+}); }catch(e){}
+try{ if(document.readyState!=='loading') secChipMaj(); else document.addEventListener('DOMContentLoaded', secChipMaj); }catch(e){}
 
 /* ══════════════════════════════════════════════════════════════════════
    ACCUEIL PAR FAMILLES
@@ -11879,7 +12017,7 @@ async function rhSave(){
   try{
     var blob = await _rhEncrypt({ent:RH.ent, staff:RH.staff}, _rhKey);
     blob.salt = _rhSalt;
-    localStorage.setItem(RH_LSK, JSON.stringify(blob));
+    localStorage.setItem(jxCle(RH_LSK), JSON.stringify(blob));
     try{ rhCloudMaybePush(); }catch(e){}
   }catch(e){ alert('Erreur d\'enregistrement chiffré : '+e.message); }
 }
@@ -11919,7 +12057,7 @@ function rhOnEnter(){
   var host=document.getElementById('rh-body');
   if(!host) return;
   if(_rhKey){ rhRender(); return; }
-  var exists = !!localStorage.getItem(RH_LSK);
+  var exists = !!localStorage.getItem(jxCle(RH_LSK));
   host.innerHTML =
    '<div style="max-width:520px;margin:24px auto;background:#16263c;border:1px solid #c9a84c;border-radius:16px;padding:24px">'
    +'<div style="font-size:19px;font-weight:800;color:#fff;margin-bottom:6px">🔒 Espace RH sécurisé</div>'
@@ -11953,7 +12091,7 @@ async function rhSetup(){
 async function rhUnlock(){
   var p=(document.getElementById('rh-pin')||{}).value||'';
   var msg=document.getElementById('rh-pin-msg');
-  var raw=localStorage.getItem(RH_LSK);
+  var raw=localStorage.getItem(jxCle(RH_LSK));
   if(!raw){ rhOnEnter(); return; }
   try{
     var blob=JSON.parse(raw);
@@ -12352,7 +12490,7 @@ function rhImportBackupFile(input){
   var file=input.files&&input.files[0]; if(!file) return;
   var rd=new FileReader();
   rd.onload=function(){
-    try{ localStorage.setItem(RH_LSK, String(rd.result)); input.value=''; alert('Sauvegarde restaurée. Saisissez votre code pour l\'ouvrir.'); rhOnEnter(); }
+    try{ localStorage.setItem(jxCle(RH_LSK), String(rd.result)); input.value=''; alert('Sauvegarde restaurée. Saisissez votre code pour l\'ouvrir.'); rhOnEnter(); }
     catch(e){ alert('Fichier de sauvegarde invalide.'); }
   };
   rd.readAsText(file);
@@ -12377,7 +12515,7 @@ function rhRgpd(){
 }
 async function rhWipe(){
   if(!confirm('Effacer DÉFINITIVEMENT toutes les données RH de cet appareil ? (Pensez à sauvegarder avant.)')) return;
-  try{ localStorage.removeItem(RH_LSK); }catch(e){}
+  try{ localStorage.removeItem(jxCle(RH_LSK)); }catch(e){}
   RH.staff=[]; RH.ent={}; rhLock();
 }
 
@@ -12392,15 +12530,15 @@ async function rhWipe(){
 var RH_CLOUD_CFG='tec_cloud_cfg';   // {url, anon}
 var RH_CLOUD_SESS='tec_cloud_sess'; // {token, refresh, uid, email}
 
-function rhCloudCfg(){ try{ return JSON.parse(localStorage.getItem(RH_CLOUD_CFG)||'null'); }catch(e){ return null; } }
-function rhCloudSess(){ try{ return JSON.parse(localStorage.getItem(RH_CLOUD_SESS)||'null'); }catch(e){ return null; } }
+function rhCloudCfg(){ try{ return JSON.parse(localStorage.getItem(jxCle(RH_CLOUD_CFG))||'null'); }catch(e){ return null; } }
+function rhCloudSess(){ try{ return JSON.parse(localStorage.getItem(jxCle(RH_CLOUD_SESS))||'null'); }catch(e){ return null; } }
 function rhCloudSaveCfg(){
   var url=(document.getElementById('cl-url')||{}).value||'';
   var anon=(document.getElementById('cl-anon')||{}).value||'';
   url=url.trim().replace(/\/+$/,'');
   if(!/^https:\/\/.+\.supabase\.co$/.test(url)){ alert('URL Supabase attendue de la forme https://xxxx.supabase.co'); return; }
   if(anon.trim().length<30){ alert('Clé « anon » manquante ou trop courte.'); return; }
-  localStorage.setItem(RH_CLOUD_CFG, JSON.stringify({url:url, anon:anon.trim()}));
+  localStorage.setItem(jxCle(RH_CLOUD_CFG), JSON.stringify({url:url, anon:anon.trim()}));
   alert('Configuration cloud enregistrée. Vous pouvez maintenant créer un compte ou vous connecter.');
   rhRender();
 }
@@ -12440,14 +12578,14 @@ async function rhCloudLogin(){
 function _rhCloudSetSess(d){
   var uid=(d.user&&d.user.id)||(d.id)||'';
   var email=(d.user&&d.user.email)||'';
-  localStorage.setItem(RH_CLOUD_SESS, JSON.stringify({token:d.access_token, refresh:d.refresh_token, uid:uid, email:email}));
+  localStorage.setItem(jxCle(RH_CLOUD_SESS), JSON.stringify({token:d.access_token, refresh:d.refresh_token, uid:uid, email:email}));
 }
-function rhCloudLogout(){ localStorage.removeItem(RH_CLOUD_SESS); rhRender(); }
+function rhCloudLogout(){ localStorage.removeItem(jxCle(RH_CLOUD_SESS)); rhRender(); }
 
 async function rhCloudPush(){
   var cfg=rhCloudCfg(), s=rhCloudSess();
   if(!cfg||!s){ alert('Connectez-vous d\'abord.'); return false; }
-  var blob=localStorage.getItem(RH_LSK);
+  var blob=localStorage.getItem(jxCle(RH_LSK));
   if(!blob){ alert('Aucune donnée locale à envoyer.'); return false; }
   try{
     var body=[{ user_id:s.uid, blob:blob, updated_at:new Date().toISOString() }];
@@ -12458,7 +12596,7 @@ async function rhCloudPush(){
 }
 async function rhCloudPushSilent(){
   var cfg=rhCloudCfg(), s=rhCloudSess(); if(!cfg||!s) return;
-  var blob=localStorage.getItem(RH_LSK); if(!blob) return;
+  var blob=localStorage.getItem(jxCle(RH_LSK)); if(!blob) return;
   try{
     var body=[{ user_id:s.uid, blob:blob, updated_at:new Date().toISOString() }];
     await fetch(cfg.url+'/rest/v1/rh_vault?on_conflict=user_id',{method:'POST',headers:Object.assign(_rhCloudHeaders(true),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(body)});
@@ -12473,7 +12611,7 @@ async function rhCloudPull(){
     if(!r.ok){ alert('Récupération refusée : '+JSON.stringify(d).slice(0,200)); return; }
     if(!d.length||!d[0].blob){ alert('Aucune sauvegarde en ligne pour ce compte. Envoyez d\'abord vos données depuis l\'appareil où elles se trouvent.'); return; }
     if(!confirm('Remplacer les données de CET appareil par la version en ligne (mise à jour '+((d[0].updated_at||'').slice(0,16).replace('T',' '))+') ?\n\nVous devrez saisir votre code confidentiel pour l\'ouvrir.')) return;
-    localStorage.setItem(RH_LSK, d[0].blob);
+    localStorage.setItem(jxCle(RH_LSK), d[0].blob);
     _rhKey=null; RH.staff=[]; RH.ent={};
     alert('Données en ligne récupérées. Saisissez votre code confidentiel pour les déchiffrer.');
     _rhTab='dash'; rhOnEnter();
@@ -12496,7 +12634,7 @@ function rhCloudPanel(){
     h+='<button onclick="rhCloudSaveCfg()" style="padding:10px 14px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">Enregistrer la configuration</button>';
     h+='<div style="font-size:11px;color:#6b7a8d;margin-top:8px">La clé « anon » est publique par conception. Ne saisissez jamais la clé « service_role ».</div>';
   } else {
-    h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:8px">✔ Projet configuré : '+_rhEsc(cfg.url)+' <button onclick="localStorage.removeItem(RH_CLOUD_CFG);rhRender()" style="background:none;border:none;color:#9fb0c4;text-decoration:underline;cursor:pointer;font-size:11px">changer</button></div>';
+    h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:8px">✔ Projet configuré : '+_rhEsc(cfg.url)+' <button onclick="localStorage.removeItem(jxCle(RH_CLOUD_CFG));rhRender()" style="background:none;border:none;color:#9fb0c4;text-decoration:underline;cursor:pointer;font-size:11px">changer</button></div>';
     // 2) Auth
     h+='<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:14px 0 8px">2 · Votre compte</div>';
     if(!s){
@@ -12645,9 +12783,9 @@ async function sbPull(silent){
   if(!p.error && p.data){ RH.staff=p.data.map(_sbRowToStaff); RH.loaded=true; }
   // conducteurs / véhicules (JSONB)
   var c=await sb.from('conducteurs').select('data').limit(1);
-  if(!c.error && c.data && c.data.length && c.data[0].data){ try{ localStorage.setItem('jt_conducteurs', JSON.stringify(c.data[0].data)); if(typeof chargerConducteurs==='function') chargerConducteurs(); }catch(x){} }
+  if(!c.error && c.data && c.data.length && c.data[0].data){ try{ localStorage.setItem(jxCle('jt_conducteurs'), JSON.stringify(c.data[0].data)); if(typeof chargerConducteurs==='function') chargerConducteurs(); }catch(x){} }
   var v=await sb.from('vehicules').select('data').limit(1);
-  if(!v.error && v.data && v.data.length && v.data[0].data){ try{ localStorage.setItem('jt_vehicules', JSON.stringify(v.data[0].data)); if(typeof chargerParc==='function') chargerParc(); }catch(x){} }
+  if(!v.error && v.data && v.data.length && v.data[0].data){ try{ localStorage.setItem(jxCle('jt_vehicules'), JSON.stringify(v.data[0].data)); if(typeof chargerParc==='function') chargerParc(); }catch(x){} }
   if(!silent){ try{ alert('Données du compte récupérées sur cet appareil.'); }catch(x){} }
 }
 
@@ -12659,8 +12797,8 @@ async function sbPushEntreprise(){
 }
 async function sbPushStaff(s){ if(!sbReady()) return; var row=_sbStaffToRow(s); row.updated_at=new Date().toISOString(); var r=await sb.from('personnel').upsert(row); if(r.error) throw r.error; }
 async function sbDeleteStaff(id){ if(!sbReady()||!id) return; try{ await sb.from('personnel').delete().eq('id', id); }catch(e){} }
-async function sbPushConducteurs(){ if(!sbReady()) return; var d={}; try{ d=JSON.parse(localStorage.getItem('jt_conducteurs')||'[]'); }catch(e){} await _sbSingle('conducteurs', { data:d, updated_at:new Date().toISOString() }); }
-async function sbPushVehicules(){ if(!sbReady()) return; var d={}; try{ d=JSON.parse(localStorage.getItem('jt_vehicules')||'[]'); }catch(e){} await _sbSingle('vehicules', { data:d, updated_at:new Date().toISOString() }); }
+async function sbPushConducteurs(){ if(!sbReady()) return; var d={}; try{ d=JSON.parse(localStorage.getItem(jxCle('jt_conducteurs'))||'[]'); }catch(e){} await _sbSingle('conducteurs', { data:d, updated_at:new Date().toISOString() }); }
+async function sbPushVehicules(){ if(!sbReady()) return; var d={}; try{ d=JSON.parse(localStorage.getItem(jxCle('jt_vehicules'))||'[]'); }catch(e){} await _sbSingle('vehicules', { data:d, updated_at:new Date().toISOString() }); }
 
 async function sbSyncAll(){
   if(!sbReady()){ alert('Connectez-vous d\'abord.'); return; }
@@ -17564,7 +17702,7 @@ function retirerExclusion(i, code){
 }
 
 function saveNomSalaries(){
-  try { localStorage.setItem('transport_nom_salaries', JSON.stringify(salariesNom)); } catch(e) {}
+  try { localStorage.setItem(jxCle('transport_nom_salaries'), JSON.stringify(salariesNom)); } catch(e) {}
 }
 
 // Helper universel de téléchargement / partage (compatible iOS Safari + WebView)
@@ -17613,7 +17751,7 @@ async function _telecharger(contenu, mime, nomFichier){
 
 function loadNomSalaries(){
   try {
-    const s = localStorage.getItem('transport_nom_salaries');
+    const s = localStorage.getItem(jxCle('transport_nom_salaries'));
     if(s) salariesNom = JSON.parse(s) || [];
   } catch(e) { salariesNom = []; }
 }
@@ -17622,7 +17760,7 @@ function viderListeSalaries(){
   if(salariesNom.length === 0){ alert('La liste est déjà vide.'); return; }
   _confirmer('Supprimer définitivement les ' + salariesNom.length + ' salarié(s) saisis ?\n\nCette action est irréversible.', () => {
     salariesNom = [];
-    try { localStorage.removeItem('transport_nom_salaries'); } catch(e) {}
+    try { localStorage.removeItem(jxCle('transport_nom_salaries')); } catch(e) {}
     refreshNomTable();
     alert('Liste vidée.');
   });
@@ -19516,11 +19654,11 @@ ${docPiedPage('Art. L.1226-1 C. trav. — La contre-visite est la contrepartie d
 // MODULE VIII — TABLEAU DE BORD
 // ═══════════════════════════════════════
 function chargerConducteurs(){
-  try{const s=localStorage.getItem('jt_conducteurs');if(s)conducteurs=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem(jxCle('jt_conducteurs'));if(s)conducteurs=JSON.parse(s);}catch(e){}
   renderAlertes();
 }
 function sauvegarderConducteurs(){
-  try{localStorage.setItem('jt_conducteurs',JSON.stringify(conducteurs));}catch(e){}
+  try{localStorage.setItem(jxCle('jt_conducteurs'),JSON.stringify(conducteurs));}catch(e){}
 }
 
 function ajouterConducteur(){
@@ -19656,13 +19794,13 @@ let vehicules = [];
 let contraventions = [];
 function _pesc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function chargerParc(){
-  try{const v=localStorage.getItem('jt_vehicules');if(v)vehicules=JSON.parse(v);}catch(e){}
-  try{const k=localStorage.getItem('jt_contraventions');if(k)contraventions=JSON.parse(k);}catch(e){}
+  try{const v=localStorage.getItem(jxCle('jt_vehicules'));if(v)vehicules=JSON.parse(v);}catch(e){}
+  try{const k=localStorage.getItem(jxCle('jt_contraventions'));if(k)contraventions=JSON.parse(k);}catch(e){}
   renderVehicules();renderContraventions();
 }
 function sauvegarderParc(){
-  try{localStorage.setItem('jt_vehicules',JSON.stringify(vehicules));}catch(e){}
-  try{localStorage.setItem('jt_contraventions',JSON.stringify(contraventions));}catch(e){}
+  try{localStorage.setItem(jxCle('jt_vehicules'),JSON.stringify(vehicules));}catch(e){}
+  try{localStorage.setItem(jxCle('jt_contraventions'),JSON.stringify(contraventions));}catch(e){}
 }
 function parcTab(t){
   var a=document.getElementById('parc-sec-parc'),b=document.getElementById('parc-sec-contra');
@@ -20120,14 +20258,14 @@ function sauvegarderEtat(){
       depot: gv('c-depot'),
     }
   };
-    try{localStorage.setItem('jt_etat',JSON.stringify(etat));}catch(e){}
+    try{localStorage.setItem(jxCle('jt_etat'),JSON.stringify(etat));}catch(e){}
   } catch(ex){}
 }
 
 // Restaurer l'état sauvegardé
 function restaurerEtat(){
   try{
-    const s=localStorage.getItem('jt_etat');
+    const s=localStorage.getItem(jxCle('jt_etat'));
     if(!s)return false;
     const etat=JSON.parse(s);
     const age=(Date.now()-etat.timestamp)/1000/60; // en minutes
@@ -20217,7 +20355,7 @@ document.addEventListener('DOMContentLoaded', function(){
 /* ===== Auteur / page de garde / personnalisation ===== */
 var AUTEUR_DEFAUT={prenom:'Mounir',nom:'CHIKHAOUI',email:'r.t.h@orange.fr',tel:'06 61 47 61 65'};
 var AUTEUR_TEC={prenom:'',nom:'TEC',email:'',tel:''};
-function auteurGet(){try{var v=JSON.parse(localStorage.getItem('app_auteur'));return v&&typeof v==='object'?v:AUTEUR_DEFAUT;}catch(e){return AUTEUR_DEFAUT;}}
+function auteurGet(){try{var v=JSON.parse(localStorage.getItem(jxCle('app_auteur')));return v&&typeof v==='object'?v:AUTEUR_DEFAUT;}catch(e){return AUTEUR_DEFAUT;}}
 function auteurFull(a){return ((a.prenom||'')+' '+(a.nom||'')).trim();}
 function auteurApply(){var a=auteurGet(),full=auteurFull(a),coord=[a.email,a.tel].filter(Boolean).join(' · ');
   var n=document.getElementById('garde-nom');if(n)n.textContent=full;
@@ -20225,8 +20363,8 @@ function auteurApply(){var a=auteurGet(),full=auteurFull(a),coord=[a.email,a.tel
   document.querySelectorAll('.auteur-nom').forEach(function(e){e.textContent=full;});}
 function auteurFill(){var a=auteurGet();['prenom','nom','email','tel'].forEach(function(k){var e=document.getElementById('au-'+k);if(e)e.value=a[k]||'';});}
 function auteurToggle(){var f=document.getElementById('garde-form');if(!f)return;var open=f.style.display!=='none';f.style.display=open?'none':'block';if(!open)auteurFill();}
-function auteurSave(){var a={};['prenom','nom','email','tel'].forEach(function(k){a[k]=(document.getElementById('au-'+k).value||'').trim();});localStorage.setItem('app_auteur',JSON.stringify(a));auteurApply();var f=document.getElementById('garde-form');if(f)f.style.display='none';}
-function auteurReset(){localStorage.setItem('app_auteur',JSON.stringify(AUTEUR_TEC));auteurApply();auteurFill();}
+function auteurSave(){var a={};['prenom','nom','email','tel'].forEach(function(k){a[k]=(document.getElementById('au-'+k).value||'').trim();});localStorage.setItem(jxCle('app_auteur'),JSON.stringify(a));auteurApply();var f=document.getElementById('garde-form');if(f)f.style.display='none';}
+function auteurReset(){localStorage.setItem(jxCle('app_auteur'),JSON.stringify(AUTEUR_TEC));auteurApply();auteurFill();}
 auteurApply();
 </script>
 <div id="pg-diag" class="page">
@@ -21528,7 +21666,7 @@ window.diagReset=function(){
   var ty=document.getElementById('diag-type');if(ty)ty.value='';
   var q=document.getElementById('diag-questions');if(q){q.style.display='none';q.innerHTML='';}
   // purge la sauvegarde du document/type/questions pour qu'ils ne reviennent pas au rechargement
-  try{var KEY='jx_fields_v1',dd=JSON.parse(localStorage.getItem(KEY)||'{}');delete dd['diag-resume'];delete dd['diag-type'];Object.keys(dd).forEach(function(k){if(k.indexOf('dq-')===0)delete dd[k];});localStorage.setItem(KEY,JSON.stringify(dd));}catch(e){}
+  try{var KEY=jxCle('jx_fields_v1'),dd=JSON.parse(localStorage.getItem(KEY)||'{}');delete dd['diag-resume'];delete dd['diag-type'];Object.keys(dd).forEach(function(k){if(k.indexOf('dq-')===0)delete dd[k];});localStorage.setItem(KEY,JSON.stringify(dd));}catch(e){}
 };
 if(document.readyState!=='loading')diagInit();else document.addEventListener('DOMContentLoaded',diagInit);
 })();
@@ -21537,7 +21675,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 <script>
 /* ===== Sauvegarde automatique des saisies (survit à la fermeture) ===== */
 (function(){
-  var KEY='jx_fields_v1';
+  var KEY=jxCle('jx_fields_v1');
   var BLOCK={'lock-input':1,'diag-secteur':1,'diag-ccn':1,'diag-resume':1,'diag-type':1}; // secteur piloté par le verrou ; document/type jamais restaurés (page Analyse repart à zéro)
   var WL=['diag-effectif','diag-rep','diag-anc','diag-anc-unit',
     'calc-type','calc-anc','calc-sal','calc-eff','calc-cpjours','calc-brut','calc-retmode','calc-secteur','calc-conv',
@@ -21586,7 +21724,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
   function fg(label,inner){return '<div class="fg"><label class="fl">'+label+'</label>'+inner+'</div>';}
   function inp(id,ph,type,val){return '<input id="'+id+'" type="'+(type||'text')+'" placeholder="'+(ph||'')+'" value="'+esc(val||'')+'">';}
   function loi(t){return '<div class="loi">'+t+'</div>';}
-  function salList(){try{var a=JSON.parse(localStorage.getItem('jx_salaries_v1')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function salList(){try{var a=JSON.parse(localStorage.getItem(jxCle('jx_salaries_v1'))||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
   var MOTIF_LAB={remplacement:'Remplacement d’un salarié absent','remplacement-tp':'Remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'Attente de l’entrée en service d’un CDI recruté','depart-definitif':'Départ définitif avant suppression du poste',accroissement:'Accroissement temporaire d’activité',saisonnier:'Emploi saisonnier',usage:'CDD d’usage (déménagement)'};
   var MOTIF_MAX={remplacement:18,'remplacement-tp':18,'attente-cdi':9,'depart-definitif':24,accroissement:18,saisonnier:null,usage:18};
   var MOTIF_IMPRECIS={remplacement:1,'remplacement-tp':1,'attente-cdi':1,saisonnier:1,usage:1};
@@ -21812,7 +21950,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
   function wzSaveFiche(){try{var list=salList(),f={nom:A.nom,poste:A.posteLab+(A.coeff?(' — coeff. '+A.coeff):''),adr:A.adr,emb:A.debut,type:(A.type==='cdd'?'CDD':'CDI'),coeff:A.coeff,sal:A.salaire};
     var i=list.findIndex(function(x){return String(x.nom||'').toLowerCase()===f.nom.toLowerCase();});
     if(i>=0)list[i]=f;else list.push(f);
-    localStorage.setItem('jx_salaries_v1',JSON.stringify(list));if(typeof salRefresh==='function')salRefresh();}catch(e){}}
+    localStorage.setItem(jxCle('jx_salaries_v1'),JSON.stringify(list));if(typeof salRefresh==='function')salRefresh();}catch(e){}}
 
   /* ── Application des réponses au module contrat, puis génération ── */
   function apply(){try{
@@ -21990,7 +22128,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
   function btns(nextFn,backScreen,label){return '<div style="display:flex;gap:10px;margin-top:16px"><button class="wz-back" onclick="wzrGo(\''+backScreen+'\')">← Retour</button><button class="btn" style="margin:0;flex:1" onclick="'+nextFn+'">'+(label||'Continuer →')+'</button></div>';}
   function fg(label,inner){return '<div class="fg"><label class="fl">'+label+'</label>'+inner+'</div>';}
   function inp(id,ph,type,val){return '<input id="'+id+'" type="'+(type||'text')+'" placeholder="'+(ph||'')+'" value="'+esc(val||'')+'">';}
-  function salList(){try{var a=JSON.parse(localStorage.getItem('jx_salaries_v1')||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
+  function salList(){try{var a=JSON.parse(localStorage.getItem(jxCle('jx_salaries_v1'))||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
   function fdate(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
   function addD(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x;}
   function addOuvrables(d,n){var x=new Date(d),c=0;while(c<n){x.setDate(x.getDate()+1);if(x.getDay()!==0)c++;}return x;}
