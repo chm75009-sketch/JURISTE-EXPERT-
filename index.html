@@ -7236,7 +7236,7 @@ var SEC_PROFIL={
   }
 };
 /* Aucun secteur choisi : on ne remplit rien a la place du client. */
-var SEC_PROFIL_VIDE={ sub:'Droit du travail', idcc:'Convention collective non renseignée',
+var SEC_PROFIL_VIDE={ sub:'', idcc:'Convention collective non renseignée',
   exNom:'Ex : SARL DUPONT', exAdr:'Ex : 12 rue de la Mairie, 95000 Cergy',
   exMail:'contact@entreprise.fr', exRetraite:'', act:[], org:[], autor:'' };
 
@@ -7270,7 +7270,7 @@ function insProfilMaj(){
   var p=secProfil(v);
   var mk=function(id,txt){ var e=document.getElementById(id); if(e) e.textContent=txt; };
   var ph=function(id,txt){ var e=document.getElementById(id); if(e) e.placeholder=txt; };
-  mk('ins-sub','Droit social — '+p.sub);
+  mk('ins-sub','Droit social'+(p.sub?(' — '+p.sub):''));
   mk('ins-idcc',p.idcc);
   ph('ins-nom',p.exNom); ph('ins-adresse',p.exAdr); ph('ins-email',p.exMail);
   var ea=(typeof E!=='undefined'&&E)?E:{};
