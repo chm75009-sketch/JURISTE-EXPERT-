@@ -429,6 +429,18 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
     box-shadow:0 2px 10px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .jx-fermer:active{transform:scale(.94)}
 
+
+/* ── L'effectif, au-dessus de tout ── */
+.eff-bandeau{display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:15px;
+  margin-bottom:14px;cursor:pointer;font-family:inherit;text-align:left;width:100%;
+  border:1px solid rgba(201,168,76,.38);background:linear-gradient(120deg,rgba(201,168,76,.14),rgba(201,168,76,.05))}
+.eff-bandeau:active{transform:scale(.99)}
+.eff-bandeau .en{font-size:30px;font-weight:800;color:#e8c97a;line-height:1;flex:0 0 auto}
+.eff-bandeau .et{font-size:13.5px;font-weight:800;color:#fff;line-height:1.25}
+.eff-bandeau .ed{font-size:12px;color:#9fb0c4;line-height:1.5;margin-top:3px}
+.eff-bandeau .ec{margin-left:auto;color:#e8c97a;font-size:19px;flex:0 0 auto}
+.eff-bandeau.vide{border-color:rgba(224,168,58,.55);background:rgba(224,168,58,.10)}
+.eff-bandeau.vide .en{font-size:26px}
 /* ── Accueil par familles : tuiles de categorie, puis cartes colorees ── */
 .fam-tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:2px 0 16px}
 @media(min-width:560px){ .fam-tuiles{grid-template-columns:repeat(4,1fr)} }
@@ -850,7 +862,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.125';
+var JX_BUILD = 'v2026-08-06.126';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -859,6 +871,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.126', d:'6 aout 2026', t:[
+   'CORRECTIF IMPORTANT — le generateur de codes clients et le registre des codes emis apparaissaient sur un compte CLIENT. Un client pouvait donc fabriquer des acces et lire le nom des autres clients. Le bloc n\'etait cache que par une ligne executee une fois au demarrage ; il suffisait qu\'elle passe au mauvais moment pour que tout reste visible. La verification est desormais rejouee a chaque changement de page, et chacune des sept fonctions du generateur refuse de s\'executer hors du compte administrateur.',
+   'L\'EFFECTIF PASSE EN PREMIER. Il n\'apparaissait que dans la famille « Le CSE », en troisieme position — alors qu\'il commande l\'obligation d\'elire, le nombre d\'elus, le reglement interieur, les budgets, les commissions et la comptabilite. Un bandeau ouvre desormais l\'accueil : il affiche le chiffre et ce qu\'il declenche, ou reclame la saisie quand il manque. Il ne dit jamais zero faute de donnee.',
+   'REVENIR EN ARRIERE, DE PARTOUT. Le bouton « ← Retour » est en haut de chaque page : des qu\'on a fait defiler, il n\'existe plus, et sur un long formulaire on est coince. Un bouton flottant apparait maintenant des qu\'on a defile : premier appui, on remonte en haut de la page ; second appui, on revient a l\'accueil. Le nom de l\'application, en haut, y ramene aussi.'
+ ]},
  {v:'v2026-08-06.125', d:'6 aout 2026', t:[
    'CLOISONNEMENT — CORRECTIF MAJEUR. Sur le compte administrateur, le socle affichait le registre et l\'effectif d\'un client. Trois cles avaient ete rattachees au compte lors de la correction precedente ; le releve complet du stockage en a revele DOUZE autres qui ne l\'etaient pas, dont le registre du personnel (« jx_salaries_v1 », « je_registre ») et la sauvegarde automatique de tous les champs saisis (« jx_fields_v1 »). Toutes les donnees d\'un dossier portent desormais le compte dans leur cle. Ne restent communes a l\'appareil que les preferences d\'affichage et les constantes juridiques, qui n\'appartiennent a personne.',
    'CLOISONNEMENT — les donnees enregistrees avant cette separation sont rattachees au compte a la premiere ouverture, pour que personne ne perde rien — mais jamais au compte administrateur, qui n\'est le dossier d\'aucune entreprise.',
@@ -1372,6 +1389,7 @@ function _regSave(a){ try{ localStorage.setItem(jxCle('je_registre'), JSON.strin
 function _escReg(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function _regDate(t){ try{ return new Date(t).toLocaleDateString('fr-FR'); }catch(e){ return ''; } }
 async function cgGenerer(){
+  if(jxRefusAdmin()) return;
   var s=document.getElementById('cg-gensecteur').value;
   var res=document.getElementById('cg-result');
   if(!s){ if(res) res.style.display='none'; alert('Choisissez d\'abord le secteur du client.'); return; }
@@ -1399,6 +1417,7 @@ async function cgGenerer(){
   cgRenderRegistre();
 }
 function cgRenderRegistre(){
+  if(jxRefusAdmin()) return;
   var box=document.getElementById('cg-registre'); if(!box) return;
   var reg=_regLoad();
   var cnt=document.getElementById('cg-reg-count'); if(cnt) cnt.textContent=reg.length? (reg.length+' client'+(reg.length>1?'s':'')):'';
@@ -1422,9 +1441,12 @@ function cgRenderRegistre(){
   }
   box.innerHTML=h;
 }
-function cgRegSuspend(i){ var reg=_regLoad(); if(reg[i]){ reg[i].susp=!reg[i].susp; _regSave(reg); cgRenderRegistre(); } }
-function cgRegDelete(i){ var reg=_regLoad(); if(reg[i]){ if(!confirm('Supprimer cette fiche du registre ?')) return; reg.splice(i,1); _regSave(reg); cgRenderRegistre(); } }
+function cgRegSuspend(i){
+  if(jxRefusAdmin()) return; var reg=_regLoad(); if(reg[i]){ reg[i].susp=!reg[i].susp; _regSave(reg); cgRenderRegistre(); } }
+function cgRegDelete(i){
+  if(jxRefusAdmin()) return; var reg=_regLoad(); if(reg[i]){ if(!confirm('Supprimer cette fiche du registre ?')) return; reg.splice(i,1); _regSave(reg); cgRenderRegistre(); } }
 function cgRegEdit(i){
+  if(jxRefusAdmin()) return;
   var reg=_regLoad(); var r=reg[i]; if(!r) return;
   var ov=document.getElementById('cg-edit-ov');
   if(!ov){ ov=document.createElement('div'); ov.id='cg-edit-ov'; ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(8,13,22,.92);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif'; document.body.appendChild(ov); }
@@ -1442,6 +1464,7 @@ function cgRegEdit(i){
 }
 function cgRegEditClose(){ var ov=document.getElementById('cg-edit-ov'); if(ov) ov.style.display='none'; }
 function cgRegSave(i){
+  if(jxRefusAdmin()) return;
   var reg=_regLoad(); if(!reg[i]) return;
   var g=function(k){ var e=document.getElementById('cge-'+k); return e?e.value.trim():''; };
   reg[i].client=g('client'); reg[i].gerant=g('gerant'); reg[i].siret=g('siret'); reg[i].naf=g('naf'); reg[i].adresse=g('adresse'); reg[i].email=g('email'); reg[i].tel=g('tel');
@@ -1450,6 +1473,7 @@ function cgRegSave(i){
   _regSave(reg); cgRegEditClose(); cgRenderRegistre();
 }
 function cgCopier(){
+  if(jxRefusAdmin()) return;
   var code=document.getElementById('cg-code').textContent||'';
   var cp=document.getElementById('cg-copied');
   var okmsg=function(){ if(cp) cp.textContent='✓ Code copié'; };
@@ -1720,7 +1744,7 @@ try{
 
 <!-- TOPBAR GLOBAL -->
 <div class="home-top">
-  <div class="home-brand">
+  <div class="home-brand" onclick="goPage('home');try{window.scrollTo(0,0)}catch(e){}" style="cursor:pointer" title="Revenir à l’accueil">
     <div class="home-sceau">MCH</div>
     <div>
       <h1>Juris Expert MCH</h1>
@@ -1736,6 +1760,13 @@ try{
     <button class="home-burger" onclick="openMenu()">☰</button>
   </div>
 </div>
+
+<!-- Retour, toujours atteignable : apparait des qu'on a fait defiler -->
+<button id="jx-retour" onclick="jxRetour()" aria-label="Revenir en haut, puis à l’accueil"
+  style="display:none;position:fixed;left:14px;bottom:calc(70px + env(safe-area-inset-bottom,0px));
+  z-index:9998;padding:11px 15px;border-radius:24px;border:1px solid rgba(201,168,76,.5);
+  background:rgba(18,40,59,.94);color:#e8c97a;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px)">← Retour</button>
 
 <!-- Choix du secteur, ouvrable depuis n'importe quelle page -->
 <div id="sec-ov" onclick="if(event.target===this)secFermer()" style="display:none;position:fixed;inset:0;z-index:99993;background:rgba(6,14,22,.78);padding:18px;overflow-y:auto">
@@ -5952,6 +5983,7 @@ function jxHomeAlertes(){
 }
 function _esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function goPage(id){
+  try{ jxGardeAdmin(); }catch(e){}   // ce qui est reserve le reste, a chaque page
   // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
   try{
     if(sessionStorage.getItem('jte_ok') !== '1'){
@@ -6960,6 +6992,34 @@ function cseEffectifSaisi(){
 
 
 /* ══════════════════════════════════════════════════════════════════════
+   REVENIR EN ARRIERE, DE PARTOUT
+   Le bouton « ← Retour » de chaque page est en haut : des qu'on a fait
+   defiler, il n'existe plus, et sur un long formulaire on est coince. Ce
+   bouton-ci suit le defilement. Premier appui : on remonte en haut de la
+   page. Deuxieme : on revient a l'accueil.
+   ══════════════════════════════════════════════════════════════════════ */
+function jxRetour(){
+  var y=0; try{ y=window.scrollY||document.documentElement.scrollTop||0; }catch(e){}
+  if(y>120){ try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); } return; }
+  try{ goPage('home'); window.scrollTo(0,0); }catch(e){}
+}
+function jxRetourMaj(){
+  var b=document.getElementById('jx-retour'); if(!b) return;
+  var app=document.getElementById('pg-app');
+  var ouvert = app && getComputedStyle(app).display!=='none';
+  var y=0; try{ y=window.scrollY||document.documentElement.scrollTop||0; }catch(e){}
+  var home=false; try{ var h=document.getElementById('pg-home'); home=!!(h&&h.classList.contains('act')); }catch(e){}
+  /* Sur l'accueil non defile, il n'y a rien a quitter : on ne l'affiche pas. */
+  b.style.display = (ouvert && (y>200 || !home)) ? 'block' : 'none';
+  b.textContent = (y>120) ? '↑ Haut de page' : '← Accueil';
+}
+try{
+  window.addEventListener('scroll', jxRetourMaj, {passive:true});
+  setInterval(jxRetourMaj, 500);
+  if(document.readyState!=='loading') jxRetourMaj(); else document.addEventListener('DOMContentLoaded', jxRetourMaj);
+}catch(e){}
+
+/* ══════════════════════════════════════════════════════════════════════
    CHANGER DE SECTEUR, DEPUIS N'IMPORTE QUELLE PAGE
    Le selecteur n'existait que sur l'accueil. Il est desormais dans la barre
    du haut, donc atteignable partout. Un compte client verrouille par son
@@ -7185,6 +7245,29 @@ function famCoul(i){ return FAM_PAL[i % FAM_PAL.length]; }
 function famRender(){
   var z=document.getElementById('fam-zone'); if(!z) return;
   var sel=famChoisie(), h='';
+
+  /* L'effectif d'abord : c'est lui qui commande l'obligation d'elire, le
+     nombre d'elus, les budgets, le reglement interieur, les commissions.
+     Tant qu'il n'est pas connu, l'application ne peut rien affirmer. */
+  var eff=null; try{ eff=(typeof cseEffectif==='function')?cseEffectif():null; }catch(e){}
+  if(eff===null){
+    h+='<button class="eff-bandeau vide" onclick="goPage(\'socle\')">'
+      +'<span class="en">?</span>'
+      +'<span><span class="et">Votre effectif n’est pas connu</span>'
+      +'<span class="ed">C’est lui qui commande le reste : l’obligation d’élire, le nombre d’élus, les budgets, le règlement intérieur. Renseignez-le.</span></span>'
+      +'<span class="ec">›</span></button>';
+  } else {
+    var pro=[];
+    if(eff>=11) pro.push('comité obligatoire'); else pro.push('pas de comité avant onze');
+    if(eff>=20) pro.push('règlement intérieur');
+    if(eff>=50) pro.push('budgets et consultations');
+    if(eff>=300) pro.push('commissions');
+    h+='<button class="eff-bandeau" onclick="goPage(\'socle\')">'
+      +'<span class="en">'+eff+'</span>'
+      +'<span><span class="et">salarié'+(eff>1?'s':'')+' — votre effectif</span>'
+      +'<span class="ed">'+famEsc(pro.join(' · '))+'</span></span>'
+      +'<span class="ec">›</span></button>';
+  }
 
   h+='<div class="fam-tuiles">';
   FAM.forEach(function(f){
@@ -13920,6 +14003,32 @@ function _setTransportVisible(show){
   var hdr=document.getElementById('menu-sec-header');
   if(hdr){ if(bat){ hdr.textContent='Spécifique Bâtiment'; hdr.style.display=''; } else if(tert){ hdr.textContent='Spécifique '+secLab; hdr.style.display=''; } else { hdr.textContent='Spécifique transport routier'; hdr.style.display=show?'':'none'; } }
 }
+/* ══════════════════════════════════════════════════════════════════
+   CE QUI EST RESERVE A L'ADMINISTRATEUR LE RESTE
+   Une protection qui ne s'execute qu'au demarrage n'en est pas une : il
+   suffit qu'elle passe avant que la session soit connue. Celle-ci est
+   rejouee a chaque changement de page, et chaque fonction sensible se
+   protege elle-meme.
+   ══════════════════════════════════════════════════════════════════ */
+function jxEstAdmin(){
+  try{ return sessionStorage.getItem('jte_admin')==='1'; }catch(e){ return false; }
+}
+function jxGardeAdmin(){
+  var a=jxEstAdmin();
+  ['admin-secteur-wrap','cg-registre','cm-admin-wrap'].forEach(function(id){
+    var e=document.getElementById(id);
+    if(e && !a) e.style.display='none';
+  });
+  return a;
+}
+function jxRefusAdmin(){
+  if(jxEstAdmin()) return false;
+  try{ jxGardeAdmin(); }catch(e){}
+  alert('Cette fonction est réservée à l’administrateur.');
+  return true;
+}
+try{ if(document.readyState!=='loading') jxGardeAdmin(); else document.addEventListener('DOMContentLoaded', jxGardeAdmin); }catch(e){}
+
 function adminPickSector(v){ try{ if(v) sessionStorage.setItem('jte_sector',v); else sessionStorage.removeItem('jte_sector'); }catch(e){} applyClientSector(); }
 // ── Prompt administrateur : à l'entrée d'un module, choisir le secteur qui adapte toute l'application ──
 var ADMIN_SEC_NONE={home:1,audit:1,rgpd:1,mentions:1,cgu:1,nouveautes:1,tarifs:1,contact:1,aide:1,compte:1,admin:1,personnel:1};

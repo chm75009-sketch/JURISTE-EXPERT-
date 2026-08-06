@@ -8,6 +8,7 @@ node tests/cloisonnement.test.js  # un dossier client ne déborde pas sur un aut
 node tests/accueil.test.js        # l'écran d'accueil : ordre de lecture et lisibilité
 node tests/familles.test.js       # les cinq familles de l'application
 node tests/secteur.test.js        # changer de secteur partout, sauf si le code le verrouille
+node tests/garde.test.js          # l'admin reste l'admin, l'effectif d'abord, le retour partout
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
