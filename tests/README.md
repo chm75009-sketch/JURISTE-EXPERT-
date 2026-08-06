@@ -13,6 +13,7 @@ node tests/retour.test.js         # AUCUNE page sans retour — les 42 sont ouve
 node tests/fiche.test.js          # la fiche entreprise suit le secteur choisi, secteur par secteur
 node tests/presentation.test.js   # la mise en page, mesurée en pixels sur un téléphone
 node tests/seuils.test.js         # tous les seuils d'effectif, et les modules qui s'y adaptent
+node tests/report.test.js         # ce qui est saisi une fois n'est plus redemandé
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
@@ -247,7 +248,41 @@ Il vérifie aussi qu'**une seule chose annonce le secteur actif**. Le badge
 disait « tous secteurs » pendant que l'en-tête affichait « CCN IDCC 1516 » :
 deux lectures différentes de la même donnée, et le doute pour l'utilisateur.
 
-## 10. `seuils.test.js` — tous les seuils, et l'application qui s'y adapte
+## 10. `report.test.js` — ce qui est saisi une fois n'est plus redemandé
+
+« J'ai initialement choisi banque comme convention collective, pourquoi il me
+demande ici ? Toutes les infos renseignées à la création du compte doivent
+être reportées automatiquement dans toutes les rubriques où elles sont
+demandées. »
+
+Le module Socle présentait un champ IDCC **vide**, avec « Ex : 16 » en
+exemple — celui du transport — alors que Banque était choisi depuis la
+création du dossier.
+
+Ce test ne vérifie pas deux champs : il **parcourt les 43 pages** et signale
+tout champ vide dont le libellé désigne une information déjà connue (IDCC,
+intitulé de la convention, secteur, effectif). C'est ce balayage qui a trouvé
+le champ « Effectif de l'entreprise » de la page *Fonctionnement du CSE*, que
+la liste écrite à la main avait manqué — même leçon que pour les clés de
+stockage : énumérer, ne pas lister.
+
+Il garde aussi les trois limites du report :
+
+- **la saisie du client prime** — un champ qu'il a rempli n'est jamais
+  écrasé ;
+- **sans secteur choisi, rien n'est inventé** — le champ reste vide, et
+  l'exemple n'est plus celui du transport ;
+- **le bâtiment ne reçoit aucune convention imposée** : il en compte quatre à
+  la fois (1596, 1597, 2609, 2420) selon la catégorie de personnel, et deux
+  d'entre elles dépendent de l'effectif. L'application les énonce et dit
+  qu'elle n'en choisit aucune.
+
+Une subtilité que le test garde : une liste déroulante **sans option vide**
+affiche déjà une réponse — sa première option. Tant que le client n'y a pas
+touché, ce n'est pas un choix mais un défaut d'affichage, et le report la
+corrige. Dès qu'il y touche (`isTrusted`), l'application n'y revient plus.
+
+## 11. `seuils.test.js` — tous les seuils, et l'application qui s'y adapte
 
 La liste d'effectif proposée à la création du dossier s'arrêtait à **« 250
 salariés et plus »**. Au-dessus, le droit du travail continue de compter :
@@ -284,7 +319,7 @@ Et le test vérifie que dès que le registre du personnel est tenu, c'est lui
 qui fait foi : l'effectif est calculé (L.1111-2, L.1111-3), la tranche
 déclarée ne sert plus — même si elle annonce 5 000 salariés.
 
-## 10. `integrite.py` — ce qui est mécaniquement vérifiable
+## 12. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`

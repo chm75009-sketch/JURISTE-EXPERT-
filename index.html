@@ -950,7 +950,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.132';
+var JX_BUILD = 'v2026-08-06.133';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -959,6 +959,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.133', d:'6 aout 2026', t:[
+   'CE QUI EST SAISI UNE FOIS N\'EST PLUS REDEMANDE. Signale : « j\'ai initialement choisi banque comme convention collective, pourquoi il me demande ici ? ». Le module « Mon effectif et mes seuils » presentait un champ IDCC vide, avec « Ex : 16 » en exemple — celui du transport — alors que le secteur Banque etait choisi depuis la creation du dossier.',
+   'Chaque secteur porte desormais sa convention : transport 0016, banque 2120, assurances 1672, Syntec 1486, EPNL 3218, enseignement prive independant 2691, organismes de formation 1516. Le champ arrive rempli, avec la mention « repris du secteur choisi a la creation de votre dossier ». Votre saisie prime toujours : un champ que vous avez rempli n\'est jamais ecrase.',
+   'LE BATIMENT NE RECOIT AUCUNE CONVENTION IMPOSEE. Il en compte quatre a la fois, selon la categorie de personnel : 1596 (ouvriers, entreprises jusqu\'a 10 salaries), 1597 (ouvriers, plus de 10), 2609 (employes, techniciens et agents de maitrise), 2420 (ingenieurs et cadres). L\'application les enonce et dit qu\'elle n\'en choisit aucune a votre place.',
+   'Le report vaut aussi pour l\'effectif et le secteur : le module Reglement interieur, le module Elections, les Mesures disciplinaires et la page Fonctionnement du CSE ne les redemandent plus. Une liste deroulante qui affichait deja une reponse par defaut — sa premiere option — est corrigee tant que vous n\'y avez pas touche ; des que vous y touchez, l\'application n\'y revient plus.',
+   'tests/report.test.js ne verifie pas deux champs : il PARCOURT les quarante-trois pages et signale tout champ vide dont le libelle designe une information deja connue. C\'est ce balayage qui a trouve le champ « Effectif de l\'entreprise » de la page Fonctionnement, que la liste ecrite a la main avait manque.'
+ ]},
  {v:'v2026-08-06.132', d:'6 aout 2026', t:[
    'SIX OBLIGATIONS AJOUTEES, chacune verifiee a la source. 11 salaries : contribution formation professionnelle portee de 0,55 % a 1 % (L.6331-1), et partage de la valeur — les entreprises de 11 a 49 salaries dont le benefice net fiscal atteint 1 % du chiffre d\'affaires sur trois exercices doivent mettre en place un dispositif depuis le 1er janvier 2025, a titre experimental pour cinq ans (loi n°2023-1107 du 29 novembre 2023, art. 5). 50 salaries : le FNAL passe de 0,10 % sur la part plafonnee a 0,50 % sur la totalite (L.834-1 c. sec. soc.), et la participation des employeurs a l\'effort de construction — le « 1 % logement » — devient due (L.313-1 c. constr. hab.) ; les deux seuils sont passes de 20 a 50 avec la loi PACTE.',
    '250 salaries : REFERENT EN MATIERE DE HARCELEMENT SEXUEL ET D\'AGISSEMENTS SEXISTES, designe par l\'employeur (L.1153-5-1). Il manquait. Il est distinct du referent designe par le CSE parmi ses membres, lui obligatoire quelle que soit la taille de l\'entreprise.',
@@ -6196,6 +6203,8 @@ function goPage(id){
   if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
   try{ jxEnteteMaj(); }catch(e){}
   try{ jxRetourMaj(); }catch(e){}
+  /* Ce qui est deja connu ne doit plus etre redemande, sur aucune page. */
+  try{ setTimeout(jxReport, 0); }catch(e){}
   try{ adminSecPrompt(id); }catch(e){}
   try{ sectorGuard(id); }catch(e){}
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
@@ -7093,15 +7102,26 @@ function socSetRempl(id,v){ var c=_socSal(id); if(v==='') delete c.rempl; else c
 
 /* ── S.3 : convention collective ── */
 function socRenderCCN(c){
-  var idcc=SOC.idcc || ((typeof RX!=='undefined'&&RX.ent&&RX.ent.idcc)?RX.ent.idcc:'');
+  /* Ce que le secteur choisi a la creation du dossier dit deja. */
+  var _i={}; try{ _i=jxInfos(); }catch(e){ _i={}; }
+  var idcc=SOC.idcc || ((typeof RX!=='undefined'&&RX.ent&&RX.ent.idcc)?RX.ent.idcc:'') || (_i.idcc||'');
+  var ccn=SOC.ccn || (_i.ccn||'');
+  var repris=(!SOC.idcc && !!(_i.idcc||_i.ccn));
+  var multi=null; try{ multi=SEC_CONV_MULTI[_i.secteur]||null; }catch(e){}
   c.innerHTML =
    '<div class="card"><div class="ct">S.3 · Convention collective</div>'
    +'<div style="font-size:13px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
      +'La convention peut prevoir des dispositions plus favorables que la loi : elles s\'appliquent alors a la place de celle-ci. '
      +'Le socle les transmet a tous les modules — CSE compris — pour qu\'aucun ecran n\'affiche une regle legale la ou une regle conventionnelle plus favorable existe.'
    +'</div>'
-   +'<div class="fg"><label class="fl">IDCC</label><input id="soc-idcc" value="'+socEsc(idcc)+'" placeholder="Ex : 16"></div>'
-   +'<div class="fg"><label class="fl">Intitule de la convention</label><input id="soc-ccn" value="'+socEsc(SOC.ccn||'')+'" placeholder="Ex : Transports routiers et activites auxiliaires du transport"></div>'
+   +(repris?('<div style="margin-bottom:12px;padding:10px 12px;border-radius:10px;border:1px solid rgba(90,180,130,.45);background:rgba(90,180,130,.09);font-size:12.5px;color:#8fe0b4;line-height:1.6">'
+       +'Repris du secteur choisi à la création de votre dossier. Vous pouvez le corriger : votre saisie prime.</div>'):'')
+   +(multi?('<div style="margin-bottom:12px;padding:11px 12px;border-radius:10px;border:1px solid rgba(224,168,58,.45);background:rgba(224,168,58,.07);font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+       +'<b>Ce secteur relève de plusieurs conventions à la fois</b>, selon la catégorie de personnel — l’application n’en choisit aucune à votre place :<ul style="margin:6px 0 0;padding-left:17px">'
+       + multi.map(function(m){ return '<li><b>'+m[0]+'</b> — '+socEsc(m[1])+'</li>'; }).join('')
+       +'</ul></div>'):'')
+   +'<div class="fg"><label class="fl">IDCC</label><input id="soc-idcc" value="'+socEsc(idcc)+'" placeholder="'+socEsc(_i.idcc||'4 chiffres')+'"></div>'
+   +'<div class="fg"><label class="fl">Intitule de la convention</label><input id="soc-ccn" value="'+socEsc(ccn)+'" placeholder="'+socEsc(_i.ccn||'Intitulé de votre convention collective')+'"></div>'
    +'<div class="fg"><label class="fl">Dispositions plus favorables identifiees (representation du personnel)</label>'
      +'<textarea id="soc-plusfav" rows="6" placeholder="Ex : nombre d\'elus superieur au tableau reglementaire ; credit d\'heures majore ; reunions mensuelles…">'+socEsc(SOC.plusFav||'')+'</textarea></div>'
    +'<button class="btn" onclick="socSaveCCN()">Enregistrer</button>'
@@ -7329,6 +7349,90 @@ function jxTranches(){
   L[0].lib='1 à 10 salariés';
   return L;
 }
+/* ══════════════════════════════════════════════════════════════════════
+   CE QUI EST SAISI UNE FOIS N'EST PLUS REDEMANDE
+   Signale : « j'ai initialement choisi banque comme convention collective,
+   pourquoi il me demande ici ? ». Le module Socle presentait un champ IDCC
+   vide, avec « Ex : 16 » en exemple — celui du transport — alors que le
+   secteur Banque etait choisi depuis la creation du dossier.
+   Une seule fonction dit ce que l'application sait ; une seule table dit ou
+   ce savoir doit apparaitre. Un champ deja rempli n'est jamais ecrase :
+   la saisie du client prime toujours sur le report.
+   ══════════════════════════════════════════════════════════════════════ */
+function jxInfos(){
+  var i={ secteur:'', idcc:'', ccn:'', effectif:null, tranche:'',
+          nom:'', siret:'', adresse:'', dirigeant:'', qualite:'', email:'', tel:'' };
+  try{ i.secteur=secCourant()||''; }catch(e){}
+  try{
+    var p=secProfil(i.secteur);
+    i.idcc=p.idccNum||''; i.ccn=p.ccnLib||'';
+  }catch(e){}
+  try{ i.effectif=cseEffectif(); }catch(e){}
+  try{
+    if(typeof E!=='undefined' && E){
+      i.tranche=E.effectif||''; i.nom=(E.nom==='[ENTREPRISE]')?'':(E.nom||'');
+      i.siret=E.siret||''; i.adresse=E.adresse||''; i.dirigeant=E.dirigeant||'';
+      i.qualite=E.qualite||''; i.email=E.email||''; i.tel=E.tel||'';
+    }
+  }catch(e){}
+  return i;
+}
+/* Ou chaque information doit apparaitre. Un champ ajoute ailleurs dans
+   l'application doit etre inscrit ici, sinon il redemandera. */
+var JX_REPORT=[
+  ['soc-idcc','idcc'], ['soc-ccn','ccn'],
+  ['cse-secteur','secteur'], ['disc-secteur','secteur'],
+  ['cse-eff-direct','effectifTxt'], ['csf-eff','effectifTxt'], ['ri-effectif','trancheRI'],
+  ['au-email','email'], ['au-tel','tel']
+];
+/* La tranche attendue par le module « Reglement interieur » : ses options
+   sont ses propres bornes, on ne lui impose que ce qu'il sait recevoir. */
+function jxValeurReport(cle, i){
+  if(cle==='effectifTxt') return (i.effectif===null)?'':String(i.effectif);
+  if(cle==='trancheRI'){
+    /* Ce module n'a que deux etats : le reglement interieur est obligatoire
+       a partir de cinquante salaries (L.1311-2), facultatif en dessous. */
+    if(i.effectif===null) return '';
+    return (i.effectif>=50)?'50plus':'moins20';
+  }
+  return i[cle]||'';
+}
+function jxReport(){
+  try{
+    var i=jxInfos();
+    JX_REPORT.forEach(function(pair){
+      var el=document.getElementById(pair[0]); if(!el) return;
+      var v=jxValeurReport(pair[1], i); if(!v) return;
+      /* On ne remplit que le vide : ce que le client a saisi prime.
+         Exception : une liste deroulante sans option vide affiche deja une
+         reponse — sa premiere option. Tant que le client n'y a pas touche,
+         ce n'est pas un choix, c'est un defaut d'affichage : on le corrige.
+         Des qu'il y touche, jxTouche() marque le champ et on n'y revient plus. */
+      var vide=(String(el.value||'').trim()==='');
+      if(!vide){
+        if(el.tagName!=='SELECT') return;
+        if(el.getAttribute('data-jx-touche')==='1') return;
+        var aVide=false; [].forEach.call(el.options,function(o){ if(o.value==='') aVide=true; });
+        if(aVide) return;                       // il avait un vide : la valeur est un choix
+      }
+      if(el.tagName==='SELECT'){
+        var ok=false; [].forEach.call(el.options,function(o){ if(o.value===v) ok=true; });
+        if(!ok) return;
+      }
+      el.value=v;
+      try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
+      el.setAttribute('data-jx-repris','1');
+      el.title='Repris de votre fiche d’entreprise — modifiable';
+    });
+  }catch(e){}
+}
+/* Un changement declenche par l'application (isTrusted faux) ne compte pas :
+   sinon le report se marquerait lui-meme comme une saisie du client. */
+try{
+  document.addEventListener('change', function(ev){
+    try{ if(ev.isTrusted && ev.target && ev.target.id) ev.target.setAttribute('data-jx-touche','1'); }catch(e){}
+  }, true);
+}catch(e){}
 function jxTranchesMaj(){
   var e=document.getElementById('ins-effectif'); if(!e) return;
   var garde=e.value;
@@ -7506,6 +7610,7 @@ var SEC_LISTE=[
 var SEC_PROFIL={
   transport:{
     sub:'Transport routier de marchandises', idcc:'CCN IDCC 0016 · Décret 83-40 · CE 561/2006',
+    idccNum:'0016', ccnLib:'Transports routiers et activités auxiliaires du transport',
     exNom:'Ex : SARL TRANSPORT EXPRESS', exAdr:'Ex : 56 ZI des Béthunes, 95310 Cergy',
     exMail:'contact@transport.fr', exRetraite:'Ex : CARCEPT PREV, IRSA',
     act:[['marchandises','Transport routier de marchandises'],
@@ -7523,6 +7628,7 @@ var SEC_PROFIL={
   },
   batiment:{
     sub:'Bâtiment et travaux publics', idcc:'CCN IDCC 1596 · 1597 · 2609 · 2420',
+    idccNum:'', ccnLib:'Bâtiment — voir les quatre conventions ci-dessous',
     exNom:'Ex : SARL BATIMENT DURAND', exAdr:'Ex : 14 rue des Artisans, 95000 Cergy',
     exMail:'contact@entreprise.fr', exRetraite:'Ex : PRO BTP',
     act:[['grosoeuvre','Gros œuvre / maçonnerie'],
@@ -7543,6 +7649,7 @@ var SEC_PROFIL={
   },
   banque:{
     sub:'Banque', idcc:'CCN IDCC 2120',
+    idccNum:'2120', ccnLib:'Banque',
     exNom:'Ex : BANQUE DE L’OISE SA', exAdr:'Ex : 3 place de la Bourse, 75002 Paris',
     exMail:'contact@banque.fr', exRetraite:'',
     act:[['detail','Banque de détail'],
@@ -7554,6 +7661,7 @@ var SEC_PROFIL={
   },
   assurances:{
     sub:'Sociétés d’assurances', idcc:'CCN IDCC 1672',
+    idccNum:'1672', ccnLib:'Sociétés d’assurances',
     exNom:'Ex : ASSURANCES DU VAL SA', exAdr:'Ex : 8 avenue de la République, 75011 Paris',
     exMail:'contact@assurances.fr', exRetraite:'',
     act:[['personnes','Assurance de personnes (vie, santé, prévoyance)'],
@@ -7567,6 +7675,7 @@ var SEC_PROFIL={
   },
   syntec:{
     sub:'Bureaux d’études, conseil, numérique', idcc:'CCN IDCC 1486',
+    idccNum:'1486', ccnLib:'Bureaux d’études techniques, cabinets d’ingénieurs-conseils, sociétés de conseils',
     exNom:'Ex : SAS CONSEIL & SYSTEMES', exAdr:'Ex : 22 rue de la Paix, 75002 Paris',
     exMail:'contact@societe.fr', exRetraite:'',
     act:[['conseil','Conseil / études'],
@@ -7584,6 +7693,7 @@ var SEC_PROFIL={
   },
   enseignement:{
     sub:'Enseignement privé non lucratif (EPNL)', idcc:'CCN IDCC 3218',
+    idccNum:'3218', ccnLib:'Enseignement privé non lucratif (EPNL)',
     exNom:'Ex : OGEC SAINT-JOSEPH', exAdr:'Ex : 5 rue de l’École, 95300 Pontoise',
     exMail:'contact@etablissement.fr', exRetraite:'',
     act:[['premier','École — premier degré'],
@@ -7599,6 +7709,7 @@ var SEC_PROFIL={
   },
   ensindep:{
     sub:'Enseignement privé indépendant', idcc:'CCN IDCC 2691',
+    idccNum:'2691', ccnLib:'Enseignement privé indépendant',
     exNom:'Ex : INSTITUT DES METIERS SARL', exAdr:'Ex : 5 rue de l’École, 95300 Pontoise',
     exMail:'contact@etablissement.fr', exRetraite:'',
     act:[['horscontrat','Établissement scolaire hors contrat'],
@@ -7611,6 +7722,7 @@ var SEC_PROFIL={
   },
   formation:{
     sub:'Organismes de formation', idcc:'CCN IDCC 1516',
+    idccNum:'1516', ccnLib:'Organismes de formation',
     exNom:'Ex : SARL FORMATION CONSEIL', exAdr:'Ex : 10 rue des Écoles, 95000 Cergy',
     exMail:'contact@organisme.fr', exRetraite:'',
     act:[['continue','Formation professionnelle continue'],
@@ -7625,7 +7737,18 @@ var SEC_PROFIL={
   }
 };
 /* Aucun secteur choisi : on ne remplit rien a la place du client. */
-var SEC_PROFIL_VIDE={ sub:'', idcc:'Convention collective non renseignée',
+/* Le batiment releve de QUATRE conventions a la fois, selon la categorie de
+   personnel — et deux d'entre elles dependent de l'effectif. L'application
+   ne choisit pas a la place du client : elle les enonce. */
+var SEC_CONV_MULTI={
+  batiment:[
+    ['1596','Ouvriers — entreprises occupant jusqu’à 10 salariés'],
+    ['1597','Ouvriers — entreprises occupant plus de 10 salariés'],
+    ['2609','Employés, techniciens et agents de maîtrise (ETAM)'],
+    ['2420','Ingénieurs et cadres']
+  ]
+};
+var SEC_PROFIL_VIDE={ sub:'', idccNum:'', ccnLib:'', idcc:'Convention collective non renseignée',
   exNom:'Ex : SARL DUPONT', exAdr:'Ex : 12 rue de la Mairie, 95000 Cergy',
   exMail:'contact@entreprise.fr', exRetraite:'', act:[], org:[], autor:'' };
 
