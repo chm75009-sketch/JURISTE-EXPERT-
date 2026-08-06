@@ -862,13 +862,37 @@ var JX_MAJ = '12 juillet 2026';
    range sous cette cle. Un cabinet ouvre plusieurs dossiers depuis le meme
    navigateur : sans cela, le dernier client ouvert reste affiche pour tous
    les suivants, et signe leurs documents. */
-function jxCompte(){
+/* La racine du compte : qui est connecte, sans considerer le secteur.
+   Le secteur choisi se range sous cette racine — sinon la cle qui porte le
+   secteur dependrait du secteur, et on ne le retrouverait jamais. */
+function jxCompteRacine(){
   try{
     if(sessionStorage.getItem('jte_admin')==='1') return 'admin';
     var c=sessionStorage.getItem('jte_code'); if(c) return 'c_'+c;
     var s=sessionStorage.getItem('jte_sector'); if(s) return 's_'+s;
   }catch(e){}
   return 'local';
+}
+/* ══════════════════════════════════════════════════════════════════
+   LE DOSSIER OUVERT. Le compte du cabinet sert a essayer les secteurs les
+   uns apres les autres ; il ne renvoyait qu'un seul identifiant, 'admin'.
+   Le registre du personnel, l'effectif, les seuils et les budgets saisis en
+   essayant un secteur se retrouvaient donc dans tous les autres : un
+   effectif de 71 salaries s'affichait sur un dossier « Assurances » ouvert
+   vierge — il venait d'un registre de 83 inscrits saisi ailleurs.
+   Chaque secteur essaye est maintenant un dossier a lui. Un compte CLIENT ne
+   change pas : son secteur est fixe par son code, il n'a qu'un dossier.
+   ══════════════════════════════════════════════════════════════════ */
+function jxCompte(){
+  var r=jxCompteRacine();
+  if(r!=='admin') return r;
+  var a=''; try{ a=localStorage.getItem('app_secteur::admin')||''; }catch(e){}
+  return a ? ('admin_'+a) : 'admin';
+}
+/* Vrai pour 'admin' comme pour 'admin_banque'. */
+function jxCompteCabinet(nom){
+  var c=(nom===undefined)?jxCompte():nom;
+  return c==='admin' || c.indexOf('admin_')===0;
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
@@ -879,6 +903,15 @@ function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
    constantes juridiques : elles n'appartiennent a personne.
    ══════════════════════════════════════════════════════════════════ */
 function jxCle(nom){ return nom+'::'+jxCompte(); }
+/* Le dossier ouvert, dit en francais — pour repondre a « ca vient d'ou ? ». */
+function jxDossierLib(){
+  var c=jxCompte();
+  if(c==='admin') return 'essai — aucun secteur';
+  if(c.indexOf('admin_')===0) return 'essai — secteur '+c.slice(6);
+  if(c.indexOf('c_')===0) return 'client '+c.slice(2);
+  if(c.indexOf('s_')===0) return 'secteur '+c.slice(2);
+  return 'cet appareil';
+}
 
 /* Les donnees enregistrees avant le cloisonnement sont rattachees au compte
    a la premiere ouverture — jamais au compte administrateur, qui n'est le
@@ -888,7 +921,7 @@ var JX_CLES_DOSSIER=['je_registre','jx_salaries_v1','jx_fields_v1','transport_no
   'tec_rh_v1','tec_cloud_cfg','tec_cloud_sess','app_auteur'];
 function jxReprise(){
   var c=jxCompte();
-  if(c==='admin') return;                       // le cabinet n'herite d'aucun client
+  if(jxCompteCabinet(c)) return;                // le cabinet n'herite d'aucun client
   JX_CLES_DOSSIER.forEach(function(n){
     try{
       var k=jxCle(n);
@@ -901,7 +934,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.129';
+var JX_BUILD = 'v2026-08-06.130';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -910,6 +943,14 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.130', d:'6 aout 2026', t:[
+   'CORRECTIF IMPORTANT — UN DOSSIER PAR SECTEUR D\'ESSAI. Signale : « je suis dans assurance, il vient d\'ou cet effectif de 72 ? ». Il venait du registre du personnel — 83 inscrits — saisi en essayant un AUTRE secteur. Le compte du cabinet ne designait qu\'un seul dossier, quel que soit le secteur ouvert : le registre, l\'effectif, les seuils, les budgets et la fiche entreprise etaient partages entre tous les essais. Changer de secteur changeait la convention citee, pas le dossier ouvert.',
+   'Chaque secteur essaye a desormais son dossier. Ouvrir « Assurances » apres « Banque » donne un registre vide, aucun effectif, aucune fiche — et revenir sur « Banque » retrouve tout, intact. Un compte CLIENT ne change pas : son secteur est fixe par son code, il n\'a qu\'un dossier.',
+   'L\'EFFECTIF DIT D\'OU IL VIENT. Un chiffre sans origine ne vaut rien, et c\'etait exactement la question posee. Le bandeau annonce maintenant sa source — « calcule d\'apres votre registre du personnel — 83 inscrits », ou « d\'apres l\'effectif que vous avez saisi au dernier exercice clos » — et le dossier ouvert.',
+   'UN SECTEUR VERROUILLE LE DIT. Un compte ouvert par un code d\'acces ne peut pas changer de secteur : l\'application l\'ignorait en silence, et l\'ecran continuait d\'afficher l\'ancien. Elle repond desormais quel secteur le code impose, et pourquoi.',
+   'Le dossier d\'essai qui existait avant cette version, sans secteur, n\'est ni recopie partout ni efface : a la premiere ouverture d\'un secteur, l\'application demande s\'il faut le lui rattacher — et propose de repartir vierge, ce qui est le choix normal pour un essai.',
+   'tests/cloisonnement.test.js joue la scene : trois salaries sur Banque, on passe a Assurances — registre vide, effectif nul, fiche vide — on revient sur Banque, les trois sont la. Et l\'effectif doit nommer sa source et son dossier.'
+ ]},
  {v:'v2026-08-06.129', d:'6 aout 2026', t:[
    'LA PRESENTATION, REPRISE AU PIXEL. Mesure faite sur un ecran de telephone de 390 px : le nom « Juris Expert MCH » ne disposait que de 82 px et se cassait sur TROIS lignes, ecrase par le bouton de secteur pose a cote de lui. Le nom du secteur est desormais sous le titre, le bouton est une icone : le titre tient sur une ligne, avec 216 px. L\'en-tete passe de 134 a 63 px.',
    'PLUS DE « [ENTREPRISE] » A L\'ECRAN. Ce texte est le remplacement utilise dans les documents quand la raison sociale manque ; il etait enregistre dans la fiche et s\'affichait dans l\'en-tete. Une raison sociale absente reste absente.',
@@ -5795,7 +5836,9 @@ var MODS_SECTEUR=[];
 /* Le secteur est une donnee du dossier, pas de l'appareil : « formation »
    choisi pour un client faisait afficher sa convention (IDCC 1516) a tous
    les comptes suivants. */
-function secCle(k){ return k+'::'+((typeof jxCompte==='function')?jxCompte():'local'); }
+/* Sous la RACINE du compte, jamais sous le dossier : la cle qui porte le
+   secteur ne peut pas dependre du secteur qu'elle porte. */
+function secCle(k){ return k+'::'+((typeof jxCompteRacine==='function')?jxCompteRacine():'local'); }
 function secGet(k){try{return localStorage.getItem(secCle(k));}catch(e){return null;}}
 function secSet(k,v){ if(typeof jxStockEcrire==='function') jxStockEcrire(secCle(k),v); else try{localStorage.setItem(secCle(k),v);}catch(e){} }
 /* Aucun secteur choisi = aucun secteur, et on le dit. Ecrire « transport »
@@ -7064,7 +7107,10 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
    Renvoie null tant qu'aucune donnee n'a ete saisie : un registre vide
    signifie « on ne sait pas », jamais « zero salarie ». La difference
    compte, parce que zero place l'entreprise sous tous les seuils. */
-function cseEffectif(){
+/* Un chiffre sans origine ne vaut rien : « il vient d'ou, cet effectif ? »
+   etait la question, et l'application ne repondait nulle part. Elle renvoie
+   maintenant le nombre ET sa source. */
+function cseEffectifSource(){
   try{
     if(typeof socLoad==='function') socLoad();
     if(typeof rxLoad==='function') rxLoad();
@@ -7072,14 +7118,18 @@ function cseEffectif(){
           plus exact, mois par mois, exclusions de L.1111-3 comprises. */
     var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
     if(st.length && typeof socSerie==='function'){
-      var s=socSerie(36); if(s.length) return s[s.length-1].ent;
+      var s=socSerie(36);
+      if(s.length) return { n:s[s.length-1].ent, src:'registre',
+        txt:'calculé d’après votre registre du personnel — '+st.length+' inscrit'+(st.length>1?'s':'') };
     }
     /* 2. A defaut, l'effectif saisi a la main pour le dernier exercice
           clos : c'est precisement pourquoi cette saisie est demandee. */
-    var m=cseEffectifSaisi(); if(m!==null) return m;
-    return null;
-  }catch(e){ return null; }
+    var m=cseEffectifSaisi();
+    if(m!==null) return { n:m, src:'saisi', txt:'d’après l’effectif que vous avez saisi au dernier exercice clos' };
+    return { n:null, src:'', txt:'' };
+  }catch(e){ return { n:null, src:'', txt:'' }; }
 }
+function cseEffectif(){ try{ return cseEffectifSource().n; }catch(e){ return null; } }
 /* Le dernier effectif d'entreprise saisi par exercice, s'il y en a un. */
 function cseEffectifSaisi(){
   try{
@@ -7402,6 +7452,49 @@ function secCourant(){
   if(!s){ try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){} }
   return s;
 }
+/* Toutes les donnees du dossier, relues depuis le stockage du nouveau
+   dossier. La liste est explicite : un module ajoute demain doit y figurer,
+   faute de quoi il continuera d'afficher les donnees du dossier precedent. */
+var JX_RECHARGE=['rxLoad','socLoad','csedLoad','budLoad','calLoad','cnsLoad','dosLoad',
+  'hmLoad','hubLoad','mcLoad','pseLoad','rclLoad','reuLoad'];
+function jxRechargerDossier(){
+  JX_RECHARGE.forEach(function(f){ try{ if(typeof window[f]==='function') window[f](); }catch(e){} });
+  /* La fiche entreprise appartient elle aussi au dossier. */
+  try{
+    var v=localStorage.getItem(jxEntKey());
+    E = v ? JSON.parse(v)
+          : { nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'', activiteAutre:'',
+              email:'', tel:'', effectif:'', org:'', orgAutre:'', licence:'', gestionnaire:'', dreal:'',
+              cph:'', spst:'', retraite:'', mutuelle:'', cartebtp:'', cibtp:'', decennale:'' };
+  }catch(e){}
+  ['chargerParametres','chargerConducteurs','chargerParc','updateHeroTop','famRender',
+   'insProfilMaj','parProfilMaj','applyClientSector'].forEach(function(f){
+    try{ if(typeof window[f]==='function') window[f](); }catch(e){}
+  });
+}
+/* Le cabinet avait un dossier unique avant cette version. A la premiere
+   ouverture d'un secteur, on demande a qui il appartient — on ne le recopie
+   pas dans tous les secteurs, et on ne le fait pas disparaitre non plus. */
+function jxRepriseCabinet(){
+  try{
+    if(jxCompteRacine()!=='admin') return;
+    var d=jxCompte(); if(d==='admin') return;              // pas de secteur : c'est deja lui
+    if(localStorage.getItem('jx_cab_repris::'+d)==='1') return;
+    localStorage.setItem('jx_cab_repris::'+d,'1');
+    var vieux=localStorage.getItem('rx_data_v1::admin');
+    if(!vieux) return;
+    var n=0; try{ n=((JSON.parse(vieux)||{}).staff||[]).length; }catch(_){}
+    if(!n) return;
+    if(localStorage.getItem('rx_data_v1::'+d)) return;      // ce secteur a deja son dossier
+    var lib=d.replace('admin_','');
+    if(!confirm('Un dossier d’essai existe sur cet appareil, sans secteur, avec '+n+' salarié'+(n>1?'s':'')+' au registre.\n\n'
+      +'Le rattacher au secteur « '+lib+' » que vous venez d’ouvrir ?\n\n'
+      +'Répondez Annuler pour ouvrir ce secteur avec un dossier vierge — c’est le choix normal pour un essai.')) return;
+    ['rx_data_v1','soc_data_v1','cse_diag_v1','juris_transport'].forEach(function(k){
+      try{ var v=localStorage.getItem(k+'::admin'); if(v!==null) localStorage.setItem(k+'::'+d, v); }catch(_){}
+    });
+  }catch(e){}
+}
 function secChipMaj(){
   var b=document.getElementById('sec-chip'); if(!b) return;
   var s=secCourant(), o=null;
@@ -7450,8 +7543,20 @@ function secFermer(){
   try{ document.body.style.overflow=''; }catch(e){}
 }
 function secChoisir(v){
-  if(secVerrouille()) return;
+  /* Un code d'acces impose le secteur. Rester muet laissait croire que le
+     changement avait eu lieu — l'ecran continuait d'afficher l'ancien. */
+  if(secVerrouille()){
+    var o=null; SEC_LISTE.forEach(function(x){ if(x.v===secCourant()) o=x; });
+    alert('Votre code d’accès fixe le secteur'+(o?(' sur « '+o.lib+' »'):'')+'.\n\n'
+      +'Il ne peut pas être changé ici : il commande la convention citée, les documents produits et les questions posées.');
+    secFermer(); return;
+  }
   try{ if(typeof appSetSecteur==='function') appSetSecteur(v); }catch(e){}
+  /* Pour le cabinet, le secteur designe le dossier : il faut le recharger,
+     sinon l'ecran continue d'afficher le personnel et l'effectif du
+     precedent — c'est exactement ce qui s'est produit. */
+  try{ jxRepriseCabinet(); }catch(e){}
+  try{ jxRechargerDossier(); }catch(e){}
   secChipMaj(); secFermer();
   try{ if(typeof famRender==='function') famRender(); }catch(e){}
   try{ if(typeof updateHeroTop==='function') updateHeroTop(); }catch(e){}
@@ -7630,10 +7735,14 @@ function famRender(){
     if(eff>=20) pro.push('règlement intérieur');
     if(eff>=50) pro.push('budgets et consultations');
     if(eff>=300) pro.push('commissions');
+    var _src=''; try{ _src=cseEffectifSource().txt||''; }catch(e){}
     h+='<button class="eff-bandeau" onclick="goPage(\'socle\')">'
       +'<span class="en">'+eff+'</span>'
       +'<span><span class="et">salarié'+(eff>1?'s':'')+' — votre effectif</span>'
-      +'<span class="ed">'+famEsc(pro.join(' · '))+'</span></span>'
+      +'<span class="ed">'+famEsc(pro.join(' · '))+'</span>'
+      /* D'ou sort ce chiffre : la question posee, mot pour mot. */
+      +(_src?('<span class="ed" style="opacity:.85">'+famEsc(_src)+'</span>'):'')
+      +'<span class="ed" style="opacity:.7">dossier : '+famEsc(jxDossierLib())+'</span></span>'
       +'<span class="ec">›</span></button>';
   }
 

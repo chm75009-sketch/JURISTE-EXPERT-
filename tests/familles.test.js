@@ -83,8 +83,11 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
 
   /* Les cartes propres au transport ne doivent pas s'afficher ailleurs. */
   console.log('\n— Les cartes de secteur —');
+  /* On passe par l'application, pas par la clé de stockage : depuis que
+     chaque secteur d'essai a son dossier, la clé qui porte le secteur est
+     rangée sous la RACINE du compte, et l'écrire à la main la manquait. */
   const parSecteur = async (sec) => page.evaluate(s => {
-    localStorage.setItem('app_secteur::' + jxCompte(), s);
+    appSetSecteur(s);
     sessionStorage.setItem('jte_sector', s);
     return FAM.flatMap(f => f.groupes.flatMap(g => g.cartes))
               .filter(c => typeof famConcerne === 'function' ? famConcerne(c) : true)

@@ -111,6 +111,20 @@ fiche **par l'application elle-même**, on se déconnecte, on revient en
 administrateur — rien du client ne doit subsister — puis on retourne dans le
 dossier client, qui doit tout retrouver intact.
 
+**Et un dossier par secteur d'essai.** Signalé ensuite : « je suis dans
+assurance, il vient d'où cet effectif de 72 ? ». Il venait du registre du
+personnel — 83 inscrits — saisi en essayant un autre secteur. Le compte du
+cabinet ne désignait qu'un seul dossier quel que soit le secteur ouvert :
+`jxCompte()` renvoyait `admin`, donc `rxKey()`, `socKey()`, `csedKey()` et
+`jxEntKey()` pointaient tous au même endroit. Changer de secteur changeait la
+convention citée, pas le dossier.
+
+Le test joue donc la scène : trois salariés sur Banque → on passe à
+Assurances → registre vide, effectif nul, fiche vide → on revient sur Banque
+→ les trois sont là. Il vérifie aussi que l'effectif **nomme sa source** (le
+registre, avec le nombre d'inscrits) et le dossier ouvert : un chiffre sans
+origine ne vaut rien, et c'était exactement la question posée.
+
 ## 5. `harcelement.test.js` — chaque réponse, son arrêt
 
 Ce module dit à un salarié si sa situation entre dans la qualification de

@@ -109,6 +109,61 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(heritage.admin === 'admin' && heritage.repris === null,
      'le compte administrateur n’adopte pas l’ancien registre commun', JSON.stringify(heritage));
 
+  /* ── UN DOSSIER PAR SECTEUR D'ESSAI ─────────────────────────────
+     Signale depuis un telephone : « je suis dans assurance, il vient d'ou
+     cet effectif de 72 ? ». Il venait du registre saisi en essayant un
+     autre secteur : jxCompte() renvoyait « admin » quel que soit le
+     secteur, donc tous les essais partageaient un seul dossier. */
+  console.log('\n— Un dossier par secteur d’essai —');
+  const essai = await page.evaluate(() => {
+    const out = {};
+    appSetSecteur('banque'); jxRechargerDossier();
+    out.dosBanque = jxCompte();
+    RX.staff = [{ id: 'a', nom: 'A', entree: '2020-01-01' },
+                { id: 'b', nom: 'B', entree: '2020-01-01' },
+                { id: 'c', nom: 'C', entree: '2020-01-01' }];
+    rxSaveLocal();
+    out.banqueAvant = RX.staff.length;
+
+    appSetSecteur('assurances'); jxRechargerDossier();
+    out.dosAssur = jxCompte();
+    out.assurStaff = RX.staff.length;
+    out.assurEffectif = cseEffectif();
+    out.assurNom = (typeof E !== 'undefined' && E) ? E.nom : null;
+
+    appSetSecteur('banque'); jxRechargerDossier();
+    out.banqueApres = RX.staff.length;
+
+    appSetSecteur(''); jxRechargerDossier();
+    out.dosSansSecteur = jxCompte();
+    return out;
+  });
+  ok(essai.dosBanque === 'admin_banque' && essai.dosAssur === 'admin_assurances',
+     'chaque secteur essayé ouvre un dossier qui lui est propre',
+     essai.dosBanque + ' / ' + essai.dosAssur);
+  ok(essai.assurStaff === 0,
+     'passer de Banque à Assurances : le registre repart vide, il ne suit pas',
+     essai.assurStaff + ' salarié(s) hérités');
+  ok(essai.assurEffectif === null,
+     'et aucun effectif n’apparaît sur un secteur qu’on vient d’ouvrir',
+     essai.assurEffectif);
+  ok(!essai.assurNom, 'ni la fiche entreprise de l’essai précédent', essai.assurNom);
+  ok(essai.banqueApres === 3, 'revenir sur Banque retrouve ses trois salariés',
+     essai.banqueApres);
+  ok(essai.dosSansSecteur === 'admin', '« aucun secteur » est encore un autre dossier',
+     essai.dosSansSecteur);
+
+  /* Et le chiffre dit d'ou il vient — c'etait la question posee. */
+  const source = await page.evaluate(() => {
+    appSetSecteur('banque'); jxRechargerDossier();
+    return { src: cseEffectifSource(), lib: jxDossierLib() };
+  });
+  ok(source.src.src === 'registre' && /registre du personnel/.test(source.src.txt),
+     'l’effectif annonce sa source : le registre du personnel', JSON.stringify(source.src));
+  ok(/3 inscrits/.test(source.src.txt), 'avec le nombre d’inscrits', source.src.txt);
+  ok(/banque/.test(source.lib), 'et le dossier ouvert est nommé', source.lib);
+  await page.evaluate(() => { appSetSecteur(''); jxRechargerDossier(); });
+
   // ── Retour chez le client : il doit tout retrouver ────────────────
   await page.evaluate(() => deconnexion());
   await page.waitForTimeout(300);

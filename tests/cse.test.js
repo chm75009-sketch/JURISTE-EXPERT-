@@ -49,7 +49,11 @@ var RX={staff:[],ent:{}};
    entrer dans le bac a sable, sinon chaque module tombe sur une fonction
    absente au lieu d'etre reellement teste. */
 function effectifCommun() {
-  const i = SRC.indexOf('function cseEffectif()');
+  /* Depuis que l'effectif annonce sa source, cseEffectif() delegue a
+     cseEffectifSource() — qui le precede dans le fichier. Partir du premier
+     des deux, sinon le bac a sable recoit un appel vers une fonction qu'il
+     n'a pas extraite. */
+  const i = SRC.indexOf('function cseEffectifSource()');
   const j = SRC.indexOf('var BUD={};', i);
   if (i < 0 || j < 0) throw new Error('lecture commune de l’effectif introuvable');
   return SRC.slice(i, j);
