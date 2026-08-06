@@ -147,13 +147,25 @@ const ok = (c, m, d) => {
     'le bandeau annonce ' + attenduAns + ' ans d\'expérience', await p.textContent('#exp'));
   ok(await p.textContent('#exp2') === String(attenduAns), 'la présentation annonce le même nombre');
 
-  /* Le portrait : présent, traité, et sans trou si le fichier disparaît. */
-  ok(await p.locator('.pf.has').count() === 1, 'le portrait est chargé dans le bandeau');
-  ok(await p.locator('.cab .sig .av.has').count() === 1, 'le même portrait signe la présentation');
-  const filtre = await p.evaluate(() =>
-    getComputedStyle(document.querySelector('.pf'), '::after').filter);
-  ok(/grayscale/.test(filtre) && /sepia/.test(filtre),
-    'la photo est passée en noir et blanc réchauffé', filtre);
+  /* Le portrait. Tant que la vraie photo n'est pas fournie, l'emplacement
+     affiche le monogramme — jamais une image cassée ni un trou. Le jour où
+     PORTRAIT est renseigné, le traitement noir et blanc doit être prêt : on
+     vérifie donc la règle CSS, qu'il y ait une photo ou non. */
+  const photoPosee = await p.locator('.pf.has').count() === 1;
+  if (photoPosee) {
+    ok(await p.locator('.cab .sig .av.has').count() === 1, 'le même portrait signe la présentation');
+  } else {
+    ok(await p.locator('.pf .mg').isVisible(), 'sans photo, le monogramme tient la place');
+    ok(await p.locator('.pf').evaluate(e => !e.style.backgroundImage),
+      'aucune image fantôme n\'est chargée');
+  }
+  const regleFiltre = await p.evaluate(() => {
+    for (const f of document.styleSheets[0].cssRules)
+      if (f.selectorText === '[data-photo].has::after') return f.style.filter;
+    return '';
+  });
+  ok(/grayscale/.test(regleFiltre) && /sepia/.test(regleFiltre),
+    'le traitement noir et blanc réchauffé attend la photo', regleFiltre);
 
   /* Le bandeau d'annonce n'existe que s'il y a quelque chose à annoncer. */
   ok(await p.locator('#annonce:not([hidden])').count() === 0,
