@@ -683,6 +683,11 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   #accueil-screen .trust .row b{color:var(--ink)} #accueil-screen .trust .row span{color:var(--muted)}
   #accueil-screen footer{margin-top:22px;text-align:center;color:var(--muted);font-size:11px;line-height:1.7}
   #accueil-screen footer b{color:var(--brass);font-weight:600}
+  /* Accès au site du cabinet : présent, mais discret. */
+  #accueil-screen footer .lien-cabinet{display:inline-block;margin-top:9px;color:var(--brass);
+    font-size:11.5px;font-weight:600;text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb,var(--brass) 40%,transparent);padding-bottom:1px}
+  #accueil-screen footer .lien-cabinet:hover{color:var(--green);border-bottom-color:var(--green)}
   @media (max-width:360px){#accueil-screen .heroband h1{font-size:26px}}
 </style>
 <div id="accueil-screen">
@@ -811,6 +816,11 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       <span class="fmaj"><span class="dot"></span>Base juridique à jour au 12 juillet 2026</span><br>
       Conçu par <b>Mounir CHIKHAOUI</b><br>
       Outil d'aide à la décision — ne constitue pas un conseil juridique (loi n° 71-1130 du 31/12/1971).
+      <!-- Accès au site du cabinet CJ AVOCATS. Il vit dans le même dépôt, donc
+           il se met en ligne par le même déploiement : une modification poussée
+           ici est en ligne sans aucune manipulation. Le lien reste discret —
+           une ligne de pied de page, aucune entrée de menu. -->
+      <br><a class="lien-cabinet" href="./avocat-aj/">Cabinet CJ Avocats — Maître A. J., Argenteuil →</a>
     </footer>
   </div>
 </div>

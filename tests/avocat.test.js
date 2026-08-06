@@ -60,12 +60,19 @@ const ok = (c, m, d) => {
     ok(!/(src|href)\s*=\s*["']\/(?!\/)/.test(vu), f + ' : aucun chemin absolu (« /… »)');
     ok(/<meta name="robots" content="noindex/.test(src), f + ' : invisible pour les moteurs');
   }
-  /* Et réciproquement : l'application ne doit mener nulle part vers le site. */
+  /* Et réciproquement : l'application ne mène au site que par UN seul accès,
+     voulu — une ligne de pied de page sur l'accueil. Aucune autre page ne doit
+     y renvoyer, et surtout aucune entrée de menu. */
   const racine = fs.readdirSync(path.resolve(__dirname, '..'))
     .filter(f => f.endsWith('.html'));
-  racine.forEach(f => ok(
-    !/avocat-aj/.test(fs.readFileSync(path.resolve(__dirname, '..', f), 'utf8')),
-    'Juris Expert ne pointe pas vers le site : ' + f));
+  racine.forEach(f => {
+    const src = fs.readFileSync(path.resolve(__dirname, '..', f), 'utf8');
+    const liens = (src.replace(/<!--[\s\S]*?-->/g, '').match(/avocat-aj/g) || []).length;
+    if (f === 'index.html')
+      ok(liens === 1, 'un seul accès au site depuis Juris Expert', liens + ' occurrence(s)');
+    else
+      ok(liens === 0, 'aucun renvoi vers le site depuis : ' + f);
+  });
 
   /* ── 3. Les pages s'ouvrent sans erreur, et on peut en revenir ──────── */
   console.log('\n— Les pages, ouvertes pour de vrai —');
