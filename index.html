@@ -2051,7 +2051,20 @@ try{
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
 
-  <details id="home-tous" style="margin-top:22px">
+  <!-- Accès au site du cabinet CJ AVOCATS, depuis l'accueil de l'application.
+       Même dépôt, donc même déploiement : ce qui est poussé est en ligne. -->
+  <a href="./avocat-aj/" style="display:flex;align-items:center;gap:11px;margin-top:22px;
+     padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);
+     border:1px solid rgba(232,201,122,.28);text-decoration:none;color:#e8c97a;
+     font-size:13.5px;font-weight:700">
+    <span style="font-size:17px" aria-hidden="true">⚖️</span>
+    <span style="flex:1">Cabinet CJ Avocats — Maître A. J., Argenteuil
+      <span style="display:block;font-weight:400;font-size:11.5px;color:#9a9585;margin-top:2px">
+        Conseil et contentieux · Val-d'Oise et toute la France</span></span>
+    <span style="opacity:.7">›</span>
+  </a>
+
+  <details id="home-tous" style="margin-top:12px">
   <summary style="cursor:pointer;list-style:none;padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);font-size:13.5px;font-weight:700;color:#e8c97a">📚 Tous les modules — la liste complète</summary>
   <div style="padding-top:10px">
 <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>

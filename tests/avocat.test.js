@@ -69,7 +69,8 @@ const ok = (c, m, d) => {
     const src = fs.readFileSync(path.resolve(__dirname, '..', f), 'utf8');
     const liens = (src.replace(/<!--[\s\S]*?-->/g, '').match(/avocat-aj/g) || []).length;
     if (f === 'index.html')
-      ok(liens === 1, 'un seul accès au site depuis Juris Expert', liens + ' occurrence(s)');
+      ok(liens === 2, 'deux accès voulus : l\'accueil avant connexion, et l\'accueil de l\'application',
+        liens + ' occurrence(s)');
     else
       ok(liens === 0, 'aucun renvoi vers le site depuis : ' + f);
   });
