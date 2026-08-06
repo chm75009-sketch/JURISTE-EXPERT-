@@ -273,6 +273,14 @@
   .cadran .dep{font-size:13.5px;color:var(--ink2);line-height:1.6}
   .cadran .dep b{color:var(--ink)}
 
+  /* La nuance : ce qui ne change pas le nombre de mois, mais qui change
+     l'issue du dossier. En retrait, jamais en gras : c'est une precision,
+     pas un avertissement. */
+  .nuance{display:none;margin:-6px 0 14px;padding:11px 15px;border-radius:11px;font-size:12.5px;
+    line-height:1.65;color:var(--ink2);background:var(--paper);
+    border:1px solid var(--line);border-left:3px solid var(--brass)}
+  .nuance.on{display:block}
+  .nuance b{color:var(--ink)}
   .calc{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px;
     font-size:13px;color:var(--ink2)}
   .calc label{margin:0;font-size:13px;font-weight:600;color:var(--ink2);letter-spacing:0}
@@ -679,6 +687,7 @@
           <div class="gros" id="f-duree">—<small>délai pour agir</small></div>
           <div class="dep" id="f-depart"></div>
         </div>
+        <div class="nuance" id="f-nuance"></div>
 
         <div class="calc">
           <label for="f-date">Date de l'événement :</label>
@@ -1465,12 +1474,17 @@
       reflexe:'Ne signez pas le reçu pour solde de tout compte sans l\'avoir fait lire. Signé, il se conteste encore, mais seulement pendant six mois.',
       ref:'art. L.1471-1 du code du travail' },
 
-    { ic:'⏱️', dom:'Droit du travail', titre:'Des heures supplémentaires ne m\'ont jamais été payées',
-      n:3, u:'ans', depart:'chaque salaire non payé — les trois dernières années restent réclamables',
+    { ic:'⏱️', dom:'Droit du travail', titre:'Des heures supplémentaires ou des salaires ne m\'ont jamais été payés',
+      n:3, u:'ans', depart:'la <b>saisine</b> du conseil de prud\'hommes : les trois années qui la précèdent sont réclamables',
       objet:'Droit du travail',
       pieces:['Les bulletins de paie de la période', 'Vos relevés d\'heures, agendas, plannings',
               'Les courriels envoyés tôt ou tard le soir', 'Le contrat et la convention collective'],
       reflexe:'Notez vos horaires réels dès aujourd\'hui, jour par jour. La loi ne fait pas peser la preuve sur vous seul, mais elle exige des éléments suffisamment précis.',
+      nuance:'<b>Le point de départ dépend de votre situation.</b> En cours de contrat, les trois '
+           + 'ans se comptent à rebours de la saisine du conseil. <b>Si le contrat est rompu</b>, '
+           + 'la demande porte sur les trois années qui ont précédé la rupture. Ce délai vaut pour '
+           + 'l\'ensemble des <b>rappels de salaire</b> — heures supplémentaires, primes, '
+           + 'majorations, congés payés afférents — et pas seulement pour les heures.',
       ref:'art. L.3245-1 et L.3171-4 du code du travail' },
 
     { ic:'🤝', dom:'Droit du travail', titre:'J\'ai signé une rupture conventionnelle',
@@ -1487,7 +1501,11 @@
       pieces:['L\'acte de vente et les diagnostics', 'Les photographies du désordre',
               'Les devis de réparation', 'Les échanges avec le vendeur'],
       reflexe:'Faites constater le désordre par un professionnel avant toute réparation : une fois les travaux faits, la preuve disparaît avec le vice.',
-      ref:'art. 1648 du code civil' },
+      nuance:'<b>Une seconde borne, extérieure à celle-ci.</b> Les deux ans de la découverte sont '
+           + 'eux-mêmes enfermés dans un <b>délai butoir de vingt ans à compter de la vente</b> : '
+           + 'passé ce terme, l\'action est éteinte même si le vice vient d\'apparaître. '
+           + '(Cour de cassation, chambre mixte, 21 juillet 2023 ; art. 2232 du code civil.)',
+      ref:'art. 1648 et 2232 du code civil' },
 
     { ic:'🧱', dom:'Droit immobilier', titre:'Des malfaçons apparaissent après des travaux',
       n:10, u:'ans', depart:'la <b>réception</b> des travaux — garantie décennale',
@@ -1503,6 +1521,10 @@
       pieces:['Le procès-verbal notifié et son enveloppe (le cachet fait foi)',
               'La convocation et l\'ordre du jour', 'Le règlement de copropriété'],
       reflexe:'Vérifiez d\'abord que vous étiez opposant ou absent sur cette résolution : seuls eux peuvent agir. Un copropriétaire qui a voté pour ne peut plus contester.',
+      nuance:'<b>Ce n\'est pas une prescription, c\'est une forclusion</b> — plus sévère. Elle ne '
+           + 'se suspend pas et ne s\'interrompt que par la saisine du juge : ni une lettre '
+           + 'recommandée, ni une réclamation au syndic ne gagnent un jour. Deux mois, à compter '
+           + 'de la notification du procès-verbal, et le cachet de l\'envoi fait foi.',
       ref:'art. 42 de la loi du 10 juillet 1965' },
 
     { ic:'🔑', dom:'Baux d\'habitation', titre:'Mon locataire ne paie plus son loyer',
@@ -1594,6 +1616,9 @@
       document.getElementById('f-dom').textContent = s.dom;
       document.getElementById('f-duree').innerHTML = s.n + ' ' + s.u + '<small>délai pour agir</small>';
       document.getElementById('f-depart').innerHTML = 'Ce délai court à compter de ' + s.depart + '.';
+      var nu = document.getElementById('f-nuance');
+      nu.innerHTML = s.nuance || '';
+      nu.className = s.nuance ? 'nuance on' : 'nuance';
       document.getElementById('f-ref').textContent = s.ref;
       document.getElementById('f-reflexe').textContent = s.reflexe;
       var ul = document.getElementById('f-pieces'); ul.innerHTML = '';

@@ -362,6 +362,47 @@ const ok = (c, m, d) => {
     await r.close();
   }
 
+
+  /* Les nuances : une precision qui ne change pas le nombre de mois mais qui
+     change l'issue. Le tableau des situations vit dans la portee fermee du
+     script — on passe donc par l'ecran, exactement comme un visiteur. */
+  {
+    const titres = await p.$$eval('.sit', l => l.map(x => x.textContent));
+    const ouvrir = async motif => {
+      const i = titres.findIndex(t => motif.test(t));
+      ok(i >= 0, 'situation trouvée : ' + motif);
+      await p.locator('.sit').nth(i).click();
+      await p.waitForTimeout(250);
+    };
+    const fermer = async () => { await p.locator('#f-retour').click(); await p.waitForTimeout(250); };
+
+    await ouvrir(/vice caché/i);
+    ok(await p.locator('#f-nuance.on').count() === 1, 'la nuance s\'affiche');
+    const nv = await p.textContent('#f-nuance');
+    ok(/vingt ans/.test(nv) && /2232/.test(nv), 'vices cachés : le délai butoir de 20 ans');
+    ok(/chambre mixte/i.test(nv) && /21 juillet 2023/.test(nv),
+      'la formation et la date de l\'arrêt sont exactes');
+    await fermer();
+
+    await ouvrir(/assemblée générale/i);
+    ok(/forclusion/i.test(await p.textContent('#f-nuance')),
+      'copropriété : la forclusion est nommée, et distinguée de la prescription');
+    await fermer();
+
+    await ouvrir(/salaires/i);
+    const ns = await p.textContent('#f-nuance');
+    ok(/rupture/i.test(ns) && /saisine/i.test(ns),
+      'salaires : les deux points de départ sont distingués');
+    ok(/rappels de salaire/i.test(ns), 'salaires : la règle vaut au-delà des seules heures');
+    await fermer();
+
+    /* Une situation sans nuance ne doit rien afficher : un bloc vide est du bruit. */
+    await ouvrir(/licencié/i);
+    ok(await p.locator('#f-nuance.on').count() === 0,
+      'sans nuance, le bloc disparaît au lieu de rester vide');
+    await fermer();
+  }
+
   /* ── 6. La prise de rendez-vous ─────────────────────────────────────── */
   console.log('\n— Les créneaux de rendez-vous —');
   ok(await p.locator('.jour').count() === 5, 'cinq journées sont proposées',
