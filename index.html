@@ -24,6 +24,7 @@ body{background:#0f1f2e;color:#e8e4d8;font-family:-apple-system,BlinkMacSystemFo
 .bloc{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;margin-bottom:10px}
 .fg{margin-bottom:10px}
 .fl{display:block;font-size:12px;color:#9a9585;margin-bottom:5px;line-height:1.4}
+.fh{font-size:11.5px;color:#8c8778;line-height:1.65;margin-top:5px}
 input,select,textarea{
   width:100%;
   background:#0f1f2e;
@@ -862,7 +863,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.127';
+var JX_BUILD = 'v2026-08-06.128';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -871,6 +872,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.128', d:'6 aout 2026', t:[
+   'LA FICHE ENTREPRISE SUIT LE SECTEUR CHOISI. Signale : secteur « Batiment » choisi, et l\'application affichait quand meme « Activite principale : Transport routier de marchandises ». Ce n\'etait pas une etiquette a corriger — TOUTE la fiche etait ecrite pour le transport : les exemples (SARL TRANSPORT EXPRESS, contact@transport.fr), la liste des activites, la liste des organisations patronales (FNTR, OTRE, TLF, UNOSTRA), la licence communautaire, le gestionnaire de transport, la DREAL, la caisse CARCEPT.',
+   'La fiche est desormais construite a partir d\'un seul tableau, secteur par secteur : intitule, convention citee, exemples, activites, organisations patronales, autorisations. Le batiment recoit ses propres organisations (FFB, CAPEB, FFIE, SCOP BTP, FNTP) et sa propre carte : carte d\'identification professionnelle BTP (L.8291-1 et R.8291-1), caisse de conges payes du BTP, assurance decennale (L.241-1 du code des assurances, 1792 du code civil). Un secteur sans autorisation propre le dit, au lieu d\'en montrer une qui ne le concerne pas.',
+   'AUCUNE VALEUR N\'EST PLUS DECIDEE A VOTRE PLACE. Une activite non choisie ne devient plus « transport de marchandises », une organisation non choisie ne devient plus « FNTR », un effectif non renseigne ne devient plus « moins de 11 salaries » : la case reste vide. Chaque liste se termine par « Autre — preciser », avec un champ libre. Changer de secteur ne fait rien disparaitre en silence : une activite devenue etrangere bascule visiblement sur « Autre ».',
+   'Un test ouvre l\'application et parcourt les huit secteurs declares, un par un, sur l\'ecran d\'inscription puis sur la page Parametrage : aucun mot propre a un autre secteur ne doit y subsister. Il n\'a pas de liste ecrite a la main — un secteur ajoute demain sera verifie sans qu\'on touche au test.'
+ ]},
  {v:'v2026-08-06.127', d:'6 aout 2026', t:[
    'AUCUNE PAGE SANS RETOUR — SANS EXCEPTION. Les quarante-deux pages ont ete ouvertes une par une et verifiees : chacune doit offrir un retour visible et cliquable dans son premier ecran. Une page en etait depourvue, « Analyse d\'un document » : elle recoit sa barre. Le bouton de la page Personnel, plus petit que les autres, est mis a la meme taille.',
    'RETOUR — un filet s\'execute a chaque changement de page : si la page affichee n\'offre aucun retour dans son premier ecran, il en pose un automatiquement, en tete. Corriger la page qui manquait ne suffisait pas — rien n\'aurait empeche la prochaine d\'etre ajoutee sans retour, comme celle-ci l\'avait ete. Desormais une page ne peut plus y echapper, meme par oubli.'
@@ -1675,13 +1682,13 @@ try{
 <div style="max-width:480px;margin:0 auto;padding:40px 20px 80px">
 <div style="text-align:center;margin-bottom:32px">
   <div style="font-size:26px;font-weight:700;margin-bottom:6px"><span style="color:#c9a84c">Juris </span><span style="color:#1a1a1a">Expert MCH</span></div>
-  <div style="font-size:13px;color:#888">Droit social — Transport routier de marchandises</div>
-  <div style="font-size:11px;color:#aaa;margin-top:4px">CCN IDCC 0016 · Décret 83-40 · CE 561/2006</div>
+  <div id="ins-sub" style="font-size:13px;color:#888">Droit social</div>
+  <div id="ins-idcc" style="font-size:11px;color:#aaa;margin-top:4px">Convention collective non renseignée</div>
 </div>
 <div style="background:#fff;border-radius:18px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
   <div style="font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px">Configurer votre entreprise</div>
   <label class="ins-label">Secteur d'activité *</label>
-  <select class="ins-input" id="ins-secteur" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+  <select class="ins-input" id="ins-secteur" onchange="try{insProfilMaj()}catch(e){}" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
   <option value="">— Choisissez votre secteur —</option>
     <option value="transport">Transport routier</option>
     <option value="banque">Banque</option>
@@ -1692,11 +1699,11 @@ try{
     <option value="ensindep">Enseignement privé indépendant</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
   </select>
   <label class="ins-label">Raison sociale *</label>
-  <input class="ins-input" id="ins-nom" placeholder="Ex : SARL TRANSPORT EXPRESS" oninput="insCheck()"/>
+  <input class="ins-input" id="ins-nom" placeholder="Ex : SARL DUPONT" oninput="insCheck()"/>
   <label class="ins-label">SIRET *</label>
   <input class="ins-input" id="ins-siret" placeholder="14 chiffres" maxlength="14" oninput="insCheck()"/>
   <label class="ins-label">Adresse du siège *</label>
-  <input class="ins-input" id="ins-adresse" placeholder="Ex : 56 ZI des Béthunes, 95310 Cergy" oninput="insCheck()"/>
+  <input class="ins-input" id="ins-adresse" placeholder="Ex : 12 rue de la Mairie, 95000 Cergy" oninput="insCheck()"/>
   <label class="ins-label">Nom du dirigeant *</label>
   <input class="ins-input" id="ins-dirigeant" placeholder="Ex : M. DUPONT Jean" oninput="insCheck()"/>
   <label class="ins-label">Qualité</label>
@@ -1704,34 +1711,27 @@ try{
     <option>Gérant</option><option>Président</option><option>Directeur Général</option>
   </select>
   <label class="ins-label">Activité principale</label>
-  <select class="ins-input" id="ins-activite" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
-    <option value="marchandises">Transport routier de marchandises</option>
-    <option value="messagerie">Messagerie / Fret express</option>
-    <option value="temperature">Transport sous température dirigée</option>
-    <option value="adr">Transport matières dangereuses (ADR)</option>
-    <option value="international">Transport international (CMR/TIR)</option>
-    <option value="demenagement">Déménagement</option>
-    <option value="mixte">Activité mixte</option>
+  <select class="ins-input" id="ins-activite" onchange="try{jxAutreMaj('ins-activite','ins-activite-autre')}catch(e){}" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option><option value="autre">Autre — préciser</option>
   </select>
+  <input class="ins-input" id="ins-activite-autre" placeholder="Précisez votre activité principale" style="display:none"/>
   <label class="ins-label">Email</label>
-  <input class="ins-input" type="email" id="ins-email" placeholder="contact@transport.fr"/>
+  <input class="ins-input" type="email" id="ins-email" placeholder="contact@entreprise.fr"/>
   <label class="ins-label">Téléphone</label>
   <input class="ins-input" id="ins-tel" placeholder="Ex : 01 23 45 67 89"/>
   <label class="ins-label">Effectif approximatif</label>
   <select class="ins-input" id="ins-effectif" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option>
     <option value="moins11">Moins de 11 salariés</option>
     <option value="11a49">11 à 49 salariés</option>
     <option value="50a249">50 à 249 salariés</option>
     <option value="250plus">250 salariés et plus</option>
   </select>
   <label class="ins-label">Organisation patronale</label>
-  <select class="ins-input" id="ins-org" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
-    <option value="fntr">FNTR — Fédération Nationale du Transport Routier</option>
-    <option value="otre">OTRE — Org. des Transporteurs Routiers Européens</option>
-    <option value="tlf">TLF — Transport et Logistique de France</option>
-    <option value="unostra">UNOSTRA</option>
-    <option value="autre">Autre / Non adhérent</option>
+  <select class="ins-input" id="ins-org" onchange="try{jxAutreMaj('ins-org','ins-org-autre')}catch(e){}" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option><option value="autre">Autre — préciser</option>
   </select>
+  <input class="ins-input" id="ins-org-autre" placeholder="Précisez votre organisation patronale" style="display:none"/>
   <button id="ins-btn" onclick="validerInscription()" disabled
     style="width:100%;background:#c9a84c;color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.4;transition:opacity .2s;margin-top:6px">
     Commencer →
@@ -3918,7 +3918,7 @@ Exemple :<br>
 </div>
 <div id="pg-parametrage" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
-<div style="flex:1"><div class="tt">Paramétrage entreprise</div><div class="ts">Coordonnées · Licences · Gestionnaire transport</div></div>
+<div style="flex:1"><div class="tt">Paramétrage entreprise</div><div class="ts" id="p-sub">Coordonnées · Activité · Organismes sociaux</div></div>
 <button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
@@ -3928,26 +3928,45 @@ Exemple :<br>
 <div class="fg"><label class="fl">Adresse du siège</label><input id="p-adresse"/></div>
 <div class="fg"><label class="fl">Nom du dirigeant</label><input id="p-dirigeant"/></div>
 <div class="fg"><label class="fl">Qualité</label><select id="p-qualite"><option>Gérant</option><option>Président</option><option>Directeur Général</option></select></div>
+<div class="fg"><label class="fl">Activité principale</label>
+<select id="p-activite" onchange="try{jxAutreMaj('p-activite','p-activite-autre')}catch(e){}"><option value="">— À préciser —</option><option value="autre">Autre — préciser</option></select>
+<input id="p-activite-autre" placeholder="Précisez votre activité principale" style="display:none;margin-top:6px"/></div>
+<div class="fg"><label class="fl">Organisation patronale</label>
+<select id="p-org" onchange="try{jxAutreMaj('p-org','p-org-autre')}catch(e){}"><option value="">— À préciser —</option><option value="autre">Autre — préciser</option></select>
+<input id="p-org-autre" placeholder="Précisez votre organisation patronale" style="display:none;margin-top:6px"/></div>
 <div class="fg"><label class="fl">Email</label><input type="email" id="p-email"/></div>
 <div class="fg"><label class="fl">Téléphone</label><input id="p-tel"/></div>
 <div id="p-fiche-compte" style="font-size:11.5px;color:#9a9585;margin-top:10px;line-height:1.6"></div>
 <button onclick="jxViderFiche()" style="margin-top:8px;padding:10px 14px;border:1px solid #7a4a4a;border-radius:9px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:12.5px;cursor:pointer;font-family:inherit">Ce n’est pas mon entreprise — retirer cette fiche de ce compte</button>
 </div>
 
-<div class="card">
-<div class="ct">Licences et autorisations</div>
+<div class="card" id="p-autor-transport" style="display:none">
+<div class="ct">Licences et autorisations — transport routier</div>
 <div class="fg"><label class="fl">N° licence de transport intérieur/communautaire</label><input id="p-licence" placeholder="Ex : 2024-FR-0001234"/></div>
 <div class="fg"><label class="fl">Date d'expiration de la licence</label><input type="date" id="p-licence-fin"/></div>
 <div class="fg"><label class="fl">Gestionnaire de transport — Nom</label><input id="p-gestionnaire" placeholder="Ex : M. DUPONT Jean"/></div>
 <div class="fg"><label class="fl">N° attestation capacité professionnelle</label><input id="p-capacite"/></div>
 <div class="fg"><label class="fl">DREAL compétente</label><input id="p-dreal" placeholder="Ex : DREAL Île-de-France"/></div>
-<div class="fg"><label class="fl">Organisation patronale</label>
-<select id="p-org"><option value="fntr">FNTR</option><option value="otre">OTRE</option><option value="tlf">TLF</option><option value="unostra">UNOSTRA</option><option value="autre">Autre</option></select></div>
+</div>
+
+<div class="card" id="p-autor-batiment" style="display:none">
+<div class="ct">Autorisations et caisses — bâtiment et travaux publics</div>
+<div class="fg"><label class="fl">Carte d'identification professionnelle BTP — n° de déclaration</label><input id="p-cartebtp" placeholder="Ex : déclaration CIBTP n° 2024-000123"/>
+<div class="fh">Obligatoire pour tout salarié accomplissant des travaux de bâtiment ou de travaux publics (L.8291-1 et R.8291-1 du code du travail). Elle est délivrée et gérée par l'association « Congés intempéries BTP — Union des caisses de France ».</div></div>
+<div class="fg"><label class="fl">Caisse de congés payés du BTP</label><input id="p-cibtp" placeholder="Ex : CIBTP Île-de-France"/>
+<div class="fh">L'affiliation à une caisse de congés payés est propre au bâtiment et aux travaux publics : c'est la caisse, et non l'employeur, qui paie l'indemnité de congés.</div></div>
+<div class="fg"><label class="fl">Assurance de responsabilité décennale — assureur et n° de police</label><input id="p-decennale" placeholder="Ex : AXA — police n° 0123456"/>
+<div class="fh">Obligation d'assurance des travaux de construction : article L.241-1 du code des assurances ; responsabilité décennale : article 1792 du code civil.</div></div>
+</div>
+
+<div class="card" id="p-autor-note" style="display:none">
+<div class="ct">Autorisations propres au secteur</div>
+<div style="font-size:12.5px;color:#9a9585;line-height:1.7">Aucune autorisation ni caisse propre à ce secteur ne vous est demandée ici. Seuls les organismes sociaux ci-dessous restent à renseigner.</div>
 </div>
 
 <div class="card">
 <div class="ct">Organismes sociaux</div>
-<div class="fg"><label class="fl">Caisse de retraite complémentaire</label><input id="p-retraite" placeholder="Ex : CARCEPT PREV, IRSA"/></div>
+<div class="fg"><label class="fl">Caisse de retraite complémentaire</label><input id="p-retraite" placeholder="Ex : votre institution AGIRC-ARRCO"/></div>
 <div class="fg"><label class="fl">Mutuelle / Prévoyance</label><input id="p-mutuelle" placeholder="Ex : AG2R La Mondiale"/></div>
 <div class="fg"><label class="fl">Service de prévention et santé au travail (SPST)</label><input id="p-spst" placeholder="Ex : CMIE — 01 XX XX XX XX"/></div>
 <div class="fg"><label class="fl">Inspection du travail compétente (DREETS)</label><input id="p-inspection" placeholder="Ex : DREETS Île-de-France — 19-21 rue Madeleine Vionnet"/></div>
@@ -5824,7 +5843,7 @@ function appSetSecteur(id){
 // ═══════════════════════════════════════
 // DONNÉES GLOBALES
 // ═══════════════════════════════════════
-let E = { nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'marchandises', email:'', tel:'', effectif:'moins11', org:'fntr', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'' };
+let E = { nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'', activiteAutre:'', email:'', tel:'', effectif:'', org:'', orgAutre:'', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'', cartebtp:'', cibtp:'', decennale:'' };
 let conducteurs = [];
 let civ = 'M.';
 let contratType = 'cdi';
@@ -6019,6 +6038,7 @@ function goPage(id){
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
+  if(id==='parametrage'){ try{ chargerParametres(); }catch(e){} }
   if(id==='personnel'){ try{ rhOnEnter(); }catch(e){} }
   if(id==='socle'){ try{ socOnEnter(); }catch(e){} }
   if(id==='csediag'){ try{ csedOnEnter(); }catch(e){} }
@@ -7082,6 +7102,209 @@ var SEC_LISTE=[
   {v:'ensindep',     lib:'Enseignement privé indépendant',    idcc:'2691'},
   {v:'formation',    lib:'Organismes de formation',           idcc:'1516'}
 ];
+/* ══════════════════════════════════════════════════════════════════════
+   LA FICHE ENTREPRISE SUIT LE SECTEUR CHOISI
+   Signale depuis un telephone : secteur « Batiment » choisi, et l'application
+   affichait quand meme « Activite principale : Transport routier de
+   marchandises », « Ex : SARL TRANSPORT EXPRESS », « contact@transport.fr »,
+   la FNTR, la licence communautaire et le gestionnaire de transport.
+   Ce n'etait pas une etiquette a corriger : TOUTE la fiche entreprise etait
+   ecrite pour un seul secteur. Elle est desormais construite a partir de ce
+   tableau, et de lui seul. Un secteur absent du tableau ne recoit AUCUNE
+   valeur inventee : les listes se reduisent a « Autre — preciser ».
+   Chaque liste se termine par « Autre », avec un champ libre.
+   ══════════════════════════════════════════════════════════════════════ */
+var SEC_PROFIL={
+  transport:{
+    sub:'Transport routier de marchandises', idcc:'CCN IDCC 0016 · Décret 83-40 · CE 561/2006',
+    exNom:'Ex : SARL TRANSPORT EXPRESS', exAdr:'Ex : 56 ZI des Béthunes, 95310 Cergy',
+    exMail:'contact@transport.fr', exRetraite:'Ex : CARCEPT PREV, IRSA',
+    act:[['marchandises','Transport routier de marchandises'],
+         ['messagerie','Messagerie / Fret express'],
+         ['temperature','Transport sous température dirigée'],
+         ['adr','Transport de matières dangereuses (ADR)'],
+         ['international','Transport international (CMR/TIR)'],
+         ['demenagement','Déménagement'],
+         ['mixte','Activité mixte']],
+    org:[['fntr','FNTR — Fédération Nationale des Transports Routiers'],
+         ['otre','OTRE — Organisation des Transporteurs Routiers Européens'],
+         ['tlf','TLF — Union des entreprises de Transport et Logistique de France'],
+         ['unostra','UNOSTRA']],
+    autor:'transport'
+  },
+  batiment:{
+    sub:'Bâtiment et travaux publics', idcc:'CCN IDCC 1596 · 1597 · 2609 · 2420',
+    exNom:'Ex : SARL BATIMENT DURAND', exAdr:'Ex : 14 rue des Artisans, 95000 Cergy',
+    exMail:'contact@entreprise.fr', exRetraite:'Ex : PRO BTP',
+    act:[['grosoeuvre','Gros œuvre / maçonnerie'],
+         ['secondoeuvre','Second œuvre (plâtrerie, peinture, menuiserie)'],
+         ['electricite','Installation électrique'],
+         ['genieclim','Génie climatique, plomberie, chauffage'],
+         ['couverture','Couverture, charpente, étanchéité'],
+         ['tp','Travaux publics'],
+         ['mixte','Activité mixte']],
+    /* Organisations signataires des conventions du batiment : CAPEB, FFB,
+       FFIE et SCOP BTP ; FNTP pour les travaux publics. */
+    org:[['ffb','FFB — Fédération Française du Bâtiment'],
+         ['capeb','CAPEB — Confédération de l’Artisanat et des Petites Entreprises du Bâtiment'],
+         ['ffie','FFIE — Fédération Française des Intégrateurs Électriciens'],
+         ['scopbtp','SCOP BTP'],
+         ['fntp','FNTP — Fédération Nationale des Travaux Publics']],
+    autor:'batiment'
+  },
+  banque:{
+    sub:'Banque', idcc:'CCN IDCC 2120',
+    exNom:'Ex : BANQUE DE L’OISE SA', exAdr:'Ex : 3 place de la Bourse, 75002 Paris',
+    exMail:'contact@banque.fr', exRetraite:'',
+    act:[['detail','Banque de détail'],
+         ['bfi','Banque de financement et d’investissement'],
+         ['gestion','Gestion d’actifs / banque privée'],
+         ['mixte','Activité mixte']],
+    org:[['afb','AFB — Association Française des Banques']],
+    autor:''
+  },
+  assurances:{
+    sub:'Sociétés d’assurances', idcc:'CCN IDCC 1672',
+    exNom:'Ex : ASSURANCES DU VAL SA', exAdr:'Ex : 8 avenue de la République, 75011 Paris',
+    exMail:'contact@assurances.fr', exRetraite:'',
+    act:[['personnes','Assurance de personnes (vie, santé, prévoyance)'],
+         ['iard','Assurance de biens et de responsabilité (IARD)'],
+         ['reassurance','Réassurance'],
+         ['mixte','Activité mixte']],
+    /* Signataires de la CCN de 1992 : FFSA et GEMA, reunies depuis 2016 dans
+       la FFA, devenue France Assureurs en 2022. */
+    org:[['franceassureurs','France Assureurs (ex-FFSA / GEMA)']],
+    autor:''
+  },
+  syntec:{
+    sub:'Bureaux d’études, conseil, numérique', idcc:'CCN IDCC 1486',
+    exNom:'Ex : SAS CONSEIL & SYSTEMES', exAdr:'Ex : 22 rue de la Paix, 75002 Paris',
+    exMail:'contact@societe.fr', exRetraite:'',
+    act:[['conseil','Conseil / études'],
+         ['ingenierie','Ingénierie'],
+         ['numerique','Numérique — édition de logiciels, ESN'],
+         ['evenement','Événementiel'],
+         ['formation','Formation professionnelle'],
+         ['mixte','Activité mixte']],
+    org:[['syntec','Fédération Syntec'],
+         ['numeum','Numeum'],
+         ['syntecing','Syntec-Ingénierie'],
+         ['synteccons','Syntec Conseil'],
+         ['cinov','CINOV']],
+    autor:''
+  },
+  enseignement:{
+    sub:'Enseignement privé non lucratif (EPNL)', idcc:'CCN IDCC 3218',
+    exNom:'Ex : OGEC SAINT-JOSEPH', exAdr:'Ex : 5 rue de l’École, 95300 Pontoise',
+    exMail:'contact@etablissement.fr', exRetraite:'',
+    act:[['premier','École — premier degré'],
+         ['second','Collège / lycée — second degré'],
+         ['superieur','Enseignement supérieur'],
+         ['pro','Formation professionnelle initiale'],
+         ['mixte','Activité mixte']],
+    /* College employeur de la branche : FNOGEC et quatre organisations de
+       chefs d'etablissement — UNETP, SYNADIC, SYNADEC, SNCEEL. */
+    org:[['fnogec','FNOGEC'],['unetp','UNETP'],['synadic','SYNADIC'],
+         ['synadec','SYNADEC'],['snceel','SNCEEL']],
+    autor:''
+  },
+  ensindep:{
+    sub:'Enseignement privé indépendant', idcc:'CCN IDCC 2691',
+    exNom:'Ex : INSTITUT DES METIERS SARL', exAdr:'Ex : 5 rue de l’École, 95300 Pontoise',
+    exMail:'contact@etablissement.fr', exRetraite:'',
+    act:[['horscontrat','Établissement scolaire hors contrat'],
+         ['superieur','Enseignement supérieur privé'],
+         ['soutien','Soutien scolaire / cours particuliers'],
+         ['mixte','Activité mixte']],
+    org:[['fnep','FNEP — Fédération Nationale de l’Enseignement Privé'],
+         ['fnepl','FNEPL — Fédération Nationale de l’Enseignement Privé Laïque']],
+    autor:''
+  },
+  formation:{
+    sub:'Organismes de formation', idcc:'CCN IDCC 1516',
+    exNom:'Ex : SARL FORMATION CONSEIL', exAdr:'Ex : 10 rue des Écoles, 95000 Cergy',
+    exMail:'contact@organisme.fr', exRetraite:'',
+    act:[['continue','Formation professionnelle continue'],
+         ['apprentissage','Apprentissage — CFA'],
+         ['bilan','Bilan de compétences / VAE'],
+         ['distance','Formation à distance'],
+         ['mixte','Activité mixte']],
+    org:[['acteurscomp','Les Acteurs de la Compétence (ex-FFP)'],
+         ['synofdes','SYNOFDES'],
+         ['sycfi','SYCFI']],
+    autor:''
+  }
+};
+/* Aucun secteur choisi : on ne remplit rien a la place du client. */
+var SEC_PROFIL_VIDE={ sub:'Droit du travail', idcc:'Convention collective non renseignée',
+  exNom:'Ex : SARL DUPONT', exAdr:'Ex : 12 rue de la Mairie, 95000 Cergy',
+  exMail:'contact@entreprise.fr', exRetraite:'', act:[], org:[], autor:'' };
+
+function secProfil(v){
+  if(v===undefined){ try{ v=secCourant(); }catch(e){ v=''; } }
+  return (v && SEC_PROFIL[v]) ? SEC_PROFIL[v] : SEC_PROFIL_VIDE;
+}
+/* Une liste deroulante construite depuis le tableau, toujours terminee par
+   « Autre — preciser ». Une valeur enregistree qui n'est plus dans la liste
+   (changement de secteur) bascule sur « Autre » : rien n'est perdu en
+   silence, et rien n'est affirme a la place du client. */
+function jxSelectProfil(id, paires, valeur){
+  var s=document.getElementById(id); if(!s) return;
+  var h='<option value="">— À préciser —</option>';
+  (paires||[]).forEach(function(p){ h+='<option value="'+p[0]+'">'+p[1]+'</option>'; });
+  h+='<option value="autre">Autre — préciser</option>';
+  s.innerHTML=h;
+  var trouve=false;
+  [].forEach.call(s.options,function(o){ if(valeur && o.value===valeur) trouve=true; });
+  s.value = valeur ? (trouve?valeur:'autre') : '';
+}
+function jxAutreMaj(selId, txtId){
+  var s=document.getElementById(selId), t=document.getElementById(txtId);
+  if(!s||!t) return;
+  t.style.display = (s.value==='autre') ? 'block' : 'none';
+}
+/* L'ecran d'inscription : intitules, exemples et listes viennent du secteur
+   choisi dans le selecteur juste au-dessus. */
+function insProfilMaj(){
+  var v=''; try{ v=(document.getElementById('ins-secteur')||{}).value||''; }catch(e){}
+  var p=secProfil(v);
+  var mk=function(id,txt){ var e=document.getElementById(id); if(e) e.textContent=txt; };
+  var ph=function(id,txt){ var e=document.getElementById(id); if(e) e.placeholder=txt; };
+  mk('ins-sub','Droit social — '+p.sub);
+  mk('ins-idcc',p.idcc);
+  ph('ins-nom',p.exNom); ph('ins-adresse',p.exAdr); ph('ins-email',p.exMail);
+  var ea=(typeof E!=='undefined'&&E)?E:{};
+  jxSelectProfil('ins-activite',p.act, ea.activite||'');
+  jxSelectProfil('ins-org',p.org, ea.org||'');
+  jxAutreMaj('ins-activite','ins-activite-autre');
+  jxAutreMaj('ins-org','ins-org-autre');
+}
+/* La page Parametrage : memes listes, et surtout les cartes d'autorisations
+   propres au secteur. La licence de transport et le gestionnaire de transport
+   n'ont aucun sens dans le batiment ; la carte BTP n'en a aucun dans la
+   banque. Un secteur sans carte dediee le dit, plutot que d'en montrer une
+   qui ne le concerne pas. */
+function parProfilMaj(){
+  var v=''; try{ v=secCourant(); }catch(e){}
+  var p=secProfil(v);
+  var e=document.getElementById('p-sub');
+  if(e) e.textContent='Coordonnées · Activité · '+(p.autor?'Autorisations':'Organismes sociaux');
+  var ea=(typeof E!=='undefined'&&E)?E:{};
+  jxSelectProfil('p-activite',p.act, ea.activite||'');
+  jxSelectProfil('p-org',p.org, ea.org||'');
+  jxAutreMaj('p-activite','p-activite-autre');
+  jxAutreMaj('p-org','p-org-autre');
+  var r=document.getElementById('p-retraite');
+  if(r) r.placeholder = p.exRetraite || 'Ex : votre institution AGIRC-ARRCO';
+  ['transport','batiment'].forEach(function(k){
+    var c=document.getElementById('p-autor-'+k);
+    if(c) c.style.display = (p.autor===k) ? '' : 'none';
+  });
+  var note=document.getElementById('p-autor-note');
+  if(note) note.style.display = p.autor ? 'none' : '';
+}
+try{ insProfilMaj(); }catch(e){}
+
 function secVerrouille(){
   try{ return !!(sessionStorage.getItem('jte_sector')||''); }catch(e){ return false; }
 }
@@ -7136,6 +7359,9 @@ function secChoisir(v){
   secChipMaj(); secFermer();
   try{ if(typeof famRender==='function') famRender(); }catch(e){}
   try{ if(typeof updateHeroTop==='function') updateHeroTop(); }catch(e){}
+  /* La fiche entreprise depend du secteur : elle se refait avec lui. */
+  try{ insProfilMaj(); }catch(e){}
+  try{ parProfilMaj(); }catch(e){}
 }
 try{ document.addEventListener('keydown', function(ev){
   if(ev.key==='Escape'){ var o=document.getElementById('sec-ov'); if(o&&o.style.display==='block') secFermer(); }
@@ -14011,7 +14237,7 @@ function deconnexion(){
   try{ ['jte_ok','jte_admin','jte_sector','jte_secchosen','jte_trial','jte_code'].forEach(function(k){ sessionStorage.removeItem(k); }); }catch(e){}
   try{ localStorage.removeItem(RX_SESS); }catch(e){}
   /* La fiche affichee repart vide : elle sera relue sous le compte suivant. */
-  try{ if(typeof E!=='undefined' && E){ E={ nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'marchandises', email:'', tel:'', effectif:'moins11', org:'fntr', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'' }; } }catch(e){}
+  try{ if(typeof E!=='undefined' && E){ E={ nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'', activiteAutre:'', email:'', tel:'', effectif:'', org:'', orgAutre:'', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'', cartebtp:'', cibtp:'', decennale:'' }; } }catch(e){}
   try{ if(typeof RX!=='undefined' && RX){ RX.staff=[]; RX.ent={}; RX.parc=[]; } }catch(e){}
   try{ if(typeof updateHeroTop==='function') updateHeroTop(); }catch(e){}
   try{ window.CLIENT_SECTEUR=''; }catch(e){}
@@ -14179,11 +14405,15 @@ function validerInscription(){
   // Pas de secteur choisi : on laisse vide plutot que de decider a la place du client.
   E.secteur=(function(){try{return sessionStorage.getItem('jte_sector');}catch(e){return null;}})()||gv('ins-secteur')
     ||(function(){try{return sessionStorage.getItem('jx_sec_pref')||'';}catch(e){return '';}})()||'';
-  E.activite=gv('ins-activite')||'marchandises';
+  /* Aucune valeur de secours propre au transport : une case non remplie
+     reste vide. L'application ne decide pas de l'activite d'un client. */
+  E.activite=gv('ins-activite')||'';
+  E.activiteAutre=gv('ins-activite-autre')||'';
   E.email=gv('ins-email')||'';
   E.tel=gv('ins-tel')||'';
-  E.effectif=gv('ins-effectif')||'moins11';
-  E.org=gv('ins-org')||'fntr';
+  E.effectif=gv('ins-effectif')||'';
+  E.org=gv('ins-org')||'';
+  E.orgAutre=gv('ins-org-autre')||'';
   try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
   updateHeroTop();
   document.getElementById('pg-inscription').style.display='none';
@@ -14236,7 +14466,7 @@ function jxViderFiche(){
   try{ localStorage.removeItem(jxEntKey()); }catch(e){}
   try{ localStorage.removeItem('juris_transport'); }catch(e){}
   try{ localStorage.setItem('jx_fiche_refus::'+jxCompte(),'1'); }catch(e){}
-  try{ E={ nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'marchandises', email:'', tel:'', effectif:'moins11', org:'fntr', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'' }; }catch(e){}
+  try{ E={ nom:'', siret:'', adresse:'', dirigeant:'', qualite:'Gérant', activite:'', activiteAutre:'', email:'', tel:'', effectif:'', org:'', orgAutre:'', licence:'', gestionnaire:'', dreal:'', cph:'', spst:'', retraite:'', mutuelle:'', cartebtp:'', cibtp:'', decennale:'' }; }catch(e){}
   try{ chargerParametres(); }catch(e){}
   try{ updateHeroTop(); }catch(e){}
   try{ jxFicheCompte(); }catch(e){}
@@ -20093,22 +20323,34 @@ ${docPiedPage('Art. L.121-6 C. route — Désignation obligatoire dans les 45 jo
 // ═══════════════════════════════════════
 // PARAMÉTRAGE
 // ═══════════════════════════════════════
+/* Les champs de la fiche, et rien d'autre. La liste sert au chargement, a
+   l'enregistrement et au test : un champ ajoute ici est pris en compte
+   partout, un champ oublie ici ne s'enregistre nulle part. */
+var P_CHAMPS=['nom','siret','adresse','dirigeant','email','tel','licence','gestionnaire',
+  'dreal','cph','spst','retraite','mutuelle','cartebtp','cibtp','decennale',
+  'activite-autre','org-autre'];
+function pCle(k){ return k==='activite-autre' ? 'activiteAutre' : (k==='org-autre' ? 'orgAutre' : k); }
+
 function chargerParametres(){
   try{ jxFicheCompte(); }catch(e){}
-  ['nom','siret','adresse','dirigeant','email','tel','licence','gestionnaire','dreal','cph','spst','retraite','mutuelle'].forEach(k=>{
+  try{ parProfilMaj(); }catch(e){}
+  P_CHAMPS.forEach(k=>{
     const el=document.getElementById('p-'+k);
-    if(el&&E[k])el.value=E[k];
+    if(el&&E[pCle(k)])el.value=E[pCle(k)];
   });
   const pq=document.getElementById('p-qualite');
   if(pq&&E.qualite){for(let i=0;i<pq.options.length;i++){if(pq.options[i].value===E.qualite||pq.options[i].text===E.qualite){pq.selectedIndex=i;break;}}}
+  try{ jxAutreMaj('p-activite','p-activite-autre'); jxAutreMaj('p-org','p-org-autre'); }catch(e){}
 }
 
 function sauvegarderParametres(){
-  ['nom','siret','adresse','dirigeant','email','tel','licence','gestionnaire','dreal','cph','spst','retraite','mutuelle'].forEach(k=>{
+  P_CHAMPS.forEach(k=>{
     const el=document.getElementById('p-'+k);
-    if(el)E[k]=el.value;
+    if(el)E[pCle(k)]=el.value;
   });
   E.qualite=gv('p-qualite')||E.qualite;
+  E.activite=gv('p-activite')||'';
+  E.org=gv('p-org')||'';
   try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
   updateHeroTop();
   show('p-saved');

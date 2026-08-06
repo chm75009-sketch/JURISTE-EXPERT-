@@ -10,6 +10,7 @@ node tests/familles.test.js       # les cinq familles de l'application
 node tests/secteur.test.js        # changer de secteur partout, sauf si le code le verrouille
 node tests/garde.test.js          # l'admin reste l'admin, l'effectif d'abord, le retour partout
 node tests/retour.test.js         # AUCUNE page sans retour — les 42 sont ouvertes et vérifiées
+node tests/fiche.test.js          # la fiche entreprise suit le secteur choisi, secteur par secteur
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
@@ -169,7 +170,35 @@ Ce dernier point n'est pas décoratif. Les six blocs avaient d'abord été
 du crème pâle sur du crème. Structure impeccable, texte invisible — aucun
 test de structure ne l'aurait vu.
 
-## 8. `integrite.py` — ce qui est mécaniquement vérifiable
+## 8. `fiche.test.js` — la fiche entreprise suit le secteur choisi
+
+Défaut signalé depuis un téléphone : secteur **Bâtiment** choisi, et
+l'application affichait quand même « Activité principale : Transport routier
+de marchandises ». Ce n'était pas une étiquette à corriger — toute la fiche
+était écrite pour le transport : les exemples (`SARL TRANSPORT EXPRESS`,
+`contact@transport.fr`), la liste des activités, celle des organisations
+patronales, la licence communautaire, le gestionnaire de transport, la DREAL,
+la caisse CARCEPT.
+
+Ce test **n'a pas de liste écrite à la main**. Il lit `SEC_LISTE`, choisit
+chaque secteur l'un après l'autre, et exige qu'aucun mot propre à un autre
+secteur ne subsiste — sur l'écran d'inscription puis sur la page Paramétrage.
+Un secteur ajouté demain sera vérifié sans qu'on touche au test.
+
+Il contrôle aussi ce qui n'est **pas** décidé à la place du client : une
+activité non choisie reste vide (et non « transport de marchandises »), une
+organisation patronale non choisie reste vide (et non « FNTR »), un effectif
+non renseigné reste vide (et non « moins de 11 »). Chaque liste se termine par
+« Autre — préciser ». Et changer de secteur ne fait rien disparaître en
+silence : une activité devenue étrangère bascule visiblement sur « Autre »,
+avec son champ libre ouvert.
+
+Enfin, une seule carte d'autorisations est visible à la fois : licence et
+gestionnaire de transport pour le transport, carte BTP / caisse de congés
+payés / décennale pour le bâtiment, et une note explicite pour les secteurs
+qui n'en ont pas — plutôt qu'une carte qui ne les concerne pas.
+
+## 9. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`
