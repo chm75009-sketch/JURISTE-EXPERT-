@@ -1,0 +1,47 @@
+# ============================================================================
+# Configuration Netlify — site CJ AVOCATS
+#
+# Ce fichier ne sert QUE le jour où le dossier « avocat-aj » devient un dépôt
+# à lui seul (voir README.md § « Sortir le site »). Tant que le dossier vit
+# dans le dépôt de Juris Expert, c'est le netlify.toml de la racine qui
+# s'applique et celui-ci est ignoré.
+#
+# Site 100 % statique : aucune compilation, Netlify publie les fichiers tels
+# quels. Aucune base de données, aucun serveur à maintenir.
+# ============================================================================
+
+[build]
+  publish = "."
+  command = ""
+
+# ── En-têtes de sécurité (toutes les pages) ─────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # L'app ne peut pas être affichée dans un <iframe> d'un autre site.
+    X-Frame-Options = "SAMEORIGIN"
+    # Empêche le navigateur de « deviner » le type des fichiers.
+    X-Content-Type-Options = "nosniff"
+    # Ne fuite pas l'URL complète vers les sites externes.
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Force HTTPS pendant un an.
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Coupe les permissions navigateur dont le site n'a pas besoin.
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()"
+    # CSP : liste blanche stricte.
+    #   script/style : uniquement le site lui-même (+ inline, tout est dans la page)
+    #   connect      : Web3Forms, qui reçoit le formulaire de contact
+    #   frame        : Google Maps, si un plan est ajouté un jour
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.web3forms.com; frame-src https://www.google.com https://maps.google.com; form-action 'self' https://api.web3forms.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'"
+
+# ── Le service worker ne doit jamais être servi depuis un cache ────────────
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ── Les icônes, elles, peuvent être gardées longtemps ──────────────────────
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"

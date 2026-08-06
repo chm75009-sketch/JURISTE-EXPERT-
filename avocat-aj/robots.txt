@@ -1,0 +1,9 @@
+# Fichier destiné au jour où le site est publié sur SON PROPRE domaine.
+# Tant qu'il vit dans le dépôt de Juris Expert, ce fichier n'a aucun effet
+# (seul le robots.txt placé à la racine d'un domaine est lu) : c'est la balise
+# « noindex » présente dans chaque page qui garde le site invisible.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://[DOMAINE]/sitemap.xml
