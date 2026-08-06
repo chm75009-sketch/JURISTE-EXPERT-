@@ -16,7 +16,7 @@ réécrire.
 avocat-aj/
 ├── index.html            ← tout le site : une page, huit sections
 ├── mentions-legales.html ← obligatoire (LCEN + décret 2005-790)
-├── confidentialite.html  ← obligatoire (RGPD)
+├── confidentialite.html  ← obligatoire (RGPD + règlement européen sur l'IA)
 ├── pages.css             ← charte des deux pages légales
 ├── manifest.json         ← carte d'identité de l'application installable
 ├── sw.js                 ← service worker : hors ligne + installation
@@ -71,6 +71,7 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | `[ASSUREUR ET N° DE POLICE]` | mentions | RCP et garantie financière |
 | `[HÉBERGEUR]` | mentions | Netlify, ou l'hébergeur retenu |
 | `[DOMAINE]` | robots.txt, sitemap.xml | Le domaine, une fois choisi |
+| Déclaration sur les outils d'IA | confidentialite.html | La phrase surlignée du § « Le secret professionnel face aux outils d'IA » **engage le cabinet** : Maître A. J. doit la valider, ou l'adapter si des outils sont utilisés |
 
 Les **avis clients** ne sont pas des marques entre crochets : ils se saisissent
 dans le tableau `AVIS`, à la fin de `index.html`. Chaque entrée porte un champ

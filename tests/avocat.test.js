@@ -282,6 +282,30 @@ const ok = (c, m, d) => {
   await p.waitForTimeout(300);
   ok(await p.locator('#fiche.on').count() === 0, 'on revient à la liste des situations');
 
+
+  /* ── 8 bis. Le volet RGPD & IA Act ──────────────────────────────────── */
+  console.log('\n— RGPD et règlement sur l\'IA —');
+  {
+    const q = await ctx.newPage();
+    await q.goto(url('confidentialite.html'), { waitUntil: 'load' });
+    await q.waitForTimeout(300);
+    const t = await q.textContent('body');
+    /* Les deux règlements doivent être cités par leur numéro : c'est ce qui
+       distingue une vraie mention légale d'une phrase de communication. */
+    ok(/2016\/679/.test(t), 'le RGPD est cité par son numéro');
+    ok(/2024\/1689/.test(t), 'le règlement sur l\'IA est cité par son numéro');
+    ok(/article 22|art\. 22/.test(t), 'la décision automatisée (art. 22) est traitée');
+    ok(/article 50|art\. 50/.test(t), 'la transparence de l\'article 50 est prévue');
+    ok(/aucun système d'intelligence artificielle/i.test(t),
+      'l\'absence d\'IA est affirmée clairement');
+    ok(/profilage/i.test(t), 'le profilage est traité');
+    ok(/secret professionnel/i.test(t), 'le secret professionnel face aux outils d\'IA');
+    await q.close();
+  }
+  /* Et l'accueil le dit là où ça compte : sous le calculateur. */
+  ok(/aucune intelligence artificielle/i.test(await p.textContent('.prive')),
+    'l\'accueil annonce l\'absence d\'IA sous le calculateur');
+
   /* ── 6. La prise de rendez-vous ─────────────────────────────────────── */
   console.log('\n— Les créneaux de rendez-vous —');
   ok(await p.locator('.jour').count() === 5, 'cinq journées sont proposées',
