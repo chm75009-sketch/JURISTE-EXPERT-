@@ -5,7 +5,10 @@
 <!-- Sécurité : CSP (anti-XSS + connexions sortantes sur liste blanche auditée). En-têtes complets (HSTS, X-Frame-Options, nosniff, Permissions-Policy) via netlify.toml si migration Netlify. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://yhzsuxnehsisxkuxqhhg.supabase.co wss://yhzsuxnehsisxkuxqhhg.supabase.co https://forminit.com https://api.web3forms.com https://api.francetravail.io https://*.workers.dev https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://tessdata.projectnaptha.com; worker-src 'self' blob:; frame-src 'self' blob: data:; form-action 'self' https://forminit.com https://api.web3forms.com; object-src 'none'; base-uri 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- « maximum-scale=1.0 » interdisait l'agrandissement : c'est precisement
+     ce dont a besoin qui voit mal. Retire. -->
+<meta name="color-scheme" content="dark">
 <title>Juris Expert MCH</title>
 <!-- Build v14 — 2026-06-26 — PSE multi-secteurs (transport/banque/assurances) + auteur personnalisable -->
 <meta name="app-version" content="v14">
@@ -33,7 +36,9 @@ input,select,textarea{
   border-radius:8px;
   padding:11px 13px;
   color:#e8e4d8;
-  font-size:15px;
+  /* 16 px au minimum : sous ce seuil, Safari iOS agrandit l'ecran a chaque
+     prise de champ et ne le reduit jamais. */
+  font-size:16px;
   font-family:inherit;
   outline:none;
   -webkit-appearance:none;
@@ -79,7 +84,8 @@ textarea{resize:vertical;min-height:80px}
 .seg-b{flex:1;background:transparent;border:none;color:#9a9585;border-radius:8px;padding:10px 8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 .seg-b.act{background:#c9a84c;color:#000}
 .al{border-radius:10px;padding:12px;margin-bottom:10px;font-size:13px;line-height:1.6}
-.info{background:rgba(91,155,213,0.1);border:1px solid rgba(91,155,213,0.2);color:#5b9bd5}
+/* 4,30:1 : juste sous le seuil, sur les encadres d'explication. */
+.info{background:rgba(91,155,213,0.1);border:1px solid rgba(91,155,213,0.28);color:#a6cbee}
 .warn{background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.2);color:#d4a017}
 .ok{background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.2);color:#4caf7d}
 .err{background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.2);color:#e05c5c}
@@ -91,11 +97,32 @@ textarea{resize:vertical;min-height:80px}
 .ro.sel{border-color:#c9a84c;background:rgba(201,168,76,0.15);color:#e8c97a;font-weight:600}
 .rr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .rr .ro{flex:1;min-width:80px;justify-content:center;margin-bottom:0}
-.loi{font-size:11px;color:#6b6660;margin-top:4px;font-style:italic;line-height:1.4}
+/* 2,80:1 mesure sur les pixels affiches — le pire de l'application, et ce
+   sont les notes de loi. Porte a 7,3:1, et le corps de 11 a 12,5 px. */
+.loi{font-size:12.5px;color:#b8b2a6;margin-top:4px;font-style:italic;line-height:1.5}
 .herr{color:#e05c5c;font-size:12px;margin-top:4px;padding:8px 10px;background:rgba(224,92,92,0.1);border-radius:6px;line-height:1.5}
 .hint{color:#4caf7d;font-size:12px;margin-top:4px;padding:6px 10px;background:rgba(76,175,125,0.08);border-radius:6px}
 .hidden{display:none!important}
-.topbar{background:#162639;border-bottom:2px solid rgba(201,168,76,0.3);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:40}
+/* A 200 % d'agrandissement, la barre reclamait 235 px dans 195 : elle
+   s'enroule desormais au lieu de pousser toute la page de cote. */
+.topbar{background:#162639;border-bottom:2px solid rgba(201,168,76,0.3);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:40;flex-wrap:wrap}
+.topbar>div{min-width:0}
+.topbar .tt,.topbar .ts{overflow-wrap:anywhere}
+/* Rien ne doit pousser la page de cote : le contenu large defile dans son
+   propre cadre. « clip » et non « hidden » — « hidden » cree un conteneur de
+   defilement qui casse le position:sticky des barres de titre. */
+html,body{overflow-x:clip}
+#pg-app table{max-width:100%}
+/* Beaucoup de champs portent une taille en style en ligne, que la regle
+   generale ne peut pas atteindre. Sous 16 px, Safari iOS agrandit l'ecran a
+   chaque prise de champ : c'est la seule regle de l'application qui a besoin
+   d'un « important ». */
+#pg-app input,#pg-app select,#pg-app textarea{font-size:16px !important}
+/* Le cadre de defilement des tableaux larges ne doit pas etre etire par son
+   contenu : sans min-width:0 un enfant de flex ou de grille prend la largeur
+   de son tableau et pousse la page de cote. */
+[data-jx-defile]{width:100%;min-width:0;max-width:100%;overflow-x:auto}
+#pg-app .card,#pg-app .item,#pg-app .page{min-width:0}
 .tt{font-size:15px;font-weight:600;color:#e8e4d8}
 .ts{font-size:11px;color:#6b6660;margin-top:2px}
 .botnav{position:fixed;bottom:0;left:0;right:0;background:#162639;border-top:1px solid rgba(255,255,255,0.1);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -105,10 +132,10 @@ textarea{resize:vertical;min-height:80px}
 .item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin-bottom:10px}
 .item-titre{font-size:14px;font-weight:600;color:#e8e4d8;margin-bottom:6px}
 .badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;margin-bottom:6px}
-.badge-red{background:rgba(224,92,92,0.15);color:#e05c5c;border:1px solid rgba(224,92,92,0.3)}
+.badge-red{background:rgba(224,92,92,0.15);color:#f2a6a6;border:1px solid rgba(224,92,92,0.45)}
 .badge-gold{background:rgba(201,168,76,0.15);color:#e8c97a;border:1px solid rgba(201,168,76,0.3)}
-.badge-blue{background:rgba(91,155,213,0.15);color:#5b9bd5;border:1px solid rgba(91,155,213,0.3)}
-.badge-green{background:rgba(76,175,125,0.15);color:#4caf7d;border:1px solid rgba(76,175,125,0.3)}
+.badge-blue{background:rgba(91,155,213,0.15);color:#a6cbee;border:1px solid rgba(91,155,213,0.45)}
+.badge-green{background:rgba(76,175,125,0.15);color:#8fdcb5;border:1px solid rgba(76,175,125,0.45)}
 .step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
 .step-num{width:28px;height:28px;border-radius:50%;background:#c9a84c;color:#0f1f2e;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
 .step-txt{flex:1;font-size:13px;color:#e8e4d8;line-height:1.6}
@@ -164,10 +191,13 @@ tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
 .ins-input:active{border-color:#c9a84c;background:#fff}
 .ins-label{display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
 .tab-bar{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
-.tab{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);font-size:12px;cursor:pointer;color:#9a9585;white-space:nowrap;background:rgba(255,255,255,0.03)}
+/* Une etiquette de theme de 301 px faisait deborder la page a 320 px, et
+   32 px de haut est sous la cible tactile confortable. */
+.tab{padding:11px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);font-size:12.5px;cursor:pointer;color:#c3bcae;background:rgba(255,255,255,0.03);max-width:100%;overflow-wrap:anywhere;min-height:44px;display:inline-flex;align-items:center}
 .tab.act{background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.4);color:#e8c97a;font-weight:600}
 .juris-card{background:rgba(91,155,213,0.05);border:1px solid rgba(91,155,213,0.15);border-radius:12px;padding:14px;margin-bottom:10px}
-.juris-ref{font-size:11px;color:#5b9bd5;font-weight:700;margin-bottom:4px}
+/* La reference de l'arret etait dans le plus petit corps de l'application. */
+.juris-ref{font-size:12.5px;color:#a6cbee;font-weight:700;margin-bottom:4px}
 .juris-regle{font-size:12px;color:#e8c97a;font-weight:600;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06)}
 .alerte-item{background:rgba(224,92,92,0.08);border:1px solid rgba(224,92,92,0.2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
 .alerte-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
@@ -488,8 +518,11 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .fam-tuile:active{transform:scale(.97)}
 .fam-tuile .fi{font-size:22px;line-height:1;display:block;margin-bottom:6px}
 .fam-tuile .fn{font-size:13px;font-weight:800;line-height:1.2;display:block}
+/* Blanc sur vert : 2,99:1 — sur le PREMIER ecran de l'application. Le fond
+   de la pastille est assombri au lieu d'eclaircir le texte, pour ne pas
+   toucher aux couleurs des familles. */
 .fam-tuile .fc{display:inline-block;margin-top:7px;padding:2px 9px;border-radius:20px;
-  font-size:12px;font-weight:800;background:rgba(255,255,255,.22)}
+  font-size:12px;font-weight:800;color:#fff;background:rgba(0,0,0,.42)}
 .fam-tuile[aria-pressed="true"]{box-shadow:0 0 0 3px rgba(255,255,255,.22) inset}
 
 .fam-bandeau{display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:14px;
@@ -958,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.138';
+var JX_BUILD = 'v2026-08-06.139';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -967,6 +1000,15 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.139', d:'6 aout 2026', t:[
+   'L\'AGRANDISSEMENT DE LA PAGE ETAIT INTERDIT. « maximum-scale=1.0 » déclarait au téléphone que l\'utilisateur n\'a pas le droit d\'agrandir — c\'est précisément ce dont a besoin qui voit mal. Et aucun des 295 champs n\'atteignait 16 px : sous ce seuil, Safari agrandit l\'écran à chaque prise de champ et ne le réduit jamais. Les deux sont corrigés.',
+   'L\'ESPACE RH RESTAIT POSE SUR TOUTES LES PAGES SUIVANTES. C\'est un calque plein écran ; le bouton de retour flottant et la barre du bas passaient dessous, et changer de page ne le fermait pas. Ouvert une fois, il couvrait le reste de la session, défilement du corps bloqué.',
+   'DEUX OUVRE-MENU AU MEME ENDROIT : le « ☰ » flottant recouvrait celui de la barre de titre sur 39 pages, qui était donc inatteignable. Un seul des deux s\'affiche désormais. Mesuré : 0 recouvrement sur 43 pages.',
+   'CONTRASTES. 104 textes sous le seuil de lisibilité, dont les notes de loi à 2,80:1 — le pire de l\'application, et ce sont justement les rappels d\'articles. Les compteurs de l\'écran d\'accueil étaient à 2,99:1, les pastilles « réf. à vérifier » à 3,44:1. Toutes les familles corrigées sont maintenant au-dessus de 6:1, et le corps des notes de loi passe de 11 à 12,5 px.',
+   '246 CHAMPS SUR 295 N\'AVAIENT AUCUN INTITULE pour un lecteur d\'écran : les libellés existaient à l\'écran sans être reliés aux champs. Un lecteur annonçait « zone de texte, vide ». Il en reste 7 sur 404. Les 42 boutons dont tout le texte est un pictogramme (☰, ✕, ＋) ont désormais un nom.',
+   'A 200 % D\'AGRANDISSEMENT, 42 PAGES SUR 43 DEFILAIENT LATERALEMENT — la barre de titre réclamait 235 px dans 195. Elle s\'enroule, les tableaux larges défilent dans leur propre cadre, et plus aucune page ne pousse le reste de côté.',
+   'Clavier numérique sur les champs SIRET, téléphone et coefficient, qui appelaient le clavier alphabétique. Les étiquettes de filtre passent à 44 px de haut et ne débordent plus à 320 px. « color-scheme: dark » déclaré : les sélecteurs de date et les listes natives étaient demandés en thème clair sur une interface sombre.'
+ ]},
  {v:'v2026-08-06.138', d:'6 aout 2026', t:[
    'RECTIFICATIF SUR MON PROPRE JOURNAL — j\'avais écrit, en me disant vérifié, que les 186,33 heures du grand routier sont payées au taux de base. C\'est FAUX. De la 36e à la 43e heure — de la 151,67e à la 186,33e mensuelle — la rémunération est majorée de 25 % (accord du 23 avril 2002, étendu et obligatoire depuis le 21 octobre 2002 ; art. D.3312-46 et D.3312-47 du code des transports). Le calculateur payait ces 34,66 heures à plat : environ 108 € bruts manquaient chaque mois. Corrigé.',
    'BÂTIMENT — les 4 heures « structurelles » d\'un horaire à 39 h étaient payées au taux de base. Le bâtiment ne connaît aucun régime d\'équivalence : toute heure au-delà de 35 h est une heure supplémentaire (L.3121-27, L.3121-28, L.3121-36). À 15 €/h il manquait 64,99 € par mois, 779,88 € par an.',
@@ -1981,7 +2023,7 @@ try{
   <div class="eyebrow">Cabinet juridique augmenté</div>
   <h2>Que voulez-vous faire&nbsp;?</h2>
   <p><span id="hero-secteur">Transport routier de marchandises — CCN IDCC 0016</span>. Procédures guidées, documents prêts à signer et jurisprudence à l'appui.</p>
-  <div style="font-size:11px;color:#6b7a8d;margin-top:6px">Version <span id="home-build">…</span></div>
+  <div style="font-size:11px;color:#9fb0c4;margin-top:6px">Version <span id="home-build">…</span></div>
   <script>try{document.getElementById('home-build').textContent=(typeof JX_BUILD!=='undefined'?JX_BUILD:'—');}catch(e){}</script>
 </div>
 <div class="home-wrap">
@@ -2340,7 +2382,7 @@ try{
 <div id="pg-contrat" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Embauche et contrats</div><div class="ts" id="ts-contrat">Convention collective — voir la fiche entreprise</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="ct">Type de contrat et catégorie</div>
@@ -2427,7 +2469,7 @@ try{
 <div class="card">
 <div class="ct">Poste et qualifications</div>
 <div class="fg"><label class="fl">Intitulé du poste</label><input id="c-poste" list="dl-poste" placeholder="Ex : Conducteur SPL grand routier"/></div>
-<div class="fg"><label class="fl">Coefficient (renseigné automatiquement)</label><input id="c-coeff" readonly style="color:#9a9585;background:rgba(255,255,255,0.04)"/></div>
+<div class="fg"><label class="fl">Coefficient (renseigné automatiquement)</label><input id="c-coeff" inputmode="numeric" readonly style="color:#9a9585;background:rgba(255,255,255,0.04)"/></div>
 <div class="fg"><label class="fl">Véhicule conduit</label>
 <select id="c-vehicule">
   <option value="SPL">Semi-remorque (SPL) — Permis CE</option>
@@ -2496,10 +2538,10 @@ try{
 
 <div class="card">
 <div class="ct">Rémunération</div>
-<div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input type="number" id="c-salaire" placeholder="Ex : 2200" oninput="checkSalaire()"/></div>
+<div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input type="number" inputmode="decimal" id="c-salaire" placeholder="Ex : 2200" oninput="checkSalaire()"/></div>
 <div id="salaire-warn" class="herr hidden"></div>
 <div id="salaire-ok" class="hint hidden"></div>
-<div class="fg"><label class="fl">Base horaire mensuelle</label><input id="c-heures-base" readonly style="color:#9a9585;background:rgba(255,255,255,0.04)" placeholder="Auto"/></div>
+<div class="fg"><label class="fl">Base horaire mensuelle</label><input id="c-heures-base" inputmode="numeric" readonly style="color:#9a9585;background:rgba(255,255,255,0.04)" placeholder="Auto"/></div>
 <div class="fg"><label class="fl">Paiement heures supplémentaires</label>
 <select id="c-hs-mode">
   <option value="majoration">Majorations CCN Transport (36-43h : +25%, >43h : +50%)</option>
@@ -2523,21 +2565,21 @@ try{
 <label class="chk"><input type="checkbox" id="c-mobilite" onchange="document.getElementById('mob-det').classList.toggle('hidden',!this.checked)"/> Clause de mobilité géographique</label>
 <div id="mob-det" class="hidden">
 <div class="fg"><label class="fl">Zone géographique</label><input id="c-mob-zone" placeholder="Ex : Île-de-France — dans un rayon de 100km du dépôt"/></div>
-<div class="fg"><label class="fl">Délai de prévenance (jours)</label><input type="number" id="c-mob-delai" placeholder="30"/></div>
+<div class="fg"><label class="fl">Délai de prévenance (jours)</label><input type="number" inputmode="decimal" id="c-mob-delai" placeholder="30"/></div>
 <div class="loi">Zone géographique obligatoire — clause sans limite nulle (Cass. soc. 7 juin 2006 — n°04-45.846). Proportionnée à la nature de l'activité (art. L.1121-1 C. trav.).</div>
 </div>
 <label class="chk"><input type="checkbox" id="c-nonconc" onchange="document.getElementById('nc-det').classList.toggle('hidden',!this.checked)"/> Clause de non-concurrence</label>
 <div id="nc-det" class="hidden">
-<div class="fg"><label class="fl">Durée (mois)</label><input type="number" id="c-nc-duree" placeholder="12"/></div>
+<div class="fg"><label class="fl">Durée (mois)</label><input type="number" inputmode="decimal" id="c-nc-duree" placeholder="12"/></div>
 <div class="fg"><label class="fl">Zone géographique</label><input id="c-nc-zone" placeholder="Ex : Île-de-France"/></div>
-<div class="fg"><label class="fl">Contrepartie financière (% du salaire)</label><input type="number" id="c-nc-pct" placeholder="20"/></div>
+<div class="fg"><label class="fl">Contrepartie financière (% du salaire)</label><input type="number" inputmode="decimal" id="c-nc-pct" placeholder="20"/></div>
 <div class="loi">5 conditions cumulatives (Cass. soc. 10/07/2002) : intérêt légitime, limitation temps + espace, spécificités emploi, contrepartie financière. Taux < 20% risque de nullité.</div>
 </div>
 <label class="chk"><input type="checkbox" id="c-dedit" onchange="document.getElementById('dedit-det').classList.toggle('hidden',!this.checked)"/> Clause de dédit-formation (formation NON obligatoire financée par l'employeur)</label>
 <div id="dedit-det" class="hidden">
 <div class="al err" style="font-size:11.5px;margin-bottom:8px;line-height:1.7">🚫 <b>Piège transport :</b> la <b>FIMO et la FCO sont des formations OBLIGATOIRES</b> à la charge de l'employeur — elles <b>ne peuvent PAS</b> donner lieu à un dédit-formation (clause nulle). Le dédit n'est valable que pour une formation <b>au-delà des obligations légales</b> (ex. permis CE financé au-delà du minimum, ADR de spécialité…), dispensant une <b>qualification réelle</b>.</div>
-<div class="fg"><label class="fl">Montant formation financée (€)</label><input type="number" id="c-dedit-montant" placeholder="3500"/></div>
-<div class="fg"><label class="fl">Durée d'engagement (mois)</label><input type="number" id="c-dedit-duree" placeholder="24"/></div>
+<div class="fg"><label class="fl">Montant formation financée (€)</label><input type="number" inputmode="decimal" id="c-dedit-montant" placeholder="3500"/></div>
+<div class="fg"><label class="fl">Durée d'engagement (mois)</label><input type="number" inputmode="decimal" id="c-dedit-duree" placeholder="24"/></div>
 <div class="loi">Conditions de validité : (1) formation <b>non obligatoire</b> ; (2) clause <b>signée AVANT le début</b> de la formation ; (3) montant réel et proportionné ; (4) durée d'engagement raisonnable ; (5) montant du dédit dégressif dans le temps ; (6) le dédit ne prive pas le salarié de sa faculté de démissionner (Cass. soc. 21/01/2004, n° 01-43.352 ; Cass. soc. 05/06/2002).</div>
 </div>
 <label class="chk"><input type="checkbox" id="c-geoloc"/> Géolocalisation du véhicule (information du salarié + inscription au registre RGPD + consultation CSE — L.1121-1, L.2312-38)</label>
@@ -2557,7 +2599,7 @@ try{
 <div id="pg-temps" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Durée du travail</div><div class="ts" id="temps-subtitle">Code des transports R.3312-9 s. · CE 561/2006 · Directive 2002/15/CE</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div id="temps-transport">
 <div class="card">
@@ -2658,14 +2700,14 @@ try{
   <option value="ld">Longue distance (seuil 169h)</option>
   <option value="cd" selected>Courte distance (seuil 152h)</option>
 </select></div>
-<div class="fg"><label class="fl">Temps de conduite ce jour (heures)</label><input type="number" id="calc-cj" placeholder="Ex : 8.5" step="0.5" oninput="calcTemps()"/></div>
+<div class="fg"><label class="fl">Temps de conduite ce jour (heures)</label><input type="number" inputmode="decimal" id="calc-cj" placeholder="Ex : 8.5" step="0.5" oninput="calcTemps()"/></div>
 <div class="fg"><label class="fl">Nombre de fois que 10h ont déjà été faites cette semaine</label>
 <div class="rr"><div class="ro sel" id="dix-0" onclick="setDix(0)">0</div><div class="ro" id="dix-1" onclick="setDix(1)">1</div><div class="ro" id="dix-2" onclick="setDix(2)">2+</div></div></div>
-<div class="fg"><label class="fl">Temps de conduite hebdomadaire total (heures)</label><input type="number" id="calc-cs" placeholder="Ex : 48" step="0.5" oninput="calcTemps()"/></div>
-<div class="fg"><label class="fl">Temps de conduite semaine précédente (heures)</label><input type="number" id="calc-csp" placeholder="Ex : 40" step="0.5" oninput="calcTemps()"/></div>
-<div class="fg"><label class="fl">Repos journalier prévu (heures)</label><input type="number" id="calc-repos" placeholder="Ex : 11" step="0.5" oninput="calcTemps()"/></div>
-<div class="fg"><label class="fl">Amplitude journalière (heures)</label><input type="number" id="calc-amplitude" placeholder="Ex : 12" step="0.5" oninput="calcTemps()"/></div>
-<div class="fg"><label class="fl">Heures travaillées ce mois (total)</label><input type="number" id="calc-hmois" placeholder="Ex : 165" step="0.5" oninput="calcTemps()"/></div>
+<div class="fg"><label class="fl">Temps de conduite hebdomadaire total (heures)</label><input type="number" inputmode="decimal" id="calc-cs" placeholder="Ex : 48" step="0.5" oninput="calcTemps()"/></div>
+<div class="fg"><label class="fl">Temps de conduite semaine précédente (heures)</label><input type="number" inputmode="decimal" id="calc-csp" placeholder="Ex : 40" step="0.5" oninput="calcTemps()"/></div>
+<div class="fg"><label class="fl">Repos journalier prévu (heures)</label><input type="number" inputmode="decimal" id="calc-repos" placeholder="Ex : 11" step="0.5" oninput="calcTemps()"/></div>
+<div class="fg"><label class="fl">Amplitude journalière (heures)</label><input type="number" inputmode="decimal" id="calc-amplitude" placeholder="Ex : 12" step="0.5" oninput="calcTemps()"/></div>
+<div class="fg"><label class="fl">Heures travaillées ce mois (total)</label><input type="number" inputmode="decimal" id="calc-hmois" placeholder="Ex : 165" step="0.5" oninput="calcTemps()"/></div>
 </div>
 <div id="calc-result" style="margin-top:10px"></div>
 <button class="btn-outline" style="margin-top:10px" onclick="genFicheVerif()">📄 Générer la fiche de vérification →</button>
@@ -2724,9 +2766,9 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="item">
 <div class="badge badge-gold">CALCULATRICE — CONFORMITÉ JOURNÉE / SEMAINE</div>
 <div class="bloc" style="margin-top:8px">
-<div class="fg"><label class="fl">Heures travaillées ce jour</label><input type="number" id="tb-jour" step="0.5" placeholder="Ex : 9" oninput="calcTempsBatiment()"/></div>
-<div class="fg"><label class="fl">Heures travaillées cette semaine</label><input type="number" id="tb-sem" step="0.5" placeholder="Ex : 42" oninput="calcTempsBatiment()"/></div>
-<div class="fg"><label class="fl">Repos entre deux journées (heures)</label><input type="number" id="tb-repos" step="0.5" placeholder="Ex : 11" oninput="calcTempsBatiment()"/></div>
+<div class="fg"><label class="fl">Heures travaillées ce jour</label><input type="number" inputmode="decimal" id="tb-jour" step="0.5" placeholder="Ex : 9" oninput="calcTempsBatiment()"/></div>
+<div class="fg"><label class="fl">Heures travaillées cette semaine</label><input type="number" inputmode="decimal" id="tb-sem" step="0.5" placeholder="Ex : 42" oninput="calcTempsBatiment()"/></div>
+<div class="fg"><label class="fl">Repos entre deux journées (heures)</label><input type="number" inputmode="decimal" id="tb-repos" step="0.5" placeholder="Ex : 11" oninput="calcTempsBatiment()"/></div>
 </div>
 <div id="tb-result" style="margin-top:10px"></div>
 </div>
@@ -2758,9 +2800,9 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="item">
 <div class="badge badge-gold">CALCULATRICE — CONFORMITÉ JOUR / SEMAINE</div>
 <div class="bloc" style="margin-top:8px">
-<div class="fg"><label class="fl">Heures travaillées ce jour</label><input type="number" id="tt-jour" step="0.5" placeholder="Ex : 8" oninput="calcTempsTertiaire()"/></div>
-<div class="fg"><label class="fl">Heures travaillées cette semaine</label><input type="number" id="tt-sem" step="0.5" placeholder="Ex : 39" oninput="calcTempsTertiaire()"/></div>
-<div class="fg"><label class="fl">Repos entre deux journées (heures)</label><input type="number" id="tt-repos" step="0.5" placeholder="Ex : 11" oninput="calcTempsTertiaire()"/></div>
+<div class="fg"><label class="fl">Heures travaillées ce jour</label><input type="number" inputmode="decimal" id="tt-jour" step="0.5" placeholder="Ex : 8" oninput="calcTempsTertiaire()"/></div>
+<div class="fg"><label class="fl">Heures travaillées cette semaine</label><input type="number" inputmode="decimal" id="tt-sem" step="0.5" placeholder="Ex : 39" oninput="calcTempsTertiaire()"/></div>
+<div class="fg"><label class="fl">Repos entre deux journées (heures)</label><input type="number" inputmode="decimal" id="tt-repos" step="0.5" placeholder="Ex : 11" oninput="calcTempsTertiaire()"/></div>
 </div>
 <div id="tt-result" style="margin-top:10px"></div>
 </div>
@@ -2772,7 +2814,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-remuneration" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Rémunération</div><div class="ts" id="rem-subtitle">CCN Transport IDCC 0016 · Barèmes · GAR</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div id="rem-transport">
 <div class="card">
@@ -2798,11 +2840,11 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
   <option value="169" selected>Autres personnels roulants (courte distance) — 39 h/sem = 169 h/mois</option>
   <option value="151.67">Messagerie / convoyeurs & personnel sédentaire — 35 h/sem = 151,67 h/mois</option>
 </select></div>
-<div class="fg"><label class="fl">Heures effectuées ce mois</label><input type="number" id="rem-heures" value="169" oninput="calcRem()"/></div>
-<div class="fg"><label class="fl">Ancienneté dans l'entreprise (années)</label><input type="number" id="rem-anciennete" value="0" min="0" oninput="calcRem()"/></div>
-<div class="fg"><label class="fl">Heures de nuit effectuées (entre 21h et 6h)</label><input type="number" id="rem-nuit" value="0" oninput="calcRem()"/></div>
-<div class="fg"><label class="fl">Jours de déplacement — repas seuls</label><input type="number" id="rem-repas" value="0" oninput="calcRem()"/></div>
-<div class="fg"><label class="fl">Nuits hors domicile (découchers)</label><input type="number" id="rem-nuits-dep" value="0" oninput="calcRem()"/></div>
+<div class="fg"><label class="fl">Heures effectuées ce mois</label><input type="number" inputmode="decimal" id="rem-heures" value="169" oninput="calcRem()"/></div>
+<div class="fg"><label class="fl">Ancienneté dans l'entreprise (années)</label><input type="number" inputmode="decimal" id="rem-anciennete" value="0" min="0" oninput="calcRem()"/></div>
+<div class="fg"><label class="fl">Heures de nuit effectuées (entre 21h et 6h)</label><input type="number" inputmode="decimal" id="rem-nuit" value="0" oninput="calcRem()"/></div>
+<div class="fg"><label class="fl">Jours de déplacement — repas seuls</label><input type="number" inputmode="decimal" id="rem-repas" value="0" oninput="calcRem()"/></div>
+<div class="fg"><label class="fl">Nuits hors domicile (découchers)</label><input type="number" inputmode="decimal" id="rem-nuits-dep" value="0" oninput="calcRem()"/></div>
 <div class="fg"><label class="fl">Prime de non-accident (si applicable)</label>
 <select id="rem-prime-acc" onchange="calcRem()">
   <option value="0">Pas de prime non-accident</option>
@@ -2833,7 +2875,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 </select></div>
 <div class="fg"><label class="fl">Coefficient</label><select id="gar-coeff"></select></div>
 <div class="fg"><label class="fl">Ancienneté</label><select id="gar-anc"></select></div>
-<div class="fg"><label class="fl">Rémunération annuelle brute perçue (€)</label><input type="number" id="gar-annuel" placeholder="Ex : 26000"/></div>
+<div class="fg"><label class="fl">Rémunération annuelle brute perçue (€)</label><input type="number" inputmode="decimal" id="gar-annuel" placeholder="Ex : 26000"/></div>
 <button class="btn-outline" style="margin-top:6px" onclick="calcGAR()">Vérifier la conformité GAR →</button>
 <div id="gar-result" style="margin-top:10px"></div>
 </div>
@@ -2885,14 +2927,14 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="ct">Simulateur de rémunération mensuelle — Bâtiment</div>
 <div class="al warn" style="font-size:11.5px;margin-bottom:10px;line-height:1.6">⚠️ Dans le Bâtiment, les <b>salaires minima sont fixés RÉGION par RÉGION</b> (avenants « salaires » départementaux/régionaux) pour les <b>ouvriers</b> (IDCC 1596/1597) et les <b>ETAM</b> (IDCC 2609) ; seuls les <b>cadres</b> (IDCC 2420) ont des appointements minimaux <b>nationaux</b>. Cet outil calcule le brut à partir du <b>taux horaire que vous saisissez</b> et applique les majorations légales d'heures supplémentaires — il <b>ne peut pas</b> présumer le minimum : vérifiez l'avenant régional en vigueur.</div>
 <div class="bloc">
-<div class="fg"><label class="fl">Taux horaire brut (€) — au moins le minimum conventionnel régional</label><input type="number" id="remb-taux" step="0.01" placeholder="Ex : 13.50" oninput="calcRemBatiment()"/></div>
+<div class="fg"><label class="fl">Taux horaire brut (€) — au moins le minimum conventionnel régional</label><input type="number" inputmode="decimal" id="remb-taux" step="0.01" placeholder="Ex : 13.50" oninput="calcRemBatiment()"/></div>
 <div class="fg"><label class="fl">Durée hebdomadaire de référence</label>
 <select id="remb-base" onchange="calcRemBatiment()">
   <option value="35">35 h/sem (151,67 h/mois) — durée légale</option>
   <option value="39">39 h/sem (169 h/mois) — 4 h supp. structurelles</option>
 </select></div>
-<div class="fg"><label class="fl">Heures réellement effectuées ce mois</label><input type="number" id="remb-heures" step="0.5" placeholder="151.67" oninput="calcRemBatiment()"/></div>
-<div class="fg"><label class="fl">Prime d'ancienneté conventionnelle (%) — selon l'accord régional / le collège (à vérifier)</label><input type="number" id="remb-anc" step="0.5" value="0" min="0" oninput="calcRemBatiment()"/></div>
+<div class="fg"><label class="fl">Heures réellement effectuées ce mois</label><input type="number" inputmode="decimal" id="remb-heures" step="0.5" placeholder="151.67" oninput="calcRemBatiment()"/></div>
+<div class="fg"><label class="fl">Prime d'ancienneté conventionnelle (%) — selon l'accord régional / le collège (à vérifier)</label><input type="number" inputmode="decimal" id="remb-anc" step="0.5" value="0" min="0" oninput="calcRemBatiment()"/></div>
 </div>
 <div id="remb-result" style="margin-top:10px"></div>
 <button class="btn-outline" style="margin-top:10px" onclick="genBulletinType()">📄 Générer le bulletin de paie type →</button>
@@ -2913,9 +2955,9 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="ct">Simulateur de rémunération mensuelle</div>
 <div class="al warn" id="remt-note" style="font-size:11.5px;margin-bottom:10px;line-height:1.6"></div>
 <div class="bloc">
-<div class="fg"><label class="fl">Taux horaire brut (€) — au moins le minimum conventionnel</label><input type="number" id="remt-taux" step="0.01" placeholder="Ex : 15.00" oninput="calcRemTertiaire()"/></div>
-<div class="fg"><label class="fl">Heures travaillées ce mois</label><input type="number" id="remt-heures" step="0.5" placeholder="151.67" oninput="calcRemTertiaire()"/></div>
-<div class="fg"><label class="fl">Prime d'ancienneté conventionnelle (%) — si prévue (à vérifier)</label><input type="number" id="remt-anc" step="0.5" value="0" min="0" oninput="calcRemTertiaire()"/></div>
+<div class="fg"><label class="fl">Taux horaire brut (€) — au moins le minimum conventionnel</label><input type="number" inputmode="decimal" id="remt-taux" step="0.01" placeholder="Ex : 15.00" oninput="calcRemTertiaire()"/></div>
+<div class="fg"><label class="fl">Heures travaillées ce mois</label><input type="number" inputmode="decimal" id="remt-heures" step="0.5" placeholder="151.67" oninput="calcRemTertiaire()"/></div>
+<div class="fg"><label class="fl">Prime d'ancienneté conventionnelle (%) — si prévue (à vérifier)</label><input type="number" inputmode="decimal" id="remt-anc" step="0.5" value="0" min="0" oninput="calcRemTertiaire()"/></div>
 </div>
 <div id="remt-result" style="margin-top:10px"></div>
 <button class="btn-outline" style="margin-top:10px" onclick="genBulletinType()">📄 Générer le bulletin de paie type →</button>
@@ -2930,7 +2972,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-ri" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Règlement intérieur</div><div class="ts" id="ri-subtitle">Spécificités transport · Alcool · Tachygraphe · Géolocalisation</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="ct">Questionnaire préalable</div>
@@ -2973,7 +3015,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-disciplinaire" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Discipline et licenciement</div><div class="ts">Vérifications · Documents · Calcul indemnités</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="ct">Identification de la situation</div>
@@ -3107,7 +3149,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-harcmoral" class="page">
 <div class="topbar"><button onclick="goPage('harcele')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Harcèlement moral</div><div class="ts">Qualification · faits retenus et écartés · preuve</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     L'article L.1152-1 pose une définition générale. Ce sont les juges qui lui donnent sa matière —
@@ -3117,7 +3159,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
     Il n'y a <b>aucune intention de nuire à démontrer</b> : le texte vise ce qui a « pour objet <b>ou pour effet</b> »
     la dégradation, et l'effet suffit. Et il n'y a <b>pas de harcèlement à prouver</b> : le salarié présente des faits
     qui le laissent supposer, c'est à l'employeur de démontrer qu'ils sont étrangers à tout harcèlement.</div>
-    <div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">D'après les publications de Mounir CHIKHAOUI, juillet et août 2026.</div>
+    <div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">D'après les publications de Mounir CHIKHAOUI, juillet et août 2026.</div>
   </div>
 </div>
 <div id="harcm-body" style="padding:0 14px 20px">
@@ -3132,7 +3174,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csedos" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Le dossier, étape par étape</div><div class="ts">Ce qu’il faut avoir, et quand</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     Une réunion se perd rarement sur le fond : elle se perd parce qu’une pièce manque.
@@ -3153,7 +3195,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csebud" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Les budgets</div><div class="ts">Fonctionnement · activités sociales · transferts · comptes</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     Deux budgets, deux logiques. Le <b>fonctionnement</b> a un taux fixé par la loi : on peut donc
@@ -3176,7 +3218,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csehub" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Mon espace CSE</div><div class="ts">Tout le comité, en un seul endroit</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div id="csehub-body" style="padding:0 14px 20px">
   <div style="padding:24px;text-align:center;color:#9fb0c4">
     <div style="font-size:14px;margin-bottom:12px">Chargement…</div>
@@ -3188,7 +3230,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csecns" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Consultations récurrentes</div><div class="ts">Orientations · économie · politique sociale</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     Les trois consultations de l'article L.2312-17, avec le délai d'examen calculé et daté :
@@ -3206,7 +3248,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csercl" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Réclamations</div><div class="ts">Toutes tailles · délais · registre</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     L'attribution existe dès onze salariés et se poursuit au-delà de cinquante. Mais le formalisme —
@@ -3225,7 +3267,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csereu" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Réunion du CSE</div><div class="ts">Convocation · ordre du jour · votes · procès-verbal</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     Préparer une séance et en sortir les documents. La composition vient de « Mon CSE »,
@@ -3243,7 +3285,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csecal" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Calendrier du CSE</div><div class="ts">Réunions · ordre du jour · procès-verbal</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     La périodicité dépend de l'effectif, qui vient du socle. Le calendrier de l'année est engendré à
@@ -3262,7 +3304,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-moncse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Mon CSE</div><div class="ts">Élus · désignations · heures · mandats</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     Qui a été élu, pour combien de temps, avec quels crédits d'heures et quelles désignations.
@@ -3280,7 +3322,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-csediag" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">CSE — Diagnostic</div><div class="ts">Obligation · échéances · feuille de route</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     Ce diagnostic part de <b>l'effectif calculé au socle</b> et de la situation réelle de l'entreprise.
@@ -3299,7 +3341,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-socle" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Socle de l'entreprise</div><div class="ts">Effectif · convention collective · accord d'entreprise</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card" style="border-color:#c9a84c">
   <div style="font-size:13px;color:#9fb0c4;line-height:1.7">
     L'effectif commandé par le registre du personnel détermine <b>tout le reste</b> : l'obligation d'organiser les
@@ -3318,7 +3360,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div id="pg-cse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Élections CSE</div><div class="ts">Procédure Code du travail · convention paramétrable</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="bl">Secteur / convention collective</div>
@@ -3351,7 +3393,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 <div class="card">
 <div class="ct">Nombre d'élus CSE — accès direct</div>
 <div class="al info" style="font-size:12px;margin-bottom:10px">Vous connaissez déjà votre effectif ? Saisissez-le pour obtenir immédiatement le nombre de titulaires et de suppléants à élire. Sinon, utilisez le calcul détaillé ci-dessous.</div>
-<div class="fg"><label class="fl">Effectif (nombre de salariés)</label><input type="number" id="cse-eff-direct" min="0" placeholder="Ex : 150" oninput="cseEffDirect()"/></div>
+<div class="fg"><label class="fl">Effectif (nombre de salariés)</label><input type="number" inputmode="decimal" id="cse-eff-direct" min="0" placeholder="Ex : 150" oninput="cseEffDirect()"/></div>
 <div id="cse-direct-result" style="margin-top:8px"></div>
 </div>
 
@@ -3370,8 +3412,8 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <span style="font-size:11px;color:#9a9585">Représentation équilibrée femmes-hommes obligatoire sur chaque liste, par candidatures alternées, à proportion du collège (art. L.2314-30). <strong>Sanction (L.2314-32)</strong> : le juge annule l'élection des élus surnuméraires du sexe surreprésenté (dans l'ordre inverse de la liste) ; le siège vacant n'est <strong>pas réattribué</strong> (Cass. soc. 11 sept. 2024, n° 23-60.107). Le défaut de parité n'affecte pas l'audience du syndicat.</span>
 </div>
 <div style="color:#e8c97a;font-weight:700">📊 Vérification du quorum (1er tour)</div>
-<div class="fg" style="margin-top:6px"><label class="fl">Nombre d'électeurs inscrits</label><input type="number" id="cse-inscrits" min="0" placeholder="Ex : 150" oninput="cseQuorum()"/></div>
-<div class="fg"><label class="fl">Suffrages valablement exprimés (hors bulletins blancs et nuls)</label><input type="number" id="cse-exprimes" min="0" placeholder="Ex : 80" oninput="cseQuorum()"/></div>
+<div class="fg" style="margin-top:6px"><label class="fl">Nombre d'électeurs inscrits</label><input type="number" inputmode="decimal" id="cse-inscrits" min="0" placeholder="Ex : 150" oninput="cseQuorum()"/></div>
+<div class="fg"><label class="fl">Suffrages valablement exprimés (hors bulletins blancs et nuls)</label><input type="number" inputmode="decimal" id="cse-exprimes" min="0" placeholder="Ex : 80" oninput="cseQuorum()"/></div>
 <div id="cse-quorum-result" style="margin-top:6px"></div>
 </div>
 </div>
@@ -3382,8 +3424,8 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 
 <div class="bloc">
 <div class="bl">Salariés comptant pour 1 (temps plein)</div>
-<div class="fg"><label class="fl">CDI temps plein</label><input type="number" id="eff-cdi-tp" value="0" min="0" oninput="calcEffectif()"/></div>
-<div class="fg"><label class="fl">Cadres dirigeants (exclus de certains dispositifs mais comptent dans l'effectif)</label><input type="number" id="eff-cadres" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg"><label class="fl">CDI temps plein</label><input type="number" inputmode="decimal" id="eff-cdi-tp" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg"><label class="fl">Cadres dirigeants (exclus de certains dispositifs mais comptent dans l'effectif)</label><input type="number" inputmode="decimal" id="eff-cadres" value="0" min="0" oninput="calcEffectif()"/></div>
 </div>
 
 <div class="bloc">
@@ -3394,8 +3436,8 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 </div>
 <div id="tp-lignes">
   <div class="tp-ligne" style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px">
-    <div><label class="fl">Nombre de salariés</label><input type="number" class="tp-nb" value="0" min="0" oninput="calcEffectif()"/></div>
-    <div><label class="fl">Heures/semaine</label><input type="number" class="tp-h" value="20" min="1" max="35" oninput="calcEffectif()"/></div>
+    <div><label class="fl">Nombre de salariés</label><input type="number" inputmode="decimal" class="tp-nb" value="0" min="0" oninput="calcEffectif()"/></div>
+    <div><label class="fl">Heures/semaine</label><input type="number" inputmode="decimal" class="tp-h" value="20" min="1" max="35" oninput="calcEffectif()"/></div>
     <button onclick="supprimerLigneTP(this)" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:10px;color:#e05c5c;cursor:pointer;font-size:16px;margin-bottom:0">✕</button>
   </div>
 </div>
@@ -3405,10 +3447,10 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <div class="bloc">
 <div class="bl">CDD, intérimaires, saisonniers — au prorata de présence sur 12 mois</div>
 <div class="al warn" style="font-size:11px;margin-bottom:8px">Un CDD de 6 mois compte pour 0,5. Un intérimaire présent 3 mois compte pour 0,25. Calcul : durée (mois) ÷ 12.</div>
-<div class="fg"><label class="fl">CDD de remplacement (art. L.1111-3 — EXCLUS du décompte)</label><input type="number" id="eff-cdd-rempl" value="0" min="0" oninput="calcEffectif()"/></div>
-<div class="fg"><label class="fl">CDD accroissement d'activité — durée totale cumulée (mois)</label><input type="number" id="eff-cdd-mois" value="0" min="0" oninput="calcEffectif()"/></div>
-<div class="fg"><label class="fl">Intérimaires — durée totale cumulée (mois)</label><input type="number" id="eff-interim-mois" value="0" min="0" oninput="calcEffectif()"/></div>
-<div class="fg"><label class="fl">Saisonniers — durée totale cumulée (mois)</label><input type="number" id="eff-saison-mois" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg"><label class="fl">CDD de remplacement (art. L.1111-3 — EXCLUS du décompte)</label><input type="number" inputmode="decimal" id="eff-cdd-rempl" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg"><label class="fl">CDD accroissement d'activité — durée totale cumulée (mois)</label><input type="number" inputmode="decimal" id="eff-cdd-mois" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg"><label class="fl">Intérimaires — durée totale cumulée (mois)</label><input type="number" inputmode="decimal" id="eff-interim-mois" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg"><label class="fl">Saisonniers — durée totale cumulée (mois)</label><input type="number" inputmode="decimal" id="eff-saison-mois" value="0" min="0" oninput="calcEffectif()"/></div>
 </div>
 
 <div class="bloc">
@@ -3419,7 +3461,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 ☑ Contrats de professionnalisation pendant la durée de l'action de formation<br>
 ☑ Salariés mis à disposition : comptés dans l'effectif de l'entreprise utilisatrice au prorata de leur temps de présence, uniquement s'ils sont <strong>présents dans les locaux et y travaillent depuis au moins 1 an</strong> (art. L.1111-2, 2°) — ceux qui remplacent un salarié absent sont exclus<br>☑ CDD, intérimaires et mis à disposition <strong>remplaçant un salarié absent</strong> ou dont le contrat est suspendu (L.1111-2, dernier alinéa)
 </div>
-<div class="fg" style="margin-top:8px"><label class="fl">Apprentis (EXCLUS)</label><input type="number" id="eff-apprentis" value="0" min="0" oninput="calcEffectif()"/></div>
+<div class="fg" style="margin-top:8px"><label class="fl">Apprentis (EXCLUS)</label><input type="number" inputmode="decimal" id="eff-apprentis" value="0" min="0" oninput="calcEffectif()"/></div>
 </div>
 
 <div id="eff-result" style="margin-top:12px"></div>
@@ -3447,7 +3489,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 </div>
 <div class="fg"><label class="fl">Plusieurs établissements distincts ?</label>
 <div class="rr"><div class="ro sel" id="cse-etab-non" onclick="setCseEtab('non')">Non</div><div class="ro" id="cse-etab-oui" onclick="setCseEtab('oui')">Oui</div></div></div>
-<div class="fg"><label class="fl">Conducteurs en déplacement permanent (GR)</label><input type="number" id="cse-routiers" value="0" min="0" placeholder="Nombre"/></div>
+<div class="fg"><label class="fl">Conducteurs en déplacement permanent (GR)</label><input type="number" inputmode="decimal" id="cse-routiers" value="0" min="0" placeholder="Nombre"/></div>
 <div id="cse-result" style="margin-top:10px"></div>
 </div>
 
@@ -3649,7 +3691,7 @@ Exemple :<br>
 <div id="pg-csefonc" class="page">
 <div class="topbar"><button onclick="goPage('cse')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← CSE</button>
 <div style="flex:1"><div class="tt">Fonctionnement du CSE</div><div class="ts">Attributions · budgets · réunions · consultations · PV — Code du travail</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="al info" style="font-size:12px;line-height:1.7">Cette page couvre la <b>vie du CSE une fois élu</b> : ses attributions, son budget, ses réunions, ses consultations, ses expertises et ses documents. Règles du <b>Code du travail</b> (à jour 2026). Beaucoup sont <b>supplétives</b> : un <b>accord d'entreprise majoritaire</b> peut les aménager (périodicité jusqu'à 3 ans, contenu de la BDESE, délais). Les <b>seuils et sanctions</b>, eux, sont d'ordre public.</div>
@@ -3692,7 +3734,7 @@ Exemple :<br>
 <!-- 3. RÉUNIONS -->
 <div class="card">
 <div class="ct">3 · Réunions — périodicité</div>
-<div class="fg"><label class="fl">Effectif de l'entreprise</label><input type="number" id="csf-eff" min="0" placeholder="Ex : 150" oninput="cseFoncReunions()"/></div>
+<div class="fg"><label class="fl">Effectif de l'entreprise</label><input type="number" inputmode="decimal" id="csf-eff" min="0" placeholder="Ex : 150" oninput="cseFoncReunions()"/></div>
 <div id="csf-reunions-result" style="margin-top:6px"></div>
 <div style="font-size:12px;color:#cfc8b8;margin-top:10px;line-height:1.8">
 • <b>CSE &lt; 50</b> : au moins <b>1 réunion par mois</b> (L.2315-21). Demande écrite 2 j ouvrables avant, réponse ≤ 6 j ouvrables (L.2315-22).<br>
@@ -3773,8 +3815,8 @@ Exemple :<br>
 <!-- 9. BUDGETS -->
 <div class="card">
 <div class="ct">9 · Budgets du CSE (≥ 50)</div>
-<div class="fg"><label class="fl">Masse salariale brute annuelle (€) — gains soumis à cotisations, hors indemnités de rupture</label><input type="number" id="csf-masse" min="0" placeholder="Ex : 3 000 000" oninput="cseFoncBudget()"/></div>
-<div class="fg"><label class="fl">Effectif</label><input type="number" id="csf-eff2" min="0" placeholder="Ex : 150" oninput="cseFoncBudget()"/></div>
+<div class="fg"><label class="fl">Masse salariale brute annuelle (€) — gains soumis à cotisations, hors indemnités de rupture</label><input type="number" inputmode="decimal" id="csf-masse" min="0" placeholder="Ex : 3 000 000" oninput="cseFoncBudget()"/></div>
+<div class="fg"><label class="fl">Effectif</label><input type="number" inputmode="decimal" id="csf-eff2" min="0" placeholder="Ex : 150" oninput="cseFoncBudget()"/></div>
 <div id="csf-budget-result" style="margin-top:6px"></div>
 <div style="font-size:12px;color:#cfc8b8;margin-top:10px;line-height:1.8">
 • <b>Budget de fonctionnement (AEP)</b> : <b>0,20 %</b> de la masse salariale brute (50 à &lt; 2 000 sal.) ou <b>0,22 %</b> (≥ 2 000) — L.2315-61.<br>
@@ -3870,7 +3912,7 @@ Exemple :<br>
 <div id="pg-absences" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Absences et congés</div><div class="ts">CCN Transport · Maintien de salaire · AT/MP</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="ct">Nature de l'absence</div>
@@ -3896,7 +3938,7 @@ Exemple :<br>
   <option value="10plus">10 ans et plus</option>
 </select></div>
 <div class="fg"><label class="fl">Date de début de l'absence</label><input type="date" id="abs-debut"/></div>
-<div class="fg"><label class="fl">Durée estimée (jours)</label><input type="number" id="abs-duree" placeholder="Ex : 30" oninput="analyserAbsence()"/></div>
+<div class="fg"><label class="fl">Durée estimée (jours)</label><input type="number" inputmode="decimal" id="abs-duree" placeholder="Ex : 30" oninput="analyserAbsence()"/></div>
 <div class="fg"><label class="fl">Le salarié est-il conducteur ?</label>
 <div class="rr"><div class="ro sel" id="abs-cond-oui" onclick="setAbsCond('oui')">Oui</div><div class="ro" id="abs-cond-non" onclick="setAbsCond('non')">Non</div></div></div>
 <div id="abs-result" class="hidden" style="margin-top:10px"></div>
@@ -3941,7 +3983,7 @@ Exemple :<br>
 <div id="pg-tableau-bord" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Tableau de bord</div><div class="ts">Alertes validités · Suivi conducteurs</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="al warn" style="font-size:11.5px;line-height:1.7;margin-bottom:10px">⚠️ <b>Responsabilité pénale :</b> laisser conduire un salarié dont le <b>permis, la CQC/FCO ou la visite médicale est expiré</b> engage votre responsabilité pénale en cas d'accident (Cass. crim. 3 juin 2003). Suspendez l'affectation à la conduite jusqu'à régularisation.<br>🔒 <b>RGPD :</b> ne suivez que les <b>dates de validité</b> des titres (finalité légitime). Ne stockez PAS le <b>solde de points</b> du permis : c'est une donnée que l'employeur n'a pas à conserver.</div>
@@ -3984,7 +4026,7 @@ Exemple :<br>
 <div id="pg-parc" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Parc &amp; Contraventions</div><div class="ts">Échéancier véhicules · Désignation conducteur (45 j)</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="seg"><button id="seg-parc" class="seg-b act" onclick="parcTab('parc')">🚛 Parc véhicules</button><button id="seg-contra" class="seg-b" onclick="parcTab('contra')">🚨 Contraventions</button></div>
@@ -4046,12 +4088,12 @@ Exemple :<br>
 <div id="pg-parametrage" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Paramétrage entreprise</div><div class="ts" id="p-sub">Coordonnées · Activité · Organismes sociaux</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="ct">Identification</div>
 <div class="fg"><label class="fl">Raison sociale</label><input id="p-nom"/></div>
-<div class="fg"><label class="fl">SIRET</label><input id="p-siret"/></div>
+<div class="fg"><label class="fl">SIRET</label><input id="p-siret" inputmode="numeric"/></div>
 <div class="fg"><label class="fl">Adresse du siège</label><input id="p-adresse"/></div>
 <div class="fg"><label class="fl">Nom du dirigeant</label><input id="p-dirigeant"/></div>
 <div class="fg"><label class="fl">Qualité</label><select id="p-qualite"><option>Gérant</option><option>Président</option><option>Directeur Général</option></select></div>
@@ -4065,7 +4107,7 @@ Exemple :<br>
 <select id="p-org" onchange="try{jxAutreMaj('p-org','p-org-autre')}catch(e){}"><option value="">— À préciser —</option><option value="autre">Autre — préciser</option></select>
 <input id="p-org-autre" placeholder="Précisez votre organisation patronale" style="display:none;margin-top:6px"/></div>
 <div class="fg"><label class="fl">Email</label><input type="email" id="p-email"/></div>
-<div class="fg"><label class="fl">Téléphone</label><input id="p-tel"/></div>
+<div class="fg"><label class="fl">Téléphone</label><input id="p-tel" inputmode="numeric"/></div>
 <div id="p-fiche-compte" style="font-size:11.5px;color:#9a9585;margin-top:10px;line-height:1.6"></div>
 <button onclick="jxViderFiche()" style="margin-top:8px;padding:10px 14px;border:1px solid #7a4a4a;border-radius:9px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:12.5px;cursor:pointer;font-family:inherit">Ce n’est pas mon entreprise — retirer cette fiche de ce compte</button>
 </div>
@@ -4118,7 +4160,7 @@ Exemple :<br>
 <div id="pg-admin" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1;min-width:0"><div class="tt">Administration</div><div class="ts">Codes clients et registre</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div style="max-width:760px;margin:0 auto;padding:0 16px">
   <div id="home-secteur-wrap" style="margin:14px 0 8px">
   <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">🏢 Secteur d'activité (pilote toute l'application)</label>
@@ -4149,11 +4191,11 @@ Exemple :<br>
       <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
       <input id="cg-client" placeholder="Client — nom ou entreprise" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <input id="cg-gerant" placeholder="Gérant / représentant" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-siret" placeholder="SIRET" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-naf" placeholder="Code NAF / APE (ex. 49.41A)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-siret" inputmode="numeric" placeholder="SIRET" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-naf" inputmode="numeric" placeholder="Code NAF / APE (ex. 49.41A)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <input id="cg-adresse" placeholder="Adresse du siège" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <input id="cg-email" placeholder="E-mail" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-tel" placeholder="Téléphone" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-tel" inputmode="numeric" placeholder="Téléphone" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
       <select id="cg-gensecteur" style="width:100%;margin-bottom:8px">
         <option value="">— Secteur du client —</option>
         <option value="transport">Transport routier</option>
@@ -4277,7 +4319,7 @@ Exemple :<br>
 <div id="pg-rgpd" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Charte de confidentialité (RGPD)</div><div class="ts">Protection des données · Règlement (UE) 2016/679</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="ct">🔒 Vos données, en clair</div>
@@ -4376,7 +4418,7 @@ Exemple :<br>
 <div id="pg-nouveautes" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Nouveautés & mises à jour</div><div class="ts">Historique des versions · mise à jour automatique</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="al ok" style="font-size:12.5px;line-height:1.7">🔄 <b>Mise à jour automatique et obligatoire.</b> Votre application vérifie elle-même la version en vigueur — à l'ouverture, toutes les 10 minutes et à chaque retour au premier plan. Dès qu'une nouvelle version est publiée, elle s'installe <b>automatiquement, sans aucune action de votre part</b>. Vous travaillez donc toujours avec la dernière base juridique et les derniers modèles.</div>
@@ -4390,7 +4432,7 @@ Exemple :<br>
 <div id="pg-embauche" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">J'embauche un salarié</div><div class="ts">Assistant guidé · légalité vérifiée · documents prêts</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card"><div id="wz-emb"></div></div>
 </div>
 
@@ -4398,7 +4440,7 @@ Exemple :<br>
 <div id="pg-rupture" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Je veux rompre un contrat</div><div class="ts">Assistant guidé · légalité vérifiée · calendrier daté</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card"><div id="wz-rup"></div></div>
 </div>
 
@@ -4406,7 +4448,7 @@ Exemple :<br>
 <div id="pg-parcours" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Parcours de la relation de travail</div><div class="ts">Étape par étape · de l'embauche à la rupture</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card">
   <div class="al info" style="font-size:12px;margin:0 0 10px">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Repères transport routier (CCN IDCC 0016) indiqués le cas échéant.</div>
   <div class="ct" style="font-size:15px">Fiche salarié — pré-remplit les modèles</div>
@@ -4417,8 +4459,8 @@ Exemple :<br>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
     <div class="fg"><label class="fl">Type de contrat</label><select id="pc-type"><option>CDI</option><option>CDD</option></select></div>
     <div class="fg"><label class="fl">Date d'embauche</label><input id="pc-emb" type="date"></div>
-    <div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="pc-coeff" placeholder="Ex : 138M — Groupe 7 (SPL)"></div>
-    <div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="pc-sal" type="number" min="0" step="50" placeholder="Ex : 2450"></div>
+    <div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="pc-coeff" inputmode="numeric" placeholder="Ex : 138M — Groupe 7 (SPL)"></div>
+    <div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="pc-sal" type="number" inputmode="decimal" min="0" step="50" placeholder="Ex : 2450"></div>
   </div>
   <div style="display:flex;gap:8px;margin-top:8px">
     <button class="btn" style="margin:0;flex:1" onclick="salSaveFromParcours()">💾 Enregistrer la fiche</button>
@@ -4759,7 +4801,7 @@ Exemple :<br>
         +'<div class="fg"><label class="fl">Adresse</label><input id="qs-adr"></div>'
         +'<div class="fg"><label class="fl">Date d\'embauche</label><input id="qs-emb" type="date"></div>'
         +'<div class="fg"><label class="fl">Coefficient / groupe (CCN)</label><input id="qs-coeff" placeholder="Ex : 138M — Groupe 7"></div>'
-        +'<div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="qs-sal" type="number" min="0" step="50"></div>'
+        +'<div class="fg"><label class="fl">Salaire mensuel brut (€)</label><input id="qs-sal" type="number" inputmode="decimal" min="0" step="50"></div>'
         +'<div style="display:flex;gap:8px;margin-top:8px"><button class="btn" style="margin:0;flex:1" onclick="salCreateQuick()">💾 Enregistrer</button><button class="btn-outline" style="margin:0;width:auto;flex:0 0 auto" onclick="document.getElementById(\'sal-new-overlay\').style.display=\'none\'">Annuler</button></div>'
         +'</div>';
       document.body.appendChild(ov);
@@ -4798,7 +4840,7 @@ Exemple :<br>
 <div id="pg-audit" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Contrôle-minute</div><div class="ts">Êtes-vous prêt pour un contrôle ? · score &amp; plan d'action</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card">
   <div class="al info" style="font-size:12px;margin:0 0 10px">Répondez aux questions ci-dessous (Oui / Non / Non concerné). L'outil calcule votre <b>score de conformité sociale</b> et génère un <b>plan d'action priorisé</b>, avec pour chaque point l'outil de l'application qui vous aide à corriger. Vos réponses sont enregistrées sur cet appareil.</div>
   <div id="audit-score" style="display:none;margin-bottom:12px"></div>
@@ -4960,7 +5002,7 @@ Exemple :<br>
 <div id="pg-faq" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">FAQ salariés</div><div class="ts">Questions/Réponses · convention &amp; jurisprudence</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="ct">💬 Questions / Réponses des salariés</div>
@@ -4977,7 +5019,7 @@ Exemple :<br>
 <div id="pg-harcele" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Harcèlement &amp; discrimination</div><div class="ts">Prévention · preuve aménagée · nullité</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card"><div class="ct">🛡️ Harcèlement &amp; discrimination — cadre</div><div class="al info" style="font-size:12px">Dispositions d'ordre public (Code du travail), applicables <b>tous secteurs</b>. L'employeur est tenu d'une <b>obligation de sécurité</b> incluant la prévention du harcèlement.</div></div>
 <div class="card" style="border-color:#c9a84c">
@@ -5031,7 +5073,7 @@ Exemple :<br>
     Q.forEach(function(q){
       h+='<div style="margin-bottom:9px"><label style="font-size:12.5px;color:#cfc8b8;display:block;margin-bottom:3px">'+esc(q.l)+'</label>';
       if(q.t==='date')h+='<input id="hd-'+q.id+'" type="date" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#fff;font-size:13px">';
-      else if(q.t==='num')h+='<input id="hd-'+q.id+'" type="number" min="0" step="1" placeholder="ex. 4" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#fff;font-size:13px;width:120px">';
+      else if(q.t==='num')h+='<input id="hd-'+q.id+'" type="number" inputmode="decimal" min="0" step="1" placeholder="ex. 4" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#fff;font-size:13px;width:120px">';
       else if(q.t==='on')h+='<select id="hd-'+q.id+'" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#e8e4d8;font-size:13px"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select>';
       else if(q.t==='sel'){h+='<select id="hd-'+q.id+'" style="padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:8px;background:#12283b;color:#e8e4d8;font-size:13px"><option value="">—</option>';q.o.forEach(function(op){h+='<option>'+esc(op)+'</option>';});h+='</select>';}
       h+='</div>';
@@ -5098,7 +5140,7 @@ Exemple :<br>
 <div id="pg-rupconv" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Rupture conventionnelle</div><div class="ts">CDI · TéléRC · homologation</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card"><div class="ct">🤝 Rupture conventionnelle individuelle</div>
 <div class="al info" style="font-size:12px">Mode de rupture d'un commun accord du <b>CDI</b> (art. L.1237-11 s.). Procédure nationale. Exclut le CDD et la rupture du contrat en cours de période d'essai.</div></div>
@@ -5114,7 +5156,7 @@ Exemple :<br>
 <div id="pg-cdd" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">CDD &amp; indemnité de précarité</div><div class="ts">Recours · mentions · 10% · requalification</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card"><div class="ct">📄 Contrat à durée déterminée</div><div class="al info" style="font-size:12px">Le CDD ne peut avoir pour objet de pourvoir durablement un emploi lié à l'activité normale et permanente de l'entreprise (art. L.1242-1).</div></div>
 <div class="card"><div class="ct" style="font-size:16px">Cas de recours autorisés</div><div class="step"><div class="step-num">•</div><div class="step-txt">Remplacement d'un salarié absent (ou poste supprimé à terme, attente d'arrivée…).</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Accroissement temporaire d'activité.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Emplois saisonniers ou d'usage (secteurs définis).</div></div><div class="al warn" style="font-size:12px;margin-top:8px"><b>Interdits</b> : remplacer un gréviste, travaux dangereux listés, accroissement d'activité dans les 6 mois suivant un licenciement économique sur le poste concerné.</div></div>
@@ -5135,7 +5177,7 @@ Exemple :<br>
 <div id="pg-inapt" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Inaptitude &amp; reclassement</div><div class="ts">Médecin du travail · CSE · reclassement</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card"><div class="ct">🏥 Inaptitude médicale</div><div class="al info" style="font-size:12px">Inaptitude constatée par le <b>médecin du travail</b> (en principe un examen, après étude de poste et des conditions de travail). Distinguer l'origine <b>professionnelle</b> (AT/MP) et <b>non professionnelle</b>.</div></div>
 <div class="card"><div class="ct" style="font-size:16px">Obligations de l'employeur</div><div class="step"><div class="step-num">1</div><div class="step-txt"><b>Recherche de reclassement</b> sur un emploi approprié aux capacités du salarié (au besoin par mutation/aménagement), au sein de l'entreprise et du groupe.</div></div><div class="step"><div class="step-num">2</div><div class="step-txt"><b>Consultation du CSE</b> sur les propositions de reclassement (obligatoire, que l'inaptitude soit d'origine professionnelle ou non).</div></div><div class="step"><div class="step-num">3</div><div class="step-txt"><b>Dispense de reclassement</b> uniquement si le médecin mentionne expressément que tout maintien dans un emploi serait gravement préjudiciable à la santé, ou que l'état de santé fait obstacle à tout reclassement.</div></div><div class="step"><div class="step-num">4</div><div class="step-txt"><b>Reprise du paiement du salaire</b> si, au terme d'<b>1 mois</b> après l'avis d'inaptitude, le salarié n'est ni reclassé ni licencié.</div></div></div>
@@ -5153,7 +5195,7 @@ Exemple :<br>
 <div id="pg-temps2" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Temps de travail &amp; forfaits</div><div class="ts">Heures sup · forfait-jours · par secteur</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card"><div class="ct">⏱️ Durée du travail — règles communes</div><div class="step"><div class="step-num">•</div><div class="step-txt">Durée légale : <b>35 h/semaine</b>. Heures supplémentaires majorées : <b>+25 %</b> (36e-43e h), <b>+50 %</b> au-delà (sauf accord), contingent annuel + contrepartie obligatoire en repos au-delà.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt">Durées maximales : <b>10 h/jour</b>, <b>48 h/semaine</b> (44 h en moyenne sur 12 semaines) ; repos quotidien 11 h, hebdomadaire 35 h.</div></div><div class="step"><div class="step-num">•</div><div class="step-txt"><b>Forfait-jours</b> : réservé aux cadres autonomes / salariés autonomes ; nécessite un <b>accord collectif</b> conforme et un <b>suivi effectif de la charge</b> + entretien annuel — à défaut la convention est <b>nulle</b> (rappel d'heures supplémentaires).</div></div></div>
 <div class="card"><div class="ct" style="font-size:16px">🆕 Congés payés & heures supplémentaires — revirement 2025-2026</div>
@@ -5169,7 +5211,7 @@ Exemple :<br>
 <div id="pg-licenc" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Procédure de licenciement</div><div class="ts">Motif personnel · délais · échéancier</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="ct">⚖️ Licenciement pour motif personnel — règles communes</div>
@@ -5236,7 +5278,7 @@ Exemple :<br>
 <div id="pg-calc" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Calculateurs d'indemnités</div><div class="ts">Indemnité légale · barème Macron</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="ct">🧮 Calculateur d'indemnités</div>
@@ -5250,17 +5292,17 @@ Exemple :<br>
     <option value="rupconv">Indemnité de rupture conventionnelle</option>
     <option value="retraite">Indemnité de départ / mise à la retraite</option>
   </select></div>
-  <div class="fg" id="cg-anc"><label class="fl">Ancienneté (années, décimales acceptées)</label><input id="calc-anc" type="number" min="0" step="0.1" placeholder="Ex : 6"></div>
-  <div class="fg" id="cg-sal"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="calc-sal" type="number" min="0" step="50" placeholder="Ex : 3000"></div>
+  <div class="fg" id="cg-anc"><label class="fl">Ancienneté (années, décimales acceptées)</label><input id="calc-anc" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Ex : 6"></div>
+  <div class="fg" id="cg-sal"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="calc-sal" type="number" inputmode="decimal" min="0" step="50" placeholder="Ex : 3000"></div>
   <div class="fg" id="cg-eff"><label class="fl">Effectif de l'entreprise</label><select id="calc-eff"><option value="ge11">11 salariés ou plus</option><option value="lt11">Moins de 11 salariés</option></select></div>
-  <div class="fg" id="cg-cpjours"><label class="fl">Jours de congés payés acquis et non pris (jours ouvrables)</label><input id="calc-cpjours" type="number" min="0" step="0.5" value="0"></div>
+  <div class="fg" id="cg-cpjours"><label class="fl">Jours de congés payés acquis et non pris (jours ouvrables)</label><input id="calc-cpjours" type="number" inputmode="decimal" min="0" step="0.5" value="0"></div>
   <div class="fg" id="cg-cpbrut"><label class="fl">Rémunération brute totale des 12 derniers mois (€) — facultatif, mais c'est ce qui fait gagner la règle du 1/10e</label><input id="calc-cpbrut" type="text" placeholder="Primes, heures supplémentaires et majorations comprises — laissez vide et l'assiette sera estimée à 12 × le salaire mensuel"></div>
-  <div class="fg" id="cg-brut"><label class="fl">Rémunération brute totale perçue pendant tout le CDD (€)</label><input id="calc-brut" type="number" min="0" step="100" value="0"></div>
+  <div class="fg" id="cg-brut"><label class="fl">Rémunération brute totale perçue pendant tout le CDD (€)</label><input id="calc-brut" type="number" inputmode="decimal" min="0" step="100" value="0"></div>
   <div class="fg" id="cg-cddmotif"><label class="fl">Cas du CDD (détermine si la prime est due)</label><select id="calc-cddmotif"><option value="normal">CDD classique (remplacement, accroissement…) — prime due</option><option value="saisonnier">CDD saisonnier — prime NON due</option><option value="usage">CDD d'usage (déménagement) — prime NON due</option><option value="cdi-refus">Refus par le salarié d'un CDI sur le même emploi — NON due</option><option value="cdi-suite">Embauche en CDI à l'issue — NON due</option><option value="rupture-salarie">Rupture anticipée à l'initiative du salarié / faute grave — NON due</option><option value="jeune-vacances">Jeune pendant ses vacances scolaires/universitaires — NON due</option><option value="aide">Contrat aidé, d'apprentissage ou de professionnalisation (politique de l'emploi ou formation professionnelle, L.1242-3) — NON due</option></select></div>
   <div class="fg" id="cg-retmode"><label class="fl">Situation de départ en retraite</label><select id="calc-retmode"><option value="mise">Mise à la retraite (à l'initiative de l'employeur)</option><option value="depart">Départ volontaire à la retraite (à l'initiative du salarié)</option></select></div>
   <div class="fg" id="cg-secteur"><label class="fl">Secteur / convention collective</label><select id="calc-secteur" onchange="calcSecteurNote()"><option value="">— choisir —</option><option value="transport">Transport routier (IDCC 0016)</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option><option value="banque">Banque (IDCC 2120)</option><option value="assurances">Assurances (IDCC 1672)</option><option value="syntec">Syntec (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="autre">Autre convention</option></select></div>
   <div id="calc-secteur-note" style="font-size:12px;color:#6b5a2e;background:#fff7e6;border:1px solid #e7d9b0;border-radius:8px;padding:8px;margin-bottom:8px;display:none"></div>
-  <div class="fg" id="cg-conv"><label class="fl">Indemnité conventionnelle connue (€) — facultatif</label><input id="calc-conv" type="number" min="0" step="50" placeholder="Montant selon votre CCN, si connu"></div>
+  <div class="fg" id="cg-conv"><label class="fl">Indemnité conventionnelle connue (€) — facultatif</label><input id="calc-conv" type="number" inputmode="decimal" min="0" step="50" placeholder="Montant selon votre CCN, si connu"></div>
   <button class="btn" onclick="calcIndemXIV()">Calculer</button>
   <div id="calc-res" style="margin-top:6px"></div>
 </div>
@@ -5271,7 +5313,7 @@ Exemple :<br>
 <div id="pg-juris" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Base jurisprudentielle sociale</div><div class="ts">Toutes branches · filtres secteur &amp; favorable</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="ct">⚖️ Jurisprudence sociale — toutes branches</div>
@@ -5288,7 +5330,7 @@ Exemple :<br>
 <div id="pg-statut" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Statut conventionnel &amp; RH</div><div class="ts">Convention · essai · préavis · indemnités · maladie · primes</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
 <div class="bl">Secteur / convention collective</div>
@@ -5312,7 +5354,7 @@ Exemple :<br>
 <div id="pg-pse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Plan de Sauvegarde de l'Emploi</div><div class="ts">Licenciement économique collectif · entreprise ≥ 50 salariés</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
 <div class="card">
   <div class="ct">⚖️ Procédure guidée — du diagnostic au contentieux</div>
@@ -5338,8 +5380,8 @@ Exemple :<br>
 <div class="card">
   <div class="bl">Étape 0 · Audit préalable</div>
   <div class="ct" style="font-size:16px">Un PSE est-il obligatoire&nbsp;?</div>
-  <div class="fg"><label class="fl">Effectif de l'entreprise (ETP)</label><input id="pse-eff" type="number" min="0" placeholder="Effectif de l’entreprise"></div>
-  <div class="fg"><label class="fl">Nombre de licenciements envisagés</label><input id="pse-nb" type="number" value="10" min="0"></div>
+  <div class="fg"><label class="fl">Effectif de l'entreprise (ETP)</label><input id="pse-eff" type="number" inputmode="decimal" min="0" placeholder="Effectif de l’entreprise"></div>
+  <div class="fg"><label class="fl">Nombre de licenciements envisagés</label><input id="pse-nb" type="number" inputmode="decimal" value="10" min="0"></div>
   <div class="fg"><label class="fl">Sur une même période de…</label><select id="pse-per"><option value="30">30 jours</option><option value="90">3 mois</option></select></div>
   <div class="fg"><label class="fl">Appartenance à un groupe&nbsp;?</label><select id="pse-grp"><option value="oui">Oui</option><option value="non">Non</option></select></div>
   <button class="btn" onclick="pseDiag()">Analyser la situation</button>
@@ -5501,8 +5543,8 @@ Exemple :<br>
 <div class="card">
   <div class="bl">Outil</div>
   <div class="ct">🧮 Indemnité de licenciement — base légale</div>
-  <div class="fg"><label class="fl">Ancienneté (années)</label><input id="pse-anc" type="number" value="6" min="0" step="0.1"></div>
-  <div class="fg"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="pse-sal" type="number" value="3000" min="0" step="50"></div>
+  <div class="fg"><label class="fl">Ancienneté (années)</label><input id="pse-anc" type="number" inputmode="decimal" value="6" min="0" step="0.1"></div>
+  <div class="fg"><label class="fl">Salaire mensuel brut de référence (€)</label><input id="pse-sal" type="number" inputmode="decimal" value="3000" min="0" step="50"></div>
   <button class="btn" onclick="pseIndem()">Calculer</button>
   <div id="pse-resindem"></div>
   <div class="loi">¼ mois/an jusqu'à 10 ans, ⅓ au-delà (droit ouvert dès 8 mois). Salaire de référence : 1/12 des 12 derniers mois ou moyenne des 3 derniers mois si plus favorable. Estimation hors préavis et congés payés.</div>
@@ -6407,10 +6449,18 @@ function jxFiletCharge(){
   }catch(e){}
 }
 function goPage(id){
+  /* L'espace RH est un calque plein ecran : il restait pose sur toutes les
+     pages suivantes, avec le defilement du corps bloque. Changer de page,
+     c'est le fermer. */
+  try{
+    var _ov=document.getElementById('rx-ov');
+    if(_ov && _ov.style.display!=='none'){ _ov.style.display='none'; document.body.style.overflow=''; }
+  }catch(e){}
   /* La page d'administration est refusee a tout compte qui n'est pas celui
      du cabinet — pas seulement masquee dans le menu. */
   try{ if(id==='admin' && !jxEstAdmin()){ alert('Cette page est réservée à l’administrateur.'); id='home'; } }catch(e){}
   try{ jxGardeAdmin(); }catch(e){}   // ce qui est reserve le reste, a chaque page
+  try{ setTimeout(jxEtiqueter,80); }catch(e){}   // les intitules des champs de la page qui s'ouvre
   try{ setTimeout(jxFiletRetour, 0); }catch(e){}   // aucune page sans retour
   // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
   try{
@@ -7182,7 +7232,7 @@ function socRenderEffectif(c){
   /* Courbe 36 mois */
   h+='<div class="card"><div class="ct">Effectif mois par mois (36 mois glissants)</div>'
    + socGraphe(serie)
-   + '<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.5">Chaque barre est l\'effectif calcule au dernier jour du mois. Jaune : onze salariés ou plus. Rouge : cinquante ou plus. La dernière barre, hachuree, est le mois en cours : il n\'est pas achevé et ne compte pas encore.</div>'
+   + '<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px;line-height:1.5">Chaque barre est l\'effectif calcule au dernier jour du mois. Jaune : onze salariés ou plus. Rouge : cinquante ou plus. La dernière barre, hachuree, est le mois en cours : il n\'est pas achevé et ne compte pas encore.</div>'
    + '</div>';
 
   /* Detail par salarie + completion */
@@ -7191,7 +7241,7 @@ function socRenderEffectif(c){
      +'La nature du contrat est lue sur le libelle du registre. Lorsqu\'elle n\'est pas certaine, elle est demandee ici : rien n\'est suppose a votre place. Votre choix prime toujours sur la lecture automatique.'
    +'</div>'
    +'<div class="fg"><label class="fl">Duree du travail de reference (légale ou conventionnelle, en heures hebdomadaires)</label>'
-   +'<input id="soc-duree" type="number" step="0.5" value="'+(SOC.duree||35)+'" onchange="socSetDuree(this.value)"></div>'
+   +'<input id="soc-duree" type="number" inputmode="decimal" step="0.5" value="'+(SOC.duree||35)+'" onchange="socSetDuree(this.value)"></div>'
    + socTableSalaries()
    +'</div>';
 
@@ -7285,9 +7335,9 @@ function socBlocSeuil(titre, s, serie, texte, art){
    +'<div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">'+socEsc(titre)+'</div>'
    +'<div style="font-size:13px;font-weight:700;color:'+col+';margin-bottom:6px">'+socEsc(etat)+'</div>'
    +(!ok && s.run>0 ? '<div style="font-size:12px;color:#e8c97a;margin-bottom:6px">Serie en cours : encore '+(12-s.run)+' mois a ce niveau et le seuil sera franchi.</div>' : '')
-   +(s.moisEnCours ? '<div style="font-size:11.5px;color:#6b7a8d;margin-bottom:6px">Le mois en cours ('+socEsc(socMoisLong(s.moisEnCours.iso))+', arrete au '+socFR(s.moisEnCours.iso)+') n\'est pas achevé : il ne compte pas encore dans les douze mois. Effectif provisoire : '+s.moisEnCours.eff.toFixed(2)+'.</div>' : '')
+   +(s.moisEnCours ? '<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:6px">Le mois en cours ('+socEsc(socMoisLong(s.moisEnCours.iso))+', arrete au '+socFR(s.moisEnCours.iso)+') n\'est pas achevé : il ne compte pas encore dans les douze mois. Effectif provisoire : '+s.moisEnCours.eff.toFixed(2)+'.</div>' : '')
    +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;font-style:italic">'+socEsc(texte)+'</div>'
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:4px">Article '+socEsc(art)+' du code du travail</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">Article '+socEsc(art)+' du code du travail</div>'
    +'</div>';
 }
 function socGraphe(serie){
@@ -7311,7 +7361,7 @@ function socGraphe(serie){
   });
   var prem=serie.length?socMois(serie[0].iso):'', der=serie.length?socMois(serie[serie.length-1].iso):'';
   return '<div style="position:relative;padding:6px 0 0"><div style="display:flex;gap:2px;align-items:flex-end;height:118px">'+bars+'</div>'+lignes+'</div>'
-    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7a8d;margin-top:4px"><span>'+prem+'</span><span>'+der+'</span></div>';
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:#9fb0c4;margin-top:4px"><span>'+prem+'</span><span>'+der+'</span></div>';
 }
 function socTableSalaries(){
   var staff=((typeof RX!=='undefined'&&RX.staff)?RX.staff:[]);
@@ -7328,7 +7378,7 @@ function socTableSalaries(){
       +'<option value=""'+(fam?'':' selected')+'>— a préciser —</option>'
       + opts.map(function(k){ return '<option value="'+k+'"'+(fam===k?' selected':'')+'>'+socEsc(SOC_FAM[k].lib)+'</option>'; }).join('')
       +'</select>';
-    var inpH='<input type="number" step="0.5" placeholder="h/sem." value="'+(h===null||h===undefined?'':h)+'" onchange="socSetH(\''+socEsc(s.id)+'\',this.value)" style="width:78px;padding:5px;border-radius:7px;border:1px solid '+(h===null?'#e8c97a':'#3a4a5f')+';background:#0f1b2c;color:#e8e4d8;font-size:12px;font-family:inherit">';
+    var inpH='<input type="number" inputmode="decimal" step="0.5" placeholder="h/sem." value="'+(h===null||h===undefined?'':h)+'" onchange="socSetH(\''+socEsc(s.id)+'\',this.value)" style="width:78px;padding:5px;border-radius:7px;border:1px solid '+(h===null?'#e8c97a':'#3a4a5f')+';background:#0f1b2c;color:#e8e4d8;font-size:12px;font-family:inherit">';
     var rempl='';
     if(R && R.regle==='prorata'){
       var c=SOC.sal[s.id]||{};
@@ -7338,13 +7388,13 @@ function socTableSalaries(){
         +'<option value="1"'+(v==='1'?' selected':'')+'>Oui — ecarte</option>'
         +'<option value="0"'+(v==='0'?' selected':'')+'>Non — compte</option>'
         +'</select>';
-    } else { rempl='<span style="color:#6b7a8d">—</span>'; }
+    } else { rempl='<span style="color:#9fb0c4">—</span>'; }
     var regle = R ? (R.regle==='exclu'?'<span style="color:#e05c5c">Exclu · '+socEsc(R.txt)+'</span>'
                     : R.regle==='compte'?'<span style="color:#46b885">Compte pour 1 · '+socEsc(R.txt)+'</span>'
                     : '<span style="color:#e8c97a">Prorata 12 mois · '+socEsc(R.txt)+'</span>')
                  : '<span style="color:#e8c97a">a préciser</span>';
-    var src = fam && !(SOC.sal[s.id]||{}).fam && auto ? '<div style="font-size:10.5px;color:#6b7a8d">lu au registre : «&nbsp;'+socEsc(s.typeContrat||'')+'&nbsp;»</div>' : '';
-    var srcH = (h!==null && (SOC.sal[s.id]||{}).h===undefined && hAuto!==null) ? '<div style="font-size:10.5px;color:#6b7a8d">«&nbsp;'+socEsc(s.tempsTravail||'')+'&nbsp;»</div>' : '';
+    var src = fam && !(SOC.sal[s.id]||{}).fam && auto ? '<div style="font-size:10.5px;color:#9fb0c4">lu au registre : «&nbsp;'+socEsc(s.typeContrat||'')+'&nbsp;»</div>' : '';
+    var srcH = (h!==null && (SOC.sal[s.id]||{}).h===undefined && hAuto!==null) ? '<div style="font-size:10.5px;color:#9fb0c4">«&nbsp;'+socEsc(s.tempsTravail||'')+'&nbsp;»</div>' : '';
     return '<tr style="border-top:1px solid #263a52">'
       +'<td style="padding:7px;color:#e8e4d8;font-weight:600">'+socEsc(nom)+(s.sortie?'<div style="font-size:10.5px;color:#e05c5c">sorti le '+socFR((typeof rxISO==='function')?rxISO(s.sortie):s.sortie)+'</div>':'')+'</td>'
       +'<td style="padding:7px;min-width:170px">'+sel+src+'</td>'
@@ -7422,7 +7472,7 @@ function socRenderAccord(c){
       +'</div></div>';
   } else {
     h+='<button class="btn" onclick="document.getElementById(\'soc-acc-file\').click()">Deposer l\'accord (PDF ou Word)</button>'
-      +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Le fichier reste sur cet appareil. Il n\'est envoye nulle part.</div>';
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">Le fichier reste sur cet appareil. Il n\'est envoye nulle part.</div>';
   }
   h+='</div>';
 
@@ -7433,7 +7483,7 @@ function socRenderAccord(c){
     var V=SOC_VERDICTS[verd];
     h+='<div style="padding:12px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+V.col+';border-radius:10px;margin-bottom:10px">'
       +'<div style="font-size:13.5px;font-weight:800;color:#fff">'+socEsc(T.lib)+'</div>'
-      +'<div style="font-size:11.5px;color:#6b7a8d;margin:2px 0 8px">Plancher d\'ordre public — '+socEsc(T.txt)+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin:2px 0 8px">Plancher d\'ordre public — '+socEsc(T.txt)+'</div>'
       +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.6;font-style:italic;margin-bottom:10px">'+socEsc(T.plancher)+'</div>'
       +'<div class="fg" style="margin-bottom:8px"><label class="fl">Ce que prévoit l\'accord</label>'
         +'<textarea rows="2" onchange="socSetTheme(\''+T.k+'\',\'t\',this.value)" placeholder="Citez la clause">'+socEsc(v.t||'')+'</textarea></div>'
@@ -8386,9 +8436,18 @@ function _jxRechargerDossier(){
    'insProfilMaj','parProfilMaj','applyClientSector'].forEach(function(f){
     try{ if(typeof window[f]==='function') window[f](); }catch(e){}
   });
-  /* Puis l'etat propre a CE dossier, s'il en a un. */
+  /* Puis l'etat propre a CE dossier, s'il en a un. Il peut reposer une
+     fiche entreprise : on refait l'en-tete APRES, sinon le nom du client
+     disparaissait de la barre du haut au retour dans son dossier. */
   try{ if(typeof restaurerEtat==='function') restaurerEtat(); }catch(e){}
   try{ jxEtatPret(); }catch(e){}
+  try{
+    var _v=localStorage.getItem(jxEntKey());
+    if(_v) E=JSON.parse(_v);
+  }catch(e){}
+  ['updateHeroTop','insProfilMaj','parProfilMaj'].forEach(function(f){
+    try{ if(typeof window[f]==='function') window[f](); }catch(e){}
+  });
   try{ if(typeof jxReport==='function') jxReport(); }catch(e){}
 }
 /* Le cabinet avait un dossier unique avant cette version. A la premiere
@@ -10442,7 +10501,7 @@ function hubVueTaches(){
     h+='<div style="display:flex;gap:9px;align-items:center;margin:16px 0 9px">'
       +'<div style="width:11px;height:11px;border-radius:50%;background:'+S.pastille+';flex-shrink:0"></div>'
       +'<div style="font-size:13.5px;font-weight:800;color:#e8e4d8;letter-spacing:.03em">'+S.lib+'</div>'
-      +'<div style="font-size:12px;color:#6b7a8d">— '+S.sous+'</div>'
+      +'<div style="font-size:12px;color:#9fb0c4">— '+S.sous+'</div>'
       +'<div style="flex:1"></div>'
       +'<div style="font-size:12px;color:#9fb0c4">'+reste+' / '+L.length+'</div>'
       +'</div>'
@@ -10933,7 +10992,7 @@ function hubVueGuide(){
   }
   else if(e.type==='nombre'){
     var n0=e.lire();
-    h+='<input type="number" min="0" value="'+hubEsc(n0||'')+'" onchange="guideRepDate(\''+e.k+'\',this.value)" style="font-size:19px;padding:14px;margin-bottom:12px">'
+    h+='<input type="number" inputmode="decimal" min="0" value="'+hubEsc(n0||'')+'" onchange="guideRepDate(\''+e.k+'\',this.value)" style="font-size:19px;padding:14px;margin-bottom:12px">'
       +'<button onclick="guideAller('+(_gPas+1)+')" style="width:100%;background:'+((n0||e.facultatif)?'#c9a84c':'#26374d')+';border:none;color:'+((n0||e.facultatif)?'#0f1f2e':'#9fb0c4')+';border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">'
       +((n0||!e.facultatif)?'Continuer →':'Je ne sais pas encore →')+'</button>';
   }
@@ -11045,7 +11104,7 @@ function hubVueDemarrage(){
     } else {
       h+='<div style="font-size:20px;font-weight:800;color:'+(ok?'#fff':'#e8c97a')+'">'+(ok?hubEsc(v):'non renseigné')+'</div>';
     }
-    if(q.aide) h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:6px">'+hubEsc(q.aide)+'</div>';
+    if(q.aide) h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:6px">'+hubEsc(q.aide)+'</div>';
     if(q.action) h+='<div style="margin-top:8px"><button onclick="goPage(\''+q.action+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+hubEsc(q.actionLib||'Ouvrir')+'</button></div>';
     h+='</div>';
   });
@@ -11085,7 +11144,7 @@ function hubVueBord(){
       +'<div style="font-size:11.5px;color:#9fb0c4;white-space:nowrap">'
         +(p.stop?('<b style="color:#e05c5c">'+p.stop+' bloquant</b> · '):'')
         +(p.question?('<span style="color:#e8c97a">'+p.question+' à vérifier</span> · '):'')
-        +'<span style="color:#6b7a8d">'+p.info+' rappel(s)</span>'
+        +'<span style="color:#9fb0c4">'+p.info+' rappel(s)</span>'
       +'</div>'
       +'<button onclick="goPage(\''+M.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">→</button>'
       +'</div>';
@@ -11120,7 +11179,7 @@ function hubVueAgenda(){
       +'<div style="min-width:86px;font-size:12.5px;font-weight:800;color:#e8c97a">'+hubFR(e.date)+'</div>'
       +'<div style="flex:1">'
         +'<div style="font-size:13px;color:#e8e4d8">'+hubEsc(e.quoi)+'</div>'
-        +'<div style="font-size:11.5px;color:#6b7a8d">'+hubEsc(e.mod)+(e.art?(' · '+hubEsc(e.art)):'')+'</div>'
+        +'<div style="font-size:11.5px;color:#9fb0c4">'+hubEsc(e.mod)+(e.art?(' · '+hubEsc(e.art)):'')+'</div>'
       +'</div>'
       +'<div style="font-size:11.5px;white-space:nowrap">'+hubReste(e.date)+'</div>'
       +'<button onclick="goPage(\''+e.page+'\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:8px;padding:5px 9px;font-size:11.5px;cursor:pointer;font-family:inherit">→</button>'
@@ -11147,7 +11206,7 @@ function hubVueClasseur(){
     var col=(e==='fait')?'#46b885':((e==='so')?'#6b7a8d':'#e8c97a');
     h+='<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+col+';border-radius:9px;margin-bottom:9px">'
       +'<div style="font-size:13px;font-weight:700;color:#fff">'+hubEsc(x.lib)+'</div>'
-      +'<div style="font-size:11.5px;color:#6b7a8d;margin:2px 0 6px">Article '+hubEsc(x.art)+' · '+hubEsc(x.quand)+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin:2px 0 6px">Article '+hubEsc(x.art)+' · '+hubEsc(x.quand)+'</div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
         +'<select onchange="hubSetEtat(\''+x.k+'\',this.value)" style="width:auto;padding:6px;font-size:12px">'
         + HUB_ETATS.map(function(o){ return '<option value="'+o.v+'"'+(e===o.v?' selected':'')+'>'+hubEsc(o.lib)+'</option>'; }).join('')
@@ -11186,7 +11245,7 @@ function hubVueBdese(){
       +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:5px">'+hubEsc(t.det)+'</div>'
       +'</div>';
   });
-  h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px;line-height:1.55">'
+  h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px;line-height:1.55">'
    +'La base porte sur les deux années précédentes et l’année en cours, et intègre des perspectives sur les <b>trois</b> années suivantes. '
    +'Ces informations sont présentées sous forme de données chiffrées ou, à défaut pour les années à venir, de grandes tendances ; '
    +'l’employeur indique celles qui ne peuvent faire l’objet ni de l’un ni de l’autre, et pourquoi (R.2312-10).'
@@ -11198,7 +11257,7 @@ function hubVueBdese(){
     return '<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid #c9a84c;border-radius:9px;margin-bottom:9px">'
       +'<div style="font-size:13px;font-weight:700;color:#fff">'+hubEsc(t)+'</div>'
       +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.6;margin-top:4px">'+hubEsc(x)+'</div>'
-      +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:4px">'+hubEsc(a)+'</div></div>';
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">'+hubEsc(a)+'</div></div>';
   };
   h+='<div class="card"><div class="ct">Le régime de la base</div>'
    + R('Support',
@@ -11234,7 +11293,7 @@ function hubVueBdese(){
      +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-top:8px">'
        +'Le troisième point retrace mois par mois le nombre de salariés en contrat à durée indéterminée, en contrat à durée déterminée, à temps partiel, temporaires, appartenant à une entreprise extérieure, et le nombre de contrats de professionnalisation.'
      +'</div>'
-     +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Articles L.2312-69 et R.2312-21 du code du travail</div>'
+     +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">Articles L.2312-69 et R.2312-21 du code du travail</div>'
      +'</div>';
   }
 
@@ -11249,7 +11308,7 @@ function hubVueBdese(){
      +'Conséquence pratique : ce n’est pas seulement une rubrique à remplir. C’est une dimension à traiter dans chacune des trois consultations récurrentes et à chaque consultation ponctuelle. '
      +'Un avis muet sur ce point est attaquable.'
    +'</div>'
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Article L.2312-8 du code du travail · loi n° 2021-1104 du 22 août 2021</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">Article L.2312-8 du code du travail · loi n° 2021-1104 du 22 août 2021</div>'
    +'</div>';
 
   /* Durabilite — CSRD */
@@ -11263,7 +11322,7 @@ function hubVueBdese(){
      +'La loi du 30 avril 2025 a précisé le point qui posait le plus de difficultés : cette consultation est menée à l’occasion de <b>l’une au moins des trois consultations récurrentes, au choix de l’employeur</b>. '
      +'Ce n’est donc pas une quatrième consultation autonome — mais l’avis doit exister, et porter aussi sur les moyens de vérification.'
    +'</div>'
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:8px">Article L.2312-17 du code du travail · ordonnance n° 2023-1142 du 6 décembre 2023 · loi du 30 avril 2025</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">Article L.2312-17 du code du travail · ordonnance n° 2023-1142 du 6 décembre 2023 · loi du 30 avril 2025</div>'
    +'<div style="margin-top:10px"><button onclick="goPage(\'csecns\')" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Renseigner l’assujettissement</button></div>'
    +'</div>';
 
@@ -11510,13 +11569,13 @@ function cnsRender(){
       + S('cns-acc',[{v:'non',lib:'Non — règle supplétive, consultation annuelle'},{v:'oui',lib:'Oui — accord d’entreprise'}], CNS.accord||'', 'cnsSetSel(\'accord\',\'cns-acc\')')
       +'</div>'
       +(CNS.accord==='oui'?('<div class="fg"><label class="fl">Périodicité prévue par l’accord, en années (trois au plus)</label>'
-        +'<input type="number" min="1" max="3" value="'+cnsEsc(CNS.periodicite||'')+'" onchange="cnsSet(\'periodicite\',this.value)"></div>'):'')
+        +'<input type="number" inputmode="decimal" min="1" max="3" value="'+cnsEsc(CNS.periodicite||'')+'" onchange="cnsSet(\'periodicite\',this.value)"></div>'):'')
       +'<div class="fg"><label class="fl">La base de données économiques, sociales et environnementales est-elle en place ?</label>'
       + S('cns-bd',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], CNS.bdese||'', 'cnsSetSel(\'bdese\',\'cns-bd\')')
       +'</div>'
       +'<div class="fg"><label class="fl">L’entreprise est-elle tenue de publier des informations en matière de durabilité ?</label>'
       + S('cns-du',CNS_DURAB,CNS.durabilite||'','cnsSetSel(\'durabilite\',\'cns-du\')')
-      +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:5px;line-height:1.5">Directive 2022/2464 dite CSRD, transposée par l’ordonnance n° 2023-1142 du 6 décembre 2023. Le périmètre et le calendrier dépendent de la taille, du statut et de la cotation de la société.</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:5px;line-height:1.5">Directive 2022/2464 dite CSRD, transposée par l’ordonnance n° 2023-1142 du 6 décembre 2023. Le périmètre et le calendrier dépendent de la taille, du statut et de la cotation de la société.</div>'
       +'</div>'
       +((CNS.durabilite==='oui')?(
          '<div class="fg"><label class="fl">À l’occasion de quelle consultation récurrente la durabilité est-elle traitée ? (choix de l’employeur)</label>'
@@ -11535,7 +11594,7 @@ function cnsRender(){
       var etat=c.etat||'nonlancee';
       var col={nonlancee:'#9fb0c4',encours:'#e8c97a',rendu:'#46b885',reputee:'#e05c5c'}[etat]||'#9fb0c4';
       h+='<div class="card" style="border-left:3px solid '+col+'"><div class="ct">'+cnsEsc(C.lib)+'</div>'
-       +'<div style="font-size:12px;color:#6b7a8d;margin-bottom:8px">Article '+cnsEsc(C.art)+' du code du travail</div>'
+       +'<div style="font-size:12px;color:#9fb0c4;margin-bottom:8px">Article '+cnsEsc(C.art)+' du code du travail</div>'
        +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'+cnsEsc(C.det)+'</div>'
        +'<div class="fg"><label class="fl">État</label>'+S('cns-e-'+C.k,CNS_ETATS,etat,'cnsCSet(\''+C.k+'\',\'etat\',jxSelectVal(\'cns-e-'+C.k+'\'))')+'</div>'
        +'<div class="fg"><label class="fl">Expertise</label>'+S('cns-x-'+C.k,CNS_EXPERTISES,c.exp||'aucune','cnsCSet(\''+C.k+'\',\'exp\',jxSelectVal(\'cns-x-'+C.k+'\'))')+'</div>'
@@ -11871,7 +11930,7 @@ function rclRender(){
     } else if(d.reg && d.reg.code!=='aucun'){
       h+='<div class="fg" style="margin-top:14px"><label class="fl">Date de la prochaine réunion</label>'
         +'<input type="date" value="'+rclEsc(RCL.prochaine||'')+'" onchange="rclSet(\'prochaine\',this.value)"></div>'
-        +'<div style="font-size:12px;color:#6b7a8d;line-height:1.6">Aucun délai légal ne s’impose ici : la réponse motivée figure au procès-verbal. Un délai peut être fixé par le règlement intérieur du comité (L.2315-24).</div>';
+        +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6">Aucun délai légal ne s’impose ici : la réponse motivée figure au procès-verbal. Un délai peut être fixé par le règlement intérieur du comité (L.2315-24).</div>';
     }
   }
   h+='</div>';
@@ -11915,7 +11974,7 @@ function rclRender(){
         +'<div style="flex:1;min-width:150px"><label class="fl">Réponse apportée le</label><input type="date" value="'+rclEsc(r.dateRep||'')+'" onchange="rclEdit('+i+',\'dateRep\',this.value)" style="padding:6px;font-size:12px"></div>'
       +'</div>'
       +(r.reunion&&d.reg&&d.reg.formalise
-        ? ('<div style="font-size:11.5px;color:#6b7a8d;margin-bottom:8px">Note au plus tard le '+rclFR(rclMoinsOuvrables(r.reunion,2))+' · réponse au plus tard le <b style="color:#e8c97a">'+rclFR(rclPlusOuvrables(r.reunion,6))+'</b></div>')
+        ? ('<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:8px">Note au plus tard le '+rclFR(rclMoinsOuvrables(r.reunion,2))+' · réponse au plus tard le <b style="color:#e8c97a">'+rclFR(rclPlusOuvrables(r.reunion,6))+'</b></div>')
         : '')
       +'<div class="fg" style="margin-bottom:0"><label class="fl">Réponse motivée de l’employeur</label>'
         +'<textarea rows="2" onchange="rclEditQ('+i+',\'reponse\',this.value)">'+rclEsc(r.reponse||'')+'</textarea></div>'
@@ -11934,7 +11993,7 @@ function rclRender(){
    +'<button onclick="rclDoc(\'note\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Note écrite des demandes</button>'
    +'<button onclick="rclDoc(\'registre\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Registre des réclamations</button>'
    +'</div>'
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px;line-height:1.55">Le registre porte la mention du régime réellement applicable : obligatoire en dessous de cinquante salariés, tenu volontairement au-delà.</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px;line-height:1.55">Le registre porte la mention du régime réellement applicable : obligatoire en dessous de cinquante salariés, tenu volontairement au-delà.</div>'
    +'</div>';
 
   host.innerHTML=h;
@@ -12271,7 +12330,7 @@ function reuRender(){
       ('<div class="fg"><label class="fl">Un accord autorise-t-il la visioconférence au-delà de trois réunions ?</label>'
         +S('reu-va',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui — accord employeur / membres élus'}],REU.visioAccord||'','reuSetSel(\'visioAccord\',\'reu-va\')')+'</div>'
        +'<div class="fg"><label class="fl">Rang de cette réunion en visioconférence dans l’année civile</label>'
-        +'<input type="number" min="1" value="'+reuEsc(REU.visioAnnee||'')+'" onchange="reuSet(\'visioAnnee\',this.value)"></div>'):'')
+        +'<input type="number" inputmode="decimal" min="1" value="'+reuEsc(REU.visioAnnee||'')+'" onchange="reuSet(\'visioAnnee\',this.value)"></div>'):'')
    +'<div class="fg"><label class="fl">Date de communication de l’ordre du jour</label><input type="date" value="'+reuEsc(REU.dateOdj||'')+'" onchange="reuSet(\'dateOdj\',this.value)"></div>'
    +(REU.date?('<div style="font-size:12px;color:#9fb0c4">Au plus tard le <b style="color:#e8c97a">'+reuFR(reuPlus(REU.date,-3))+'</b> (L.2315-30) · procès-verbal au plus tard le <b style="color:#e8c97a">'+reuFR(reuPlus(REU.date,15))+'</b> (R.2315-25)</div>'):'')
    +'</div>';
@@ -12321,7 +12380,7 @@ function reuRender(){
   var V=reuVotes();
   if(!V.length) h+='<div style="font-size:12.5px;color:#9fb0c4">Aucune délibération saisie.</div>';
   else h+=V.map(function(x,i){
-    var n=function(k,ph){ return '<input type="number" min="0" placeholder="'+ph+'" value="'+reuEsc(x[k]||'')+'" onchange="reuVoteSet('+i+',\''+k+'\',this.value)" style="width:88px;padding:7px;font-size:12.5px">'; };
+    var n=function(k,ph){ return '<input type="number" inputmode="decimal" min="0" placeholder="'+ph+'" value="'+reuEsc(x[k]||'')+'" onchange="reuVoteSet('+i+',\''+k+'\',this.value)" style="width:88px;padding:7px;font-size:12.5px">'; };
     return '<div style="padding:10px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:9px;margin-bottom:8px">'
       +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
         +'<input value="'+reuEsc(x.t||'')+'" placeholder="Objet de la délibération" onchange="reuVoteSet('+i+',\'t\',this.value)" style="flex:1;padding:7px;font-size:13px">'
@@ -12349,7 +12408,7 @@ function reuRender(){
    +'<button onclick="reuDoc(\'presence\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Feuille de présence</button>'
    +'<button onclick="reuDoc(\'pv\')" style="background:#2b579a;border:none;color:#fff;border-radius:10px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Procès-verbal</button>'
    +'</div>'
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px;line-height:1.55">Les mentions non renseignées apparaissent entre crochets : elles sont visibles, pas inventées.</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px;line-height:1.55">Les mentions non renseignées apparaissent entre crochets : elles sont visibles, pas inventées.</div>'
    +'</div>';
 
   host.innerHTML=h;
@@ -12631,15 +12690,15 @@ function calRender(){
    +'<input type="date" value="'+calEsc(CAL.premiere||'')+'" onchange="calSet(\'premiere\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Qu’est-ce qui fixe le nombre de réunions chez vous ?</label>'
    + S('cal-acc',CAL_SOURCES, CAL.accord||'', 'calSetSel(\'accord\',\'cal-acc\')')
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:5px;line-height:1.5">'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:5px;line-height:1.5">'
      +'Le code du travail fixe un minimum. Votre convention collective peut prévoir davantage : elle s’applique alors, faute d’accord d’entreprise. '
      +'Un accord d’entreprise, lui, prime sur la branche, y compris s’il est moins favorable — le fonctionnement du comité n’est pas un domaine réservé à la branche (L.2253-3).'
    +'</div></div>'
    +((CAL.accord==='oui'||CAL.accord==='deux')?('<div class="fg"><label class="fl">Nombre de réunions annuelles prévu par l’accord d’entreprise</label>'
-      +'<input type="number" min="1" value="'+calEsc(CAL.nbAccord||'')+'" onchange="calSet(\'nbAccord\',this.value)"></div>'):'')
+      +'<input type="number" inputmode="decimal" min="1" value="'+calEsc(CAL.nbAccord||'')+'" onchange="calSet(\'nbAccord\',this.value)"></div>'):'')
    +((CAL.accord==='ccn'||CAL.accord==='deux')?('<div class="fg"><label class="fl">Nombre de réunions annuelles prévu par la convention collective'
       +((typeof SOC!=='undefined'&&SOC.ccn)?(' — '+calEsc(SOC.ccn)):'')+'</label>'
-      +'<input type="number" min="1" value="'+calEsc(CAL.nbCCN||'')+'" onchange="calSet(\'nbCCN\',this.value)"></div>'):'')
+      +'<input type="number" inputmode="decimal" min="1" value="'+calEsc(CAL.nbCCN||'')+'" onchange="calSet(\'nbCCN\',this.value)"></div>'):'')
    +'<div class="fg"><label class="fl">Recours à la visioconférence</label>'
    + S('cal-vis',[{v:'non',lib:'Non'},{v:'oui',lib:'Oui'}], CAL.visio||'', 'calSetSel(\'visio\',\'cal-vis\')')
    +'</div></div>';
@@ -12893,7 +12952,7 @@ function mcRender(){
    +'<input type="date" value="'+mcEsc(MC.tour1||'')+'" onchange="mcSet(\'tour1\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Durée des mandats</label>'+S('mc-du',MC_DUREES,String(MC.duMandat||'4'),'mcSetSel(\'duMandat\',\'mc-du\')')+'</div>'
    +'<div class="fg"><label class="fl">Nombre de collèges retenu par le protocole</label>'
-   +'<input type="number" min="1" max="3" value="'+mcEsc(MC.nbColleges||'')+'" onchange="mcSet(\'nbColleges\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="1" max="3" value="'+mcEsc(MC.nbColleges||'')+'" onchange="mcSet(\'nbColleges\',this.value)"></div>'
    +'</div>';
 
   /* Les elus */
@@ -12923,7 +12982,7 @@ function mcRender(){
           +'<td style="padding:6px;min-width:110px">'+op(MC_QUALITES,e.q,'q')+'</td>'
           +'<td style="padding:6px;min-width:170px">'+op(MC_COLLEGES,e.col,'col')+'</td>'
           +'<td style="padding:6px;min-width:100px">'+op(MC_SEXES,e.sexe,'sexe')+'</td>'
-          +'<td style="padding:6px"><input type="number" step="0.5" placeholder="'+(d.bareme?d.bareme.heures:'')+'" value="'+mcEsc(e.heures===undefined?'':e.heures)+'" onchange="mcElSet('+i+',\'heures\',this.value)" style="padding:6px;font-size:12px;width:80px"></td>'
+          +'<td style="padding:6px"><input type="number" inputmode="decimal" step="0.5" placeholder="'+(d.bareme?d.bareme.heures:'')+'" value="'+mcEsc(e.heures===undefined?'':e.heures)+'" onchange="mcElSet('+i+',\'heures\',this.value)" style="padding:6px;font-size:12px;width:80px"></td>'
           +'<td style="padding:6px;text-align:center"><a href="#" onclick="mcDel('+i+');return false" style="color:#c0392b;font-weight:700;text-decoration:none">✕</a></td>'
           +'</tr>';
        }).join('')
@@ -13410,7 +13469,7 @@ function csedTableExos(){
   var L=csedExos();
   if(!L.length) return '<div style="font-size:12.5px;color:#e8c97a">Aucun exercice saisi : la condition de durée ne peut pas être vérifiée.</div>';
   var inp=function(i,c,v,ph){
-    return '<input type="number" min="0" placeholder="'+ph+'" value="'+csedEsc(v==null?'':v)+'" onchange="csedExoSet('+i+',\''+c+'\',this.value)" style="width:100%;padding:6px;font-size:12.5px">';
+    return '<input type="number" inputmode="decimal" min="0" placeholder="'+ph+'" value="'+csedEsc(v==null?'':v)+'" onchange="csedExoSet('+i+',\''+c+'\',this.value)" style="width:100%;padding:6px;font-size:12.5px">';
   };
   var rows=L.map(function(e,i){
     return '<tr style="border-top:1px solid #263a52">'
@@ -13472,9 +13531,9 @@ function csedRender(){
   }
   if(sit==='encours'){
     h+='<div class="fg"><label class="fl">Nombre de sièges de titulaires prévus</label>'
-      +'<input type="number" min="0" value="'+csedEsc(CSED.sieges||'')+'" onchange="csedSet(\'sieges\',this.value)"></div>'
+      +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.sieges||'')+'" onchange="csedSet(\'sieges\',this.value)"></div>'
       +'<div class="fg"><label class="fl">Nombre de titulaires encore en fonction</label>'
-      +'<input type="number" min="0" value="'+csedEsc(CSED.restants||'')+'" onchange="csedSet(\'restants\',this.value)"></div>'
+      +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.restants||'')+'" onchange="csedSet(\'restants\',this.value)"></div>'
       +'<div class="fg"><label class="fl">Un collège electoral n\'est-il plus représenté ?</label>'+S('csed-col',CSED_OUINON,CSED.collegeVide||'','csedSetSel(\'collegeVide\',\'csed-col\')')+'</div>';
   }
   if(sit==='carence'){
@@ -13495,18 +13554,18 @@ function csedRender(){
      +'administrateurs salariés, et la commission sante-securite obligatoire sans condition d\'effectif.'
    +'</div>'
    +'<div class="fg"><label class="fl">Nombre d\'etablissements distincts</label>'
-   +'<input type="number" min="1" value="'+csedEsc(CSED.etabs||'')+'" onchange="csedSet(\'etabs\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="1" value="'+csedEsc(CSED.etabs||'')+'" onchange="csedSet(\'etabs\',this.value)"></div>'
    +'<div class="fg"><label class="fl">L\'entreprise appartient-elle a un groupe ?</label>'+S('csed-grp',CSED_OUINON,CSED.groupe||'','csedSetSel(\'groupe\',\'csed-grp\')')+'</div>'
    +'<div class="fg"><label class="fl">Effectif dans les États de l\'Espace économique europeen</label>'
-   +'<input type="number" min="0" value="'+csedEsc(CSED.effEEE||'')+'" onchange="csedSet(\'effEEE\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.effEEE||'')+'" onchange="csedSet(\'effEEE\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Nombre d\'Etats de l\'EEE ou l\'entreprise emploie au moins 150 salariés</label>'
-   +'<input type="number" min="0" value="'+csedEsc(CSED.etatsEEE||'')+'" onchange="csedSet(\'etatsEEE\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.etatsEEE||'')+'" onchange="csedSet(\'etatsEEE\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Salaries permanents en France (société et filiales)</label>'
-   +'<input type="number" min="0" value="'+csedEsc(CSED.effFR||'')+'" onchange="csedSet(\'effFR\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.effFR||'')+'" onchange="csedSet(\'effFR\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Salaries permanents en France et a l\'etranger</label>'
-   +'<input type="number" min="0" value="'+csedEsc(CSED.effMonde||'')+'" onchange="csedSet(\'effMonde\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.effMonde||'')+'" onchange="csedSet(\'effMonde\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Nombre de membres du conseil d\'administration</label>'
-   +'<input type="number" min="0" value="'+csedEsc(CSED.caMembres||'')+'" onchange="csedSet(\'caMembres\',this.value)"></div>'
+   +'<input type="number" inputmode="decimal" min="0" value="'+csedEsc(CSED.caMembres||'')+'" onchange="csedSet(\'caMembres\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Installation a regime particulier sur le site</label>'+S('csed-risq',CSED_RISQUE,CSED.siteRisque||'','csedSetSel(\'siteRisque\',\'csed-risq\')')+'</div>'
    +'<div class="fg"><label class="fl">L\'etablissement est-il dans le périmètre d\'un plan de prévention des risques technologiques ?</label>'+S('csed-pprt',CSED_OUINON,CSED.pprt||'','csedSetSel(\'pprt\',\'csed-pprt\')')+'</div>'
    +'</div>';
@@ -13536,7 +13595,7 @@ function csedRender(){
           +'<div style="font-size:13px;font-weight:800;color:#fff">'+csedEsc(r.quoi)+'</div>'
           +(r.date?('<div style="font-size:12.5px;color:#e8c97a;font-weight:700;margin:2px 0">'+csedFR(r.date)+csedEcheance(r.date)+'</div>'):'<div style="font-size:12.5px;color:#9fb0c4;margin:2px 0">sans délai fixe</div>')
           +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6">'+csedEsc(r.det)+'</div>'
-          +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:3px">Article '+csedEsc(r.art)+' du code du travail</div>'
+          +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:3px">Article '+csedEsc(r.art)+' du code du travail</div>'
           +'</div>';
        }).join('')
      +'</div>';
@@ -13555,7 +13614,7 @@ function csedRender(){
    +'• Ne pas établir de procès-verbal, ou ne pas le transmettre dans les quinze jours (L.2314-9).<br>'
    +'• Recourir au vote électronique sans accord et sans tentative reelle de negociation, ou sans cahier des charges tenu a disposition (L.2314-26 · R.2314-6).'
    +'</div>'
-   +'<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px;line-height:1.5">Cette liste signale des points de vigilance frequents ; elle ne remplace pas l\'examen du dossier.</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px;line-height:1.5">Cette liste signale des points de vigilance frequents ; elle ne remplace pas l\'examen du dossier.</div>'
    +'</div>';
 
   host.innerHTML=h;
@@ -13663,7 +13722,7 @@ function rhOnEnter(){
    +'<button onclick="'+(exists?'rhUnlock()':'rhSetup()')+'" style="width:100%;padding:13px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;font-size:15px;cursor:pointer">'+(exists?'🔓 Déverrouiller':'✓ Créer le coffre chiffré')+'</button>'
    +'<div id="rh-pin-msg" style="font-size:12.5px;color:#e05c5c;margin-top:10px;min-height:16px"></div>'
    +(exists?'<div style="margin-top:14px;text-align:center"><button onclick="rhImportBackupPrompt()" style="background:none;border:none;color:#9fb0c4;font-size:12px;text-decoration:underline;cursor:pointer">Restaurer une sauvegarde chiffrée (.tec)</button></div>':'')
-   +'<div style="font-size:11px;color:#6b7a8d;margin-top:14px;line-height:1.5">🛡️ Chiffrement AES-256-GCM · clé dérivée PBKDF2 (200 000 itérations) · aucune donnée envoyée sur Internet.</div>'
+   +'<div style="font-size:11px;color:#9fb0c4;margin-top:14px;line-height:1.5">🛡️ Chiffrement AES-256-GCM · clé dérivée PBKDF2 (200 000 itérations) · aucune donnée envoyée sur Internet.</div>'
    +'</div>';
   setTimeout(function(){ var i=document.getElementById('rh-pin'); if(i) i.focus(); },80);
 }
@@ -13704,7 +13763,7 @@ function rhRender(){
   var actifs=RH.staff.filter(function(s){return !s.sortie;}).length;
   var head=
    '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px">'
-   +'<div><span style="font-size:17px;font-weight:800;color:#fff">👥 Espace RH</span> <span style="font-size:12px;color:#9fb0c4">— '+_rhEsc(RH.ent.nom||'Entreprise')+' · '+actifs+' salarié(s) actif(s) / '+RH.staff.length+' au registre</span> <span style="font-size:10px;color:#6b7a8d">'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+'</span></div>'
+   +'<div><span style="font-size:17px;font-weight:800;color:#fff">👥 Espace RH</span> <span style="font-size:12px;color:#9fb0c4">— '+_rhEsc(RH.ent.nom||'Entreprise')+' · '+actifs+' salarié(s) actif(s) / '+RH.staff.length+' au registre</span> <span style="font-size:10px;color:#9fb0c4">'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+'</span></div>'
    +'<button onclick="rhLock()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:7px 12px;font-size:12px;cursor:pointer">🔒 Verrouiller</button>'
    +'</div>'
    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'
@@ -13807,7 +13866,7 @@ function rhRegistre(){
       +'<td style="padding:7px">'+badge+'</td>'
       +'<td style="padding:7px">'+(na?'<span style="background:#e05c5c;color:#fff;border-radius:8px;padding:1px 7px;font-size:11px">'+na+'</span>':'—')+'</td></tr>';
   });
-  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">Registre unique du personnel — art. L.1221-13 et D.1221-23 s. du Code du travail. Les salariés sortis y sont conservés (mention de la date de sortie).</div>';
+  h+='</table></div><div style="font-size:11px;color:#9fb0c4;margin-top:8px">Registre unique du personnel — art. L.1221-13 et D.1221-23 s. du Code du travail. Les salariés sortis y sont conservés (mention de la date de sortie).</div>';
   return h;
 }
 
@@ -13853,7 +13912,7 @@ function rhFiche(id){
     +(id?'<button onclick="rhDeleteFiche(\''+id+'\')" style="padding:12px 16px;border:1px solid #e05c5c;border-radius:10px;background:transparent;color:#e05c5c;cursor:pointer">🗑️ Supprimer</button>':'')
     +'<button onclick="rhCloseFiche()" style="padding:12px 16px;border:1px solid #3a4a5f;border-radius:10px;background:#16263c;color:#e8e4d8;cursor:pointer">← Retour</button>'
     +'</div>';
-  h+='<div style="font-size:10.5px;color:#6b7a8d;margin-top:10px">Données chiffrées sur votre appareil. Traitement RH — base légale : gestion du personnel (contrat + obligations légales de l\'employeur). Durée de conservation recommandée : 5 ans après le départ (paie), jusqu\'à 5 ans pour la plupart des pièces.</div>';
+  h+='<div style="font-size:10.5px;color:#9fb0c4;margin-top:10px">Données chiffrées sur votre appareil. Traitement RH — base légale : gestion du personnel (contrat + obligations légales de l\'employeur). Durée de conservation recommandée : 5 ans après le départ (paie), jusqu\'à 5 ans pour la plupart des pièces.</div>';
   h+='</div>';
   ov.innerHTML=h;
   window.scrollTo(0,0);
@@ -13918,7 +13977,7 @@ function rhEntForm(){
    +F('Adresse du siège','adresse',e.adresse)+F('Gérant / représentant','dirigeant',e.dirigeant)
    +F('E-mail','email',e.email)+F('Téléphone','tel',e.tel)+F('IDCC (convention)','idcc',e.idcc||'16')
    +'<button onclick="rhSaveEnt()" style="padding:11px 16px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;cursor:pointer">💾 Enregistrer l\'entreprise</button>'
-   +'<div style="font-size:11px;color:#6b7a8d;margin-top:10px">Ces informations alimentent le registre et les documents. Elles restent chiffrées sur cet appareil.</div></div>';
+   +'<div style="font-size:11px;color:#9fb0c4;margin-top:10px">Ces informations alimentent le registre et les documents. Elles restent chiffrées sur cet appareil.</div></div>';
 }
 async function rhSaveEnt(){
   var gvv=function(id){ var el=document.getElementById('ent-'+id); return el?el.value.trim():''; };
@@ -14236,7 +14295,7 @@ function rhCloudPanel(){
     h+='<div style="margin-bottom:8px"><label style="font-size:11px;color:#9fb0c4">URL du projet</label><input id="cl-url" placeholder="https://xxxx.supabase.co" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
     h+='<div style="margin-bottom:8px"><label style="font-size:11px;color:#9fb0c4">Clé publique « anon »</label><input id="cl-anon" placeholder="eyJhbGciOi..." style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
     h+='<button onclick="rhCloudSaveCfg()" style="padding:10px 14px;border:none;border-radius:9px;background:#c9a84c;color:#000;font-weight:700;cursor:pointer">Enregistrer la configuration</button>';
-    h+='<div style="font-size:11px;color:#6b7a8d;margin-top:8px">La clé « anon » est publique par conception. Ne saisissez jamais la clé « service_role ».</div>';
+    h+='<div style="font-size:11px;color:#9fb0c4;margin-top:8px">La clé « anon » est publique par conception. Ne saisissez jamais la clé « service_role ».</div>';
   } else {
     h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:8px">✔ Projet configuré : '+_rhEsc(cfg.url)+' <button onclick="localStorage.removeItem(jxCle(RH_CLOUD_CFG));rhRender()" style="background:none;border:none;color:#9fb0c4;text-decoration:underline;cursor:pointer;font-size:11px">changer</button></div>';
     // 2) Auth
@@ -14255,7 +14314,7 @@ function rhCloudPanel(){
   h+='<div style="font-size:13px;font-weight:700;color:#c9a84c;margin:16px 0 6px">Préparer le projet (une seule fois)</div>';
   h+='<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:6px">Dans Supabase → SQL Editor, exécutez :</div>';
   h+='<pre style="background:#0b1420;border:1px solid #26374d;border-radius:8px;padding:10px;font-size:11px;color:#bcd;white-space:pre-wrap;overflow-x:auto">create table if not exists rh_vault (\n  user_id uuid primary key references auth.users(id) on delete cascade,\n  blob text,\n  updated_at timestamptz default now()\n);\nalter table rh_vault enable row level security;\ncreate policy "own_select" on rh_vault for select using (auth.uid() = user_id);\ncreate policy "own_insert" on rh_vault for insert with check (auth.uid() = user_id);\ncreate policy "own_update" on rh_vault for update using (auth.uid() = user_id);</pre>';
-  h+='<div style="font-size:11px;color:#6b7a8d;margin-top:8px">Cette politique (RLS) garantit que chaque compte n\'accède QU\'À sa propre ligne. Le contenu reste chiffré côté client.</div>';
+  h+='<div style="font-size:11px;color:#9fb0c4;margin-top:8px">Cette politique (RLS) garantit que chaque compte n\'accède QU\'À sa propre ligne. Le contenu reste chiffré côté client.</div>';
   h+='</div>';
   return h;
 }
@@ -14430,7 +14489,7 @@ function sbPanel(){
       +'<input id="sb-pass" type="password" placeholder="Mot de passe (min. 8)" autocomplete="current-password" style="padding:10px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:13px"></div>';
     h+='<div style="display:flex;gap:8px"><button onclick="sbLogin()" style="padding:11px 15px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;cursor:pointer">Se connecter</button>'
       +'<button onclick="sbSignup()" style="padding:11px 15px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;cursor:pointer">Créer un compte</button></div>';
-    h+='<div style="font-size:11.5px;color:#6b7a8d;margin-top:10px">Votre code est un identifiant simple (ex. « TEC »). Il est associé à un mot de passe. Données hébergées en Europe.</div>';
+    h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:10px">Votre code est un identifiant simple (ex. « TEC »). Il est associé à un mot de passe. Données hébergées en Europe.</div>';
   } else {
     var who=''; try{ who=(SB_SESSION.user&&SB_SESSION.user.email||'').replace(SB_DOMAIN,''); }catch(e){}
     h+='<div style="font-size:12.5px;color:#bfe6d4;margin-bottom:12px">✔ Connecté : <strong>'+_rhEsc(who||'compte')+'</strong> <button onclick="sbLogout()" style="background:none;border:none;color:#e0a34c;text-decoration:underline;cursor:pointer;font-size:11px">se déconnecter</button></div>';
@@ -14612,10 +14671,10 @@ function rxRender(){
   var h='<div style="max-width:900px;margin:0 auto">';
   h+='<div style="position:sticky;top:0;z-index:50;background:#0b1420;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px;border-bottom:1px solid #26374d">'
     +'<button onclick="rxClose()" style="padding:10px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:700;font-size:14px;cursor:pointer">← Fermer / Retour</button>'
-    +'<div style="font-size:12px;color:'+(sess?'#46b885':'#9fb0c4')+'">'+(sess?'☁️ '+rxEsc((sess.code||'compte')):'hors ligne')+' <span style="color:#6b7a8d;font-size:10px">'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+'</span></div>'
+    +'<div style="font-size:12px;color:'+(sess?'#46b885':'#9fb0c4')+'">'+(sess?'☁️ '+rxEsc((sess.code||'compte')):'hors ligne')+' <span style="color:#9fb0c4;font-size:10px">'+(typeof JX_BUILD!=='undefined'?JX_BUILD:'')+'</span></div>'
     +'</div>';
   h+='<h2 style="color:#fff;font-size:19px;margin:2px 0 2px">👥 Espace RH — Personnel</h2>';
-  h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre <span style="color:#6b7a8d">· compte : '+rxEsc(rxAccountId())+'</span></div>';
+  h+='<div style="font-size:12.5px;color:#9fb0c4;margin-bottom:12px">'+actifs+' salarié(s) actif(s) · '+RX.staff.length+' au registre <span style="color:#9fb0c4">· compte : '+rxEsc(rxAccountId())+'</span></div>';
   var _st=(RX.staff.length===0)?rxBestStash():null;
   if(_st){
     var _n=(_st.data.staff||[]).length, _np=(_st.data.parc||[]).length;
@@ -14686,7 +14745,7 @@ function rxRegistre(){
       +'<td style="padding:7px;color:#9fb0c4;white-space:nowrap">'+(rxFR(s.sortie)||'—')+'</td>'
       +'<td style="padding:7px">'+badge+'</td></tr>';
   });
-  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">Registre unique du personnel — art. L.1221-13 C. trav. · faites défiler le tableau horizontalement pour voir toutes les colonnes · « 🖨️ Registre officiel » pour la version complète (nationalité, titre de séjour…).</div>';
+  h+='</table></div><div style="font-size:11px;color:#9fb0c4;margin-top:8px">Registre unique du personnel — art. L.1221-13 C. trav. · faites défiler le tableau horizontalement pour voir toutes les colonnes · « 🖨️ Registre officiel » pour la version complète (nationalité, titre de séjour…).</div>';
   return h;
 }
 
@@ -14906,7 +14965,7 @@ function rxDash(){
   al.forEach(function(a){ var col=a.d<0?'#e05c5c':(a.d<=seuilOrange?'#e0a34c':'#e8c97a');
     var click=(a.kind==='veh')?('rxVehicule(\''+a.id+'\')'):(a.kind==='proc'?('rxProcEdit(\''+a.id+'\')'):('rxFiche(\''+a.id+'\')'));
     h+='<tr style="border-top:1px solid #26374d;cursor:pointer" onclick="'+click+'"><td style="padding:7px;color:#fff">'+rxEsc(a.nom)+'</td><td style="padding:7px">'+rxEsc(a.lbl)+'</td><td style="padding:7px;color:#9fb0c4">'+rxFR(a.iso)+'</td><td style="padding:7px;color:'+col+';font-weight:700">'+(a.d<0?('retard '+(-a.d)+'j'):(a.d+'j'))+'</td></tr>'; });
-  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">🔴 dépassé · 🟠 très proche · 🟡 sous le seuil. Réglage enregistré sur votre compte.</div>';
+  h+='</table></div><div style="font-size:11px;color:#9fb0c4;margin-top:8px">🔴 dépassé · 🟠 très proche · 🟡 sous le seuil. Réglage enregistré sur votre compte.</div>';
   return h;
 }
 
@@ -14926,7 +14985,7 @@ function rxParc(){
       +'<td style="padding:7px;color:'+cc(ct)+'">'+(v.ct?rxFR(v.ct):'—')+'</td>'
       +'<td style="padding:7px;color:'+cc(as)+'">'+(v.assurance?rxFR(v.assurance):'—')+'</td></tr>';
   });
-  h+='</table></div><div style="font-size:11px;color:#6b7a8d;margin-top:8px">'+RX.parc.length+' véhicule(s) · les échéances proches remontent dans l\'onglet 🔔 Alertes.</div>';
+  h+='</table></div><div style="font-size:11px;color:#9fb0c4;margin-top:8px">'+RX.parc.length+' véhicule(s) · les échéances proches remontent dans l\'onglet 🔔 Alertes.</div>';
   return h;
 }
 var RXV_CUR=null;
@@ -15020,7 +15079,7 @@ function rxProc(){
     h+='<div style="border:1px solid #26374d;border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer" onclick="rxProcEdit(\''+pr.id+'\')">'
       +'<div style="display:flex;justify-content:space-between;gap:8px"><b style="color:#fff">'+rxEsc(pr.salarie||'—')+'</b><span style="font-size:11px;color:#9fb0c4">'+rxEsc(pr.type||'')+'</span></div>';
     if(steps.length){ h+='<div style="margin-top:7px;font-size:12px;color:#cdd7e2;line-height:1.7">';
-      steps.forEach(function(s){ var dl=rxDaysLeft(s.iso); var col=(dl===null)?'#9fb0c4':(dl<0?'#e05c5c':(dl<=7?'#e0a34c':'#8fe3bd')); h+='• '+rxEsc(s.label)+' <b style="color:'+col+'">'+rxFR(s.iso)+'</b>'+(dl!==null?(' <span style="color:'+col+'">('+(dl<0?('dépassé '+(-dl)+'j'):(dl+'j'))+')</span>'):'')+' <span style="color:#6b7a8d">'+s.art+'</span><br>'; });
+      steps.forEach(function(s){ var dl=rxDaysLeft(s.iso); var col=(dl===null)?'#9fb0c4':(dl<0?'#e05c5c':(dl<=7?'#e0a34c':'#8fe3bd')); h+='• '+rxEsc(s.label)+' <b style="color:'+col+'">'+rxFR(s.iso)+'</b>'+(dl!==null?(' <span style="color:'+col+'">('+(dl<0?('dépassé '+(-dl)+'j'):(dl+'j'))+')</span>'):'')+' <span style="color:#9fb0c4">'+s.art+'</span><br>'; });
       h+='</div>'; }
     else h+='<div style="margin-top:6px;font-size:12px;color:#9fb0c4">Renseignez les dates pour calculer les délais.</div>';
     h+='</div>';
@@ -15140,7 +15199,7 @@ function rxEnt(){
     +F('Raison sociale','nom')+F('Gérant / représentant','gerant')+F('SIRET','siret')+F('Code NAF / APE','naf','ex. 49.41A')
     +F('Adresse du siège','adresse')+F('E-mail','email')+F('Téléphone','tel')+F('IDCC (convention)','idcc')
     +'<button onclick="rxSaveEnt()" style="padding:12px 18px;border:none;border-radius:10px;background:#c9a84c;color:#000;font-weight:800;font-size:14px;cursor:pointer">💾 Enregistrer l\'entreprise</button>'
-    +'<div style="font-size:11px;color:#6b7a8d;margin-top:10px">🔒 Ces informations restent dans votre compte (privé, synchronisé) — jamais publiées. Elles alimentent vos documents.</div></div>';
+    +'<div style="font-size:11px;color:#9fb0c4;margin-top:10px">🔒 Ces informations restent dans votre compte (privé, synchronisé) — jamais publiées. Elles alimentent vos documents.</div></div>';
 }
 function rxSaveEnt(){
   var g=function(k){ var el=document.getElementById('rxe-'+k); return el?el.value.trim():''; };
@@ -15454,6 +15513,54 @@ function _jxBack(){
   /* Ultime secours, sans dépendre de goPage : bascule DOM directe vers l'accueil */
   try{ var ps=document.querySelectorAll('#pg-app .page'); for(var j=0;j<ps.length;j++){ ps[j].classList.remove('act'); } var h=document.getElementById('pg-home'); if(h){ h.classList.add('act'); } window.scrollTo(0,0); }catch(e){}
 }
+/* LES INTITULES EXISTAIENT A L'ECRAN SANS ETRE RELIES AUX CHAMPS.
+   246 champs sur 295 n'avaient ni <label for> ni aria-label : un lecteur
+   d'ecran annoncait « zone de texte, vide ». On relie l'etiquette .fl qui
+   precede le champ dans son groupe .fg, et a defaut le placeholder. */
+function jxEtiqueter(){
+  try{
+    document.querySelectorAll('#pg-app input, #pg-app select, #pg-app textarea').forEach(function(e){
+      if(e.getAttribute('aria-label') || e.getAttribute('aria-labelledby')) return;
+      if(e.id && document.querySelector('label[for="'+CSS.escape(e.id)+'"]')) return;
+      var t='';
+      var g=e.closest('.fg'); if(g){ var l=g.querySelector('.fl'); if(l) t=(l.textContent||'').trim(); }
+      if(!t){ var p=e.previousElementSibling; if(p && /^(LABEL|DIV|SPAN)$/.test(p.tagName)) t=(p.textContent||'').trim(); }
+      if(!t) t=(e.placeholder||'').trim();
+      if(!t) t=(e.title||'').trim();
+      /* Les cases a cocher portent leur intitule a cote, pas au-dessus :
+         dans un <label> englobant, ou en simple texte voisin. */
+      if(!t && (e.type==='checkbox'||e.type==='radio')){
+        var lw=e.closest('label');
+        if(lw) t=(lw.textContent||'').trim();
+        if(!t){ var n=e.nextSibling, acc='';
+          while(n && acc.length<120){ acc+=(n.textContent||n.nodeValue||''); n=n.nextSibling; }
+          t=acc.trim(); }
+        if(!t && e.parentElement) t=(e.parentElement.textContent||'').trim();
+      }
+      if(t) e.setAttribute('aria-label', t.replace(/\s+/g,' ').slice(0,140));
+    });
+    /* Un tableau plus large que l'ecran poussait toute la page de cote :
+       il defile desormais dans son propre cadre. */
+    document.querySelectorAll('#pg-app table').forEach(function(t){
+      var p=t.parentElement;
+      if(p && p.getAttribute('data-jx-defile')==='1') return;
+      if(p && getComputedStyle(p).overflowX==='auto') return;
+      var w=document.createElement('div');
+      w.setAttribute('data-jx-defile','1');
+      w.style.cssText='overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch';
+      t.parentNode.insertBefore(w,t); w.appendChild(t);
+    });
+    /* Les boutons dont tout le texte est un pictogramme. */
+    document.querySelectorAll('#pg-app button').forEach(function(b){
+      if(b.getAttribute('aria-label')) return;
+      var t=(b.textContent||'').trim();
+      if(t && /[\p{L}]/u.test(t)) return;                  // il a des mots : rien a faire
+      var m={'☰':'Menu','✕':'Fermer','×':'Fermer','＋':'Ajouter','+':'Ajouter','←':'Retour','→':'Suivant','⬆':'Haut de page'};
+      if(m[t]) b.setAttribute('aria-label', m[t]);
+    });
+  }catch(e){}
+}
+try{ setInterval(jxEtiqueter, 1500); setTimeout(jxEtiqueter, 900); }catch(e){}
 function jxFab(){
   try{
     /* ☰ menu (haut-droite) */
@@ -15488,7 +15595,12 @@ function jxFab(){
       var _h=document.getElementById('pg-home'); if(_h) _h.classList.add('act');
     }
     // ☰ : dans l'app, connecté, hors vitrine, hors module plein écran et hors menu ouvert
-    fab.style.display=(appVisible && authed && !vitrine && !moduleOpen && !menuOpen)?'block':'none';
+    /* Si la page a deja son propre « ☰ » dans sa barre de titre, le bouton
+       flottant le recouvre et le rend inatteignable : on ne montre que l'un
+       des deux — meme regle que pour le bouton « Retour » ci-dessous. */
+    var _act=document.querySelector('#pg-app .page.act');
+    var _aSonMenu=!!(_act && _act.querySelector('.topbar button[onclick*="openMenu"]'));
+    fab.style.display=(appVisible && authed && !vitrine && !moduleOpen && !menuOpen && !_aSonMenu)?'block':'none';
     // ← Retour : quand il y a quelque chose à fermer (module/menu) OU qu'on n'est pas sur l'accueil
     var home=document.getElementById('pg-home');
     var notHome=home && home.className.indexOf('act')===-1;
@@ -16577,9 +16689,9 @@ function initFicheJours(){
 <div class="bloc" style="margin-bottom:8px">
 <div style="font-size:13px;font-weight:600;color:#e8c97a;margin-bottom:8px">${j}</div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-<div><label class="fl">Conduite (h)</label><input type="number" id="fh-${j.toLowerCase()}-cond" step="0.5" placeholder="0"/></div>
-<div><label class="fl">Autre travail (h)</label><input type="number" id="fh-${j.toLowerCase()}-autre" step="0.5" placeholder="0"/></div>
-<div><label class="fl">Repos (h)</label><input type="number" id="fh-${j.toLowerCase()}-repos" step="0.5" placeholder="11"/></div>
+<div><label class="fl">Conduite (h)</label><input type="number" inputmode="decimal" id="fh-${j.toLowerCase()}-cond" step="0.5" placeholder="0"/></div>
+<div><label class="fl">Autre travail (h)</label><input type="number" inputmode="decimal" id="fh-${j.toLowerCase()}-autre" step="0.5" placeholder="0"/></div>
+<div><label class="fl">Repos (h)</label><input type="number" inputmode="decimal" id="fh-${j.toLowerCase()}-repos" step="0.5" placeholder="11"/></div>
 </div></div>`).join('');
 }
 
@@ -17858,8 +17970,8 @@ function ajouterLigneTP(){
   div.className = 'tp-ligne';
   div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px';
   div.innerHTML = `
-    <div><label class="fl">Nombre de salariés</label><input type="number" class="tp-nb" value="0" min="0" oninput="calcEffectif()" style="width:100%;background:#0f1f2e;border:2px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#e8e4d8;font-size:15px;font-family:inherit"/></div>
-    <div><label class="fl">Heures/semaine</label><input type="number" class="tp-h" value="20" min="1" max="35" oninput="calcEffectif()" style="width:100%;background:#0f1f2e;border:2px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#e8e4d8;font-size:15px;font-family:inherit"/></div>
+    <div><label class="fl">Nombre de salariés</label><input type="number" inputmode="decimal" class="tp-nb" value="0" min="0" oninput="calcEffectif()" style="width:100%;background:#0f1f2e;border:2px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#e8e4d8;font-size:15px;font-family:inherit"/></div>
+    <div><label class="fl">Heures/semaine</label><input type="number" inputmode="decimal" class="tp-h" value="20" min="1" max="35" oninput="calcEffectif()" style="width:100%;background:#0f1f2e;border:2px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#e8e4d8;font-size:15px;font-family:inherit"/></div>
     <button onclick="supprimerLigneTP(this)" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:10px;color:#e05c5c;cursor:pointer;font-size:16px">✕</button>`;
   container.appendChild(div);
 }
@@ -19760,7 +19872,7 @@ function renderFormDetail(s, i){
   const needsCDDDates = ['cdd_act','cdd_rempl','interim','saisonnier'].includes(s.contrat);
   let extra = '';
   if(needsHours){
-    extra += `<div><label class="fl">Heures/sem</label><input type="number" min="1" max="35" value="${s.heures||20}" onchange="updateSalarieNom(${i},'heures',this.value)"/></div>`;
+    extra += `<div><label class="fl">Heures/sem</label><input type="number" inputmode="decimal" min="1" max="35" value="${s.heures||20}" onchange="updateSalarieNom(${i},'heures',this.value)"/></div>`;
   }
   if(needsCDDDates){
     extra += `<div><label class="fl">Début contrat</label><input type="date" value="${s.debutContrat||''}" onchange="updateSalarieNom(${i},'debutContrat',this.value)"/></div>`;
@@ -22358,7 +22470,7 @@ auteurApply();
 <div id="pg-diag" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Analyse d’un document</div><div class="ts">Contrat · lettre · accord — mentions, délais, clauses nulles</div></div>
-<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
   <style>
     @keyframes diagSuggPulse{0%,100%{box-shadow:0 0 0 0 rgba(47,111,176,.0)}50%{box-shadow:0 0 0 4px rgba(47,111,176,.18)}}
     .diag-sugg-pulse{animation:diagSuggPulse 1.4s ease-in-out 4}
@@ -22385,13 +22497,13 @@ auteurApply();
           <input id="diag-ccn" placeholder="ex. IDCC 0016 Transports routiers" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
         </label>
         <label style="font-size:12px;color:#555">Effectif de l'entreprise
-          <input id="diag-effectif" type="number" min="0" placeholder="ex. 48" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
+          <input id="diag-effectif" type="number" inputmode="decimal" min="0" placeholder="ex. 48" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
         </label>
         <label style="font-size:12px;color:#555">Représentants du personnel / CSE
           <select id="diag-rep" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px"><option value="">—</option><option value="oui">Oui</option><option value="non">Non</option></select>
         </label>
         <label style="font-size:12px;color:#555">Ancienneté du salarié
-          <input id="diag-anc" type="number" min="0" step="0.1" placeholder="ex. 3" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
+          <input id="diag-anc" type="number" inputmode="decimal" min="0" step="0.1" placeholder="ex. 3" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px">
         </label>
         <label style="font-size:12px;color:#555">Unité d'ancienneté
           <select id="diag-anc-unit" style="width:100%;padding:8px;margin-top:3px;border:1px solid #ccc;border-radius:8px"><option value="ans">années</option><option value="mois">mois</option></select>
@@ -23872,9 +23984,9 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
         +loi('Le coefficient détermine automatiquement le <b>salaire minimum</b>, la <b>période d’essai</b> et le <b>préavis</b> conventionnels.')
         +fg('Le salarié conduira-t-il des véhicules ? *','<select id="wz-conducteur"><option value="">— choisir —</option><option value="oui"'+(A.conducteur==='oui'?' selected':'')+'>Oui — conducteur</option><option value="non"'+(A.conducteur==='non'?' selected':'')+'>Non — sédentaire</option></select>');
     }
-    h+=fg('Salaire mensuel brut (€) *','<input id="wz-sal" type="number" placeholder="Ex : 2200" value="'+esc(A.salaire||'')+'" oninput="wzCoh()">');
-    h+=fg('Minimum conventionnel de ce niveau (€/mois) — relevé sur la grille en vigueur','<input id="wz-minconv" type="number" placeholder="Laisser vide si non vérifié" value="'+esc(A.minConv||'')+'" oninput="wzCoh()">');
-    h+=fg('Durée hebdomadaire (heures)','<input id="wz-heures" type="number" step="0.5" placeholder="35" value="'+esc(A.heures||'')+'" oninput="wzCoh()">');
+    h+=fg('Salaire mensuel brut (€) *','<input id="wz-sal" type="number" inputmode="decimal" placeholder="Ex : 2200" value="'+esc(A.salaire||'')+'" oninput="wzCoh()">');
+    h+=fg('Minimum conventionnel de ce niveau (€/mois) — relevé sur la grille en vigueur','<input id="wz-minconv" type="number" inputmode="decimal" placeholder="Laisser vide si non vérifié" value="'+esc(A.minConv||'')+'" oninput="wzCoh()">');
+    h+=fg('Durée hebdomadaire (heures)','<input id="wz-heures" type="number" inputmode="decimal" step="0.5" placeholder="35" value="'+esc(A.heures||'')+'" oninput="wzCoh()">');
     h+='<div id="wz-coh"></div>';
     if(!cdd)h+=fg('Date d’embauche *',inp('wz-emb','','date',A.debut));
     box(h+btns('wzSalarieNext()',cdd?'cdd-dates':'start'));
