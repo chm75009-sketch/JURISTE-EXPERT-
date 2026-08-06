@@ -996,7 +996,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.140';
+var JX_BUILD = 'v2026-08-06.141';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1005,6 +1005,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.141', d:'6 aout 2026', t:[
+   'UN SITE DE CABINET D\'AVOCAT, DANS LE DEPOT, SANS RIEN DEVOIR A L\'APPLICATION. Le dossier avocat-aj contient un site complet — accueil, six pages de domaine, honoraires, avis, prise de rendez-vous, contact, mentions legales et RGPD — qui ne lit aucun fichier de Juris Expert, n\'emprunte aucun chemin remontant d\'un cran, et porte un noindex sur chacune de ses pages. Il se deplacera un jour dans son propre depot par une simple copie.',
+   'L\'ACCES A CE SITE EST RESERVE A L\'ADMINISTRATEUR. Une ligne sur l\'accueil de l\'application, masquee dans le HTML et montree par la garde administrateur — celle qui est rejouee a chaque changement de page, et non au seul demarrage. Un abonne ne voit rien, et aucune autre page de l\'application n\'y renvoie. Le test ouvre l\'application dans les deux etats et exige les deux resultats.',
+   'GITHUB NE PUBLIAIT PLUS DEPUIS MIDI. Quatre echecs d\'affilee, la derniere mise en ligne reussie datant de 12h51 : le site en ligne etait fige sans que rien ne le signale. GitHub lancait Jekyll — un moteur de blog — sur un depot qui n\'a rien a construire. Le fichier nojekyll qui le desactive est ajoute.'
+ ]},
  {v:'v2026-08-06.140', d:'6 aout 2026', t:[
    'LE CDD BATIMENT ET LE CDD TERTIAIRE ETAIENT DES CDI. Les deux générateurs titraient « CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE » et ne produisaient AUCUNE clause de CDD — le type de contrat n\'y servait qu\'à écrire le titre. Le CDD et le CDI du bâtiment ne différaient que de deux caractères. Manquaient, une à une, les mentions dont l\'omission emporte REQUALIFICATION EN CDI (L.1242-12) : motif précis du recours, nom et qualification du salarié remplacé, terme ou durée minimale, période d\'essai, institution de retraite complémentaire, indemnité de fin de contrat. Les champs étaient pourtant remplis : « BERNARD Alice », « congé maternité », « 31/01/2027 » n\'apparaissaient nulle part.',
    'Pire, ces documents AFFIRMAIENT LE FAUX. « La rupture du contrat est précédée d\'un préavis conventionnel » — un CDD ne se rompt pas moyennant préavis ; hors des cas de L.1243-1, une rupture par l\'employeur ouvre droit aux salaires restant dus jusqu\'au terme (L.1243-4). Et une période d\'essai de 2, 3 ou 4 mois renouvelable, alors que L.1242-10 la plafonne à deux semaines ou un mois, NON renouvelable. Le bloc de clauses est désormais écrit une seule fois et sert aux trois secteurs. Un test le produit dans cinq secteurs et relit le document.',

@@ -67,7 +67,10 @@ const ok = (c, m, d) => {
     .filter(f => f.endsWith('.html'));
   racine.forEach(f => {
     const src = fs.readFileSync(path.resolve(__dirname, '..', f), 'utf8');
-    const liens = (src.replace(/<!--[\s\S]*?-->/g, '').match(/avocat-aj/g) || []).length;
+    /* On compte les LIENS, pas les mentions : l'historique des versions cite
+       le dossier en toutes lettres, et c'est du texte, pas un accès. */
+    const liens = (src.replace(/<!--[\s\S]*?-->/g, '')
+      .match(/href\s*=\s*["']\.\/avocat-aj\//g) || []).length;
     if (f === 'index.html')
       ok(liens === 1, 'un seul accès au site, et il est réservé à l\'administrateur',
         liens + ' occurrence(s)');
