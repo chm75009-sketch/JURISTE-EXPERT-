@@ -292,7 +292,35 @@ const ok = (c, m, d) => {
     const t = await q.textContent('body');
     /* Les deux règlements doivent être cités par leur numéro : c'est ce qui
        distingue une vraie mention légale d'une phrase de communication. */
+    /* Les mentions obligatoires de l'article 13, une par une. Une politique
+       de confidentialité qui en oublie une n'est pas conforme, meme si elle
+       est longue. */
     ok(/2016\/679/.test(t), 'le RGPD est cité par son numéro');
+    ok(/responsable du traitement/i.test(t), 'art. 13.1.a — le responsable est identifié');
+    ok(/délégué à la protection des données/i.test(t), 'art. 13.1.b — le sort du DPO est tranché');
+    ok(/6\.1\.b/.test(t) && /6\.1\.f/.test(t), 'art. 13.1.c — chaque base légale est nommée');
+    ok(/intérêt légitime/i.test(t) && /mis(e)? en balance/i.test(t),
+      'art. 13.1.d — l\'intérêt légitime est explicité et mis en balance');
+    ok(/sous-trait/i.test(t) && /article 28|art\. 28/.test(t),
+      'art. 13.1.e — les destinataires et leur qualité de sous-traitant');
+    ok(/clauses contractuelles types/i.test(t) && /2021\/914/.test(t),
+      'art. 13.1.f — le transfert hors UE et sa garantie');
+    ok(/12 mois/.test(t) && /5 ans/.test(t) && /10 ans/.test(t),
+      'art. 13.2.a — les durées de conservation, traitement par traitement');
+    ok(/art\. 15|article 15/.test(t) && /art\. 20|article 20/.test(t) && /art\. 21|article 21/.test(t),
+      'art. 13.2.b — accès, portabilité, opposition');
+    ok(/CNIL/.test(t) && /réclamation/i.test(t), 'art. 13.2.d — la réclamation auprès de la CNIL');
+    ok(/nécessaires|obligatoire/i.test(t) && /facultatif/i.test(t),
+      'art. 13.2.e — ce qui est obligatoire et ce qui ne l\'est pas');
+    ok(/9\.2\.f/.test(t), 'art. 9 — l\'exception judiciaire pour les données sensibles');
+    ok(/72 heures/.test(t) && /(art\. 33|article 33)/.test(t),
+      'art. 33 — la notification d\'une violation de données');
+    ok(/article 82|art\. 82/.test(t), 'art. 82 loi de 1978 — le stockage sur l\'appareil');
+    ok(/Dernière mise à jour/i.test(t), 'la politique est datée');
+    ok(/reconnaissance de lecture/i.test(t),
+      'la case du formulaire est qualifiée pour ce qu\'elle est');
+    ok(/avis/i.test(t) && /retiré/i.test(t),
+      'les avis de tiers peuvent être retirés sur demande');
     ok(/2024\/1689/.test(t), 'le règlement sur l\'IA est cité par son numéro');
     ok(/article 22|art\. 22/.test(t), 'la décision automatisée (art. 22) est traitée');
     ok(/article 50|art\. 50/.test(t), 'la transparence de l\'article 50 est prévue');
@@ -305,6 +333,12 @@ const ok = (c, m, d) => {
   /* Et l'accueil le dit là où ça compte : sous le calculateur. */
   ok(/aucune intelligence artificielle/i.test(await p.textContent('.prive')),
     'l\'accueil annonce l\'absence d\'IA sous le calculateur');
+  {
+    const lab = await p.textContent('label[for="rgpd"]');
+    ok(/J'ai lu/.test(lab), 'la case atteste d\'une lecture, pas d\'un consentement', lab.trim());
+    ok(!/J'accepte que ces informations soient utilisées/.test(lab),
+      'la formulation « je consens au traitement » a disparu');
+  }
 
   /* ── 6. La prise de rendez-vous ─────────────────────────────────────── */
   console.log('\n— Les créneaux de rendez-vous —');

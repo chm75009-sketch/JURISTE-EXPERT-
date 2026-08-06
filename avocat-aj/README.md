@@ -72,6 +72,21 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | `[HÉBERGEUR]` | mentions | Netlify, ou l'hébergeur retenu |
 | `[DOMAINE]` | robots.txt, sitemap.xml | Le domaine, une fois choisi |
 | Déclaration sur les outils d'IA | confidentialite.html | La phrase surlignée du § « Le secret professionnel face aux outils d'IA » **engage le cabinet** : Maître A. J. doit la valider, ou l'adapter si des outils sont utilisés |
+| `[FOURNISSEUR DE MESSAGERIE]`, `[PAYS]` | confidentialite.html | Le service qui reçoit les messages (Gmail, OVH, Infomaniak…) et son pays : c'est un sous-traitant, il doit être nommé |
+
+### Trois vérifications avant la mise en ligne — obligations, pas options
+
+1. **Contrat de sous-traitance (art. 28 du RGPD)** signé avec chacun des trois
+   prestataires nommés dans la politique : hébergeur, service de formulaire,
+   messagerie. Sans contrat, le transfert de données est irrégulier.
+2. **Transferts hors UE.** Deux prestataires sont américains. Vérifiez leur
+   certification au registre officiel du *Data Privacy Framework*, ou faites
+   signer les clauses contractuelles types. Une messagerie hébergée dans l'Union
+   supprimerait ce transfert pour la partie la plus sensible — c'est le choix
+   que je recommande à un cabinet d'avocat.
+3. **Registre des traitements (art. 30).** La politique en décrit trois : demande
+   de contact, dossier confié, journaux techniques. Recopiez-les dans le registre
+   interne du cabinet — il est obligatoire et opposable en cas de contrôle.
 
 Les **avis clients** ne sont pas des marques entre crochets : ils se saisissent
 dans le tableau `AVIS`, à la fin de `index.html`. Chaque entrée porte un champ

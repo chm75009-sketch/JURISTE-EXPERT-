@@ -1205,10 +1205,15 @@
 
         <div class="cons">
           <input id="rgpd" name="Consentement" type="checkbox" value="oui" required>
+          <!-- Reconnaissance de lecture, et non consentement : la base légale du
+               traitement est l'article 6.1.b (mesures précontractuelles prises à
+               la demande de la personne). Présenter cette case comme un
+               consentement laisserait croire qu'on peut le retirer pour empêcher
+               une réponse que l'on vient soi-même de solliciter. -->
           <label for="rgpd" style="font-weight:400;font-size:12px;color:var(--muted);margin:0">
-            J'accepte que ces informations soient utilisées pour répondre à ma demande. Elles ne
-            sont ni cédées, ni utilisées à d'autres fins
-            (<a href="./confidentialite.html">politique de confidentialité</a>).
+            J'ai lu la <a href="./confidentialite.html">politique de confidentialité</a> et
+            j'accepte d'être recontacté à ce sujet. Mes informations servent uniquement à
+            répondre : elles ne sont ni cédées, ni utilisées à d'autres fins.
           </label>
         </div>
 
