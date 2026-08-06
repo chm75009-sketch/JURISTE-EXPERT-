@@ -16,7 +16,8 @@ catch (e) {
 const fs = require('fs'), path = require('path');
 const CHROME = process.env.CHROME_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const DOSSIER = path.resolve(__dirname, '..', 'avocat-aj');
-const PAGES = ['index.html', 'mentions-legales.html', 'confidentialite.html'];
+const PAGES = ['index.html', 'mentions-legales.html', 'confidentialite.html',
+               'registre-traitements.html'];
 const url = f => 'file://' + path.join(DOSSIER, f);
 
 let echecs = 0;
@@ -33,6 +34,7 @@ const ok = (c, m, d) => {
   console.log('\n— Les fichiers du dossier —');
   ['index.html', 'mentions-legales.html', 'confidentialite.html', 'pages.css',
    'manifest.json', 'sw.js', 'netlify.toml', 'robots.txt', 'sitemap.xml',
+   'registre-traitements.html',
    'icone-192.png', 'icone-512.png', 'icone-180.png', 'portrait.png', 'README.md'
   ].forEach(f => ok(fs.existsSync(path.join(DOSSIER, f)), 'présent : ' + f));
 
@@ -338,6 +340,26 @@ const ok = (c, m, d) => {
     ok(/J'ai lu/.test(lab), 'la case atteste d\'une lecture, pas d\'un consentement', lab.trim());
     ok(!/J'accepte que ces informations soient utilisées/.test(lab),
       'la formulation « je consens au traitement » a disparu');
+  }
+
+
+  /* Le registre de l'article 30 : chaque traitement doit porter les huit
+     rubriques exigees, sinon ce n'est pas un registre, c'est un resume. */
+  {
+    const r = await ctx.newPage();
+    await r.goto(url('registre-traitements.html'), { waitUntil: 'load' });
+    await r.waitForTimeout(300);
+    const nb = await r.locator('h2').filter({ hasText: /Traitement n/ }).count();
+    ok(nb === 3, 'trois traitements sont inscrits au registre', nb);
+    for (const champ of ['Finalité', 'Base légale', 'Personnes concernées',
+                         'Catégories de données', 'Destinataires', 'Transferts hors UE',
+                         'Durée de conservation', 'Mesures de sécurité']) {
+      const c = await r.locator('dt', { hasText: new RegExp('^' + champ + '$') }).count();
+      ok(c === 3, 'rubrique présente dans les trois : ' + champ, c + ' fois');
+    }
+    ok(/article 30|art\. 30/i.test(await r.textContent('body')),
+      'le registre cite son fondement');
+    await r.close();
   }
 
   /* ── 6. La prise de rendez-vous ─────────────────────────────────────── */

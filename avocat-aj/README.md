@@ -17,6 +17,7 @@ avocat-aj/
 ├── index.html            ← tout le site : une page, huit sections
 ├── mentions-legales.html ← obligatoire (LCEN + décret 2005-790)
 ├── confidentialite.html  ← obligatoire (RGPD + règlement européen sur l'IA)
+├── registre-traitements.html ← registre de l'article 30, publié
 ├── pages.css             ← charte des deux pages légales
 ├── manifest.json         ← carte d'identité de l'application installable
 ├── sw.js                 ← service worker : hors ligne + installation
@@ -84,9 +85,10 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
    signer les clauses contractuelles types. Une messagerie hébergée dans l'Union
    supprimerait ce transfert pour la partie la plus sensible — c'est le choix
    que je recommande à un cabinet d'avocat.
-3. **Registre des traitements (art. 30).** La politique en décrit trois : demande
-   de contact, dossier confié, journaux techniques. Recopiez-les dans le registre
-   interne du cabinet — il est obligatoire et opposable en cas de contrôle.
+3. **Registre des traitements (art. 30).** Il est écrit, et publié :
+   `registre-traitements.html`, trois traitements aux huit rubriques exigées.
+   La loi n'oblige qu'à le tenir — le publier est un parti pris, celui de Nomos.
+   Vérifiez qu'il correspond à la réalité du cabinet avant la mise en ligne.
 
 Les **avis clients** ne sont pas des marques entre crochets : ils se saisissent
 dans le tableau `AVIS`, à la fin de `index.html`. Chaque entrée porte un champ

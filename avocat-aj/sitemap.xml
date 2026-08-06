@@ -43,6 +43,11 @@
     <priority>0.2</priority>
   </url>
   <url>
+    <loc>https://cjavocats.fr/registre-traitements.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
     <loc>https://cjavocats.fr/confidentialite.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>

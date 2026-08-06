@@ -12,6 +12,7 @@ const FICHIERS = [
   './index.html',
   './mentions-legales.html',
   './confidentialite.html',
+  './registre-traitements.html',
   './pages.css',
   './domaine-famille.html',
   './domaine-immobilier.html',
