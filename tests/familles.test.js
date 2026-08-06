@@ -1,5 +1,5 @@
 /* L'accueil de l'application : cinq familles.
-   « J'embauche · Je gère · Une mesure · Je vérifie · Le CSE », comme Nomos
+   « J'embauche · Je gère · Mesures disciplinaires · Je vérifie · Le CSE ».
    Traça. Ce test garde ce qui rend ces cartes utilisables : elles mènent
    quelque part, elles se distinguent, et elles se lisent. */
 let chromium;
@@ -36,7 +36,7 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   })));
   fam.forEach(f => console.log('    ' + f.lib + ' — ' + f.n + ' cartes : ' + f.groupes.join(' / ')));
   ok(fam.length === 5, 'il y a cinq familles', fam.length);
-  ['J’embauche', 'Je gère', 'Une mesure', 'Je vérifie', 'Le CSE']
+  ['J’embauche', 'Je gère', 'Mesures disciplinaires', 'Je vérifie', 'Le CSE']
     .forEach(l => ok(fam.some(f => f.lib === l), 'la famille « ' + l + ' » existe'));
   ok(fam.every(f => f.n >= 4), 'chaque famille propose au moins quatre cartes',
      fam.map(f => f.lib + ':' + f.n).join(' · '));

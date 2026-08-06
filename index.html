@@ -821,7 +821,7 @@ function jxCompte(){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
-var JX_BUILD = 'v2026-08-06.123';
+var JX_BUILD = 'v2026-08-06.124';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -830,6 +830,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.124', d:'5 aout 2026', t:[
+   'ACCUEIL — la famille « Une mesure » reprend son nom exact : « Mesures disciplinaires ».'
+ ]},
  {v:'v2026-08-06.123', d:'5 aout 2026', t:[
    'CORRECTIF D\'ACCES — apres la saisie du code, le defilement de la page restait bloque. La fenetre de code immobilise la page qui reste derriere ; la fonction qui verifie le code refermait cette fenetre par ses propres moyens, sans relacher le blocage. Sur telephone, l\'application s\'ouvrait figee. Corrige.',
    'ACCUEIL — une cinquieme famille, « Je verifie » : la foire aux questions, la jurisprudence, le parcours de la relation de travail, l\'analyse d\'un contrat ou d\'une lettre, et le controle-minute. Ce sont les outils qu\'on ouvre quand on doute, pas quand on agit.',
@@ -6947,7 +6950,7 @@ var FAM=[
    ]}
   ]},
 
- {k:'disc', emo:'⚖️', lib:'Une mesure',
+ {k:'disc', emo:'⚖️', lib:'Mesures disciplinaires',
   det:'De l’avertissement au licenciement : choisir la mesure juste, puis la conduire sans faute de procédure.',
   c1:'#d4762e', c2:'#a8531b', pastille:'#e0a35c',
   groupes:[
