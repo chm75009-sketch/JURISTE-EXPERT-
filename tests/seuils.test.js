@@ -190,6 +190,49 @@ const ATTENDUS = [
   ok(t0.max === null && t0.hors.length === 0,
      'effectif inconnu : rien n’est masqué — on ne suppose pas', JSON.stringify(t0.max));
 
+  /* ── LA TRANCHE RENSEIGNEE A L'OUVERTURE EST RECONNUE ───────────
+     Signale : « pourquoi il me dit effectif n'est pas reconnu alors que je
+     l'ai renseigne a l'ouverture ? ». cseEffectifSource() ne lisait que le
+     registre et l'exercice clos ; la tranche declaree a la creation du
+     dossier etait ignoree, et l'accueil repondait « pas connu » a quelqu'un
+     qui venait de la renseigner. */
+  console.log('\n— La tranche renseignée à l’ouverture —');
+  const decl = await page.evaluate(() => {
+    RX.staff = []; rxSaveLocal();
+    if (typeof CSED !== 'undefined') CSED.exercices = [];
+    E.effectif = '50'; goPage('home'); famRender();
+    const b = document.querySelector('#fam-zone .eff-bandeau');
+    return { src: cseEffectifSource(), calc: cseEffectif(),
+             txt: b ? b.textContent.replace(/\s+/g, ' ') : '',
+             vide: b ? b.classList.contains('vide') : null };
+  });
+  ok(decl.src.src === 'tranche', 'la tranche déclarée est reconnue comme source', decl.src.src);
+  ok(decl.vide === false && !/n’est pas connu/.test(decl.txt),
+     'l’accueil ne répond plus « effectif pas connu » à qui vient de le renseigner',
+     decl.txt.slice(0, 70));
+  ok(/50 à 199/.test(decl.txt), 'il affiche la tranche', decl.txt.slice(0, 60));
+  ok(/comité obligatoire/.test(decl.txt) && /règlement intérieur/.test(decl.txt),
+     'et ce qu’elle déclenche à coup sûr', decl.txt.slice(0, 120));
+  /* Mais une tranche n'est pas un chiffre : elle ne doit jamais servir de
+     base a un calcul juridique. */
+  ok(decl.calc === null,
+     'elle ne devient pas pour autant un effectif calculé — aucun calcul ne s’appuie dessus',
+     JSON.stringify(decl.calc));
+  ok(/pas un chiffre/.test(decl.txt), 'et l’application le dit', decl.txt.slice(0, 200));
+
+  const socleDecl = await page.evaluate(() => {
+    goPage('socle'); if (typeof socOnEnter === 'function') socOnEnter();
+    const t = document.getElementById('pg-socle').textContent;
+    return { tranche: /50 à 199/.test(t), acoupsur: /à coup sûr/.test(t),
+             marques: (t.match(/✓/g) || []).length };
+  });
+  ok(socleDecl.tranche && socleDecl.acoupsur,
+     'le module Socle la reconnaît aussi, et marque ce qui est atteint à coup sûr');
+  ok(socleDecl.marques === 4,
+     'quatre seuils marqués pour une borne basse de 50 : 1, 11, 20 et 50',
+     socleDecl.marques);
+  await page.evaluate(() => { E.effectif = ''; famRender(); });
+
   /* Le registre prime sur la tranche declaree : l'effectif est calcule,
      jamais declare (L.1111-2, L.1111-3). */
   const calcule = await page.evaluate(() => {

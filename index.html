@@ -950,7 +950,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.133';
+var JX_BUILD = 'v2026-08-06.134';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -959,6 +959,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.134', d:'6 aout 2026', t:[
+   'L\'EFFECTIF RENSEIGNE A L\'OUVERTURE EST ENFIN RECONNU. Signale : « pourquoi il me dit effectif n\'est pas reconnu alors que je l\'ai renseigne a l\'ouverture ? ». La lecture de l\'effectif n\'avait que deux sources — le registre du personnel, puis l\'effectif du dernier exercice clos — et ignorait purement la tranche indiquee a la creation du dossier. L\'accueil repondait donc « votre effectif n\'est pas connu » a quelqu\'un qui venait de le renseigner. Deux modules qui ne se parlaient pas.',
+   'La tranche est desormais une troisieme source, reconnue pour ce qu\'elle est : un intervalle, pas un chiffre. L\'accueil affiche « 50 a 199 salaries — effectif declare » et ce que cette tranche declenche a coup sur : comite obligatoire, reglement interieur, budgets, consultations.',
+   'Elle ne devient jamais un effectif calcule pour autant. Aucun calcul juridique — nombre d\'elus, budgets, franchissement d\'un seuil — ne s\'appuie sur une tranche declaree : cela reviendrait a affirmer un chiffre que personne n\'a calcule. L\'application le dit en toutes lettres et renvoie au registre du personnel (L.1111-2 et L.1111-3).',
+   'Le module « Mon effectif et mes seuils » la reconnait aussi : il marque les seuils que la borne BASSE de la tranche atteint a coup sur — jamais la borne haute, qui n\'est pas acquise.'
+ ]},
  {v:'v2026-08-06.133', d:'6 aout 2026', t:[
    'CE QUI EST SAISI UNE FOIS N\'EST PLUS REDEMANDE. Signale : « j\'ai initialement choisi banque comme convention collective, pourquoi il me demande ici ? ». Le module « Mon effectif et mes seuils » presentait un champ IDCC vide, avec « Ex : 16 » en exemple — celui du transport — alors que le secteur Banque etait choisi depuis la creation du dossier.',
    'Chaque secteur porte desormais sa convention : transport 0016, banque 2120, assurances 1672, Syntec 1486, EPNL 3218, enseignement prive independant 2691, organismes de formation 1516. Le champ arrive rempli, avec la mention « repris du secteur choisi a la creation de votre dossier ». Votre saisie prime toujours : un champ que vous avez rempli n\'est jamais ecrase.',
@@ -6963,14 +6969,24 @@ function socTousSeuils(serie){
   var eff=null;
   try{ if(serie && serie.length) eff=serie[serie.length-1].ent; }catch(e){}
   if(eff===null){ try{ eff=cseEffectif(); }catch(e){} }
+  var src={src:'',txt:''}; try{ src=cseEffectifSource(); }catch(e){}
   var h='<div class="card"><div class="ct">Tous les seuils du droit du travail</div>'
    +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
-   +(eff===null
-      ? 'Votre effectif n’est pas connu : aucun seuil n’est déclaré atteint. Tenez le registre du personnel, ou saisissez l’effectif du dernier exercice clos.'
-      : 'Effectif retenu : <b>'+eff+'</b>. Les seuils atteints sont marqués.')
+   +(eff!==null
+      ? 'Effectif retenu : <b>'+eff+'</b>. Les seuils atteints sont marqués.'
+      : (src.src==='tranche'
+         /* Une tranche declaree : on marque ce qui est certainement atteint —
+            la borne basse — et on dit que le reste demande un calcul. */
+         ? 'Vous avez indiqué la tranche <b>'+socEsc(src.lib)+'</b> à la création du dossier. '
+           +'Sont marqués ci-dessous les seuils que cette tranche atteint <b>à coup sûr</b>. '
+           +'Un effectif exact — nombre d’élus, budgets, franchissement d’un seuil — se calcule sur le registre du personnel (L.1111-2 et L.1111-3).'
+         : 'Votre effectif n’est pas connu : aucun seuil n’est déclaré atteint. Tenez le registre du personnel, ou saisissez l’effectif du dernier exercice clos.'))
    +'</div>';
+  /* Ce sur quoi on marque : l'effectif calcule, ou a defaut la borne basse
+     de la tranche — jamais sa borne haute, qui n'est pas acquise. */
+  var ref = (eff!==null) ? eff : ((src.src==='tranche') ? src.min : null);
   JX_SEUILS.forEach(function(x){
-    var atteint=(eff!==null && eff>=x.n);
+    var atteint=(ref!==null && ref>=x.n);
     h+='<div style="margin-bottom:9px;padding:11px 12px;border-radius:11px;'
       +(atteint?'border:1px solid rgba(90,180,130,.45);background:rgba(90,180,130,.09)'
                :'border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.025)')+'">'
@@ -7479,10 +7495,26 @@ function cseEffectifSource(){
     /* 2. A defaut, l'effectif saisi a la main pour le dernier exercice
           clos : c'est precisement pourquoi cette saisie est demandee. */
     var m=cseEffectifSaisi();
-    if(m!==null) return { n:m, src:'saisi', txt:'d’après l’effectif que vous avez saisi au dernier exercice clos' };
-    return { n:null, src:'', txt:'' };
-  }catch(e){ return { n:null, src:'', txt:'' }; }
+    if(m!==null) return { n:m, src:'saisi', declare:false,
+      txt:'d’après l’effectif que vous avez saisi au dernier exercice clos' };
+    /* 3. A defaut encore, la TRANCHE renseignee a la creation du dossier.
+          Ce n'est pas un effectif : c'est un intervalle. On le rend tel quel
+          — bornes comprises — et on ne s'en sert jamais comme d'un nombre
+          calcule. Ne pas le lire du tout revenait a repondre « votre
+          effectif n'est pas connu » a quelqu'un qui venait de le renseigner. */
+    var t=''; try{ t=(typeof E!=='undefined'&&E&&E.effectif)?String(E.effectif):''; }catch(_){}
+    if(t){
+      var o=null;
+      try{ jxTranches().forEach(function(x){ if(x.v===t) o=x; }); }catch(_){}
+      if(o) return { n:null, src:'tranche', declare:true, min:o.min, max:o.max, lib:o.lib,
+        txt:'d’après la tranche « '+o.lib+' » que vous avez indiquée à la création du dossier' };
+    }
+    return { n:null, src:'', declare:false, txt:'' };
+  }catch(e){ return { n:null, src:'', declare:false, txt:'' }; }
 }
+/* L'effectif CALCULE, et lui seul : c'est celui qui sert aux calculs
+   juridiques — nombre d'elus, budgets, seuils franchis. Une tranche
+   declaree ne le remplace pas, elle ne dit pas un nombre. */
 function cseEffectif(){ try{ return cseEffectifSource().n; }catch(e){ return null; } }
 /* Le dernier effectif d'entreprise saisi par exercice, s'il y en a un. */
 function cseEffectifSaisi(){
@@ -8140,8 +8172,25 @@ function famRender(){
   /* L'effectif d'abord : c'est lui qui commande l'obligation d'elire, le
      nombre d'elus, les budgets, le reglement interieur, les commissions.
      Tant qu'il n'est pas connu, l'application ne peut rien affirmer. */
-  var eff=null; try{ eff=(typeof cseEffectif==='function')?cseEffectif():null; }catch(e){}
-  if(eff===null){
+  var eff=null, _s={src:'',txt:''};
+  try{ _s=(typeof cseEffectifSource==='function')?cseEffectifSource():_s; eff=_s.n; }catch(e){}
+  /* Une tranche a ete renseignee, mais aucun effectif n'a ete calcule : on ne
+     dit pas « pas connu » a quelqu'un qui vient de la renseigner, et on ne
+     fait pas passer un intervalle pour un nombre. On affiche l'intervalle,
+     ce qu'il suffit deja a declencher, et ce qu'il faut pour aller plus loin. */
+  if(eff===null && _s.src==='tranche'){
+    var _pd=[];
+    if(_s.min>=11) _pd.push('comité obligatoire'); else if(_s.max!==null && _s.max<11) _pd.push('pas de comité avant onze');
+    if(_s.min>=50) _pd.push('règlement intérieur · budgets · consultations');
+    if(_s.min>=300) _pd.push('commissions');
+    h+='<button class="eff-bandeau" onclick="goPage(\'socle\')">'
+      +'<span class="en" style="font-size:19px">'+famEsc(_s.min+(_s.max===null?'+':('–'+_s.max)))+'</span>'
+      +'<span><span class="et">'+famEsc(_s.lib)+' — effectif déclaré</span>'
+      +(_pd.length?('<span class="ed">'+famEsc(_pd.join(' · '))+'</span>'):'')
+      +'<span class="ed" style="opacity:.85">Une tranche, pas un chiffre : le nombre d’élus, les budgets et les seuils franchis demandent un effectif calculé. Tenez le registre du personnel.</span>'
+      +'<span class="ed" style="opacity:.7">dossier : '+famEsc(jxDossierLib())+'</span></span>'
+      +'<span class="ec">›</span></button>';
+  } else if(eff===null){
     h+='<button class="eff-bandeau vide" onclick="goPage(\'socle\')">'
       +'<span class="en">?</span>'
       +'<span><span class="et">Votre effectif n’est pas connu</span>'
