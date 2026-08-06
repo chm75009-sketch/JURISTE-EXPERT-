@@ -16,7 +16,8 @@ summary::marker{content:''}
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#0f1f2e;color:#e8e4d8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;padding-bottom:80px;min-height:100vh}
-.page{display:none;padding:0 0 96px}
+.page{display:none;padding:0 0 138px}   /* place reservee sous le contenu : le
+   bouton flottant « Haut de page » recouvrait la derniere carte */
 .page.act{display:block}
 .card{background:#162639;border-radius:14px;padding:16px;margin:0 14px 12px;border:1px solid rgba(255,255,255,0.06)}
 .ct{font-family:Georgia,serif;font-size:17px;color:#e8c97a;margin-bottom:12px}
@@ -229,8 +230,15 @@ body{
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--ligne)!important;
   box-shadow:0 1px 0 rgba(212,175,85,.18);
-  padding:14px 16px!important;
+  padding:10px 13px!important;gap:10px!important;
 }
+/* Le bouton de retour occupait 140 px de large et 70 px de haut : plus que
+   le titre de la page. Il reste largement au-dessus des 44 px du pouce. */
+.topbar>button:first-child{padding:11px 14px!important;font-size:14px!important;
+  border-radius:11px!important;flex:0 0 auto}
+.tt{line-height:1.2}
+.ts{font-size:11.5px!important;line-height:1.35;display:-webkit-box;
+  -webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .tt{font-size:16px!important;color:var(--texte)!important;font-weight:600}
 .ts{color:var(--texte3)!important}
 /* ----- boutons ----- */
@@ -272,21 +280,32 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   position:sticky;top:0;z-index:60;
   background:linear-gradient(180deg,#12293c,#0d1c28);
   border-bottom:1px solid var(--ligne);
-  display:flex;align-items:center;justify-content:space-between;padding:13px 18px;
+  display:flex;align-items:center;gap:9px;padding:10px 13px;
 }
-.home-brand{display:flex;align-items:center;gap:12px}
+/* Le bloc du nom prend toute la place restante : sur 390 px, le titre
+   disposait de 82 px et se cassait sur trois lignes. */
+.home-brand{display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0}
+.home-brand .home-txt{min-width:0;flex:1 1 auto}
 .home-sceau{
-  width:42px;height:42px;border-radius:12px;flex:0 0 auto;
+  width:38px;height:38px;border-radius:11px;flex:0 0 auto;
   background:linear-gradient(150deg,var(--or-clair),var(--or-fonce));
-  display:flex;align-items:center;justify-content:center;color:#1c1607;font-weight:800;font-size:18px;
+  display:flex;align-items:center;justify-content:center;color:#1c1607;font-weight:800;font-size:16px;
   box-shadow:0 6px 18px rgba(212,175,85,.35);font-family:'Fraunces',serif;
 }
-.home-brand h1{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--texte);margin:0;line-height:1.1}
-.home-brand small{font-size:11px;color:var(--texte3);letter-spacing:.5px}
-.home-burger{position:relative;z-index:2;background:rgba(255,255,255,.06);border:1px solid var(--ligne);border-radius:10px;padding:11px 14px;color:var(--texte);font-size:18px;cursor:pointer;-webkit-tap-highlight-color:rgba(201,168,76,.4);touch-action:manipulation}
-.home-hero{padding:30px 20px 8px;text-align:center}
+.home-brand h1{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600;color:var(--texte);
+  margin:0;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-brand small{display:block;font-size:11px;color:var(--texte3);letter-spacing:.3px;
+  line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+/* Deux boutons de meme taille a droite, et rien d'autre. */
+.home-act{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.home-burger,.home-ico{width:42px;height:42px;flex:0 0 auto;display:grid;place-items:center;
+  background:rgba(255,255,255,.06);border:1px solid var(--ligne);border-radius:11px;
+  color:var(--texte);font-size:18px;cursor:pointer;font-family:inherit;padding:0;
+  -webkit-tap-highlight-color:rgba(201,168,76,.4);touch-action:manipulation}
+.home-ico{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.13);color:#e8c97a}
+.home-hero{padding:18px 20px 6px;text-align:center}
 .home-hero .eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--or);font-weight:800}
-.home-hero h2{font-family:'Fraunces',serif;font-size:27px;font-weight:600;color:#fff;margin:8px 0 6px;line-height:1.2}
+.home-hero h2{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:#fff;margin:6px 0 5px;line-height:1.2}
 .home-hero p{color:var(--texte2);font-size:13.5px;max-width:520px;margin:0 auto}
 .home-wrap{max-width:760px;margin:0 auto;padding:8px 16px 28px}
 .home-sec{font-size:11px;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:1.6px;margin:22px 6px 12px;display:flex;align-items:center;gap:9px}
@@ -437,14 +456,24 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   border:1px solid rgba(201,168,76,.38);background:linear-gradient(120deg,rgba(201,168,76,.14),rgba(201,168,76,.05))}
 .eff-bandeau:active{transform:scale(.99)}
 .eff-bandeau .en{font-size:30px;font-weight:800;color:#e8c97a;line-height:1;flex:0 0 auto}
-.eff-bandeau .et{font-size:13.5px;font-weight:800;color:#fff;line-height:1.25}
-.eff-bandeau .ed{font-size:12px;color:#9fb0c4;line-height:1.5;margin-top:3px}
+/* Sans « display:block », le titre et l'explication se suivaient sur la meme
+   ligne : « Votre effectif n'est pas connuC'est lui qui commande le reste ». */
+.eff-bandeau .et{display:block;font-size:13.5px;font-weight:800;color:#fff;line-height:1.25}
+.eff-bandeau .ed{display:block;font-size:12px;color:#9fb0c4;line-height:1.5;margin-top:3px}
 .eff-bandeau .ec{margin-left:auto;color:#e8c97a;font-size:19px;flex:0 0 auto}
 .eff-bandeau.vide{border-color:rgba(224,168,58,.55);background:rgba(224,168,58,.10)}
 .eff-bandeau.vide .en{font-size:26px}
 /* ── Accueil par familles : tuiles de categorie, puis cartes colorees ── */
 .fam-tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:2px 0 16px}
-@media(min-width:560px){ .fam-tuiles{grid-template-columns:repeat(4,1fr)} }
+/* Cinq familles sur deux colonnes : la derniere restait seule, a moitie de
+   largeur, et la grille paraissait cassee. Elle prend la ligne entiere. */
+.fam-tuiles>:last-child:nth-child(odd){grid-column:1/-1;
+  display:flex;align-items:center;gap:12px;padding:14px 15px}
+.fam-tuiles>:last-child:nth-child(odd) .fi{margin:0;font-size:24px}
+.fam-tuiles>:last-child:nth-child(odd) .fn{flex:1 1 auto}
+.fam-tuiles>:last-child:nth-child(odd) .fc{margin:0}
+@media(min-width:560px){ .fam-tuiles{grid-template-columns:repeat(4,1fr)}
+  .fam-tuiles>:last-child:nth-child(odd){grid-column:auto} }
 .fam-tuile{position:relative;padding:13px 12px 12px;border-radius:15px;cursor:pointer;
   font-family:inherit;text-align:left;border:1.5px solid transparent;
   transition:transform .12s,box-shadow .12s}
@@ -461,21 +490,30 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .fam-bandeau .bt{font-size:15px;font-weight:800;color:#fff;line-height:1.25}
 .fam-bandeau .bd{font-size:12.5px;color:#cfc8b8;line-height:1.5;margin-top:2px}
 
-.fam-titre{display:flex;align-items:center;gap:9px;margin:18px 0 10px}
+.fam-titre{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;margin:18px 0 10px}
 .fam-titre .pt{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
 .fam-titre .tx{font-size:14px;font-weight:800;color:#fff;letter-spacing:.01em}
-.fam-titre .sx{font-size:12.5px;color:#8fa0b4;font-weight:500}
+/* « PAR OU COMMENCER » et sa legende se partageaient la largeur : les deux
+   se cassaient en deux lignes chacun. La legende passe dessous, entiere. */
+.fam-titre .sx{font-size:12.5px;color:#8fa0b4;font-weight:500;flex:1 0 100%;margin-left:20px}
+@media(min-width:560px){ .fam-titre .sx{flex:0 1 auto;margin-left:0} }
 
 .fam-cartes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.fam-carte{position:relative;min-height:118px;padding:13px 13px 40px;border-radius:15px;
+.fam-carte{position:relative;min-height:118px;padding:13px 13px 38px;border-radius:15px;
   cursor:pointer;font-family:inherit;text-align:left;border:none;overflow:hidden;
+  display:flex;flex-direction:column;align-items:flex-start;gap:0;
   transition:transform .12s}
 .fam-carte:active{transform:scale(.975)}
 .fam-carte .ce{font-size:23px;line-height:1;display:block;margin-bottom:8px}
 .fam-carte .ct2{font-size:13.5px;font-weight:800;color:#fff;line-height:1.3;display:block;
   text-shadow:0 1px 2px rgba(0,0,0,.18)}
-.fam-carte .cq{position:absolute;top:11px;right:11px;padding:3px 9px;border-radius:20px;
-  background:rgba(255,255,255,.92);color:#1a2433;font-size:11px;font-weight:800}
+/* L'etiquette etait posee en absolu dans le coin : « Questions → contrat »
+   depassait de la carte et passait par-dessus le titre. Elle est dans le
+   flux, en tete, et ne peut plus rien recouvrir. */
+.fam-carte .cq{align-self:flex-start;max-width:100%;margin-bottom:8px;
+  padding:3px 9px;border-radius:20px;box-sizing:border-box;
+  background:rgba(255,255,255,.92);color:#1a2433;font-size:11px;font-weight:800;
+  line-height:1.3;white-space:normal;overflow-wrap:anywhere}
 .fam-carte .cb{position:absolute;left:13px;bottom:11px;font-size:10.5px;font-weight:800;
   color:rgba(255,255,255,.75);letter-spacing:.05em;text-transform:uppercase}
 
@@ -863,7 +901,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.128';
+var JX_BUILD = 'v2026-08-06.129';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -872,6 +910,16 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.129', d:'6 aout 2026', t:[
+   'LA PRESENTATION, REPRISE AU PIXEL. Mesure faite sur un ecran de telephone de 390 px : le nom « Juris Expert MCH » ne disposait que de 82 px et se cassait sur TROIS lignes, ecrase par le bouton de secteur pose a cote de lui. Le nom du secteur est desormais sous le titre, le bouton est une icone : le titre tient sur une ligne, avec 216 px. L\'en-tete passe de 134 a 63 px.',
+   'PLUS DE « [ENTREPRISE] » A L\'ECRAN. Ce texte est le remplacement utilise dans les documents quand la raison sociale manque ; il etait enregistre dans la fiche et s\'affichait dans l\'en-tete. Une raison sociale absente reste absente.',
+   'UN SEUL EN-TETE PAR PAGE. 41 pages sur 43 ont leur propre barre de titre, collante ; l\'en-tete global s\'empilait par-dessus. Deux barres, le meme role, un tiers de la hauteur de l\'ecran, et le titre de page casse en deux lignes. Sur ces pages, l\'en-tete global s\'efface. Le secteur reste atteignable partout par le menu, qui affiche lequel est actif.',
+   'LE BOUTON FLOTTANT NE RECOUVRE PLUS RIEN. Il masquait le texte, et sur la page d\'administration le bouton « Générer le code » lui-meme. Il ne s\'affiche plus sur les pages qui ont deja leur barre collante — leur « ← Retour » est sous les yeux en permanence. Ailleurs il reste, passe a droite, sur fond opaque.',
+   'L\'OUTILLAGE DU CABINET QUITTE L\'ACCUEIL. Le selecteur de secteur administrateur, le formulaire de generation des codes clients et le registre des codes emis occupaient le milieu de la page d\'accueil, champs de saisie apparents. Ils ont leur page — « Administration », dans le menu, et refusee a tout compte qui n\'est pas celui du cabinet.',
+   'UNE SEULE LECTURE DU SECTEUR ACTIF. Le badge annoncait « tous secteurs » pendant que l\'en-tete affichait « CCN IDCC 1516 » : deux facons differentes de lire la meme chose. Il n\'en reste qu\'une.',
+   'Et le detail qui se voit : le bandeau d\'effectif ecrivait « Votre effectif n\'est pas connuC\'est lui qui commande le reste » — deux phrases collees. Les etiquettes des cartes (« Questions → contrat ») debordaient par-dessus le titre. La cinquieme famille restait seule sur sa ligne, a moitie de largeur. Le bandeau annoncait « Quatre familles » alors qu\'il y en a cinq — il les compte maintenant.',
+   'tests/presentation.test.js mesure tout cela en pixels, page par page : hauteur de l\'en-tete, nombre de lignes du titre, une seule barre par page, aucun chevauchement du bouton flottant sur un bouton ou un titre, aucun debordement en largeur, hauteurs de cartes egales. Un balisage correct ne suffisait pas a voir ces defauts : aucun test de structure ne les aurait attrapes.'
+ ]},
  {v:'v2026-08-06.128', d:'6 aout 2026', t:[
    'LA FICHE ENTREPRISE SUIT LE SECTEUR CHOISI. Signale : secteur « Batiment » choisi, et l\'application affichait quand meme « Activite principale : Transport routier de marchandises ». Ce n\'etait pas une etiquette a corriger — TOUTE la fiche etait ecrite pour le transport : les exemples (SARL TRANSPORT EXPRESS, contact@transport.fr), la liste des activites, la liste des organisations patronales (FNTR, OTRE, TLF, UNOSTRA), la licence communautaire, le gestionnaire de transport, la DREAL, la caisse CARCEPT.',
    'La fiche est desormais construite a partir d\'un seul tableau, secteur par secteur : intitule, convention citee, exemples, activites, organisations patronales, autorisations. Le batiment recoit ses propres organisations (FFB, CAPEB, FFIE, SCOP BTP, FNTP) et sa propre carte : carte d\'identification professionnelle BTP (L.8291-1 et R.8291-1), caisse de conges payes du BTP, assurance decennale (L.241-1 du code des assurances, 1792 du code civil). Un secteur sans autorisation propre le dit, au lieu d\'en montrer une qui ne le concerne pas.',
@@ -1750,27 +1798,23 @@ try{
 <div class="home-top">
   <div class="home-brand" onclick="goPage('home');try{window.scrollTo(0,0)}catch(e){}" style="cursor:pointer" title="Revenir à l’accueil">
     <div class="home-sceau">MCH</div>
-    <div>
+    <div class="home-txt">
       <h1>Juris Expert MCH</h1>
-      <small id="top-nom">CCN IDCC 0016</small>
+      <small id="top-nom"></small>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <button id="sec-chip" onclick="secOuvrir()" title="Changer de secteur"
-      style="display:none;align-items:center;gap:6px;padding:8px 11px;border-radius:20px;
-      border:1px solid rgba(201,168,76,.45);background:rgba(201,168,76,.12);color:#e8c97a;
-      font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;max-width:44vw;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></button>
-    <button class="home-burger" onclick="openMenu()">☰</button>
+  <div class="home-act">
+    <button id="sec-chip" class="home-ico" onclick="secOuvrir()" aria-label="Changer de secteur">🏢</button>
+    <button class="home-burger" onclick="openMenu()" aria-label="Ouvrir le menu">☰</button>
   </div>
 </div>
 
 <!-- Retour, toujours atteignable : apparait des qu'on a fait defiler -->
 <button id="jx-retour" onclick="jxRetour()" aria-label="Revenir en haut, puis à l’accueil"
-  style="display:none;position:fixed;left:14px;bottom:calc(70px + env(safe-area-inset-bottom,0px));
+  style="display:none;position:fixed;right:14px;bottom:calc(76px + env(safe-area-inset-bottom,0px));
   z-index:9998;padding:11px 15px;border-radius:24px;border:1px solid rgba(201,168,76,.5);
-  background:rgba(18,40,59,.94);color:#e8c97a;font-family:inherit;font-size:13px;font-weight:700;
-  cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px)">← Retour</button>
+  background:#14293c;color:#e8c97a;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)">← Retour</button>
 
 <!-- Choix du secteur, ouvrable depuis n'importe quelle page -->
 <div id="sec-ov" onclick="if(event.target===this)secFermer()" style="display:none;position:fixed;inset:0;z-index:99993;background:rgba(6,14,22,.78);padding:18px;overflow-y:auto">
@@ -1798,69 +1842,6 @@ try{
 
   <div id="fam-zone" style="margin:14px 0 4px"></div>
 
-  <div id="home-secteur-wrap" style="margin:14px 0 8px">
-  <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">🏢 Secteur d'activité (pilote toute l'application)</label>
-  <select id="home-secteur" onchange="appSetSecteur(this.value)">
-  <option value="">— Choisissez votre secteur —</option>
-    <option value="transport">Transport routier (IDCC 0016)</option>
-    <option value="banque">Banque (IDCC 2120)</option>
-    <option value="assurances">Assurances (IDCC 1672)</option>
-    <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
-  </select>
-</div>
-
-    <div id="client-secteur-badge" style="display:none;margin:14px 0 10px;padding:10px 14px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:#e8c97a;font-size:13px;font-weight:700"></div>
-  <div id="admin-secteur-wrap" style="display:none;margin:2px 0 12px">
-    <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">Secteur (administrateur) — verrouille toute l'application</label>
-    <select id="admin-secteur" onchange="adminPickSector(this.value)" style="width:100%">
-      <option value="">Tous les secteurs (déverrouillé)</option>
-      <option value="transport">Transport routier</option>
-      <option value="banque">Banque</option>
-      <option value="assurances">Assurances</option>
-      <option value="syntec">Syntec (conseil, informatique)</option>
-      <option value="enseignement">Enseignement privé (EPNL)</option>
-      <option value="formation">Organismes de formation</option>
-      <option value="ensindep">Enseignement privé indépendant</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
-    </select>
-
-    <div style="margin-top:14px;padding:12px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;background:rgba(201,168,76,.06)">
-      <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
-      <input id="cg-client" placeholder="Client — nom ou entreprise" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-gerant" placeholder="Gérant / représentant" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-siret" placeholder="SIRET" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-naf" placeholder="Code NAF / APE (ex. 49.41A)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-adresse" placeholder="Adresse du siège" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-email" placeholder="E-mail" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <input id="cg-tel" placeholder="Téléphone" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
-      <select id="cg-gensecteur" style="width:100%;margin-bottom:8px">
-        <option value="">— Secteur du client —</option>
-        <option value="transport">Transport routier</option>
-        <option value="banque">Banque</option>
-        <option value="assurances">Assurances</option>
-        <option value="syntec">Syntec (conseil, informatique)</option>
-        <option value="enseignement">Enseignement privé (EPNL)</option>
-        <option value="formation">Organismes de formation</option>
-        <option value="ensindep">Enseignement privé indépendant</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
-      </select>
-      <button onclick="cgGenerer()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#c9a84c;color:#1a1a1a;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer">Générer le code</button>
-      <div id="cg-result" style="display:none;margin-top:12px;text-align:center">
-        <div id="cg-code" style="font-size:30px;font-weight:800;letter-spacing:5px;color:#e8c97a;font-variant-numeric:tabular-nums"></div>
-        <div id="cg-sec" style="font-size:11px;color:#9a9585;margin-top:2px"></div>
-        <button onclick="cgCopier()" style="margin-top:8px;padding:7px 16px;border:1px solid rgba(201,168,76,.5);border-radius:8px;background:transparent;color:#e8c97a;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">📋 Copier le code</button>
-        <div id="cg-copied" style="font-size:11px;color:#5eb57a;margin-top:5px;min-height:14px"></div>
-      </div>
-      <div style="font-size:10.5px;color:#8a8578;line-height:1.5;margin-top:9px">Chaque appui génère un code <b>différent</b>, valable pour ce secteur. Envoyez-le au client : il l'entre via « J'ai déjà un code ».</div>
-    </div>
-
-    <div style="margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.03)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <label style="font-size:11px;color:#e8c97a;font-weight:700">📇 Registre des codes émis</label>
-        <span id="cg-reg-count" style="font-size:10px;color:#8a8578"></span>
-      </div>
-      <div id="cg-registre" style="font-size:12px;color:#cfc8b8"></div>
-      <div style="font-size:10px;color:#8a8578;line-height:1.5;margin-top:8px">⚠️ Registre <b>local à cet appareil</b>. « Suspendu » est une <b>note personnelle</b> : sans serveur, elle ne coupe pas l'accès d'un code déjà remis.</div>
-    </div>
-  </div>
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
 
@@ -3979,6 +3960,83 @@ Exemple :<br>
 </div>
 </div>
 
+<!-- ═══ ADMINISTRATION DU CABINET ═══
+     Le selecteur de secteur, le generateur de codes clients et le registre
+     des codes emis occupaient le milieu de l'ecran d'accueil, sous les
+     modules — y compris le formulaire de creation de code, champs de saisie
+     apparents. Ce n'est pas ce qu'un utilisateur vient faire en arrivant :
+     c'est l'outillage du cabinet. Il a maintenant sa page. -->
+<div id="pg-admin" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1;min-width:0"><div class="tt">Administration</div><div class="ts">Codes clients et registre</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div style="max-width:760px;margin:0 auto;padding:0 16px">
+  <div id="home-secteur-wrap" style="margin:14px 0 8px">
+  <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">🏢 Secteur d'activité (pilote toute l'application)</label>
+  <select id="home-secteur" onchange="appSetSecteur(this.value)">
+  <option value="">— Choisissez votre secteur —</option>
+    <option value="transport">Transport routier (IDCC 0016)</option>
+    <option value="banque">Banque (IDCC 2120)</option>
+    <option value="assurances">Assurances (IDCC 1672)</option>
+    <option value="syntec">Syntec — conseil/informatique (IDCC 1486)</option><option value="enseignement">Enseignement privé — EPNL (IDCC 3218)</option><option value="formation">Organismes de formation (IDCC 1516)</option><option value="ensindep">Enseignement privé indépendant (IDCC 2691)</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
+  </select>
+</div>
+
+    <div id="client-secteur-badge" style="display:none;margin:14px 0 10px;padding:10px 14px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:#e8c97a;font-size:13px;font-weight:700"></div>
+  <div id="admin-secteur-wrap" style="display:none;margin:2px 0 12px">
+    <label style="font-size:11px;color:#9a9585;display:block;margin-bottom:4px">Secteur (administrateur) — verrouille toute l'application</label>
+    <select id="admin-secteur" onchange="adminPickSector(this.value)" style="width:100%">
+      <option value="">Tous les secteurs (déverrouillé)</option>
+      <option value="transport">Transport routier</option>
+      <option value="banque">Banque</option>
+      <option value="assurances">Assurances</option>
+      <option value="syntec">Syntec (conseil, informatique)</option>
+      <option value="enseignement">Enseignement privé (EPNL)</option>
+      <option value="formation">Organismes de formation</option>
+      <option value="ensindep">Enseignement privé indépendant</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
+    </select>
+
+    <div style="margin-top:14px;padding:12px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;background:rgba(201,168,76,.06)">
+      <label style="font-size:11px;color:#e8c97a;font-weight:700;display:block;margin-bottom:7px">🔑 Générer un code client (unique)</label>
+      <input id="cg-client" placeholder="Client — nom ou entreprise" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-gerant" placeholder="Gérant / représentant" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-siret" placeholder="SIRET" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-naf" placeholder="Code NAF / APE (ex. 49.41A)" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-adresse" placeholder="Adresse du siège" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-email" placeholder="E-mail" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <input id="cg-tel" placeholder="Téléphone" style="width:100%;margin-bottom:8px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:9px;background:rgba(0,0,0,.25);color:#fff;font-family:inherit;font-size:14px"/>
+      <select id="cg-gensecteur" style="width:100%;margin-bottom:8px">
+        <option value="">— Secteur du client —</option>
+        <option value="transport">Transport routier</option>
+        <option value="banque">Banque</option>
+        <option value="assurances">Assurances</option>
+        <option value="syntec">Syntec (conseil, informatique)</option>
+        <option value="enseignement">Enseignement privé (EPNL)</option>
+        <option value="formation">Organismes de formation</option>
+        <option value="ensindep">Enseignement privé indépendant</option><option value="batiment">Bâtiment (IDCC 1596/1597 · 2609 · 2420)</option>
+      </select>
+      <button onclick="cgGenerer()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#c9a84c;color:#1a1a1a;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer">Générer le code</button>
+      <div id="cg-result" style="display:none;margin-top:12px;text-align:center">
+        <div id="cg-code" style="font-size:30px;font-weight:800;letter-spacing:5px;color:#e8c97a;font-variant-numeric:tabular-nums"></div>
+        <div id="cg-sec" style="font-size:11px;color:#9a9585;margin-top:2px"></div>
+        <button onclick="cgCopier()" style="margin-top:8px;padding:7px 16px;border:1px solid rgba(201,168,76,.5);border-radius:8px;background:transparent;color:#e8c97a;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">📋 Copier le code</button>
+        <div id="cg-copied" style="font-size:11px;color:#5eb57a;margin-top:5px;min-height:14px"></div>
+      </div>
+      <div style="font-size:10.5px;color:#8a8578;line-height:1.5;margin-top:9px">Chaque appui génère un code <b>différent</b>, valable pour ce secteur. Envoyez-le au client : il l'entre via « J'ai déjà un code ».</div>
+    </div>
+
+    <div style="margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:rgba(255,255,255,.03)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <label style="font-size:11px;color:#e8c97a;font-weight:700">📇 Registre des codes émis</label>
+        <span id="cg-reg-count" style="font-size:10px;color:#8a8578"></span>
+      </div>
+      <div id="cg-registre" style="font-size:12px;color:#cfc8b8"></div>
+      <div style="font-size:10px;color:#8a8578;line-height:1.5;margin-top:8px">⚠️ Registre <b>local à cet appareil</b>. « Suspendu » est une <b>note personnelle</b> : sans serveur, elle ne coupe pas l'accès d'un code déjà remis.</div>
+    </div>
+  </div>
+</div>
+</div>
+
 <!-- DOC OVERLAY -->
 <div id="doc-overlay">
 <div id="doc-bar" style="background:#1a1a1a;border-bottom:1px solid #333;padding:12px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0;position:sticky;top:0;z-index:10">
@@ -4002,6 +4060,8 @@ Exemple :<br>
 </div>
 <div style="padding:8px">
   <div class="mi" onclick="goPage('home');closeMenu()"><span style="font-size:18px">◈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Accueil</div></div></div>
+  <div class="mi" onclick="closeMenu();secOuvrir()"><span style="font-size:18px">🏢</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Changer de secteur</div><div id="mi-secteur" style="font-size:11px;color:#9a9585;margin-top:1px"></div></div></div>
+  <div class="mi" id="mi-admin" style="display:none" onclick="goPage('admin');closeMenu()"><span style="font-size:18px">👑</span><div><div style="font-size:13px;font-weight:500;color:#e8c97a">Administration — codes clients</div></div></div>
   <div class="mi" onclick="goPage('parcours');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parcours (pas-à-pas)</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Actions guidées</div>
   <div class="mi" onclick="goPage('embauche');if(typeof wzGo==='function')wzGo('start');closeMenu()"><span style="font-size:18px">🧑‍💼</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">J'embauche un salarié (assistant)</div></div></div>
@@ -5796,14 +5856,19 @@ function updateHeroTop(){
   var admin=false; try{ admin=(sessionStorage.getItem('jte_admin')==='1'); }catch(e){}
   var t=document.getElementById('top-nom');
   if(t){
-    if(admin && !(typeof E!=='undefined' && E && E.nom)){
+    /* « [ENTREPRISE] » est le texte de remplacement des documents. Il n'a
+       rien a faire dans l'en-tete : une fiche sans raison sociale n'affiche
+       pas de raison sociale. */
+    var nom=''; try{ nom=(typeof E!=='undefined'&&E&&E.nom)?String(E.nom):''; }catch(e){}
+    if(nom==='[ENTREPRISE]') nom='';
+    if(admin && !nom){
       /* Le cabinet peut changer de secteur a tout moment pour faire des
          essais : l'en-tete doit dire lequel est actif, sinon on teste a
          l'aveugle. Sans secteur choisi, il dit qu'il n'y en a pas. */
-      t.textContent = c.libelle ? ('Mode administrateur · '+c.libelle)
-                                : 'Mode administrateur · tous secteurs';
+      t.textContent = c.libelle ? ('Administrateur · '+c.libelle)
+                                : 'Administrateur · tous secteurs';
     }
-    else t.textContent=((typeof E!=='undefined'&&E.nom)?E.nom+' · ':'')+(c.libelle||'Convention non renseignée');
+    else t.textContent=(nom?nom+' · ':'')+(c.libelle||'Convention non renseignée');
   }
   var h=document.getElementById('hero-secteur');
   if(h){
@@ -6005,7 +6070,25 @@ function jxHomeAlertes(){
   }catch(e){}
 }
 function _esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* La page affichee a-t-elle sa propre barre de titre ? 41 des 43 pages en
+   ont une, collante, avec son « ← Retour ». L'en-tete global s'ajoutait
+   par-dessus : deux barres, deux fois le meme role, un tiers de l'ecran. */
+function jxPageBarre(){
+  try{
+    var p=document.querySelector('#pg-app .page.act');
+    return !!(p && p.querySelector('.topbar'));
+  }catch(e){ return false; }
+}
+function jxEnteteMaj(){
+  try{
+    var t=document.querySelector('.home-top'); if(!t) return;
+    t.style.display = jxPageBarre() ? 'none' : '';
+  }catch(e){}
+}
 function goPage(id){
+  /* La page d'administration est refusee a tout compte qui n'est pas celui
+     du cabinet — pas seulement masquee dans le menu. */
+  try{ if(id==='admin' && !jxEstAdmin()){ alert('Cette page est réservée à l’administrateur.'); id='home'; } }catch(e){}
   try{ jxGardeAdmin(); }catch(e){}   // ce qui est reserve le reste, a chaque page
   try{ setTimeout(jxFiletRetour, 0); }catch(e){}   // aucune page sans retour
   // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
@@ -6033,6 +6116,8 @@ function goPage(id){
   if(btnFixe) btnFixe.style.display = (id==='home' || _pageHasTopbar) ? 'none' : 'block';
   // Le module Analyse repart à zéro à chaque entrée (pas de résultat/document résiduel)
   if(id==='diag'){ try{ if(typeof window.diagReset==='function') window.diagReset(); }catch(e){} }
+  try{ jxEnteteMaj(); }catch(e){}
+  try{ jxRetourMaj(); }catch(e){}
   try{ adminSecPrompt(id); }catch(e){}
   try{ sectorGuard(id); }catch(e){}
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
@@ -7075,8 +7160,12 @@ function jxRetourMaj(){
   var ouvert = app && getComputedStyle(app).display!=='none';
   var y=0; try{ y=window.scrollY||document.documentElement.scrollTop||0; }catch(e){}
   var home=false; try{ var h=document.getElementById('pg-home'); home=!!(h&&h.classList.contains('act')); }catch(e){}
+  /* Une page qui a sa propre barre collante garde son « ← Retour » sous les
+     yeux en permanence : y ajouter un bouton flottant ne servait a rien et
+     recouvrait le bas de page — jusqu'au bouton « Générer le code ». */
+  var barre=false; try{ barre=jxPageBarre(); }catch(e){}
   /* Sur l'accueil non defile, il n'y a rien a quitter : on ne l'affiche pas. */
-  b.style.display = (ouvert && (y>200 || !home)) ? 'block' : 'none';
+  b.style.display = (ouvert && !barre && (y>200 || !home)) ? 'block' : 'none';
   b.textContent = (y>120) ? '↑ Haut de page' : '← Accueil';
 }
 try{
@@ -7317,9 +7406,16 @@ function secChipMaj(){
   var b=document.getElementById('sec-chip'); if(!b) return;
   var s=secCourant(), o=null;
   SEC_LISTE.forEach(function(x){ if(x.v===s) o=x; });
-  b.style.display='inline-flex';
-  b.textContent = (secVerrouille()?'🔒 ':'🏢 ') + (o? o.lib : 'Choisir un secteur');
-  b.title = secVerrouille()? 'Secteur imposé par votre code d’accès' : 'Changer de secteur';
+  /* Le bouton est une icone : le nom du secteur est deja ecrit sous le titre
+     de l'application. L'ecrire une seconde fois ecrasait le titre. */
+  b.style.display='grid';
+  b.textContent = secVerrouille() ? '🔒' : '🏢';
+  var lib = o ? o.lib : 'aucun secteur choisi';
+  b.title = (secVerrouille()? 'Secteur imposé par votre code d’accès : ' : 'Changer de secteur — ') + lib;
+  b.setAttribute('aria-label', b.title);
+  /* Le meme libelle dans le menu : sur les pages qui ont leur propre barre,
+     l'en-tete global n'est pas affiche, et le menu devient le seul chemin. */
+  var m=document.getElementById('mi-secteur'); if(m) m.textContent = lib;
 }
 function secOuvrir(){
   var ov=document.getElementById('sec-ov'); if(!ov) return;
@@ -7558,7 +7654,7 @@ function famRender(){
   if(!f){
     h+='<div class="fam-bandeau" style="background:rgba(255,255,255,.04)">'
       +'<span class="be">👆</span><div><div class="bt">Choisissez ce que vous avez à faire</div>'
-      +'<div class="bd">Quatre familles. Chacune vous pose les questions utiles, puis sort les documents.</div></div></div>';
+      +'<div class="bd">'+FAM.length+' familles. Chacune vous pose les questions utiles, puis sort les documents.</div></div></div>';
   } else {
     h+='<div class="fam-bandeau" style="background:linear-gradient(120deg,'+f.c1+'26,'+f.c2+'14);border-color:'+f.c1+'55">'
       +'<span class="be">'+f.emo+'</span><div><div class="bt">'+famEsc(f.lib)+'</div>'
@@ -14287,6 +14383,9 @@ function jxEstAdmin(){
 }
 function jxGardeAdmin(){
   var a=jxEstAdmin();
+  /* L'entree de menu n'existe que pour l'administrateur ; la page elle-meme
+     renvoie a l'accueil pour tout autre compte. */
+  try{ var mi=document.getElementById('mi-admin'); if(mi) mi.style.display=jxEstAdmin()?'':'none'; }catch(e){}
   ['admin-secteur-wrap','cg-registre','cm-admin-wrap'].forEach(function(id){
     var e=document.getElementById(id);
     if(e && !a) e.style.display='none';
@@ -14362,13 +14461,18 @@ function applyClientSector(retry){
     var admin = (typeof sessionStorage!=='undefined' && sessionStorage.getItem('jte_admin')==='1');
     var codeSec = (typeof sessionStorage!=='undefined') ? (sessionStorage.getItem('jte_sector')||'') : '';
     // Secteur effectif : imposé par le code/choix (client ou admin) ; sinon fiche entreprise (client)
-    var sec = codeSec || (admin ? '' : ((typeof E!=='undefined' && E && E.secteur) ? E.secteur : ''));
+    /* Le secteur affiche est celui que dit secCourant() — le code d'acces
+       s'il en impose un, sinon le choix memorise. L'administrateur n'y
+       echappe pas : il choisissait un secteur et le badge continuait a
+       annoncer « tous secteurs ». */
+    var sec = codeSec || (function(){ try{ return secCourant()||''; }catch(e){ return ''; } })()
+              || ((typeof E!=='undefined' && E && E.secteur) ? E.secteur : '');
     window.CLIENT_SECTEUR = sec;
     if(!admin && codeSec && typeof E!=='undefined' && E && E.secteur!==codeSec){ E.secteur=codeSec; try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){} }
     if(!retry) setTimeout(function(){ try{ applyClientSector(true); }catch(e){} }, 500);
     // Badge + sélecteur admin
     var badge=document.getElementById('client-secteur-badge');
-    if(badge){ badge.textContent = admin ? (sec?('👑 Admin — verrouillé sur : '+(SECTEUR_LAB[sec]||sec)):'👑 Mode administrateur — tous secteurs') : (sec?('🏷️ Secteur : '+(SECTEUR_LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
+    if(badge){ badge.textContent = admin ? (sec?('👑 Administrateur — secteur de test : '+(SECTEUR_LAB[sec]||sec)):'👑 Administrateur — aucun secteur choisi') : (sec?('🏷️ Secteur : '+(SECTEUR_LAB[sec]||sec)):''); badge.style.display=(admin||sec)?'block':'none'; }
     var apw=document.getElementById('admin-secteur-wrap'); if(apw)apw.style.display=admin?'block':'none';
     if(admin){ try{ if(typeof cgRenderRegistre==='function') cgRenderRegistre(); }catch(e){} }
     var ap=document.getElementById('admin-secteur'); if(ap && ap.value!==(sec||''))ap.value=sec||'';
@@ -14397,7 +14501,9 @@ function insCheck(){
 }
 
 function validerInscription(){
-  E.nom=gv('ins-nom')||'[ENTREPRISE]';
+  /* Une raison sociale absente reste absente : « [ENTREPRISE] » est le
+     texte de remplacement des documents, pas une valeur de fiche. */
+  E.nom=gv('ins-nom')||'';
   E.siret=gv('ins-siret')||'';
   E.adresse=gv('ins-adresse')||'';
   E.dirigeant=gv('ins-dirigeant')||'';

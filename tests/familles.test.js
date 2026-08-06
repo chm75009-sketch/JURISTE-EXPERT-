@@ -71,7 +71,10 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
      ne puisse le trouver autrement que par le menu. */
   console.log('\n— La couverture —');
   const couverture = await page.evaluate(() => {
-    const CONFIG = ['app', 'inscription', 'home', 'parametrage', 'rgpd', 'nouveautes', 'csefonc'];
+    /* 'admin' : l'outillage du cabinet — generation des codes clients et
+       registre. Ce n'est pas un module de droit du travail, il n'a rien a
+       faire dans une famille (il occupait l'accueil, c'etait le defaut). */
+    const CONFIG = ['app', 'inscription', 'home', 'parametrage', 'rgpd', 'nouveautes', 'csefonc', 'admin'];
     const pages = [...document.querySelectorAll('div.page[id^="pg-"]')].map(e => e.id.slice(3));
     const dans = FAM.flatMap(f => f.groupes.flatMap(g => g.cartes)).map(c => c.page);
     return pages.filter(p => CONFIG.indexOf(p) < 0 && dans.indexOf(p) < 0);

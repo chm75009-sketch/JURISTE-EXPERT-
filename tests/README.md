@@ -11,6 +11,7 @@ node tests/secteur.test.js        # changer de secteur partout, sauf si le code 
 node tests/garde.test.js          # l'admin reste l'admin, l'effectif d'abord, le retour partout
 node tests/retour.test.js         # AUCUNE page sans retour — les 42 sont ouvertes et vérifiées
 node tests/fiche.test.js          # la fiche entreprise suit le secteur choisi, secteur par secteur
+node tests/presentation.test.js   # la mise en page, mesurée en pixels sur un téléphone
 node tests/dossier.test.js        # les pièces de chaque étape, avec leur article
 node tests/harcelement.test.js    # harcèlement moral : chaque réponse, son arrêt
 python3 tests/integrite.py        # ce qui est mécaniquement vérifiable
@@ -198,7 +199,40 @@ gestionnaire de transport pour le transport, carte BTP / caisse de congés
 payés / décennale pour le bâtiment, et une note explicite pour les secteurs
 qui n'en ont pas — plutôt qu'une carte qui ne les concerne pas.
 
-## 9. `integrite.py` — ce qui est mécaniquement vérifiable
+## 9. `presentation.test.js` — la mise en page, en pixels
+
+« Très mauvaise présentation. Brouillon. » Le balisage était correct :
+aucun test de structure n'aurait vu ces défauts. Celui-ci mesure des pixels
+sur un écran de téléphone (390 × 844), page par page.
+
+Ce qu'il a fallu corriger, et ce qu'il garde :
+
+- **le titre de l'application** ne disposait que de 82 px et se cassait sur
+  **trois lignes**, écrasé par le bouton de secteur écrit en toutes lettres
+  juste à côté. Le test exige une seule ligne, au moins 150 px, non tronquée,
+  et un en-tête sous 80 px de haut ;
+- **`[ENTREPRISE]`** — le texte de remplacement des documents — était
+  enregistré dans la fiche et s'affichait dans l'en-tête ;
+- **une seule barre de titre par page** : 41 pages sur 43 en ont une, et
+  l'en-tête global s'empilait par-dessus. Le test ouvre les 43 pages et
+  compte ;
+- **le bouton flottant ne recouvre ni bouton ni titre** : il masquait le
+  texte, et jusqu'au bouton « Générer le code ». Le test descend en bas de
+  chaque page et cherche une intersection ;
+- **aucun débordement en largeur**, sur aucune page ;
+- **les cartes d'une même rangée ont la même hauteur**, et leur étiquette ne
+  déborde pas ;
+- **une famille seule sur sa ligne prend toute la largeur** — la cinquième
+  restait à moitié de largeur ;
+- **le bandeau d'effectif** écrivait « Votre effectif n'est pas
+  connu**C'est lui qui commande le reste** » : deux phrases collées, faute
+  d'un `display:block`.
+
+Il vérifie aussi qu'**une seule chose annonce le secteur actif**. Le badge
+disait « tous secteurs » pendant que l'en-tête affichait « CCN IDCC 1516 » :
+deux lectures différentes de la même donnée, et le doute pour l'utilisateur.
+
+## 10. `integrite.py` — ce qui est mécaniquement vérifiable
 
 Sept contrôles sur le fichier lui-même, sans l'exécuter : fonctions déclarées
 deux fois, fonctions appelées depuis un `onclick` sans exister, `goPage()`

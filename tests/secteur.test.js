@@ -30,23 +30,38 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   const n = await page.evaluate(() => document.querySelectorAll('#sec-ov-liste button').length);
   ok(n >= 9, 'huit secteurs plus « aucun »', n);
   await page.evaluate(() => secChoisir('banque')); await page.waitForTimeout(300);
-  ok((await page.evaluate(() => document.getElementById('sec-chip').textContent)).indexOf('Banque') >= 0,
-     'choisir Banque met à jour l’étiquette',
-     await page.evaluate(() => document.getElementById('sec-chip').textContent));
+  /* Le bouton est devenu une icone : ecrit en toutes lettres a cote du titre
+     de l'application, il ne lui laissait que 82 px et le cassait sur trois
+     lignes. Le nom du secteur est desormais dans l'infobulle du bouton, dans
+     le menu, et surtout sous le titre — trois endroits, tous lisibles. */
+  ok((await page.evaluate(() => document.getElementById('sec-chip').title)).indexOf('Banque') >= 0,
+     'choisir Banque met à jour le bouton',
+     await page.evaluate(() => document.getElementById('sec-chip').title));
+  ok((await page.evaluate(() => document.getElementById('mi-secteur').textContent)).indexOf('Banque') >= 0,
+     'et l’entrée de menu « Changer de secteur »',
+     await page.evaluate(() => document.getElementById('mi-secteur').textContent));
   ok((await page.evaluate(() => document.getElementById('top-nom').textContent)).indexOf('2120') >= 0,
      'et l’en-tête passe à IDCC 2120',
      await page.evaluate(() => document.getElementById('top-nom').textContent));
 
-  // Depuis une autre page que l'accueil
+  /* Depuis une autre page que l'accueil. Les pages de module ont leur propre
+     barre de titre : l'en-tete global n'y est plus affiche (deux barres
+     empilees mangeaient un tiers de l'ecran). Le chemin, la, c'est le menu —
+     present dans chaque barre de page. */
   await page.evaluate(() => goPage('socle')); await page.waitForTimeout(300);
-  ok(await page.evaluate(() => getComputedStyle(document.getElementById('sec-chip')).display !== 'none'),
-     'le bouton reste visible depuis la page Socle');
+  ok(await page.evaluate(() => {
+    const m = document.getElementById('mi-secteur');
+    return !!m && m.closest('.mi') && getComputedStyle(m.closest('.mi')).display !== 'none';
+  }), 'depuis la page Socle, le menu propose toujours de changer de secteur');
+  ok(await page.evaluate(() => !!document.querySelector('#pg-socle .topbar button[onclick*="openMenu"]')),
+     'et cette page a bien son bouton de menu');
   await page.evaluate(() => { secOuvrir(); secChoisir('syntec'); }); await page.waitForTimeout(300);
-  ok((await page.evaluate(() => document.getElementById('sec-chip').textContent)).indexOf('Syntec') >= 0,
-     'et on change de secteur depuis cette page');
+  ok((await page.evaluate(() => document.getElementById('sec-chip').title)).indexOf('Syntec') >= 0,
+     'et on change de secteur depuis cette page',
+     await page.evaluate(() => document.getElementById('sec-chip').title));
 
   console.log('\n— Compte client verrouillé par son code —');
-  await page.evaluate(() => { sessionStorage.removeItem('jte_admin'); sessionStorage.setItem('jte_sector','formation'); secChipMaj(); });
+  await page.evaluate(() => { sessionStorage.removeItem('jte_admin'); sessionStorage.setItem('jte_sector','formation'); goPage('home'); secChipMaj(); });
   await page.waitForTimeout(200);
   const chip = await page.evaluate(() => document.getElementById('sec-chip').textContent);
   ok(chip.indexOf('🔒') >= 0, 'le cadenas apparaît', chip);

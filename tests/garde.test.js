@@ -121,8 +121,29 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(band.indexOf('commissions') < 0, 'mais pas les commissions, qui viennent à trois cents');
 
   // ══ 3. Le retour en arrière ═════════════════════════════════════
-  console.log('\n— Revenir en arrière —');
+  /* Une page de module garde sa propre barre de titre, collante : son
+     « ← Retour » reste sous les yeux quel que soit le défilement. C'est LUI
+     le retour de ces pages — y superposer un bouton flottant faisait double
+     emploi et recouvrait le bas de page, jusqu'aux boutons d'action. */
+  console.log('\n— Revenir en arrière, depuis une page de module —');
   await page.evaluate(() => { goPage('csefonc'); window.scrollTo(0, 900); });
+  await page.waitForTimeout(700);
+  const bar = await page.evaluate(() => {
+    const b = document.querySelector('#pg-csefonc .topbar button');
+    const r = b.getBoundingClientRect();
+    return { txt: b.textContent.trim(), haut: Math.round(r.top), h: Math.round(r.height),
+             flottant: getComputedStyle(document.getElementById('jx-retour')).display };
+  });
+  ok(bar.haut >= 0 && bar.haut < 60, 'la barre de la page reste collée en haut malgré le défilement',
+     'haut ' + bar.haut + 'px');
+  ok(/^←/.test(bar.txt) && bar.h >= 36, 'son bouton de retour est là, et assez grand',
+     bar.txt + ' / ' + bar.h + 'px');
+  ok(bar.flottant === 'none', 'le bouton flottant ne double pas cette barre', bar.flottant);
+
+  /* Sur une page qui n'a pas de barre à elle — l'accueil, l'espace RH — le
+     bouton flottant reprend son rôle. */
+  console.log('\n— Et sur une page sans barre à elle —');
+  await page.evaluate(() => { goPage('personnel'); window.scrollTo(0, 900); });
   await page.waitForTimeout(700);
   const r1 = await page.evaluate(() => {
     const b = document.getElementById('jx-retour');

@@ -64,7 +64,10 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
      await page.evaluate(() => (typeof E !== 'undefined' ? E.dirigeant : null)));
   ok(await page.evaluate(() => rxAccountId()) === 'admin', 'le compte actif est bien « admin »');
   ok(await page.evaluate(() => appGetSecteur()) === '', 'aucun secteur hérité');
-  ok(/Mode administrateur/i.test(h2), 'l’en-tête dit ce qu’est ce compte', h2);
+  /* « Mode administrateur » a été raccourci en « Administrateur » : le
+     sous-titre doit tenir sur une seule ligne à côté du nom de
+     l'application. Ce qui compte est qu'il dise de quel compte il s'agit. */
+  ok(/Administrateur/i.test(h2), 'l’en-tête dit ce qu’est ce compte', h2);
   ok(!dialogues.some(m => /TEC/i.test(m)),
      'aucune proposition de reprendre la fiche du client sur le compte du cabinet',
      dialogues.join(' | '));
