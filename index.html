@@ -991,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.139';
+var JX_BUILD = 'v2026-08-06.140';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,6 +1000,14 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.140', d:'6 aout 2026', t:[
+   'LE CDD BATIMENT ET LE CDD TERTIAIRE ETAIENT DES CDI. Les deux générateurs titraient « CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE » et ne produisaient AUCUNE clause de CDD — le type de contrat n\'y servait qu\'à écrire le titre. Le CDD et le CDI du bâtiment ne différaient que de deux caractères. Manquaient, une à une, les mentions dont l\'omission emporte REQUALIFICATION EN CDI (L.1242-12) : motif précis du recours, nom et qualification du salarié remplacé, terme ou durée minimale, période d\'essai, institution de retraite complémentaire, indemnité de fin de contrat. Les champs étaient pourtant remplis : « BERNARD Alice », « congé maternité », « 31/01/2027 » n\'apparaissaient nulle part.',
+   'Pire, ces documents AFFIRMAIENT LE FAUX. « La rupture du contrat est précédée d\'un préavis conventionnel » — un CDD ne se rompt pas moyennant préavis ; hors des cas de L.1243-1, une rupture par l\'employeur ouvre droit aux salaires restant dus jusqu\'au terme (L.1243-4). Et une période d\'essai de 2, 3 ou 4 mois renouvelable, alors que L.1242-10 la plafonne à deux semaines ou un mois, NON renouvelable. Le bloc de clauses est désormais écrit une seule fois et sert aux trois secteurs. Un test le produit dans cinq secteurs et relit le document.',
+   'QUI EST ELU : LE QUOTIENT ELECTORAL ET LA PLUS FORTE MOYENNE N\'EXISTAIENT NULLE PART. Zéro occurrence dans toute l\'application ; le procès-verbal du premier tour portait une colonne « Sièges attribués » vide, sans méthode. C\'est pourtant l\'opération qui décide qui est élu, et le premier terrain de la contestation. Le calcul est ajouté (R.2314-19 à R.2314-22), avec le détail siège par siège, la moyenne d\'une liste incomplète — les ratures jouent — et l\'égalité parfaite signalée au lieu d\'être tranchée en silence (R.2314-22 : le candidat le plus âgé).',
+   'ELECTIONS-CSE : LE CUL-DE-SAC. Cette page s\'ouvre en quittant l\'application, et son seul « ← Retour » refermait une fenêtre de document : aucun moyen de revenir. C\'est le défaut exact pour lequel la maquette d\'accueil avait été retirée du menu. Un lien de retour est posé.',
+   'ELECTIONS-CSE : LE QUORUM ETAIT CALCULE SUR LES VOTANTS. L.2314-29 le compte sur les SUFFRAGES VALABLEMENT EXPRIMÉS — bulletins blancs et nuls déduits (Cass. soc. 22 juillet 1975). Sur 100 inscrits et 60 votants dont 15 blancs ou nuls, la page concluait au quorum atteint quand l\'application ouvrait un second tour. La page se contredisait d\'ailleurs dans une seule phrase. S\'y ajoutent : le délai de contestation de l\'électorat est de TROIS jours, distinct des quinze jours de la régularité (R.2314-24) ; les deux collèges sont le PRINCIPE, le collège unique l\'exception du dernier alinéa de L.2314-11 ; le protocole ne s\'imprimait pas du tout en dessous de vingt-cinq salariés.',
+   'HORS LIGNE : quatre entrées de menu ne l\'étaient pas. Le Contrôle-minute, la Défense prud\'homale, le module ferroviaire et les offres n\'étaient pas mis en cache, alors que l\'application se dit « utilisable hors ligne ». Et la mise en cache échouait EN BLOC si une seule ressource manquait : rien n\'était alors disponible. Chaque ressource est désormais mise en cache pour elle-même.'
+ ]},
  {v:'v2026-08-06.139', d:'6 aout 2026', t:[
    'L\'AGRANDISSEMENT DE LA PAGE ETAIT INTERDIT. « maximum-scale=1.0 » déclarait au téléphone que l\'utilisateur n\'a pas le droit d\'agrandir — c\'est précisément ce dont a besoin qui voit mal. Et aucun des 295 champs n\'atteignait 16 px : sous ce seuil, Safari agrandit l\'écran à chaque prise de champ et ne le réduit jamais. Les deux sont corrigés.',
    'L\'ESPACE RH RESTAIT POSE SUR TOUTES LES PAGES SUIVANTES. C\'est un calque plein écran ; le bouton de retour flottant et la barre du bas passaient dessous, et changer de page ne le fermait pas. Ouvert une fois, il couvrait le reste de la session, défilement du corps bloqué.',
@@ -3416,6 +3424,15 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <div class="fg"><label class="fl">Suffrages valablement exprimés (hors bulletins blancs et nuls)</label><input type="number" inputmode="decimal" id="cse-exprimes" min="0" placeholder="Ex : 80" oninput="cseQuorum()"/></div>
 <div id="cse-quorum-result" style="margin-top:6px"></div>
 </div>
+</div>
+
+<div class="card">
+<div class="ct">Attribution des sièges — quotient électoral et plus forte moyenne</div>
+<div class="al info" style="font-size:12.5px">Cette opération décide qui est élu, et c’est le premier terrain de la contestation. Elle se fait <b>collège par collège</b> : renseignez les suffrages et les sièges de <b>ce collège</b>.</div>
+<div class="fg"><label class="fl">Sièges de titulaires à pourvoir dans ce collège</label><input type="number" inputmode="decimal" id="cse-sieges-pourvoir" min="0" placeholder="Ex : 4" oninput="csesCalc()"/></div>
+<div style="font-size:12px;color:#9fb0c4;margin:-4px 0 8px">Les suffrages valablement exprimés sont ceux saisis plus haut, pour la vérification du quorum.</div>
+<div id="cse-listes-zone"></div>
+<div id="cse-sieges-result" style="margin-top:10px"></div>
 </div>
 
 <div class="card">
@@ -6362,6 +6379,7 @@ function jxEnteteMaj(){
 /* La page et la fonction qui la remplit. Un module ajoute sans sa ligne ici
    reste vide : le filet jxFiletCharge() le rattrape et le test l'exige. */
 var JX_ONENTER={
+  cse:'csesRender',
   personnel:'rhOnEnter', socle:'socOnEnter', csediag:'csedOnEnter',
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
@@ -16012,6 +16030,82 @@ function checkSalaire(){
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   LE CONTRAT A DUREE DETERMINEE — LES MENTIONS DE L'ARTICLE L.1242-12
+   Ecrites une seule fois, pour les trois secteurs. Leur omission emporte
+   REQUALIFICATION EN CONTRAT A DUREE INDETERMINEE.
+   ══════════════════════════════════════════════════════════════════════ */
+var JX_CDD_MOTIFS={
+  'remplacement':'pour le remplacement d’un salarié absent',
+  'remplacement-tp':'pour le remplacement d’un salarié passé provisoirement à temps partiel',
+  'attente-cdi':'dans l’attente de l’entrée en service effective du salarié recruté par contrat à durée indéterminée appelé à le remplacer (durée maximale : 9 mois — art. L.1242-8-1)',
+  'depart-definitif':'pour le remplacement d’un salarié ayant quitté définitivement l’entreprise, dans l’attente de la suppression de son poste de travail (durée maximale : 24 mois — art. L.1242-8-1)',
+  'accroissement':'pour accroissement temporaire de l’activité de l’entreprise',
+  'saisonnier':'pour un emploi à caractère saisonnier',
+  'usage':'pour un emploi à caractère temporaire pour lequel il est d’usage constant de ne pas recourir au contrat à durée indéterminée (art. D.1242-1)'
+};
+var JX_CDD_REMPL=['remplacement','remplacement-tp','attente-cdi','depart-definitif'];
+/* La duree de la periode d'essai d'un CDD n'est pas celle d'un CDI : un jour
+   par semaine, deux semaines au plus si la duree initiale n'excede pas six
+   mois, un mois au-dela — et elle N'EST PAS RENOUVELABLE (L.1242-10). */
+function jxEssaiCDD(){
+  return 'La période d’essai est calculée à raison d’un jour par semaine de contrat, '
+   + 'dans la limite de <strong>deux semaines</strong> lorsque la durée initialement prévue '
+   + 'est au plus égale à six mois, et d’<strong>un mois</strong> au-delà (art. L.1242-10 C. trav.). '
+   + 'Elle n’est <strong>pas renouvelable</strong> : les durées de 2, 3 ou 4 mois du contrat à '
+   + 'durée indéterminée ne s’appliquent pas ici.';
+}
+/* Un CDD ne se rompt pas moyennant preavis. */
+function jxRuptureCDD(){
+  return 'Le présent contrat étant à durée déterminée, il <strong>ne se rompt pas moyennant préavis</strong>. '
+   + 'Avant l’échéance du terme, il ne peut être rompu que d’un commun accord des parties, à l’initiative '
+   + 'du salarié justifiant d’une embauche en contrat à durée indéterminée (avec un préavis d’un jour par '
+   + 'semaine, dans la limite de deux semaines), en cas de faute grave, de force majeure ou d’inaptitude '
+   + 'constatée par le médecin du travail (art. L.1243-1 et L.1243-2). '
+   + 'Toute rupture anticipée à l’initiative de l’employeur hors de ces cas ouvre droit au salarié à des '
+   + 'dommages et intérêts d’un montant au moins égal aux rémunérations qu’il aurait perçues jusqu’au terme '
+   + '(art. L.1243-4).';
+}
+/* Le bloc complet. « art » est le numeroteur d'articles du generateur
+   appelant ; « retraite » l'institution de retraite complementaire, qui est
+   une mention obligatoire de L.1242-12, 7°. */
+function jxBlocCDD(S, art, debutDefaut, retraite, saisonnier){
+  var q=function(id){ try{ return gv(id)||''; }catch(e){ return ''; } };
+  var m=q('c-cdd-motif');
+  var motif=JX_CDD_MOTIFS[m]||'[MOTIF PRÉCIS DU RECOURS — À COMPLÉTER : sans lui, le contrat est requalifié en CDI]';
+  var remp='';
+  if(JX_CDD_REMPL.indexOf(m)>=0){
+    remp=' — salarié remplacé : <strong>'+(q('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '
+        +(q('c-remplace-motif')||'[motif de l’absence]')+', qualification : '
+        +(q('c-remplace-qualif')||'[QUALIFICATION DU SALARIÉ REMPLACÉ]');
+  }
+  var d1=q('c-cdd-debut'), d2=q('c-cdd-fin'), rn=q('c-cdd-renouv');
+  var deb=d1?fmt(new Date(d1)):(debutDefaut||'[DATE DE DÉBUT]');
+  var fin=d2?fmt(new Date(d2)):'[DATE DU TERME — à défaut de terme précis, indiquer la DURÉE MINIMALE : ______]';
+  var renouv = (rn==='1')?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)'
+             : (rn==='2')?', renouvelable deux fois — maximum légal — par avenant conclu avant le terme (art. L.1243-13)':'';
+  return '<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat — mentions obligatoires du CDD')+'</strong></p>'
+   +'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+motif+remp+'.</p>'
+   +'<p style="'+S+'">Il court du <strong>'+deb+'</strong> au <strong>'+fin+'</strong>'+renouv+'.</p>'
+   +'<p style="'+S+'"><strong style="'+S+'">'+art('Période d’essai')+'</strong></p>'
+   +'<p style="'+S+'">'+jxEssaiCDD()+'</p>'
+   +'<p style="'+S+'"><strong style="'+S+'">'+art('Indemnité de fin de contrat')+'</strong></p>'
+   +'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à '
+   +'<strong>10 % de la rémunération totale brute</strong> versée pendant le contrat (art. L.1243-8)'
+   +(saisonnier?' — sauf exclusion applicable aux emplois à caractère saisonnier et aux contrats d’usage (art. L.1243-10)':'')
+   +', ainsi que l’indemnité compensatrice de congés payés.</p>'
+   +'<p style="'+S+'"><strong style="'+S+'">'+art('Retraite complémentaire et prévoyance')+'</strong></p>'
+   +'<p style="'+S+'">'+(retraite||'[INSTITUTION DE RETRAITE COMPLÉMENTAIRE ET, LE CAS ÉCHÉANT, ORGANISME DE PRÉVOYANCE — à compléter]')
+   +' (mention requise par l’art. L.1242-12, 7°).</p>'
+   +'<p style="'+S+'"><strong style="'+S+'">'+art('Rupture avant le terme')+'</strong></p>'
+   +'<p style="'+S+'">'+jxRuptureCDD()+'</p>'
+   +'<div style="'+S+'font-size:10pt;border:1px solid #000;padding:8pt;margin-top:10pt">'
+   +'<strong>Rappel :</strong> le contrat à durée déterminée doit être transmis au salarié au plus tard '
+   +'dans les deux jours ouvrables suivant l’embauche (art. L.1242-13). L’omission d’une des mentions de '
+   +'l’article L.1242-12 — motif précis, nom et qualification du remplacé, terme ou durée minimale, '
+   +'période d’essai, institution de retraite complémentaire — entraîne la '
+   +'<strong>requalification en contrat à durée indéterminée</strong>.</div>';
+}
 function genContrat(){
   /* Ce qui manque est annonce avant, pas decouvert sur le document signe. */
   try{
@@ -16106,7 +16200,7 @@ function genContrat(){
 <p style="${S}">Le présent contrat est régi par la CCN Transports Routiers IDCC 0016, par la réglementation de la durée du travail propre au transport routier (décret n°83-40 du 26 janvier 1983 pour le transport de marchandises ; décret n°2003-1242 du 22 décembre 2003 pour le transport de voyageurs), et par les Règlements (CE) n°561/2006 (temps de conduite et de repos) et (UE) n°165/2014 (tachygraphe). Le salarié reconnaît avoir été informé de la convention collective et du règlement intérieur applicables (art. R.1221-34 C. trav.).</p>
 <p style="${S}"><strong style="${S}">${art("Période d'essai")}</strong></p>
 <p style="${S}">${_essaiClause} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>
-${contratType!=='cdi'?('<p style="'+S+'"><strong style="'+S+'">'+art('Durée du contrat (CDD — mentions obligatoires)')+'</strong></p>'+'<p style="'+S+'">Le présent contrat est conclu pour une durée déterminée, '+(({remplacement:'pour le remplacement d’un salarié absent','remplacement-tp':'pour le remplacement d’un salarié passé provisoirement à temps partiel','attente-cdi':'dans l’attente de l’entrée en service effective du salarié recruté par contrat à durée indéterminée appelé à le remplacer (durée maximale : 9 mois — art. L.1242-8-1)','depart-definitif':'pour le remplacement d’un salarié ayant quitté définitivement l’entreprise, dans l’attente de la suppression de son poste de travail (durée maximale : 24 mois — art. L.1242-8-1)',accroissement:'pour accroissement temporaire de l’activité de l’entreprise',saisonnier:'pour un emploi à caractère saisonnier',usage:'pour un emploi à caractère temporaire pour lequel il est d’usage constant de ne pas recourir au CDI — activité de déménagement (art. D.1242-1)'})[gv('c-cdd-motif')]||'[MOTIF PRÉCIS À COMPLÉTER]')+(['remplacement','remplacement-tp','attente-cdi','depart-definitif'].indexOf(gv('c-cdd-motif'))>=0?(' — salarié remplacé : <strong style="'+S+'">'+(gv('c-remplace-nom')||'[NOM DU SALARIÉ REMPLACÉ]')+'</strong>, '+(gv('c-remplace-motif')||'[motif de l’absence]')+', qualification : '+(gv('c-remplace-qualif')||'[QUALIFICATION DU REMPLACÉ]')):'')+'.</p>'+'<p style="'+S+'">Il court du <strong style="'+S+'">'+(gv('c-cdd-debut')?fmt(new Date(gv('c-cdd-debut'))):debut)+'</strong> au <strong style="'+S+'">'+(gv('c-cdd-fin')?fmt(new Date(gv('c-cdd-fin'))):'[DATE DE FIN — à défaut de terme précis : durée minimale ______]')+'</strong>'+(gv('c-cdd-renouv')==='1'?', renouvelable une fois par avenant conclu avant le terme (art. L.1243-13)':(gv('c-cdd-renouv')==='2'?', renouvelable deux fois (maximum légal) par avenant conclu avant le terme (art. L.1243-13)':''))+'. Période d’essai du CDD : 1 jour par semaine, dans la limite de 2 semaines (contrat ≤ 6 mois) ou d’un mois (au-delà) — art. L.1242-10.</p>'+'<p style="'+S+'">À l’issue du contrat, le salarié percevra l’indemnité de fin de contrat égale à 10 % de la rémunération totale brute (art. L.1243-8)'+(contratType==='cddi'?' — sous réserve de l’exclusion applicable aux emplois à caractère saisonnier':'')+', ainsi que l’indemnité compensatrice de congés payés.</p>'+'<p style="'+S+'">Caisse de retraite complémentaire : CARCEPT (groupe KLESIA) — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter selon les organismes de l’entreprise] (mentions requises par l’art. L.1242-12).</p>'):''}
+${contratType==='cdi'?'':jxBlocCDD(S, art, debut, 'CARCEPT (groupe KLESIA) — prévoyance : régime conventionnel de branche CARCEPT-Prévoyance [à adapter selon les organismes de l’entreprise]', true)}
 
 <p style="${S}"><strong style="${S}">${art("Qualifications professionnelles et aptitude médicale")}</strong></p>
 <p style="${S}">Le salarié déclare être titulaire, à la date de signature, des qualifications suivantes, dont il remet les justificatifs à l'employeur :</p>
@@ -16231,10 +16325,12 @@ function genContratBatiment(){
 <p style="${S}">L'employeur déclare le salarié en vue de l'établissement de sa <strong>carte d'identification professionnelle du BTP</strong> (carte BTP), obligatoire pour tout salarié effectuant des travaux de bâtiment ou de travaux publics (art. L.8291-1 et R.8291-1 s. C. trav.).</p>
 <p style="${S}"><strong>${art("Santé et sécurité")}</strong></p>
 <p style="${S}">Le salarié s'engage à respecter les consignes de sécurité, à porter les équipements de protection fournis et à respecter les protections collectives (travail en hauteur, échafaudages, etc.). En cas de poste à risque (travail en hauteur, amiante, plomb), il bénéficie d'un suivi individuel renforcé (examen d'aptitude préalable à l'affectation, art. R.4624-23 s. C. trav.).</p>
-<p style="${S}"><strong>${art("Période d'essai")}</strong></p>
-<p style="${S}">${_essaiClause}</p>
-<p style="${S}"><strong>${art("Préavis")}</strong></p>
-<p style="${S}">Sauf faute grave ou lourde, la rupture du contrat est précédée d'un préavis conventionnel : OUVRIERS — 2 jours (ancienneté &lt; 3 mois) puis 2 semaines ; ETAM — 1 mois (&lt; 2 ans), 2 mois (≥ 2 ans) ; CADRES — 2 mois (&lt; 2 ans), 3 mois (≥ 2 ans).</p>`;
+${contratType==='cdi'?(
+  '<p style="'+S+'"><strong>'+art("Période d'essai")+'</strong></p>'
+ +'<p style="'+S+'">'+_essaiClause+'</p>'
+ +'<p style="'+S+'"><strong>'+art("Préavis")+'</strong></p>'
+ +'<p style="'+S+'">Sauf faute grave ou lourde, la rupture du contrat est précédée d\'un préavis conventionnel : OUVRIERS — 2 jours (ancienneté &lt; 3 mois) puis 2 semaines ; ETAM — 1 mois (&lt; 2 ans), 2 mois (≥ 2 ans) ; CADRES — 2 mois (&lt; 2 ans), 3 mois (≥ 2 ans).</p>'
+):jxBlocCDD(S, art, debut, 'PRO BTP — retraite complémentaire et prévoyance du bâtiment et des travaux publics ; congés payés et chômage-intempéries gérés par la caisse CIBTP', true)}`;
   if(mobOk) html+=`<p style="${S}"><strong>${art("Mobilité")}</strong></p><p style="${S}">Compte tenu de l'activité par chantiers, le salarié pourra être affecté sur tout chantier situé dans la zone suivante : <strong>${mobZone}</strong>, sans que cela constitue une modification du contrat.</p>`;
   if(ncOk) html+=`<p style="${S}"><strong>${art("Non-concurrence")}</strong></p><p style="${S}">Une clause de non-concurrence s'applique pendant <strong>${ncDuree} mois</strong> sur la zone <strong>${ncZone}</strong>, en contrepartie d'une indemnité mensuelle égale à <strong>${ncPct}%</strong> de la moyenne des salaires. Sans contrepartie financière, la clause serait nulle (Cass. soc. 10 juil. 2002).</p>`;
   html+=`<p style="${S}"><strong>${art("Documents et engagements")}</strong></p>
@@ -16317,10 +16413,12 @@ function genContratGenerique(sec){
 <p style="${S}">Le salarié bénéficie des congés payés dans les conditions légales (2,5 jours ouvrables par mois de travail effectif, art. L.3141-3 C. trav.) et des dispositions conventionnelles plus favorables éventuelles.</p>
 <p style="${S}"><strong>${art("Prévoyance, retraite et frais de santé")}</strong></p>
 <p style="${S}">Le salarié est affilié au régime de retraite complémentaire AGIRC-ARRCO et à la complémentaire santé collective obligatoire de l’entreprise (art. L.911-7 C. séc. soc.).${(/cadre|IC|H à K|5 à 7/i.test(cfg.classifHint))?' Pour les cadres, l’employeur verse la cotisation de prévoyance d’au moins 1,50 % de la tranche 1 (art. 7 de l’ANI du 17 novembre 2017).':''}</p>
-<p style="${S}"><strong>${art("Période d'essai")}</strong></p>
-<p style="${S}">${_essaiClause}</p>
-<p style="${S}"><strong>${art("Préavis")}</strong></p>
-<p style="${S}">Sauf faute grave ou lourde, la rupture est précédée d’un préavis conventionnel. Repères (${cfg.lab}) : ${preavisTxt}</p>`;
+${contratType==='cdi'?(
+  '<p style="'+S+'"><strong>'+art("Période d'essai")+'</strong></p>'
+ +'<p style="'+S+'">'+_essaiClause+'</p>'
+ +'<p style="'+S+'"><strong>'+art("Préavis")+'</strong></p>'
+ +'<p style="'+S+'">Sauf faute grave ou lourde, la rupture est précédée d’un préavis conventionnel. Repères ('+cfg.lab+') : '+preavisTxt+'</p>'
+):jxBlocCDD(S, art, debut, (cfg.retraite||'[INSTITUTION DE RETRAITE COMPLÉMENTAIRE — AGIRC-ARRCO, organisme à préciser] et organisme de prévoyance de la branche'), true)}`;
   if(cfg.enseignant) html+=`<p style="${S}"><strong>${art("Obligations de service")}</strong></p><p style="${S}">Pour le personnel enseignant/formateur, le temps de travail se décompose entre les heures d’enseignement (face-à-face pédagogique) et les activités connexes ou induites (préparation, recherche, correction, suivi pédagogique, réunions), dans les conditions et proportions fixées par la convention collective et l’accord d’entreprise applicables. <strong>La rémunération convenue couvre l’ensemble de ces temps</strong> — et non les seules heures de face-à-face — le temps de préparation et de recherche constituant du temps de travail effectif. Ce régime spécifique se substitue au décompte hebdomadaire de 35 heures (qui demeure applicable aux seuls personnels administratifs et techniques). Les « jours mobiles » et autres dispositifs propres à d’autres branches ne s’appliquent pas à ce secteur.</p>`;
   if(mobOk) html+=`<p style="${S}"><strong>${art("Mobilité")}</strong></p><p style="${S}">Le salarié pourra être affecté dans la zone géographique suivante : <strong>${mobZone}</strong>, sans que cela constitue une modification du contrat.</p>`;
   if(ncOk) html+=`<p style="${S}"><strong>${art("Non-concurrence")}</strong></p><p style="${S}">Une clause de non-concurrence s'applique pendant <strong>${ncDuree} mois</strong> sur la zone <strong>${ncZone}</strong>, en contrepartie d'une indemnité mensuelle égale à <strong>${ncPct}%</strong> de la moyenne des salaires. Sans contrepartie financière, la clause serait nulle (Cass. soc. 10 juil. 2002, n° 00-45.135).</p>`;
@@ -18083,6 +18181,142 @@ function cseEffDirect(){
     +'Collèges électoraux : <strong style="color:#e8c97a">'+colleges+'</strong>'+(colleges===2?' (3e collège distinct si ≥ 25 cadres — art. L.2314-11)':' (collège unique)')
     +'</div>'+_inc+'</div>';
 }
+/* ══════════════════════════════════════════════════════════════════════
+   L'ATTRIBUTION DES SIEGES — QUOTIENT ELECTORAL ET PLUS FORTE MOYENNE
+   Elle n'etait calculee nulle part : le proces-verbal du premier tour
+   portait une colonne « Sieges attribues » vide, sans methode. C'est
+   pourtant l'operation qui decide qui est elu.
+   R.2314-19 a R.2314-22 ; parite L.2314-30, sanction L.2314-32.
+   ══════════════════════════════════════════════════════════════════════ */
+var CSE_LISTES=[];
+function csesLoad(){
+  try{ var v=localStorage.getItem(jxCle('cse_listes_v1')); CSE_LISTES=v?(JSON.parse(v)||[]):[]; }
+  catch(e){ CSE_LISTES=[]; }
+  if(!Array.isArray(CSE_LISTES)) CSE_LISTES=[];
+}
+function csesSave(){ try{ jxEcrire(jxCle('cse_listes_v1'), JSON.stringify(CSE_LISTES)); }catch(e){} }
+function csesAdd(){ csesLoad(); CSE_LISTES.push({nom:'',voix:'',cand:''}); csesSave(); csesRender(); }
+function csesDel(i){ csesLoad(); CSE_LISTES.splice(i,1); csesSave(); csesRender(); }
+function csesSet(i,k,v){ csesLoad(); if(CSE_LISTES[i]){ CSE_LISTES[i][k]=v; csesSave(); csesRender(); } }
+
+/* Le calcul lui-meme, isole pour etre testable. */
+function cseAttribuer(listes, sieges, exprimes){
+  var n=parseInt(sieges,10)||0;
+  var e=parseInt(exprimes,10)||0;
+  var L=(listes||[]).map(function(x){
+    var voix=parseFloat(String(x.voix||'').replace(',','.'))||0;
+    var cand=parseInt(x.cand,10)||0;
+    return { nom:(x.nom||'').trim()||'[liste sans nom]', voix:voix, cand:cand,
+             moyenne: cand>0 ? (voix/cand) : 0, sieges:0 };
+  }).filter(function(x){ return x.voix>0 || x.cand>0; });
+  if(!L.length || n<=0) return {ok:false, motif:'Renseignez le nombre de sièges à pourvoir et au moins une liste.', listes:L};
+  var sansCand=L.filter(function(x){ return x.cand<=0; });
+  if(sansCand.length) return {ok:false, motif:'Indiquez le nombre de candidats présentés par chaque liste : la moyenne d’une liste est la somme des voix de ses candidats divisée par le nombre de candidats qu’elle présente. Sans ce nombre, la moyenne — et donc l’attribution — est fausse.', listes:L};
+  var sommeVoix=L.reduce(function(a,x){ return a+x.voix; },0);
+  if(!e) e=Math.round(sommeVoix/Math.max(1,n));      // a defaut, estimation
+  var quotient=e/n;
+  var etapes=[];
+  /* Premier tour d'attribution : au quotient. */
+  L.forEach(function(x){
+    var q=(quotient>0)?Math.floor(x.moyenne/quotient):0;
+    x.sieges=Math.min(q, n);
+    if(q>0) etapes.push({type:'quotient', liste:x.nom,
+      detail:'moyenne '+jxNb(x.moyenne)+' ÷ quotient '+jxNb(quotient)+' = '+jxNb(x.moyenne/quotient)+' → '+q+' siège(s)'});
+  });
+  var attribues=L.reduce(function(a,x){ return a+x.sieges; },0);
+  if(attribues>n){
+    /* Cas theorique : on rabote a partir de la plus faible moyenne. */
+    while(attribues>n){
+      var pire=null;
+      L.forEach(function(x){ if(x.sieges>0 && (!pire || x.moyenne<pire.moyenne)) pire=x; });
+      if(!pire) break;
+      pire.sieges--; attribues--;
+    }
+  }
+  /* Sieges restants : a la plus forte moyenne, un par un. */
+  var garde=0, egalite='';
+  while(attribues<n && garde<200){
+    garde++;
+    var best=null, bestVal=-1;
+    L.forEach(function(x){
+      var v=x.moyenne/(x.sieges+1);
+      if(v>bestVal+1e-12){ bestVal=v; best=x; }
+    });
+    if(!best) break;
+    /* L'EGALITE SE CONSTATE AU MOMENT OU LE SIEGE EST ATTRIBUE, pas apres :
+       une fois le siege donne, les moyennes ont bouge et l'egalite ne se
+       voit plus. R.2314-22 donne alors le siege au candidat le plus age —
+       l'application ne tranche pas a la place de l'employeur. */
+    var exAequo=[];
+    L.forEach(function(x){ if(Math.abs(x.moyenne/(x.sieges+1)-bestVal)<1e-9) exAequo.push(x.nom); });
+    best.sieges++; attribues++;
+    etapes.push({type:'moyenne', liste:best.nom,
+      detail:'moyenne '+jxNb(best.moyenne)+' ÷ ('+(best.sieges-1)+' siège(s) déjà obtenu(s) + 1) = '+jxNb(bestVal)+' — plus forte moyenne'
+        +(exAequo.length>1?(' ⚠️ à égalité avec '+exAequo.filter(function(nm){return nm!==best.nom;}).join(', ')):'')});
+    if(exAequo.length>1 && !egalite) egalite='Égalité de moyenne entre '+exAequo.map(function(nm){return '« '+nm+' »';}).join(' et ')+' sur l’attribution d’un siège : il revient au candidat le plus âgé (R.2314-22). L’application ne tranche pas à votre place — vérifiez les âges avant de proclamer.';
+  }
+  /* Egalite parfaite entre deux listes sur le dernier siege : le texte
+     donne le siege au candidat le plus age (R.2314-22). On le SIGNALE. */
+  return {ok:true, quotient:quotient, exprimes:e, sieges:n, listes:L, etapes:etapes, alerte:egalite};
+}
+function jxNb(x){
+  if(!isFinite(x)) return '—';
+  return (Math.round(x*100)/100).toLocaleString('fr-FR',{maximumFractionDigits:2});
+}
+function csesRender(){
+  var h=document.getElementById('cse-listes-zone'); if(!h) return;
+  csesLoad();
+  var out='';
+  out+='<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-bottom:8px">'
+     +'La <b>moyenne</b> d’une liste est la somme des voix obtenues par ses candidats, divisée par le nombre de candidats qu’elle présente — les ratures jouent donc sur le résultat. '
+     +'Chaque liste obtient d’abord autant de sièges que sa moyenne contient de fois le <b>quotient électoral</b> (suffrages valablement exprimés ÷ sièges à pourvoir). Les sièges restants vont à la <b>plus forte moyenne</b>, un par un (R.2314-19 à R.2314-22).</div>';
+  CSE_LISTES.forEach(function(x,i){
+    out+='<div style="border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;margin-bottom:8px">'
+      +'<div class="fg"><label class="fl">Nom de la liste</label><input value="'+socEsc(x.nom||'')+'" placeholder="Ex : CGT" onchange="csesSet('+i+',\'nom\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Total des voix obtenues par ses candidats</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(x.voix||'')+'" placeholder="Ex : 240" onchange="csesSet('+i+',\'voix\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Nombre de candidats présentés par cette liste</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(x.cand||'')+'" placeholder="Ex : 4" onchange="csesSet('+i+',\'cand\',this.value)"></div>'
+      +'<button onclick="csesDel('+i+')" style="padding:8px 12px;border:1px solid #7a4a4a;border-radius:8px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:12px;cursor:pointer;font-family:inherit">Retirer cette liste</button>'
+      +'</div>';
+  });
+  out+='<button onclick="csesAdd()" style="padding:11px 15px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">＋ Ajouter une liste</button>';
+  h.innerHTML=out;
+  csesCalc();
+}
+function csesCalc(){
+  var out=document.getElementById('cse-sieges-result'); if(!out) return;
+  csesLoad();
+  var n=(document.getElementById('cse-sieges-pourvoir')||{}).value;
+  var e=(document.getElementById('cse-exprimes')||{}).value;
+  if(!CSE_LISTES.length){ out.innerHTML=''; return; }
+  var r=cseAttribuer(CSE_LISTES, n, e);
+  if(!r.ok){ out.innerHTML='<div class="al warn" style="font-size:12.5px">'+socEsc(r.motif)+'</div>'; return; }
+  var h='<div class="item"><div class="badge badge-gold">ATTRIBUTION DES SIÈGES — R.2314-19 à R.2314-22</div>';
+  h+='<div style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:8px">'
+    +'Quotient électoral : <strong style="color:#e8c97a">'+jxNb(r.exprimes)+' ÷ '+r.sieges+' = '+jxNb(r.quotient)+'</strong></div>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px">'
+    +'<thead><tr><th style="text-align:left;padding:6px;border-bottom:1px solid rgba(255,255,255,.15)">Liste</th>'
+    +'<th style="padding:6px;border-bottom:1px solid rgba(255,255,255,.15)">Voix</th>'
+    +'<th style="padding:6px;border-bottom:1px solid rgba(255,255,255,.15)">Cand.</th>'
+    +'<th style="padding:6px;border-bottom:1px solid rgba(255,255,255,.15)">Moyenne</th>'
+    +'<th style="padding:6px;border-bottom:1px solid rgba(255,255,255,.15)">Sièges</th></tr></thead><tbody>';
+  r.listes.forEach(function(x){
+    h+='<tr><td style="padding:6px;border-bottom:1px solid rgba(255,255,255,.07)">'+socEsc(x.nom)+'</td>'
+      +'<td style="padding:6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07)">'+jxNb(x.voix)+'</td>'
+      +'<td style="padding:6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07)">'+x.cand+'</td>'
+      +'<td style="padding:6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07)">'+jxNb(x.moyenne)+'</td>'
+      +'<td style="padding:6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.07);color:#e8c97a;font-weight:800">'+x.sieges+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  if(r.etapes.length){
+    h+='<div style="margin-top:10px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9"><b>🔍 Le détail, siège par siège</b><br>';
+    r.etapes.forEach(function(s2,i){ h+=(i+1)+'. <b>'+socEsc(s2.liste)+'</b> — '+socEsc(s2.detail)+'<br>'; });
+    h+='</div>';
+  }
+  if(r.alerte) h+='<div class="al warn" style="font-size:12.5px;margin-top:8px">'+socEsc(r.alerte)+'</div>';
+  h+='<div class="loi">Ce calcul porte sur UN collège : le quotient électoral se calcule collège par collège, avec les suffrages et les sièges de ce collège. Une fois les sièges répartis entre listes, ils reviennent aux candidats dans l’ordre de présentation, sous réserve de la représentation équilibrée femmes-hommes : l’élection des élus surnuméraires du sexe surreprésenté est annulée dans l’ordre inverse de la liste, et le siège n’est pas réattribué (L.2314-30, L.2314-32).</div>';
+  h+='</div>';
+  out.innerHTML=h;
+}
 function cseQuorum(){
   const ins=parseInt((document.getElementById('cse-inscrits')||{}).value,10)||0;
   const exp=parseInt((document.getElementById('cse-exprimes')||{}).value,10)||0;
@@ -18092,6 +18326,7 @@ function cseQuorum(){
      validaient un premier tour. Une saisie impossible se refuse, elle ne
      s'interprete pas. */
   if(exp>ins){
+    try{ csesCalc(); }catch(e){}
     out.innerHTML='<div class="al err" style="font-size:12px">Saisie impossible : <strong>'+exp+'</strong> suffrages exprimés pour <strong>'+ins+'</strong> inscrits. Les suffrages valablement exprimés ne peuvent pas dépasser le nombre d’électeurs inscrits — vérifiez les deux chiffres avant de conclure sur le quorum.</div>';
     return;
   }

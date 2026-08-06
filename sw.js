@@ -1,12 +1,20 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v123';
+const CACHE = 'jem-v124';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './vendor/xlsx.full.min.js', './vendor/jszip.min.js',
-  // Module Élections CSE : autonome, donc disponible hors ligne par lui-même.
-  './elections-cse.html'];
+  /* Les pages annexes atteignables depuis le menu ou l'accueil. Elles
+     n'etaient pas mises en cache : l'application se disait « utilisable hors
+     ligne » et quatre entrees de menu ne l'etaient pas. */
+  './elections-cse.html', './controle-minute.html', './defense-cph.html',
+  './ferroviaire.html', './outils/offres.html'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  /* addAll echoue en bloc si UNE seule ressource manque : le cache restait
+     alors vide et rien n'etait disponible hors ligne. On met en cache une a
+     une, et ce qui manque ne fait pas tomber le reste. */
+  e.waitUntil(caches.open(CACHE)
+    .then(c => Promise.all(CORE.map(u => c.add(u).catch(() => null))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {

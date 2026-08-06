@@ -74,6 +74,14 @@ footer{padding:16px 14px 40px;font-size:11px;color:#6b6660;text-align:center;lin
   Vérifiez les textes en vigueur avant tout acte de procédure.
 </footer>
 
+<!-- Cette page s'ouvre en quittant l'application : sans ce lien, on ne
+     pouvait plus y revenir. -->
+<a href="./index.html" id="jx-retour-app"
+   style="position:fixed;left:14px;bottom:14px;z-index:2147483000;display:inline-block;
+          padding:12px 18px;border-radius:999px;background:#c9a84c;color:#1a1a1a;
+          font-weight:800;font-size:14px;text-decoration:none;font-family:inherit;
+          box-shadow:0 4px 16px rgba(0,0,0,.45)">← Juris Expert MCH</a>
+
 <div id="doc">
   <div id="docbar">
     <button class="btn2" onclick="docFermer()">← Retour</button>
@@ -91,7 +99,7 @@ footer{padding:16px 14px 40px;font-size:11px;color:#6b6660;text-align:center;lin
    Les règles portent l'article qui les fonde. Rien n'est deviné : ce qui
    manque est demandé, et l'absence est signalée plutôt que comblée.
    ══════════════════════════════════════════════════════════════════ */
-var ELEC_BUILD='v2026-08-06.110';
+var ELEC_BUILD='v2026-08-06.140';
 document.getElementById('build').textContent=ELEC_BUILD;
 
 var LS='elections_cse_v1';
@@ -321,27 +329,43 @@ function analyse(){
   /* Scrutin */
   if(D.tour1){
     R.push({d:D.tour1,q:'Premier tour',a:'L.2314-29',
-      x:'Le quorum s’apprécie sur les suffrages valablement exprimés : il est atteint si le nombre de votants est au moins égal à la moitié des inscrits.'});
+      x:'Le quorum s’apprécie sur les SUFFRAGES VALABLEMENT EXPRIMÉS, et non sur le nombre de votants : les bulletins blancs et nuls n’en font pas partie (L.2314-29 ; Cass. soc. 22 juillet 1975). Il est atteint lorsque ces suffrages atteignent la moitié des électeurs inscrits.'});
     R.push({d:plus(D.tour1,15),q:'Second tour, en cas de carence ou de quorum non atteint',a:'L.2314-29',
-      x:'Si le nombre des votants est inférieur à la moitié des électeurs inscrits, il est procédé dans un délai de quinze jours à un second tour, pour lequel les électeurs peuvent voter pour des listes autres que celles présentées par une organisation syndicale. Aucune condition de quorum ne s’applique alors.'});
+      x:'Si le nombre des suffrages valablement exprimés est inférieur à la moitié des électeurs inscrits, il est procédé dans un délai de quinze jours à un second tour, pour lequel les électeurs peuvent voter pour des listes autres que celles présentées par une organisation syndicale. Aucune condition de quorum ne s’applique alors.'});
     R.push({d:plus(D.tour1,15),q:'Transmission du procès-verbal',a:'L.2314-9',
       x:'En cas de carence, le procès-verbal est porté à la connaissance des salariés par tout moyen conférant date certaine et transmis dans les quinze jours à l’agent de contrôle de l’inspection du travail, qui en communique copie aux organisations syndicales du département.'});
-    R.push({d:plus(D.tour1,15),q:'Fin du délai de contestation',a:'R.2314-24',
-      x:'Toute contestation relative à l’élection est introduite dans les quinze jours. Le délai court à compter de la proclamation des résultats ou de la publication du procès-verbal de carence.'});
+    R.push({d:plus(D.tour1,3),q:'Fin du délai de contestation de l’ÉLECTORAT et des listes',a:'R.2314-24',
+      x:'La contestation portant sur l’électorat — qui est électeur, qui figure ou non sur la liste — se forme dans les TROIS jours suivant la publication de la liste électorale. Passé ce délai, elle n’est plus recevable.'});
+    R.push({d:plus(D.tour1,15),q:'Fin du délai de contestation de la RÉGULARITÉ de l’élection',a:'R.2314-24',
+      x:'La contestation portant sur la régularité de l’élection ou sur la désignation des représentants se forme dans les QUINZE jours, à compter de la proclamation des résultats ou de la publication du procès-verbal de carence. Ne confondez pas les deux délais : celui de l’électorat est de trois jours.'});
     var t=parseInt(D.duMandat||'4',10)||4;
-    R.push({d:plus(D.tour1,0,0,t),q:'Terme des mandats',a:'L.2314-33',x:'Mandats de '+t+' ans. Un accord peut les fixer entre deux et quatre ans.'});
+    R.push({d:plus(D.tour1,0,0,t),q:'Terme des mandats',a:'L.2314-33, L.2314-34',x:'Mandats de '+t+' ans. Un accord peut les fixer entre deux et quatre ans.'});
     R.push({d:plus(plus(D.tour1,0,0,t),-90),q:'Information du personnel pour le renouvellement',a:'L.2314-4',
       x:'Au plus tard quatre-vingt-dix jours avant le terme, pour que le premier tour se tienne dans les délais.'});
   }
 
   /* Quorum */
-  var ins=parseInt(D.inscrits||'',10), vot=parseInt(D.votants||'',10);
-  if(!isNaN(ins) && !isNaN(vot) && ins>0){
-    var atteint=(vot*2>=ins);
-    A.push({g:atteint?'info':'question', t:atteint?'Quorum atteint au premier tour':'Quorum non atteint au premier tour',
-      x:vot+' votants pour '+ins+' inscrits, soit '+((vot/ins*100).toFixed(1))+' %. '
-        +(atteint?'Les résultats du premier tour sont acquis ; un second tour n’est ouvert que pour les sièges restés à pourvoir.'
-                 :'Le nombre des votants est inférieur à la moitié des électeurs inscrits : il est procédé dans un délai de quinze jours à un second tour, pour lequel les électeurs peuvent voter pour des listes autres que celles présentées par une organisation syndicale (L.2314-29).')});
+  /* LE QUORUM SE COMPTE SUR LES SUFFRAGES VALABLEMENT EXPRIMES, PAS SUR LES
+     VOTANTS. Sur cent inscrits et soixante votants dont quinze blancs ou
+     nuls, la regle des votants concluait a un quorum atteint quand
+     l'application, elle, ouvrait un second tour. */
+  var ins=parseInt(D.inscrits||'',10), exp=parseInt(D.exprimes||'',10), vot=parseInt(D.votants||'',10);
+  if(!isNaN(ins) && ins>0 && !isNaN(exp)){
+    if(exp>ins){
+      A.push({g:'question', t:'Saisie impossible', a:'L.2314-29',
+        x:exp+' suffrages valablement exprimés pour '+ins+' électeurs inscrits : les suffrages ne peuvent pas dépasser le nombre d’inscrits. Vérifiez les deux chiffres avant de conclure sur le quorum.'});
+    } else {
+      var atteint=(exp*2>=ins);
+      var blancs=(!isNaN(vot) && vot>=exp) ? (vot-exp) : null;
+      A.push({g:atteint?'info':'question', t:atteint?'Quorum atteint au premier tour':'Quorum non atteint au premier tour', a:'L.2314-29',
+        x:exp+' suffrages valablement exprimés pour '+ins+' inscrits, soit '+((exp/ins*100).toFixed(1))+' %'
+          +(blancs!==null?(' — '+vot+' votants, dont '+blancs+' bulletin(s) blanc(s) ou nul(s), qui ne comptent pas'):'')+'. '
+          +(atteint?'Les résultats du premier tour sont acquis ; un second tour n’est ouvert que pour les sièges restés à pourvoir.'
+                   :'Le nombre des suffrages valablement exprimés est inférieur à la moitié des électeurs inscrits : il est procédé dans un délai de quinze jours à un second tour, pour lequel les électeurs peuvent voter pour des listes autres que celles présentées par une organisation syndicale (L.2314-29).')});
+    }
+  } else if(!isNaN(ins) && ins>0 && !isNaN(vot)){
+    A.push({g:'question', t:'Renseignez les suffrages valablement exprimés', a:'L.2314-29',
+      x:'Le nombre de votants ne suffit pas : le quorum se compte sur les suffrages valablement exprimés, bulletins blancs et nuls déduits.'});
   }
 
   /* Sièges */
@@ -350,7 +374,7 @@ function analyse(){
     A.push({g:'info',t:'Sièges à pourvoir',
       x:b.sieges+' titulaires et '+b.sieges+' suppléants, soit '+(b.sieges*2)+' candidats à présenter. Crédit de '+b.heures+' heures par titulaire et par mois, '+(b.sieges*b.heures)+' heures au total (R.2314-1).'});
     if(E.v>=25) A.push({g:'info',t:'Deux collèges au moins',
-      x:'À partir de vingt-cinq salariés, le personnel est réparti en deux collèges : ouvriers et employés d’une part, techniciens, agents de maîtrise et cadres d’autre part. Un troisième collège est constitué lorsque le nombre de cadres est au moins égal à vingt-cinq (L.2314-11).'});
+      x:'Le personnel est réparti en DEUX collèges : ouvriers et employés d’une part ; techniciens, agents de maîtrise, ingénieurs, chefs de service et cadres d’autre part. C’est le principe. Un TROISIÈME collège est constitué lorsque le nombre d’ingénieurs, chefs de service et cadres est au moins égal à vingt-cinq. Le COLLÈGE UNIQUE n’est admis que dans le cas du dernier alinéa de L.2314-11 — entreprise ne dépassant pas vingt-cinq salariés et n’élisant qu’un titulaire et un suppléant — ou par protocole préélectoral signé à l’unanimité des organisations syndicales représentatives (L.2314-12).'});
   }
 
   R.sort(function(a,b){ if(!a.d) return 1; if(!b.d) return -1; return a.d<b.d?-1:(a.d>b.d?1:0); });
@@ -514,7 +538,8 @@ function vueProc(){
    + sel('e-duM',[{v:'4',lib:'4 ans (durée légale à défaut d’accord)'},{v:'3',lib:'3 ans (accord)'},{v:'2',lib:'2 ans (accord)'}], String(D.duMandat||'4'), 'selSet(\'duMandat\',\'e-duM\')')
    +'</div>'
    +'<div class="fg"><label class="fl">Électeurs inscrits</label><input type="number" min="0" value="'+esc(D.inscrits||'')+'" onchange="set(\'inscrits\',this.value)"></div>'
-   +'<div class="fg"><label class="fl">Votants au premier tour</label><input type="number" min="0" value="'+esc(D.votants||'')+'" onchange="set(\'votants\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Votants au premier tour (enveloppes trouvées dans l’urne)</label><input type="number" min="0" value="'+esc(D.votants||'')+'" onchange="set(\'votants\',this.value)"></div>'
+   +'<div class="fg"><label class="fl">Suffrages valablement exprimés (bulletins blancs et nuls déduits) — c’est sur eux que se compte le quorum</label><input type="number" min="0" value="'+esc(D.exprimes||'')+'" onchange="set(\'exprimes\',this.value)"></div>'
    +'<div class="fg"><label class="fl">Vote électronique</label>'
    + sel('e-ve',[{v:'non',lib:'Non — bulletin secret sous enveloppe'},{v:'accord',lib:'Prévu par un accord d’entreprise ou de groupe'},{v:'unilat',lib:'Décision unilatérale de l’employeur, faute d’accord'}], D.votelec||'', 'selSet(\'votelec\',\'e-ve\')')
    +'</div></div>';
@@ -623,7 +648,7 @@ function doc(k){
       +'<p style="'+S+'">Et les organisations syndicales soussignées,</p>'
       +'<p style="'+S+'"><b>Article 1 — Objet.</b> Le présent protocole fixe les modalités d’organisation et de déroulement des élections des membres de la délégation du personnel au comité social et économique.</p>'
       +'<p style="'+S+'"><b>Article 2 — Effectif et sièges.</b> L’effectif retenu est de <b>'+(E.v===null?'[EFFECTIF]':E.v)+'</b> salariés. Le nombre de sièges est de <b>'+(b.sieges||'[N]')+'</b> titulaires et <b>'+(b.sieges||'[N]')+'</b> suppléants (R.2314-1). Toute réduction du nombre de sièges suppose une contrepartie en volume global d’heures de délégation au moins égale.</p>'
-      +'<p style="'+S+'"><b>Article 3 — Collèges électoraux.</b> '+((E.v||0)>=25?'Le personnel est réparti en deux collèges : ouvriers et employés d’une part, techniciens, agents de maîtrise et cadres d’autre part. Un troisième collège est constitué lorsque le nombre de cadres est au moins égal à vingt-cinq (L.2314-11).':'[RÉPARTITION DES COLLÈGES]')+'</p>'
+      +'<p style="'+S+'"><b>Article 3 — Collèges électoraux.</b> '+((E.v||0)>=25?'Le personnel est réparti en deux collèges : ouvriers et employés d’une part ; techniciens, agents de maîtrise, ingénieurs, chefs de service et cadres d’autre part. Un troisième collège est constitué lorsque le nombre d’ingénieurs, chefs de service et cadres est au moins égal à vingt-cinq (L.2314-11).':'L’entreprise ne dépassant pas vingt-cinq salariés, un collège unique peut être institué si un seul titulaire et un seul suppléant sont à élire (L.2314-11, dernier alinéa) ; à défaut, le personnel est réparti en deux collèges. Précisez ici la répartition retenue et le nombre de sièges par collège.')+'</p>'
       +'<p style="'+S+'"><b>Article 4 — Répartition du personnel et des sièges.</b> [À COMPLÉTER — répartition par collège].</p>'
       +'<p style="'+S+'"><b>Article 5 — Électorat et éligibilité.</b> Sont électeurs les salariés âgés de seize ans révolus, travaillant depuis trois mois au moins dans l’entreprise et n’ayant fait l’objet d’aucune interdiction, déchéance ou incapacité relative à leurs droits civiques. Sont éligibles les électeurs âgés de dix-huit ans révolus et travaillant dans l’entreprise depuis un an au moins, à l’exception des personnes énumérées à l’article L.2314-19.</p>'
       +'<p style="'+S+'"><b>Article 6 — Listes et représentation équilibrée.</b> Chaque liste est composée d’un nombre de femmes et d’hommes correspondant à la part de femmes et d’hommes inscrits sur la liste électorale du collège, et les candidats sont présentés alternativement (L.2314-30).</p>'
