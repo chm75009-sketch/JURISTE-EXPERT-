@@ -950,7 +950,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.131';
+var JX_BUILD = 'v2026-08-06.132';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -959,6 +959,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.132', d:'6 aout 2026', t:[
+   'SIX OBLIGATIONS AJOUTEES, chacune verifiee a la source. 11 salaries : contribution formation professionnelle portee de 0,55 % a 1 % (L.6331-1), et partage de la valeur — les entreprises de 11 a 49 salaries dont le benefice net fiscal atteint 1 % du chiffre d\'affaires sur trois exercices doivent mettre en place un dispositif depuis le 1er janvier 2025, a titre experimental pour cinq ans (loi n°2023-1107 du 29 novembre 2023, art. 5). 50 salaries : le FNAL passe de 0,10 % sur la part plafonnee a 0,50 % sur la totalite (L.834-1 c. sec. soc.), et la participation des employeurs a l\'effort de construction — le « 1 % logement » — devient due (L.313-1 c. constr. hab.) ; les deux seuils sont passes de 20 a 50 avec la loi PACTE.',
+   '250 salaries : REFERENT EN MATIERE DE HARCELEMENT SEXUEL ET D\'AGISSEMENTS SEXISTES, designe par l\'employeur (L.1153-5-1). Il manquait. Il est distinct du referent designe par le CSE parmi ses membres, lui obligatoire quelle que soit la taille de l\'entreprise.',
+   '1 000 salaries : contribution a la revitalisation du bassin d\'emploi (L.1233-84). 5 000 salaries : PLAN DE VIGILANCE — risques humains, sociaux et environnementaux (L.225-102-4 du code de commerce), seuil de 5 000 salaries en France ou 10 000 en France et a l\'etranger, apprecie sur deux exercices consecutifs.',
+   'CORRECTION DE FOND — LA REGLE DE FRANCHISSEMENT SE PORTE OBLIGATION PAR OBLIGATION, PAS SEUIL PAR SEUIL. Au meme seuil de cinquante salaries, le reglement interieur suit les DOUZE MOIS — L.1311-2 renvoie expressement a L.2312-2 — tandis que la participation aux resultats, le FNAL et l\'effort de construction suivent les CINQ ANNEES CIVILES de L.130-1 du code de la securite sociale. Les regrouper par seuil revenait a donner l\'une pour l\'autre. Chaque ligne porte desormais la sienne, et l\'affiche.',
+   'Le module « Mon effectif et mes seuils » marque chaque obligation de sa regle : « 12 mois consecutifs » en bleu, « 5 annees civiles » en or. Le test controle 38 obligations, article par article, et sept regles de franchissement ligne par ligne.'
+ ]},
  {v:'v2026-08-06.131', d:'6 aout 2026', t:[
    'TOUS LES SEUILS D\'EFFECTIF, TOUTES BRANCHES. La liste proposee a la creation du dossier s\'arretait a « 250 salaries et plus ». Au-dessus, le droit du travail continue de compter : 300 (commissions du comite, bilan social, GEPP), 500 (infirmier, dispositif anticorruption), 750 (bareme du handicap), 1 000 (conge de reclassement, administrateurs salaries, comite europeen), 2 000 (subvention portee a 0,22 %), 5 000 (second administrateur salarie), et le bareme du nombre d\'elus monte jusqu\'a 10 000 (R.2314-1). Treize tranches, une par seuil, qui se suivent sans trou.',
    'Chaque obligation est citee avec son article. Trente-et-une d\'entre elles sont controlees par un test, seuil par seuil et article par article.',
@@ -6966,7 +6973,12 @@ function socTousSeuils(serie){
     if(x.regle) h+='<div style="font-size:11.5px;color:#8fa0b4;margin-top:3px">Franchissement : '+socEsc(x.regle)+'</div>';
     h+='<ul style="margin:7px 0 0;padding-left:17px;font-size:12.5px;color:#cfd8e3;line-height:1.65">';
     x.o.forEach(function(p){
-      h+='<li>'+socEsc(p[0])+' <span style="color:#8fa0b4;font-size:11.5px">('+socEsc(p[1])+')</span></li>';
+      /* La regle de franchissement de CETTE obligation : le reglement
+         interieur suit les douze mois, la participation les cinq annees.
+         Les regrouper par seuil revenait a en donner une pour l'autre. */
+      var r = p[2]==='12 mois' ? ' <span style="color:#8fbfd8;font-size:11px">· 12 mois consécutifs</span>'
+            : p[2]==='5 ans'   ? ' <span style="color:#c6a86a;font-size:11px">· 5 années civiles</span>' : '';
+      h+='<li>'+socEsc(p[0])+' <span style="color:#8fa0b4;font-size:11.5px">('+socEsc(p[1])+')</span>'+r+'</li>';
     });
     h+='</ul></div>';
   });
@@ -6980,8 +6992,9 @@ function socTousSeuils(serie){
     h+='</ul></div>';
   });
   h+='<div style="font-size:11.5px;color:#7f8fa3;line-height:1.6;margin-top:10px">'
-   +'Deux règles de franchissement, à ne pas confondre : le comité social et économique se compte sur <b>douze mois consécutifs</b> (L.2312-2) ; '
-   +'l’effectif « sécurité sociale » — cotisations, participation, obligation d’emploi — sur <b>cinq années civiles consécutives</b> (L.130-1 du code de la sécurité sociale, depuis la loi PACTE du 22 mai 2019). '
+   +'Deux règles de franchissement, à ne pas confondre — et elles se portent <b>obligation par obligation</b>, pas seuil par seuil. '
+   +'<span style="color:#8fbfd8">Douze mois consécutifs</span> : mise en place du comité et attributions élargies (L.2312-2), et le règlement intérieur, dont L.1311-2 renvoie expressément à ce texte. '
+   +'<span style="color:#c6a86a">Cinq années civiles consécutives</span> : effectif « sécurité sociale » — cotisations, FNAL, effort de construction, participation, obligation d’emploi (L.130-1 du code de la sécurité sociale, depuis la loi PACTE du 22 mai 2019). '
    +'Un franchissement à la baisse produit son effet dès la première année.'
    +'</div></div>';
   return h;
@@ -7201,11 +7214,16 @@ function socSupprAccord(){ if(!confirm('Retirer l\'accord depose ?')) return; SO
    0,22 %, 5 000 pour le second administrateur salarie, et le bareme du
    nombre d'elus (R.2314-1) monte jusqu'a « 10 000 et plus ».
 
-   DEUX REGLES DE FRANCHISSEMENT, a ne pas confondre :
-     — CSE : douze mois consecutifs (L.2312-2) ;
-     — effectif « securite sociale » (cotisations, participation, OETH,
-       FNAL...) : cinq annees civiles consecutives (L.130-1 du code de la
-       securite sociale, depuis la loi PACTE du 22 mai 2019).
+   DEUX REGLES DE FRANCHISSEMENT, a ne pas confondre — et qui se portent
+   OBLIGATION PAR OBLIGATION, pas seuil par seuil :
+     — douze mois consecutifs : mise en place du comite (L.2312-2), ses
+       attributions elargies, et le reglement interieur, dont L.1311-2
+       renvoie expressement a L.2312-2 ;
+     — cinq annees civiles consecutives : effectif « securite sociale » —
+       cotisations, FNAL, effort de construction, participation, obligation
+       d'emploi (L.130-1 du code de la securite sociale, loi PACTE).
+   Chaque ligne porte donc sa propre regle, en troisieme position. Une ligne
+   sans regle est celle dont le declenchement ne depend pas d'une duree.
    Un franchissement a la baisse produit son effet des la premiere annee.
    ══════════════════════════════════════════════════════════════════════ */
 var JX_SEUILS=[
@@ -7219,32 +7237,38 @@ var JX_SEUILS=[
    ['Complémentaire santé collective','L.911-7 c. séc. soc.'],
    ['Organisation des secours et matériel de premiers soins','R.4224-14']
  ]},
- {n:11, lib:'11 salariés', regle:'douze mois consécutifs (L.2312-2)', o:[
-   ['Mise en place du comité social et économique — élections obligatoires','L.2311-2'],
-   ['Versement mobilité','L.2333-64 CGCT']
+ {n:11, lib:'11 salariés', regle:'', o:[
+   ['Mise en place du comité social et économique — élections obligatoires','L.2311-2','12 mois'],
+   ['Versement mobilité','L.2333-64 CGCT','5 ans'],
+   ['Contribution à la formation professionnelle portée de 0,55 % à 1 % de la masse salariale','L.6331-1','5 ans'],
+   ['Partage de la valeur — dispositif obligatoire de 11 à 49 salariés dont le bénéfice net fiscal atteint 1 % du chiffre d’affaires sur trois exercices ; applicable depuis le 1ᵉʳ janvier 2025, à titre expérimental pour cinq ans','loi n°2023-1107 du 29 nov. 2023, art. 5','']
  ]},
- {n:20, lib:'20 salariés', regle:'cinq années civiles consécutives (L.130-1 c. séc. soc.)', o:[
-   ['Obligation d’emploi de travailleurs handicapés — 6 % de l’effectif','L.5212-1, L.5212-2'],
-   ['Déclaration de l’obligation d’emploi par la DSN','L.5212-5']
+ {n:20, lib:'20 salariés', regle:'', o:[
+   ['Obligation d’emploi de travailleurs handicapés — 6 % de l’effectif','L.5212-1, L.5212-2','5 ans'],
+   ['Déclaration de l’obligation d’emploi par la DSN','L.5212-5','5 ans']
  ]},
- {n:50, lib:'50 salariés', regle:'CSE : douze mois (L.2312-2) — le reste : cinq années civiles (L.130-1 c. séc. soc.)', o:[
-   ['CSE : attributions élargies, consultations récurrentes, droit d’alerte, recours à l’expert','L.2312-8, L.2312-17'],
-   ['Budget de fonctionnement du CSE — 0,20 % de la masse salariale','L.2315-61'],
-   ['Règlement intérieur','L.1311-2'],
-   ['Base de données économiques, sociales et environnementales','L.2312-18'],
-   ['Participation aux résultats de l’entreprise','L.3322-2'],
-   ['Index de l’égalité professionnelle entre les femmes et les hommes','L.1142-8'],
-   ['Délégué syndical','L.2143-3'],
-   ['Plan de sauvegarde de l’emploi — à partir de 10 licenciements sur 30 jours','L.1233-61'],
-   ['Local de restauration','R.4228-22']
+ {n:50, lib:'50 salariés', regle:'', o:[
+   ['CSE : attributions élargies, consultations récurrentes, droit d’alerte, recours à l’expert','L.2312-8, L.2312-17','12 mois'],
+   ['Le CSE acquiert la personnalité civile et un budget propre','L.2315-23, L.2315-61','12 mois'],
+   ['Budget de fonctionnement du CSE — 0,20 % de la masse salariale','L.2315-61','12 mois'],
+   ['Règlement intérieur','L.1311-2','12 mois'],
+   ['Base de données économiques, sociales et environnementales','L.2312-18','12 mois'],
+   ['Participation aux résultats de l’entreprise — après cinq exercices','L.3322-2','5 ans'],
+   ['Index de l’égalité professionnelle entre les femmes et les hommes','L.1142-8','5 ans'],
+   ['Délégué syndical','L.2143-3','12 mois'],
+   ['Plan de sauvegarde de l’emploi — à partir de 10 licenciements sur 30 jours','L.1233-61',''],
+   ['Local de restauration','R.4228-22','5 ans'],
+   ['FNAL : la contribution passe de 0,10 % sur la part plafonnée à 0,50 % sur la totalité de la rémunération','L.834-1 c. séc. soc.','5 ans'],
+   ['Participation des employeurs à l’effort de construction — « 1 % logement »','L.313-1 c. constr. hab.','5 ans']
  ]},
  {n:200, lib:'200 salariés', regle:'', o:[
    ['Local syndical commun mis à disposition des sections','L.2142-8'],
    ['Infirmier en établissement industriel','R.4623-32']
  ]},
- {n:250, lib:'250 salariés', regle:'cinq années civiles consécutives (L.130-1 c. séc. soc.)', o:[
-   ['Référent handicap','L.5213-6-1'],
-   ['Contribution supplémentaire à l’apprentissage, si le quota d’alternants n’est pas atteint','art. 1609 quinvicies CGI']
+ {n:250, lib:'250 salariés', regle:'', o:[
+   ['Référent en matière de lutte contre le harcèlement sexuel et les agissements sexistes, désigné par l’employeur — distinct du référent désigné par le CSE, lui obligatoire quelle que soit la taille','L.1153-5-1','5 ans'],
+   ['Référent handicap','L.5213-6-1','5 ans'],
+   ['Contribution supplémentaire à l’apprentissage, si le quota d’alternants n’est pas atteint','art. 1609 quinvicies CGI','5 ans']
  ]},
  {n:300, lib:'300 salariés', regle:'', o:[
    ['Commission santé, sécurité et conditions de travail','L.2315-36'],
@@ -7264,7 +7288,8 @@ var JX_SEUILS=[
    ['Contribution handicap portée à 600 fois le SMIC horaire par bénéficiaire manquant','barème de l’obligation d’emploi']
  ]},
  {n:1000, lib:'1 000 salariés', regle:'', o:[
-   ['Congé de reclassement en licenciement économique','L.1233-71'],
+   ['Congé de reclassement en licenciement économique','L.1233-71',''],
+   ['Contribution à la revitalisation du bassin d’emploi','L.1233-84',''],
    ['Administrateurs salariés au conseil d’administration','L.225-27-1 c. com.'],
    ['Local syndical propre à chaque section','L.2142-8'],
    ['Comité d’entreprise européen — si 150 salariés au moins dans deux États','L.2341-1'],
@@ -7274,7 +7299,8 @@ var JX_SEUILS=[
    ['Subvention de fonctionnement du CSE portée à 0,22 % de la masse salariale','L.2315-61']
  ]},
  {n:5000, lib:'5 000 salariés', regle:'', o:[
-   ['Second administrateur salarié — seuil apprécié dans le monde','L.225-27-1 c. com.']
+   ['Plan de vigilance — risques humains, sociaux et environnementaux ; seuil de 5 000 salariés en France, ou 10 000 en France et à l’étranger, sur deux exercices consécutifs','L.225-102-4 c. com.',''],
+   ['Second administrateur salarié — seuil apprécié dans le monde','L.225-27-1 c. com.','']
  ]},
  {n:10000, lib:'10 000 salariés', regle:'', o:[
    ['Dernière tranche du barème du nombre d’élus au comité','R.2314-1']

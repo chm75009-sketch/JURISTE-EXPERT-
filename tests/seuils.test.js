@@ -23,6 +23,8 @@ const ATTENDUS = [
   [1,     /L\.911-7/,        'complémentaire santé'],
   [11,    /L\.2311-2/,       'mise en place du CSE'],
   [11,    /L\.2333-64/,      'versement mobilité'],
+  [11,    /L\.6331-1/,       'formation professionnelle portée à 1 %'],
+  [11,    /2023-1107/,       'partage de la valeur'],
   [20,    /L\.5212-1/,       'obligation d’emploi des travailleurs handicapés'],
   [50,    /L\.2312-17/,      'consultations récurrentes'],
   [50,    /L\.2315-61/,      'budget de fonctionnement 0,20 %'],
@@ -32,8 +34,11 @@ const ATTENDUS = [
   [50,    /L\.2143-3/,       'délégué syndical'],
   [50,    /L\.1233-61/,      'plan de sauvegarde de l’emploi'],
   [50,    /R\.4228-22/,      'local de restauration'],
+  [50,    /L\.834-1/,        'FNAL porté à 0,50 %'],
+  [50,    /L\.313-1/,        'effort de construction — 1 % logement'],
   [200,   /L\.2142-8/,       'local syndical commun'],
   [200,   /R\.4623-32/,      'infirmier en établissement industriel'],
+  [250,   /L\.1153-5-1/,     'référent harcèlement sexuel côté employeur'],
   [250,   /L\.5213-6-1/,     'référent handicap'],
   [250,   /1609 quinvicies/, 'contribution supplémentaire à l’apprentissage'],
   [300,   /L\.2315-36/,      'commission santé-sécurité'],
@@ -43,10 +48,12 @@ const ATTENDUS = [
   [500,   /2016-1691/,       'dispositif anticorruption'],
   [750,   /600 fois/,        'contribution handicap majorée'],
   [1000,  /L\.1233-71/,      'congé de reclassement'],
+  [1000,  /L\.1233-84/,      'contribution à la revitalisation'],
   [1000,  /L\.225-27-1/,     'administrateurs salariés'],
   [1000,  /L\.2341-1/,       'comité d’entreprise européen'],
   [1000,  /L\.1142-11/,      'écarts de représentation'],
   [2000,  /L\.2315-61/,      'subvention portée à 0,22 %'],
+  [5000,  /L\.225-102-4/,    'plan de vigilance'],
   [5000,  /L\.225-27-1/,     'second administrateur salarié'],
   [10000, /R\.2314-1/,       'dernière tranche du barème']
 ];
@@ -86,13 +93,34 @@ const ATTENDUS = [
   ok(bornes.every((n, i) => i === 0 || n > bornes[i - 1]),
      'les seuils sont strictement croissants', bornes.join(', '));
 
-  /* Les deux regles de franchissement ne doivent pas etre confondues : le
-     tableau qu'on m'a soumis appliquait au CSE la regle des cinq annees. */
-  const r11 = seuils.filter(s => s.n === 11)[0];
-  const r20 = seuils.filter(s => s.n === 20)[0];
-  ok(/douze mois/.test(r11.regle), 'le CSE se compte sur douze mois consécutifs (L.2312-2)', r11.regle);
-  ok(/cinq années/.test(r20.regle),
-     'l’effectif « sécurité sociale » sur cinq années civiles (L.130-1 c. séc. soc.)', r20.regle);
+  /* Les deux regles de franchissement ne doivent pas etre confondues, et
+     elles se portent OBLIGATION PAR OBLIGATION, non seuil par seuil : au
+     meme seuil de 50, le reglement interieur suit les douze mois (L.1311-2
+     renvoie a L.2312-2) tandis que la participation suit les cinq annees
+     civiles. Le tableau qui m'a ete soumis les regroupait par seuil. */
+  console.log('\n— La règle de franchissement, obligation par obligation —');
+  const regles = await page.evaluate(() => {
+    const m = {};
+    JX_SEUILS.forEach(x => x.o.forEach(p => { m[p[1] + ' | ' + p[0].slice(0, 40)] = p[2] || ''; }));
+    return m;
+  });
+  const REGLE = [
+    ['L.2311-2',  '12 mois', 'la mise en place du comité'],
+    ['L.1311-2',  '12 mois', 'le règlement intérieur — L.1311-2 renvoie à L.2312-2'],
+    ['L.2312-17', '12 mois', 'les attributions élargies du comité'],
+    ['L.3322-2',  '5 ans',   'la participation aux résultats'],
+    ['L.5212-1',  '5 ans',   'l’obligation d’emploi des travailleurs handicapés'],
+    ['L.834-1',   '5 ans',   'le FNAL'],
+    ['L.313-1',   '5 ans',   'l’effort de construction']
+  ];
+  const faux = [];
+  REGLE.forEach(([art, att, quoi]) => {
+    const k = Object.keys(regles).filter(x => x.split(' | ')[0].indexOf(art) >= 0)[0];
+    if (!k || regles[k] !== att) faux.push(quoi + ' → ' + (k ? regles[k] || '(aucune)' : 'article absent'));
+  });
+  ok(faux.length === 0, 'chaque obligation porte sa propre règle de franchissement',
+     faux.join(' · '));
+  REGLE.forEach(([, att, quoi]) => console.log('    ' + att.padEnd(8) + ' ' + quoi));
 
   /* Ce qui n'est pas en vigueur n'est pas presente comme une obligation. */
   const avenir = await page.evaluate(() => JX_SEUILS_AVENIR.map(x => x.lib + ' | ' + x.o.map(p => p[0]).join(' ')));
@@ -186,8 +214,12 @@ const ATTENDUS = [
   });
   ok(socle.n === socle.total, 'il affiche tous les seuils, pas seulement 11 et 50',
      socle.n + '/' + socle.total);
-  ok(/cinq années civiles/.test(socle.t) && /douze mois consécutifs/.test(socle.t),
+  ok(/cinq années civiles/i.test(socle.t) && /douze mois consécutifs/i.test(socle.t),
      'et rappelle les deux règles de franchissement, distinctes');
+  ok(/obligation par obligation/i.test(socle.t),
+     'en précisant qu’elles se portent obligation par obligation, pas seuil par seuil');
+  ok(/12 mois consécutifs/.test(socle.t) && /5 années civiles/.test(socle.t),
+     'et chaque ligne affiche la sienne');
   ok(/L\.130-1/.test(socle.t), 'avec l’article qui porte celle des cinq années');
 
   console.log('\nExceptions : ' + erreurs.length);

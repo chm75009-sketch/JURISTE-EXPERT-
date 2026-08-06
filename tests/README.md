@@ -254,15 +254,19 @@ salariés et plus »**. Au-dessus, le droit du travail continue de compter :
 300, 500, 750, 1 000, 2 000, 5 000, et le barème du nombre d'élus
 (R.2314-1) monte jusqu'à **10 000**.
 
-Le test contrôle **31 obligations, seuil par seuil et article par article** —
+Le test contrôle **38 obligations, seuil par seuil et article par article** —
 du document unique (R.4121-1) à la dernière tranche du barème. Un seuil qui
 disparaîtrait du tableau, ou un article qui changerait, le fait tomber.
 
 Il garde aussi ce que le tableau ne doit pas confondre :
 
-- **deux règles de franchissement distinctes** — le CSE se compte sur *douze
-  mois consécutifs* (L.2312-2), l'effectif « sécurité sociale » sur *cinq
-  années civiles consécutives* (L.130-1 c. séc. soc., depuis la loi PACTE) ;
+- **deux règles de franchissement distinctes, portées obligation par
+  obligation et non seuil par seuil** — au même seuil de 50, le règlement
+  intérieur suit les *douze mois* (L.1311-2 renvoie expressément à L.2312-2)
+  tandis que la participation, le FNAL et l'effort de construction suivent
+  les *cinq années civiles* (L.130-1 c. séc. soc., depuis la loi PACTE). Les
+  regrouper par seuil revenait à donner l'une pour l'autre : le test vérifie
+  sept obligations, ligne par ligne ;
 - **ce qui n'est pas en vigueur** n'est pas présenté comme une obligation :
   le seuil de 100 salariés de la directive (UE) 2023/970 figure à part, sa
   transposition française n'étant pas publiée à ce jour ;
