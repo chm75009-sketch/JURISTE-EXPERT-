@@ -228,31 +228,45 @@ function effRetenu(){
 }
 
 /* ══════════ SIÈGES ET HEURES — R.2314-1 ══════════ */
-function bareme(eff){
-  var s=0,h=0;
-  if(eff<11) return {sieges:0,heures:0};
-  else if(eff<=24){s=1;h=10;}   else if(eff<=49){s=2;h=10;}
-  else if(eff<=74){s=3;h=18;}   else if(eff<=99){s=4;h=19;}
-  else if(eff<=124){s=5;h=21;}  else if(eff<=149){s=6;h=21;}
-  else if(eff<=174){s=7;h=21;}  else if(eff<=199){s=8;h=21;}
-  else if(eff<=249){s=9;h=22;}  else if(eff<=299){s=10;h=22;}
-  else if(eff<=399){s=11;h=22;} else if(eff<=499){s=12;h=22;}
-  else if(eff<=599){s=13;h=24;} else if(eff<=699){s=14;h=24;}
-  else if(eff<=799){s=14;h=24;} else if(eff<=899){s=15;h=24;}
-  else if(eff<=999){s=16;h=24;} else if(eff<=1249){s=17;h=24;}
-  else if(eff<=1499){s=18;h=24;}else if(eff<=1749){s=20;h=26;}
-  else if(eff<=1999){s=21;h=26;}else if(eff<=2249){s=22;h=26;}
-  else if(eff<=2499){s=23;h=26;}else if(eff<=2999){s=24;h=26;}
-  else if(eff<=3499){s=25;h=26;}else if(eff<=3999){s=26;h=27;}
-  else if(eff<=4499){s=26;h=28;}else if(eff<=4999){s=27;h=28;}
-  else if(eff<=5499){s=28;h=28;}else if(eff<=5999){s=29;h=29;}
-  else if(eff<=6499){s=29;h=29;}else if(eff<=6999){s=30;h=29;}
-  else if(eff<=7499){s=31;h=30;}else if(eff<=7999){s=31;h=30;}
-  else if(eff<=8499){s=32;h=30;}else if(eff<=8999){s=32;h=31;}
-  else if(eff<=9499){s=33;h=31;}else if(eff<=9999){s=34;h=32;}
-  else {s=35;h=34;}
-  return {sieges:s,heures:h};
+/* ══════════════════════════════════════════════════════════════════════
+   BAREME R.2314-1 — LE TABLEAU, ECRIT UNE SEULE FOIS
+   [borne haute de la tranche, titulaires, heures par mois et par titulaire]
+   Le volume GLOBAL (titulaires x heures) est le plancher que le protocole
+   preelectoral ne peut pas abaisser : il peut reduire le nombre de sieges
+   en augmentant les heures, jamais le produit des deux (L.2314-7, L.2315-7).
+   ══════════════════════════════════════════════════════════════════════ */
+var JX_BAREME=[
+  [24,1,10],   [49,2,10],   [74,4,18],   [99,5,19],
+  [124,6,21],  [149,7,21],  [174,8,21],  [199,9,21],
+  [249,10,22], [299,11,22], [399,11,22], [499,12,22],
+  [599,13,24], [699,14,24], [799,14,24], [899,15,24],
+  [999,16,24], [1249,17,24],[1499,18,24],
+  /* Au-dela de 1 500 puis de 2 500, le texte progresse par tranches de 250. */
+  [1749,20,26],[1999,21,26],[2249,22,26],[2499,23,26],
+  [2749,24,26],[2999,24,26],[3249,25,26],[3499,25,26],
+  [3749,26,27],[3999,26,27],[4249,26,28],[4499,27,28],
+  [4749,27,28],[4999,28,28],[5249,29,29],[5499,29,29],
+  [5749,29,29],[5999,30,29],[6249,31,29],[6499,31,29],
+  [6749,31,29],[6999,31,30],[7249,32,30],[7499,32,30],
+  [7749,32,31],[7999,32,32],[8249,32,32],[8499,33,32],
+  [8749,33,32],[8999,33,32],[9249,34,32],[9499,34,32],
+  [9749,34,32],[9999,34,32]
+];
+function jxBareme(eff){
+  var n=parseInt(eff,10);
+  if(!isFinite(n) || n<11) return {sieges:0,heures:0};
+  for(var i=0;i<JX_BAREME.length;i++){
+    if(n<=JX_BAREME[i][0]) return {sieges:JX_BAREME[i][1],heures:JX_BAREME[i][2]};
+  }
+  return {sieges:35,heures:34};                 // 10 000 salaries et plus
 }
+/* Au-dela de 2 500 salaries, les tranches sont de 250 et n'ont pas pu etre
+   confrontees au texte primaire (Legifrance inaccessible depuis cet outil) :
+   l'application le dit plutot que de laisser croire a une certitude. */
+function jxBaremeIncertain(eff){ var n=parseInt(eff,10); return isFinite(n) && n>2500; }
+
+function bareme(eff){ return jxBareme(eff); }
+
 
 /* ══════════ ANALYSE ══════════ */
 function analyse(){

@@ -53,7 +53,10 @@ function effectifCommun() {
      cseEffectifSource() — qui le precede dans le fichier. Partir du premier
      des deux, sinon le bac a sable recoit un appel vers une fonction qu'il
      n'a pas extraite. */
-  const i = SRC.indexOf('function cseEffectifSource()');
+  /* Le bareme R.2314-1 (JX_BAREME / jxBareme) precede desormais la lecture
+     de l'effectif : mcBareme et cseBareme s'y ramenent, il doit donc entrer
+     dans le bac a sable, sinon « jxBareme is not defined ». */
+  const i = SRC.indexOf('function jxEffectifSaisi(');
   const j = SRC.indexOf('var BUD={};', i);
   if (i < 0 || j < 0) throw new Error('lecture commune de l’effectif introuvable');
   return SRC.slice(i, j);

@@ -40,7 +40,7 @@ const ATTENDUS = [
   [200,   /R\.4623-32/,      'infirmier en établissement industriel'],
   [250,   /L\.1153-5-1/,     'référent harcèlement sexuel côté employeur'],
   [250,   /L\.5213-6-1/,     'référent handicap'],
-  [250,   /1609 quinvicies/, 'contribution supplémentaire à l’apprentissage'],
+  [250,   /L\.6242-1/, 'contribution supplémentaire à l’apprentissage'],
   [300,   /L\.2315-36/,      'commission santé-sécurité'],
 
   [300,   /L\.2312-28/,      'bilan social'],
