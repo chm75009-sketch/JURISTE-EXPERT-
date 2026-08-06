@@ -33,7 +33,7 @@ const ok = (c, m, d) => {
   console.log('\n— Les fichiers du dossier —');
   ['index.html', 'mentions-legales.html', 'confidentialite.html', 'pages.css',
    'manifest.json', 'sw.js', 'netlify.toml', 'robots.txt', 'sitemap.xml',
-   'icone-192.png', 'icone-512.png', 'icone-180.png', 'README.md'
+   'icone-192.png', 'icone-512.png', 'icone-180.png', 'portrait.png', 'README.md'
   ].forEach(f => ok(fs.existsSync(path.join(DOSSIER, f)), 'présent : ' + f));
 
   /* Le service worker promet des fichiers hors ligne : ils doivent exister,
@@ -98,10 +98,24 @@ const ok = (c, m, d) => {
   for (const id of ['cabinet', 'domaines', 'deroule', 'honoraires', 'avis', 'questions', 'contact'])
     ok(await p.locator('#' + id).count() === 1, 'section présente : #' + id);
 
-  /* Chaque entrée du menu doit mener à une section qui existe. */
-  const liens = await p.$$eval('nav a', a => a.map(x => x.getAttribute('href')));
+  /* Chaque entrée du menu doit mener à une section qui existe. Les liens
+     d'appel (tel:) et les pages de domaine sont vérifiés à part. */
+  const liens = await p.$$eval('#nav a', a => a.map(x => x.getAttribute('href')));
   for (const h of liens)
     ok(await p.locator(h).count() === 1, 'le menu mène quelque part : ' + h);
+
+  /* Les six fiches de domaine mènent chacune à une page qui existe vraiment. */
+  const versDom = await p.$$eval('.dom .plus', a => a.map(x => x.getAttribute('href')));
+  ok(versDom.length === 6, 'six fiches mènent à une page de domaine', versDom.length);
+  versDom.forEach(h => ok(fs.existsSync(path.join(DOSSIER, h.replace('./', ''))),
+    'la page existe : ' + h));
+
+  /* Aucun lien d'appel ne doit rester vide ou mal formé : sur un téléphone,
+     c'est le geste le plus utilisé du site. */
+  const tels = await p.$$eval('a[href^="tel:"]', a => a.map(x => x.getAttribute('href')));
+  ok(tels.length >= 3, 'le numéro est appelable depuis plusieurs endroits', tels.length);
+  tels.forEach(t => ok(/^tel:\+?[0-9]{8,}$/.test(t.replace(/\s/g, '')),
+    'lien d\'appel exploitable : ' + t));
 
   /* Les honoraires communiqués par le cabinet, au bon endroit. */
   const tarifs = await p.$$eval('.tar .tl:not(.hdr)', l => l.map(x => ({
@@ -132,6 +146,18 @@ const ok = (c, m, d) => {
   ok(await p.textContent('#exp') === attenduAns + ' ans',
     'le bandeau annonce ' + attenduAns + ' ans d\'expérience', await p.textContent('#exp'));
   ok(await p.textContent('#exp2') === String(attenduAns), 'la présentation annonce le même nombre');
+
+  /* Le portrait : présent, traité, et sans trou si le fichier disparaît. */
+  ok(await p.locator('.pf.has').count() === 1, 'le portrait est chargé dans le bandeau');
+  ok(await p.locator('.cab .sig .av.has').count() === 1, 'le même portrait signe la présentation');
+  const filtre = await p.evaluate(() =>
+    getComputedStyle(document.querySelector('.pf'), '::after').filter);
+  ok(/grayscale/.test(filtre) && /sepia/.test(filtre),
+    'la photo est passée en noir et blanc réchauffé', filtre);
+
+  /* Le bandeau d'annonce n'existe que s'il y a quelque chose à annoncer. */
+  ok(await p.locator('#annonce:not([hidden])').count() === 0,
+    'aucun bandeau d\'annonce tant que le message est vide');
 
   /* ── 5. Les avis ────────────────────────────────────────────────────── */
   console.log('\n— Le carrousel d\'avis —');
@@ -165,6 +191,48 @@ const ok = (c, m, d) => {
   ok(!(await etroit.locator('#av-pv').isDisabled()),
     'une fois défilé, la flèche gauche s\'allume');
   await etroit.close();
+
+  /* ── 5 bis. Le calculateur de délais ────────────────────────────────── */
+  console.log('\n— Le délai qui court —');
+  const nbSit = await p.locator('.sit').count();
+  ok(nbSit >= 10, 'les situations courantes sont proposées', nbSit);
+  await p.locator('.sit').first().click();
+  await p.waitForTimeout(300);
+  ok(await p.locator('#fiche.on').count() === 1, 'la fiche de situation s\'ouvre');
+  ok((await p.textContent('#f-duree')).indexOf('12 mois') === 0,
+    'le licenciement affiche bien 12 mois', await p.textContent('#f-duree'));
+  ok(await p.locator('#f-pieces li').count() >= 3, 'les pièces à réunir sont listées');
+
+  /* Une date récente : il doit rester du temps, et la jauge doit le montrer. */
+  const recent = new Date(); recent.setMonth(recent.getMonth() - 1);
+  await p.fill('#f-date', recent.toISOString().slice(0, 10));
+  await p.waitForTimeout(300);
+  ok(await p.locator('#f-verdict.vert').count() === 1, 'délai encore ouvert : verdict vert');
+  ok(/reste \d+ jours/.test(await p.textContent('#f-verdict')), 'le nombre de jours restants est calculé');
+
+  /* Une date ancienne : le site doit le dire — sans affirmer que tout est perdu. */
+  const vieux = new Date(); vieux.setFullYear(vieux.getFullYear() - 3);
+  await p.fill('#f-date', vieux.toISOString().slice(0, 10));
+  await p.waitForTimeout(300);
+  ok(await p.locator('#f-verdict.rouge').count() === 1, 'délai dépassé : verdict rouge');
+  const dit = await p.textContent('#f-verdict');
+  ok(/interrompu/.test(dit) && /vérifier/.test(dit),
+    'le site nuance au lieu de condamner le dossier');
+
+  /* Rien ne doit sortir du navigateur : aucune requête réseau au calcul. */
+  ok(/Rien n'est envoyé/.test(await p.textContent('.prive')),
+    'le visiteur est informé que le calcul reste chez lui');
+
+  /* Le bouton emporte la situation jusqu'au formulaire. */
+  await p.locator('#f-cta').click();
+  await p.waitForTimeout(400);
+  ok(await p.inputValue('#obj') === 'Droit du travail', 'le formulaire est pré-réglé sur le bon objet',
+    await p.inputValue('#obj'));
+  ok(/Situation : /.test(await p.inputValue('#txt')), 'la situation est reportée dans le message');
+  await p.fill('#txt', '');
+  await p.locator('#f-retour').click();
+  await p.waitForTimeout(300);
+  ok(await p.locator('#fiche.on').count() === 0, 'on revient à la liste des situations');
 
   /* ── 6. La prise de rendez-vous ─────────────────────────────────────── */
   console.log('\n— Les créneaux de rendez-vous —');
@@ -231,13 +299,13 @@ const ok = (c, m, d) => {
   await mob.goto(url('index.html'), { waitUntil: 'load' });
   await mob.waitForTimeout(400);
   ok(await mob.locator('#burger').isVisible(), 'le menu compact est proposé');
-  ok(!(await mob.locator('nav a[href="#contact"]').isVisible()), 'le menu est fermé au départ');
+  ok(!(await mob.locator('#nav a[href="#contact"]').isVisible()), 'le menu est fermé au départ');
   await mob.click('#burger');
   await mob.waitForTimeout(300);
-  ok(await mob.locator('nav a[href="#contact"]').isVisible(), 'le menu s\'ouvre');
-  await mob.click('nav a[href="#contact"]');
+  ok(await mob.locator('#nav a[href="#contact"]').isVisible(), 'le menu s\'ouvre');
+  await mob.click('#nav a[href="#contact"]');
   await mob.waitForTimeout(400);
-  ok(!(await mob.locator('nav a[href="#contact"]').isVisible()),
+  ok(!(await mob.locator('#nav a[href="#contact"]').isVisible()),
     'le menu se referme après le clic, au lieu de masquer la section visée');
   /* Rien ne doit déborder horizontalement sur un écran étroit. */
   const debord = await mob.evaluate(() =>

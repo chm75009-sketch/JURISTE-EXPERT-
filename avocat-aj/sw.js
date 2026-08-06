@@ -13,10 +13,17 @@ const FICHIERS = [
   './mentions-legales.html',
   './confidentialite.html',
   './pages.css',
+  './domaine-famille.html',
+  './domaine-immobilier.html',
+  './domaine-travail.html',
+  './domaine-commercial.html',
+  './domaine-baux-commerciaux.html',
+  './domaine-societes.html',
   './manifest.json',
   './icone-192.png',
   './icone-512.png',
-  './icone-180.png'
+  './icone-180.png',
+  './portrait.png'
 ];
 
 self.addEventListener('install', e => {

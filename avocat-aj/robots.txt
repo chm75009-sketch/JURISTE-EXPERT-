@@ -6,4 +6,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://[DOMAINE]/sitemap.xml
+Sitemap: https://cjavocats.fr/sitemap.xml
