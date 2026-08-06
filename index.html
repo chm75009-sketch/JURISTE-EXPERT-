@@ -862,7 +862,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.126';
+var JX_BUILD = 'v2026-08-06.127';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -871,6 +871,10 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.127', d:'6 aout 2026', t:[
+   'AUCUNE PAGE SANS RETOUR — SANS EXCEPTION. Les quarante-deux pages ont ete ouvertes une par une et verifiees : chacune doit offrir un retour visible et cliquable dans son premier ecran. Une page en etait depourvue, « Analyse d\'un document » : elle recoit sa barre. Le bouton de la page Personnel, plus petit que les autres, est mis a la meme taille.',
+   'RETOUR — un filet s\'execute a chaque changement de page : si la page affichee n\'offre aucun retour dans son premier ecran, il en pose un automatiquement, en tete. Corriger la page qui manquait ne suffisait pas — rien n\'aurait empeche la prochaine d\'etre ajoutee sans retour, comme celle-ci l\'avait ete. Desormais une page ne peut plus y echapper, meme par oubli.'
+ ]},
  {v:'v2026-08-06.126', d:'6 aout 2026', t:[
    'CORRECTIF IMPORTANT — le generateur de codes clients et le registre des codes emis apparaissaient sur un compte CLIENT. Un client pouvait donc fabriquer des acces et lire le nom des autres clients. Le bloc n\'etait cache que par une ligne executee une fois au demarrage ; il suffisait qu\'elle passe au mauvais moment pour que tout reste visible. La verification est desormais rejouee a chaque changement de page, et chacune des sept fonctions du generateur refuse de s\'executer hors du compte administrateur.',
    'L\'EFFECTIF PASSE EN PREMIER. Il n\'apparaissait que dans la famille « Le CSE », en troisieme position — alors qu\'il commande l\'obligation d\'elire, le nombre d\'elus, le reglement interieur, les budgets, les commissions et la comptabilite. Un bandeau ouvre desormais l\'accueil : il affiche le chiffre et ce qu\'il declenche, ou reclame la saisie quand il manque. Il ne dit jamais zero faute de donnee.',
@@ -3904,7 +3908,7 @@ Exemple :<br>
 <!-- ═══ PARAMÉTRAGE ═══ -->
 <div id="pg-personnel" class="page">
   <div class="wrap">
-    <button onclick="goPage('home')" style="margin:12px 0 6px;padding:9px 16px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">← Retour à l'accueil</button>
+    <button onclick="goPage('home')" style="margin:12px 0 6px;padding:12px 18px;border:1px solid #c9a84c;border-radius:10px;background:#16263c;color:#e8e4d8;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">← Retour à l'accueil</button>
     <h1 class="ttl">👥 Espace RH — Personnel</h1>
     <p class="sub" style="margin-bottom:6px">Registre du personnel &amp; fiches individuelles — chiffré et stocké uniquement sur votre appareil.</p>
     <div id="rh-body-page"><div style="padding:24px;text-align:center;color:#9fb0c4"><div style="font-size:14px;margin-bottom:12px">Chargement de l'Espace RH…</div><button onclick="try{rhOnEnter()}catch(e){alert('Erreur : '+e.message)}" style="padding:11px 18px;border:1px solid #c9a84c;border-radius:9px;background:#16263c;color:#e8e4d8;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Ouvrir l'Espace RH sécurisé</button></div></div>
@@ -5984,6 +5988,7 @@ function jxHomeAlertes(){
 function _esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function goPage(id){
   try{ jxGardeAdmin(); }catch(e){}   // ce qui est reserve le reste, a chaque page
+  try{ setTimeout(jxFiletRetour, 0); }catch(e){}   // aucune page sans retour
   // Contrôle d'accès : hors abonnement, seul le Contrôle-minute (audit) est ouvert
   try{
     if(sessionStorage.getItem('jte_ok') !== '1'){
@@ -6990,6 +6995,47 @@ function cseEffectifSaisi(){
   }catch(e){ return null; }
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   AUCUNE PAGE SANS RETOUR — LE FILET
+   Corriger la page qui manquait ne suffit pas : rien n'empecherait la
+   prochaine d'etre ajoutee sans retour, comme celle-ci l'a ete. Ce filet
+   s'execute a chaque changement de page. Si la page affichee n'offre aucun
+   retour dans son premier ecran, il en pose un. Une page future ne peut plus
+   y echapper, meme par oubli.
+   ══════════════════════════════════════════════════════════════════════ */
+function jxARetour(pg){
+  if(!pg) return true;
+  /* Un retour, c'est un element cliquable, place haut dans la page, qui
+     ramene ailleurs. On ne se fie pas au libelle seul : on regarde ce que
+     l'element fait. */
+  var cands=pg.querySelectorAll('button,a,[onclick]');
+  for(var i=0;i<cands.length && i<40;i++){
+    var e=cands[i];
+    var on=(e.getAttribute&&e.getAttribute('onclick'))||'';
+    var txt=(e.textContent||'').trim();
+    if(!/goPage\(|accueilShow|history\.back|jxRetour/.test(on)) continue;
+    if(!/←|↑|retour|accueil|precedent|précédent/i.test(txt)) continue;
+    var r=e.getBoundingClientRect();
+    if(r.height>0 && r.top<420) return true;      // present, et visible d'emblee
+  }
+  return false;
+}
+function jxFiletRetour(){
+  var pg=document.querySelector('#pg-app .page.act'); if(!pg) return;
+  if(pg.id==='pg-home') return;                    // l'accueil est le point de retour
+  var deja=pg.querySelector('.jx-retour-filet');
+  if(jxARetour(pg)){ if(deja) deja.remove(); return; }
+  if(deja) return;
+  var b=document.createElement('button');
+  b.className='jx-retour-filet';
+  b.textContent='← Retour';
+  b.setAttribute('onclick', "goPage('home');try{window.scrollTo(0,0)}catch(e){}");
+  b.style.cssText='display:block;margin:12px 14px 4px;padding:11px 17px;border:1px solid #c9a84c;'
+    +'border-radius:10px;background:#16263c;color:#e8e4d8;font-size:15px;font-weight:700;'
+    +'cursor:pointer;font-family:inherit';
+  pg.insertBefore(b, pg.firstChild);
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    REVENIR EN ARRIERE, DE PARTOUT
@@ -20477,6 +20523,9 @@ function auteurReset(){localStorage.setItem(jxCle('app_auteur'),JSON.stringify(A
 auteurApply();
 </script>
 <div id="pg-diag" class="page">
+<div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Analyse d’un document</div><div class="ts">Contrat · lettre · accord — mentions, délais, clauses nulles</div></div>
+<button onclick="openMenu()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
   <style>
     @keyframes diagSuggPulse{0%,100%{box-shadow:0 0 0 0 rgba(47,111,176,.0)}50%{box-shadow:0 0 0 4px rgba(47,111,176,.18)}}
     .diag-sugg-pulse{animation:diagSuggPulse 1.4s ease-in-out 4}
