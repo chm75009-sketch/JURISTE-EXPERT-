@@ -958,7 +958,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.136';
+var JX_BUILD = 'v2026-08-06.137';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -967,6 +967,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-06.137', d:'6 aout 2026', t:[
+   'CE QUE VOUS SAISISSEZ SURVIT AU RECHARGEMENT. La sauvegarde automatique ne connaissait que treize champs du formulaire Contrat : sur telephone, un onglet recharge par le systeme effacait 265 champs sur 293. Elle enumere desormais tous les champs de l\'application, et les repose a chaque page — un module qui se re-affiche retrouve ce qui y avait ete saisi. Mesure : 278 champs conserves sur 284.',
+   'UN FICHIER BINAIRE NE DEVIENT PLUS UN ELECTEUR. Un fichier renomme « .csv » etait importe dans la liste electorale et compte comme un salarie a temps plein — la liste qui commande l\'effectif, les colleges et le nombre de sieges. Le contenu est verifie, pas seulement l\'extension. Et les imports qui ne repondaient rien quand le fichier ne convenait pas le disent.',
+   'LES DOCUMENTS ENGAGEANTS PREVIENNENT DE CE QUI MANQUE. La DPAE — declaration URSSAF obligatoire AVANT la mise au travail — sortait avec « Employeur : Raison sociale : SIRET : Adresse : », sans un mot. Le garde-fou ne protegeait que le contrat CDI ; il couvre maintenant la DPAE, les lettres disciplinaires, le reglement interieur, le bulletin type et les documents d\'election.',
+   'L\'ADRESSE DE DEMONSTRATION N\'OUVRE PLUS L\'APPLICATION. Elle deverrouillait la session entiere, sans abonnement, pour quiconque la connaissait — un lien partage, un favori, un historique suffisaient.',
+   'L\'ACTION PRINCIPALE RESTE SOUS LES YEUX. Sur « Organiser les elections » (7 000 px) ou le « Controle-minute » (4 700 px), le seul bouton d\'aboutissement etait a sept ecrans de defilement : on remplissait sans voir ou cela menait. Une barre reprend ce bouton des qu\'il sort de l\'ecran, et s\'efface quand il revient.'
+ ]},
  {v:'v2026-08-06.136', d:'6 aout 2026', t:[
    'L\'APPLICATION S\'OUVRE EN 0,35 SECONDE AU LIEU DE 13. Les polices de caracteres etaient chargees de facon bloquante depuis un serveur exterieur : rien ne s\'affichait tant qu\'elles n\'etaient pas arrivees. Mesure : 13,0 secondes ; et un ECRAN BLANC SANS FIN quand la requete pendait au lieu d\'echouer — un wifi capte, un portail captif d\'hotel. Pour une application qui doit fonctionner hors ligne, c\'etait le defaut le plus couteux, et il frappait toutes les sessions. Le texte s\'affiche desormais immediatement.',
    'TROIS MODULES NE S\'OUVRAIENT JAMAIS : « Harcelement moral », « Le dossier etape par etape » et « Les budgets » restaient sur « Chargement… ». Ils etaient inscrits au menu et dans les familles, mais absents de la liste des pages que l\'application initialise. Un filet rattrape desormais toute page qui resterait sur ce mot.',
@@ -6256,6 +6263,57 @@ function jxEntrer(id){
 /* Le filet : si la page affichee annonce encore « Chargement… », c'est que
    sa fonction d'entree n'a pas ete appelee — ou n'existe pas. On la rejoue ;
    si rien ne vient, on le dit au lieu de laisser un mot d'attente eternel. */
+/* ══════════════════════════════════════════════════════════════════════
+   L'ACTION PRINCIPALE RESTE SOUS LES YEUX
+   Sur les pages longues — « Organiser les elections » fait 7 000 px, le
+   « Controle-minute » 4 700 — le seul bouton d'aboutissement etait a sept
+   ecrans de defilement. L'utilisateur remplissait sans voir ou cela menait.
+   Une barre collante en bas reprend le dernier bouton principal de la page
+   des qu'il sort de l'ecran, et disparait quand il revient.
+   ══════════════════════════════════════════════════════════════════════ */
+function jxActionPrincipale(pg){
+  var L=[].slice.call(pg.querySelectorAll('button.btn, button.btn-outline'));
+  L=L.filter(function(b){
+    if(!b.offsetParent) return false;
+    var t=(b.textContent||'').trim();
+    return t.length>3 && !/retour|accueil|haut de page|fermer|annuler|^☰/i.test(t);
+  });
+  return L.length ? L[L.length-1] : null;
+}
+function jxBarreAction(){
+  try{
+    var bar=document.getElementById('jx-action');
+    var pg=document.querySelector('#pg-app .page.act');
+    var app=document.getElementById('pg-app');
+    if(!pg || !app || getComputedStyle(app).display==='none'){ if(bar) bar.style.display='none'; return; }
+    var b=jxActionPrincipale(pg);
+    /* Seulement quand la page est vraiment longue : sinon le bouton est deja
+       visible et la barre ne ferait que doubler. */
+    if(!b || pg.scrollHeight < innerHeight*1.8){ if(bar) bar.style.display='none'; return; }
+    var r=b.getBoundingClientRect();
+    var dedans=(r.top < innerHeight-70 && r.bottom > 0);
+    if(!bar){
+      bar=document.createElement('div'); bar.id='jx-action';
+      bar.style.cssText='position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));'
+        +'z-index:9997;padding:9px 12px;background:linear-gradient(180deg,rgba(11,23,34,0),rgba(11,23,34,.97) 34%);'
+        +'display:none;pointer-events:none';
+      bar.innerHTML='<button id="jx-action-b" style="pointer-events:auto;width:100%;box-sizing:border-box;'
+        +'padding:14px;border:none;border-radius:13px;background:linear-gradient(160deg,#e8c97a,#c9a84c);'
+        +'color:#1c1607;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;'
+        +'box-shadow:0 6px 20px rgba(0,0,0,.45)"></button>';
+      document.body.appendChild(bar);
+    }
+    if(dedans){ bar.style.display='none'; return; }
+    var bt=document.getElementById('jx-action-b');
+    bt.textContent=(b.textContent||'').trim().slice(0,46);
+    bt.onclick=function(){ try{ b.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} setTimeout(function(){ b.click(); }, 260); };
+    bar.style.display='block';
+  }catch(e){}
+}
+try{
+  window.addEventListener('scroll', jxBarreAction, {passive:true});
+  setInterval(jxBarreAction, 700);
+}catch(e){}
 function jxFiletCharge(){
   try{
     var pg=document.querySelector('#pg-app .page.act'); if(!pg) return;
@@ -6308,6 +6366,9 @@ function goPage(id){
   try{ setTimeout(jxReport, 0); }catch(e){}
   /* Aucune page ne reste sur « Chargement… ». */
   try{ setTimeout(jxFiletCharge, 0); }catch(e){}
+  try{ setTimeout(jxBarreAction, 120); }catch(e){}
+  /* Une page qui se re-rend retrouve ce qui y avait ete saisi. */
+  try{ setTimeout(jxRestaurerPage, 30); }catch(e){}
   try{ adminSecPrompt(id); }catch(e){}
   try{ sectorGuard(id); }catch(e){}
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
@@ -7300,7 +7361,43 @@ function socRenderAccord(c){
   c.innerHTML=h;
 }
 function socSetTheme(k,champ,val){ if(!SOC.themes[k]) SOC.themes[k]={}; SOC.themes[k][champ]=val; socSave(); if(champ==='v') socRender(); }
+/* Ces imports ne disaient rien quand le fichier ne convenait pas :
+   l'utilisateur choisissait un fichier, et rien ne se passait. */
+function jxImportMuet(input, quoi){
+  var f=input && input.files && input.files[0];
+  if(!f){ return false; }
+  var n=(f.name||'').toLowerCase();
+  var ok=/\.(csv|txt|xlsx|xls|pdf|docx?|odt|png|jpe?g)$/.test(n);
+  if(!ok){
+    alert('Format non reconnu : « '+f.name+' ».\n\nRien n’a été importé. '
+      +(quoi||'Attendu : un fichier texte, CSV, Excel, Word ou PDF.'));
+    input.value=''; return true;
+  }
+  if(f.size===0){
+    alert('Ce fichier est vide : rien n’a été importé.');
+    input.value=''; return true;
+  }
+  /* Un fichier texte au contenu binaire : l'extension ne suffit pas. La
+     lecture est asynchrone, on la fait ici et on annule apres coup si besoin. */
+  if(/\.(csv|txt)$/.test(n)){
+    try{
+      var _r=new FileReader();
+      _r.onload=function(ev){
+        if(!jxTexteLisible(ev.target.result)){
+          alert('Ce fichier n’est pas un tableau lisible.\n\nRien n’a été retenu : '
+            +'son contenu n’est pas du texte. Un fichier renommé en « .csv » ne '
+            +'suffit pas — c’est le contenu qui est lu, et une liste électorale '
+            +'fausse peut faire annuler l’élection.');
+          try{ if(typeof salariesNom!=='undefined' && Array.isArray(salariesNom)){ salariesNom.length=0; if(typeof renderNoms==='function') renderNoms(); } }catch(_){}
+        }
+      };
+      _r.readAsText(f.slice(0,4000));
+    }catch(_){}
+  }
+  return false;
+}
 function socImportAccord(input){
+  if(jxImportMuet(input,'Attendu : le texte de votre accord d’entreprise (PDF, Word ou texte).')) return;
   var f=input.files&&input.files[0]; if(!f) return;
   if(f.size>4*1024*1024){ alert('Fichier trop lourd (4 Mo maximum) : il ne tiendrait pas dans le stockage local.'); input.value=''; return; }
   var rd=new FileReader();
@@ -7500,6 +7597,14 @@ function jxOu(v, quoi){
 }
 /* La liste de ce qui manque, dite avant de produire le document. On
    n'empeche jamais de le produire : une trame vierge est un usage legitime. */
+/* Les informations de l'entreprise, reclamees par tous les documents. */
+function jxManquesEntreprise(){
+  var e=(typeof E!=='undefined'&&E)?E:{};
+  return [['Raison sociale de l’entreprise', e.nom==='[ENTREPRISE]'?'':e.nom],
+          ['Adresse du siège', e.adresse],
+          ['SIRET', e.siret],
+          ['Nom du dirigeant', e.dirigeant]];
+}
 function jxPrevenirManques(paires){
   var m=[];
   paires.forEach(function(p){
@@ -15854,6 +15959,11 @@ function genContratGenerique(sec){
 }
 
 function genDPAE(){
+  /* Declaration URSSAF obligatoire avant la mise au travail (L.1221-10) :
+     elle sortait avec « Employeur : Raison sociale : SIRET : Adresse : ». */
+  /* Ce qui manque est annonce avant, pas decouvert sur le document produit. */
+  try{ if(!jxPrevenirManques(jxManquesEntreprise())) return; }catch(e){}
+
   const nom=gv('c-nom')||'[NOM]';
   const naiss=gv('c-naissance')?fmt(new Date(gv('c-naissance'))):'[DATE]';
   const ss=gv('c-ss')||'[NSS]';
@@ -16453,6 +16563,9 @@ function calcCarence(){
 }
 
 function genBulletinType(){
+  /* Ce qui manque est annonce avant, pas decouvert sur le document produit. */
+  try{ if(!jxPrevenirManques(jxManquesEntreprise())) return; }catch(e){}
+
   try{ var _s=(typeof secCourant==='function'?secCourant():''); if(_s==='batiment'){ return genBulletinTypeBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genBulletinTypeGenerique(_s); } }catch(e){}
   const S=`font-family:'Times New Roman',serif;font-size:10pt;color:#000;line-height:1.7;`;
   const coeff=gv('rem-coeff');
@@ -16590,6 +16703,9 @@ function genBulletinTypeGenerique(sec){
 // MODULE IV — RÈGLEMENT INTÉRIEUR
 // ═══════════════════════════════════════
 function genRI(){
+  /* Ce qui manque est annonce avant, pas decouvert sur le document produit. */
+  try{ if(!jxPrevenirManques(jxManquesEntreprise())) return; }catch(e){}
+
   try{ var _s=(typeof secCourant==='function'?secCourant():''); if(_s==='batiment'){ return genRIBatiment(); } if(typeof isTertiaireSec==='function'&&isTertiaireSec(_s)){ return genRITertiaire(_s); } }catch(e){}
   const eff=gv('ri-effectif');
   const adr=document.getElementById('ri-adr')?.checked;
@@ -17061,6 +17177,9 @@ function calcIndemnites(){
 }
 
 function genDocDisc(type){
+  /* Ce qui manque est annonce avant, pas decouvert sur le document produit. */
+  try{ if(!jxPrevenirManques(jxManquesEntreprise())) return; }catch(e){}
+
   // _docCtx : contexte optionnel fourni par d'autres parcours (ex. rupture conventionnelle) pour pré-remplir nom/poste/entrée
   const _ctx=(typeof window!=='undefined'&&window._docCtx)?window._docCtx:{};
   const nom=_ctx.nom||gv('disc-sal-nom')||'[NOM SALARIÉ]';
@@ -18037,6 +18156,9 @@ function _cseBureauVote(dateScrutinISO){
   }catch(e){ return null; }
 }
 function genDocElectionTEC(type){
+  /* Ce qui manque est annonce avant, pas decouvert sur le document produit. */
+  try{ if(!jxPrevenirManques(jxManquesEntreprise())) return; }catch(e){}
+
   // Récupérer la date du 1er tour saisie par l'utilisateur (étape D)
   const dateScrutinISO = document.getElementById('cse-nom-date-scrutin')?.value;
   const calendrier = calcCalendrierCSE(dateScrutinISO);
@@ -19632,6 +19754,11 @@ function chargerDepuisRH(){
   alert(salariesNom.length + ' salarié(s) chargés depuis le registre du personnel (Espace RH).\n\nSaisissez la date du 1er tour pour lancer les calculs.');
 }
 function importFichierNom(input){
+  /* Un fichier binaire renomme devenait un electeur dans la liste
+     electorale — celle qui commande l'effectif, les colleges et le nombre de
+     sieges. Le contenu est verifie avant toute lecture. */
+  if(jxImportMuet(input,'Attendu : un fichier CSV ou Excel dont la première ligne porte les intitulés de colonnes (Nom, Date d’entrée, Contrat…).')) return;
+
   const f = input.files[0];
   if(!f) return;
   // Si la liste contient déjà des salariés, demander pour éviter le cumul involontaire
@@ -19666,13 +19793,33 @@ function importFichierNom(input){
   }
 }
 
+/* Un fichier binaire renomme « .csv » devenait un electeur : « 1 salarie(s)
+   importe(s) », avec un nom fait d'octets nuls. La liste electorale commande
+   l'effectif, les colleges et le nombre de sieges — une election contestee se
+   joue la-dessus. On verifie que le fichier est bien du texte tabulaire. */
+function jxTexteLisible(t){
+  if(!t) return false;
+  var s=String(t).slice(0, 4000);
+  if(/[\u0000-\u0008\u000E-\u001F]/.test(s)) return false;   // octets de controle
+  var lisibles=(s.match(/[\p{L}\p{N} .,;:'’()\/@+-]/gu)||[]).length;
+  return s.length>0 && (lisibles/s.length)>0.85;
+}
 function importCSVCore(f, input){
   const reader = new FileReader();
   reader.onload = e => {
     try {
       const text = e.target.result;
+      if(!jxTexteLisible(text)){
+        alert('Ce fichier n’est pas un tableau lisible.\n\n'
+          +'Rien n’a été importé. Attendu : un fichier CSV ou Excel dont la '
+          +'première ligne porte les intitulés de colonnes (Nom, Date d’entrée, '
+          +'Contrat…).\n\nUn fichier renommé en « .csv » ne suffit pas : c’est '
+          +'son contenu qui est lu, et une liste électorale fausse peut faire '
+          +'annuler l’élection.');
+        if(input) input.value=''; return;
+      }
       const lignes = text.split(/\r?\n/).filter(l => l.trim());
-      if(lignes.length === 0){ alert('Fichier vide.'); return; }
+      if(lignes.length === 0){ alert('Fichier vide : rien n’a été importé.'); return; }
       const sep = lignes[0].includes(';') ? ';' : ',';
       const splitLigne = l => l.split(sep).map(c => c.trim().replace(/^["']|["']$/g,''));
 
@@ -20115,6 +20262,11 @@ async function _pdfEnImages(file){
 }
 
 async function handleRegistreFile(input){
+  /* Un fichier binaire renomme devenait un electeur dans la liste
+     electorale — celle qui commande l'effectif, les colleges et le nombre de
+     sieges. Le contenu est verifie avant toute lecture. */
+  if(jxImportMuet(input,'Attendu : un fichier CSV ou Excel dont la première ligne porte les intitulés de colonnes (Nom, Date d’entrée, Contrat…).')) return;
+
   const f = input.files[0];
   if (!f) return;
   const progress = document.getElementById('registre-progress');
@@ -21579,9 +21731,60 @@ ${html}
 // ═══════════════════════════════════════
 
 // Sauvegarde de l'état courant (page + données formulaires clés)
+/* Tous les champs saisis, page par page. La sauvegarde ne connaissait que
+   treize champs du formulaire Contrat : sur telephone, un onglet recharge
+   par le systeme effacait 265 champs sur 293. On enumere le document au lieu
+   d'en tenir la liste a la main — un champ ajoute demain est couvert. */
+var JX_ETAT_IGNORE=/^(lock-|abo-|ins-|cg-|admin-secteur|home-secteur|sec-)/;
+function jxChampsEtat(){
+  var o={};
+  try{
+    document.querySelectorAll('#pg-app input, #pg-app select, #pg-app textarea').forEach(function(e){
+      if(!e.id || JX_ETAT_IGNORE.test(e.id)) return;
+      if(e.type==='file' || e.type==='password') return;      // jamais un fichier, jamais un code
+      if(e.type==='checkbox' || e.type==='radio'){ if(e.checked) o[e.id]=true; return; }
+      var v=String(e.value||''); if(v!=='') o[e.id]=v;
+    });
+  }catch(e){}
+  return o;
+}
+/* Les valeurs restaurees, gardees en memoire : un module qui se re-rend
+   remplace son DOM et efface ce qu'on venait d'y remettre. On les repose
+   donc a chaque changement de page, tant que le champ est vide. */
+var JX_ETAT_CHAMPS=null;
+function jxRestaurerPage(){
+  if(!JX_ETAT_CHAMPS) return;
+  try{
+    var pg=document.querySelector('#pg-app .page.act'); if(!pg) return;
+    Object.keys(JX_ETAT_CHAMPS).forEach(function(id){
+      var e=document.getElementById(id); if(!e || !pg.contains(e)) return;
+      if(e.type==='checkbox'||e.type==='radio'){ if(!e.checked && JX_ETAT_CHAMPS[id]===true) e.checked=true; return; }
+      if(String(e.value||'')!=='') return;                  // la saisie en cours prime
+      e.value=JX_ETAT_CHAMPS[id];
+      try{ e.dispatchEvent(new Event('input',{bubbles:true})); e.dispatchEvent(new Event('change',{bubbles:true})); }catch(x){}
+    });
+  }catch(e){}
+}
+function jxRestaurerChamps(o){
+  if(!o) return 0;
+  JX_ETAT_CHAMPS=o;
+  var n=0;
+  Object.keys(o).forEach(function(id){
+    var e=document.getElementById(id); if(!e) return;
+    try{
+      if(e.type==='checkbox'||e.type==='radio') e.checked=(o[id]===true);
+      else e.value=o[id];
+      n++;
+      e.dispatchEvent(new Event('input',{bubbles:true}));
+      e.dispatchEvent(new Event('change',{bubbles:true}));
+    }catch(x){}
+  });
+  return n;
+}
 function sauvegarderEtat(){
   try {
   const etat={
+    champs: jxChampsEtat(),
     page: document.querySelector('.page.act')?.id || 'pg-home',
     timestamp: Date.now(),
     E: E,
@@ -21626,6 +21829,8 @@ function restaurerEtat(){
     Object.entries(champs).forEach(([id,val])=>{
       if(val){const el=document.getElementById(id);if(el)el.value=val;}
     });
+    /* Puis tous les autres champs de l'application, quelle que soit la page. */
+    try{ jxRestaurerChamps(etat.champs); }catch(e){}
     if(etat.conducteurs)conducteurs=etat.conducteurs;
     return etat;
   }catch(e){return false;}
@@ -21686,11 +21891,14 @@ document.addEventListener('DOMContentLoaded', function(){
   // Afficher la bannière de restauration si données récentes
   setTimeout(()=>{
     const etat=restaurerEtat();
-    if(etat&&etat.contrat&&etat.contrat.nom){
+    /* La banniere ne s'affichait que si le formulaire Contrat portait un nom :
+       une session entiere pouvait etre restauree sans que rien ne le dise. */
+    const _nb=(etat&&etat.champs)?Object.keys(etat.champs).length:0;
+    if(etat&&(_nb>0||(etat.contrat&&etat.contrat.nom))){
       const banner=document.createElement('div');
       banner.id='restore-banner';
       banner.style.cssText='position:fixed;bottom:80px;left:14px;right:14px;background:#162639;border:1px solid rgba(201,168,76,0.4);border-radius:12px;padding:12px 14px;z-index:300;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,0.3)';
-      banner.innerHTML=`<div style="flex:1;font-size:12px;color:#e8e4d8">💾 Session précédente restaurée — <strong style="color:#e8c97a">${etat.contrat.nom||''}</strong></div><button onclick="document.getElementById('restore-banner').remove()" style="background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.3);color:#e8c97a;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer">OK</button>`;
+      banner.innerHTML=`<div style="flex:1;font-size:12px;color:#e8e4d8">💾 Session précédente restaurée — <strong style="color:#e8c97a">${(etat.contrat&&etat.contrat.nom)?etat.contrat.nom:(_nb+' champ'+(_nb>1?'s':''))}</strong></div><button onclick="document.getElementById('restore-banner').remove()" style="background:rgba(201,168,76,0.2);border:1px solid rgba(201,168,76,0.3);color:#e8c97a;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer">OK</button>`;
       document.body.appendChild(banner);
       setTimeout(()=>banner.remove(),5000);
     }

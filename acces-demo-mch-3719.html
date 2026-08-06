@@ -4,19 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Juris Expert MCH — accès direct</title>
+<title>Juris Expert MCH — accès de démonstration</title>
 </head>
-<body style="background:#0c1a28;color:#e8e4d8;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
-<div style="text-align:center">
+<body style="background:#0c1a28;color:#e8e4d8;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px">
+<div style="text-align:center;max-width:420px">
   <div style="font-size:40px">⚖️</div>
-  <div style="font-size:16px;font-weight:700;margin-top:8px">Juris Expert MCH</div>
-  <div style="font-size:13px;color:#9a9585;margin-top:4px">Ouverture de l'application…</div>
+  <div style="font-size:17px;font-weight:700;margin-top:10px">Juris Expert MCH</div>
+  <div style="font-size:13.5px;color:#9a9585;margin-top:14px;line-height:1.7">
+    Cette adresse ouvrait l’application entière, sans abonnement, pour quiconque
+    la connaissait — un lien partagé, un historique de navigateur, un favori
+    suffisaient. Elle ne le fait plus.
+  </div>
+  <div style="font-size:13.5px;color:#e8e4d8;margin-top:16px;line-height:1.7">
+    Pour ouvrir un dossier, utilisez votre <b>code d’accès</b> depuis la page
+    d’accueil : « J’ai déjà un code ».
+  </div>
+  <a href="./index.html" style="display:inline-block;margin-top:20px;padding:13px 22px;border-radius:12px;
+     background:#c9a84c;color:#1a1a1a;font-weight:700;font-size:15px;text-decoration:none">
+    Aller à l’accueil →
+  </a>
 </div>
-<script>
-/* Accès de démonstration : déverrouille la session puis ouvre l'application.
-   Le déverrouillage vaut pour la session du navigateur (onglet) — pas d'accès permanent. */
-try { sessionStorage.setItem('jte_ok', '1'); } catch (e) {}
-location.replace('./index.html');
-</script>
+<!-- Le deverrouillage automatique de la session a ete retire : il fondait
+     tout le controle d'acces sur une URL devinable. -->
 </body>
 </html>
