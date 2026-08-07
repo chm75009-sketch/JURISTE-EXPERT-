@@ -61,8 +61,8 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | Marque | Où | Quoi |
 |--------|----|------|
 | `[EMAIL]` | accueil, mentions, confidentialité | Adresse électronique du cabinet |
-| Horaires | accueil | Seule la **fermeture à 20 h** est connue (fiche Google). L'heure d'ouverture reste surlignée, et « rendez-vous en soirée sur demande » attend confirmation |
-| `[GARE / PARKING]` | accueil | Accès (gare d'Argenteuil, parking…) |
+| Accès | accueil | Supprimé, faute de pouvoir le vérifier : distance à la gare, stationnement, accessibilité PMR. Ne le remettre qu'avec des informations tenues du cabinet — écrire « accessible aux personnes à mobilité réduite » sans que ce soit vrai fait venir quelqu'un devant une marche |
+| Horaires | accueil | Seule la **fermeture à 20 h** est connue (fiche Google). L'heure d'ouverture reste surlignée. « Rendez-vous en soirée sur demande » a été supprimé : c'était un engagement inventé |
 | Photo **provisoire** | bandeau + signature | `portrait.png` est en place : le cliché de la fiche Google, détouré et recadré au cercle (294 px). Il fait l'affaire, mais il est petit — sur un écran haute densité il manque de piqué. À remplacer par une photo de studio dès qu'il y en a une : déposer le fichier dans le dossier et écrire son nom dans `var PORTRAIT` (script de `index.html`), carré de préférence, 800 px minimum |
 | `[CLÉ_WEB3FORMS]` | accueil (formulaire) | Voir § 3 |
 | `[ASSUREUR ET N° DE POLICE]` | mentions | RCP et garantie financière |
