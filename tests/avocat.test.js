@@ -129,6 +129,16 @@ const ok = (c, m, d) => {
   ok(tels.length >= 3, 'le numéro est appelable depuis plusieurs endroits', tels.length);
   tels.forEach(t => ok(/^tel:\+?[0-9]{8,}$/.test(t.replace(/\s/g, '')),
     'lien d\'appel exploitable : ' + t));
+  /* Un seul numéro, le vrai : un bouton qui appellerait ailleurs qu'un autre
+     serait pire qu'un bouton mort. Et le numéro fictif des premières maquettes
+     ne doit plus subsister nulle part, sur aucune page. */
+  ok(new Set(tels).size === 1 && tels[0] === 'tel:+33134340882',
+    'tous les boutons appellent le même numéro, celui du cabinet', [...new Set(tels)].join(' '));
+  for (const f of PAGES) {
+    const src = fs.readFileSync(path.join(DOSSIER, f), 'utf8');
+    ok(!/01\s*99\s*00\s*12\s*34|\+?33199001234/.test(src),
+      'aucun reste du numéro fictif dans ' + f);
+  }
 
   /* Les honoraires communiqués par le cabinet, au bon endroit. */
   const tarifs = await p.$$eval('.tar .tl:not(.hdr)', l => l.map(x => ({

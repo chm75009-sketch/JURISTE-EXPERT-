@@ -5,7 +5,7 @@
 
    Après chaque modification du site, incrémentez CACHE (v2, v3…) : c'est ce
    qui force les téléphones déjà installés à récupérer la nouvelle version. */
-const CACHE = 'cj-avocats-v2';
+const CACHE = 'cj-avocats-v3';
 
 const FICHIERS = [
   './',

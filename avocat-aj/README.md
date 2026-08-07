@@ -29,8 +29,8 @@ avocat-aj/
 ├── icone-512.png
 ├── icone-180.png         ← icône iPhone (apple-touch-icon)
 ├── icones.py             ← régénère les trois icônes (python3 icones.py .)
-└── portrait.jpg          ← FACULTATIF : dès qu'il existe, il remplace
-                            le monogramme dans le bandeau et la présentation
+└── portrait.png          ← la photo, détourée au cercle : elle remplace le
+                            monogramme dans le bandeau et dans la signature
 ```
 
 L'accueil déroule, dans cet ordre :
@@ -60,9 +60,8 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 
 | Marque | Où | Quoi |
 |--------|----|------|
-| `[TÉLÉPHONE]` | accueil (bouton d'appel + coordonnées) | Numéro, au format `+33…` dans les liens `tel:` |
 | `[EMAIL]` | accueil, mentions, confidentialité | Adresse électronique du cabinet |
-| `[9 h – 19 h]` | accueil | Horaires réels |
+| Horaires | accueil | Seule la **fermeture à 20 h** est connue (fiche Google). L'heure d'ouverture reste surlignée, et « rendez-vous en soirée sur demande » attend confirmation |
 | `[GARE / PARKING]` | accueil | Accès (gare d'Argenteuil, parking…) |
 | Photo **provisoire** | bandeau + signature | `portrait.png` est en place : le cliché de la fiche Google, détouré et recadré au cercle (294 px). Il fait l'affaire, mais il est petit — sur un écran haute densité il manque de piqué. À remplacer par une photo de studio dès qu'il y en a une : déposer le fichier dans le dossier et écrire son nom dans `var PORTRAIT` (script de `index.html`), carré de préférence, 800 px minimum |
 | `[CLÉ_WEB3FORMS]` | accueil (formulaire) | Voir § 3 |
