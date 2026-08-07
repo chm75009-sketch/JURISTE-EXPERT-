@@ -142,9 +142,9 @@ Ils sont corrigés en v2026-08-07.148 :
 
 ---
 
-# Le troisième fichier — `PERSONNEL_FICTIF_1509`
+# Le troisième fichier — `PERSONNEL_FICTIF_2500`
 
-**1 509 salariés**, six établissements distincts. La taille où **tous** les
+**2 500 salariés**, six établissements distincts. La taille où **tous** les
 seuils sont franchis : 1 000 (congé de reclassement, administrateurs
 salariés, comité d'entreprise européen), 750, 500, 300 (R.2312-9,
 informations trimestrielles, commissions), 250 (cinq indicateurs de
@@ -181,7 +181,7 @@ naissance. À distinguer des **homonymes** `JACQUET Julien`, dont les dates
 de naissance diffèrent : ceux-là ne sont pas un doublon.
 
 Le contrôle de cohérence relève **treize** anomalies, dont ce doublon.
-L'index se calcule sur **1 468** retenus, **cinq** indicateurs.
+L'index se calcule sur **2 437** retenus, **cinq** indicateurs. 514 cadres.
 
 ---
 
@@ -205,3 +205,26 @@ Le mode d'emploi rappelle ce que la trame **ne remplace pas** : la base doit
 mise à disposition qui vaut communication (R.2312-14) et fait courir le
 délai d'examen du comité (L.2312-15, R.2312-6). Un fichier envoyé par
 courriel n'y suffit pas.
+
+
+---
+
+# Le dossier à faire remplir — `DOSSIER_CLIENT_A_FOURNIR.xlsx`
+
+Sept feuilles. Il couvre **toutes** les questions que l'application pose.
+
+| Feuille | Contenu |
+|---|---|
+| Mode d'emploi | Dans quel ordre remplir, et les six pièges |
+| **0. LES DATES** | Ce qu'il faut arrêter, à quelle date, et pourquoi — à faire en premier |
+| 1. Registre du personnel | Les 18 colonnes attendues, ce qu'on ne peut pas faire sans chacune |
+| 2. Index égalité | Les cinq indicateurs, ce que le registre ne donne pas |
+| 3. Budgets du comité | Trois exercices |
+| 4. Le comité | Les questions sur l'institution, et la pièce justificative de chacune |
+| 5. BDESE | Les 50 sous-rubriques, dont **9 marquées CALCULÉ** — à ne pas ressaisir |
+
+La feuille **0. LES DATES** est la première parce que tout en dépend : arrêté
+du registre, période de référence de l'index, publication au 1er mars,
+dernier exercice clos, année en cours de la BDESE, et surtout la **date de
+mise à disposition** — celle qui vaut communication au comité (R.2312-14) et
+fait courir le délai d'examen (L.2312-15, R.2312-6).
