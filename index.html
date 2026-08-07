@@ -913,7 +913,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
-var JX_MAJ = '6 août 2026';
+var JX_MAJ = '7 août 2026';
 /* Le compte actif. Tout ce qui appartient a un dossier client — la fiche
    entreprise, le secteur, le registre du personnel, les modules CSE — est
    range sous cette cle. Un cabinet ouvre plusieurs dossiers depuis le meme
@@ -991,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-06.140';
+var JX_BUILD = 'v2026-08-07.141';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,6 +1000,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.141', d:'7 aout 2026', t:[
+   'L\'INDEX DE L\'EGALITE PROFESSIONNELLE N\'EXISTAIT PAS. La base de données portait le thème « Égalité professionnelle entre les femmes et les hommes » en simple case à cocher, et rien derrière : aucun calcul de l\'écart de rémunération, aucun indicateur, aucune note. C\'est pourtant, pour une entreprise d\'au moins cinquante salariés, une obligation annuelle sanctionnée jusqu\'à 1 % de la masse salariale (L.1142-7 à L.1142-10). Le calcul est écrit à la lettre du décret : quatre catégories socioprofessionnelles croisées avec quatre tranches d\'âge — ou, après avis du comité, les niveaux et coefficients de la convention collective avec un seuil de pertinence de 2 % au lieu de 5 % (D.1142-2, 1°) ; un groupe n\'entre dans le calcul que s\'il compte au moins TROIS femmes ET TROIS hommes ; si les groupes valides couvrent moins de 40 % de l\'effectif, l\'indicateur est INCALCULABLE — c\'est cette impossibilité qu\'il faut déclarer, et non un zéro ; le seuil de pertinence se retranche à la valeur absolue de l\'écart sans en changer le sens, il joue en faveur de l\'employeur et jamais contre ; le barème des augmentations et des promotions s\'applique à l\'écart en points de pourcentage ET à l\'écart en nombre équivalent de salariés, la meilleure note étant retenue ; le retour de congé maternité est TOUT OU RIEN, une seule omission ramène l\'indicateur à zéro (L.1225-26) ; et l\'index lui-même n\'est calculable que si les indicateurs calculables totalisent au moins 75 points.',
+   'CE QUE CET OUTIL NE GARANTIT PAS, ET LE DIT A L\'ECRAN. Les tables de conversion des écarts en points — l\'annexe du décret — n\'ont pas pu être confrontées au texte primaire depuis cet environnement : Légifrance et le simulateur Index Egapro y sont inaccessibles. La méthode est vérifiée ; ces tables ne le sont pas. Elles sont regroupées en un seul endroit du code pour être corrigées d\'un geste, et l\'écran porte l\'avertissement tant que le contrôle n\'est pas fait — comme il le fait déjà pour le barème des élus au-delà de 2 500 salariés.',
+   'AUCUNE SECONDE SAISIE. Le sexe, la date de naissance, le statut et le coefficient sont lus du REGISTRE DU PERSONNEL ; l\'effectif vient du calcul des seuils. Les apprentis, les contrats de professionnalisation, les salariés mis à disposition et ceux présents moins de six mois sur la période sont écartés, et chaque exclusion est nommée. Ce qui manque au registre est ÉCRIT, salarié par salarié — jamais deviné. Seule reste à saisir la rémunération annuelle brute en équivalent temps plein : elle n\'est pas le salaire mensuel multiplié par douze, et l\'application ne la déduira pas. Un bouton la pré-remplit sur demande, en rappelant ce que le décret y inclut et ce qu\'il en exclut.',
+   'LA BDESE ETAIT UNE LISTE DE DIX CASES. Elle porte désormais les sous-rubriques de R.2312-8, avec celles que R.2312-9 ajoute à partir de trois cents salariés, l\'article de chaque thème, et les liens vers les documents qui l\'alimentent — registre du personnel, calcul des effectifs, budgets du comité, index de l\'égalité. Un thème manquait purement et simplement : le 9°, les transferts commerciaux et financiers entre les entités du groupe (L.2312-36, 9°). Il est ajouté. Le 8° réunit désormais la sous-traitance, que vise la loi, et les partenariats, que détaille le décret.',
+   'Un fichier de tests couvre le moteur : seuil des trois femmes et trois hommes, règle des 40 %, sens de l\'écart, refus motivés, maternité sans objet ramenée sur 100, et lecture du registre.'
+ ]},
  {v:'v2026-08-06.140', d:'6 aout 2026', t:[
    'LE CDD BATIMENT ET LE CDD TERTIAIRE ETAIENT DES CDI. Les deux générateurs titraient « CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE » et ne produisaient AUCUNE clause de CDD — le type de contrat n\'y servait qu\'à écrire le titre. Le CDD et le CDI du bâtiment ne différaient que de deux caractères. Manquaient, une à une, les mentions dont l\'omission emporte REQUALIFICATION EN CDI (L.1242-12) : motif précis du recours, nom et qualification du salarié remplacé, terme ou durée minimale, période d\'essai, institution de retraite complémentaire, indemnité de fin de contrat. Les champs étaient pourtant remplis : « BERNARD Alice », « congé maternité », « 31/01/2027 » n\'apparaissaient nulle part.',
    'Pire, ces documents AFFIRMAIENT LE FAUX. « La rupture du contrat est précédée d\'un préavis conventionnel » — un CDD ne se rompt pas moyennant préavis ; hors des cas de L.1243-1, une rupture par l\'employeur ouvre droit aux salaires restant dus jusqu\'au terme (L.1243-4). Et une période d\'essai de 2, 3 ou 4 mois renouvelable, alors que L.1242-10 la plafonne à deux semaines ou un mois, NON renouvelable. Le bloc de clauses est désormais écrit une seule fois et sert aux trois secteurs. Un test le produit dans cinq secteurs et relit le document.',
@@ -10344,18 +10351,521 @@ function hubDoc(mod, sous){
   alert('Aucun générateur n’est encore rattaché à ce document. Il figure au classeur pour que son absence soit visible.');
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   INDEX DE L'EGALITE PROFESSIONNELLE ENTRE LES FEMMES ET LES HOMMES
+   L.1142-7 a L.1142-10 · D.1142-2 a D.1142-14
+
+   Cinq indicateurs au-dela de 250 salaries, quatre de 50 a 250. Cent
+   points. Le calcul est ecrit ici a la lettre du decret.
+
+   UN SEUL POINT N'A PAS PU ETRE VERIFIE A LA SOURCE depuis cet outil :
+   les TABLES DE CONVERSION EN POINTS de l'annexe du decret. Legifrance
+   et le simulateur Egapro sont inaccessibles depuis ce reseau. Elles
+   sont donc isolees dans JX_EGA_BAREME, en un seul endroit, et
+   l'ecran le dit tant que JX_EGA_BAREME_VERIFIE vaut false.
+   ══════════════════════════════════════════════════════════════════ */
+var JX_EGA_BAREME = {
+  /* Indicateur 1 — ecart de remuneration. Borne HAUTE de la tranche, en %. */
+  remuneration: [[0,40],[1,39],[2,38],[3,37],[4,36],[5,35],[6,34],[7,33],
+                 [8,31],[9,29],[10,27],[11,25],[12,23],[13,21],[14,19],
+                 [15,17],[16,14],[17,11],[18,8],[19,5],[20,2]],
+  remunerationHors: 0,
+  /* Indicateurs 2 et 3 — ecarts de taux, en POINTS DE POURCENTAGE. */
+  augmentations250: [[2,20],[5,10],[10,5]], augmentations250Hors: 0,
+  promotions250:    [[2,15],[5,10],[10,5]], promotions250Hors: 0,
+  /* Indicateur 2 des entreprises de 50 a 250 — augmentations, fusionne. */
+  augmentations50:  [[2,35],[5,25],[10,15]], augmentations50Hors: 0,
+  /* Indicateur 4 — retour de conge maternite : tout ou rien. */
+  maternite: 15,
+  /* Indicateur 5 — dix plus hautes remunerations. */
+  hautes: [[0,0],[1,0],[2,5],[3,5],[4,10],[5,10]]
+};
+var JX_EGA_BAREME_VERIFIE = false;
+
+var JX_EGA_CSP = [
+  {k:'ouvrier',  lib:'Ouvriers'},
+  {k:'employe',  lib:'Employés'},
+  {k:'tam',      lib:'Techniciens et agents de maîtrise'},
+  {k:'cadre',    lib:'Ingénieurs et cadres'}
+];
+var JX_EGA_AGES = [
+  {k:'-30',   lib:'Moins de 30 ans',  min:0,  max:29},
+  {k:'30-39', lib:'De 30 à 39 ans',   min:30, max:39},
+  {k:'40-49', lib:'De 40 à 49 ans',   min:40, max:49},
+  {k:'50+',   lib:'50 ans et plus',   min:50, max:200}
+];
+
+function egaTrancheAge(age){
+  if(age===null || !isFinite(age)) return '';
+  for(var i=0;i<JX_EGA_AGES.length;i++){
+    if(age>=JX_EGA_AGES[i].min && age<=JX_EGA_AGES[i].max) return JX_EGA_AGES[i].k;
+  }
+  return '';
+}
+function egaAgeAu(dateNaissance, dateRef){
+  if(!dateNaissance) return null;
+  var n=new Date(dateNaissance), d=dateRef?new Date(dateRef):new Date();
+  if(isNaN(n)||isNaN(d)) return null;
+  var a=d.getFullYear()-n.getFullYear();
+  if(d.getMonth()<n.getMonth() || (d.getMonth()===n.getMonth() && d.getDate()<n.getDate())) a--;
+  return a;
+}
+/* La categorie se lit du STATUT du registre, jamais de l'intitule du poste :
+   « responsable » n'est pas un statut, « Cadre » en est un. Ce qui n'est pas
+   renseigne n'est pas devine — le salarie est mis de cote et l'ecran le dit. */
+function egaCSP(statut){
+  var t=String(statut||'').toLowerCase();
+  if(!t) return '';
+  if(/cadre|ing[ée]nieur/.test(t))              return 'cadre';
+  if(/\btam\b|technicien|ma[iî]trise/.test(t))  return 'tam';
+  if(/employ/.test(t))                          return 'employe';
+  if(/ouvrier/.test(t))                         return 'ouvrier';
+  return '';
+}
+function egaSexe(v){
+  var t=String(v||'').toLowerCase().trim();
+  if(/^(mme|mlle|madame|mademoiselle|femme|f[ée]minin)$|^f$/.test(t)) return 'F';
+  if(/^(m|mr|monsieur|homme|masculin|h)$/.test(t)) return 'M';
+  if(/femme|f[ée]minin/.test(t)) return 'F';
+  if(/homme|masculin/.test(t))   return 'M';
+  return '';
+}
+
+/* ── INDICATEUR 1 — L'ECART DE REMUNERATION (40 points) ──────────────── */
+/* methode : 'csp' → 4 categories x 4 tranches d'age (regle suppletive)
+             'ccn' → niveaux ou coefficients de la convention collective,
+                     possible seulement APRES AVIS DU CSE (D.1142-2, 1°).
+   Le seuil de pertinence n'est pas le meme : 5 % par categorie, 2 % par
+   niveau de la convention. */
+function egaIndicateur1(salaries, opt){
+  opt = opt || {};
+  var methode = (opt.methode==='ccn') ? 'ccn' : 'csp';
+  var seuilPert = (methode==='ccn') ? 2 : 5;
+  var groupes = {}, manque = [];
+
+  (salaries||[]).forEach(function(s, i){
+    var sx = egaSexe(s.sexe);
+    var rem = parseFloat(String(s.remuneration==null?'':s.remuneration).replace(/\s/g,'').replace(',','.'));
+    var cle='', lib='';
+    if(methode==='ccn'){
+      cle = String(s.niveau||'').trim();
+      lib = cle ? ('Niveau / coefficient ' + cle) : '';
+    } else {
+      var csp = egaCSP(s.statut), tr = egaTrancheAge(egaAgeAu(s.dateNaissance, opt.finPeriode));
+      if(csp && tr){
+        cle = csp+'|'+tr;
+        var L1=JX_EGA_CSP.filter(function(x){return x.k===csp;})[0];
+        var L2=JX_EGA_AGES.filter(function(x){return x.k===tr;})[0];
+        lib = L1.lib + ' — ' + L2.lib;
+      }
+    }
+    var quoi = [];
+    if(!sx) quoi.push('sexe');
+    if(!isFinite(rem) || rem<=0) quoi.push('rémunération annuelle');
+    if(!cle) quoi.push(methode==='ccn' ? 'niveau ou coefficient' : 'statut ou date de naissance');
+    if(quoi.length){ manque.push({nom:s.nom||('salarié n°'+(i+1)), quoi:quoi.join(', ')}); return; }
+    if(!groupes[cle]) groupes[cle]={cle:cle, lib:lib, F:[], M:[]};
+    groupes[cle][sx].push(rem);
+  });
+
+  var retenus=[], ecartes=[], effRetenu=0, effTotal=0;
+  Object.keys(groupes).forEach(function(k){
+    var g=groupes[k], n=g.F.length+g.M.length;
+    effTotal+=n;
+    var moy=function(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; };
+    if(g.F.length<3 || g.M.length<3){
+      ecartes.push({lib:g.lib, F:g.F.length, M:g.M.length,
+                    motif:'moins de trois femmes ou moins de trois hommes'});
+      return;
+    }
+    var mF=moy(g.F), mM=moy(g.M);
+    var brut = mM ? ((mM-mF)/mM*100) : 0;
+    /* Le seuil de pertinence joue EN FAVEUR DE L'EMPLOYEUR : on retranche le
+       seuil a la valeur absolue de l'ecart, sans changer son signe, sans
+       descendre sous zero. */
+    var abs=Math.abs(brut);
+    var corrige = (abs<=seuilPert) ? 0 : (abs-seuilPert);
+    var signe = (brut<0) ? -1 : 1;
+    retenus.push({lib:g.lib, nF:g.F.length, nM:g.M.length, moyF:mF, moyM:mM,
+                  brut:brut, corrige:corrige*signe, effectif:n});
+    effRetenu+=n;
+  });
+
+  var couverture = effTotal ? (effRetenu/effTotal*100) : 0;
+  if(!retenus.length || couverture < 40){
+    return {calculable:false,
+      motif:'INCALCULABLE — les groupes valides représentent '
+        + (Math.round(couverture*10)/10) + ' % de l’effectif retenu, soit moins des 40 % exigés. '
+        + 'L’indicateur, et donc l’index, ne peuvent pas être calculés : c’est cette impossibilité qu’il faut déclarer, et non un score.',
+      methode:methode, seuilPertinence:seuilPert, retenus:retenus, ecartes:ecartes,
+      couverture:couverture, manque:manque, points:null, ecart:null, max:40};
+  }
+  /* Ecart global = moyenne des ecarts de groupe, ponderee par leur effectif. */
+  var somme=0;
+  retenus.forEach(function(g){ somme += g.corrige * (g.effectif/effRetenu); });
+  var ecart = Math.round(somme*10)/10;
+  return {calculable:true, methode:methode, seuilPertinence:seuilPert,
+          retenus:retenus, ecartes:ecartes, couverture:couverture, manque:manque,
+          ecart:ecart,
+          points:egaPoints(Math.abs(ecart), JX_EGA_BAREME.remuneration, JX_EGA_BAREME.remunerationHors),
+          max:40};
+}
+
+/* La table donne la BORNE HAUTE de chaque tranche. */
+function egaPoints(valeur, table, horsTable){
+  if(!isFinite(valeur)) return null;
+  for(var i=0;i<table.length;i++){ if(valeur<=table[i][0]) return table[i][1]; }
+  return horsTable;
+}
+
+/* ── INDICATEURS 2 et 3 — AUGMENTATIONS ET PROMOTIONS ────────────────── */
+/* Le bareme s'applique A LA FOIS a l'ecart en points de pourcentage ET a
+   l'ecart exprime en nombre equivalent de salaries ; on retient le nombre
+   de points LE PLUS ELEVE. */
+function egaEcartTaux(nbF, nbH, augF, augH, table, horsTable, max){
+  nbF=parseFloat(nbF); nbH=parseFloat(nbH); augF=parseFloat(augF); augH=parseFloat(augH);
+  if(!isFinite(nbF)||!isFinite(nbH)||!isFinite(augF)||!isFinite(augH)||nbF<=0||nbH<=0){
+    return {calculable:false, points:null, max:max,
+            motif:'Renseignez, pour les deux sexes, l’effectif retenu et le nombre de salariés concernés.'};
+  }
+  if(nbF<3 || nbH<3){
+    return {calculable:false, points:null, max:max,
+            motif:'INCALCULABLE — l’indicateur suppose au moins trois femmes ET trois hommes dans l’effectif retenu.'};
+  }
+  if(augF>nbF || augH>nbH){
+    return {calculable:false, points:null, max:max,
+            motif:'Le nombre de salariés concernés ne peut pas dépasser l’effectif du même sexe.'};
+  }
+  var tF=augF/nbF*100, tH=augH/nbH*100;
+  var ecartPts = Math.abs(tH-tF);
+  /* En nombre equivalent de salaries : l'ecart de taux rapporte au plus petit
+     des deux effectifs. */
+  var ecartSal = Math.abs(tH-tF)/100 * Math.min(nbF,nbH);
+  var p1=egaPoints(ecartPts, table, horsTable);
+  var p2=egaPoints(ecartSal, table, horsTable);
+  return {calculable:true, tauxF:tF, tauxH:tH, ecartPoints:ecartPts, ecartSalaries:ecartSal,
+          points:Math.max(p1,p2), pointsParPourcentage:p1, pointsParSalaries:p2, max:max};
+}
+
+/* ── INDICATEUR 4 — RETOUR DE CONGE MATERNITE (15 points) ────────────── */
+/* Tout ou rien : une seule salariee non augmentee a son retour, et
+   l'indicateur vaut zero (L.1225-26). */
+function egaIndicateurMaternite(nbRetours, nbAugmentees){
+  var n=parseFloat(nbRetours), a=parseFloat(nbAugmentees);
+  if(!isFinite(n)) return {calculable:false, points:null, max:15,
+    motif:'Renseignez le nombre de salariées revenues de congé maternité (ou d’adoption) pendant la période, dès lors que des augmentations sont intervenues pendant leur congé.'};
+  if(n===0) return {calculable:false, points:null, max:15, sansObjet:true,
+    motif:'Aucun retour concerné pendant la période : l’indicateur est INCALCULABLE. Les points des autres indicateurs sont alors ramenés à 100 par règle de trois.'};
+  if(!isFinite(a)) return {calculable:false, points:null, max:15,
+    motif:'Renseignez le nombre de ces salariées qui ont été augmentées à leur retour.'};
+  if(a>n) return {calculable:false, points:null, max:15,
+    motif:'Le nombre de salariées augmentées ne peut pas dépasser le nombre de retours.'};
+  return {calculable:true, retours:n, augmentees:a, max:15,
+    points:(a>=n?JX_EGA_BAREME.maternite:0),
+    detail:(a>=n?'Toutes les salariées concernées ont été augmentées à leur retour.'
+                :'Sur '+n+' retour(s), '+a+' augmentation(s). L’article L.1225-26 est d’ordre public : une seule omission ramène l’indicateur à zéro.')};
+}
+
+/* ── INDICATEUR 5 — LES DIX PLUS HAUTES REMUNERATIONS (10 points) ────── */
+function egaIndicateurHautes(nbSexeSousRepresente){
+  var n=parseFloat(nbSexeSousRepresente);
+  if(!isFinite(n)) return {calculable:false, points:null, max:10,
+    motif:'Indiquez combien de salariés du sexe le moins représenté figurent parmi les dix plus hautes rémunérations.'};
+  if(n<0||n>10) return {calculable:false, points:null, max:10,
+    motif:'Ce nombre ne peut être ni négatif, ni supérieur à dix.'};
+  var t=JX_EGA_BAREME.hautes, p=t[t.length-1][1];
+  for(var i=0;i<t.length;i++){ if(n<=t[i][0]){ p=t[i][1]; break; } }
+  return {calculable:true, nombre:n, points:p, max:10};
+}
+
+/* ── L'INDEX ─────────────────────────────────────────────────────────── */
+function egaIndex(donnees){
+  donnees = donnees || {};
+  var eff = parseFloat(donnees.effectif);
+  var grande = isFinite(eff) && eff >= 250;
+  var out = {effectif:eff, grande:grande, indicateurs:[], total:null, sur:0,
+             calculable:true, motifs:[]};
+
+  out.indicateurs.push({k:'remuneration', lib:'Écart de rémunération', max:40,
+    r:egaIndicateur1(donnees.salaries, {methode:donnees.methode, finPeriode:donnees.finPeriode})});
+
+  if(grande){
+    out.indicateurs.push({k:'augmentations', lib:'Écart de taux d’augmentations individuelles (hors promotions)', max:20,
+      r:egaEcartTaux(donnees.nbF, donnees.nbH, donnees.augF, donnees.augH,
+                     JX_EGA_BAREME.augmentations250, JX_EGA_BAREME.augmentations250Hors, 20)});
+    out.indicateurs.push({k:'promotions', lib:'Écart de taux de promotions', max:15,
+      r:egaEcartTaux(donnees.nbF, donnees.nbH, donnees.promoF, donnees.promoH,
+                     JX_EGA_BAREME.promotions250, JX_EGA_BAREME.promotions250Hors, 15)});
+  } else {
+    out.indicateurs.push({k:'augmentations', lib:'Écart de taux d’augmentations individuelles — indicateur unique des entreprises de 50 à 250 salariés', max:35,
+      r:egaEcartTaux(donnees.nbF, donnees.nbH, donnees.augF, donnees.augH,
+                     JX_EGA_BAREME.augmentations50, JX_EGA_BAREME.augmentations50Hors, 35)});
+  }
+  out.indicateurs.push({k:'maternite', lib:'Augmentations au retour de congé maternité', max:15,
+    r:egaIndicateurMaternite(donnees.matRetours, donnees.matAugmentees)});
+  out.indicateurs.push({k:'hautes', lib:'Sexe le moins représenté parmi les dix plus hautes rémunérations', max:10,
+    r:egaIndicateurHautes(donnees.hautes)});
+
+  var obtenus=0, sur=0, incalculables=[];
+  out.indicateurs.forEach(function(x){
+    if(x.r && x.r.calculable && x.r.points!==null){ obtenus+=x.r.points; sur+=x.max; }
+    else incalculables.push(x.lib + ((x.r&&x.r.motif)?(' — '+x.r.motif):''));
+  });
+  out.sur=sur; out.brut=obtenus; out.incalculables=incalculables;
+  /* L'index n'est calculable que si les indicateurs calculables totalisent au
+     moins 75 points de bareme. */
+  if(sur < 75){
+    out.calculable=false;
+    out.motifs.push('INDEX INCALCULABLE — les indicateurs calculables ne totalisent que '+sur
+      +' points sur 100, alors que le calcul suppose au moins 75 points calculables. '
+      +'C’est cette impossibilité qu’il faut publier et déclarer, et non un score.');
+    return out;
+  }
+  out.total = Math.round(obtenus / sur * 100);
+  out.seuil75 = out.total < 75;
+  out.seuil85 = out.total < 85;
+  return out;
+}
+
+/* ══════════ CE QUE LE REGISTRE DU PERSONNEL DONNE DEJA ══════════
+   L'index ne demande pas une seconde saisie : le sexe, la date de
+   naissance, le statut et le coefficient sont deja au registre. Seule la
+   REMUNERATION ANNUELLE BRUTE EN EQUIVALENT TEMPS PLEIN reste a saisir,
+   parce qu'elle n'est pas le salaire mensuel multiplie par douze et que
+   l'application ne la deduira pas. */
+function egaISO(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function egaLoad(){
+  if(!HUB.ega) HUB.ega={};
+  var G=HUB.ega;
+  if(!G.rem) G.rem={};
+  if(!G.exclus) G.exclus={};
+  if(!G.periodeFin){ var t=new Date(); G.periodeFin=(t.getFullYear()-1)+'-12-31'; }
+  if(!G.methode) G.methode='csp';
+  return G;
+}
+function egaPeriode(){
+  var G=egaLoad(), fin=G.periodeFin;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(fin||'')){ var t=new Date(); fin=(t.getFullYear()-1)+'-12-31'; }
+  var f=new Date(fin+'T00:00:00');
+  var d=new Date(f.getTime()); d.setFullYear(d.getFullYear()-1); d.setDate(d.getDate()+1);
+  var six=new Date(d.getTime()); six.setMonth(six.getMonth()+6);
+  return {debut:egaISO(d), fin:fin, joursSix:Math.round((six-d)/86400000)};
+}
+/* Les exclusions du texte : apprentis, contrats de professionnalisation,
+   salaries mis a disposition par une entreprise exterieure, expatries,
+   et salaries presents moins de six mois sur la periode. */
+function egaExclusion(s, P){
+  var t=String(s.typeContrat||'').toLowerCase();
+  if(/apprenti/.test(t))            return 'contrat d’apprentissage';
+  if(/profession/.test(t))          return 'contrat de professionnalisation';
+  if(/int[ée]rim/.test(t))          return 'mis à disposition par une entreprise extérieure';
+  if(/stage|stagiaire/.test(t))     return 'stagiaire — non salarié';
+  var e=s.entree||'', so=s.sortie||'';
+  if(so && so < P.debut) return 'sorti avant le début de la période';
+  if(e  && e  > P.fin)   return 'entré après la fin de la période';
+  var a=(e && e>P.debut)?e:P.debut, b=(so && so<P.fin)?so:P.fin;
+  var j=Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)+1;
+  if(isFinite(j) && j < P.joursSix) return 'présent moins de six mois sur la période (' + Math.max(0,j) + ' jours)';
+  return '';
+}
+/* La liste telle qu'elle sera calculee, et la liste de ce qui manque. */
+function egaSalaries(){
+  try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){}
+  var G=egaLoad(), P=egaPeriode();
+  var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
+  var retenus=[], exclus=[];
+  st.forEach(function(s){
+    var nom=((s.nom||'')+' '+(s.prenom||'')).trim() || 'sans nom';
+    var m=egaExclusion(s, P);
+    if(G.exclus[s.id]) m='absent plus de la moitié de la période (indiqué à la main)';
+    if(m){ exclus.push({id:s.id, nom:nom, motif:m}); return; }
+    retenus.push({id:s.id, nom:nom, sexe:s.sexe||'', dateNaissance:s.naissance||'',
+                  statut:s.statut||'', niveau:(s.coeff||''), tempsTravail:s.tempsTravail||'',
+                  salaireMensuel:s.salaire||'', remuneration:(G.rem[s.id]||'')});
+  });
+  retenus.sort(function(a,b){ return a.nom.localeCompare(b.nom); });
+  return {retenus:retenus, exclus:exclus, periode:P, methode:G.methode};
+}
+function egaDonnees(){
+  var L=egaSalaries(), G=egaLoad();
+  var eff=(typeof cseEffectif==='function')?cseEffectif():null;
+  return {effectif:(eff===null?L.retenus.length:eff), salaries:L.retenus,
+          methode:G.methode, finPeriode:L.periode.fin,
+          nbF:G.nbF, nbH:G.nbH, augF:G.augF, augH:G.augH, promoF:G.promoF, promoH:G.promoH,
+          matRetours:G.matRetours, matAugmentees:G.matAugmentees, hautes:G.hautes,
+          _liste:L};
+}
+function egaSet(k,v){ egaLoad(); HUB.ega[k]=String(v==null?'':v).trim(); hubSave(); hubRender(); }
+function egaSetRem(id,v){ var G=egaLoad(); G.rem[id]=String(v==null?'':v).trim(); hubSave(); hubRender(); }
+function egaToggleExclu(id){ var G=egaLoad(); if(G.exclus[id]) delete G.exclus[id]; else G.exclus[id]=1; hubSave(); hubRender(); }
+/* Reprise du registre : une ACTION, jamais une deduction silencieuse. */
+function egaReprendreSalaires(){
+  var L=egaSalaries(), G=egaLoad(), n=0, tp=0;
+  L.retenus.forEach(function(s){
+    if(G.rem[s.id]) return;
+    var m=parseFloat(String(s.salaireMensuel||'').replace(/\s/g,'').replace(',','.'));
+    if(!isFinite(m)||m<=0) return;
+    if(/partiel/i.test(s.tempsTravail||'')) tp++;
+    G.rem[s.id]=String(Math.round(m*12)); n++;
+  });
+  hubSave(); hubRender();
+  alert(n+' rémunération(s) pré-remplie(s) à 12 × le salaire mensuel du registre.\n\n'
+    +'CE N’EST PAS la rémunération de l’index. Il faut la corriger ligne à ligne :\n'
+    +'• elle est ANNUELLE et BRUTE, reconstituée en équivalent temps plein ;\n'
+    +'• elle comprend les primes liées à la personne et les bonus ;\n'
+    +'• elle EXCLUT les heures supplémentaires et complémentaires, les primes de précarité, '
+    +'les indemnités de licenciement et de départ à la retraite, l’intéressement, la participation '
+    +'et les versements de l’employeur aux plans d’épargne salariale.'
+    +(tp?('\n\n⚠ '+tp+' salarié(s) à temps partiel : le montant doit être reconstitué en équivalent temps plein.'):''));
+}
+function egaReprendreEffectifs(){
+  var L=egaSalaries(), G=egaLoad(), f=0, h=0, inc=0;
+  L.retenus.forEach(function(s){ var x=egaSexe(s.sexe); if(x==='F') f++; else if(x==='M') h++; else inc++; });
+  G.nbF=String(f); G.nbH=String(h); hubSave(); hubRender();
+  alert('Effectifs repris du registre : '+f+' femme(s), '+h+' homme(s).'
+    +(inc?('\n\n⚠ '+inc+' salarié(s) dont le sexe n’est pas renseigné au registre n’ont pas été comptés.'):''));
+}
+function egaCCN(){
+  try{
+    var p=(typeof secProfil==='function')?secProfil((typeof secCourant==='function')?secCourant():''):null;
+    var idcc=(typeof E!=='undefined'&&E&&E.idcc)?E.idcc:((p&&p.idccNum)?p.idccNum:'');
+    var lib=(typeof E!=='undefined'&&E&&E.ccn)?E.ccn:((p&&p.ccnLib)?p.ccnLib:'');
+    return {idcc:idcc, lib:lib};
+  }catch(e){ return {idcc:'', lib:''}; }
+}
+
 /* ══════════ LA BASE BDESE ══════════ */
+/* Les dix thèmes de L.2312-36, dans l'ordre de la loi. Le contenu de
+   chaque thème est celui de R.2312-8 en dessous de trois cents salariés,
+   de R.2312-9 à partir de trois cents. Les sous-rubriques « plus » ne
+   s'affichent qu'à partir de ce seuil : ce sont celles que le décret
+   ajoute, non un contenu de remplacement. */
 var HUB_BDESE=[
-  {k:'inv-social', lib:'Investissement social', det:'Emploi, évolution et répartition des contrats précaires, des stages et des emplois à temps partiel, formation professionnelle, évolution professionnelle et conditions de travail.'},
-  {k:'inv-mat',    lib:'Investissement matériel et immatériel', det:'Évolution des actifs nets d’amortissement et de dépréciations éventuelles, et, le cas échéant, dépenses de recherche et développement.'},
-  {k:'egalite',    lib:'Égalité professionnelle entre les femmes et les hommes', det:'Diagnostic et analyse de la situation comparée, égalité de rémunération, évolution des taux de promotion respectifs par métiers.'},
-  {k:'fonds',      lib:'Fonds propres, endettement et impôts', det:'Capitaux propres, emprunts et dettes financières, impôts et taxes.'},
-  {k:'remuneration',lib:'Ensemble des éléments de la rémunération des salariés et dirigeants', det:'Évolution des rémunérations salariales, épargne salariale, rémunération des dirigeants.'},
-  {k:'asc',        lib:'Activités sociales et culturelles', det:'Montant de la contribution aux activités sociales et culturelles du comité, mécénat.'},
-  {k:'financeurs', lib:'Rémunération des financeurs', det:'Rémunération des actionnaires et de l’actionnariat salarié.'},
-  {k:'flux',       lib:'Flux financiers à destination de l’entreprise', det:'Aides publiques, réductions d’impôts, exonérations et réductions de cotisations sociales, crédits d’impôts, mécénat.'},
-  {k:'partenariats',lib:'Partenariats', det:'Partenariats conclus pour produire des services ou des produits pour une autre entreprise, ou en bénéficier.'},
-  {k:'environnement',lib:'Conséquences environnementales de l’activité de l’entreprise', det:'Politique générale en matière environnementale, économie circulaire, changement climatique.'}
+  {k:'inv-social', num:'1° A', art:'R.2312-8, 1° A — R.2312-9, 1° A',
+   lib:'Investissements — investissement social',
+   det:'Emploi, évolution et répartition des contrats précaires, des stages et des emplois à temps partiel, formation professionnelle, évolution professionnelle et conditions de travail.',
+   sous:[
+     'Évolution des effectifs par type de contrat, par âge et par ancienneté',
+     'Évolution des emplois par catégorie professionnelle',
+     'Évolution de l’emploi des personnes handicapées et mesures prises pour le développer',
+     'Évolution du nombre de stagiaires de plus de seize ans',
+     'Formation professionnelle : investissements en formation, publics concernés',
+     'Conditions de travail : durée du travail, dont le travail à temps partiel et l’aménagement du temps de travail'
+   ],
+   plus:[
+     'Effectifs retracés mois par mois',
+     'Embauches par contrat à durée indéterminée et par contrat à durée déterminée ; motifs de recours aux contrats à durée déterminée, à l’intérim et aux stages ; nombre de journées de travail temporaire',
+     'Formation : orientations, résultat des négociations, modalités d’accès, bilan des actions du plan de développement des compétences, congés de formation, validation des acquis, bilans de compétences, apprentissage',
+     'Organisation du travail : travail posté, travail de nuit, horaires variables, équipes de suppléance',
+     'Médecine du travail, accidents du travail et maladies professionnelles'
+   ],
+   liens:[['rxOpen()','Registre du personnel'],['goPage(\'socle\')','Calcul des effectifs et des seuils']]},
+
+  {k:'inv-mat', num:'1° B', art:'R.2312-8, 1° B — R.2312-9, 1° B',
+   lib:'Investissements — investissement matériel et immatériel',
+   det:'Évolution des actifs nets d’amortissement et de dépréciations éventuelles, et, le cas échéant, dépenses de recherche et développement.',
+   sous:[
+     'Évolution des actifs nets d’amortissement et de dépréciations éventuelles (immobilisations)',
+     'Le cas échéant, dépenses de recherche et développement'
+   ],
+   plus:[
+     'Mesures envisagées pour améliorer, renouveler ou transformer les méthodes de production et d’exploitation, et leurs incidences sur les conditions de travail et l’emploi',
+     'Évolution de la productivité et taux d’utilisation des capacités de production, lorsque ces éléments sont mesurables'
+   ]},
+
+  {k:'egalite', num:'2°', art:'L.2312-36, 2° — R.2312-8, 2° — L.1142-8',
+   lib:'Égalité professionnelle entre les femmes et les hommes',
+   det:'Analyse des données chiffrées de la situation comparée, stratégie d’action, et publication de l’index et de ses indicateurs.',
+   sous:[
+     'A — Analyse des données chiffrées : conditions générales d’emploi (effectifs, durée et organisation du travail, congés, embauches et départs, positionnement dans l’entreprise)',
+     'A — Rémunérations et déroulement de carrière : promotion, ancienneté, âge, rémunérations',
+     'A — Formation : nombre moyen d’heures d’actions de formation par salarié et par an, répartition par type d’action',
+     'A — Conditions de travail, santé et sécurité au travail : répartition par poste selon l’exposition aux risques et la pénibilité, accidents du travail, maladies professionnelles',
+     'A — Congés et organisation du temps de travail : articulation entre l’activité professionnelle et la vie personnelle et familiale',
+     'B — Stratégie d’action : mesures prises au cours de l’année écoulée, objectifs de progression pour l’année à venir, définition qualitative et quantitative des mesures, évaluation du coût, échéancier',
+     'Index de l’égalité professionnelle : la note globale ET le résultat de CHAQUE indicateur (L.1142-8) — voir l’onglet « ⚖️ Index égalité »'
+   ],
+   plus:[
+     'Les mêmes indicateurs, déclinés par catégorie professionnelle, dans le détail de R.2312-9'
+   ],
+   liens:[['hubGo(\'egalite\')','⚖️ Calculer l’index']]},
+
+  {k:'fonds', num:'3°', art:'R.2312-8, 3°',
+   lib:'Fonds propres, endettement et impôts',
+   det:'Capitaux propres, emprunts et dettes financières, impôts et taxes.',
+   sous:[
+     'Capitaux propres de l’entreprise',
+     'Emprunts et dettes financières dont échéances et charges financières',
+     'Impôts et taxes'
+   ]},
+
+  {k:'remuneration', num:'4°', art:'R.2312-8, 4°',
+   lib:'Ensemble des éléments de la rémunération des salariés et dirigeants',
+   det:'Évolution des rémunérations salariales, épargne salariale, rémunérations accessoires, rémunération des dirigeants mandataires sociaux.',
+   sous:[
+     'A — Frais de personnel y compris cotisations sociales ; évolutions salariales par catégorie et par sexe ; salaire de base minimum ; salaire moyen ou médian, par sexe et par catégorie professionnelle',
+     'A — Pour les entreprises non soumises au bilan social : montant global des rémunérations les plus élevées — les dix personnes, ou les cinq si l’effectif est inférieur à deux cents',
+     'B — Épargne salariale : intéressement, participation',
+     'C — Rémunérations accessoires : primes par sexe et par catégorie professionnelle, avantages en nature, régimes de prévoyance et de retraite complémentaire',
+     'D — Rémunération des dirigeants mandataires sociaux, telle que présentée dans le rapport de gestion'
+   ],
+   liens:[['rxOpen()','Registre du personnel']]},
+
+  {k:'asc', num:'5°', art:'R.2312-8, 5°',
+   lib:'Activités sociales et culturelles',
+   det:'Contribution de l’employeur aux activités sociales et culturelles du comité, et mécénat.',
+   sous:[
+     'Montant de la contribution aux activités sociales et culturelles du comité',
+     'Mécénat'
+   ],
+   liens:[['goPage(\'csefonc\')','Budgets du comité']]},
+
+  {k:'financeurs', num:'6°', art:'R.2312-8, 6°',
+   lib:'Rémunération des financeurs, en dehors des éléments du 4°',
+   det:'Rémunération des actionnaires et de l’actionnariat salarié.',
+   sous:[
+     'Rémunération des actionnaires : revenus distribués',
+     'Rémunération de l’actionnariat salarié : montant des actions détenues dans le cadre de l’épargne salariale, part dans le capital, dividendes reçus'
+   ]},
+
+  {k:'flux', num:'7°', art:'R.2312-8, 7°',
+   lib:'Flux financiers à destination de l’entreprise',
+   det:'Aides publiques, réductions et crédits d’impôts, exonérations de cotisations, mécénat, résultats financiers.',
+   sous:[
+     'Aides publiques : aides ou avantages financiers consentis par l’État, une collectivité ou un organisme public, leur emploi',
+     'Réductions d’impôts',
+     'Exonérations et réductions de cotisations sociales',
+     'Crédits d’impôts',
+     'Mécénat',
+     'Résultats financiers : chiffre d’affaires, bénéfices ou pertes constatés, résultats d’activité en valeur et en volume, affectation des bénéfices réalisés'
+   ]},
+
+  {k:'partenariats', num:'8°', art:'L.2312-36, 8° (sous-traitance) — R.2312-8, 8° (partenariats)',
+   lib:'Sous-traitance et partenariats',
+   det:'La loi vise la sous-traitance ; le décret détaille les partenariats conclus dans les deux sens. Les deux entrées sont renseignées.',
+   sous:[
+     'Sous-traitance utilisée par l’entreprise',
+     'Sous-traitance réalisée par l’entreprise',
+     'Partenariats conclus pour produire des services ou des produits pour une autre entreprise',
+     'Partenariats conclus pour bénéficier des services ou des produits d’une autre entreprise'
+   ]},
+
+  {k:'groupe', num:'9°', art:'L.2312-36, 9° — R.2312-8, 9°',
+   lib:'Transferts commerciaux et financiers entre les entités du groupe',
+   det:'Ce thème ne concerne que les entreprises appartenant à un groupe — mais alors il est obligatoire, et son omission est la plus fréquente.',
+   sous:[
+     'Transferts de capitaux tels qu’ils figurent dans les comptes individuels des sociétés du groupe, lorsqu’ils présentent une importance significative',
+     'Cessions, fusions et acquisitions réalisées'
+   ]},
+
+  {k:'environnement', num:'10°', art:'L.2312-36, 10° — R.2312-8, 10°',
+   lib:'Conséquences environnementales de l’activité de l’entreprise',
+   det:'Politique générale en matière environnementale, économie circulaire, changement climatique.',
+   sous:[
+     'A — Politique générale en matière environnementale : organisation de l’entreprise pour prendre en compte les questions environnementales et, le cas échéant, démarches d’évaluation ou de certification',
+     'B — Économie circulaire : prévention et gestion de la production de déchets ; utilisation durable des ressources (consommation d’eau et consommation d’énergie)',
+     'C — Changement climatique : identification des postes d’émissions directes de gaz à effet de serre et, le cas échéant, bilan des émissions de gaz à effet de serre ou bilan simplifié'
+   ]}
 ];
 function hubBd(k){ return (HUB.bdese||{})[k]||''; }
 function hubSetBd(k,v){ if(!HUB.bdese) HUB.bdese={}; HUB.bdese[k]=v; hubSave(); hubRender(); }
@@ -11042,7 +11552,7 @@ function guideGlossaire(){
 }
 
 /* ══════════ RENDU ══════════ */
-var HUB_ONGLETS=[['guide','🧑‍🏫 Guide'],['taches','✅ À faire'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE'],['bord','📊 Détail'],['demarrage','▶︎ Réponses']];
+var HUB_ONGLETS=[['guide','🧑‍🏫 Guide'],['taches','✅ À faire'],['agenda','📅 Agenda'],['classeur','🗂️ Classeur'],['bdese','🗃️ BDESE'],['egalite','⚖️ Index égalité'],['bord','📊 Détail'],['demarrage','▶︎ Réponses']];
 var _hubT='guide';
 function hubGo(t){ _hubT=t; hubRender(); }
 function hubOnEnter(){
@@ -11098,6 +11608,7 @@ function hubRender(){
   else if(_hubT==='bord') h+=hubVueBord();
   else if(_hubT==='agenda') h+=hubVueAgenda();
   else if(_hubT==='classeur') h+=hubVueClasseur();
+  else if(_hubT==='egalite') h+=hubVueEgalite();
   else h+=hubVueBdese();
 
   host.innerHTML=h;
@@ -11237,6 +11748,292 @@ function hubVueClasseur(){
   return h;
 }
 
+
+/* ══════════════════════════════════════════════════════════════════
+   L'ECRAN DE L'INDEX DE L'EGALITE PROFESSIONNELLE
+   Rien n'est saisi deux fois : le sexe, la date de naissance, le statut
+   et le coefficient viennent du registre du personnel, l'effectif du
+   calcul des seuils. Seule la remuneration annuelle brute en equivalent
+   temps plein est demandee — parce qu'elle ne se deduit pas du salaire
+   mensuel, et que l'application ne la deduira pas.
+   ══════════════════════════════════════════════════════════════════ */
+function egaChampNb(lbl, k, val, aide){
+  return '<div style="margin-bottom:9px">'
+    +'<label for="ega-'+k+'" style="display:block;font-size:12px;color:#e8e4d8;margin-bottom:4px;font-weight:600">'+hubEsc(lbl)+'</label>'
+    +'<input id="ega-'+k+'" inputmode="decimal" value="'+hubEsc(val||'')+'" onchange="egaSet(\''+k+'\',this.value)" aria-label="'+hubEsc(lbl)+'" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+    +(aide?('<div style="font-size:11.5px;color:#9fb0c4;line-height:1.55;margin-top:3px">'+hubEsc(aide)+'</div>'):'')
+    +'</div>';
+}
+function egaEuro(x){
+  if(!isFinite(x)) return '—';
+  return Math.round(x).toLocaleString('fr-FR')+' €';
+}
+function egaPct(x){
+  if(!isFinite(x)) return '—';
+  return (Math.round(x*10)/10).toString().replace('.',',')+' %';
+}
+function hubVueEgalite(){
+  var eff=hubEff();
+  var h='<div class="card"><div class="ct">Index de l’égalité professionnelle entre les femmes et les hommes</div>';
+
+  if(eff!==null && eff<50){
+    h+='<div style="font-size:13px;color:#9fb0c4;line-height:1.7">Effectif de <b>'+eff+'</b> salariés. '
+      +'L’index est dû par les entreprises d’au moins cinquante salariés (L.1142-7 et L.1142-8). '
+      +'En dessous, il n’y a ni calcul, ni publication, ni déclaration — mais l’obligation d’égalité de rémunération de l’article L.3221-2 demeure entière.</div></div>';
+    return h;
+  }
+
+  var G=egaLoad(), D=egaDonnees(), L=D._liste, P=L.periode;
+  var R=egaIndex(D);
+  var grande=(eff!==null && eff>=250);
+
+  /* ── Ce que la loi impose ── */
+  h+='<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:12px">'
+   +'Chaque année, au plus tard le <b>1<sup>er</sup> mars</b>, l’employeur publie sur son site internet la note globale <b>et le résultat de chacun des indicateurs</b>, '
+   +'de manière visible et lisible, et les tient à disposition pendant au moins un an. Il les met à disposition du comité par la base de données et les déclare à l’administration '
+   +'(L.1142-8, D.1142-4 et D.1142-5). Le défaut de publication ou de déclaration est passible de la pénalité financière pouvant atteindre <b>1 % de la masse salariale</b> (L.1142-10).'
+   +'</div>';
+
+  /* ── Le point que l'application ne garantit pas ── */
+  if(!JX_EGA_BAREME_VERIFIE){
+    h+='<div style="padding:11px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-left:3px solid #e8c97a;border-radius:9px;margin-bottom:12px">'
+      +'<div style="font-size:11px;font-weight:800;color:#e8c97a;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">À confronter au texte avant tout usage</div>'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+        +'La <b>méthode</b> ci-dessous est celle du décret : groupes de comparaison, seuil de trois femmes et trois hommes, seuil de pertinence, règle des 40 %, plafond de chaque indicateur. '
+        +'Ce que l’application n’a pas pu vérifier à la source, c’est le détail des <b>tables de conversion en points</b> de l’annexe : Légifrance et le simulateur Index Egapro sont inaccessibles depuis cet outil. '
+        +'Les tables sont regroupées en un seul endroit du code (<code>JX_EGA_BAREME</code>) pour être corrigées d’un geste. '
+        +'Tant que ce contrôle n’est pas fait, <b>ne déclarez pas le résultat affiché ici</b> : servez-vous-en pour préparer et vérifier vos données, puis confrontez-le au simulateur officiel.'
+      +'</div></div>';
+  }
+  h+='</div>';
+
+  /* ── La période et la méthode ── */
+  var C=egaCCN();
+  h+='<div class="card"><div class="ct">La période de référence et la méthode</div>'
+   +'<div style="margin-bottom:9px">'
+     +'<label for="ega-periodeFin" style="display:block;font-size:12px;color:#e8e4d8;margin-bottom:4px;font-weight:600">Dernier jour de la période de référence</label>'
+     +'<input id="ega-periodeFin" type="date" value="'+hubEsc(G.periodeFin||'')+'" onchange="egaSet(\'periodeFin\',this.value)" aria-label="Dernier jour de la période de référence" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+     +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.55;margin-top:3px">La période court sur douze mois consécutifs et s’achève au plus tard le 31 décembre de l’année qui précède la publication. '
+       +'Ici : du <b>'+hubFR(P.debut)+'</b> au <b>'+hubFR(P.fin)+'</b>.</div>'
+   +'</div>'
+   +'<div style="margin-bottom:6px">'
+     +'<label for="ega-methode" style="display:block;font-size:12px;color:#e8e4d8;margin-bottom:4px;font-weight:600">Groupes de comparaison de l’indicateur « écart de rémunération »</label>'
+     +'<select id="ega-methode" onchange="egaSet(\'methode\',this.value)" aria-label="Groupes de comparaison" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+       +'<option value="csp"'+(G.methode!=='ccn'?' selected':'')+'>Les quatre catégories socioprofessionnelles × quatre tranches d’âge (règle par défaut)</option>'
+       +'<option value="ccn"'+(G.methode==='ccn'?' selected':'')+'>Les niveaux ou coefficients de la convention collective</option>'
+     +'</select>'
+   +'</div>';
+  if(G.methode==='ccn'){
+    h+='<div style="padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;margin-bottom:6px">'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+        +'<b>Cette option n’est ouverte qu’après avis du comité social et économique</b> (D.1142-2, 1°). L’avis doit être recueilli avant le calcul, et son absence prive le résultat de base légale. '
+        +'Le seuil de pertinence est alors de <b>2 %</b> et non de 5 %, et les groupes sont les niveaux ou coefficients de la classification de la convention.'
+        +(C.lib?('<br><br>Convention applicable au dossier : <b>'+hubEsc(C.lib)+(C.idcc?(' — IDCC '+hubEsc(C.idcc)):'')+'</b>. '
+          +'Le niveau ou le coefficient de chaque salarié se lit de la colonne « Coefficient » du registre du personnel.'):'')
+      +'</div></div>';
+  } else {
+    h+='<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6">Seuil de pertinence : <b>5 %</b>. Les catégories sont lues du champ « Statut » du registre — Ouvrier, Employé, Technicien ou Agent de maîtrise, Cadre.'
+      +(C.lib?(' Si la classification de la convention <b>'+hubEsc(C.lib)+'</b> retient d’autres groupes, choisissez la seconde méthode — après avis du comité.'):'')
+      +'</div>';
+  }
+  h+='</div>';
+
+  /* ── Les salariés retenus ── */
+  var i1=R.indicateurs[0].r;
+  h+='<div class="card"><div class="ct">Les salariés retenus — lus du registre du personnel</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+     +'Sont écartés du calcul les apprentis, les contrats de professionnalisation, les salariés mis à disposition par une entreprise extérieure, les expatriés, '
+     +'et les salariés présents moins de six mois sur la période. '
+     +'<b>'+L.retenus.length+'</b> salarié(s) retenu(s), <b>'+L.exclus.length+'</b> écarté(s).'
+   +'</div>';
+
+  if(!L.retenus.length){
+    h+='<div style="padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+      +'Le registre du personnel ne fournit aucun salarié pour cette période. Ouvrez le registre et renseignez-le : c’est lui qui alimente l’index, il n’y a pas de seconde saisie.'
+      +'<div style="margin-top:9px"><button onclick="rxOpen()" style="background:#26374d;border:1px solid #3a4a5f;color:#e8e4d8;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">Ouvrir le registre du personnel →</button></div>'
+      +'</div>';
+  } else {
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'
+      +'<button onclick="egaReprendreSalaires()" style="border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Pré-remplir à 12 × le salaire mensuel</button>'
+      +'<button onclick="rxOpen()" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Registre du personnel →</button>'
+      +'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6;margin-bottom:10px">'
+        +'La rémunération demandée est <b>annuelle</b>, <b>brute</b> et <b>reconstituée en équivalent temps plein</b>. Elle comprend les primes liées à la personne ; '
+        +'elle exclut les heures supplémentaires et complémentaires, les primes de précarité, les indemnités de licenciement et de départ à la retraite, l’intéressement, la participation '
+        +'et les versements de l’employeur aux plans d’épargne salariale. <b>Le pré-remplissage n’est qu’un point de départ : il faut le corriger ligne à ligne.</b>'
+      +'</div>'
+      +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;color:#cdd7e2">'
+      +'<tr style="text-align:left;color:#9fb0c4;font-size:11px;text-transform:uppercase;letter-spacing:.04em">'
+        +'<th style="padding:5px 4px">Salarié</th><th style="padding:5px 4px">Sexe</th>'
+        +'<th style="padding:5px 4px">'+(G.methode==='ccn'?'Niveau / coeff.':'Groupe')+'</th>'
+        +'<th style="padding:5px 4px">Rémunération annuelle brute ETP</th><th style="padding:5px 4px"></th></tr>';
+    L.retenus.forEach(function(x){
+      var sx=egaSexe(x.sexe);
+      var groupe='';
+      if(G.methode==='ccn'){ groupe=x.niveau||''; }
+      else {
+        var csp=egaCSP(x.statut), tr=egaTrancheAge(egaAgeAu(x.dateNaissance, P.fin));
+        if(csp&&tr){
+          groupe=JX_EGA_CSP.filter(function(y){return y.k===csp;})[0].lib+' · '
+                +JX_EGA_AGES.filter(function(y){return y.k===tr;})[0].lib;
+        }
+      }
+      var alerte=[];
+      if(!sx) alerte.push('sexe non renseigné au registre');
+      if(!groupe) alerte.push(G.methode==='ccn'?'coefficient non renseigné au registre':'statut ou date de naissance non renseignés au registre');
+      if(/partiel/i.test(x.tempsTravail||'')) alerte.push('temps partiel — montant à reconstituer en équivalent temps plein');
+      h+='<tr style="border-top:1px solid #26374d">'
+        +'<td style="padding:6px 4px;font-weight:600;color:#fff">'+hubEsc(x.nom)
+          +(alerte.length?('<div style="font-size:11px;color:#e8c97a;font-weight:400;line-height:1.5">⚠ '+hubEsc(alerte.join(' · '))+'</div>'):'')
+        +'</td>'
+        +'<td style="padding:6px 4px">'+(sx==='F'?'F':(sx==='M'?'H':'<span style="color:#e05c5c">?</span>'))+'</td>'
+        +'<td style="padding:6px 4px">'+(groupe?hubEsc(groupe):'<span style="color:#e05c5c">—</span>')+'</td>'
+        +'<td style="padding:6px 4px"><input inputmode="decimal" value="'+hubEsc(x.remuneration||'')+'" onchange="egaSetRem(\''+x.id+'\',this.value)" aria-label="Rémunération annuelle brute équivalent temps plein de '+hubEsc(x.nom)+'" placeholder="€ / an" style="width:120px;padding:6px;border-radius:7px;border:1px solid '+((x.remuneration)?'#3a4a5f':'#e8c97a')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>'
+        +'<td style="padding:6px 4px;text-align:right"><button onclick="egaToggleExclu(\''+x.id+'\')" title="Écarter ce salarié : absent plus de la moitié de la période" style="background:none;border:1px solid #3a4a5f;border-radius:7px;color:#9fb0c4;cursor:pointer;font-size:11px;padding:4px 7px;font-family:inherit">Écarter</button></td>'
+        +'</tr>';
+    });
+    h+='</table></div>';
+  }
+
+  if(L.exclus.length){
+    h+='<div style="margin-top:12px;font-size:11.5px;color:#9fb0c4;line-height:1.65">'
+      +'<b style="color:#e8e4d8">Écartés du calcul :</b><br>'
+      + L.exclus.map(function(x){
+          return hubEsc(x.nom)+' — '+hubEsc(x.motif)
+            +(/à la main/.test(x.motif)?(' <button onclick="egaToggleExclu(\''+x.id+'\')" style="background:none;border:none;color:#c9a84c;cursor:pointer;text-decoration:underline;font-size:11.5px;font-family:inherit">réintégrer</button>'):'');
+        }).join('<br>')
+      +'</div>';
+  }
+  h+='</div>';
+
+  /* ── L'indicateur 1, dans le détail ── */
+  h+='<div class="card"><div class="ct">Indicateur 1 — l’écart de rémunération (40 points)</div>';
+  if(i1.manque && i1.manque.length){
+    h+='<div style="padding:10px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-radius:9px;margin-bottom:10px;font-size:12px;color:#e8e4d8;line-height:1.6">'
+      +'<b>'+i1.manque.length+' salarié(s) ne peuvent pas être classés</b> — l’information manque au registre, et elle n’est pas devinée :<br>'
+      + i1.manque.slice(0,20).map(function(m){ return hubEsc(m.nom)+' — '+hubEsc(m.quoi); }).join('<br>')
+      +(i1.manque.length>20?('<br>… et '+(i1.manque.length-20)+' autre(s)'):'')
+      +'</div>';
+  }
+  if(i1.retenus && i1.retenus.length){
+    h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;color:#cdd7e2">'
+      +'<tr style="text-align:left;color:#9fb0c4;font-size:11px;text-transform:uppercase;letter-spacing:.04em">'
+      +'<th style="padding:5px 4px">Groupe</th><th style="padding:5px 4px">F</th><th style="padding:5px 4px">H</th>'
+      +'<th style="padding:5px 4px">Moyenne F</th><th style="padding:5px 4px">Moyenne H</th>'
+      +'<th style="padding:5px 4px">Écart brut</th><th style="padding:5px 4px">Après seuil de '+i1.seuilPertinence+' %</th></tr>';
+    i1.retenus.forEach(function(g){
+      h+='<tr style="border-top:1px solid #26374d">'
+        +'<td style="padding:6px 4px;color:#fff">'+hubEsc(g.lib)+'</td>'
+        +'<td style="padding:6px 4px">'+g.nF+'</td><td style="padding:6px 4px">'+g.nM+'</td>'
+        +'<td style="padding:6px 4px">'+egaEuro(g.moyF)+'</td><td style="padding:6px 4px">'+egaEuro(g.moyM)+'</td>'
+        +'<td style="padding:6px 4px">'+egaPct(g.brut)+'</td>'
+        +'<td style="padding:6px 4px;font-weight:700;color:'+(Math.abs(g.corrige)>0?'#e8c97a':'#46b885')+'">'+egaPct(g.corrige)+'</td>'
+        +'</tr>';
+    });
+    h+='</table></div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6;margin-top:8px">'
+        +'L’écart est positif lorsque les hommes sont mieux rémunérés. Le seuil de pertinence est retranché à la valeur absolue de l’écart, sans en changer le sens : il joue en faveur de l’employeur, jamais contre lui. '
+        +'L’écart global est la moyenne des écarts de groupe, pondérée par leur effectif.'
+      +'</div>';
+  }
+  if(i1.ecartes && i1.ecartes.length){
+    h+='<div style="font-size:11.5px;color:#9fb0c4;line-height:1.65;margin-top:10px">'
+      +'<b style="color:#e8e4d8">Groupes non valides</b> — un groupe n’entre dans le calcul que s’il compte au moins trois femmes ET trois hommes :<br>'
+      + i1.ecartes.map(function(g){ return hubEsc(g.lib)+' — '+g.F+' femme(s), '+g.M+' homme(s)'; }).join('<br>')
+      +'</div>';
+  }
+  h+='<div style="margin-top:12px;padding:11px;border-radius:9px;background:'+(i1.calculable?'rgba(70,184,133,.10)':'rgba(224,92,92,.10)')+';border:1px solid '+(i1.calculable?'#46b885':'#e05c5c')+'">';
+  if(i1.calculable){
+    h+='<div style="font-size:13px;color:#fff;font-weight:700">Écart global : '+egaPct(i1.ecart)+' — <b>'+i1.points+' point(s) sur 40</b></div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">Les groupes valides couvrent '+egaPct(i1.couverture)+' de l’effectif classé (minimum exigé : 40 %).</div>';
+  } else {
+    h+='<div style="font-size:12.5px;color:#e8e4d8;line-height:1.65">'+hubEsc(i1.motif||'Indicateur non calculable en l’état.')+'</div>';
+  }
+  h+='</div></div>';
+
+  /* ── Les autres indicateurs ── */
+  h+='<div class="card"><div class="ct">Les autres indicateurs</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:10px">'
+   +(eff===null
+       ? ('Votre effectif n’est pas calculé : le registre du personnel est incomplet. À défaut, le nombre d’indicateurs est déterminé sur les <b>'+L.retenus.length+'</b> salariés retenus ci-dessus — ce n’est pas l’effectif de l’article L.1111-2. '
+          +'<b>Complétez le registre avant de déclarer quoi que ce soit</b> : c’est le passage de 250 salariés qui décide si l’on doit quatre ou cinq indicateurs. ')
+       : ('L’entreprise compte <b>'+eff+'</b> salariés. '))
+   +(grande?'Les <b>cinq</b> indicateurs sont dus : augmentations (20 points) et promotions (15 points) comptent séparément.'
+           :'<b>Quatre</b> indicateurs sont dus — augmentations et promotions sont réunies en un seul indicateur de 35 points.')
+   +'</div>'
+   +(eff===null?('<div style="margin-bottom:10px"><button onclick="goPage(\'socle\')" style="border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Voir ce qui manque au calcul des effectifs →</button></div>'):'')
+   +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'
+     +'<button onclick="egaReprendreEffectifs()" style="border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Reprendre les effectifs F / H du registre</button>'
+   +'</div>'
+   + egaChampNb('Nombre de femmes dans l’effectif retenu','nbF',G.nbF)
+   + egaChampNb('Nombre d’hommes dans l’effectif retenu','nbH',G.nbH)
+   + egaChampNb('Femmes augmentées pendant la période','augF',G.augF, grande?'Augmentations individuelles, hors promotions.':'Augmentations individuelles, promotions comprises.')
+   + egaChampNb('Hommes augmentés pendant la période','augH',G.augH);
+  if(grande){
+    h+= egaChampNb('Femmes promues pendant la période','promoF',G.promoF,'Promotion : passage à un niveau ou à un coefficient supérieur de la classification.')
+      + egaChampNb('Hommes promus pendant la période','promoH',G.promoH);
+  }
+  h+= egaChampNb('Salariées revenues de congé maternité ou d’adoption','matRetours',G.matRetours,'Ne comptez que les congés au cours desquels des augmentations sont intervenues dans l’entreprise. S’il n’y en a aucun, saisissez 0 : l’indicateur devient incalculable et le total est ramené sur 100.')
+   + egaChampNb('Parmi elles, celles qui ont été augmentées au retour','matAugmentees',G.matAugmentees,'Une seule omission ramène l’indicateur à zéro : l’article L.1225-26 est d’ordre public.')
+   + egaChampNb('Parmi les dix plus hautes rémunérations, combien de salariés du sexe le moins représenté ?','hautes',G.hautes,'Les dix plus hautes rémunérations de la période, tous statuts confondus. En cas d’égalité parfaite à cinq et cinq, la note est de dix points.');
+  h+='</div>';
+
+  /* ── Le résultat ── */
+  h+='<div class="card" style="border-color:#c9a84c"><div class="ct">Le résultat</div>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#cdd7e2">';
+  R.indicateurs.forEach(function(x){
+    var ok=(x.r && x.r.calculable && x.r.points!==null);
+    h+='<tr style="border-top:1px solid #26374d">'
+      +'<td style="padding:7px 4px;color:#fff">'+hubEsc(x.lib)
+        +(ok?'':('<div style="font-size:11.5px;color:#e8c97a;line-height:1.55;margin-top:2px">'+hubEsc((x.r&&x.r.motif)||'')+'</div>'))
+      +'</td>'
+      +'<td style="padding:7px 4px;text-align:right;white-space:nowrap;font-weight:800;color:'+(ok?'#46b885':'#e05c5c')+'">'
+        +(ok?(x.r.points+' / '+x.max):'incalculable')+'</td></tr>';
+  });
+  h+='</table></div>';
+
+  if(R.calculable){
+    var c=(R.total>=85)?'#46b885':((R.total>=75)?'#e8c97a':'#e05c5c');
+    h+='<div style="margin-top:14px;padding:13px;border-radius:10px;background:rgba(201,168,76,.10);border:1px solid #c9a84c;text-align:center">'
+      +'<div style="font-size:11px;color:#9fb0c4;letter-spacing:.08em;text-transform:uppercase">Index</div>'
+      +'<div style="font-size:34px;font-weight:800;color:'+c+';line-height:1.15">'+R.total+' / 100</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">'+R.brut+' point(s) obtenu(s) sur '+R.sur+' point(s) calculables, ramenés à 100.</div>'
+      +'</div>';
+    if(R.total<75){
+      h+='<div style="margin-top:10px;padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.7">'
+        +'<b>Moins de 75 points.</b> L’entreprise dispose de <b>trois ans</b> pour se mettre en conformité. À défaut, l’administration peut appliquer une pénalité pouvant atteindre <b>1 % de la masse salariale</b>. '
+        +'Des mesures de correction — et, le cas échéant, une programmation financière de rattrapage salarial — doivent être définies par accord ou, à défaut, par décision unilatérale après consultation du comité, et déposées à l’administration (L.1142-9, D.1142-6).'
+        +'</div>';
+    } else if(R.total<85){
+      h+='<div style="margin-top:10px;padding:11px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.7">'
+        +'<b>Entre 75 et 84 points.</b> Des <b>objectifs de progression</b> doivent être fixés pour chaque indicateur inférieur à sa note maximale, par accord ou par décision unilatérale après consultation du comité, et <b>publiés</b> sur le site internet de l’entreprise (L.1142-9-1).'
+        +'</div>';
+    } else {
+      h+='<div style="margin-top:10px;padding:11px;background:rgba(70,184,133,.10);border:1px solid #46b885;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.7">'
+        +'<b>85 points ou plus.</b> Aucune mesure de correction ni objectif de progression n’est exigé. La publication de la note globale et de chaque indicateur reste due, ainsi que la déclaration à l’administration et la mise à disposition du comité.'
+        +'</div>';
+    }
+    h+='<div style="margin-top:10px;font-size:11.5px;color:#9fb0c4;line-height:1.65">'
+      +'Le résultat de <b>chaque</b> indicateur doit être publié, et non la seule note globale ; les indicateurs incalculables doivent être publiés comme tels, avec leur motif.'
+      +'</div>';
+  } else {
+    h+='<div style="margin-top:14px;padding:12px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.7">'
+      + R.motifs.map(function(m){ return hubEsc(m); }).join('<br>')
+      +'</div>';
+  }
+  if(R.incalculables && R.incalculables.length){
+    h+='<div style="margin-top:10px;font-size:11.5px;color:#9fb0c4;line-height:1.65"><b style="color:#e8e4d8">Ce qui manque pour aller au bout :</b><br>'
+      + R.incalculables.map(function(x){ return '• '+hubEsc(x); }).join('<br>')
+      +'</div>';
+  }
+  h+='<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">'
+    +'<button onclick="hubGo(\'bdese\')" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">↩︎ Retour à la BDESE</button>'
+    +'<button onclick="goPage(\'socle\')" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Calcul des effectifs →</button>'
+    +'</div>';
+  h+='</div>';
+  return h;
+}
+
 function hubVueBdese(){
   var eff=hubEff();
   var h='<div class="card"><div class="ct">Base de données économiques, sociales et environnementales</div>';
@@ -11246,11 +12043,13 @@ function hubVueBdese(){
   }
   var faits=HUB_BDESE.filter(function(t){ return hubBd(t.k)==='fait'; }).length;
   h+='<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
-   +'Dix thèmes obligatoires (L.2312-36). Leur contenu précis est fixé par décret et diffère selon que l’entreprise atteint ou non trois cents salariés '
+   +'Les <b>dix thèmes</b> obligatoires de l’article L.2312-36, ici détaillés en onze rubriques : le premier — les investissements — se dédouble en investissement social (1° A) et investissement matériel et immatériel (1° B). '
+   +'Leur contenu est fixé par décret et diffère selon que l’entreprise atteint ou non trois cents salariés '
    +'(R.2312-8 en dessous, R.2312-9 au-dessus)'+(eff!==null?(' — ici, <b>'+(eff>=300?'R.2312-9':'R.2312-8')+'</b>'):'')+'. '
    +'Un accord peut en définir l’organisation, l’architecture et le contenu, sans supprimer les thèmes obligatoires ni priver le comité des informations nécessaires à ses consultations (L.2312-21).'
    +'</div>'
    +'<div style="font-size:13px;font-weight:800;color:'+(faits===HUB_BDESE.length?'#46b885':'#e8c97a')+';margin-bottom:10px">'+faits+' thème(s) renseigné(s) sur '+HUB_BDESE.length+'</div>';
+  var g300=(eff!==null && eff>=300);
   HUB_BDESE.forEach(function(t){
     var e=hubBd(t.k);
     var col=(e==='fait')?'#46b885':'#e8c97a';
@@ -11258,10 +12057,28 @@ function hubVueBdese(){
       +'<div style="display:flex;gap:8px;align-items:center">'
         +'<label style="flex:1;font-size:13px;font-weight:700;color:#fff;cursor:pointer">'
         +'<input type="checkbox" '+(e==='fait'?'checked':'')+' onchange="hubSetBd(\''+t.k+'\',this.checked?\'fait\':\'\')" style="width:auto;margin-right:8px">'
-        + hubEsc(t.lib)+'</label>'
+        +'<span style="color:#c9a84c">'+hubEsc(t.num||'')+'</span> '+hubEsc(t.lib)+'</label>'
       +'</div>'
-      +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:5px">'+hubEsc(t.det)+'</div>'
-      +'</div>';
+      +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:5px">'+hubEsc(t.det)+'</div>';
+    var L=(t.sous||[]).slice();
+    if(g300 && t.plus) L=L.concat(t.plus.map(function(x){ return '➕ '+x; }));
+    if(L.length){
+      h+='<ul style="margin:8px 0 0;padding-left:18px;font-size:12px;color:#cdd7e2;line-height:1.65">'
+        + L.map(function(x){ return '<li style="margin-bottom:3px">'+hubEsc(x)+'</li>'; }).join('')
+        +'</ul>';
+    }
+    if(t.plus && !g300){
+      h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:6px">À partir de trois cents salariés, '+t.plus.length+' rubrique(s) supplémentaire(s) s’ajoutent (R.2312-9).</div>';
+    }
+    if(t.art) h+='<div style="font-size:11px;color:#9fb0c4;margin-top:6px">Article '+hubEsc(t.art)+'</div>';
+    if(t.liens && t.liens.length){
+      h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'
+        + t.liens.map(function(l){
+            return '<button onclick="'+l[0].replace(/"/g,'&quot;')+'" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">'+hubEsc(l[1])+' →</button>';
+          }).join('')
+        +'</div>';
+    }
+    h+='</div>';
   });
   h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px;line-height:1.55">'
    +'La base porte sur les deux années précédentes et l’année en cours, et intègre des perspectives sur les <b>trois</b> années suivantes. '
