@@ -85,3 +85,57 @@ le calcul.
 
 Les niveaux A à K sont **fictifs**. Confrontez-les à la grille réelle de la
 convention avant tout usage autre qu'un test.
+
+---
+
+# Le second fichier — `PERSONNEL_FICTIF_DIFFICILE`
+
+**400 salariés**, en `.csv` et en `.xlsx`. Celui-ci n'est pas propre : c'est
+ce qu'un service paie envoie vraiment.
+
+- **trois lignes de préambule avant l'en-tête** — l'application balaie les
+  quinze premières lignes et retient celle qui reconnaît le plus de
+  colonnes ;
+- **deux colonnes qu'elle ne connaît pas** (Matricule, Établissement) et
+  une colonne Service intercalée ;
+- **trois formats de date** dans le même fichier : `1979-04-12`,
+  `03-11-1984`, `22/06/1990` ;
+- **des montants sales** : `4 820,50 €` avec espace insécable, `3.150,00`
+  avec le point comme séparateur de milliers, `2 470 euros`, `NC` ;
+- **un point-virgule et des guillemets droits** à l'intérieur de champs ;
+- **deux lignes vides** au milieu du fichier ;
+- **des homonymes parfaits** : deux `MARTIN Sophie`, distinguées par la
+  seule date de naissance ;
+- des libellés hors listes : `Cadre dirigeant`, `CDI intérimaire`,
+  `Portage salarial`, `C.D.I.`, `Mi-temps`, `Temps complet`, `Masculin`,
+  `Féminin`, une ligne tout en minuscules entourée d'espaces ;
+- **une ligne presque vide** : un nom et rien d'autre.
+
+## Les incohérences qu'il contient
+
+Le bandeau **Cohérence du registre**, en tête de l'onglet Registre, doit en
+relever vingt-trois :
+
+| Anomalie | Qui | Article |
+|---|---|---|
+| Sortie antérieure à l'entrée | JOUANNO | D.1221-23 |
+| Âge inférieur au minimum légal | KRUGER, née en 2012 | L.4153-1, L.6222-1 |
+| Contrat à durée déterminée sans terme | 14 fiches | L.1242-12 |
+| Salaire sous le SMIC à temps plein | NOUVEL | L.3231-2 |
+| Nature du contrat non renseignée | SVENSSON, TESSIER | L.1111-2 |
+| Date d'entrée, sexe, statut absents | TESSIER | D.1221-23 |
+| Âge élevé, contrat toujours ouvert | LAURENS, 77 ans | L.1237-5 |
+
+Les apprentis, contrats de professionnalisation et stagiaires ne sont **pas**
+signalés au titre du SMIC : leur rémunération est légalement inférieure
+(D.6222-26, D.6325-14).
+
+## Quatre résultats faux que ce fichier a révélés
+
+Ils sont corrigés en v2026-08-07.148 :
+
+1. `3.150,00` était lu **3,15 €** — l'index était alimenté avec 37,80 € par an.
+2. `Mi-temps` était compté comme un **temps plein**.
+3. Tout contrat inconnu — et toute **cellule vide** — devenait `CDI temps plein`.
+4. `CDI intérimaire` était lu comme un **CDI ordinaire** de l'entreprise
+   utilisatrice.

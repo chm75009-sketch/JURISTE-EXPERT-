@@ -1,0 +1,406 @@
+﻿EXTRACTION PAIE — Établissement principal et agences
+Éditée le 07/08/2026 par le service des ressources humaines
+
+Matricule;Établissement;Nom;Prénom;Sexe;Date de naissance;Nationalité;Titre de séjour;Date d'entrée;Date de sortie;Type de contrat;Statut;Service;Emploi;Temps de travail;Salaire mensuel brut;Coefficient;Observations
+M01001;Agence Nord;ABERKANE;Yasmine;F;1979-04-12;Française;;2006-09-01;;CDI;Cadre;Réseau;Directrice d'agence;Temps plein;5 240,00;K;Dates au format AAAA-MM-JJ
+M01002;Agence Sud;BOUCHARD;Rémi;H;03-11-1984;Française;;15-01-2011;;CDI;TAM;Réseau;Analyste crédit;Temps plein;3 480;F;Dates séparées par des tirets
+M01003;Siège;CAZENAVE;Ophélie;F;22/06/1990;Française;;01/09/2015;;CDI;Employé;Réseau;Conseillère clientèle;Temps plein;2 690;D;Format classique JJ/MM/AAAA
+M01004;Siège;DAOUD;Farid;H;09/02/1981;Algérienne;Carte de résident;01/03/2012;;CDI;Cadre;Réseau;Chargé d’affaires entreprises;Temps plein;4 820,50 €;I;Espace insécable et symbole euro
+M01005;Siège;ESPOSITO;Giulia;F;17/08/1987;Italienne;;01/06/2013;;CDI;TAM;Réseau;Chargée d’études;Temps plein;3.150,00;F;Point comme séparateur de milliers
+M01006;Siège;FAGET;Bruno;H;30/01/1975;Française;;01/04/2003;;CDI;Cadre;Réseau;Auditeur interne;Temps plein;NC;I;Salaire écrit « NC » — ne doit pas devenir zéro
+M01007;Siège;GHERBI;Sofia;F;14/05/1992;Marocaine;Carte de séjour pluriannuelle;01/02/2018;;CDI;Employé;Réseau;Gestionnaire back-office;Temps plein;2 470 euros;C;Montant suivi du mot « euros »
+M01008;Agence Est;HADJ-SLIMANE;Nour;F;02/12/1986;Tunisienne;Titre de séjour;01/09/2014;;CDI;TAM;Réseau;Responsable d’unité;Temps plein;3 390;G;"Poste réorganisé ; rattachement modifié ; suivi RH en cours"
+M01009;Siège;IZARD;Jean-Luc;H;25/09/1969;Française;;01/10/1996;;CDI;Cadre;Réseau;"Directeur ""grands comptes""";Temps plein;6 480;K;Guillemets droits dans le libellé d’emploi
+M01010;Siège;JOUANNO;Maëlle;F;11/07/1994;Française;;01/09/2020;31/08/2019;CDI;Employé;Réseau;Conseillère clientèle;Temps plein;2 610;D;SORTIE ANTÉRIEURE À L’ENTRÉE
+M01011;Siège;KRUGER;Lena;F;03/03/2012;Allemande;;01/09/2025;;Apprentissage;Employé;Réseau;Apprentie;Temps plein;820;A;NÉE EN 2012 — quatorze ans, en dessous de l’âge légal
+M01012;Siège;LAURENS;Anne-Marie;F;18/04/1949;Française;;01/01/1972;;CDI;Employé;Réseau;Chargée d’accueil;Temps plein;2 380;C;SOIXANTE-DIX-SEPT ANS — à vérifier
+M01013;Siège;MAZOUZ;Idriss;H;20/10/1998;Française;;01/07/2024;;CDD accroissement;Employé;Réseau;Chargé de recouvrement;Temps plein;2 300;B;CDD SANS TERME — L.1242-12
+M01014;Siège;NOUVEL;Théo;H;05/05/1999;Française;;01/03/2023;;CDI;Employé;Réseau;Conseiller clientèle;Temps plein;1 350;B;SALAIRE MENSUEL INFÉRIEUR AU SMIC POUR UN TEMPS PLEIN
+M01015;Siège;MARTIN;Sophie;F;12/01/1985;Française;;01/09/2010;;CDI;TAM;Réseau;Superviseure back-office;Temps plein;3 260;F;HOMONYME n°1 — même nom, même prénom, autre date de naissance
+M01016;Siège;MARTIN;Sophie;F;30/06/1991;Française;;01/04/2017;;CDI;Employé;Réseau;Conseillère clientèle;Temps plein;2 640;D;HOMONYME n°2
+M01017;Siège;  perrot  ;  lucie  ; f ; 08/09/1983 ; Française ;; 01/02/2011 ;; CDI ; employé ;Réseau;Chargée de clientèle; temps plein ; 2 720 ; D ;Tout en minuscules, entouré d’espaces
+M01018;Siège;OULD-KACI;Amine;Masculin;27/11/1988;Algérienne;Carte de résident;01/05/2016;;CDI;Technicien;Réseau;Technicien des métiers de la banque;Temps complet;3 180;E;Sexe « Masculin », temps « Temps complet »
+M01019;Siège;PARMENTIER;Élise;Féminin;19/02/1980;Française;;01/09/2007;;C.D.I.;Agent de maîtrise;Réseau;Animatrice commerciale;Mi-temps;1 690;E;Sexe « Féminin », contrat « C.D.I. », « Mi-temps »
+M01020;Siège;QUEFFÉLEC;Gwenaëlle;F;04/04/1977;Française;;01/09/2004;;CDI;Cadre dirigeant;Réseau;Directrice de la conformité et du contrôle permanent des risques opérationnels;Forfait jours;7 950;K;Statut hors liste, libellé d’emploi très long
+M01021;Siège;RAKOTOARISOA;Hery;H;16/06/1983;Malgache;Carte de séjour pluriannuelle;01/03/2019;;CDI intérimaire;Employé;Réseau;Gestionnaire de flux;Temps plein;2 590;C;Type de contrat « CDI intérimaire »
+M01022;Siège;SVENSSON;Erik;H;21/12/1979;Suédoise;;01/09/2021;;Portage salarial;Cadre;Réseau;Consultant conformité;Temps plein;5 100;J;Portage salarial — hors effectif ?
+M01023;Siège;TESSIER;;;;;;;;;;Réseau;;;;;LIGNE PRESQUE VIDE — un nom et rien d’autre
+M01024;Siège;URBAIN;Louis;H;01/09/2005;Française;;01/09/2025;;Apprentissage;Employé;Réseau;Apprenti chargé d’accueil;Temps plein;1 190;A;APPRENTI
+M01025;Siège;VIEIRA;Ines;F;22/03/2001;Portugaise;;01/10/2024;;Contrat de professionnalisation;Employé;Réseau;Chargée de clientèle en alternance;Temps plein;1 520;A;CONTRAT PRO
+M01026;Siège;WATTIER;Paul;H;13/08/1996;Française;;02/01/2025;;Intérim;Employé;Réseau;Renfort back-office;Temps plein;2 250;B;INTÉRIMAIRE
+M01027;Siège;XAVIER;Rosa;F;30/07/2004;Brésilienne;Visa long séjour (VLS-TS);01/02/2026;31/07/2026;Stage;Employé;Réseau;Stagiaire marketing;Temps plein;640;;STAGIAIRE
+M01028;Siège;YOUNES;Dalila;F;08/01/1989;Française;;01/10/2025;;CDI;Employé;Réseau;Conseillère clientèle;Temps plein;2 620;D;Entrée en octobre 2025 — trois mois sur la période
+M01029;Siège;ZANI;Marco;H;17/05/1966;Italienne;;01/09/1994;30/04/2025;CDI;Cadre;Réseau;Directeur d’agence;Temps plein;6 050;J;Sorti en avril 2025 — quatre mois
+M01030;Siège;ABADIE;Colette;F;02/02/1963;Française;;01/03/1988;30/11/2024;CDI;TAM;Réseau;Responsable de secteur;Temps plein;3 820;G;Sortie AVANT la période 2025
+M01031;Siège;BEAULIEU;Sandra;F;01/01/1985;Française;;01/09/2012;;CDI;Employé;Réseau;Conseiller(ère) clientèle;80%;2 180;D;Pourcentage collé au chiffre
+M01032;Siège;CHAUVET;Nadège;F;01/01/1985;Française;;01/09/2012;;CDI;Employé;Réseau;Conseiller(ère) clientèle;17,5 h;1 340;D;Quotité exprimée en heures
+M01033;Siège;DELORME;Fabien;H;01/01/1985;Française;;01/09/2012;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps partiel;1 620;D;Sans quotité — 50 % par défaut
+M01034;Siège;ESTEVES;Rita;F;01/01/1985;Française;;01/09/2012;;CDI;Employé;Réseau;Conseiller(ère) clientèle;0.6;1 590;D;Fraction avec un point
+M01035;Siège;FLEURIOT;Gaëlle;F;01/01/1985;Française;;01/09/2012;;CDI;Employé;Réseau;Conseiller(ère) clientèle;90 %;2 380;D;Quotité élevée
+M01036;Siège;GAILLARD;Martine;F;01/03/1970;Française;;01/09/1998;;CDI;Cadre;Réseau;Chargé(e) d’affaires senior;Temps plein;5 100;J;Groupe cadres 50+ — écart marqué
+M01037;Siège;HERNANDEZ;Pilar;F;02/03/1970;Française;;01/09/1998;;CDI;Cadre;Réseau;Chargé(e) d’affaires senior;Temps plein;5 050;J;Groupe cadres 50+ — écart marqué
+M01038;Siège;ISSARTEL;Chantal;F;03/03/1970;Française;;01/09/1998;;CDI;Cadre;Réseau;Chargé(e) d’affaires senior;Temps plein;4 980;J;Groupe cadres 50+ — écart marqué
+M01039;Siège;JAMET;Alain;H;04/03/1970;Française;;01/09/1998;;CDI;Cadre;Réseau;Chargé(e) d’affaires senior;Temps plein;6 400;J;Groupe cadres 50+ — écart marqué
+M01040;Siège;KESSLER;Bernard;H;05/03/1970;Française;;01/09/1998;;CDI;Cadre;Réseau;Chargé(e) d’affaires senior;Temps plein;6 550;J;Groupe cadres 50+ — écart marqué
+M01041;Siège;LEMERCIER;Claude;H;06/03/1970;Française;;01/09/1998;;CDI;Cadre;Réseau;Chargé(e) d’affaires senior;Temps plein;6 310;J;Groupe cadres 50+ — écart marqué
+M01042;Siège;MOULIN;Aurore;F;01/08/1990;Française;;01/09/2016;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps plein;3 120;D;Groupe employés 30-39 — femmes mieux rémunérées
+M01043;Siège;NAVARRO;Célia;F;02/08/1990;Française;;01/09/2016;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps plein;3 180;D;Groupe employés 30-39 — femmes mieux rémunérées
+M01044;Siège;ORTEGA;Lucie;F;03/08/1990;Française;;01/09/2016;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps plein;3 090;D;Groupe employés 30-39 — femmes mieux rémunérées
+M01045;Siège;PAVAN;Damien;H;04/08/1990;Française;;01/09/2016;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps plein;2 610;D;Groupe employés 30-39 — femmes mieux rémunérées
+M01046;Siège;QUILICI;Enzo;H;05/08/1990;Française;;01/09/2016;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps plein;2 580;D;Groupe employés 30-39 — femmes mieux rémunérées
+M01047;Siège;ROSSI;Fabio;H;06/08/1990;Française;;01/09/2016;;CDI;Employé;Réseau;Conseiller(ère) clientèle;Temps plein;2 640;D;Groupe employés 30-39 — femmes mieux rémunérées
+M01048;Siège;SAUVAGEOT;Irène;F;01/05/1978;Française;;01/09/2005;;CDI;TAM;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3 400;F;Groupe TAM 40-49 — trois et trois, le seuil exactement
+M01049;Siège;TAILLEFER;Josée;F;02/05/1978;Française;;01/09/2005;;CDI;TAM;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3 380;F;Groupe TAM 40-49 — trois et trois, le seuil exactement
+M01050;Siège;URVOY;Katia;F;03/05/1978;Française;;01/09/2005;;CDI;TAM;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3 420;F;Groupe TAM 40-49 — trois et trois, le seuil exactement
+M01051;Siège;VANNIER;Léon;H;04/05/1978;Française;;01/09/2005;;CDI;TAM;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3 450;F;Groupe TAM 40-49 — trois et trois, le seuil exactement
+M01052;Siège;WEISS;Marcel;H;05/05/1978;Française;;01/09/2005;;CDI;TAM;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3 470;F;Groupe TAM 40-49 — trois et trois, le seuil exactement
+M01053;Siège;YAHIAOUI;Nabil;H;06/05/1978;Française;;01/09/2005;;CDI;TAM;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3 440;F;Groupe TAM 40-49 — trois et trois, le seuil exactement
+M01054;Siège;ZUCCARELLI;Béatrice;F;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directrice générale;Forfait jours;10 400;K;Comité de direction
+M01055;Siège;ANGLADE;Hervé;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur général adjoint;Forfait jours;9 200;K;Comité de direction
+M01056;Siège;BONNAFÉ;Xavier;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur des risques;Forfait jours;8 850;K;Comité de direction
+M01057;Siège;CHASSAGNE;Muriel;F;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directrice des ressources humaines;Forfait jours;8 600;K;Comité de direction
+M01058;Siège;DUTHEIL;Grégoire;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur financier;Forfait jours;8 400;K;Comité de direction
+M01059;Siège;ESCANDE;Robert;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur de la conformité;Forfait jours;8 150;K;Comité de direction
+M01060;Siège;FONTANEL;Yves;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur des systèmes d’information;Forfait jours;7 900;K;Comité de direction
+M01061;Siège;GRANIER;Denis;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur du réseau;Forfait jours;7 700;K;Comité de direction
+M01062;Siège;HOUDART;Léon;H;01/01/1968;Française;;01/01/1998;;CDI;Cadre dirigeant;Réseau;Directeur juridique;Forfait jours;7 500;K;Comité de direction
+M01063;Agence Nord;AMIOT;Agathe;F;04/06/1978;Française;;12/08/2001;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;5709,53;I;
+M01064;Agence Sud;ANDRIEU;Alexia;F;07/11/1995;Française;;23/03/2019;;CDI;Agent de maîtrise;Crédit;Superviseur(e) back-office;Temps plein;3399,37;F;
+M01065;Agence Est;ARCHAMBAULT;Alix;F;10/04/1969;Française;;06/10/1994;;CDI;Technicien;Conformité;Technicien(ne) des métiers de la banque;Temps plein;4045,88;F;
+M01066;Agence Ouest;AUBIN;Ambre;F;13/09/1986;Française;;17/05/2012;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2713,61;A;
+M01067;Centre de services;AUDIBERT;Ana;F;16/02/2003;Française;;28/12/2024;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2443,53;B;
+M01068;Siège;BACHELET;Anouk;F;19/07/1977;Française;;11/07/2005;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2977,07;C;
+M01069;Agence Nord;BALLAND;Ariane;F;22/12/1994;Française;;22/02/2023;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2551,45;D;
+M01070;Agence Sud;BARDIN;Astrid;F;25/05/1968;Française;;05/09/1998;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;6147,65;H;
+M01071;Agence Est;BASTIDE;Aubin;H;28/10/1985;Française;;16/04/2016;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;5504,80;I;
+M01072;Agence Ouest;BAZIN;Augustin;H;03/03/2002;Française;;27/11/2024;;CDI;Agent de maîtrise;Crédit;Animateur(rice) commercial(e);Temps plein;3694,36;F;
+M01073;Centre de services;BEAUMONT;Basile;H;06/08/1976;Française;;10/06/1998;;CDI;Technicien;Conformité;Contrôleur(se) de premier niveau;Temps plein;4414,28;F;
+M01074;Siège;BELLANGER;Benoît;H;09/01/1993;Française;;21/01/2016;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2592,60;A;
+M01075;Agence Nord;BENARD;Bruno;H;12/06/1967;Française;;04/08/1991;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3310,10;B;
+M01076;Agence Sud;BERTHIER;Casimir;H;15/11/1984;Française;;15/03/2009;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2864,02;C;
+M01077;Agence Est;BESNARD;Charlène;F;18/04/2001;Française;;26/10/2024;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2393,53;D;
+M01078;Agence Ouest;BIDAULT;Clémence;F;21/09/1975;Française;;09/05/2002;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5814,16;H;
+M01079;Centre de services;BLANCHET;Constance;F;24/02/1992;Française;;20/12/2020;;CDI;Agent de maîtrise;Back-office;Superviseur(e) back-office;Temps plein;3518,75;G;
+M01080;Siège;BLONDEL;Cyrielle;F;27/07/1966;Française;;03/07/1995;;CDI;Technicien;Crédit;Technicien(ne) des métiers de la banque;Temps plein;4167,58;E;
+M01081;Agence Nord;BOCQUET;Diane;F;02/12/1983;Française;;14/02/2013;;CDI;Technicien;Conformité;Chargé(e) d’études;70 %;3609,18;F;
+M01082;Agence Sud;BOISSIER;Dorothée;F;05/05/2000;Portugaise;;25/09/2024;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2598,53;A;
+M01083;Agence Est;BONNEAU;Edwige;F;08/10/1974;Espagnole;;08/04/2006;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3106,15;B;
+M01084;Agence Ouest;BORDES;Éléonore;F;11/03/1991;Italienne;;19/11/2013;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2965,69;C;
+M01085;Centre de services;BOSSARD;Erwan;H;14/08/1965;Marocaine;Carte de séjour pluriannuelle;02/06/1988;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3341,28;D;
+M01086;Siège;BOUCHET;Eudes;H;17/01/1982;Algérienne;Carte de résident;13/01/2006;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5725,60;H;
+M01087;Agence Nord;BOULAY;Fabrice;H;20/06/1999;Tunisienne;Carte de séjour pluriannuelle;24/08/2024;;CDI;Agent de maîtrise;Back-office;Animateur(rice) commercial(e);Temps plein;3389,36;G;
+M01088;Agence Sud;BOURDIN;Firmin;H;23/11/1973;Roumaine;;07/03/1999;;CDI;Technicien;Crédit;Contrôleur(se) de premier niveau;Temps plein;4074,52;E;
+M01089;Agence Est;BOUSSARD;Florent;H;26/04/1990;Allemande;;18/10/2017;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2720,54;D;
+M01090;Agence Ouest;BOUVET;Gabin;H;01/09/1964;Belge;;01/05/1992;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3438,04;A;
+M01091;Centre de services;BRACONNIER;Garance;F;04/02/1981;Sénégalaise;Carte de séjour pluriannuelle;12/12/2010;;CDD accroissement;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2870,46;B;
+M01092;Siège;BREBION;Hortense;F;07/07/1998;Ivoirienne;Carte de résident;23/07/2024;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2548,53;C;
+M01093;Agence Nord;BRIAULT;Iris;F;10/12/1972;Comorienne;Carte de séjour pluriannuelle;06/02/2003;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;5918,79;K;
+M01094;Agence Sud;BRISSON;Jade;F;13/05/1989;Malienne;Carte de séjour pluriannuelle;17/09/2021;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5053,10;H;
+M01095;Agence Est;BRUNEAU;Joséphine;F;16/10/1963;Turque;Carte de résident;28/04/1987;;CDI;Agent de maîtrise;Back-office;Responsable d’unité;Temps plein;4890,16;G;
+M01096;Agence Ouest;BUISSON;Juliette;F;19/03/1980;Polonaise;;11/11/2003;;CDI;Technicien;Crédit;Chargé(e) d’études;Temps plein;3637,18;E;
+M01097;Centre de services;CADIOU;Léonie;F;22/08/1997;Française;;22/06/2021;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2371,30;D;
+M01098;Siège;CAILLAUD;Léopoldine;F;25/01/1971;Française;;05/01/1996;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3060,38;A;
+M01099;Agence Nord;CALMELS;Jocelyn;H;28/06/1988;Française;;16/08/2014;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2751,72;B;
+M01100;Agence Sud;CAMPION;Joachim;H;03/11/1962;Française;;27/03/1989;;CDI;Employé;Juridique;Assistant(e) commercial(e);60 %;3469,22;C;
+M01101;Agence Est;CANTIN;Joris;H;06/04/1979;Française;;10/10/2007;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;5828,02;K;
+M01102;Agence Ouest;CAPRON;Justin;H;09/09/1996;Française;;21/05/2024;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;4975,16;H;
+M01103;Centre de services;CARDON;Kilian;H;12/02/1970;Française;;04/12/2000;;CDI;Agent de maîtrise;Back-office;Superviseur(e) back-office;Temps plein;4477,68;G;
+M01104;Siège;CARRERE;Lancelot;H;15/07/1987;Française;;15/07/2018;;CDI;Technicien;Crédit;Technicien(ne) des métiers de la banque;Temps plein;3610,08;E;
+M01105;Agence Nord;CASSAGNE;Mélissa;F;18/12/1961;Française;;26/02/1993;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3425,15;D;
+M01106;Agence Sud;CASTELLI;Morgane;F;21/05/1978;Française;;09/09/2000;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3284,69;A;
+M01107;Agence Est;CAUCHY;Nolwenn;F;24/10/1995;Française;;20/04/2018;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2399,07;B;
+M01108;Agence Ouest;CAVAILLE;Ondine;F;27/03/1969;Française;;03/11/1993;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;3088,15;C;
+M01109;Centre de services;CHABERT;Perrine;F;02/08/1986;Française;;14/06/2011;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;5251,81;K;
+M01110;Siège;CHAILLOT;Prisca;F;05/01/2003;Française;;25/01/2024;;CDI;Agent de maîtrise;Réseau;Responsable d’unité;Temps plein;3267,28;F;
+M01111;Agence Nord;CHAMBON;Rachel;F;08/06/1977;Française;;08/08/2004;;CDI;Technicien;Back-office;Chargé(e) d’études;Temps plein;3758,88;F;
+M01112;Agence Sud;CHAPELLE;Roxane;F;11/11/1994;Française;;19/03/2022;;CDI;Ouvrier;Crédit;Agent logistique;Temps plein;2220,33;A;
+M01113;Agence Est;CHARBONNIER;Paulin;H;14/04/1968;Française;;02/10/1997;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3325,74;D;
+M01114;Agence Ouest;CHARLOT;Prosper;H;17/09/1985;Française;;13/05/2015;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2879,66;A;
+M01115;Centre de services;CHASSAING;Quirin;H;20/02/2002;Française;;24/12/2024;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2677,12;B;
+M01116;Siège;CHATELAIN;Rémi;H;23/07/1976;Française;;07/07/2008;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;5930,44;J;
+M01117;Agence Nord;CHAUMET;Sacha;H;26/12/1993;Portugaise;;18/02/2015;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;5603,38;K;
+M01118;Agence Sud;CHAVANNE;Sylvain;H;01/05/1967;Espagnole;;01/09/1990;;CDI;Agent de maîtrise;Réseau;Superviseur(e) back-office;Temps plein;5004,48;F;
+M01119;Agence Est;CHERRIER;Tanguy;H;04/10/1984;Italienne;;12/04/2008;;CDI;Technicien;Back-office;Technicien(ne) des métiers de la banque;90 %;3652,68;F;
+M01120;Agence Ouest;CHEVROT;Adeline;F;07/03/2001;Marocaine;Carte de séjour pluriannuelle;23/11/2024;;CDD accroissement;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2316,53;C;
+
+M01121;Centre de services;CHOLLET;Agathe;F;10/08/1975;Algérienne;Carte de séjour pluriannuelle;06/06/2001;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2953,77;D;
+M01122;Siège;CLAVEL;Alexia;F;13/01/1992;Tunisienne;Carte de résident;17/01/2019;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2528,14;A;
+M01123;Agence Nord;CLERC;Alix;F;16/06/1966;Roumaine;;28/08/1994;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3217,23;B;
+M01124;Agence Sud;COLLOMB;Ambre;F;19/11/1983;Allemande;;11/03/2012;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;5356,44;J;
+M01125;Agence Est;COMBAZ;Ana;F;22/04/2000;Belge;;22/10/2024;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;4792,98;K;
+M01126;Agence Ouest;CONSTANT;Anouk;F;25/09/1974;Sénégalaise;Carte de séjour pluriannuelle;05/05/2005;;CDI;Agent de maîtrise;Réseau;Animateur(rice) commercial(e);Temps plein;4140,03;F;
+M01127;Centre de services;CORBIN;Ariane;F;28/02/1991;Ivoirienne;Carte de séjour pluriannuelle;16/12/2023;;CDI;Technicien;Back-office;Contrôleur(se) de premier niveau;Temps plein;3322,18;F;
+M01128;Siège;CORNU;Adrien;H;03/07/1965;Comorienne;Carte de résident;27/07/1987;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;3751,34;C;
+M01129;Agence Nord;COSTES;Aimé;H;06/12/1982;Malienne;Carte de séjour pluriannuelle;10/02/2005;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3305,26;D;
+M01130;Agence Sud;COUDERC;Alban;H;09/05/1999;Turque;Carte de séjour pluriannuelle;21/09/2023;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2399,18;A;
+M01131;Agence Est;COULON;Aldric;H;12/10/1973;Polonaise;;04/04/1998;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3116,68;B;
+M01132;Agence Ouest;COURBET;Amaury;H;15/03/1990;Française;;15/11/2016;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;5245,80;J;
+M01133;Centre de services;CREPIN;Anatole;H;18/08/1964;Française;;26/06/1991;;CDI;Agent de maîtrise;Contrôle interne;Superviseur(e) back-office;Temps plein;4662,30;G;
+M01134;Siège;CRETIN;Cassandre;F;21/01/1981;Française;;09/01/2009;;CDI;Technicien;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3615,38;E;
+M01135;Agence Nord;CROIZET;Charlène;F;24/06/1998;Française;;20/08/2024;;CDI;Ouvrier;Back-office;Agent de sécurité;Temps plein;2197,39;B;
+M01136;Agence Sud;DABRIGEON;Clémence;F;27/11/1972;Française;;03/03/2002;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;3082,84;C;
+M01137;Agence Est;DAGUET;Constance;F;02/04/1989;Française;;14/10/2020;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2657,22;D;
+M01138;Agence Ouest;DALIBARD;Cyrielle;F;05/09/1963;Française;;25/05/1995;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;50 %;3346,31;A;
+M01139;Centre de services;DAMIEN;Diane;F;08/02/1980;Française;;08/12/2002;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;6015,16;I;
+M01140;Siège;DANTAN;Dorothée;F;11/07/1997;Française;;19/07/2020;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;5149,47;J;
+M01141;Agence Nord;DARBOIS;Edwige;F;14/12/1971;Française;;02/02/1995;;CDI;Agent de maîtrise;Contrôle interne;Animateur(rice) commercial(e);Temps plein;4191,21;G;
+M01142;Agence Sud;DAUPHIN;Célestin;H;17/05/1988;Française;;13/09/2013;;CDI;Technicien;Réseau;Contrôleur(se) de premier niveau;Temps plein;3501,88;E;
+M01143;Agence Est;DEBAT;César;H;20/10/1962;Française;;24/04/1988;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3419,28;B;
+M01144;Agence Ouest;DECHAMPS;Corentin;H;23/03/1979;Française;;07/11/2006;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2973,20;C;
+M01145;Centre de services;DEFFONTAINES;Cyprien;H;26/08/1996;Française;;18/06/2024;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2527,12;D;
+M01146;Siège;DEGUILHEM;Édouard;H;01/01/1970;Française;;01/01/1999;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3244,62;A;
+M01147;Agence Nord;DELAHAYE;Éliott;H;04/06/1987;Française;;12/08/2017;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;5348,22;I;
+M01148;Agence Sud;DELARUE;Gaëlle;F;07/11/1961;Française;;23/03/1992;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;6427,88;J;
+M01149;Agence Est;DELAVIGNE;Garance;F;10/04/1978;Française;;06/10/2010;;CDD accroissement;Agent de maîtrise;Contrôle interne;Responsable d’unité;Temps plein;3984,94;G;
+M01150;Agence Ouest;DELEPINE;Hortense;F;13/09/1995;Française;;17/05/2017;;CDI;Technicien;Réseau;Chargé(e) d’études;Temps plein;3544,98;E;
+M01151;Centre de services;DELORT;Iris;F;16/02/1969;Française;;28/12/1992;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3497,08;B;
+M01152;Siège;DEMANGE;Jade;F;19/07/1986;Portugaise;;11/07/2010;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2611,46;C;
+M01153;Agence Nord;DENIAU;Joséphine;F;22/12/2003;Espagnole;;22/02/2024;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2289,53;D;
+M01154;Agence Sud;DEPREZ;Juliette;F;25/05/1977;Italienne;;05/09/2003;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2874,92;A;
+M01155;Agence Est;DERAIN;Léonie;F;28/10/1994;Marocaine;Carte de résident;16/04/2021;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;4794,10;I;
+M01156;Agence Ouest;DESBOIS;Gaspard;H;03/03/1968;Algérienne;Carte de séjour pluriannuelle;27/11/1996;;CDI;Agent de maîtrise;Juridique;Animateur(rice) commercial(e);Temps plein;4499,40;F;
+M01157;Centre de services;DESCAMPS;Gatien;H;06/08/1985;Tunisienne;Carte de séjour pluriannuelle;10/06/2014;;CDI;Technicien;Contrôle interne;Contrôleur(se) de premier niveau;80 %;3622,12;F;
+M01158;Siège;DESFORGES;Ghislain;H;09/01/2002;Roumaine;;21/01/2024;;CDI;Ouvrier;Réseau;Agent de maintenance;Temps plein;2313,96;A;
+M01159;Agence Nord;DESJARDINS;Gonzague;H;12/06/1976;Allemande;;04/08/2007;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3101,14;B;
+M01160;Agence Sud;DEVILLE;Guilhem;H;15/11/1993;Belge;;15/03/2024;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2682,12;C;
+M01161;Agence Est;DEZ;Hilaire;H;18/04/1967;Sénégalaise;Carte de résident;26/10/1989;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3670,22;D;
+M01162;Agence Ouest;DIDELOT;Marlène;F;21/09/1984;Ivoirienne;Carte de séjour pluriannuelle;09/05/2007;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;5786,30;H;
+M01163;Centre de services;DOMINE;Mélissa;F;24/02/2001;Comorienne;Carte de séjour pluriannuelle;20/12/2024;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;4510,98;I;
+M01164;Siège;DONNADIEU;Morgane;F;27/07/1975;Malienne;Carte de résident;03/07/2000;;CDI;Agent de maîtrise;Juridique;Responsable d’unité;Temps plein;4036,12;F;
+M01165;Agence Nord;DORMOY;Nolwenn;F;02/12/1992;Turque;Carte de séjour pluriannuelle;14/02/2018;;CDI;Technicien;Contrôle interne;Chargé(e) d’études;Temps plein;3206,68;F;
+M01166;Agence Sud;DOUCET;Ondine;F;05/05/1966;Polonaise;;25/09/1993;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;3166,15;A;
+M01167;Agence Est;DRUAIS;Perrine;F;08/10/1983;Française;;08/04/2011;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2740,53;B;
+M01168;Agence Ouest;DUBREUIL;Prisca;F;11/03/2000;Française;;19/11/2024;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2444,53;C;
+M01169;Centre de services;DUCLOS;Rachel;F;14/08/1974;Française;;02/06/2004;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3004,00;D;
+M01170;Siège;DUCROS;Roxane;F;17/01/1991;Française;;13/01/2022;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;4898,73;H;
+M01171;Agence Nord;DUFFAU;Lubin;H;20/06/1965;Française;;24/08/1997;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;6463,82;I;
+M01172;Agence Sud;DUGAST;Marius;H;23/11/1982;Française;;07/03/2004;;CDI;Agent de maîtrise;Juridique;Superviseur(e) back-office;Temps plein;4397,96;F;
+M01173;Agence Est;DUMOULIN;Maxence;H;26/04/1999;Française;;18/10/2022;;CDI;Technicien;Contrôle interne;Technicien(ne) des métiers de la banque;Temps plein;3540,04;F;
+M01174;Agence Ouest;DUPRAT;Merlin;H;01/09/1973;Française;;01/05/1997;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;3526,74;A;
+M01175;Centre de services;DURIEZ;Nathan;H;04/02/1990;Française;;12/12/2015;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2620,66;B;
+M01176;Siège;DUTERTRE;Océan;H;07/07/1964;Française;;23/07/1990;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;70 %;3338,16;C;
+M01177;Agence Nord;DUVERGER;Yseult;F;10/12/1981;Française;;06/02/2008;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2768,30;D;
+M01178;Agence Sud;ESCOFFIER;Adeline;F;13/05/1998;Française;;17/09/2024;;CDD accroissement;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;4665,98;H;
+M01179;Agence Est;ESTIENNE;Agathe;F;16/10/1972;Française;;28/04/2001;;CDI;Agent de maîtrise;Systèmes d’information;Responsable d’unité;Temps plein;4155,50;G;
+M01180;Agence Ouest;EYMARD;Alexia;F;19/03/1989;Française;;11/11/2019;;CDI;Technicien;Juridique;Chargé(e) d’études;Temps plein;3328,38;E;
+M01181;Centre de services;FABREGUE;Alix;F;22/08/1963;Française;;22/06/1994;;CDI;Technicien;Contrôle interne;Contrôleur(se) de premier niveau;Temps plein;4201,88;F;
+M01182;Siège;FALGUIERE;Ambre;F;25/01/1980;Française;;05/01/2012;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2869,61;A;
+M01183;Agence Nord;FAUCHER;Ana;F;28/06/1997;Française;;16/08/2019;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2729,14;B;
+M01184;Agence Sud;FAURY;Anouk;F;03/11/1971;Française;;27/03/1994;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;3418,23;C;
+M01185;Agence Est;FAVIER;Timothée;H;06/04/1988;Française;;10/10/2012;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3111,84;D;
+M01186;Agence Ouest;FERRIER;Tristan;H;09/09/1962;Française;;21/05/1987;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;6684,62;H;
+M01187;Centre de services;FEUILLET;Ulysse;H;12/02/1979;Portugaise;;04/12/2005;;CDI;Agent de maîtrise;Systèmes d’information;Superviseur(e) back-office;Temps plein;4055,78;G;
+M01188;Siège;FICHET;Valentin;H;15/07/1996;Espagnole;;15/07/2023;;CDI;Technicien;Juridique;Technicien(ne) des métiers de la banque;Temps plein;3200,28;E;
+M01189;Agence Nord;FILIPPI;Wandrille;H;18/12/1970;Italienne;;26/02/1998;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3194,68;D;
+M01190;Agence Sud;FLAMENT;Xavier;H;21/05/1987;Marocaine;Carte de séjour pluriannuelle;09/09/2016;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2748,60;A;
+M01191;Agence Est;FLORENTIN;Capucine;F;24/10/1961;Algérienne;Carte de résident;20/04/1991;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3323,00;B;
+M01192;Agence Ouest;FOLLIOT;Cassandre;F;27/03/1978;Tunisienne;Carte de séjour pluriannuelle;03/11/2009;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2897,38;C;
+M01193;Centre de services;FORESTIER;Charlène;F;02/08/1995;Roumaine;;14/06/2024;;CDI;Cadre;Conformité;Responsable conformité;Temps plein;4820,98;K;
+M01194;Siège;FOUQUET;Clémence;F;05/01/1969;Allemande;;25/01/1991;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;6524,25;H;
+M01195;Agence Nord;FOURCADE;Constance;F;08/06/1986;Belge;;08/08/2009;;CDI;Agent de maîtrise;Systèmes d’information;Animateur(rice) commercial(e);60 %;4066,55;G;
+M01196;Agence Sud;FRAISSE;Cyrielle;F;11/11/2003;Sénégalaise;Carte de séjour pluriannuelle;19/03/2024;;CDI;Technicien;Juridique;Contrôleur(se) de premier niveau;Temps plein;3357,88;E;
+M01197;Agence Est;FRANCHET;Diane;F;14/04/1977;Ivoirienne;Carte de résident;02/10/2002;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2823,84;D;
+M01198;Agence Ouest;FREMONT;Dorothée;F;17/09/1994;Comorienne;Carte de séjour pluriannuelle;13/05/2020;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2398,22;A;
+M01199;Centre de services;FRESSE;Anthelme;H;20/02/1968;Malienne;Carte de séjour pluriannuelle;24/12/1995;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3225,86;B;
+M01200;Siège;GABRIEL;Armand;H;23/07/1985;Turque;Carte de résident;07/07/2013;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2779,78;C;
+M01201;Agence Nord;GACHET;Aubin;H;26/12/2002;Polonaise;;18/02/2024;;CDI;Cadre;Conformité;Responsable conformité;Temps plein;4894,16;K;
+M01202;Agence Sud;GALINIER;Augustin;H;01/05/1976;Française;;01/09/2006;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;5881,60;H;
+M01203;Agence Est;GALLAND;Basile;H;04/10/1993;Française;;12/04/2024;;CDI;Agent de maîtrise;Systèmes d’information;Responsable d’unité;Temps plein;3545,36;G;
+M01204;Agence Ouest;GANDON;Benoît;H;07/03/1967;Française;;23/11/1999;;CDI;Technicien;Juridique;Chargé(e) d’études;Temps plein;4230,52;E;
+M01205;Centre de services;GARNAUD;Flavie;F;10/08/1984;Française;;06/06/2006;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3048,15;D;
+M01206;Siège;GASTON;Gaëlle;F;13/01/2001;Française;;17/01/2024;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2622,53;A;
+M01207;Agence Nord;GATEAU;Garance;F;16/06/1975;Française;;28/08/1999;;CDD accroissement;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3311,61;B;
+M01208;Agence Sud;GAUVIN;Hortense;F;19/11/1992;Française;;11/03/2017;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2425,99;C;
+M01209;Agence Est;GAZEAU;Iris;F;22/04/1966;Française;;22/10/1992;;CDI;Cadre;Conformité;Responsable conformité;Temps plein;6168,88;K;
+M01210;Agence Ouest;GENESTE;Jade;F;25/09/1983;Française;;05/05/2010;;CDI;Agent de maîtrise;Ressources humaines;Animateur(rice) commercial(e);Temps plein;3725,94;F;
+M01211;Centre de services;GERBAUD;Joséphine;F;28/02/2000;Française;;16/12/2024;;CDI;Technicien;Systèmes d’information;Contrôleur(se) de premier niveau;Temps plein;3052,88;F;
+M01212;Siège;GILLET;Juliette;F;03/07/1974;Française;;27/07/2003;;CDI;Ouvrier;Juridique;Agent de maintenance;Temps plein;2616,82;A;
+M01213;Agence Nord;GIRAUDON;Elouan;H;06/12/1991;Française;;10/02/2021;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2636,30;D;
+M01214;Agence Sud;GLEIZES;Enzo;H;09/05/1965;Française;;21/09/1996;;CDI;Employé;Réseau;Chargé(e) d’accueil;90 %;3353,80;A;
+M01215;Agence Est;GOASDOUE;Erwan;H;12/10/1982;Française;;04/04/2014;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2907,72;B;
+M01216;Agence Ouest;GODEFROY;Eudes;H;15/03/1999;Française;;15/11/2021;;CDI;Cadre;Crédit;Ingénieur patrimonial;Temps plein;5206,90;J;
+M01217;Centre de services;GOMBERT;Fabrice;H;18/08/1973;Française;;26/06/1996;;CDI;Cadre;Conformité;Responsable conformité;Temps plein;6562,40;K;
+M01218;Siège;GONNET;Firmin;H;21/01/1990;Française;;09/01/2014;;CDI;Agent de maîtrise;Ressources humaines;Responsable d’unité;Temps plein;4072,16;F;
+M01219;Agence Nord;GOUJON;Florent;H;24/06/1964;Française;;20/08/1989;;CDI;Technicien;Systèmes d’information;Chargé(e) d’études;Temps plein;4733,12;F;
+M01220;Agence Sud;GOURDON;Marlène;F;27/11/1981;Française;;03/03/2007;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2717,23;C;
+M01221;Agence Est;GOYARD;Mélissa;F;02/04/1998;Française;;14/10/2024;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2317,53;D;
+M01222;Agence Ouest;GRANDJEAN;Morgane;F;05/09/1972;Portugaise;;25/05/2000;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2980,69;A;
+M01223;Centre de services;GRAVIER;Nolwenn;F;08/02/1989;Espagnole;;08/12/2018;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2555,07;B;
+M01224;Siège;GREGOIRE;Ondine;F;11/07/1963;Italienne;;19/07/1993;;CDI;Cadre;Crédit;Ingénieur patrimonial;Temps plein;6273,50;J;
+M01225;Agence Nord;GRELIER;Perrine;F;14/12/1980;Marocaine;Carte de séjour pluriannuelle;02/02/2011;;CDI;Cadre;Conformité;Responsable conformité;Temps plein;5407,81;K;
+M01226;Agence Sud;GRIVEL;Prisca;F;17/05/1997;Algérienne;Carte de séjour pluriannuelle;13/09/2024;;CDI;Agent de maîtrise;Ressources humaines;Superviseur(e) back-office;Temps plein;3423,28;F;
+M01227;Agence Est;GROSJEAN;Rachel;F;20/10/1971;Tunisienne;Carte de résident;24/04/1993;;CDI;Technicien;Systèmes d’information;Technicien(ne) des métiers de la banque;Temps plein;4281,18;F;
+M01228;Agence Ouest;GUENIN;Ismaël;H;23/03/1988;Roumaine;;07/11/2011;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;3061,90;C;
+M01229;Centre de services;GUIBERT;Jocelyn;H;26/08/1962;Allemande;;18/06/1987;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3752,34;D;
+M01230;Siège;GUILLAUD;Joachim;H;01/01/1979;Belge;;01/01/2004;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;3333,32;A;
+M01231;Agence Nord;GUINARD;Joris;H;04/06/1996;Sénégalaise;Carte de séjour pluriannuelle;12/08/2022;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2427,24;B;
+M01232;Agence Sud;GUYON;Justin;H;07/11/1970;Ivoirienne;Carte de séjour pluriannuelle;23/03/1997;;CDI;Cadre;Crédit;Ingénieur patrimonial;Temps plein;6204,82;J;
+M01233;Agence Est;HAMELIN;Kilian;H;10/04/1987;Comorienne;Carte de résident;06/10/2015;;CDI;Agent de maîtrise;Conformité;Responsable d’unité;50 %;3729,98;G;
+M01234;Agence Ouest;HARDOUIN;Violaine;F;13/09/1961;Malienne;Carte de séjour pluriannuelle;17/05/1990;;CDI;Technicien;Ressources humaines;Chargé(e) d’études;Temps plein;4208,08;E;
+M01235;Centre de services;HAUTIER;Yseult;F;16/02/1978;Turque;Carte de séjour pluriannuelle;28/12/2008;;CDI;Ouvrier;Systèmes d’information;Agent logistique;Temps plein;2524,95;B;
+M01236;Siège;HEBRARD;Adeline;F;19/07/1995;Polonaise;;11/07/2024;;CDD accroissement;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2472,53;C;
+M01237;Agence Nord;HENAFF;Agathe;F;22/12/1969;Française;;22/02/2001;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3109,77;D;
+M01238;Agence Sud;HERBRETEAU;Alexia;F;25/05/1986;Française;;05/09/2008;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2969,30;A;
+M01239;Agence Est;HERISSON;Alix;F;28/10/2003;Française;;16/04/2024;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;4866,98;I;
+M01240;Agence Ouest;HEUDE;Ambre;F;03/03/1977;Française;;27/11/2001;;CDI;Cadre;Crédit;Ingénieur patrimonial;Temps plein;6066,53;J;
+M01241;Centre de services;HOARAU;Ana;F;06/08/1994;Française;;10/06/2019;;CDI;Agent de maîtrise;Conformité;Superviseur(e) back-office;Temps plein;3756,37;G;
+M01242;Siège;HOUEL;Octave;H;09/01/1968;Française;;21/01/1994;;CDI;Technicien;Ressources humaines;Technicien(ne) des métiers de la banque;Temps plein;4122,32;E;
+M01243;Agence Nord;HUBLOT;Paulin;H;12/06/1985;Française;;04/08/2012;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2729,84;B;
+M01244;Agence Sud;HUON;Prosper;H;15/11/2002;Française;;15/03/2024;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2446,12;C;
+M01245;Agence Est;IMBAULT;Quirin;H;18/04/1976;Française;;26/10/2005;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3001,26;D;
+M01246;Agence Ouest;JACQUIN;Rémi;H;21/09/1993;Française;;09/05/2023;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2555,18;A;
+M01247;Centre de services;JALLET;Sacha;H;24/02/1967;Française;;20/12/1998;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;6307,24;I;
+M01248;Siège;JAMBON;Blandine;F;27/07/1984;Française;;03/07/2016;;CDI;Cadre;Crédit;Ingénieur patrimonial;Temps plein;5178,96;J;
+M01249;Agence Nord;JANIN;Capucine;F;02/12/2001;Française;;14/02/2023;;CDI;Agent de maîtrise;Conformité;Animateur(rice) commercial(e);Temps plein;3481,90;G;
+M01250;Agence Sud;JARDIN;Cassandre;F;05/05/1975;Française;;25/09/1998;;CDI;Technicien;Ressources humaines;Contrôleur(se) de premier niveau;Temps plein;4137,68;E;
+M01251;Agence Est;JAUFFRET;Charlène;F;08/10/1992;Française;;08/04/2016;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2834,91;B;
+M01252;Agence Ouest;JEANNIN;Clémence;F;11/03/1966;Française;;19/11/1991;;CDI;Employé;Juridique;Assistant(e) commercial(e);80 %;3524,00;C;
+M01253;Centre de services;JOANNIN;Constance;F;14/08/1983;Française;;02/06/2009;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2638,38;D;
+M01254;Siège;JOFFRE;Cyrielle;F;17/01/2000;Française;;13/01/2024;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2290,53;A;
+M01255;Agence Nord;JOSSE;Diane;F;20/06/1974;Française;;24/08/2002;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;5711,16;I;
+M01256;Agence Sud;JOURNET;Zacharie;H;23/11/1991;Française;;07/03/2020;;CDI;Agent de maîtrise;Crédit;Superviseur(e) back-office;Temps plein;3567,08;F;
+M01257;Agence Est;JUGE;Achille;H;26/04/1965;Portugaise;;18/10/1995;;CDI;Technicien;Conformité;Technicien(ne) des métiers de la banque;Temps plein;4242,56;F;
+M01258;Agence Ouest;JUSSEAU;Adrien;H;01/09/1982;Espagnole;;01/05/2013;;CDI;Ouvrier;Ressources humaines;Agent de sécurité;Temps plein;2537,74;A;
+M01259;Centre de services;KERGOAT;Aimé;H;04/02/1999;Italienne;;12/12/2024;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2601,12;B;
+M01260;Siège;LABADIE;Alban;H;07/07/1973;Marocaine;Carte de résident;23/07/1995;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;3426,86;C;
+
+M01261;Agence Nord;LABAT;Aldric;H;10/12/1990;Algérienne;Carte de séjour pluriannuelle;06/02/2013;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2980,78;D;
+M01262;Agence Sud;LACAZE;Faustine;F;13/05/1964;Tunisienne;Carte de séjour pluriannuelle;17/09/1988;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;6703,36;H;
+M01263;Agence Est;LACOMBE;Flavie;F;16/10/1981;Roumaine;;28/04/2006;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;5837,67;I;
+M01264;Agence Ouest;LAFON;Gaëlle;F;19/03/1998;Allemande;;11/11/2024;;CDI;Agent de maîtrise;Crédit;Animateur(rice) commercial(e);Temps plein;3141,28;F;
+M01265;Centre de services;LAGARRIGUE;Garance;F;22/08/1972;Belge;;22/06/1999;;CDD accroissement;Technicien;Conformité;Contrôleur(se) de premier niveau;Temps plein;3799,38;F;
+M01266;Siège;ALLARD;Hortense;F;25/01/1989;Sénégalaise;Carte de résident;05/01/2017;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2503,99;A;
+M01267;Agence Nord;AMIOT;Iris;F;28/06/1963;Ivoirienne;Carte de séjour pluriannuelle;16/08/1992;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3193,08;B;
+M01268;Agence Sud;ANDRIEU;Jade;F;03/11/1980;Comorienne;Carte de séjour pluriannuelle;27/03/2010;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2767,46;C;
+M01269;Agence Est;ARCHAMBAULT;Joséphine;F;06/04/1997;Malienne;Carte de résident;10/10/2024;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2445,53;D;
+M01270;Agence Ouest;AUBIN;Juliette;F;09/09/1971;Turque;Carte de séjour pluriannuelle;21/05/2003;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5815,79;H;
+M01271;Centre de services;AUDIBERT;Casimir;H;12/02/1988;Polonaise;;04/12/2010;;CDI;Cadre;Back-office;Chargé(e) d’affaires entreprises;Temps plein;5740,28;I;
+M01272;Siège;BACHELET;Célestin;H;15/07/1962;Française;;15/07/1987;;CDI;Agent de maîtrise;Crédit;Responsable d’unité;Temps plein;4990,02;F;
+M01273;Agence Nord;BALLAND;César;H;18/12/1979;Française;;26/02/2003;;CDI;Technicien;Conformité;Chargé(e) d’études;Temps plein;4160,48;F;
+M01274;Agence Sud;BARDIN;Corentin;H;21/05/1996;Française;;09/09/2021;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2837,30;A;
+M01275;Agence Est;BASTIDE;Cyprien;H;24/10/1970;Française;;20/04/1996;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3554,80;B;
+M01276;Agence Ouest;BAZIN;Édouard;H;27/03/1987;Française;;03/11/2014;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2648,72;C;
+M01277;Centre de services;BEAUMONT;Maïwenn;F;02/08/1961;Française;;14/06/1989;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3220,85;D;
+M01278;Siège;BELLANGER;Marlène;F;05/01/1978;Française;;25/01/2007;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5482,30;H;
+M01279;Agence Nord;BENARD;Mélissa;F;08/06/1995;Française;;08/08/2024;;CDI;Agent de maîtrise;Back-office;Animateur(rice) commercial(e);Temps plein;3296,28;G;
+M01280;Agence Sud;BERTHIER;Morgane;F;11/11/1969;Française;;19/03/2000;;CDI;Technicien;Crédit;Contrôleur(se) de premier niveau;Temps plein;3921,08;E;
+M01281;Agence Est;BESNARD;Nolwenn;F;14/04/1986;Française;;02/10/2018;;CDI;Technicien;Conformité;Technicien(ne) des métiers de la banque;Temps plein;3362,68;F;
+M01282;Agence Ouest;BIDAULT;Ondine;F;17/09/2003;Française;;13/05/2024;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2518,53;A;
+M01283;Centre de services;BLANCHET;Perrine;F;20/02/1977;Française;;24/12/2000;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3181,69;B;
+M01284;Siège;BLONDEL;Prisca;F;23/07/1994;Française;;07/07/2018;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2756,07;C;
+M01285;Agence Nord;BOCQUET;Gabin;H;26/12/1968;Française;;18/02/1993;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3585,98;D;
+M01286;Agence Sud;BOISSIER;Gaspard;H;01/05/1985;Française;;01/09/2011;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5842,70;H;
+M01287;Agence Est;BONNEAU;Gatien;H;04/10/2002;Française;;12/04/2024;;CDI;Agent de maîtrise;Back-office;Responsable d’unité;Temps plein;3309,36;G;
+M01288;Agence Ouest;BORDES;Ghislain;H;07/03/1976;Française;;23/11/2004;;CDI;Technicien;Crédit;Chargé(e) d’études;Temps plein;3820,72;E;
+M01289;Centre de services;BOSSARD;Gonzague;H;10/08/1993;Française;;06/06/2022;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2505,24;D;
+M01290;Siège;BOUCHET;Guilhem;H;13/01/1967;Française;;17/01/1997;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;60 %;3222,74;A;
+M01291;Agence Nord;BOULAY;Ursule;F;16/06/1984;Française;;28/08/2015;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2660,84;B;
+M01292;Agence Sud;BOURDIN;Violaine;F;19/11/2001;Portugaise;;11/03/2024;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;2468,53;C;
+M01293;Agence Est;BOUSSARD;Yseult;F;22/04/1975;Espagnole;;22/10/1997;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;6141,02;K;
+M01294;Agence Ouest;BOUVET;Adeline;F;25/09/1992;Italienne;;05/05/2015;;CDD accroissement;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;5275,33;H;
+M01295;Centre de services;BRACONNIER;Agathe;F;28/02/1966;Marocaine;Carte de séjour pluriannuelle;16/12/1990;;CDI;Agent de maîtrise;Back-office;Superviseur(e) back-office;Temps plein;4703,30;G;
+M01296;Siège;BREBION;Alexia;F;03/07/1983;Algérienne;Carte de résident;27/07/2008;;CDI;Technicien;Crédit;Technicien(ne) des métiers de la banque;Temps plein;3850,68;E;
+M01297;Agence Nord;BRIAULT;Alix;F;06/12/2000;Tunisienne;Carte de séjour pluriannuelle;10/02/2024;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2673,53;D;
+M01298;Agence Sud;BRISSON;Ambre;F;09/05/1974;Roumaine;;21/09/2001;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2850,77;A;
+M01299;Agence Est;BRUNEAU;Lancelot;H;12/10/1991;Allemande;;04/04/2019;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2536,42;B;
+M01300;Agence Ouest;BUISSON;Léandre;H;15/03/1965;Belge;;15/11/1994;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;3253,92;C;
+M01301;Centre de services;CADIOU;Lubin;H;18/08/1982;Sénégalaise;Carte de séjour pluriannuelle;26/06/2012;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;5485,12;K;
+M01302;Siège;CAILLAUD;Marius;H;21/01/1999;Ivoirienne;Carte de résident;09/01/2024;;CDI;Cadre;Réseau;Directeur(rice) d’agence;Temps plein;4895,16;H;
+M01303;Agence Nord;CALMELS;Maxence;H;24/06/1973;Comorienne;Carte de séjour pluriannuelle;20/08/2005;;CDI;Agent de maîtrise;Back-office;Animateur(rice) commercial(e);Temps plein;4211,78;G;
+M01304;Agence Sud;CAMPION;Merlin;H;27/11/1990;Malienne;Carte de séjour pluriannuelle;03/03/2012;;CDI;Technicien;Crédit;Contrôleur(se) de premier niveau;Temps plein;3738,64;E;
+M01305;Agence Est;CANTIN;Bérénice;F;02/04/1964;Turque;Carte de résident;14/10/1987;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3500,70;D;
+M01306;Agence Ouest;CAPRON;Blandine;F;05/09/1981;Polonaise;;25/05/2005;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3075,07;A;
+M01307;Centre de services;CARDON;Capucine;F;08/02/1998;Française;;08/12/2023;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;2649,45;B;
+M01308;Siège;CARRERE;Cassandre;F;11/07/1972;Française;;19/07/1998;;CDI;Employé;Juridique;Assistant(e) commercial(e);Temps plein;3338,54;C;
+M01309;Agence Nord;CASSAGNE;Charlène;F;14/12/1989;Française;;02/02/2016;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;4919,96;K;
+M01310;Agence Sud;CASTELLI;Clémence;F;17/05/1963;Française;;13/09/1991;;CDI;Agent de maîtrise;Réseau;Superviseur(e) back-office;Temps plein;4362,69;F;
+M01311;Agence Est;CAUCHY;Constance;F;20/10/1980;Française;;24/04/2009;;CDI;Technicien;Back-office;Technicien(ne) des métiers de la banque;Temps plein;3512,38;F;
+M01312;Agence Ouest;CAVAILLE;Cyrielle;F;23/03/1997;Française;;07/11/2024;;CDI;Ouvrier;Crédit;Agent de sécurité;Temps plein;2094,39;A;
+M01313;Centre de services;CHABERT;Sylvain;H;26/08/1971;Française;;18/06/2002;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3110,44;D;
+M01314;Siège;CHAILLOT;Tanguy;H;01/01/1988;Française;;01/01/2020;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2664,36;A;
+M01315;Agence Nord;CHAMBON;Timothée;H;04/06/1962;Française;;12/08/1987;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3598,34;B;
+M01316;Agence Sud;CHAPELLE;Tristan;H;07/11/1979;Française;;23/03/2002;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;6165,92;J;
+M01317;Agence Est;CHARBONNIER;Ulysse;H;10/04/1996;Française;;06/10/2020;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;5260,48;K;
+M01318;Agence Ouest;CHARLOT;Valentin;H;13/09/1970;Française;;17/05/1995;;CDI;Agent de maîtrise;Réseau;Animateur(rice) commercial(e);Temps plein;4738,58;F;
+M01319;Centre de services;CHASSAING;Wandrille;H;16/02/1987;Française;;28/12/2013;;CDI;Technicien;Back-office;Contrôleur(se) de premier niveau;Temps plein;3858,88;F;
+M01320;Siège;CHATELAIN;Faustine;F;19/07/1961;Française;;11/07/1988;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;3629,77;C;
+M01321;Agence Nord;CHAUMET;Flavie;F;22/12/1978;Française;;22/02/2006;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2744,15;D;
+M01322;Agence Sud;CHAVANNE;Gaëlle;F;25/05/1995;Française;;05/09/2024;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2318,53;A;
+M01323;Agence Est;CHERRIER;Garance;F;28/10/1969;Française;;16/04/1999;;CDD accroissement;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3007,61;B;
+M01324;Agence Ouest;CHEVROT;Hortense;F;03/03/1986;Française;;27/11/2017;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;5024,58;J;
+M01325;Centre de services;CHOLLET;Iris;F;06/08/2003;Française;;10/06/2024;;CDI;Cadre;Contrôle interne;Analyste financier(ère);Temps plein;4712,98;K;
+M01326;Siège;CLAVEL;Jade;F;09/01/1977;Française;;21/01/1999;;CDI;Agent de maîtrise;Réseau;Responsable d’unité;Temps plein;4273,74;F;
+M01327;Agence Nord;CLERC;Joséphine;F;12/06/1994;Portugaise;;04/08/2017;;CDI;Technicien;Back-office;Chargé(e) d’études;Temps plein;3441,98;F;
+M01328;Agence Sud;COLLOMB;Anatole;H;15/11/1968;Espagnole;;15/03/1992;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;50 %;3536,04;C;
+M01329;Agence Est;COMBAZ;Anthelme;H;18/04/1985;Italienne;;26/10/2010;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3089,96;D;
+M01330;Agence Ouest;CONSTANT;Armand;H;21/09/2002;Marocaine;Carte de séjour pluriannuelle;09/05/2024;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2752,12;A;
+M01331;Centre de services;CORBIN;Aubin;H;24/02/1976;Algérienne;Carte de séjour pluriannuelle;20/12/2003;;CDI;Employé;Systèmes d’information;Chargé(e) de recouvrement amiable;Temps plein;3361,38;B;
+M01332;Siège;CORNU;Augustin;H;27/07/1993;Tunisienne;Carte de résident;03/07/2021;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;4902,90;J;
+M01333;Agence Nord;COSTES;Basile;H;02/12/1967;Roumaine;;14/02/1996;;CDI;Agent de maîtrise;Contrôle interne;Animateur(rice) commercial(e);Temps plein;4396,40;G;
+M01334;Agence Sud;COUDERC;Maëva;F;05/05/1984;Allemande;;25/09/2014;;CDI;Technicien;Réseau;Contrôleur(se) de premier niveau;Temps plein;3368,88;E;
+M01335;Agence Est;COULON;Maïwenn;F;08/10/2001;Belge;;08/04/2024;;CDI;Ouvrier;Back-office;Agent de maintenance;Temps plein;2117,39;B;
+M01336;Agence Ouest;COURBET;Marlène;F;11/03/1975;Sénégalaise;Carte de séjour pluriannuelle;19/11/2007;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2873,23;C;
+M01337;Centre de services;CREPIN;Mélissa;F;14/08/1992;Ivoirienne;Carte de séjour pluriannuelle;02/06/2014;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2732,76;D;
+M01338;Siège;CRETIN;Morgane;F;17/01/1966;Comorienne;Carte de résident;13/01/1989;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3421,85;A;
+M01339;Agence Nord;CROIZET;Nolwenn;F;20/06/1983;Malienne;Carte de séjour pluriannuelle;24/08/2007;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;5683,30;I;
+M01340;Agence Sud;DABRIGEON;Ondine;F;23/11/2000;Turque;Carte de séjour pluriannuelle;07/03/2024;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;4867,98;J;
+M01341;Agence Est;DAGUET;Perrine;F;26/04/1974;Polonaise;;18/10/2000;;CDI;Agent de maîtrise;Contrôle interne;Responsable d’unité;Temps plein;4393,12;G;
+M01342;Agence Ouest;DALIBARD;Éliott;H;01/09/1991;Française;;01/05/2018;;CDI;Technicien;Réseau;Chargé(e) d’études;Temps plein;3708,08;E;
+M01343;Centre de services;DAMIEN;Elouan;H;04/02/1965;Française;;12/12/1993;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3203,98;B;
+M01344;Siège;DANTAN;Enzo;H;07/07/1982;Française;;23/07/2011;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2757,90;C;
+M01345;Agence Nord;DARBOIS;Erwan;H;10/12/1999;Française;;06/02/2024;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2447,12;D;
+M01346;Agence Sud;DAUPHIN;Eudes;H;13/05/1973;Française;;17/09/2004;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;3029,32;A;
+M01347;Agence Est;DEBAT;Fabrice;H;16/10/1990;Française;;28/04/2022;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;5005,32;I;
+M01348;Agence Ouest;DECHAMPS;Tiphaine;F;19/03/1964;Française;;11/11/1987;;CDI;Cadre;Juridique;Juriste bancaire;Temps plein;6599,73;J;
+M01349;Centre de services;DEFFONTAINES;Ursule;F;22/08/1981;Française;;22/06/2004;;CDI;Agent de maîtrise;Contrôle interne;Superviseur(e) back-office;Temps plein;4118,65;G;
+M01350;Siège;DEGUILHEM;Violaine;F;25/01/1998;Française;;05/01/2022;;CDI;Technicien;Réseau;Technicien(ne) des métiers de la banque;Temps plein;3298,48;E;
+M01351;Agence Nord;DELAHAYE;Yseult;F;28/06/1972;Française;;16/08/1997;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3287,46;B;
+M01352;Agence Sud;DELARUE;Adeline;F;03/11/1989;Française;;27/03/2015;;CDD accroissement;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2861,84;C;
+M01353;Agence Est;DELAVIGNE;Agathe;F;06/04/1963;Française;;10/10/1990;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3550,93;D;
+M01354;Agence Ouest;DELEPINE;Alexia;F;09/09/1980;Française;;21/05/2008;;CDI;Employé;Ressources humaines;Gestionnaire des moyens de paiement;Temps plein;2665,30;A;
+M01355;Centre de services;DELORT;Alix;F;12/02/1997;Française;;04/12/2024;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;4562,98;I;
+M01356;Siège;DEMANGE;Hilaire;H;15/07/1971;Française;;15/07/2001;;CDI;Agent de maîtrise;Juridique;Responsable d’unité;Temps plein;4233,50;F;
+M01357;Agence Nord;DENIAU;Hippolyte;H;18/12/1988;Française;;26/02/2019;;CDI;Technicien;Contrôle interne;Chargé(e) d’études;Temps plein;3368,32;F;
+M01358;Agence Sud;DEPREZ;Ismaël;H;21/05/1962;Française;;09/09/1994;;CDI;Ouvrier;Réseau;Agent logistique;Temps plein;2953,36;A;
+M01359;Agence Est;DERAIN;Jocelyn;H;24/10/1979;Française;;20/04/2001;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3183,50;B;
+M01360;Agence Ouest;DESBOIS;Joachim;H;27/03/1996;Française;;03/11/2019;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2737,42;C;
+M01361;Centre de services;DESCAMPS;Joris;H;02/08/1970;Française;;14/06/1994;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;3454,92;D;
+M01362;Siège;DESFORGES;Axelle;F;05/01/1987;Portugaise;;25/01/2012;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;5454,44;H;
+M01363;Agence Nord;DESJARDINS;Bérénice;F;08/06/1961;Espagnole;;08/08/1987;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;6754,73;I;
+M01364;Agence Sud;DEVILLE;Blandine;F;11/11/1978;Italienne;;19/03/2005;;CDI;Agent de maîtrise;Juridique;Superviseur(e) back-office;Temps plein;4238,03;F;
+M01365;Agence Est;DEZ;Capucine;F;14/04/1995;Marocaine;Carte de résident;02/10/2023;;CDI;Technicien;Contrôle interne;Technicien(ne) des métiers de la banque;Temps plein;2960,18;F;
+M01366;Agence Ouest;DIDELOT;Cassandre;F;17/09/1969;Algérienne;Carte de séjour pluriannuelle;13/05/1998;;CDI;Employé;Réseau;Chargé(e) d’accueil;70 %;2956,54;A;
+M01367;Centre de services;DOMINE;Charlène;F;20/02/1986;Tunisienne;Carte de séjour pluriannuelle;24/12/2016;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2530,91;B;
+M01368;Siège;DONNADIEU;Clémence;F;23/07/2003;Roumaine;;07/07/2024;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2364,53;C;
+M01369;Agence Nord;DORMOY;Constance;F;26/12/1977;Allemande;;18/02/2009;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2794,38;D;
+M01370;Agence Sud;DOUCET;Cyrielle;F;01/05/1994;Belge;;01/09/2016;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;5120,96;H;
+M01371;Agence Est;DRUAIS;Océan;H;04/10/1968;Sénégalaise;Carte de résident;12/04/1991;;CDI;Cadre;Systèmes d’information;Contrôleur(se) des risques;Temps plein;6699,30;I;
+M01372;Agence Ouest;DUBREUIL;Octave;H;07/03/1985;Ivoirienne;Carte de séjour pluriannuelle;23/11/2009;;CDI;Agent de maîtrise;Juridique;Animateur(rice) commercial(e);Temps plein;4132,06;F;
+M01373;Centre de services;DUCLOS;Paulin;H;10/08/2002;Comorienne;Carte de séjour pluriannuelle;06/06/2024;;CDI;Technicien;Contrôle interne;Contrôleur(se) de premier niveau;Temps plein;3390,52;F;
+M01374;Siège;DUCROS;Prosper;H;13/01/1976;Malienne;Carte de résident;17/01/2002;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;3311,44;A;
+M01375;Agence Nord;DUFFAU;Quirin;H;16/06/1993;Turque;Carte de séjour pluriannuelle;28/08/2020;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2865,36;B;
+M01376;Agence Sud;DUGAST;Rémi;H;19/11/1967;Polonaise;;11/03/1995;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;3582,86;C;
+M01377;Agence Est;DUMOULIN;Fanny;F;22/04/1984;Française;;22/10/2013;;CDI;Employé;Conformité;Gestionnaire back-office;Temps plein;2558,69;D;
+M01378;Agence Ouest;DUPRAT;Faustine;F;25/09/2001;Française;;05/05/2024;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;4585,98;H;
+M01379;Centre de services;DURIEZ;Flavie;F;28/02/1975;Française;;16/12/2006;;CDI;Agent de maîtrise;Systèmes d’information;Superviseur(e) back-office;Temps plein;3897,41;G;
+M01380;Siège;DUTERTRE;Gaëlle;F;03/07/1992;Française;;27/07/2024;;CDI;Technicien;Juridique;Technicien(ne) des métiers de la banque;Temps plein;3081,88;E;
+M01381;Agence Nord;DUVERGER;Garance;F;06/12/1966;Française;;10/02/1988;;CDD accroissement;Technicien;Contrôle interne;Chargé(e) d’études;Temps plein;4321,68;F;
+M01382;Agence Sud;ESCOFFIER;Hortense;F;09/05/1983;Française;;21/09/2006;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2945,15;A;
+M01383;Agence Est;ESTIENNE;Iris;F;12/10/2000;Française;;04/04/2024;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;2519,53;B;
+M01384;Agence Ouest;EYMARD;Jade;F;15/03/1974;Française;;15/11/1999;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;3208,61;C;
+M01385;Centre de services;FABREGUE;Xavier;H;18/08/1991;Française;;26/06/2017;;CDI;Employé;Conformité;Gestionnaire back-office;60 %;2896,54;D;
+M01386;Siège;FALGUIERE;Zacharie;H;21/01/1965;Française;;09/01/1992;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;6801,72;H;
+M01387;Agence Nord;FAUCHER;Achille;H;24/06/1982;Française;;20/08/2010;;CDI;Agent de maîtrise;Systèmes d’information;Animateur(rice) commercial(e);Temps plein;4249,88;G;
+M01388;Agence Sud;FAURY;Adrien;H;27/11/1999;Française;;03/03/2024;;CDI;Technicien;Juridique;Contrôleur(se) de premier niveau;Temps plein;3085,52;E;
+M01389;Agence Est;FAVIER;Aimé;H;02/04/1973;Française;;14/10/2003;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;2979,38;D;
+M01390;Agence Ouest;FERRIER;Alban;H;05/09/1990;Française;;25/05/2021;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2533,30;A;
+M01391;Centre de services;FEUILLET;Louna;F;08/02/1964;Française;;08/12/1996;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3113,38;B;
+M01392;Siège;FICHET;Maëva;F;11/07/1981;Française;;19/07/2003;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2972,92;C;
+M01393;Agence Nord;FILIPPI;Maïwenn;F;14/12/1998;Française;;02/02/2021;;CDI;Cadre;Conformité;Responsable conformité;Temps plein;4892,10;K;
+M01394;Agence Sud;FLAMENT;Marlène;F;17/05/1972;Française;;13/09/1996;;CDI;Cadre;Ressources humaines;Auditeur(rice) interne;Temps plein;6192,39;H;
+M01395;Agence Est;FLORENTIN;Mélissa;F;20/10/1989;Française;;24/04/2014;;CDI;Agent de maîtrise;Systèmes d’information;Responsable d’unité;Temps plein;3808,46;G;
+M01396;Agence Ouest;FOLLIOT;Morgane;F;23/03/1963;Française;;07/11/1989;;CDI;Technicien;Juridique;Chargé(e) d’études;Temps plein;4443,38;E;
+M01397;Centre de services;FORESTIER;Nolwenn;F;26/08/1980;Portugaise;;18/06/2007;;CDI;Employé;Contrôle interne;Opérateur(rice) de saisie;Temps plein;3074,23;D;
+M01398;Siège;FOUQUET;Ondine;F;01/01/1997;Espagnole;;01/01/2024;;CDI;Employé;Réseau;Chargé(e) d’accueil;Temps plein;2674,53;A;
+M01399;Agence Nord;FOURCADE;Benoît;H;04/06/1971;Italienne;;12/08/2000;;CDI;Employé;Back-office;Conseiller(ère) clientèle particuliers;Temps plein;3010,56;B;
+M01400;Agence Sud;FRAISSE;Bruno;H;07/11/1988;Marocaine;Carte de séjour pluriannuelle;23/03/2018;;CDI;Employé;Crédit;Conseiller(ère) clientèle professionnels;Temps plein;2564,48;C;

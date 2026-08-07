@@ -1010,7 +1010,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.147';
+var JX_BUILD = 'v2026-08-07.148';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1019,6 +1019,14 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.148', d:'7 aout 2026', t:[
+   'UN SECOND FICHIER D\'EXEMPLE, VOLONTAIREMENT ILLISIBLE — 400 salariés, un préambule de trois lignes avant l\'en-tête, deux colonnes inconnues, trois formats de date, des montants avec espace insécable et symbole euro, des lignes vides au milieu, des homonymes parfaits. Il a fait sortir QUATRE RÉSULTATS FAUX que rien ne signalait.',
+   '« 3.150,00 » ETAIT LU 3,15 €. Le point était pris pour une virgule décimale : un salaire de 3 150 € alimentait l\'index avec 37,80 € par an, sans le moindre avertissement. Un lecteur de montants est écrit et utilisé partout : il reconnaît « 4 820,50 € », « 3.150,00 », « 2 470 euros », « 1.234.567,89 » et « 2,470.50 » — le dernier séparateur est décimal s\'il ne reste que deux chiffres après lui, sinon c\'est un séparateur de milliers. Ce qui n\'est pas un nombre reste vide, jamais zéro.',
+   '« MI-TEMPS » ETAIT COMPTE COMME UN TEMPS PLEIN. Ni « % », ni fraction, ni le mot « partiel » : un mi-temps comptait 1 dans l\'effectif au lieu de 0,5, et sa rémunération n\'était pas signalée comme à reconstituer en équivalent temps plein.',
+   'TOUT CONTRAT INCONNU DEVENAIT « CDI TEMPS PLEIN » — y compris une CELLULE VIDE. « Portage salarial », « n\'importe quoi », rien du tout : l\'application inventait un contrat à durée indéterminée, et l\'effectif, l\'électorat et l\'index s\'en trouvaient faussés en silence. Un contrat non reconnu est désormais dit tel quel.',
+   '« CDI INTERIMAIRE » ETAIT LU COMME UN CDI ORDINAIRE. Le test « cdi » venait avant le test « intérim » : le salarié d\'une entreprise de travail temporaire, mis à disposition, était compté comme un salarié de l\'entreprise utilisatrice.',
+   'LE REGISTRE SE CONTROLE MAINTENANT LUI-MEME. Un bandeau en tête du registre confronte les champs entre eux : sortie antérieure à l\'entrée, âge inférieur au minimum légal (L.4153-1, quinze ans pour l\'apprentissage), salarié mineur, contrat à durée déterminée sans terme (L.1242-12), salaire sous le SMIC, nature de contrat, sexe, statut ou date d\'entrée manquants, doublon parfait, âge élevé sans date de sortie (L.1237-5). Les apprentis, contrats de professionnalisation et stagiaires sont exclus du contrôle SMIC : leur rémunération est légalement inférieure (D.6222-26, D.6325-14), et les signaler noierait les vraies alertes. Chaque anomalie renvoie à la fiche, et l\'application ne corrige rien toute seule.'
+ ]},
  {v:'v2026-08-07.147', d:'7 aout 2026', t:[
    'LA CASE A COCHER S\'AFFICHAIT COMME UN GRAND CHAMP VIDE — partout dans l\'application, et cochée ou non. La règle générale des champs de saisie leur ôtait leur apparence native, leur imposait une hauteur minimale de 46 pixels et un remplissage de champ de texte : trente cases devenaient des rectangles vides, sans coche visible. Une seule règle les réparait, et seulement à l\'intérieur de la classe « chk ». La correction porte sur la classe entière — cases à cocher ET boutons radio, où qu\'ils soient.',
    'La grille des six années de la BDESE était trop étroite : « légère hausse » et « Ni chiffres ni tendances » se coupaient au milieu d\'un mot. Colonnes élargies.'
@@ -10533,7 +10541,7 @@ function egaIndicateur1(salaries, opt){
 
   (salaries||[]).forEach(function(s, i){
     var sx = egaSexe(s.sexe);
-    var rem = parseFloat(String(s.remuneration==null?'':s.remuneration).replace(/\s/g,'').replace(',','.'));
+    var rem = jxLireMontant(s.remuneration);
     var cle='', lib='';
     if(methode==='ccn'){
       cle = String(s.niveau||'').trim();
@@ -10722,6 +10730,39 @@ function egaIndex(donnees){
    parce qu'elle n'est pas le salaire mensuel multiplie par douze et que
    l'application ne la deduira pas. */
 function egaISO(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+/* ── LIRE UN MONTANT ECRIT PAR UN HUMAIN ────────────────────────────
+   Un fichier de paie ecrit « 4 820,50 € », « 3.150,00 », « 2 470 euros »,
+   « 2,470.50 » ou « NC ». Un simple remplacement de la virgule par un
+   point lisait « 3.150,00 » comme TROIS EUROS QUINZE, et l'index etait
+   alimente avec 37,80 € par an sans que rien ne le signale.
+
+   La regle : le DERNIER separateur rencontre est le separateur decimal
+   s'il ne reste que deux chiffres apres lui ; sinon c'est un separateur
+   de milliers. Ce qui n'est pas un nombre reste NaN — jamais zero. */
+function jxLireMontant(v){
+  if(v===null || v===undefined) return NaN;
+  if(typeof v==='number') return isFinite(v)?v:NaN;
+  var t=String(v);
+  /* espaces de toutes especes, insecables comprises, et le symbole */
+  t=t.replace(/[\s   ]/g,'').replace(/€|euros?|eur\b/gi,'').trim();
+  if(!t) return NaN;
+  var neg=/^-/.test(t); t=t.replace(/^[+-]/,'');
+  if(!/[0-9]/.test(t)) return NaN;                 /* « NC », « n/a »… */
+  var d=t.lastIndexOf('.'), c=t.lastIndexOf(',');
+  var dec=Math.max(d,c);
+  if(dec>-1){
+    var apres=t.length-dec-1;
+    if(apres===1 || apres===2){                    /* separateur decimal */
+      t = t.slice(0,dec).replace(/[.,]/g,'') + '.' + t.slice(dec+1);
+    } else {                                       /* separateur de milliers */
+      t = t.replace(/[.,]/g,'');
+    }
+  }
+  t=t.replace(/[^0-9.]/g,'');
+  var n=parseFloat(t);
+  if(!isFinite(n)) return NaN;
+  return neg?-n:n;
+}
 function egaLoad(){
   if(!HUB.ega) HUB.ega={};
   var G=HUB.ega;
@@ -10794,7 +10835,7 @@ function egaReprendreSalaires(){
   var L=egaSalaries(), G=egaLoad(), n=0, tp=0;
   L.retenus.forEach(function(s){
     if(G.rem[s.id]) return;
-    var m=parseFloat(String(s.salaireMensuel||'').replace(/\s/g,'').replace(',','.'));
+    var m=jxLireMontant(s.salaireMensuel);
     if(!isFinite(m)||m<=0) return;
     if(/partiel/i.test(s.tempsTravail||'')) tp++;
     G.rem[s.id]=String(Math.round(m*12)); n++;
@@ -16258,9 +16299,161 @@ function rxTabBtn(id,lbl){ var on=RX_TAB===id;
 }
 
 /* ══════════ REGISTRE ══════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   COHERENCE DU REGISTRE
+   Ce qui est renseigne peut etre faux, et le rester des annees. On
+   confronte les champs entre eux, on cite l'article, et on ne corrige
+   rien tout seul : c'est a l'employeur de trancher.
+   ══════════════════════════════════════════════════════════════════ */
+function rxNom(s){ return ((s.nom||'')+' '+(s.prenom||'')).trim() || '(sans nom)'; }
+function rxAnnees(a,b){
+  if(!a||!b) return null;
+  var d=new Date(a+'T00:00:00'), f=new Date(b+'T00:00:00');
+  if(isNaN(d)||isNaN(f)) return null;
+  var n=f.getFullYear()-d.getFullYear();
+  if(f.getMonth()<d.getMonth() || (f.getMonth()===d.getMonth() && f.getDate()<d.getDate())) n--;
+  return n;
+}
+function rxIncoherences(){
+  var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
+  var out=[], auj=(new Date()).toISOString().slice(0,10);
+  var vus={};
+  st.forEach(function(x){
+    var nom=rxNom(x), A=function(g,q,t,art){ out.push({id:x.id,nom:nom,g:g,quoi:q,texte:t,art:art}); };
+
+    /* 1. La sortie ne peut pas preceder l'entree. */
+    if(x.entree && x.sortie && x.sortie < x.entree){
+      A('stop','Sortie antérieure à l’entrée',
+        'Entrée le '+rxFR(x.entree)+', sortie le '+rxFR(x.sortie)+'. L’une des deux dates est fausse : le registre ne peut pas les porter toutes les deux.',
+        'Article D.1221-23');
+    }
+    /* 2. L'age a l'entree. Seize ans, quinze pour un apprenti. */
+    var ageEnt=rxAnnees(x.naissance, x.entree||auj);
+    var appr=/apprenti/i.test(x.typeContrat||'');
+    if(ageEnt!==null && ageEnt < (appr?15:16)){
+      A('stop','Âge inférieur au minimum légal',
+        nom+' avait '+ageEnt+' an(s) à son entrée ('+rxFR(x.entree)+'). Un mineur de moins de seize ans ne peut pas être employé ; l’apprentissage n’est ouvert qu’à partir de quinze ans révolus, et seulement au sortir du collège.',
+        'Articles L.4153-1 et L.6222-1');
+    } else if(ageEnt!==null && ageEnt<18){
+      A('verifier','Salarié mineur',
+        nom+' avait '+ageEnt+' ans à son entrée : travaux réglementés interdits ou soumis à dérogation, durée du travail et travail de nuit encadrés.',
+        'Articles L.4153-8, L.3162-1 et L.3163-2');
+    }
+    /* 3. L'age aujourd'hui, quand il n'est pas plausible. */
+    var age=rxAnnees(x.naissance, auj);
+    if(age!==null && !x.sortie && age>=70){
+      A('verifier','Âge élevé et contrat toujours ouvert',
+        nom+' a '+age+' ans et aucune date de sortie n’est enregistrée. À vérifier : la mise à la retraite d’office n’est possible qu’à partir de soixante-dix ans, et la procédure de L.1237-5 doit avoir été suivie.',
+        'Article L.1237-5');
+    }
+    if(x.naissance && x.naissance > auj){
+      A('stop','Date de naissance postérieure à aujourd’hui', 'Date saisie : '+rxFR(x.naissance)+'.', 'Article D.1221-23');
+    }
+    /* 4. Un contrat a duree determinee sans terme. */
+    var cdd=/CDD|déterminée|determinee|Intérim|Interim|Saisonnier|professionnalisation/i.test(x.typeContrat||'');
+    if(cdd && !x.sortie){
+      A('stop','Contrat à durée déterminée sans terme',
+        'Aucune date de fin n’est enregistrée pour un contrat de type « '+(x.typeContrat||'')+' ». Le contrat doit comporter un terme précis ou une durée minimale ; à défaut, il est réputé conclu pour une durée indéterminée.',
+        'Articles L.1242-12 et L.1242-7');
+    }
+    /* 5. La nature du contrat, le sexe, le statut : ce qui manque. */
+    if(!(x.typeContrat||'').trim() || /à préciser/i.test(x.typeContrat||'')){
+      A('stop','Nature du contrat non renseignée',
+        'Sans elle, ni l’effectif, ni l’électorat, ni l’index de l’égalité ne peuvent être calculés pour ce salarié.',
+        'Articles L.1111-2 et D.1221-23');
+    }
+    if(!(x.sexe||'').trim()){
+      A('verifier','Sexe non renseigné',
+        'La répartition femmes-hommes commande la parité des listes électorales et l’index de l’égalité.',
+        'Articles L.2314-30 et L.1142-8');
+    }
+    if(!(x.statut||'').trim() || /renseigner/i.test(x.statut||'')){
+      A('verifier','Statut non renseigné',
+        'Le collège électoral et la catégorie socioprofessionnelle de l’index en dépendent.',
+        'Articles L.2314-11 et D.1142-2');
+    }
+    if(!(x.entree||'').trim()){
+      A('stop','Date d’entrée absente',
+        'Elle est une mention obligatoire du registre, et elle commande l’ancienneté, l’électorat et l’effectif.',
+        'Article D.1221-23');
+    }
+    /* 6. Le salaire sous le SMIC, a temps plein. */
+    var sal=(typeof jxLireMontant==='function')?jxLireMontant(x.salaire):NaN;
+    var partiel=/partiel|mi-?temps/i.test(x.tempsTravail||'');
+    /* L'apprenti, le salarie en contrat de professionnalisation et le
+       stagiaire percoivent legalement moins que le SMIC : un pourcentage
+       du SMIC selon l'age et l'annee du contrat (D.6222-26, D.6325-14),
+       ou une gratification qui n'est pas un salaire. Les signaler ici
+       serait une fausse alerte, et elle noierait les vraies. */
+    var reduit=/apprenti|professionnalisation|contrat de pro\b|stagiaire|stage/i.test(x.typeContrat||'');
+    if(isFinite(sal) && sal>0 && !partiel && !reduit && !x.sortie && typeof jxSmicMensuel==='function'){
+      var smic=jxSmicMensuel(35);
+      if(sal < smic-0.5){
+        A('stop','Salaire inférieur au SMIC',
+          nom+' : '+sal.toFixed(2).replace('.',',')+' € pour un temps plein, contre '+smic.toFixed(2).replace('.',',')+' € ('+JX_SMIC.source+').',
+          'Articles L.3231-2 et L.3232-1');
+      }
+    }
+    /* 7. Le vrai doublon : meme nom, meme prenom, meme date de naissance.
+          Deux homonymes de dates differentes ne sont PAS un doublon. */
+    var cle=((x.nom||'')+'|'+(x.prenom||'')+'|'+(x.naissance||'')).toLowerCase();
+    if((x.nom||'').trim() && (x.naissance||'')){
+      if(vus[cle]) A('verifier','Doublon probable',
+        'Un autre salarié porte le même nom, le même prénom et la même date de naissance. Vérifiez qu’il ne s’agit pas de la même personne inscrite deux fois.',
+        'Article D.1221-23');
+      vus[cle]=1;
+    }
+  });
+  out.sort(function(a,b){ return (a.g==='stop'?0:1)-(b.g==='stop'?0:1); });
+  return out;
+}
+function rxIncCount(){ try{ return rxIncoherences().length; }catch(e){ return 0; } }
+var RX_INC_OUVERT=false;
+function rxIncBasculer(){ RX_INC_OUVERT=!RX_INC_OUVERT; rxRender(); }
+function rxIncVue(){
+  var I=[]; try{ I=rxIncoherences(); }catch(e){ return ''; }
+  if(!I.length){
+    if(!(RX.staff||[]).length) return '';
+    return '<div style="margin-bottom:12px;padding:11px;border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.08);border-radius:10px;font-size:12.5px;color:#bfe6d4">'
+      +'✅ Aucune incohérence relevée sur les '+RX.staff.length+' fiches : dates, âges, termes des contrats à durée déterminée, salaires et doublons.</div>';
+  }
+  var stop=I.filter(function(x){return x.g==='stop';}).length;
+  var h='<div style="margin-bottom:12px;padding:12px;border:1px solid '+(stop?'#e05c5c':'#e8c97a')+';background:'+(stop?'rgba(224,92,92,.10)':'rgba(232,201,122,.10)')+';border-radius:11px">'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+      +'<div style="flex:1;min-width:180px;font-size:13px;font-weight:800;color:'+(stop?'#e05c5c':'#e8c97a')+'">'
+        +(stop?('⛔ '+stop+' anomalie(s) à corriger'):'⚠️ '+I.length+' point(s) à vérifier')
+        +(stop&&I.length>stop?(' · '+(I.length-stop)+' à vérifier'):'')+'</div>'
+      +'<button onclick="rxIncBasculer()" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'
+        +(RX_INC_OUVERT?'▾ Masquer':'▸ Voir le détail')+'</button>'
+    +'</div>';
+  if(RX_INC_OUVERT){
+    /* Regroupe par nature : « 12 CDD sans terme » se lit, douze lignes non. */
+    var par={};
+    I.forEach(function(x){ (par[x.quoi]=par[x.quoi]||[]).push(x); });
+    h+='<div style="margin-top:10px">';
+    Object.keys(par).forEach(function(q){
+      var L=par[q], g=L[0].g;
+      h+='<div style="padding:10px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+(g==='stop'?'#e05c5c':'#e8c97a')+';border-radius:9px;margin-bottom:8px">'
+        +'<div style="font-size:12.5px;font-weight:700;color:#fff">'+rxEsc(q)+' — '+L.length+' fiche(s)</div>'
+        +'<div style="font-size:12px;color:#9fb0c4;line-height:1.6;margin-top:4px">'+rxEsc(L[0].texte)+'</div>'
+        +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">'+rxEsc(L[0].art)+'</div>'
+        +'<div style="font-size:11.5px;color:#cdd7e2;line-height:1.7;margin-top:6px">'
+        + L.slice(0,25).map(function(x){
+            return '<button onclick="rxFiche(\''+x.id+'\')" style="background:none;border:none;color:#c9a84c;cursor:pointer;text-decoration:underline;font-size:11.5px;font-family:inherit;padding:0">'+rxEsc(x.nom)+'</button>';
+          }).join(' · ')
+        + (L.length>25?(' … et '+(L.length-25)+' autre(s)'):'')
+        +'</div></div>';
+    });
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
 function rxRegistre(){
   var rows=RX.staff.slice().sort(function(a,b){return (a.nom||'').localeCompare(b.nom||'');});
-  var h='';
+  var h=rxIncVue();
   if(rxCombinedNameCount()>0){
     h+='<div style="margin-bottom:12px;padding:14px;border:1px solid #c9a84c;border-radius:12px;background:rgba(201,168,76,.12);color:#e8e4d8;font-size:13px;line-height:1.5">'
       +'✂️ <b>'+rxCombinedNameCount()+' salarié(s)</b> ont le nom et le prénom <b>collés dans la même case</b> (import CSV). Appuyez pour les séparer automatiquement (dernier mot = prénom) :'
@@ -21608,6 +21801,7 @@ function calcSalarieNom(s, dateScrutinStr){
 }
 
 const CONTRAT_LABELS = {
+  '':'⚠ Nature du contrat à préciser',
   'cdi_tp':'CDI temps plein','cdi_tpartiel':'CDI temps partiel',
   'cdd_act':'CDD accroissement','cdd_rempl':'CDD remplacement (exclu)',
   'interim':'Intérimaire','saisonnier':'Saisonnier',
@@ -21875,17 +22069,25 @@ function normaliseDate(s){
   return '';
 }
 function normaliseContrat(s){
-  const t = (s||'').toLowerCase().trim();
+  const t = (s||'').toLowerCase().trim().replace(/\./g,'');   /* « C.D.I. » */
+  if(!t) return '';                       /* cellule vide : on ne devine pas */
   if(/stagiaire|\bstage\b|convention\s+de\s+stage/.test(t)) return 'stagiaire';
-  if(/cdi.*partiel|temps.*partiel/.test(t)) return 'cdi_tpartiel';
-  if(/cdi/.test(t)) return 'cdi_tp';
-  if(/rempl/.test(t)) return 'cdd_rempl';
-  if(/cdd/.test(t)) return 'cdd_act';
-  if(/int[ée]rim/.test(t)) return 'interim';
-  if(/saison/.test(t)) return 'saisonnier';
   if(/apprenti/.test(t)) return 'apprenti';
-  if(/pro/.test(t)) return 'contrat_pro';
-  return 'cdi_tp';
+  if(/professionnalisation|contrat\s+de\s+pro\b/.test(t)) return 'contrat_pro';
+  /* « CDI interimaire » est un contrat de travail temporaire : le salarie
+     appartient a l'entreprise de travail temporaire et il est MIS A
+     DISPOSITION. Cherchee apres « cdi », la mention etait perdue et le
+     salarie devenait un CDI ordinaire de l'entreprise utilisatrice. */
+  if(/int[ée]rim|travail\s+temporaire|mis[e]?\s+a\s+disposition/.test(t)) return 'interim';
+  if(/cdi.*partiel|temps.*partiel|mi-?temps/.test(t)) return 'cdi_tpartiel';
+  if(/\bcdi\b|duree\s+ind[ée]termin|dur[ée]e\s+ind[ée]termin/.test(t)) return 'cdi_tp';
+  if(/rempl/.test(t)) return 'cdd_rempl';
+  if(/\bcdd\b|duree\s+d[ée]termin|dur[ée]e\s+d[ée]termin/.test(t)) return 'cdd_act';
+  if(/saison/.test(t)) return 'saisonnier';
+  /* Inconnu : on le DIT. Repondre « CDI temps plein » a « portage salarial »
+     ou a une cellule vide revenait a inventer un contrat, et a fausser
+     l'effectif, l'electorat et l'index sans que rien ne le signale. */
+  return '';
 }
 function normaliseStatut(v, coef){
   /* L.2314-11 : « les ingenieurs, chefs de service, techniciens, agents de
@@ -21967,7 +22169,12 @@ function _extraireSalarie(champs, map){
   const pct = scanTxt.match(/(\d{1,3})\s*%/) || scanTxt.match(/partiel\D{0,8}(\d{1,3})/);
   if(pct){ frac = Math.min(parseInt(pct[1],10),100)/100; }
   else if(/^0?\.\d+$/.test(tempsTxt)){ frac = parseFloat(tempsTxt); }
-  else if(/partiel/.test(scanTxt)){ frac = 0.5; }
+  /* « Mi-temps » etait compte comme un temps PLEIN : ni « % », ni fraction,
+     ni le mot « partiel ». Un mi-temps comptait donc 1 dans l'effectif au
+     lieu de 0,5, et la remuneration n'etait pas signalee comme a
+     reconstituer en equivalent temps plein. */
+  else if(/mi-?temps|demi-?temps/.test(scanTxt)){ frac = 0.5; }
+  else if(/partiel|incomplet/.test(scanTxt)){ frac = 0.5; }
   if(frac !== null && frac > 0 && frac < 1){
     heures = Math.round(frac * 35 * 100) / 100;
     if(contratNorm === 'cdi_tp') contratFinal = 'cdi_tpartiel';
