@@ -1,6 +1,7 @@
 # Site du cabinet CJ AVOCATS
 
-Site vitrine de **Maître A. J.**, avocat au Barreau du Val-d'Oise, à Argenteuil.
+Site vitrine de **Maître Adel JEDDI**, avocat au Barreau du Val-d'Oise,
+63 rue Paul Vaillant-Couturier, 95100 Argenteuil.
 
 Ce dossier est **autonome** : il ne lit aucun fichier de Juris Expert, et Juris
 Expert ne le lit pas non plus. Aucun lien ne mène de l'application au site, et
@@ -59,7 +60,6 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 
 | Marque | Où | Quoi |
 |--------|----|------|
-| `[ADRESSE]` | accueil, mentions, confidentialité | Adresse du cabinet à Argenteuil |
 | `[TÉLÉPHONE]` | accueil (bouton d'appel + coordonnées) | Numéro, au format `+33…` dans les liens `tel:` |
 | `[EMAIL]` | accueil, mentions, confidentialité | Adresse électronique du cabinet |
 | `[9 h – 19 h]` | accueil | Horaires réels |
@@ -67,12 +67,11 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | `[Photo]` | bandeau | Déposer la photo dans le dossier, puis écrire son nom dans `var PORTRAIT = ''` (script de `index.html`) — elle remplace alors le monogramme partout |
 | `[CLÉ_WEB3FORMS]` | accueil (formulaire) | Voir § 3 |
 | `[LIEN_FICHE_GOOGLE]` | accueil (avis) | Lien de la fiche Google du cabinet |
-| `[NOM ET PRÉNOM DE L'AVOCAT]` | mentions, confidentialité | Identité complète |
 | `[SIRET]`, `[N° TVA]`, `[Exercice individuel / SELARL…]` | mentions | Informations d'immatriculation |
 | `[ASSUREUR ET N° DE POLICE]` | mentions | RCP et garantie financière |
 | `[HÉBERGEUR]` | mentions | Netlify, ou l'hébergeur retenu |
 | `[DOMAINE]` | robots.txt, sitemap.xml | Le domaine, une fois choisi |
-| Déclaration sur les outils d'IA | confidentialite.html | La phrase surlignée du § « Le secret professionnel face aux outils d'IA » **engage le cabinet** : Maître A. J. doit la valider, ou l'adapter si des outils sont utilisés |
+| Déclaration sur les outils d'IA | confidentialite.html | La phrase surlignée du § « Le secret professionnel face aux outils d'IA » **engage le cabinet** : Maître Adel JEDDI doit la valider, ou l'adapter si des outils sont utilisés |
 | `[FOURNISSEUR DE MESSAGERIE]`, `[PAYS]` | confidentialite.html | Le service qui reçoit les messages (Gmail, OVH, Infomaniak…) et son pays : c'est un sous-traitant, il doit être nommé |
 
 ### Trois vérifications avant la mise en ligne — obligations, pas options
