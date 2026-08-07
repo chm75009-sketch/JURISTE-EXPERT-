@@ -991,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.143';
+var JX_BUILD = 'v2026-08-07.144';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,6 +1000,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.144', d:'7 aout 2026', t:[
+   'IL N\'Y AVAIT PAS DE BASE DE DONNEES. Il y avait son architecture, son régime, ses preuves — et nulle part où écrire un chiffre. Une base de données qui ne contient aucune donnée n\'est pas une base : c\'est un sommaire. Les 42 sous-rubriques (52 à partir de trois cents salariés) portent désormais chacune leur grille de saisie.',
+   'LES SIX ANNEES DE R.2312-10. Les deux années précédentes, l\'année en cours, et des perspectives sur les TROIS années suivantes. L\'année de référence se règle en tête de la base et commande les six colonnes : 2024, 2025, 2026, puis 2027, 2028, 2029. Une sous-rubrique n\'est comptée complète que si les six années portent quelque chose — une case vide n\'est jamais comptée comme renseignée, et les années manquantes sont nommées.',
+   'LA FORME DE L\'INFORMATION EST CONTROLEE. Données chiffrées, ou — POUR LES ANNEES A VENIR SEULEMENT — grandes tendances. Une tendance portée sur une année révolue est signalée en rouge : pour les deux années précédentes et l\'année en cours, la donnée chiffrée est due. Et lorsqu\'une information ne peut faire l\'objet ni de l\'un ni de l\'autre, l\'employeur doit indiquer POURQUOI : l\'impossibilité déclarée sans motif laisse la ligne incomplète, parce que sans raison l\'information est simplement absente.',
+   'LA CLE D\'UNE SOUS-RUBRIQUE EST SON LIBELLE, PAS SON RANG. La liste s\'allonge de dix rubriques au passage de trois cents salariés (R.2312-9) : une clé fondée sur le rang aurait décalé toutes les saisies d\'un cran le jour du franchissement du seuil. Et c\'est cette clé, et non l\'intitulé, qui est écrite dans les gestionnaires de la page : une apostrophe droite ou une esperluette dans un libellé aurait cassé la saisie.'
+ ]},
  {v:'v2026-08-07.143', d:'7 aout 2026', t:[
    'LA BASE N\'ETAIT PAS DATEE. Onze cases à cocher, et aucune date : or une case cochée ne date rien et ne prouve rien. C\'est la MISE A DISPOSITION actualisée qui vaut communication au comité (R.2312-14), et c\'est d\'elle que court le DELAI D\'EXAMEN (L.2312-15 et R.2312-6). Sans date, l\'employeur ne peut pas établir le point de départ, et le comité ne peut pas le contester. Chaque rubrique porte désormais sa date de mise à disposition, et un journal les récapitule, ligne à ligne, avec l\'objet de ce qui a été déposé.',
    'ET LE DELAI QUI EN DECOULE EST CALCULE. Un mois dans le cas général, deux mois en cas d\'intervention d\'un expert, trois mois lorsqu\'une ou plusieurs expertises interviennent à la fois au niveau du comité central et d\'au moins un comité d\'établissement (R.2312-6). L\'écran donne la date à laquelle, à défaut d\'avis, le comité est réputé consulté et avoir rendu un AVIS NEGATIF — en rappelant que ce délai ne court pas si la base est incomplète, et qu\'un accord peut en fixer d\'autres sans descendre en deçà de quinze jours.',
@@ -12200,6 +12206,128 @@ function bdaSansDate(){ return bdaLoad().filter(function(x){ return x.nom && !x.
 
 
 /* ── L'ECRAN : LE JOURNAL DES MISES A DISPOSITION ──────────────────── */
+
+/* ══════════════════════════════════════════════════════════════════
+   LA BASE ELLE-MEME — LES SIX ANNEES DE R.2312-10
+   Les deux annees precedentes, l'annee en cours, et des perspectives sur
+   les trois annees suivantes. Sous forme de donnees chiffrees ou, A
+   DEFAUT ET POUR LES ANNEES A VENIR SEULEMENT, de grandes tendances.
+   L'employeur indique les informations qui ne peuvent faire l'objet ni de
+   l'un ni de l'autre, et les raisons qu'il precise.
+
+   La cle d'une sous-rubrique est le SLUG DE SON LIBELLE, non son rang :
+   la liste s'allonge a partir de trois cents salaries, et un rang aurait
+   decale toutes les saisies d'un cran.
+   ══════════════════════════════════════════════════════════════════ */
+function bddLoad(){ if(!HUB.bdeseData) HUB.bdeseData={}; return HUB.bdeseData; }
+function bddCle(k, lib){ return k+'|'+hubIdTache(lib); }
+function bdd(k, lib){ var D=bddLoad(), c=bddCle(k,lib); if(!D[c]) D[c]={}; return D[c]; }
+function bddSet(k, lib, champ, v){ bddSetC(bddCle(k,lib), champ, v); }
+/* On passe la CLE dans l'attribut, jamais le libelle : une apostrophe
+   droite ou une esperluette dans un intitule casserait le gestionnaire. */
+function bddSetC(cle, champ, v){
+  var D=bddLoad(); if(!D[cle]) D[cle]={};
+  D[cle][champ]=String(v==null?'':v).trim(); hubSave(); hubRender();
+}
+function bddAnnee(){
+  var a=parseInt(bdo('annee'),10);
+  if(!isFinite(a) || a<1990 || a>2200){ a=new Date().getFullYear(); }
+  return a;
+}
+/* Les six colonnes : A-2, A-1, A (revolues ou en cours), puis A+1, A+2,
+   A+3 (a venir). L'ordre n'est pas decoratif : c'est lui qui decide ou les
+   grandes tendances sont admises. */
+function bddColonnes(){
+  var a=bddAnnee(), C=[];
+  for(var i=-2;i<=3;i++) C.push({c:'a'+(i<0?('m'+(-i)):i), an:a+i, futur:(i>0)});
+  return C;
+}
+var BDD_MODES=[
+  {v:'',          lib:'— à préciser —'},
+  {v:'chiffre',   lib:'Données chiffrées'},
+  {v:'tendance',  lib:'Grandes tendances — années à venir seulement'},
+  {v:'indispo',   lib:'Ni chiffres ni tendances — motif à indiquer'}
+];
+/* Une ligne est complete quand chaque annee porte quelque chose, ou quand
+   l'impossibilite est declaree ET motivee. On ne compte jamais une case
+   vide comme renseignee. */
+function bddLigneEtat(k, lib){
+  var o=bdd(k,lib), C=bddColonnes(), remplies=0, manque=[];
+  C.forEach(function(x){ if((o[x.c]||'').length) remplies++; else manque.push(x.an); });
+  if(o.mode==='indispo'){
+    return {complet: !!(o.motif||'').length, remplies:remplies, total:C.length,
+            manque:manque, indispo:true, sansMotif: !(o.motif||'').length};
+  }
+  /* Les grandes tendances ne valent que pour les annees a venir. */
+  var tendancePassee = (o.mode==='tendance') && C.some(function(x){ return !x.futur && (o[x.c]||'').length; });
+  return {complet: remplies===C.length, remplies:remplies, total:C.length,
+          manque:manque, indispo:false, tendancePassee:tendancePassee};
+}
+/* Les sous-rubriques effectivement dues, seuil de trois cents compris. */
+function bddSousRubriques(t, g300){
+  var L=(t.sous||[]).slice();
+  if(g300 && t.plus) L=L.concat(t.plus);
+  return L;
+}
+function bddRubriqueEtat(t, g300){
+  var L=bddSousRubriques(t,g300), ok=0, alertes=0;
+  L.forEach(function(lib){
+    var e=bddLigneEtat(t.k, lib);
+    if(e.complet) ok++;
+    if(e.sansMotif || e.tendancePassee) alertes++;
+  });
+  return {ok:ok, total:L.length, alertes:alertes};
+}
+function bddAvancement(g300){
+  var ok=0, tot=0, al=0;
+  HUB_BDESE.forEach(function(t){ var e=bddRubriqueEtat(t,g300); ok+=e.ok; tot+=e.total; al+=e.alertes; });
+  return {ok:ok, total:tot, alertes:al, pct: tot?Math.round(ok/tot*100):0};
+}
+/* Les rubriques ouvertes a l'ecran. En memoire seulement : ce n'est pas une
+   donnee du dossier, et cela n'a pas a survivre a la session. */
+var BDD_OUVERT={};
+function bddBasculer(k){ BDD_OUVERT[k]=!BDD_OUVERT[k]; hubRender(); }
+
+/* Le tableau des six annees d'une rubrique. */
+function bddTableau(t, g300){
+  var L=bddSousRubriques(t,g300), C=bddColonnes();
+  if(!L.length) return '';
+  var h='<div style="margin-top:10px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;color:#cdd7e2;min-width:760px">'
+    +'<tr style="text-align:left;color:#9fb0c4;font-size:11px;text-transform:uppercase;letter-spacing:.04em">'
+    +'<th style="padding:5px 4px;min-width:200px">Sous-rubrique</th>'
+    + C.map(function(x){ return '<th style="padding:5px 4px;min-width:92px">'+x.an+(x.futur?' <span style="text-transform:none;letter-spacing:0">(à venir)</span>':'')+'</th>'; }).join('')
+    +'<th style="padding:5px 4px;min-width:150px">Forme</th></tr>';
+  L.forEach(function(lib){
+    var o=bdd(t.k,lib), e=bddLigneEtat(t.k,lib), cle=bddCle(t.k,lib);
+    var estPlus=(t.plus||[]).indexOf(lib)>-1;
+    h+='<tr style="border-top:1px solid #26374d;vertical-align:top">'
+      +'<td style="padding:6px 4px;color:#fff;line-height:1.5">'+(estPlus?'<span style="color:#c9a84c">➕ </span>':'')+hubEsc(lib)
+        +'<div style="font-size:11px;color:'+(e.complet?'#46b885':'#9fb0c4')+';font-weight:400;margin-top:3px">'
+        +(e.indispo?('impossibilité déclarée'+(e.sansMotif?' — motif manquant':' — motivée')):(e.remplies+' / '+e.total+' années'))+'</div></td>';
+    C.forEach(function(x){
+      var vide=!(o[x.c]||'').length;
+      h+='<td style="padding:5px 3px"><input value="'+hubEsc(o[x.c]||'')+'" onchange="bddSetC(\''+cle+'\',\''+x.c+'\',this.value)"'
+        +' aria-label="'+hubEsc(lib)+' — année '+x.an+'" placeholder="'+(x.futur?'chiffre ou tendance':'chiffre')+'"'
+        +' style="width:100%;padding:5px;border-radius:7px;border:1px solid '+(vide?(o.mode==='indispo'?'#3a4a5f':'#e8c97a'):'#3a4a5f')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>';
+    });
+    h+='<td style="padding:5px 3px">'
+      +'<select onchange="bddSetC(\''+cle+'\',\'mode\',this.value)" aria-label="Forme de l’information — '+hubEsc(lib)+'" style="width:100%;padding:5px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+      + BDD_MODES.map(function(m){ return '<option value="'+m.v+'"'+((o.mode||'')===m.v?' selected':'')+'>'+hubEsc(m.lib)+'</option>'; }).join('')
+      +'</select>';
+    if(o.mode==='indispo'){
+      h+='<input value="'+hubEsc(o.motif||'')+'" onchange="bddSetC(\''+cle+'\',\'motif\',this.value)" placeholder="Pourquoi — obligatoire" aria-label="Motif de l’impossibilité — '+hubEsc(lib)+'"'
+        +' style="width:100%;margin-top:5px;padding:5px;border-radius:7px;border:1px solid '+(e.sansMotif?'#e05c5c':'#3a4a5f')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">';
+      if(e.sansMotif) h+='<div style="font-size:11px;color:#e05c5c;margin-top:3px;line-height:1.5">R.2312-10 impose d’indiquer la raison : sans elle, l’information est simplement absente.</div>';
+    }
+    if(e.tendancePassee){
+      h+='<div style="font-size:11px;color:#e05c5c;margin-top:4px;line-height:1.5">Les grandes tendances ne valent que pour les années à venir. Pour les deux années précédentes et l’année en cours, la donnée chiffrée est due.</div>';
+    }
+    h+='</td></tr>';
+  });
+  h+='</table></div>';
+  return h;
+}
+
 function hubVueBdeseJournal(){
   var J=bdjLoad(), der=bdjDerniereBase();
   var libRub=function(k){ var t=HUB_BDESE.filter(function(x){return x.k===k;})[0]; return t?((t.num?t.num+' — ':'')+t.lib):k; };
@@ -12514,7 +12642,22 @@ function hubVueBdese(){
    +'(R.2312-8 en dessous, R.2312-9 au-dessus)'+(eff!==null?(' — ici, <b>'+(eff>=300?'R.2312-9':'R.2312-8')+'</b>'):'')+'. '
    +'Un accord peut en définir l’organisation, l’architecture et le contenu, sans supprimer les thèmes obligatoires ni priver le comité des informations nécessaires à ses consultations (L.2312-21).'
    +'</div>'
-   +'<div style="font-size:13px;font-weight:800;color:'+(faits===HUB_BDESE.length?'#46b885':'#e8c97a')+';margin-bottom:10px">'+faits+' thème(s) renseigné(s) sur '+HUB_BDESE.length+'</div>';
+   +'<div style="font-size:13px;font-weight:800;color:'+(faits===HUB_BDESE.length?'#46b885':'#e8c97a')+';margin-bottom:10px">'+faits+' thème(s) validé(s) sur '+HUB_BDESE.length+'</div>';
+
+  /* L'année de référence commande les six colonnes de la base. */
+  var _g300=(eff!==null && eff>=300), _an=bddAnnee(), _av=bddAvancement(_g300);
+  h+='<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid #c9a84c;border-radius:9px;margin-bottom:12px">'
+   +'<label for="bdo-annee" style="display:block;font-size:12.5px;color:#e8e4d8;font-weight:600;margin-bottom:4px">Année en cours — celle sur laquelle la base est arrêtée</label>'
+   +'<input id="bdo-annee" inputmode="numeric" value="'+_an+'" onchange="bdoSet(\'annee\',this.value)" aria-label="Année en cours de la base de données" style="width:120px;padding:8px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+   +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6;margin-top:5px">'
+     +'La base porte sur <b>'+(_an-2)+'</b>, <b>'+(_an-1)+'</b> et <b>'+_an+'</b>, et intègre des perspectives sur <b>'+(_an+1)+'</b>, <b>'+(_an+2)+'</b> et <b>'+(_an+3)+'</b> (R.2312-10).'
+   +'</div>'
+   +'<div style="margin-top:9px">'
+     +'<div style="font-size:12px;color:#9fb0c4;margin-bottom:5px">Données saisies : '+_av.ok+' sous-rubrique(s) complète(s) sur '+_av.total+'</div>'
+     +'<div style="height:8px;background:#16263c;border-radius:5px;overflow:hidden"><div style="height:100%;width:'+_av.pct+'%;background:'+(_av.pct===100?'#46b885':'#c9a84c')+'"></div></div>'
+   +'</div>'
+   +(_av.alertes?('<div style="font-size:12px;color:#e05c5c;line-height:1.6;margin-top:7px">'+_av.alertes+' ligne(s) à corriger : impossibilité déclarée sans motif, ou grandes tendances portées sur une année révolue.</div>'):'')
+   +'</div>';
   var g300=(eff!==null && eff>=300);
   HUB_BDESE.forEach(function(t){
     var e=hubBd(t.k);
@@ -12562,6 +12705,16 @@ function hubVueBdese(){
           }).join('')
         +'</div>';
     }
+    /* La base elle-même : les six années de R.2312-10. */
+    var _et=bddRubriqueEtat(t,g300), _ouv=!!BDD_OUVERT[t.k];
+    h+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px">'
+      +'<button onclick="bddBasculer(\''+t.k+'\')" style="border:1px solid '+(_ouv?'#c9a84c':'#3a4a5f')+';background:'+(_ouv?'rgba(201,168,76,.14)':'#16263c')+';color:'+(_ouv?'#e8c97a':'#e8e4d8')+';border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">'
+        +(_ouv?'▾ Masquer les données':'▸ Saisir les données — six années')+'</button>'
+      +'<span style="font-size:11.5px;color:'+(_et.total&&_et.ok===_et.total?'#46b885':'#9fb0c4')+'">'+_et.ok+' / '+_et.total+' sous-rubrique(s) complète(s)</span>'
+      +(_et.alertes?('<span style="font-size:11.5px;color:#e05c5c">'+_et.alertes+' à corriger</span>'):'')
+      +'</div>';
+    if(_ouv) h+=bddTableau(t,g300);
+
     /* La date : c'est elle qui vaut communication et fait courir le délai. */
     var dmd=bdjDernier(t.k);
     h+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px">'

@@ -381,6 +381,95 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(r.lignes === 4 && r.actifs === 3, 'la ligne reste au registre, avec sa date de fin',
      r.lignes + ' lignes / ' + r.actifs + ' actifs');
 
+  /* ── LA BASE ELLE-MEME : les six annees de R.2312-10 ──────────────── */
+  console.log('\n— Les six années : deux révolues, l’année en cours, trois à venir —');
+  r = await page.evaluate(() => {
+    HUB.bdeseData = {}; hubSave();
+    bdoSet('annee', '2026');
+    return { C: bddColonnes(), an: bddAnnee() };
+  });
+  ok(r.C.length === 6, 'six colonnes, pas une de plus', r.C.length);
+  ok(r.C.map(x => x.an).join(',') === '2024,2025,2026,2027,2028,2029',
+     'de A−2 à A+3', r.C.map(x => x.an).join(','));
+  ok(r.C.filter(x => x.futur).map(x => x.an).join(',') === '2027,2028,2029',
+     'les trois années à venir sont identifiées comme telles');
+
+  console.log('\n— Une ligne n’est complète que si les six années portent quelque chose —');
+  r = await page.evaluate(() => {
+    const lib = HUB_BDESE[0].sous[0];
+    const out = {};
+    out.vide = bddLigneEtat('inv-social', lib);
+    ['am2', 'am1', 'a0'].forEach(c => bddSet('inv-social', lib, c, '120'));
+    out.moitie = bddLigneEtat('inv-social', lib);
+    ['a1', 'a2', 'a3'].forEach(c => bddSet('inv-social', lib, c, 'stable'));
+    out.plein = bddLigneEtat('inv-social', lib);
+    return out;
+  });
+  ok(r.vide.complet === false && r.vide.remplies === 0, 'ligne vide : rien n’est compté comme renseigné');
+  ok(r.moitie.complet === false && r.moitie.manque.join(',') === '2027,2028,2029',
+     'trois années saisies : les années manquantes sont nommées', r.moitie.manque.join(','));
+  ok(r.plein.complet === true, 'les six années renseignées : la ligne est complète');
+
+  console.log('\n— L’impossibilité se déclare, mais elle se motive —');
+  r = await page.evaluate(() => {
+    const lib = HUB_BDESE[1].sous[1];
+    bddSet('inv-mat', lib, 'mode', 'indispo');
+    const sans = bddLigneEtat('inv-mat', lib);
+    bddSet('inv-mat', lib, 'motif', 'Aucune dépense de recherche et développement engagée.');
+    const avec = bddLigneEtat('inv-mat', lib);
+    return { sans, avec, t: document.getElementById('csehub-body').innerText };
+  });
+  ok(r.sans.sansMotif === true && r.sans.complet === false,
+     'impossibilité déclarée sans raison : la ligne reste incomplète');
+  ok(r.avec.complet === true && r.avec.sansMotif === false,
+     'la raison indiquée, la ligne est complète — R.2312-10 est satisfait');
+
+  console.log('\n— Les grandes tendances ne valent que pour les années à venir —');
+  r = await page.evaluate(() => {
+    const lib = HUB_BDESE[2].sous[0];
+    bddSet('egalite', lib, 'mode', 'tendance');
+    bddSet('egalite', lib, 'a1', 'en hausse');
+    const futurSeul = bddLigneEtat('egalite', lib);
+    bddSet('egalite', lib, 'am1', 'en hausse');
+    const passe = bddLigneEtat('egalite', lib);
+    return { futurSeul, passe };
+  });
+  ok(!r.futurSeul.tendancePassee, 'une tendance sur une année à venir ne déclenche rien');
+  ok(r.passe.tendancePassee === true,
+     'une tendance portée sur une année révolue est signalée : la donnée chiffrée y est due');
+
+  console.log('\n— La clé d’une sous-rubrique est son libellé, pas son rang —');
+  r = await page.evaluate(() => {
+    const t = HUB_BDESE[0], lib = t.sous[0];
+    const avant = bddCle(t.k, lib);
+    /* Au-delà de 300 salariés la liste s'allonge : les clés déjà saisies
+       ne doivent pas se décaler d'un cran. */
+    const l50 = bddSousRubriques(t, false), l300 = bddSousRubriques(t, true);
+    return { avant, apres: bddCle(t.k, lib), n50: l50.length, n300: l300.length,
+             memeTete: l300[0] === l50[0], slug: /^[a-z0-9|-]+$/.test(avant) };
+  });
+  ok(r.avant === r.apres, 'la clé ne bouge pas', r.avant);
+  ok(r.n300 > r.n50, 'la liste s’allonge à partir de trois cents salariés', r.n50 + ' → ' + r.n300);
+  ok(r.memeTete, 'et les sous-rubriques déjà saisies restent en tête');
+  ok(r.slug, 'la clé ne contient que des caractères sûrs pour un attribut HTML', r.avant);
+
+  console.log('\n— L’écran de saisie —');
+  r = await page.evaluate(() => {
+    BDD_OUVERT = {};
+    hubGo('bdese');
+    const ferme = document.getElementById('csehub-body').innerText;
+    bddBasculer('inv-social');
+    const ouvert = document.getElementById('csehub-body').innerText;
+    return { ferme, ouvert, av: bddAvancement(false) };
+  });
+  ok(/Saisir les données — six années/.test(r.ferme), 'chaque rubrique ouvre sa grille de saisie');
+  ok(r.ouvert.length > r.ferme.length, 'et la grille apparaît quand on l’ouvre');
+  ok(/R\.2312-10/.test(r.ouvert), 'l’article qui impose les six années est cité');
+  ok(/2024/.test(r.ouvert) && /2029/.test(r.ouvert), 'les six millésimes sont affichés');
+  ok(!/NaN|undefined|\[object/.test(r.ouvert), 'aucun « NaN » ni « undefined » dans la grille');
+  ok(r.av.total === 42, 'les 42 sous-rubriques dues en dessous de trois cents salariés sont comptées', r.av.total);
+  ok(r.av.alertes === 1, 'et la ligne à corriger est comptée', r.av.alertes);
+
   console.log('\nExceptions : ' + erreurs.length);
   ok(erreurs.length === 0, 'aucune exception JavaScript', erreurs.slice(0, 3).join(' | '));
   await nav.close();
