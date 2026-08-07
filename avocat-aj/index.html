@@ -381,11 +381,6 @@
   }
 
   /* ── avis ────────────────────────────────────────────────────────────── */
-  .avis-hd{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-  .gnote{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);
-    border-radius:15px;padding:13px 18px;box-shadow:var(--sh)}
-  .gnote .gv{font-family:var(--serif);font-size:28px;font-weight:700;line-height:1;color:var(--ink)}
-  .gnote .gs{font-size:11.5px;color:var(--muted);margin-top:3px}
   .stars{color:#f0a92e;font-size:14px;letter-spacing:1px;line-height:1}
   .stars .off{color:color-mix(in srgb,var(--muted) 45%,transparent)}
   .carr{position:relative}
@@ -1036,35 +1031,13 @@
     <div class="lab"><h2>Avis clients</h2><div class="rule"></div></div>
     <p class="h3">Ce que disent les clients du cabinet</p>
     <p class="sub">Des avis publiés sur la fiche Google du cabinet, repris ici mot pour mot — sans
-      correction ni coupe. La note affichée est celle de la fiche entière, et le bouton mène à
-      l'ensemble des avis, y compris ceux qui ne figurent pas ici.</p>
+      correction ni coupe.</p>
 
     <div class="warn" id="warn-avis" hidden>
       <b>Avis d'exemple.</b> Les cartes ci-dessous montrent la mise en page : elles ne sont pas de
       vrais avis. Les avis réels se recopient dans le tableau <code>AVIS</code>, en bas du fichier
       <code>index.html</code> — nom, date, note, texte, réponse du cabinet. Ce bandeau disparaît
       dès qu'il n'y a plus d'exemple, et la section entière disparaît si le tableau est vide.
-    </div>
-
-    <div class="avis-hd">
-      <div class="gnote">
-        <svg width="26" height="26" viewBox="0 0 48 48" aria-hidden="true" style="flex:none">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        <div>
-          <div style="display:flex;align-items:baseline;gap:9px">
-            <span class="gv" id="g-moy">—</span>
-            <span class="stars" id="g-etoiles"></span>
-          </div>
-          <div class="gs" id="g-nb">Avis Google</div>
-        </div>
-      </div>
-      <a class="btn s" id="g-lien" href="[LIEN_FICHE_GOOGLE]" target="_blank" rel="noopener noreferrer">
-        Tous les avis sur Google →
-      </a>
     </div>
 
     <div class="carr">
@@ -1875,16 +1848,6 @@
           + 'Je recommande Maitre, Jeddi sans retenue.' }
   ];
 
-  /* La note REELLE de la fiche Google. Elle ne se deduit pas des avis repris
-     ici : le cabinet en met en avant huit, tous a cinq etoiles, alors que la
-     fiche en compte davantage et affiche 4,0. Afficher 5,0 serait flatteur et
-     faux. C'est donc la note de la fiche qui s'affiche, et le bouton mene a
-     tous les avis. Mettre a jour quand elle bouge ; vider pour n'afficher
-     aucune note. */
-  var NOTE_GOOGLE = 4.0;
-  var LIEN_GOOGLE = 'https://www.google.com/maps/place/Ma%C3%AEtre+Adel+JEDDI+-+Cabinet+CJ+AVOCATS/'
-                  + '@48.9444752,2.251634,17z/data=!4m6!3m5!1s0x47e66670b8e20937:0x9c6194057852cbe0'
-                  + '!8m2!3d48.9444752!4d2.251634!16s%2Fg%2F1tfns9fw';
 
   (function(){
     var sec = document.getElementById('avis'), track = document.getElementById('av-track');
@@ -1899,10 +1862,9 @@
     }
     function txt(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-    var demo = false, total = 0;
+    var demo = false;
     AVIS.forEach(function(a, i){
       if (a.exemple) demo = true;
-      total += a.note;
       var c = document.createElement('article');
       c.className = 'avis';
       c.innerHTML =
@@ -1924,22 +1886,7 @@
       track.appendChild(c);
     });
 
-    var moy = (typeof NOTE_GOOGLE === 'number' && NOTE_GOOGLE > 0)
-      ? NOTE_GOOGLE : total / AVIS.length;
-    document.getElementById('g-moy').textContent = moy.toFixed(1).replace('.', ',');
-    document.getElementById('g-etoiles').innerHTML = etoiles(Math.round(moy));
-    document.getElementById('g-nb').textContent = demo
-      ? 'Sur ' + AVIS.length + ' avis (exemples)'
-      : (typeof NOTE_GOOGLE === 'number' && NOTE_GOOGLE > 0)
-        ? 'Note de la fiche Google · ' + AVIS.length + ' avis repris ici'
-        : 'Moyenne des ' + AVIS.length + ' avis repris ici';
     if (demo) document.getElementById('warn-avis').hidden = false;
-
-    /* Le lien vers la fiche Google : tant qu'il n'est pas renseigné, on le
-       masque plutôt que d'afficher un bouton qui ne mène nulle part. */
-    var lien = document.getElementById('g-lien');
-    if (!LIEN_GOOGLE || LIEN_GOOGLE.charAt(0) === '[') lien.remove();
-    else lien.href = LIEN_GOOGLE;
 
     /* Flèches du carrousel */
     var pv = document.getElementById('av-pv'), nx = document.getElementById('av-nx');

@@ -195,25 +195,12 @@ const ok = (c, m, d) => {
   ok(await p.locator('.avis .dem').count() === 0,
     'aucune étiquette « à remplacer » ne subsiste');
   ok(cartes >= 8, 'les avis de la fiche sont repris', cartes);
-  /* La note affichee est celle de la FICHE, pas la moyenne des avis retenus :
-     les huit repris sont a cinq etoiles, la fiche est a 4,0. Afficher 5,0
-     serait flatteur et faux. */
-  ok((await p.textContent('#g-moy')).trim() === '4,0',
-    'la note affichée est celle de la fiche Google, pas la moyenne des avis choisis',
-    await p.textContent('#g-moy'));
-  ok(/Note de la fiche Google/.test(await p.textContent('#g-nb')),
-    'et elle est annoncée comme telle');
-  /* Le lien mene bien a la fiche, et il est propre : sans les parametres de
-     suivi que Google colle a la fin de ses adresses. */
-  const gl = await p.locator('#g-lien').getAttribute('href');
-  ok(/google\.com\/maps\/place/.test(gl || ''), 'le lien mène à la fiche Google');
-  ok(!/entry=ttu|g_ep=/.test(gl || ''), 'le lien est débarrassé des paramètres de suivi');
-  /* On ne laisse pas croire que ce sont tous les avis du cabinet. */
-  ok(/avis repris ici/.test(await p.textContent('#g-nb')),
-    'le nombre d\'avis affichés est distingué du total de la fiche',
-    await p.textContent('#g-nb'));
-  ok(/^[0-9],[0-9]$/.test((await p.textContent('#g-moy')).trim()),
-    'la note moyenne est calculée', await p.textContent('#g-moy'));
+  /* Ni note moyenne, ni bouton vers Google : le cabinet ne veut afficher que
+     les avis eux-memes. Aucun vestige ne doit subsister. */
+  for (const id of ['#g-moy', '#g-nb', '#g-etoiles', '#g-lien'])
+    ok(await p.locator(id).count() === 0, 'plus de bloc de note : ' + id);
+  ok(!/note/i.test(await p.textContent('#avis .sub')),
+    'le chapeau ne promet plus de note');
 
   /* Le carrousel défile, et la flèche de gauche est éteinte au départ. */
   ok(await p.locator('#av-pv').isDisabled(), 'flèche gauche inactive au départ');
