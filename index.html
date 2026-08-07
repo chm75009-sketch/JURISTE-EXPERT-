@@ -683,6 +683,11 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   #accueil-screen .trust .row b{color:var(--ink)} #accueil-screen .trust .row span{color:var(--muted)}
   #accueil-screen footer{margin-top:22px;text-align:center;color:var(--muted);font-size:11px;line-height:1.7}
   #accueil-screen footer b{color:var(--brass);font-weight:600}
+  /* Accès au site du cabinet : présent, mais discret. */
+  #accueil-screen footer .lien-cabinet{display:inline-block;margin-top:9px;color:var(--brass);
+    font-size:11.5px;font-weight:600;text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb,var(--brass) 40%,transparent);padding-bottom:1px}
+  #accueil-screen footer .lien-cabinet:hover{color:var(--green);border-bottom-color:var(--green)}
   @media (max-width:360px){#accueil-screen .heroband h1{font-size:26px}}
 </style>
 <div id="accueil-screen">
@@ -991,7 +996,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.145';
+var JX_BUILD = 'v2026-08-07.146';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,37 +1005,42 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
- {v:'v2026-08-07.145', d:'7 aout 2026', t:[
+ {v:'v2026-08-07.146', d:'7 aout 2026', t:[
    'LA BDESE ETAIT INTROUVABLE. Elle vivait au fond d\'un onglet de « Mon espace CSE » : trois écrans, et rien pour l\'annoncer. Deux entrées directes sont posées — un groupe « INFORMER LE COMITÉ » dans la famille Le CSE, avec la base de données et l\'index de l\'égalité, et les deux mêmes entrées dans le menu ☰. Une carte d\'accueil peut désormais porter une action et non une simple page : la base et l\'index sont des onglets, pas des pages, et ils s\'ouvrent maintenant en un geste.',
    'L\'IMPORT DU PERSONNEL NE PORTAIT NI LE SALAIRE NI LE COEFFICIENT. Les deux colonnes étaient ignorées : l\'index de l\'égalité n\'avait donc rien à lire, et la méthode par niveaux de la convention non plus. Sur trois cents salariés, tout était à ressaisir à la main. Elles sont désormais reconnues (« salaire », « rémunération », « brut », « paie » ; « coefficient », « indice », « niveau », « échelon », « position »), et leur absence est signalée à la fin de l\'import comme le sont déjà le sexe et la nationalité.',
    'LE CONTRAT DE PROFESSIONNALISATION N\'ETAIT PAS ECARTE DE L\'INDEX. Le registre porte « Contrat de pro (exclu) » après import ; l\'index cherchait « professionnalisation » et ne le trouvait pas. Ces salariés entraient donc dans le calcul de l\'écart de rémunération, que le décret leur interdit. Corrigé.',
    'L\'EFFECTIF INCOMPLET DISAIT UNE RAISON PASSE-PARTOUT. « Le contrat ou le temps de travail reste à préciser » — alors que ce qui manquait était souvent tout autre chose : une date d\'entrée absente, ou la question « remplace-t-il un salarié absent ? » restée sans réponse (L.1111-2, 2°). L\'application énumère maintenant les raisons réelles, à l\'accueil comme dans les modules : elles ne se corrigent pas au même endroit.',
    'UN FICHIER DU PERSONNEL FICTIF, POUR EPROUVER TOUT CELA. « exemples/PERSONNEL_FICTIF_BANQUE.csv » — 320 salariés inventés, aucune personne réelle. Il est construit pour malmener l\'application : au-dessus de 300 salariés et de 250, plus de vingt-cinq cadres, un apprenti, un contrat de pro, un intérimaire et un stagiaire à écarter, trois présences de moins de six mois, un sorti avant la période, un salarié sans sexe, un sans date de naissance, un sans statut, un sans date d\'entrée, un sans salaire, quinze temps partiels dont une quotité en fraction décimale, des noms à apostrophe et à tréma, des civilités à la place du sexe, des montants à la française. Un groupe de comparaison est volontairement non valide, un autre porte un écart en faveur des femmes pour vérifier que le SIGNE est conservé. Le test relit tout cela après import.'
  ]},
- {v:'v2026-08-07.144', d:'7 aout 2026', t:[
+ {v:'v2026-08-07.145', d:'7 aout 2026', t:[
    'IL N\'Y AVAIT PAS DE BASE DE DONNEES. Il y avait son architecture, son régime, ses preuves — et nulle part où écrire un chiffre. Une base de données qui ne contient aucune donnée n\'est pas une base : c\'est un sommaire. Les 42 sous-rubriques (52 à partir de trois cents salariés) portent désormais chacune leur grille de saisie.',
    'LES SIX ANNEES DE R.2312-10. Les deux années précédentes, l\'année en cours, et des perspectives sur les TROIS années suivantes. L\'année de référence se règle en tête de la base et commande les six colonnes : 2024, 2025, 2026, puis 2027, 2028, 2029. Une sous-rubrique n\'est comptée complète que si les six années portent quelque chose — une case vide n\'est jamais comptée comme renseignée, et les années manquantes sont nommées.',
    'LA FORME DE L\'INFORMATION EST CONTROLEE. Données chiffrées, ou — POUR LES ANNEES A VENIR SEULEMENT — grandes tendances. Une tendance portée sur une année révolue est signalée en rouge : pour les deux années précédentes et l\'année en cours, la donnée chiffrée est due. Et lorsqu\'une information ne peut faire l\'objet ni de l\'un ni de l\'autre, l\'employeur doit indiquer POURQUOI : l\'impossibilité déclarée sans motif laisse la ligne incomplète, parce que sans raison l\'information est simplement absente.',
    'LA CLE D\'UNE SOUS-RUBRIQUE EST SON LIBELLE, PAS SON RANG. La liste s\'allonge de dix rubriques au passage de trois cents salariés (R.2312-9) : une clé fondée sur le rang aurait décalé toutes les saisies d\'un cran le jour du franchissement du seuil. Et c\'est cette clé, et non l\'intitulé, qui est écrite dans les gestionnaires de la page : une apostrophe droite ou une esperluette dans un libellé aurait cassé la saisie.'
  ]},
- {v:'v2026-08-07.143', d:'7 aout 2026', t:[
+ {v:'v2026-08-07.144', d:'7 aout 2026', t:[
    'LA BASE N\'ETAIT PAS DATEE. Onze cases à cocher, et aucune date : or une case cochée ne date rien et ne prouve rien. C\'est la MISE A DISPOSITION actualisée qui vaut communication au comité (R.2312-14), et c\'est d\'elle que court le DELAI D\'EXAMEN (L.2312-15 et R.2312-6). Sans date, l\'employeur ne peut pas établir le point de départ, et le comité ne peut pas le contester. Chaque rubrique porte désormais sa date de mise à disposition, et un journal les récapitule, ligne à ligne, avec l\'objet de ce qui a été déposé.',
    'ET LE DELAI QUI EN DECOULE EST CALCULE. Un mois dans le cas général, deux mois en cas d\'intervention d\'un expert, trois mois lorsqu\'une ou plusieurs expertises interviennent à la fois au niveau du comité central et d\'au moins un comité d\'établissement (R.2312-6). L\'écran donne la date à laquelle, à défaut d\'avis, le comité est réputé consulté et avoir rendu un AVIS NEGATIF — en rappelant que ce délai ne court pas si la base est incomplète, et qu\'un accord peut en fixer d\'autres sans descendre en deçà de quinze jours.',
    'QUI A ACCES A LA BASE : UN REGISTRE, PAS UNE AFFIRMATION. « Accessible en permanence » se prouve — qui, à quel titre, depuis quand. Les élus sont REPRIS de « Mon CSE », sans seconde saisie et sans doublon. Chaque qualité porte son régime : accès de droit pour les élus du comité, ceux du comité central et les délégués syndicaux (L.2312-18) ; accès à prévoir par l\'accord pour le représentant syndical, la commission économique et les représentants de proximité, qui sont tenus à la discrétion sans que le texte leur ouvre l\'accès (L.2312-36 et L.2312-21) ; l\'expert désigné est tenu au secret et à la discrétion (L.2315-84). Un accès sans date d\'ouverture est signalé : c\'est elle qui distingue l\'accès permanent de l\'accès ponctuel. Un accès retiré se date, il ne s\'efface pas — la ligne reste au registre.'
  ]},
- {v:'v2026-08-07.142', d:'7 aout 2026', t:[
+ {v:'v2026-08-07.143', d:'7 aout 2026', t:[
    'BDESE — OU EST LA BASE, ET QUI Y ACCEDE. Quatre situations n\'étaient traitées nulle part : plusieurs établissements distincts, comité central, groupe, unité économique et sociale. Six questions y répondent, et les réponses commandent ce qui s\'affiche. À défaut d\'accord, la base est constituée AU NIVEAU DE L\'ENTREPRISE — il n\'existe pas de base d\'établissement obligatoire (R.2312-11) ; mais lorsqu\'un comité central est mis en place, la base comporte les informations mises à disposition de CE comité ET des comités d\'établissement. L\'accès est permanent, pour les élus du comité, ceux du comité central et les délégués syndicaux (L.2312-18) : si la base est sur papier ou sur un poste unique au siège, l\'accès des élus des autres établissements doit être organisé, sinon il n\'existe pas. Qui est consulté sur quoi est rappelé (L.2316-1 et L.2316-20), ainsi que le fait que la mise à disposition actualisée vaut communication et fait courir le délai d\'examen, à deux conditions cumulatives (R.2312-14).',
    'IL N\'EXISTE PAS DE BASE DE DONNEES DE GROUPE. Le comité de groupe ne consulte pas les bases des filiales : il reçoit ses propres informations — activité, situation financière, évolution et prévisions d\'emploi, actions de prévention, comptes et bilan consolidés, rapport du commissaire aux comptes, perspectives de l\'année à venir — par écrit et assez précises pour permettre une analyse réelle (L.2331-1, L.2332-1, L.2332-2). Pour l\'UES, les textes visent « l\'entreprise » sans régler le cas : l\'application dit de le faire trancher par l\'accord de fonctionnement, plutôt que devant le juge.',
    'LES REPONSES INCOHERENTES SONT DITES, PAS ABSORBEES. Deux établissements distincts et aucun comité central : c\'est une entrave (L.2313-1). Trois cents salariés et une base sur papier : le support informatique s\'impose (R.2312-12). « Je ne sais pas » à la question du groupe : l\'appartenance se lit du contrôle au sens de L.233-1 du code de commerce, et tant qu\'elle n\'est pas tranchée le 9° de la base reste en suspens.',
    'CE QUI EST CONFIDENTIEL, ET CE QUI NE PEUT PAS L\'ETRE. Les deux régimes étaient confondus. Le secret professionnel des PROCEDES DE FABRICATION joue de plein droit, sans déclaration, et sa violation est punie de deux ans et 30 000 € (L.2315-3 al. 1 et L.1227-1). L\'obligation de discrétion, elle, suppose DEUX CONDITIONS CUMULATIVES : l\'information doit être présentée comme confidentielle au moment de la communication, ET être de nature confidentielle au regard des intérêts légitimes de l\'entreprise — ce qu\'il incombe à l\'employeur d\'ETABLIR (Cass. soc., 5 novembre 2014, n° 13-17.270, publié). Pour la base, une exigence de plus : la DUREE doit être indiquée (R.2312-13). Et l\'on ne déclare pas confidentiel en bloc : un dossier entièrement estampillé sans justification fait reprendre la consultation depuis le début.',
    'CHAQUE RUBRIQUE SE TRANCHE, ET L\'APPLICATION REFUSE L\'IMPOSSIBLE. Les onze rubriques portent désormais leur propre statut — non confidentiel, ou confidentiel avec sa durée. Une rubrique déclarée confidentielle sans durée est signalée en rouge. Et cinq rubriques ne PEUVENT PAS l\'être, parce que la loi en impose la publicité : l\'index de l\'égalité et ses indicateurs (L.1142-8), les comptes déposés au greffe, les accords collectifs publiés dans la base nationale (L.2231-5-1), le montant de la contribution aux activités sociales que le comité porte à la connaissance des salariés (L.2315-72), le bilan des émissions de gaz à effet de serre (c. env., L.229-25). Rappel enfin de ce à quoi la confidentialité n\'est jamais opposable : l\'inspecteur du travail, le juge, et l\'expert du comité, lui-même tenu au secret (L.2315-84).'
  ]},
- {v:'v2026-08-07.141', d:'7 aout 2026', t:[
+ {v:'v2026-08-07.142', d:'7 aout 2026', t:[
    'L\'INDEX DE L\'EGALITE PROFESSIONNELLE N\'EXISTAIT PAS. La base de données portait le thème « Égalité professionnelle entre les femmes et les hommes » en simple case à cocher, et rien derrière : aucun calcul de l\'écart de rémunération, aucun indicateur, aucune note. C\'est pourtant, pour une entreprise d\'au moins cinquante salariés, une obligation annuelle sanctionnée jusqu\'à 1 % de la masse salariale (L.1142-7 à L.1142-10). Le calcul est écrit à la lettre du décret : quatre catégories socioprofessionnelles croisées avec quatre tranches d\'âge — ou, après avis du comité, les niveaux et coefficients de la convention collective avec un seuil de pertinence de 2 % au lieu de 5 % (D.1142-2, 1°) ; un groupe n\'entre dans le calcul que s\'il compte au moins TROIS femmes ET TROIS hommes ; si les groupes valides couvrent moins de 40 % de l\'effectif, l\'indicateur est INCALCULABLE — c\'est cette impossibilité qu\'il faut déclarer, et non un zéro ; le seuil de pertinence se retranche à la valeur absolue de l\'écart sans en changer le sens, il joue en faveur de l\'employeur et jamais contre ; le barème des augmentations et des promotions s\'applique à l\'écart en points de pourcentage ET à l\'écart en nombre équivalent de salariés, la meilleure note étant retenue ; le retour de congé maternité est TOUT OU RIEN, une seule omission ramène l\'indicateur à zéro (L.1225-26) ; et l\'index lui-même n\'est calculable que si les indicateurs calculables totalisent au moins 75 points.',
    'CE QUE CET OUTIL NE GARANTIT PAS, ET LE DIT A L\'ECRAN. Les tables de conversion des écarts en points — l\'annexe du décret — n\'ont pas pu être confrontées au texte primaire depuis cet environnement : Légifrance et le simulateur Index Egapro y sont inaccessibles. La méthode est vérifiée ; ces tables ne le sont pas. Elles sont regroupées en un seul endroit du code pour être corrigées d\'un geste, et l\'écran porte l\'avertissement tant que le contrôle n\'est pas fait — comme il le fait déjà pour le barème des élus au-delà de 2 500 salariés.',
    'AUCUNE SECONDE SAISIE. Le sexe, la date de naissance, le statut et le coefficient sont lus du REGISTRE DU PERSONNEL ; l\'effectif vient du calcul des seuils. Les apprentis, les contrats de professionnalisation, les salariés mis à disposition et ceux présents moins de six mois sur la période sont écartés, et chaque exclusion est nommée. Ce qui manque au registre est ÉCRIT, salarié par salarié — jamais deviné. Seule reste à saisir la rémunération annuelle brute en équivalent temps plein : elle n\'est pas le salaire mensuel multiplié par douze, et l\'application ne la déduira pas. Un bouton la pré-remplit sur demande, en rappelant ce que le décret y inclut et ce qu\'il en exclut.',
    'LA BDESE ETAIT UNE LISTE DE DIX CASES. Elle porte désormais les sous-rubriques de R.2312-8, avec celles que R.2312-9 ajoute à partir de trois cents salariés, l\'article de chaque thème, et les liens vers les documents qui l\'alimentent — registre du personnel, calcul des effectifs, budgets du comité, index de l\'égalité. Un thème manquait purement et simplement : le 9°, les transferts commerciaux et financiers entre les entités du groupe (L.2312-36, 9°). Il est ajouté. Le 8° réunit désormais la sous-traitance, que vise la loi, et les partenariats, que détaille le décret.',
    'Un fichier de tests couvre le moteur : seuil des trois femmes et trois hommes, règle des 40 %, sens de l\'écart, refus motivés, maternité sans objet ramenée sur 100, et lecture du registre.'
+ ]},
+ {v:'v2026-08-06.141', d:'6 aout 2026', t:[
+   'UN SITE DE CABINET D\'AVOCAT, DANS LE DEPOT, SANS RIEN DEVOIR A L\'APPLICATION. Le dossier avocat-aj contient un site complet — accueil, six pages de domaine, honoraires, avis, prise de rendez-vous, contact, mentions legales et RGPD — qui ne lit aucun fichier de Juris Expert, n\'emprunte aucun chemin remontant d\'un cran, et porte un noindex sur chacune de ses pages. Il se deplacera un jour dans son propre depot par une simple copie.',
+   'L\'ACCES A CE SITE EST RESERVE A L\'ADMINISTRATEUR. Une ligne sur l\'accueil de l\'application, masquee dans le HTML et montree par la garde administrateur — celle qui est rejouee a chaque changement de page, et non au seul demarrage. Un abonne ne voit rien, et aucune autre page de l\'application n\'y renvoie. Le test ouvre l\'application dans les deux etats et exige les deux resultats.',
+   'GITHUB NE PUBLIAIT PLUS DEPUIS MIDI. Quatre echecs d\'affilee, la derniere mise en ligne reussie datant de 12h51 : le site en ligne etait fige sans que rien ne le signale. GitHub lancait Jekyll — un moteur de blog — sur un depot qui n\'a rien a construire. Le fichier nojekyll qui le desactive est ajoute.'
  ]},
  {v:'v2026-08-06.140', d:'6 aout 2026', t:[
    'LE CDD BATIMENT ET LE CDD TERTIAIRE ETAIENT DES CDI. Les deux générateurs titraient « CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE » et ne produisaient AUCUNE clause de CDD — le type de contrat n\'y servait qu\'à écrire le titre. Le CDD et le CDI du bâtiment ne différaient que de deux caractères. Manquaient, une à une, les mentions dont l\'omission emporte REQUALIFICATION EN CDI (L.1242-12) : motif précis du recours, nom et qualification du salarié remplacé, terme ou durée minimale, période d\'essai, institution de retraite complémentaire, indemnité de fin de contrat. Les champs étaient pourtant remplis : « BERNARD Alice », « congé maternité », « 31/01/2027 » n\'apparaissaient nulle part.',
@@ -2073,7 +2083,23 @@ try{
   <button id="pwa-install" onclick="pwaInstall()" style="display:none;width:100%;box-sizing:border-box;margin:2px 0 10px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#e8c97a,#c9a84c);color:#1a1a1a;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">⬇️ Installer l'application sur cet appareil</button>
   <div id="home-alertes" style="display:none"></div>
 
-  <details id="home-tous" style="margin-top:22px">
+  <!-- Accès au site du cabinet CJ AVOCATS, depuis l'accueil de l'application.
+       Même dépôt, donc même déploiement : ce qui est poussé est en ligne. -->
+  <a id="lien-cabinet-admin" href="./avocat-aj/" target="_blank" rel="noopener"
+     style="display:none;align-items:center;gap:11px;margin-top:22px;
+     padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);
+     border:1px solid rgba(232,201,122,.28);text-decoration:none;color:#e8c97a;
+     font-size:13.5px;font-weight:700">
+    <span style="font-size:17px" aria-hidden="true">⚖️</span>
+    <span style="flex:1">Cabinet CJ Avocats — Maître A. J., Argenteuil
+      <span style="display:block;font-weight:400;font-size:11.5px;color:#9a9585;margin-top:2px">
+        Conseil et contentieux · Val-d'Oise et toute la France</span>
+      <span style="display:block;font-weight:400;font-size:10.5px;color:#7d786c;margin-top:3px">
+        S'ouvre dans un onglet à part — Juris Expert reste ici</span></span>
+    <span style="opacity:.7">›</span>
+  </a>
+
+  <details id="home-tous" style="margin-top:12px">
   <summary style="cursor:pointer;list-style:none;padding:13px 15px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);font-size:13.5px;font-weight:700;color:#e8c97a">📚 Tous les modules — la liste complète</summary>
   <div style="padding-top:10px">
 <div class="home-sec">👋 Que voulez-vous faire ? — nous vous guidons directement</div>
@@ -17199,6 +17225,10 @@ function jxGardeAdmin(){
     var e=document.getElementById(id);
     if(e && !a) e.style.display='none';
   });
+  /* L'acces au site du cabinet est reserve a l'administrateur : il part
+     masque dans le HTML et n'est montre qu'ici, une fois la session connue. */
+  try{ var lc=document.getElementById('lien-cabinet-admin');
+       if(lc) lc.style.display = a ? 'flex' : 'none'; }catch(e){}
   return a;
 }
 function jxRefusAdmin(){

@@ -1,0 +1,130 @@
+/* Feuille de style des pages secondaires (mentions légales, confidentialité).
+   L'accueil embarque son propre style : il doit rester lisible même seul.
+   Ces deux pages-ci partagent la même charte, sans la dupliquer deux fois. */
+
+:root{
+  --paper:#f4efe4; --paper2:#ece4d4; --card:#fffdf7;
+  --ink:#23282b; --ink2:#454d50; --muted:#7c7669;
+  --green:#1f5a49; --green-d:#163f33; --green-l:#2c6f5b;
+  --brass:#9c7530; --brass-l:#d5ad5c; --cream:#f3ead4;
+  --line:#e3d8c1; --line-soft:#efe7d6;
+  --sh:0 1px 2px rgba(60,48,24,.05),0 14px 30px -20px rgba(60,48,24,.28);
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#14171a; --paper2:#191d20; --card:#1e2327;
+  --ink:#ece7db; --ink2:#c6c1b4; --muted:#98937f;
+  --green:#2b8168; --green-d:#123a2e; --green-l:#37997c;
+  --brass:#cda85f; --brass-l:#e2c684; --cream:#f0e7d3;
+  --line:#2f3633; --line-soft:#242a27;
+  --sh:0 1px 2px rgba(0,0,0,.3),0 16px 32px -20px rgba(0,0,0,.6);
+}}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.col{max-width:760px;margin:0 auto;padding:0 20px}
+a{color:var(--green)}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:6px}
+
+/* En-tête : le retour est visible dès le premier écran, sur toutes les pages. */
+header{background:var(--card);border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+.mono{width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--green-l),var(--green-d));color:var(--brass-l);
+  font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:.5px}
+.brand .n{font-family:var(--serif);font-size:17px;font-weight:700;line-height:1.05}
+.brand .s{font-size:10px;color:var(--muted);letter-spacing:.9px;margin-top:2px;text-transform:uppercase}
+.back{font-size:13px;font-weight:700;color:var(--green);background:var(--paper);
+  border:1px solid color-mix(in srgb,var(--green) 32%,transparent);border-radius:100px;
+  padding:9px 15px;text-decoration:none;white-space:nowrap}
+.back:hover{border-color:var(--green)}
+
+main{padding:34px 0 10px}
+h1{font-family:var(--serif);font-size:32px;font-weight:700;line-height:1.15;margin:0 0 6px;letter-spacing:-.3px}
+.maj{font-size:12px;color:var(--muted);margin:0 0 28px}
+h2{font-family:var(--serif);font-size:20px;font-weight:700;margin:34px 0 10px;line-height:1.25}
+h2:first-of-type{margin-top:22px}
+h3{font-size:13.5px;font-weight:700;color:var(--brass);margin:20px 0 6px;letter-spacing:.3px}
+p{margin:0 0 13px;color:var(--ink2)}
+strong,b{color:var(--ink)}
+ul{margin:0 0 13px;padding-left:22px;color:var(--ink2)}
+li{margin-bottom:7px}
+
+.bloc{background:var(--card);border:1px solid var(--line);border-radius:var(--r,16px);
+  padding:18px 20px;box-shadow:var(--sh);margin:0 0 16px}
+.bloc p:last-child,.bloc ul:last-child{margin-bottom:0}
+.bloc.brass{border-left:3px solid var(--brass)}
+dl{margin:0;display:grid;grid-template-columns:190px 1fr;gap:10px 18px;font-size:14px}
+@media (max-width:600px){dl{grid-template-columns:1fr;gap:2px 0}dt{margin-top:12px}}
+dt{font-weight:700;color:var(--ink);font-size:12px;text-transform:uppercase;letter-spacing:.7px;padding-top:2px}
+dd{margin:0;color:var(--ink2)}
+
+.tofill{background:color-mix(in srgb,var(--brass) 18%,transparent);
+  border-bottom:1px dashed color-mix(in srgb,var(--brass) 70%,transparent);
+  border-radius:3px;padding:0 3px;font-style:normal}
+
+/* ── pages de domaine ─────────────────────────────────────────────────── */
+.col.large{max-width:900px}
+.fil{font-size:12px;color:var(--muted);margin:0 0 16px}
+.fil a{color:var(--muted);text-decoration:none}
+.fil a:hover{color:var(--green);text-decoration:underline}
+.band{position:relative;overflow:hidden;border-radius:20px;padding:30px 30px 28px;margin:0 0 26px;
+  color:var(--cream);background:radial-gradient(120% 130% at 85% 0%,var(--green-l) 0%,var(--green) 45%,var(--green-d) 100%);
+  box-shadow:0 18px 38px -18px rgba(20,55,44,.55)}
+.band::after{content:attr(data-ic);position:absolute;right:6px;bottom:-26px;font-size:130px;line-height:1;
+  opacity:.09;pointer-events:none}
+.band h1{color:var(--cream);font-size:31px;margin:0 0 8px;position:relative}
+.band p{color:rgba(243,234,212,.85);font-size:14.5px;line-height:1.65;margin:0;max-width:52ch;position:relative}
+.band .kick{display:inline-flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1.3px;
+  text-transform:uppercase;color:var(--brass-l);border:1px solid rgba(213,173,92,.34);
+  border-radius:100px;padding:5px 11px;margin-bottom:14px;position:relative}
+@media (max-width:620px){.band{padding:24px 20px}.band h1{font-size:25px}}
+
+.faire{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+@media (max-width:620px){.faire{grid-template-columns:1fr}}
+.faire div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;
+  font-size:13.5px;color:var(--ink2);line-height:1.55;box-shadow:var(--sh);
+  position:relative;padding-left:36px}
+.faire div::before{content:"→";position:absolute;left:15px;top:13px;color:var(--brass);font-weight:700}
+.faire b{color:var(--ink)}
+
+.art{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--brass);
+  border-radius:12px;padding:15px 17px;margin:0 0 12px;box-shadow:var(--sh)}
+.art .t{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.art p{margin:0;font-size:13.5px;line-height:1.65}
+.art .ref{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.3px;
+  color:var(--brass);background:color-mix(in srgb,var(--brass) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--brass) 30%,transparent);border-radius:100px;padding:3px 10px}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);
+  overflow:hidden;margin-bottom:9px}
+summary{cursor:pointer;list-style:none;padding:14px 44px 14px 17px;font-weight:700;font-size:14px;
+  font-family:var(--serif);position:relative;color:var(--ink)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:17px;top:50%;transform:translateY(-50%);
+  color:var(--brass);font-size:19px;font-weight:400;line-height:1}
+details[open] summary::after{content:"−"}
+details .bd{padding:0 17px 15px;font-size:13.5px;line-height:1.7;color:var(--ink2)}
+details .bd p{margin:0 0 9px} details .bd p:last-child{margin:0}
+
+.cta{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  background:var(--card);border:1px solid color-mix(in srgb,var(--brass) 50%,transparent);
+  border-radius:16px;padding:20px 22px;margin:26px 0 0;box-shadow:var(--sh)}
+.cta .ct{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink)}
+.cta .cs{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.55}
+.cta a{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:var(--cream);
+  border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;
+  box-shadow:0 10px 20px -12px rgba(20,55,44,.65)}
+.autres{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+.autres a{font-size:12.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);
+  border-radius:100px;padding:7px 14px;text-decoration:none}
+.autres a:hover{border-color:var(--brass);color:var(--green)}
+
+footer{margin-top:46px;background:var(--green-d);color:rgba(243,234,212,.72);padding:26px 0}
+footer p{color:inherit;font-size:12.5px;margin:0 0 6px}
+footer a{color:var(--brass-l);text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer .tofill{background:rgba(213,173,92,.18);border-bottom-color:rgba(213,173,92,.6);color:var(--cream)}

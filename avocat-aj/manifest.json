@@ -1,0 +1,23 @@
+{
+  "name": "CJ AVOCATS — Maître A. J., Argenteuil",
+  "short_name": "CJ Avocats",
+  "description": "Cabinet d'avocats à Argenteuil : famille, immobilier, travail, sociétés, baux commerciaux et recouvrement. Conseil et contentieux dans toute la France.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4efe4",
+  "theme_color": "#1f5a49",
+  "categories": ["business", "government"],
+  "icons": [
+    { "src": "./icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Contacter le cabinet", "url": "./index.html#contact" },
+    { "name": "Honoraires", "url": "./index.html#honoraires" }
+  ]
+}
