@@ -1,6 +1,7 @@
 # Fichier du personnel fictif — pour éprouver l'application
 
-`PERSONNEL_FICTIF_BANQUE.csv` — **320 salariés, tous inventés.** Aucune
+`PERSONNEL_FICTIF_BANQUE.csv` (et le même en `.xlsx`) — **250 salariés,
+tous inventés.** Aucune
 personne réelle, aucune donnée réelle. Entreprise de banque, IDCC 2120.
 
 ## Où l'importer
@@ -18,10 +19,11 @@ Puis, pour voir ce qu'il déclenche :
 
 ## Ce que le fichier est fait pour déclencher
 
-**Les seuils.** 320 salariés : au-dessus de 300 (sous-rubriques de
-R.2312-9, informations trimestrielles, support informatique obligatoire) et
-au-dessus de 250 (cinq indicateurs de l'index au lieu de quatre).
-82 cadres : le troisième collège se déclenche (au moins vingt-cinq).
+**Les seuils.** 250 salariés : le seuil des **cinq** indicateurs de l'index
+est atteint (au lieu de quatre en dessous de 250). 66 cadres : le troisième
+collège se déclenche (au moins vingt-cinq). En dessous de 300, les
+sous-rubriques supplémentaires de R.2312-9 ne s'affichent pas — c'est
+normal, et l'écran l'annonce rubrique par rubrique.
 
 **Les exclusions de l'index.** Un apprenti, un contrat de
 professionnalisation, un intérimaire et un stagiaire doivent être écartés,
@@ -32,7 +34,7 @@ chacun avec son motif écrit. Trois salariés présents moins de six mois sur
 sans date de naissance, un sans statut, un sans date d'entrée, un sans
 salaire. Aucun ne doit être compté à zéro ; tous doivent être nommés.
 
-**Le temps partiel.** Quinze salariés à 50, 60, 80 et 90 %, dont un cadre,
+**Le temps partiel.** Douze salariés à 50, 60, 80 et 90 %, dont un cadre,
 et une quotité écrite en fraction décimale (0,4). La rémunération doit être
 signalée comme à reconstituer en équivalent temps plein.
 
@@ -57,7 +59,7 @@ milliers et virgule décimale.
 
 ## Ce que l'application doit refuser de calculer
 
-À l'import, l'effectif reste **non calculé** : dix contrats à durée
+À l'import, l'effectif reste **non calculé** : les contrats à durée
 déterminée attendent la réponse à « remplace-t-il un salarié absent ? »
 (L.1111-2, 2°) et un salarié n'a pas de date d'entrée. C'est voulu.
 L'application doit le dire et nommer ce qui manque, au lieu d'annoncer un

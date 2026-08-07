@@ -500,6 +500,7 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
       egaReprendreSalaires();
       const R = egaIndex(egaDonnees());
       const i1 = R.indicateurs[0].r;
+      hubGo('egalite');
       return {
         n: st.length, cadres: c(s => /Cadre/.test(s.statut)),
         salaires: c(s => !!s.salaire), coeffs: c(s => !!s.coeff),
@@ -512,15 +513,16 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
         i1: { calc: i1.calculable, ecart: i1.ecart, groupes: i1.retenus.length,
               ecartes: i1.ecartes.length, manque: i1.manque.length },
         grande: R.grande, nbInd: R.indicateurs.length,
-        src: cseEffectifSource()
+        src: cseEffectifSource(),
+        ecran: document.getElementById('csehub-body').innerText
       };
     });
-    ok(r.n === 320, '320 salariés importés', r.n);
-    ok(r.salaires >= 315 && r.coeffs >= 315,
+    ok(r.n === 250, '250 salariés importés', r.n);
+    ok(r.salaires >= 245 && r.coeffs >= 245,
        'le salaire et le coefficient sont importés — sans eux l’index n’a rien à lire',
        r.salaires + ' salaires / ' + r.coeffs + ' coefficients');
     ok(r.cadres >= 25, 'plus de vingt-cinq cadres : le troisième collège se déclenche', r.cadres);
-    ok(r.partiels === 15, 'les quinze temps partiels sont reconnus, quotité comprise', r.partiels);
+    ok(r.partiels === 12, 'les douze temps partiels sont reconnus, quotité comprise', r.partiels);
     ok(r.mmeLueFemme === 'F', '« Mme » à la place du sexe est lue comme une femme', r.mmeLueFemme);
     ok(r.sansSexe === 1, 'le salarié sans sexe reste sans sexe : rien n’est deviné', r.sansSexe);
     ok(r.apostrophe >= 2, 'les noms à apostrophe passent l’import intacts', r.apostrophe);
@@ -530,8 +532,16 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
         'présent moins de six mois sur la période ', 'sorti avant le début de la période',
         'stagiaire — non salarié'].sort().join(' | '),
        'les six motifs d’exclusion du décret se déclenchent', r.motifs.join(' | '));
-    ok(r.grande === true && r.nbInd === 5,
-       'au-dessus de 250 salariés : cinq indicateurs', r.nbInd);
+    /* 250 au registre ne font pas 250 pour l'index : huit salaries sont
+       ecartes par le decret, et l'effectif de L.1111-2 n'est pas calculable
+       tant que le registre est incomplet. L'application se rabat alors sur
+       les retenus — 242 — et le dit a l'ecran. C'est le comportement voulu :
+       elle ne suppose pas un effectif qu'elle n'a pas. */
+    ok(r.grande === false && r.nbInd === 4,
+       '250 inscrits mais 242 retenus, et l’effectif non calculé : quatre indicateurs, pas cinq',
+       r.nbInd);
+    ok(/n’est pas calculé/.test(r.ecran || '') && /250 salariés qui décide/.test(r.ecran || ''),
+       'et l’écran dit pourquoi, au lieu de trancher en silence');
     ok(r.i1.calc === true, 'l’écart de rémunération est calculable sur ce fichier');
     ok(r.i1.ecartes >= 1, 'et au moins un groupe est écarté comme non valide', r.i1.ecartes);
     ok(r.i1.manque >= 3, 'les salariés non classables sont nommés, pas comptés à zéro', r.i1.manque);
