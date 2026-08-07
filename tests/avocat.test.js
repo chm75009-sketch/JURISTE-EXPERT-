@@ -167,6 +167,14 @@ const ok = (c, m, d) => {
   const photoPosee = await p.locator('.pf.has').count() === 1;
   if (photoPosee) {
     ok(await p.locator('.cab .sig .av.has').count() === 1, 'le même portrait signe la présentation');
+    /* Le fichier est bien lu : une image cassée laisserait .has posé sans que
+       le navigateur ait la moindre pixel à peindre. */
+    ok(await p.evaluate(() => new Promise(r => {
+      const i = new Image();
+      i.onload = () => r(i.naturalWidth > 100 && i.naturalWidth === i.naturalHeight);
+      i.onerror = () => r(false);
+      i.src = './portrait.png';
+    })), 'la photo se charge, et elle est carrée — le cercle du cadre ne la déforme pas');
   } else {
     ok(await p.locator('.pf .mg').isVisible(), 'sans photo, le monogramme tient la place');
     ok(await p.locator('.pf').evaluate(e => !e.style.backgroundImage),

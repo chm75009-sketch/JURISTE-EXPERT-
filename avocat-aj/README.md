@@ -64,7 +64,7 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | `[EMAIL]` | accueil, mentions, confidentialité | Adresse électronique du cabinet |
 | `[9 h – 19 h]` | accueil | Horaires réels |
 | `[GARE / PARKING]` | accueil | Accès (gare d'Argenteuil, parking…) |
-| `[Photo]` | bandeau | Déposer la photo dans le dossier, puis écrire son nom dans `var PORTRAIT = ''` (script de `index.html`) — elle remplace alors le monogramme partout |
+| Photo **provisoire** | bandeau + signature | `portrait.png` est en place : le cliché de la fiche Google, détouré et recadré au cercle (294 px). Il fait l'affaire, mais il est petit — sur un écran haute densité il manque de piqué. À remplacer par une photo de studio dès qu'il y en a une : déposer le fichier dans le dossier et écrire son nom dans `var PORTRAIT` (script de `index.html`), carré de préférence, 800 px minimum |
 | `[CLÉ_WEB3FORMS]` | accueil (formulaire) | Voir § 3 |
 | `[ASSUREUR ET N° DE POLICE]` | mentions | RCP et garantie financière |
 | `[HÉBERGEUR]` | mentions | Netlify, ou l'hébergeur retenu |
