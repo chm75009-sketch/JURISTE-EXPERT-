@@ -114,10 +114,10 @@
   .brand .s{display:block;font-size:11px;color:var(--muted);letter-spacing:.8px;margin-top:3px;
     text-transform:uppercase;white-space:nowrap}
   .cab .txt .sig .nm,.cab .txt .sig .rl{display:block}
-  nav{display:flex;align-items:center;gap:2px}
-  nav a{font-size:13.5px;color:var(--ink2);text-decoration:none;padding:9px 9px;border-radius:9px;
+  #nav{display:flex;align-items:center;gap:2px}
+  #nav a{font-size:13.5px;color:var(--ink2);text-decoration:none;padding:9px 9px;border-radius:9px;
     font-weight:600;white-space:nowrap}
-  nav a:hover{background:var(--paper2);color:var(--green)}
+  #nav a:hover{background:var(--paper2);color:var(--green)}
   .btn.desk{white-space:nowrap}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;
     padding:12px 18px;font-size:14px;font-weight:700;text-decoration:none;border:1px solid transparent;
@@ -131,11 +131,11 @@
   .burger{display:none;width:42px;height:42px;border-radius:11px;border:1px solid var(--line);
     background:var(--card);color:var(--ink2);font-size:17px;cursor:pointer}
   @media (max-width:1080px){
-    nav{position:fixed;inset:64px 0 auto;flex-direction:column;align-items:stretch;gap:0;
+    #nav{position:fixed;inset:64px 0 auto;flex-direction:column;align-items:stretch;gap:0;
       background:var(--card);border-bottom:1px solid var(--line);padding:8px 16px 18px;
       box-shadow:var(--sh);transform:translateY(-135%);transition:transform .22s ease;visibility:hidden}
-    nav.on{transform:none;visibility:visible}
-    nav a{padding:14px 8px;border-bottom:1px solid var(--line-soft);font-size:15px}
+    #nav.on{transform:none;visibility:visible}
+    #nav a{padding:14px 8px;border-bottom:1px solid var(--line-soft);font-size:15px}
     .burger{display:block}
     .hd .btn.p.desk{display:none}
   }
@@ -583,6 +583,30 @@
     border-bottom:1px dashed color-mix(in srgb,var(--brass) 70%,transparent);
     border-radius:3px;padding:0 3px;font-style:normal;white-space:nowrap}
   footer .tofill{background:rgba(213,173,92,.18);border-bottom-color:rgba(213,173,92,.6);color:var(--cream)}
+
+  /* ── le mot sur les cookies ──────────────────────────────────────────── */
+  /* Aucune bannière de consentement : il n'y a rien à consentir. Une ligne
+     qui l'annonce, et qui se ferme. Pas de bouton « J'accepte » — en proposer
+     un laisserait croire qu'un refus était possible, donc qu'il y avait
+     quelque chose à refuser. */
+  .cookies{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--green-d);
+    color:rgba(243,234,212,.9);box-shadow:0 -10px 30px -18px rgba(0,0,0,.6);
+    transform:translateY(110%);transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+  .cookies.on{transform:none}
+  .cookies .ci{display:flex;align-items:center;gap:14px;padding:13px 20px;font-size:12.5px;line-height:1.55}
+  .cookies b{color:var(--brass-l)}
+  .cookies a{color:var(--brass-l);text-decoration:underline;white-space:nowrap}
+  .cookies button{flex:none;margin-left:auto;background:rgba(255,255,255,.1);
+    border:1px solid rgba(243,234,212,.28);color:var(--cream);border-radius:100px;
+    min-width:40px;min-height:36px;padding:8px 15px;font-family:inherit;font-size:12.5px;
+    font-weight:700;cursor:pointer}
+  .cookies button:hover{background:rgba(255,255,255,.18)}
+  @media (max-width:760px){
+    /* La barre d'appel occupe deja le bas de l'ecran : on se pose au-dessus. */
+    .cookies{bottom:62px}
+    .cookies .ci{flex-wrap:wrap;gap:9px;padding:12px 20px}
+    .cookies button{margin-left:0}
+  }
 
   /* ── barre de contact fixe (téléphone) ───────────────────────────────── */
   /* Sur mobile, le téléphone est à portée de pouce en permanence : c'est le
@@ -1290,6 +1314,16 @@
 </div>
 </main>
 
+<!-- Le mot sur les cookies : il n'y en a pas, et c'est ce qu'il dit. -->
+<div class="cookies" id="cookies" role="note" hidden>
+  <div class="col ci">
+    <span><b>Aucun cookie sur ce site.</b> Ni traceur, ni mesure d'audience : rien n'est déposé
+      sur votre appareil, et il n'y a donc rien à vous faire accepter.
+      <a href="./confidentialite.html">Comment c'est vérifiable</a></span>
+    <button type="button" id="cookies-ok">J'ai compris</button>
+  </div>
+</div>
+
 <!-- Barre d'action, sur téléphone uniquement -->
 <nav class="barre" aria-label="Contacter le cabinet">
   <a href="tel:+33199001234"><span class="bi" aria-hidden="true">📞</span>Appeler</a>
@@ -1454,6 +1488,26 @@
       }
     };
     im.src = PORTRAIT;
+  })();
+
+  /* Le mot sur les cookies. Il s'affiche une fois par visite, et la seule
+     chose retenue est le fait qu'il a ete lu — dans sessionStorage, donc
+     effacee a la fermeture du navigateur. La politique de confidentialite le
+     mentionne : ne rien ecrire du tout obligerait a le reafficher a chaque
+     page, ce qui serait plus intrusif que la ligne elle-meme. */
+  (function(){
+    var z = document.getElementById('cookies'), b = document.getElementById('cookies-ok');
+    if (!z || !b) return;
+    var lu = false;
+    try { lu = sessionStorage.getItem('cj_cookies') === '1'; } catch (e) {}
+    if (lu) { z.remove(); return; }
+    z.hidden = false;
+    setTimeout(function(){ z.classList.add('on'); }, 900);
+    b.addEventListener('click', function(){
+      z.classList.remove('on');
+      try { sessionStorage.setItem('cj_cookies', '1'); } catch (e) {}
+      setTimeout(function(){ z.remove(); }, 400);
+    });
   })();
 
   /* ══════════════════════════════════════════════════════════════════════

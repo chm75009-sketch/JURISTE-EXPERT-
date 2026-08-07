@@ -489,6 +489,41 @@ const ok = (c, m, d) => {
     document.documentElement.scrollWidth - document.documentElement.clientWidth);
   ok(debord <= 1, 'aucun débordement horizontal', debord + 'px');
 
+
+  /* ── 9. Sur téléphone : les deux barres fixes, et le mot sur les cookies ── */
+  console.log('\n— Les barres fixes du téléphone —');
+  {
+    const t = await (await nav.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+    await t.goto(url('index.html'), { waitUntil: 'load' });
+    await t.waitForTimeout(1400);
+
+    /* La barre d'appel est un <nav>, comme le menu : une regle ecrite pour
+       l'un l'avait rendue invisible pendant des jours. On l'exige a l'ecran. */
+    ok(await t.locator('.barre').isVisible(), 'la barre d\'appel est visible sur téléphone');
+    const bb = await t.locator('.barre').boundingBox();
+    ok(bb && bb.y + bb.height >= 840, 'elle est collée au bas de l\'écran', bb && Math.round(bb.y));
+    ok(await t.locator('.barre a[href^="tel:"]').count() === 1, 'elle contient le bouton d\'appel');
+
+    /* Le mot sur les cookies : aucune demande de consentement, puisqu'il n'y
+       a rien a consentir — donc aucun bouton « J'accepte ». */
+    ok(await t.locator('#cookies.on').isVisible(), 'le mot sur les cookies s\'affiche');
+    const ct = await t.textContent('#cookies');
+    ok(/Aucun cookie/i.test(ct), 'il annonce l\'absence de cookie');
+    ok(!/j'accepte/i.test(ct), 'il ne demande aucun consentement');
+    const cb = await t.locator('#cookies').boundingBox();
+    ok(cb && bb && cb.y + cb.height <= bb.y + 1,
+      'il se pose au-dessus de la barre d\'appel, sans la couvrir');
+
+    await t.click('#cookies-ok');
+    await t.waitForTimeout(600);
+    ok(await t.locator('#cookies').count() === 0, 'il disparaît une fois lu');
+    ok(await t.evaluate(() => sessionStorage.getItem('cj_cookies') === '1'),
+      'le seul indicateur retenu vit dans la session, pas au-delà');
+    ok(await t.evaluate(() => document.cookie === ''),
+      'et le site n\'a effectivement déposé aucun cookie');
+    await t.close();
+  }
+
   await nav.close();
   console.log('\n' + (echecs ? echecs + ' ECHEC(S)' : 'Tout est vert.') + '\n');
   process.exit(echecs ? 1 : 0);
