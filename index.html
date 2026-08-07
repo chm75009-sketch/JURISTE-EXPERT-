@@ -1010,7 +1010,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.148';
+var JX_BUILD = 'v2026-08-07.149';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1019,6 +1019,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.149', d:'7 aout 2026', t:[
+   'LA BDESE SE REMPLIT AVEC CE QUI EST DEJA SAISI. Neuf sous-rubriques ne demandaient rien de nouveau : elles étaient pourtant à ressaisir à la main. Les effectifs par type de contrat, par âge et par ancienneté, les emplois par catégorie professionnelle, le nombre de stagiaires, la durée du travail et le temps partiel, la répartition femmes-hommes par catégorie, les rémunérations médianes par sexe, l\'index de l\'égalité et ses cinq indicateurs, le salaire minimum, médian et moyen, et la contribution aux activités sociales et culturelles se lisent désormais du REGISTRE DU PERSONNEL, de l\'onglet INDEX ÉGALITÉ et du module BUDGETS DU COMITÉ.',
+   'RIEN N\'EST ECRIT SANS QU\'ON LE DEMANDE. Chaque ligne calculable porte son bouton « ⟳ Calculer depuis le registre du personnel », et un bouton unique reprend tout d\'un coup. La valeur obtenue porte SA SOURCE ET SA DATE à l\'écran — « calculé le 07/08/2026 depuis le registre du personnel » — parce qu\'il faut pouvoir dire d\'où elle vient six mois plus tard, devant le comité. Elle reste modifiable.',
+   'LES ANNEES A VENIR NE SONT JAMAIS CALCULEES. Les deux années précédentes et l\'année en cours se lisent des données ; les trois années suivantes sont des PERSPECTIVES (R.2312-10) : elles se saisissent à la main, et l\'application refuse de les inventer.',
+   'TROIS FICHIERS D\'EXEMPLE ET UNE TRAME VIERGE. « PERSONNEL_FICTIF_1509 » — 1 509 salariés, six établissements, tous les seuils franchis : exclusions de L.1111-3, mises à disposition dans les deux sens, expatrié, cinq absences longues, quatre salariés protégés, vingt-huit bénéficiaires de l\'obligation d\'emploi, CDI de chantier, forfait jours, CDI intermittent, retraite progressive, préretraite, un vrai doublon et deux homonymes. Et « BDESE_TRAME_VIERGE.xlsx » — une feuille par rubrique, les sous-rubriques en lignes, les six années en colonnes, la forme de l\'information en liste déroulante, la raison de l\'impossibilité et la confidentialité avec sa durée : à envoyer au client, à remplir, à rendre.'
+ ]},
  {v:'v2026-08-07.148', d:'7 aout 2026', t:[
    'UN SECOND FICHIER D\'EXEMPLE, VOLONTAIREMENT ILLISIBLE — 400 salariés, un préambule de trois lignes avant l\'en-tête, deux colonnes inconnues, trois formats de date, des montants avec espace insécable et symbole euro, des lignes vides au milieu, des homonymes parfaits. Il a fait sortir QUATRE RÉSULTATS FAUX que rien ne signalait.',
    '« 3.150,00 » ETAIT LU 3,15 €. Le point était pris pour une virgule décimale : un salaire de 3 150 € alimentait l\'index avec 37,80 € par an, sans le moindre avertissement. Un lecteur de montants est écrit et utilisé partout : il reconnaît « 4 820,50 € », « 3.150,00 », « 2 470 euros », « 1.234.567,89 » et « 2,470.50 » — le dernier séparateur est décimal s\'il ne reste que deux chiffres après lui, sinon c\'est un séparateur de milliers. Ce qui n\'est pas un nombre reste vide, jamais zéro.',
@@ -12402,10 +12408,235 @@ function bddAvancement(g300){
 var BDD_OUVERT={};
 function bddBasculer(k){ BDD_OUVERT[k]=!BDD_OUVERT[k]; hubRender(); }
 
+
+/* ══════════════════════════════════════════════════════════════════
+   CE QUE LA BASE PEUT LIRE AILLEURS
+   Le registre du personnel, le calcul des effectifs, l'index de
+   l'egalite et les budgets du comite portent deja une partie des
+   informations de la base. On les propose ; on ne les ecrit jamais sans
+   qu'on le demande, et on dit toujours d'ou elles viennent.
+   ══════════════════════════════════════════════════════════════════ */
+function bddStaffAu(iso){
+  try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){}
+  var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
+  return st.filter(function(x){
+    var e=x.entree||'', so=x.sortie||'';
+    if(!e) return false;
+    if(e>iso) return false;
+    if(so && so<=iso) return false;
+    return true;
+  });
+}
+function bddFin(an){ return an+'-12-31'; }
+/* Compte par cle, rendu « cle 12 · cle 8 », les vides mis a part. */
+function bddRepartition(L, cle){
+  var c={}, vide=0;
+  L.forEach(function(x){ var v=(cle(x)||'').trim(); if(!v){ vide++; return; } c[v]=(c[v]||0)+1; });
+  var out=Object.keys(c).sort(function(a,b){ return c[b]-c[a]; })
+    .map(function(k){ return k+' '+c[k]; }).join(' · ');
+  if(vide) out += (out?' · ':'') + 'non renseigné '+vide;
+  return out;
+}
+function bddMediane(a){
+  if(!a.length) return null;
+  var b=a.slice().sort(function(x,y){ return x-y; }), n=b.length;
+  return (n%2)? b[(n-1)/2] : (b[n/2-1]+b[n/2])/2;
+}
+function bddEur(n){ return isFinite(n)? Math.round(n).toLocaleString('fr-FR')+' €' : '—'; }
+
+/* Les sources, rubrique par sous-rubrique. La cle est le slug du libelle :
+   la meme que celle des donnees, pour qu'un changement de rang n'egare
+   rien. `fn(an)` rend une chaine, ou null quand l'annee ne se calcule pas. */
+var BDD_SOURCES = [
+ {k:'inv-social', lib:'Évolution des effectifs par type de contrat, par âge et par ancienneté',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an)); if(!L.length) return null;
+    var parContrat=bddRepartition(L,function(x){ return x.typeContrat; });
+    var tr={'moins de 30 ans':0,'30 à 39 ans':0,'40 à 49 ans':0,'50 ans et plus':0,'âge inconnu':0};
+    var anc={'moins de 3 ans':0,'3 à 10 ans':0,'plus de 10 ans':0,'ancienneté inconnue':0};
+    L.forEach(function(x){
+      var a=egaAgeAu(x.naissance, bddFin(an));
+      if(a===null) tr['âge inconnu']++;
+      else if(a<30) tr['moins de 30 ans']++;
+      else if(a<40) tr['30 à 39 ans']++;
+      else if(a<50) tr['40 à 49 ans']++;
+      else tr['50 ans et plus']++;
+      var y=x.entree? (an-parseInt(String(x.entree).slice(0,4),10)) : null;
+      if(y===null||!isFinite(y)) anc['ancienneté inconnue']++;
+      else if(y<3) anc['moins de 3 ans']++;
+      else if(y<=10) anc['3 à 10 ans']++;
+      else anc['plus de 10 ans']++;
+    });
+    var f=function(o){ return Object.keys(o).filter(function(k){return o[k];}).map(function(k){ return k+' '+o[k]; }).join(' · '); };
+    return L.length+' salariés au 31/12 — contrats : '+parContrat+' | âges : '+f(tr)+' | ancienneté : '+f(anc);
+  }},
+
+ {k:'inv-social', lib:'Évolution des emplois par catégorie professionnelle',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an)); if(!L.length) return null;
+    return bddRepartition(L, function(x){ return x.statut; });
+  }},
+
+ {k:'inv-social', lib:'Évolution du nombre de stagiaires de plus de seize ans',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an));
+    var n=L.filter(function(x){ return /stagiaire|stage/i.test(x.typeContrat||''); }).length;
+    return n+' stagiaire(s) présent(s) au 31/12';
+  }},
+
+ {k:'inv-social', lib:'Conditions de travail : durée du travail, dont le travail à temps partiel et l’aménagement du temps de travail',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an)); if(!L.length) return null;
+    var p=L.filter(function(x){ return /partiel|mi-?temps/i.test(x.tempsTravail||''); });
+    var q=[]; p.forEach(function(x){ var m=String(x.tempsTravail||'').match(/(\d{1,3})\s*%/); if(m) q.push(parseInt(m[1],10)); });
+    var moy=q.length? Math.round(q.reduce(function(a,b){return a+b;},0)/q.length) : null;
+    var forfait=L.filter(function(x){ return /forfait/i.test(x.tempsTravail||''); }).length;
+    return 'Temps plein '+(L.length-p.length)+' · temps partiel '+p.length
+      +(moy!==null?(' (quotité moyenne '+moy+' %)'):'')
+      +(forfait?(' · forfait '+forfait):'');
+  }},
+
+ {k:'egalite', lib:'A — Analyse des données chiffrées : conditions générales d’emploi (effectifs, durée et organisation du travail, congés, embauches et départs, positionnement dans l’entreprise)',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an)); if(!L.length) return null;
+    var f=0,h=0,x0=0;
+    L.forEach(function(x){ var v=egaSexe(x.sexe); if(v==='F') f++; else if(v==='M') h++; else x0++; });
+    var pc=function(n){ return L.length? Math.round(n/L.length*100)+' %' : '—'; };
+    var parCat={};
+    L.forEach(function(x){
+      var c=(x.statut||'non renseigné').trim()||'non renseigné', v=egaSexe(x.sexe);
+      parCat[c]=parCat[c]||{F:0,H:0}; if(v==='F') parCat[c].F++; else if(v==='M') parCat[c].H++;
+    });
+    var det=Object.keys(parCat).map(function(c){ return c+' : '+parCat[c].F+' F / '+parCat[c].H+' H'; }).join(' · ');
+    return 'Femmes '+f+' ('+pc(f)+') · hommes '+h+' ('+pc(h)+')'
+      +(x0?(' · sexe non renseigné '+x0):'')+' — '+det;
+  }},
+
+ {k:'egalite', lib:'A — Rémunérations et déroulement de carrière : promotion, ancienneté, âge, rémunérations',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an)); if(!L.length) return null;
+    var g={};
+    L.forEach(function(x){
+      var m=jxLireMontant(x.salaire); if(!isFinite(m)||m<=0) return;
+      var c=(x.statut||'non renseigné').trim()||'non renseigné', v=egaSexe(x.sexe);
+      if(!v) return;
+      g[c]=g[c]||{F:[],H:[]}; g[c][v==='F'?'F':'H'].push(m);
+    });
+    var ks=Object.keys(g); if(!ks.length) return null;
+    return ks.map(function(c){
+      var mf=bddMediane(g[c].F), mh=bddMediane(g[c].H);
+      return c+' — médiane F '+bddEur(mf)+' / H '+bddEur(mh)
+        +((mf&&mh)?(' (écart '+(Math.round((mh-mf)/mh*1000)/10).toString().replace('.',',')+' %)'):'');
+    }).join(' · ') + ' — salaires mensuels bruts du registre, non reconstitués en équivalent temps plein';
+  }},
+
+ {k:'egalite', lib:'Index de l’égalité professionnelle : la note globale ET le résultat de CHAQUE indicateur (L.1142-8) — voir l’onglet « ⚖️ Index égalité »',
+  src:'Onglet « Index égalité »',
+  fn:function(an){
+    var R; try{ R=egaIndex(egaDonnees()); }catch(e){ return null; }
+    if(!R) return null;
+    var det=R.indicateurs.map(function(x){
+      var ok=(x.r && x.r.calculable && x.r.points!==null);
+      return x.lib.split(' —')[0]+' '+(ok?(x.r.points+'/'+x.max):'incalculable');
+    }).join(' · ');
+    return (R.calculable? ('Index '+R.total+'/100') : 'Index INCALCULABLE')+' — '+det;
+  }},
+
+ {k:'remuneration', lib:'A — Frais de personnel y compris cotisations sociales ; évolutions salariales par catégorie et par sexe ; salaire de base minimum ; salaire moyen ou médian, par sexe et par catégorie professionnelle',
+  src:'Registre du personnel',
+  fn:function(an){
+    var L=bddStaffAu(bddFin(an)); if(!L.length) return null;
+    var tous=[], F=[], H=[];
+    L.forEach(function(x){
+      var m=jxLireMontant(x.salaire); if(!isFinite(m)||m<=0) return;
+      tous.push(m); var v=egaSexe(x.sexe); if(v==='F') F.push(m); else if(v==='M') H.push(m);
+    });
+    if(!tous.length) return null;
+    var moy=tous.reduce(function(a,b){return a+b;},0)/tous.length;
+    return 'Salaire mensuel brut : minimum '+bddEur(Math.min.apply(null,tous))
+      +' · médiane '+bddEur(bddMediane(tous))+' · moyenne '+bddEur(moy)
+      +' — médiane femmes '+bddEur(bddMediane(F))+' / hommes '+bddEur(bddMediane(H))
+      +' (sur '+tous.length+' salariés dont le salaire est renseigné ; les cotisations ne sont pas au registre)';
+  }},
+
+ {k:'asc', lib:'Montant de la contribution aux activités sociales et culturelles du comité',
+  src:'Module « Budgets et comptes »',
+  fn:function(an){
+    try{ if(typeof budLoad==='function' && (typeof BUD==='undefined' || !BUD.exos)) budLoad(); }catch(e){}
+    var L=(typeof BUD!=='undefined' && Array.isArray(BUD.exos))?BUD.exos:[];
+    var e=L.filter(function(x){ return String(x.an)===String(an); })[0];
+    if(!e) return null;
+    var v=budNum(e.ascVerse), m=budNum(e.masse);
+    if(v===null) return null;
+    return budEur(v)+(m?(' — soit '+(Math.round(v/m*10000)/100).toString().replace('.',',')+' % de la masse salariale brute déclarée ('+budEur(m)+')'):'');
+  }}
+];
+
+function bddSource(k, lib){
+  for(var i=0;i<BDD_SOURCES.length;i++){
+    if(BDD_SOURCES[i].k===k && bddCle(k,BDD_SOURCES[i].lib)===bddCle(k,lib)) return BDD_SOURCES[i];
+  }
+  return null;
+}
+/* Une valeur calculee porte sa source et sa date : on doit pouvoir dire
+   d'ou elle vient, six mois plus tard, devant le comite. */
+function bddCalculer(cle, k, lib, silencieux){
+  var S=bddSource(k,lib); if(!S) return 0;
+  var C=bddColonnes(), D=bddLoad(), n=0, futurs=0;
+  if(!D[cle]) D[cle]={};
+  C.forEach(function(x){
+    if(x.futur){ futurs++; return; }            /* l'avenir ne se calcule pas */
+    var v=null; try{ v=S.fn(x.an); }catch(e){ v=null; }
+    if(v===null || v==='') return;
+    D[cle][x.c]=v; n++;
+  });
+  if(n){ D[cle].src=S.src; D[cle].srcLe=hubAuj(); if(!D[cle].mode) D[cle].mode='chiffre'; }
+  hubSave(); hubRender();
+  if(!silencieux){
+    alert(n? (n+' année(s) reprise(s) depuis « '+S.src+' ».\n\n'
+      +'Les '+futurs+' années à venir ne se calculent pas : ce sont des perspectives, elles se saisissent à la main.\n\n'
+      +'Relisez chaque valeur avant de la mettre à disposition du comité : elle vaut ce que vaut le registre.')
+      : ('Rien n’a pu être calculé pour cette ligne : la source ne porte pas encore l’information.\n\nSource attendue : '+S.src));
+  }
+  return n;
+}
+/* Toutes les lignes calculables d'un coup. */
+function bddCalculerTout(g300){
+  var total=0, lignes=0;
+  HUB_BDESE.forEach(function(t){
+    bddSousRubriques(t,g300).forEach(function(lib){
+      var S=bddSource(t.k,lib); if(!S) return;
+      var n=bddCalculer(bddCle(t.k,lib), t.k, lib, true);
+      if(n){ total+=n; lignes++; }
+    });
+  });
+  hubRender();
+  alert(lignes? (lignes+' sous-rubrique(s) remplie(s), '+total+' année(s) au total, depuis le registre du personnel, '
+    +'le calcul des effectifs, l’index de l’égalité et les budgets du comité.\n\n'
+    +'Les années à venir ne sont pas calculées : ce sont des perspectives.\n\n'
+    +'Chaque valeur porte sa source à l’écran. Relisez-les : elles valent ce que valent les modules qui les portent.')
+    : 'Rien n’a pu être calculé : le registre du personnel, les budgets et l’index ne portent pas encore les informations nécessaires.');
+}
+function bddNbCalculables(g300){
+  var n=0;
+  HUB_BDESE.forEach(function(t){
+    bddSousRubriques(t,g300).forEach(function(lib){ if(bddSource(t.k,lib)) n++; });
+  });
+  return n;
+}
+
 /* Le tableau des six annees d'une rubrique. */
+var JX_BDD_LIB={};
 function bddTableau(t, g300){
   var L=bddSousRubriques(t,g300), C=bddColonnes();
   if(!L.length) return '';
+  L.forEach(function(x){ JX_BDD_LIB[bddCle(t.k,x)]=x; });
   var h='<div style="margin-top:10px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;color:#cdd7e2;min-width:1010px">'
     +'<tr style="text-align:left;color:#9fb0c4;font-size:11px;text-transform:uppercase;letter-spacing:.04em">'
     +'<th style="padding:5px 4px;min-width:210px">Sous-rubrique</th>'
@@ -12414,10 +12645,16 @@ function bddTableau(t, g300){
   L.forEach(function(lib){
     var o=bdd(t.k,lib), e=bddLigneEtat(t.k,lib), cle=bddCle(t.k,lib);
     var estPlus=(t.plus||[]).indexOf(lib)>-1;
+    var S=bddSource(t.k,lib);
     h+='<tr style="border-top:1px solid #26374d;vertical-align:top">'
       +'<td style="padding:6px 4px;color:#fff;line-height:1.5">'+(estPlus?'<span style="color:#c9a84c">➕ </span>':'')+hubEsc(lib)
         +'<div style="font-size:11px;color:'+(e.complet?'#46b885':'#9fb0c4')+';font-weight:400;margin-top:3px">'
-        +(e.indispo?('impossibilité déclarée'+(e.sansMotif?' — motif manquant':' — motivée')):(e.remplies+' / '+e.total+' années'))+'</div></td>';
+        +(e.indispo?('impossibilité déclarée'+(e.sansMotif?' — motif manquant':' — motivée')):(e.remplies+' / '+e.total+' années'))+'</div>'
+        + (S?('<div style="margin-top:5px">'
+              +'<button onclick="bddCalculer(\''+cle+'\',\''+t.k+'\',JX_BDD_LIB[\''+cle+'\'])" style="border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.12);color:#46b885;border-radius:7px;padding:5px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">⟳ Calculer depuis '+hubEsc(S.src)+'</button>'
+              + (o.src?('<div style="font-size:10.5px;color:#46b885;margin-top:3px;line-height:1.45">Calculé le '+hubFR(o.srcLe||'')+' depuis '+hubEsc(o.src)+'</div>'):'')
+              +'</div>'):'')
+      +'</td>';
     C.forEach(function(x){
       var vide=!(o[x.c]||'').length;
       h+='<td style="padding:5px 3px"><input value="'+hubEsc(o[x.c]||'')+'" onchange="bddSetC(\''+cle+'\',\''+x.c+'\',this.value)"'
@@ -12772,6 +13009,24 @@ function hubVueBdese(){
    +'</div>'
    +(_av.alertes?('<div style="font-size:12px;color:#e05c5c;line-height:1.6;margin-top:7px">'+_av.alertes+' ligne(s) à corriger : impossibilité déclarée sans motif, ou grandes tendances portées sur une année révolue.</div>'):'')
    +'</div>';
+
+  /* Ce que la base peut lire ailleurs : on le propose, on ne l'écrit pas. */
+  var _nc=bddNbCalculables(_g300);
+  if(_nc){
+    h+='<div style="padding:11px;background:rgba(70,184,133,.10);border:1px solid #46b885;border-left:3px solid #46b885;border-radius:9px;margin-bottom:12px">'
+     +'<div style="font-size:13px;font-weight:700;color:#fff">'+_nc+' sous-rubrique(s) se remplissent avec ce qui est déjà saisi</div>'
+     +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-top:4px">'
+       +'Les effectifs par contrat, par âge et par ancienneté, les emplois par catégorie, les stagiaires, le temps partiel, la répartition femmes-hommes, '
+       +'les rémunérations médianes, l’index de l’égalité et la contribution aux activités sociales se lisent du <b>registre du personnel</b>, '
+       +'de l’<b>index</b> et des <b>budgets du comité</b>. Rien n’est écrit sans que vous le demandiez, chaque valeur porte sa source, et les années à venir ne sont jamais calculées : ce sont des perspectives.'
+     +'</div>'
+     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px">'
+       +'<button onclick="bddCalculerTout('+(_g300?'true':'false')+')" style="border:1px solid rgba(70,184,133,.6);background:rgba(70,184,133,.18);color:#46b885;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">⟳ Reprendre tout ce qui est calculable</button>'
+       +'<button onclick="rxOpen()" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Registre du personnel →</button>'
+       +'<button onclick="hubGo(\'egalite\')" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Index égalité →</button>'
+       +'<button onclick="goPage(\'csebud\')" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Budgets du comité →</button>'
+     +'</div></div>';
+  }
   var g300=(eff!==null && eff>=300);
   HUB_BDESE.forEach(function(t){
     var e=hubBd(t.k);
