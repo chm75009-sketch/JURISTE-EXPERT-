@@ -194,15 +194,23 @@ const ok = (c, m, d) => {
     'plus aucun avis d\'exemple : le bandeau d\'avertissement est retiré');
   ok(await p.locator('.avis .dem').count() === 0,
     'aucune étiquette « à remplacer » ne subsiste');
-  ok(cartes === 4, 'les quatre avis de la fiche sont repris', cartes);
+  ok(cartes >= 8, 'les avis de la fiche sont repris', cartes);
+  /* La note affichee est celle de la FICHE, pas la moyenne des avis retenus :
+     les huit repris sont a cinq etoiles, la fiche est a 4,0. Afficher 5,0
+     serait flatteur et faux. */
+  ok((await p.textContent('#g-moy')).trim() === '4,0',
+    'la note affichée est celle de la fiche Google, pas la moyenne des avis choisis',
+    await p.textContent('#g-moy'));
+  ok(/Note de la fiche Google/.test(await p.textContent('#g-nb')),
+    'et elle est annoncée comme telle');
   /* Le lien mene bien a la fiche, et il est propre : sans les parametres de
      suivi que Google colle a la fin de ses adresses. */
   const gl = await p.locator('#g-lien').getAttribute('href');
   ok(/google\.com\/maps\/place/.test(gl || ''), 'le lien mène à la fiche Google');
   ok(!/entry=ttu|g_ep=/.test(gl || ''), 'le lien est débarrassé des paramètres de suivi');
   /* On ne laisse pas croire que ce sont tous les avis du cabinet. */
-  ok(/repris ici/.test(await p.textContent('#g-nb')),
-    'la moyenne est annoncée comme portant sur les avis repris, pas sur tous',
+  ok(/avis repris ici/.test(await p.textContent('#g-nb')),
+    'le nombre d\'avis affichés est distingué du total de la fiche',
     await p.textContent('#g-nb'));
   ok(/^[0-9],[0-9]$/.test((await p.textContent('#g-moy')).trim()),
     'la note moyenne est calculée', await p.textContent('#g-moy'));

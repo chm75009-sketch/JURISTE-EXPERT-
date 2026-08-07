@@ -1035,8 +1035,9 @@
   <section id="avis">
     <div class="lab"><h2>Avis clients</h2><div class="rule"></div></div>
     <p class="h3">Ce que disent les clients du cabinet</p>
-    <p class="sub">Les avis publiés sur la fiche Google du cabinet, repris ici tels quels — avec
-      la réponse apportée par le cabinet lorsqu'il y en a une.</p>
+    <p class="sub">Des avis publiés sur la fiche Google du cabinet, repris ici mot pour mot — sans
+      correction ni coupe. La note affichée est celle de la fiche entière, et le bouton mène à
+      l'ensemble des avis, y compris ceux qui ne figurent pas ici.</p>
 
     <div class="warn" id="warn-avis" hidden>
       <b>Avis d'exemple.</b> Les cartes ci-dessous montrent la mise en page : elles ne sont pas de
@@ -1854,8 +1855,33 @@
 
     { nom:'Mess B', quand:'mai 2026', note:5,
       texte:'Très bon avocat. Il m\'a géré 2 affaires et a su répondre à mes attentes et résoudre '
-          + 'mes problématiques malgré son emploi du temps. Je recommande vivement' }
+          + 'mes problématiques malgré son emploi du temps. Je recommande vivement' },
+
+    { nom:'Carpin Anthony', quand:'octobre 2025', note:5,
+      texte:'Très professionnel, à l\'écoute de ces clients et vraiment efficace va au bout des '
+          + 'combats' },
+
+    { nom:'Francois Nesa', quand:'mai 2025', note:5,
+      texte:'Merci a maître jeddi il nous a bcp aider dans une situation très compliqué. '
+          + 'Il fais la taf très pro je recommande. Avocat très sérieux' },
+
+    { nom:'layla ouagandar', quand:'janvier 2025', note:5,
+      texte:'A chaque fois que je conseil le cabinets à mes connaissances, ils sont reçu avec '
+          + 'attention et beaucoup de bienveillance. Le conseil du cabinet est d\'une grande '
+          + 'qualité. Je recommande fortement' },
+
+    { nom:'IDETDECO IDETDECO', quand:'janvier 2025', note:5,
+      texte:'Très bon, AVOCAT extrêmement compétent. Sa réactivité est son point fort. '
+          + 'Je recommande Maitre, Jeddi sans retenue.' }
   ];
+
+  /* La note REELLE de la fiche Google. Elle ne se deduit pas des avis repris
+     ici : le cabinet en met en avant huit, tous a cinq etoiles, alors que la
+     fiche en compte davantage et affiche 4,0. Afficher 5,0 serait flatteur et
+     faux. C'est donc la note de la fiche qui s'affiche, et le bouton mene a
+     tous les avis. Mettre a jour quand elle bouge ; vider pour n'afficher
+     aucune note. */
+  var NOTE_GOOGLE = 4.0;
   var LIEN_GOOGLE = 'https://www.google.com/maps/place/Ma%C3%AEtre+Adel+JEDDI+-+Cabinet+CJ+AVOCATS/'
                   + '@48.9444752,2.251634,17z/data=!4m6!3m5!1s0x47e66670b8e20937:0x9c6194057852cbe0'
                   + '!8m2!3d48.9444752!4d2.251634!16s%2Fg%2F1tfns9fw';
@@ -1898,12 +1924,15 @@
       track.appendChild(c);
     });
 
-    var moy = total / AVIS.length;
+    var moy = (typeof NOTE_GOOGLE === 'number' && NOTE_GOOGLE > 0)
+      ? NOTE_GOOGLE : total / AVIS.length;
     document.getElementById('g-moy').textContent = moy.toFixed(1).replace('.', ',');
     document.getElementById('g-etoiles').innerHTML = etoiles(Math.round(moy));
     document.getElementById('g-nb').textContent = demo
       ? 'Sur ' + AVIS.length + ' avis (exemples)'
-      : 'Moyenne des ' + AVIS.length + ' avis repris ici';
+      : (typeof NOTE_GOOGLE === 'number' && NOTE_GOOGLE > 0)
+        ? 'Note de la fiche Google · ' + AVIS.length + ' avis repris ici'
+        : 'Moyenne des ' + AVIS.length + ' avis repris ici';
     if (demo) document.getElementById('warn-avis').hidden = false;
 
     /* Le lien vers la fiche Google : tant qu'il n'est pas renseigné, on le

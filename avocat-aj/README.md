@@ -66,7 +66,7 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | `[GARE / PARKING]` | accueil | Accès (gare d'Argenteuil, parking…) |
 | `[Photo]` | bandeau | Déposer la photo dans le dossier, puis écrire son nom dans `var PORTRAIT = ''` (script de `index.html`) — elle remplace alors le monogramme partout |
 | `[CLÉ_WEB3FORMS]` | accueil (formulaire) | Voir § 3 |
-| `[SIRET]`, `[N° TVA]`, `[Exercice individuel / SELARL…]` | mentions | Informations d'immatriculation |
+| `FR 52 751760554` | mentions | Clé de TVA calculée selon la règle usuelle — **à confirmer** sur l'avis de situation SIRENE |
 | `[ASSUREUR ET N° DE POLICE]` | mentions | RCP et garantie financière |
 | `[HÉBERGEUR]` | mentions | Netlify, ou l'hébergeur retenu |
 | `[DOMAINE]` | robots.txt, sitemap.xml | Le domaine, une fois choisi |
