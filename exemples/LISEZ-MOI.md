@@ -139,3 +139,69 @@ Ils sont corrigés en v2026-08-07.148 :
 3. Tout contrat inconnu — et toute **cellule vide** — devenait `CDI temps plein`.
 4. `CDI intérimaire` était lu comme un **CDI ordinaire** de l'entreprise
    utilisatrice.
+
+---
+
+# Le troisième fichier — `PERSONNEL_FICTIF_1509`
+
+**1 509 salariés**, six établissements distincts. La taille où **tous** les
+seuils sont franchis : 1 000 (congé de reclassement, administrateurs
+salariés, comité d'entreprise européen), 750, 500, 300 (R.2312-9,
+informations trimestrielles, commissions), 250 (cinq indicateurs de
+l'index). Six établissements : comités d'établissement **et** comité
+central (L.2313-1).
+
+## Les cas particuliers qu'il contient
+
+**Exclus de l'effectif (L.1111-3)** — un apprenti, un contrat de
+professionnalisation, un contrat unique d'insertion, un stagiaire.
+
+**Mis à disposition, dans les deux sens** — un intérimaire d'une ETT chez
+nous (exclu), une salariée mise à disposition **par** nous chez une filiale
+(elle reste la nôtre), un expatrié détaché à Madrid (exclu de l'index).
+
+**Absences longues** — congé parental sur toute l'année, congé maternité
+puis parental, arrêt maladie de onze mois, congé sabbatique de six mois,
+congé de proche aidant fractionné. Tous absents plus de la moitié de la
+période de référence.
+
+**Salariés protégés** — un secrétaire du CSE, une déléguée syndicale, une
+trésorière, un représentant syndical au comité. Leur licenciement suppose
+l'autorisation de l'inspection du travail (L.2411-1).
+
+**Bénéficiaires de l'obligation d'emploi** — 28 fiches, pour le décompte
+des 6 % (L.5212-2).
+
+**Formes de contrat particulières** — CDI de chantier (L.1223-8), forfait
+jours (L.3121-55), télétravail, CDI intermittent (L.3123-33), retraite
+progressive, préretraite.
+
+**Un vrai doublon** — deux `IVANOV Elena`, mêmes nom, prénom **et** date de
+naissance. À distinguer des **homonymes** `JACQUET Julien`, dont les dates
+de naissance diffèrent : ceux-là ne sont pas un doublon.
+
+Le contrôle de cohérence relève **treize** anomalies, dont ce doublon.
+L'index se calcule sur **1 468** retenus, **cinq** indicateurs.
+
+---
+
+# La trame vierge de la BDESE — `BDESE_TRAME_VIERGE.xlsx`
+
+À envoyer au client, à remplir, à rendre.
+
+- **une feuille par rubrique**, onze au total, plus un mode d'emploi ;
+- les sous-rubriques de R.2312-8 en lignes, celles que R.2312-9 ajoute
+  au-delà de trois cents salariés marquées `➕` ;
+- **six colonnes d'années** : les deux précédentes, l'année en cours, les
+  trois suivantes ;
+- une colonne **Forme de l'information** — liste déroulante : données
+  chiffrées / grandes tendances / ni l'un ni l'autre ;
+- une colonne **Pourquoi**, obligatoire dans ce dernier cas (R.2312-10) ;
+- deux colonnes **Confidentialité** — oui/non, et la **durée**, que
+  R.2312-13 impose d'indiquer.
+
+Le mode d'emploi rappelle ce que la trame **ne remplace pas** : la base doit
+être mise à disposition de façon permanente et **datée**, car c'est cette
+mise à disposition qui vaut communication (R.2312-14) et fait courir le
+délai d'examen du comité (L.2312-15, R.2312-6). Un fichier envoyé par
+courriel n'y suffit pas.
