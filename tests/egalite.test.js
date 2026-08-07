@@ -321,6 +321,66 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(r.sd === 0, 'plus aucune rubrique confidentielle sans durée');
   ok(r.ct === 1, 'mais la publicité légale, elle, ne se lève pas', r.ct);
 
+  /* ── Le journal des mises a disposition ───────────────────────────── */
+  console.log('\n— Le journal : une case cochée ne date rien —');
+  r = await page.evaluate(() => {
+    HUB.bdeseJournal = []; HUB.bdeseAcces = []; HUB.bdeseOrg = {}; hubSave();
+    hubGo('bdese');
+    const vide = document.getElementById('csehub-body').innerText;
+    bdjAjouter('fonds');
+    bdjSet(0, 'date', '2026-03-02');
+    bdjSet(0, 'objet', 'comptes 2025');
+    bdoSet('delaiExamen', '2');
+    const t = document.getElementById('csehub-body').innerText;
+    return { vide, t, der: bdjDerniereBase(), rub: bdjDernier('fonds'),
+             ech1: bdjEcheance('2026-03-02', 1), ech2: bdjEcheance('2026-03-02', 2),
+             ech3: bdjEcheance('2026-03-02', 3), bis: bdjEcheance('2026-12-31', 2) };
+  });
+  ok(/Aucune mise à disposition n’est datée/.test(r.vide),
+     'journal vide : la base n’est opposable à personne, et l’écran le dit');
+  ok(r.der === '2026-03-02' && r.rub === '2026-03-02', 'la date est retenue, rubrique par rubrique', r.der);
+  ok(r.ech1 === '2026-04-02', 'un mois : échéance au 2 avril', r.ech1);
+  ok(r.ech2 === '2026-05-02', 'deux mois en cas d’expertise', r.ech2);
+  ok(r.ech3 === '2026-06-02', 'trois mois pour les expertises central + établissement', r.ech3);
+  ok(r.bis === '2027-02-28' || r.bis === '2027-03-03', 'le passage d’année ne casse pas le calcul', r.bis);
+  ok(/R\.2312-14/.test(r.t), 'la mise à disposition vaut communication (R.2312-14)');
+  ok(/avis négatif/.test(r.t), 'et l’échéance de l’avis négatif présumé est affichée');
+  ok(/ne court que si la base est complète/.test(r.t),
+     'avec la réserve : une base incomplète ne fait pas courir le délai');
+
+  /* ── Le registre des acces ────────────────────────────────────────── */
+  console.log('\n— Qui a accès à la base —');
+  r = await page.evaluate(() => {
+    mcLoad();
+    MC.elus = [{ nom: 'DUPONT', q: 'tit', col: '1', sexe: 'F' },
+               { nom: 'MARTIN', q: 'sup', col: '1', sexe: 'H' }];
+    mcSave();
+    bdaReprendreElus();
+    const avant = bdaLoad().length;
+    bdaReprendreElus();                       /* deux fois : pas de doublon */
+    bdaAdd(); bdaSet(2, 'nom', 'SYNDIC'); bdaSet(2, 'q', 'ds'); bdaSet(2, 'depuis', '2026-01-05');
+    bdaAdd(); bdaSet(3, 'nom', 'PROX'); bdaSet(3, 'q', 'prox');
+    const t = document.getElementById('csehub-body').innerText;
+    return { avant, apres: bdaLoad().length, sansDate: bdaSansDate().map(x => x.nom),
+             actifs: bdaActifs().length, t };
+  });
+  ok(r.avant === 2, 'les élus sont repris de « Mon CSE », sans seconde saisie', r.avant);
+  ok(r.apres === 4, 'reprendre deux fois n’ajoute pas de doublon', r.apres);
+  ok(/Accès de droit/.test(r.t), 'l’accès de droit des élus et des délégués syndicaux est signalé');
+  ok(/à prévoir par l’accord/.test(r.t),
+     'et l’accès du représentant de proximité renvoie à l’accord, il n’est pas supposé');
+  ok(r.sansDate.length === 3, 'les accès sans date d’ouverture sont comptés', r.sansDate.join(','));
+  ok(/accès sans date d’ouverture/.test(r.t), 'et l’écran dit pourquoi la date compte');
+  ok(r.actifs === 4, 'les accès ouverts sont dénombrés', r.actifs);
+
+  console.log('\n— Un accès retiré se date, il ne s’efface pas —');
+  r = await page.evaluate(() => {
+    bdaSet(0, 'fin', '2026-06-30');
+    return { actifs: bdaActifs().length, lignes: bdaLoad().length };
+  });
+  ok(r.lignes === 4 && r.actifs === 3, 'la ligne reste au registre, avec sa date de fin',
+     r.lignes + ' lignes / ' + r.actifs + ' actifs');
+
   console.log('\nExceptions : ' + erreurs.length);
   ok(erreurs.length === 0, 'aucune exception JavaScript', erreurs.slice(0, 3).join(' | '));
   await nav.close();

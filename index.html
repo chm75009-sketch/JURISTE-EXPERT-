@@ -991,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.142';
+var JX_BUILD = 'v2026-08-07.143';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,6 +1000,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.143', d:'7 aout 2026', t:[
+   'LA BASE N\'ETAIT PAS DATEE. Onze cases à cocher, et aucune date : or une case cochée ne date rien et ne prouve rien. C\'est la MISE A DISPOSITION actualisée qui vaut communication au comité (R.2312-14), et c\'est d\'elle que court le DELAI D\'EXAMEN (L.2312-15 et R.2312-6). Sans date, l\'employeur ne peut pas établir le point de départ, et le comité ne peut pas le contester. Chaque rubrique porte désormais sa date de mise à disposition, et un journal les récapitule, ligne à ligne, avec l\'objet de ce qui a été déposé.',
+   'ET LE DELAI QUI EN DECOULE EST CALCULE. Un mois dans le cas général, deux mois en cas d\'intervention d\'un expert, trois mois lorsqu\'une ou plusieurs expertises interviennent à la fois au niveau du comité central et d\'au moins un comité d\'établissement (R.2312-6). L\'écran donne la date à laquelle, à défaut d\'avis, le comité est réputé consulté et avoir rendu un AVIS NEGATIF — en rappelant que ce délai ne court pas si la base est incomplète, et qu\'un accord peut en fixer d\'autres sans descendre en deçà de quinze jours.',
+   'QUI A ACCES A LA BASE : UN REGISTRE, PAS UNE AFFIRMATION. « Accessible en permanence » se prouve — qui, à quel titre, depuis quand. Les élus sont REPRIS de « Mon CSE », sans seconde saisie et sans doublon. Chaque qualité porte son régime : accès de droit pour les élus du comité, ceux du comité central et les délégués syndicaux (L.2312-18) ; accès à prévoir par l\'accord pour le représentant syndical, la commission économique et les représentants de proximité, qui sont tenus à la discrétion sans que le texte leur ouvre l\'accès (L.2312-36 et L.2312-21) ; l\'expert désigné est tenu au secret et à la discrétion (L.2315-84). Un accès sans date d\'ouverture est signalé : c\'est elle qui distingue l\'accès permanent de l\'accès ponctuel. Un accès retiré se date, il ne s\'efface pas — la ligne reste au registre.'
+ ]},
  {v:'v2026-08-07.142', d:'7 aout 2026', t:[
    'BDESE — OU EST LA BASE, ET QUI Y ACCEDE. Quatre situations n\'étaient traitées nulle part : plusieurs établissements distincts, comité central, groupe, unité économique et sociale. Six questions y répondent, et les réponses commandent ce qui s\'affiche. À défaut d\'accord, la base est constituée AU NIVEAU DE L\'ENTREPRISE — il n\'existe pas de base d\'établissement obligatoire (R.2312-11) ; mais lorsqu\'un comité central est mis en place, la base comporte les informations mises à disposition de CE comité ET des comités d\'établissement. L\'accès est permanent, pour les élus du comité, ceux du comité central et les délégués syndicaux (L.2312-18) : si la base est sur papier ou sur un poste unique au siège, l\'accès des élus des autres établissements doit être organisé, sinon il n\'existe pas. Qui est consulté sur quoi est rappelé (L.2316-1 et L.2316-20), ainsi que le fait que la mise à disposition actualisée vaut communication et fait courir le délai d\'examen, à deux conditions cumulatives (R.2312-14).',
    'IL N\'EXISTE PAS DE BASE DE DONNEES DE GROUPE. Le comité de groupe ne consulte pas les bases des filiales : il reçoit ses propres informations — activité, situation financière, évolution et prévisions d\'emploi, actions de prévention, comptes et bilan consolidés, rapport du commissaire aux comptes, perspectives de l\'année à venir — par écrit et assez précises pour permettre une analyse réelle (L.2331-1, L.2332-1, L.2332-2). Pour l\'UES, les textes visent « l\'entreprise » sans régler le cas : l\'application dit de le faire trancher par l\'accord de fonctionnement, plutôt que devant le juge.',
@@ -12104,6 +12109,207 @@ function hubVueEgalite(){
 
 
 /* ── L'ECRAN : OU EST LA BASE, ET QUI Y ACCEDE ────────────────────── */
+
+/* ══════════════════════════════════════════════════════════════════
+   LE JOURNAL DES MISES A DISPOSITION
+   Une case cochee ne date rien et ne prouve rien. C'est la mise a
+   disposition actualisee qui vaut communication au comite (R.2312-14),
+   et c'est d'elle que court le delai d'examen (L.2312-15, R.2312-6).
+   Sans date, l'employeur ne peut pas etablir le point de depart, et le
+   comite ne peut pas le contester : le journal est la piece.
+   ══════════════════════════════════════════════════════════════════ */
+function bdjLoad(){ if(!Array.isArray(HUB.bdeseJournal)) HUB.bdeseJournal=[]; return HUB.bdeseJournal; }
+function bdjAjouter(k){
+  var J=bdjLoad();
+  J.push({k:k, date:hubAuj(), objet:''});
+  J.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  hubSave(); hubRender();
+}
+function bdjSuppr(i){ var J=bdjLoad(); if(i<0||i>=J.length) return; if(!confirm('Supprimer cette ligne du journal ?')) return; J.splice(i,1); hubSave(); hubRender(); }
+function bdjSet(i,c,v){ var J=bdjLoad(); if(!J[i]) return; J[i][c]=String(v==null?'':v).trim(); J.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }); hubSave(); hubRender(); }
+function bdjDernier(k){
+  var d='';
+  bdjLoad().forEach(function(x){ if(x.k===k && (x.date||'')>d) d=x.date; });
+  return d;
+}
+function bdjDerniereBase(){
+  var d='';
+  bdjLoad().forEach(function(x){ if((x.date||'')>d) d=x.date; });
+  return d;
+}
+/* Le delai d'examen, a compter de la mise a disposition. R.2312-6 :
+   un mois ; deux mois en cas d'expertise ; trois mois lorsqu'une ou
+   plusieurs expertises interviennent dans une consultation menee a la
+   fois au niveau du comite central et d'un ou plusieurs comites
+   d'etablissement. */
+var BDJ_DELAIS=[
+  {v:'1', lib:'Un mois — cas général', m:1},
+  {v:'2', lib:'Deux mois — intervention d’un expert', m:2},
+  {v:'3', lib:'Trois mois — expertise(s) au niveau du comité central ET d’au moins un comité d’établissement', m:3}
+];
+function bdjEcheance(iso, mois){
+  if(!iso) return '';
+  var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
+  d.setMonth(d.getMonth()+ (parseInt(mois,10)||1));
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LE REGISTRE DES ACCES
+   « Accessible en permanence » se prouve : qui, a quel titre, depuis
+   quand. Les elus viennent de « Mon CSE » — on ne redemande pas la
+   composition, on la reprend.
+   ══════════════════════════════════════════════════════════════════ */
+var BDA_QUALITES=[
+  {v:'tit',     lib:'Élu titulaire du CSE',                       droit:true,  art:'L.2312-18'},
+  {v:'sup',     lib:'Élu suppléant du CSE',                       droit:true,  art:'L.2312-18'},
+  {v:'central', lib:'Élu du CSE central',                         droit:true,  art:'L.2312-18'},
+  {v:'ds',      lib:'Délégué syndical',                           droit:true,  art:'L.2312-18'},
+  {v:'rs',      lib:'Représentant syndical au CSE',               droit:false, art:'à prévoir par l’accord — L.2312-21'},
+  {v:'eco',     lib:'Membre de la commission économique',         droit:false, art:'tenu à la discrétion — L.2312-36 ; accès à prévoir par l’accord'},
+  {v:'prox',    lib:'Représentant de proximité',                  droit:false, art:'tenu à la discrétion — L.2312-36 ; accès à prévoir par l’accord'},
+  {v:'expert',  lib:'Expert-comptable ou expert habilité désigné',droit:false, art:'tenu au secret et à la discrétion — L.2315-84'}
+];
+function bdaQualite(v){ return BDA_QUALITES.filter(function(x){return x.v===v;})[0] || null; }
+function bdaLoad(){ if(!Array.isArray(HUB.bdeseAcces)) HUB.bdeseAcces=[]; return HUB.bdeseAcces; }
+/* La date d'ouverture n'est pas pre-remplie : ajouter une ligne ne dit pas
+   que l'acces a ete ouvert aujourd'hui. C'est a l'utilisateur de la dire. */
+function bdaAdd(){ bdaLoad().push({nom:'', q:'', depuis:'', fin:''}); hubSave(); hubRender(); }
+function bdaSet(i,c,v){ var A=bdaLoad(); if(!A[i]) return; A[i][c]=String(v==null?'':v).trim(); hubSave(); hubRender(); }
+function bdaDel(i){ var A=bdaLoad(); if(!A[i]) return; if(!confirm('Retirer cette ligne ?')) return; A.splice(i,1); hubSave(); hubRender(); }
+/* Les elus sont deja saisis dans « Mon CSE » : on les reprend, on ne les
+   ressaisit pas. Ce qui est deja au registre n'est pas ajoute deux fois. */
+function bdaReprendreElus(){
+  try{ if(typeof mcLoad==='function' && (typeof MC==='undefined' || !MC || !Array.isArray(MC.elus))) mcLoad(); }catch(e){}
+  var L=[]; try{ L=(typeof mcElus==='function')?mcElus():[]; }catch(e){}
+  if(!L.length){ alert('Aucun élu n’est saisi dans « Mon CSE ». Renseignez d’abord la composition du comité : le registre des accès la reprend, il ne la redemande pas.'); return; }
+  var A=bdaLoad(), n=0;
+  L.forEach(function(e){
+    var nom=String(e.nom||'').trim(); if(!nom) return;
+    var deja=A.some(function(x){ return String(x.nom||'').trim().toLowerCase()===nom.toLowerCase(); });
+    if(deja) return;
+    A.push({nom:nom, q:(e.q==='sup'?'sup':'tit'), depuis:'', fin:''});
+    n++;
+  });
+  hubSave(); hubRender();
+  alert(n?(n+' élu(s) repris de « Mon CSE ». Indiquez pour chacun la date à laquelle l’accès lui a été ouvert : c’est elle qui prouve l’accès permanent.')
+        :'Tous les élus de « Mon CSE » figurent déjà au registre des accès.');
+}
+function bdaActifs(){ return bdaLoad().filter(function(x){ return x.nom && !x.fin; }); }
+function bdaSansDate(){ return bdaLoad().filter(function(x){ return x.nom && !x.fin && !x.depuis; }); }
+
+
+/* ── L'ECRAN : LE JOURNAL DES MISES A DISPOSITION ──────────────────── */
+function hubVueBdeseJournal(){
+  var J=bdjLoad(), der=bdjDerniereBase();
+  var libRub=function(k){ var t=HUB_BDESE.filter(function(x){return x.k===k;})[0]; return t?((t.num?t.num+' — ':'')+t.lib):k; };
+  var h='<div class="card"><div class="ct">Journal des mises à disposition</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:12px">'
+     +'Une case cochée ne date rien et ne prouve rien. C’est la <b>mise à disposition actualisée</b> qui vaut communication au comité (R.2312-14), et c’est d’elle que court le <b>délai d’examen</b> (L.2312-15, R.2312-6). '
+     +'Sans date, l’employeur ne peut pas établir le point de départ, et le comité ne peut pas le contester. Ce journal est la pièce : datez chaque rubrique au moment où vous la déposez.'
+   +'</div>';
+
+  if(!J.length){
+    h+='<div style="padding:11px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+      +'Aucune mise à disposition n’est datée. Tant que le journal est vide, la base n’est opposable à personne : ni pour faire courir un délai, ni pour établir que le comité a été informé. '
+      +'Chaque rubrique porte un bouton « Dater d’aujourd’hui ».'
+      +'</div></div>';
+    return h;
+  }
+
+  h+='<div style="font-size:12.5px;color:#e8e4d8;margin-bottom:10px">Dernière mise à disposition : <b>'+hubFR(der)+'</b> · '+J.length+' ligne(s) au journal.</div>'
+   +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;color:#cdd7e2;min-width:560px">'
+   +'<tr style="text-align:left;color:#9fb0c4;font-size:11px;text-transform:uppercase;letter-spacing:.04em">'
+     +'<th style="padding:5px 4px">Date</th><th style="padding:5px 4px">Rubrique</th>'
+     +'<th style="padding:5px 4px">Objet — ce qui a été déposé</th><th style="padding:5px 4px"></th></tr>';
+  J.forEach(function(x,i){
+    h+='<tr style="border-top:1px solid #26374d">'
+      +'<td style="padding:6px 4px"><input type="date" value="'+hubEsc(x.date||'')+'" onchange="bdjSet('+i+',\'date\',this.value)" aria-label="Date de la mise à disposition" style="padding:5px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>'
+      +'<td style="padding:6px 4px;color:#fff">'+hubEsc(libRub(x.k))+'</td>'
+      +'<td style="padding:6px 4px"><input value="'+hubEsc(x.objet||'')+'" onchange="bdjSet('+i+',\'objet\',this.value)" placeholder="Ex. : comptes 2025, note de la direction financière" aria-label="Objet de la mise à disposition" style="width:100%;min-width:170px;padding:5px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>'
+      +'<td style="padding:6px 4px;text-align:right"><button onclick="bdjSuppr('+i+')" aria-label="Supprimer cette ligne du journal" style="background:none;border:none;color:#e05c5c;cursor:pointer;font-size:14px">✕</button></td>'
+      +'</tr>';
+  });
+  h+='</table></div>';
+
+  /* Le delai d'examen, calcule sur la derniere mise a disposition. */
+  var reg=bdo('delaiExamen')||'1';
+  var mois=1; BDJ_DELAIS.forEach(function(d){ if(d.v===reg) mois=d.m; });
+  var ech=bdjEcheance(der, mois);
+  h+='<div style="margin-top:14px;padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid #c9a84c;border-radius:9px">'
+   +'<div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px">Le délai d’examen court de cette date</div>'
+   +'<label for="bdo-delaiExamen" style="display:block;font-size:12px;color:#e8e4d8;margin-bottom:4px">Durée applicable à la consultation en cours</label>'
+   +'<select id="bdo-delaiExamen" aria-label="Durée du délai d’examen" onchange="bdoSet(\'delaiExamen\',this.value)" style="width:100%;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+   + BDJ_DELAIS.map(function(d){ return '<option value="'+d.v+'"'+(reg===d.v?' selected':'')+'>'+hubEsc(d.lib)+'</option>'; }).join('')
+   +'</select>'
+   +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.7;margin-top:8px">'
+     +'Mise à disposition du <b>'+hubFR(der)+'</b> → à défaut d’avis, le comité est réputé consulté et avoir rendu un <b>avis négatif</b> le <b>'+hubFR(ech)+'</b> ('+hubReste(ech)+').'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6;margin-top:6px">'
+     +'Ce délai ne court que si la base est complète et à jour : à défaut, il ne commence pas, et l’avis négatif ne peut pas être présumé. Un accord peut fixer d’autres délais, sans les réduire en deçà de quinze jours.'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">Articles L.2312-15, L.2312-16 et R.2312-6</div>'
+   +'</div>';
+  h+='</div>';
+  return h;
+}
+
+/* ── L'ECRAN : LE REGISTRE DES ACCES ───────────────────────────────── */
+function hubVueBdeseAcces(){
+  var A=bdaLoad();
+  var h='<div class="card"><div class="ct">Qui a accès à la base — le registre</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:10px">'
+     +'« Accessible en permanence » se prouve : qui, à quel titre, depuis quand. La loi ouvre l’accès de droit aux membres de la délégation du personnel du comité, à ceux du comité central et aux délégués syndicaux (L.2312-18). '
+     +'Les autres — représentant syndical, commission économique, représentants de proximité — sont tenus à la discrétion (L.2312-36) mais leur accès relève de l’accord (L.2312-21) : il se décide, il ne se suppose pas.'
+   +'</div>'
+   +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">'
+     +'<button onclick="bdaReprendreElus()" style="border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Reprendre les élus de « Mon CSE »</button>'
+     +'<button onclick="bdaAdd()" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">＋ Ajouter une ligne</button>'
+   +'</div>';
+
+  if(!A.length){
+    h+='<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65">Aucun accès enregistré. Tant que ce registre est vide, l’accès permanent n’est pas établi — et son absence est un des premiers griefs d’entrave.</div></div>';
+    return h;
+  }
+
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;color:#cdd7e2;min-width:620px">'
+   +'<tr style="text-align:left;color:#9fb0c4;font-size:11px;text-transform:uppercase;letter-spacing:.04em">'
+     +'<th style="padding:5px 4px">Nom</th><th style="padding:5px 4px">À quel titre</th>'
+     +'<th style="padding:5px 4px">Accès ouvert le</th><th style="padding:5px 4px">Accès retiré le</th><th style="padding:5px 4px"></th></tr>';
+  A.forEach(function(x,i){
+    var q=bdaQualite(x.q);
+    h+='<tr style="border-top:1px solid #26374d">'
+      +'<td style="padding:6px 4px"><input value="'+hubEsc(x.nom||'')+'" onchange="bdaSet('+i+',\'nom\',this.value)" placeholder="Nom" aria-label="Nom de la personne ayant accès" style="width:100%;min-width:120px;padding:5px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>'
+      +'<td style="padding:6px 4px"><select onchange="bdaSet('+i+',\'q\',this.value)" aria-label="Qualité de la personne ayant accès" style="width:100%;min-width:180px;padding:5px;border-radius:7px;border:1px solid '+(x.q?'#3a4a5f':'#e8c97a')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+        +'<option value="">— à préciser —</option>'
+        + BDA_QUALITES.map(function(o){ return '<option value="'+o.v+'"'+(x.q===o.v?' selected':'')+'>'+hubEsc(o.lib)+'</option>'; }).join('')
+        +'</select>'
+        +(q?('<div style="font-size:11px;color:'+(q.droit?'#46b885':'#e8c97a')+';margin-top:3px;line-height:1.5">'+(q.droit?'Accès de droit — ':'')+hubEsc(q.art)+'</div>'):'')
+      +'</td>'
+      +'<td style="padding:6px 4px"><input type="date" value="'+hubEsc(x.depuis||'')+'" onchange="bdaSet('+i+',\'depuis\',this.value)" aria-label="Date d’ouverture de l’accès" style="padding:5px;border-radius:7px;border:1px solid '+(x.depuis?'#3a4a5f':'#e05c5c')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>'
+      +'<td style="padding:6px 4px"><input type="date" value="'+hubEsc(x.fin||'')+'" onchange="bdaSet('+i+',\'fin\',this.value)" aria-label="Date de retrait de l’accès" style="padding:5px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box"></td>'
+      +'<td style="padding:6px 4px;text-align:right"><button onclick="bdaDel('+i+')" aria-label="Retirer cette ligne du registre" style="background:none;border:none;color:#e05c5c;cursor:pointer;font-size:14px">✕</button></td>'
+      +'</tr>';
+  });
+  h+='</table></div>';
+
+  var sd=bdaSansDate(), sq=bdaLoad().filter(function(x){ return x.nom && !x.q; });
+  if(sd.length){
+    h+='<div style="margin-top:10px;padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+      +'<b>'+sd.length+' accès sans date d’ouverture.</b> C’est cette date qui prouve que l’accès est permanent et non ponctuel : sans elle, le registre n’établit rien.</div>';
+  }
+  if(sq.length){
+    h+='<div style="margin-top:9px;padding:11px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+      +'<b>'+sq.length+' ligne(s) sans qualité.</b> Le titre commande le régime : accès de droit pour les élus, les élus du comité central et les délégués syndicaux ; accès à prévoir par l’accord pour les autres.</div>';
+  }
+  h+='<div style="margin-top:10px;font-size:11.5px;color:#9fb0c4;line-height:1.65">'
+    +'<b>'+bdaActifs().length+'</b> accès ouvert(s) à ce jour. Un accès retiré se date, il ne s’efface pas : la ligne reste, avec sa date de fin. '
+    +'Les personnes ayant accès sont tenues à une obligation de discrétion à l’égard des informations présentées comme confidentielles, pour la durée indiquée par l’employeur (L.2312-36, R.2312-13).'
+    +'</div>';
+  h+='</div>';
+  return h;
+}
+
 function hubVueBdesePerimetre(eff){
   var h='<div class="card"><div class="ct">Où est la base, et qui y accède</div>'
    +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:12px">'
@@ -12356,6 +12562,13 @@ function hubVueBdese(){
           }).join('')
         +'</div>';
     }
+    /* La date : c'est elle qui vaut communication et fait courir le délai. */
+    var dmd=bdjDernier(t.k);
+    h+='<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px">'
+      +'<span style="font-size:11.5px;color:'+(dmd?'#46b885':'#e8c97a')+'">'
+        +(dmd?('Mise à disposition datée du '+hubFR(dmd)):'Aucune mise à disposition datée')+'</span>'
+      +'<button onclick="bdjAjouter(\''+t.k+'\')" style="border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">Dater d’aujourd’hui</button>'
+      +'</div>';
     h+='</div>';
   });
   h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px;line-height:1.55">'
@@ -12394,7 +12607,9 @@ function hubVueBdese(){
        'Article L.2317-1')
    +'</div>';
 
+  h+=hubVueBdeseJournal();
   h+=hubVueBdesePerimetre(eff);
+  h+=hubVueBdeseAcces();
   h+=hubVueConfidentialite();
 
   /* Informations trimestrielles a partir de trois cents salaries */
