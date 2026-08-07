@@ -991,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.141';
+var JX_BUILD = 'v2026-08-07.142';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,6 +1000,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.142', d:'7 aout 2026', t:[
+   'BDESE — OU EST LA BASE, ET QUI Y ACCEDE. Quatre situations n\'étaient traitées nulle part : plusieurs établissements distincts, comité central, groupe, unité économique et sociale. Six questions y répondent, et les réponses commandent ce qui s\'affiche. À défaut d\'accord, la base est constituée AU NIVEAU DE L\'ENTREPRISE — il n\'existe pas de base d\'établissement obligatoire (R.2312-11) ; mais lorsqu\'un comité central est mis en place, la base comporte les informations mises à disposition de CE comité ET des comités d\'établissement. L\'accès est permanent, pour les élus du comité, ceux du comité central et les délégués syndicaux (L.2312-18) : si la base est sur papier ou sur un poste unique au siège, l\'accès des élus des autres établissements doit être organisé, sinon il n\'existe pas. Qui est consulté sur quoi est rappelé (L.2316-1 et L.2316-20), ainsi que le fait que la mise à disposition actualisée vaut communication et fait courir le délai d\'examen, à deux conditions cumulatives (R.2312-14).',
+   'IL N\'EXISTE PAS DE BASE DE DONNEES DE GROUPE. Le comité de groupe ne consulte pas les bases des filiales : il reçoit ses propres informations — activité, situation financière, évolution et prévisions d\'emploi, actions de prévention, comptes et bilan consolidés, rapport du commissaire aux comptes, perspectives de l\'année à venir — par écrit et assez précises pour permettre une analyse réelle (L.2331-1, L.2332-1, L.2332-2). Pour l\'UES, les textes visent « l\'entreprise » sans régler le cas : l\'application dit de le faire trancher par l\'accord de fonctionnement, plutôt que devant le juge.',
+   'LES REPONSES INCOHERENTES SONT DITES, PAS ABSORBEES. Deux établissements distincts et aucun comité central : c\'est une entrave (L.2313-1). Trois cents salariés et une base sur papier : le support informatique s\'impose (R.2312-12). « Je ne sais pas » à la question du groupe : l\'appartenance se lit du contrôle au sens de L.233-1 du code de commerce, et tant qu\'elle n\'est pas tranchée le 9° de la base reste en suspens.',
+   'CE QUI EST CONFIDENTIEL, ET CE QUI NE PEUT PAS L\'ETRE. Les deux régimes étaient confondus. Le secret professionnel des PROCEDES DE FABRICATION joue de plein droit, sans déclaration, et sa violation est punie de deux ans et 30 000 € (L.2315-3 al. 1 et L.1227-1). L\'obligation de discrétion, elle, suppose DEUX CONDITIONS CUMULATIVES : l\'information doit être présentée comme confidentielle au moment de la communication, ET être de nature confidentielle au regard des intérêts légitimes de l\'entreprise — ce qu\'il incombe à l\'employeur d\'ETABLIR (Cass. soc., 5 novembre 2014, n° 13-17.270, publié). Pour la base, une exigence de plus : la DUREE doit être indiquée (R.2312-13). Et l\'on ne déclare pas confidentiel en bloc : un dossier entièrement estampillé sans justification fait reprendre la consultation depuis le début.',
+   'CHAQUE RUBRIQUE SE TRANCHE, ET L\'APPLICATION REFUSE L\'IMPOSSIBLE. Les onze rubriques portent désormais leur propre statut — non confidentiel, ou confidentiel avec sa durée. Une rubrique déclarée confidentielle sans durée est signalée en rouge. Et cinq rubriques ne PEUVENT PAS l\'être, parce que la loi en impose la publicité : l\'index de l\'égalité et ses indicateurs (L.1142-8), les comptes déposés au greffe, les accords collectifs publiés dans la base nationale (L.2231-5-1), le montant de la contribution aux activités sociales que le comité porte à la connaissance des salariés (L.2315-72), le bilan des émissions de gaz à effet de serre (c. env., L.229-25). Rappel enfin de ce à quoi la confidentialité n\'est jamais opposable : l\'inspecteur du travail, le juge, et l\'expert du comité, lui-même tenu au secret (L.2315-84).'
+ ]},
  {v:'v2026-08-07.141', d:'7 aout 2026', t:[
    'L\'INDEX DE L\'EGALITE PROFESSIONNELLE N\'EXISTAIT PAS. La base de données portait le thème « Égalité professionnelle entre les femmes et les hommes » en simple case à cocher, et rien derrière : aucun calcul de l\'écart de rémunération, aucun indicateur, aucune note. C\'est pourtant, pour une entreprise d\'au moins cinquante salariés, une obligation annuelle sanctionnée jusqu\'à 1 % de la masse salariale (L.1142-7 à L.1142-10). Le calcul est écrit à la lettre du décret : quatre catégories socioprofessionnelles croisées avec quatre tranches d\'âge — ou, après avis du comité, les niveaux et coefficients de la convention collective avec un seuil de pertinence de 2 % au lieu de 5 % (D.1142-2, 1°) ; un groupe n\'entre dans le calcul que s\'il compte au moins TROIS femmes ET TROIS hommes ; si les groupes valides couvrent moins de 40 % de l\'effectif, l\'indicateur est INCALCULABLE — c\'est cette impossibilité qu\'il faut déclarer, et non un zéro ; le seuil de pertinence se retranche à la valeur absolue de l\'écart sans en changer le sens, il joue en faveur de l\'employeur et jamais contre ; le barème des augmentations et des promotions s\'applique à l\'écart en points de pourcentage ET à l\'écart en nombre équivalent de salariés, la meilleure note étant retenue ; le retour de congé maternité est TOUT OU RIEN, une seule omission ramène l\'indicateur à zéro (L.1225-26) ; et l\'index lui-même n\'est calculable que si les indicateurs calculables totalisent au moins 75 points.',
    'CE QUE CET OUTIL NE GARANTIT PAS, ET LE DIT A L\'ECRAN. Les tables de conversion des écarts en points — l\'annexe du décret — n\'ont pas pu être confrontées au texte primaire depuis cet environnement : Légifrance et le simulateur Index Egapro y sont inaccessibles. La méthode est vérifiée ; ces tables ne le sont pas. Elles sont regroupées en un seul endroit du code pour être corrigées d\'un geste, et l\'écran porte l\'avertissement tant que le contrôle n\'est pas fait — comme il le fait déjà pour le barème des élus au-delà de 2 500 salariés.',
@@ -11772,6 +11779,67 @@ function egaPct(x){
   if(!isFinite(x)) return '—';
   return (Math.round(x*10)/10).toString().replace('.',',')+' %';
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   OU EST LA BASE, ET QUI Y ACCEDE
+   La base est une base D'ENTREPRISE. Il n'existe pas de base
+   d'etablissement obligatoire, ni de base de groupe. Ce qui change avec
+   les etablissements, c'est le CONTENU (la base porte ce que l'employeur
+   met a disposition du comite central ET des comites d'etablissement,
+   R.2312-11) et l'ACCES (accessible en permanence aux elus du comite, du
+   comite central et aux delegues syndicaux, L.2312-18).
+   ══════════════════════════════════════════════════════════════════ */
+function bdoLoad(){ if(!HUB.bdeseOrg) HUB.bdeseOrg={}; return HUB.bdeseOrg; }
+function bdoSet(k,v){ bdoLoad()[k]=String(v==null?'':v).trim(); hubSave(); hubRender(); }
+function bdo(k){ return bdoLoad()[k]||''; }
+/* Un menu deroulant avec « Autre — preciser », et un champ libre qui ne
+   declenche le rendu qu'a la sortie du champ : sinon la frappe est perdue. */
+function bdoSel(lbl, k, opts, aide){
+  var cur=bdo(k), dans=opts.indexOf(cur)>-1, autre=(cur!=='' && !dans);
+  var h='<div style="margin-bottom:10px">'
+    +'<label for="bdo-'+k+'" style="display:block;font-size:12.5px;color:#e8e4d8;font-weight:600;margin-bottom:4px">'+hubEsc(lbl)+'</label>'
+    +'<select id="bdo-'+k+'" aria-label="'+hubEsc(lbl)+'" onchange="bdoSel_(\''+k+'\')" style="width:100%;padding:9px;border-radius:8px;border:1px solid '+(cur?'#3a4a5f':'#c9a84c')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+    +'<option value="">— choisir —</option>'
+    + opts.map(function(o){ return '<option'+((!autre&&o===cur)?' selected':'')+'>'+hubEsc(o)+'</option>'; }).join('')
+    +'<option value="__autre"'+(autre?' selected':'')+'>Autre — préciser</option>'
+    +'</select>'
+    +'<input id="bdo-'+k+'-autre" value="'+(autre?hubEsc(cur):'')+'" placeholder="Précisez" onchange="bdoSet(\''+k+'\',this.value)" aria-label="'+hubEsc(lbl)+' — précisez" style="width:100%;margin-top:6px;padding:9px;border-radius:8px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box;display:'+(autre?'block':'none')+'">'
+    +(aide?('<div style="font-size:11.5px;color:#9fb0c4;line-height:1.55;margin-top:3px">'+aide+'</div>'):'')
+    +'</div>';
+  return h;
+}
+function bdoSel_(k){
+  var e=document.getElementById('bdo-'+k); if(!e) return;
+  if(e.value==='__autre'){
+    var t=document.getElementById('bdo-'+k+'-autre');
+    if(t){ t.style.display='block'; try{ t.focus(); }catch(x){} }
+    return;                                   /* on attend la précision */
+  }
+  bdoSet(k, e.value);
+}
+
+/* Ce qui est publié par la loi ne peut pas être déclaré confidentiel : la
+   déclaration serait sans objet, et l'employeur ne pourrait pas établir
+   l'intérêt légitime que la Cour de cassation lui demande d'établir. */
+var HUB_BDESE_PUBLIC = {
+  egalite:'La note globale de l’index ET le résultat de chaque indicateur sont publiés sur le site internet de l’entreprise (L.1142-8) ; les objectifs de progression le sont aussi lorsque la note est inférieure à 85 (L.1142-9-1). Ce qui est publié ne peut pas être déclaré confidentiel.',
+  fonds:'Pour les sociétés tenues au dépôt, les comptes annuels sont déposés au greffe et accessibles à tous (c. com., art. L.232-21 et s.). L’option de confidentialité ouverte aux micro-entreprises et aux petites entreprises (c. com., art. L.232-25) vaut à l’égard des tiers, non à l’égard du comité.',
+  asc:'Le comité arrête ses comptes et les porte à la connaissance des salariés (L.2315-72). Le montant de la contribution qu’il reçoit ne peut donc pas rester confidentiel.',
+  environnement:'Lorsque l’entreprise est assujettie au bilan des émissions de gaz à effet de serre, celui-ci est rendu public sur la plateforme prévue à cet effet (c. env., art. L.229-25).'
+};
+function bdcLoad(){ if(!HUB.bdeseConf) HUB.bdeseConf={}; return HUB.bdeseConf; }
+function bdc(k){ return bdcLoad()[k]||{}; }
+function bdcSet(k,v){ var C=bdcLoad(); C[k]=C[k]||{}; C[k].c=v; hubSave(); hubRender(); }
+function bdcDuree(k,v){ var C=bdcLoad(); C[k]=C[k]||{}; C[k].duree=String(v==null?'':v).trim(); hubSave(); hubRender(); }
+/* Les rubriques declarees confidentielles sans duree : R.2312-13 impose
+   d'indiquer la duree, faute de quoi la declaration est incomplete. */
+function bdcSansDuree(){
+  return HUB_BDESE.filter(function(t){ var x=bdc(t.k); return x.c==='oui' && !x.duree; });
+}
+function bdcContestables(){
+  return HUB_BDESE.filter(function(t){ return bdc(t.k).c==='oui' && HUB_BDESE_PUBLIC[t.k]; });
+}
+
 function hubVueEgalite(){
   var eff=hubEff();
   var h='<div class="card"><div class="ct">Index de l’égalité professionnelle entre les femmes et les hommes</div>';
@@ -12034,6 +12102,198 @@ function hubVueEgalite(){
   return h;
 }
 
+
+/* ── L'ECRAN : OU EST LA BASE, ET QUI Y ACCEDE ────────────────────── */
+function hubVueBdesePerimetre(eff){
+  var h='<div class="card"><div class="ct">Où est la base, et qui y accède</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:12px">'
+     +'À défaut d’accord, la base est constituée <b>au niveau de l’entreprise</b> — il n’existe pas de base d’établissement obligatoire, ni de base de groupe (R.2312-11). '
+     +'Ce que les établissements changent, c’est le <b>contenu</b> de la base et les <b>modalités d’accès</b>. Quatre réponses suffisent à le déterminer.'
+   +'</div>'
+   + bdoSel('L’entreprise comporte-t-elle au moins deux établissements distincts ?','multi',
+       ['Non — un seul établissement','Oui — au moins deux établissements distincts','Le nombre d’établissements distincts n’est pas encore fixé'],
+       'Le nombre et le périmètre des établissements distincts se fixent par accord ; à défaut, par décision unilatérale de l’employeur, contestable devant la Dreets (L.2313-2 à L.2313-5).')
+   + bdoSel('Un comité social et économique central est-il mis en place ?','central',
+       ['Sans objet — un seul établissement','Oui','Non','Élections en cours'])
+   + bdoSel('L’entreprise appartient-elle à un groupe ?','groupe',
+       ['Non','Oui — société dominante ou société contrôlée','Je ne sais pas'])
+   + bdoSel('Le périmètre du comité est-il une unité économique et sociale ?','ues',
+       ['Non','Oui — UES reconnue par accord','Oui — UES reconnue par décision de justice'])
+   + bdoSel('Existe-t-il un accord sur la base de données (L.2312-21) ?','accord',
+       ['Aucun accord — les règles supplétives s’appliquent',
+        'Accord d’entreprise majoritaire',
+        'Accord de groupe',
+        'Accord avec le comité, à défaut de délégué syndical'],
+       'L’accord peut définir l’organisation, l’architecture, le contenu et les modalités de fonctionnement de la base. Il ne peut ni supprimer les thèmes obligatoires, ni priver le comité des informations nécessaires à ses consultations (L.2312-21).')
+   + bdoSel('Sur quel support la base est-elle tenue ?','support',
+       ['Support informatique','Support papier'],
+       'À partir de trois cents salariés, le support informatique s’impose (R.2312-12).');
+
+  /* Ce que les réponses commandent — et les incohérences, dites tout de suite. */
+  var R=[], A=[];
+  var multi=bdo('multi'), central=bdo('central'), groupe=bdo('groupe'), ues=bdo('ues'),
+      accord=bdo('accord'), support=bdo('support');
+  var plusieurs=/au moins deux/.test(multi);
+
+  if(accord && /Aucun accord/.test(accord)){
+    R.push(['La base est constituée au niveau de l’entreprise',
+      'À défaut d’accord, c’est le niveau de l’entreprise, et lui seul. Les éléments d’information y sont régulièrement mis à jour, au moins selon la périodicité prévue par le code.',
+      'Article R.2312-11']);
+  } else if(accord){
+    R.push(['L’accord fixe l’organisation de la base',
+      'Vérifiez qu’il ne supprime aucun des thèmes obligatoires et qu’il ne prive le comité d’aucune information nécessaire à ses consultations récurrentes : à ces deux conditions près, l’accord prime. Un accord de groupe peut valablement organiser la base des entreprises du groupe.',
+      'Articles L.2312-21 et L.2312-36']);
+  }
+
+  if(plusieurs){
+    R.push(['La base porte les informations des DEUX niveaux',
+      'Dans les entreprises dotées d’un comité central, la base comporte les informations que l’employeur met à disposition de ce comité ET des comités d’établissement. Une base qui ne porterait que le niveau entreprise serait incomplète.',
+      'Article R.2312-11']);
+    R.push(['Qui est consulté sur quoi',
+      'Le comité central est seul consulté sur les projets décidés au niveau de l’entreprise qui ne comportent pas de mesures d’adaptation propres à un ou plusieurs établissements. Le comité d’établissement est consulté sur les mesures d’adaptation propres à l’établissement qui relèvent de la compétence de son chef d’établissement.',
+      'Articles L.2316-1 et L.2316-20']);
+    R.push(['L’accès des élus d’établissement',
+      'La base est accessible en permanence. Si elle est tenue sur papier, ou sur un poste unique au siège, les élus des autres établissements doivent pouvoir y accéder réellement : à défaut, l’employeur leur transmet copie par tout moyen à chaque demande. Un accès théorique n’est pas un accès.',
+      'Articles L.2312-18 et R.2312-12']);
+  }
+
+  R.push(['Qui a accès, en permanence',
+    'Les membres de la délégation du personnel du comité social et économique, ceux de la délégation du personnel du comité central, et les délégués syndicaux. L’accès est permanent : il ne se réduit pas à une consultation le jour de la réunion.',
+    'Article L.2312-18']);
+
+  R.push(['La mise à disposition vaut communication — et fait courir le délai',
+    'La mise à disposition actualisée dans la base des informations transmises de manière récurrente vaut communication au comité à deux conditions cumulatives : la base est mise à jour au moins selon la périodicité prévue par le code, et l’employeur y met les éléments d’analyse ou d’explication lorsque le code les prévoit. C’est de cette mise à disposition que court le délai d’examen : une base incomplète ne le fait pas courir.',
+    'Articles R.2312-14, L.2312-15 et R.2312-6']);
+
+  if(/^Oui/.test(groupe)){
+    R.push(['Il n’existe pas de base de données de groupe',
+      'Le comité de groupe ne consulte pas les bases des filiales. Il reçoit ses propres informations : activité, situation financière, évolution et prévisions d’emploi annuelles ou pluriannuelles, actions de prévention envisagées, dans le groupe et dans chacune des entreprises qui le composent ; les comptes et le bilan consolidés ainsi que le rapport du commissaire aux comptes lorsqu’ils existent ; les perspectives économiques du groupe pour l’année à venir. Ces informations sont écrites, et assez précises pour permettre une analyse réelle. Le comité de groupe se réunit au moins une fois par an.',
+      'Articles L.2331-1, L.2332-1 et L.2332-2']);
+    R.push(['Ce que la base de l’entreprise doit dire du groupe',
+      'Le 9° de la base — transferts commerciaux et financiers entre les entités du groupe — n’est dû que par les entreprises appartenant à un groupe. C’est le thème le plus souvent omis : transferts de capitaux tels qu’ils figurent aux comptes individuels des sociétés du groupe lorsqu’ils sont significatifs, cessions, fusions et acquisitions réalisées.',
+      'Articles L.2312-36, 9° et R.2312-8, 9°']);
+  }
+
+  if(/^Oui/.test(ues)){
+    R.push(['Unité économique et sociale — à faire trancher par l’accord',
+      'Le comité est mis en place au niveau de l’unité économique et sociale. Les textes sur la base visent « l’entreprise » sans régler expressément le cas de l’UES : faites dire à l’accord de fonctionnement que la base est constituée au niveau de l’UES, et à quel niveau les informations sont ventilées. C’est le seul moyen de ne pas en débattre devant le juge.',
+      'Articles L.2313-8 et L.2312-21']);
+  }
+
+  /* Les incohérences entre les réponses. */
+  if(plusieurs && /^Non$/.test(central)){
+    A.push('Vous indiquez au moins deux établissements distincts, et aucun comité central. Dans les entreprises d’au moins cinquante salariés comportant au moins deux établissements distincts, il est constitué des comités d’établissement ET un comité central (L.2313-1). Son absence est une entrave.');
+  }
+  if(!plusieurs && /^Oui$/.test(central) && multi){
+    A.push('Vous indiquez un seul établissement et un comité central : les deux réponses ne s’accordent pas. Reprenez le nombre d’établissements distincts.');
+  }
+  if(eff!==null && eff>=300 && /papier/i.test(support)){
+    A.push('Effectif de '+eff+' salariés et base sur support papier : à partir de trois cents salariés, le support informatique s’impose (R.2312-12).');
+  }
+  if(plusieurs && /papier/i.test(support)){
+    A.push('Base sur papier et plusieurs établissements : l’accès permanent des élus des autres établissements doit être organisé par écrit, faute de quoi il n’est pas assuré.');
+  }
+  if(/Je ne sais pas/.test(groupe)){
+    A.push('L’appartenance à un groupe n’est pas une question de ressenti : elle se lit du contrôle au sens de l’article L.233-1 et suivants du code de commerce. Tant qu’elle n’est pas tranchée, le 9° de la base reste en suspens, et le comité de groupe aussi.');
+  }
+
+  A.forEach(function(x){
+    h+='<div style="padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-left:3px solid #e05c5c;border-radius:9px;margin-bottom:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'+x+'</div>';
+  });
+  R.forEach(function(x){
+    h+='<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid #c9a84c;border-radius:9px;margin-bottom:9px">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff">'+hubEsc(x[0])+'</div>'
+      +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-top:4px">'+hubEsc(x[1])+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">'+hubEsc(x[2])+'</div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+/* ── L'ECRAN : CE QUI EST CONFIDENTIEL, ET CE QUI NE L'EST PAS ─────── */
+function hubVueConfidentialite(){
+  var h='<div class="card"><div class="ct">Ce qui est confidentiel, et ce qui ne peut pas l’être</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:12px">'
+     +'Deux régimes se superposent, et on les confond sans cesse. Le premier joue tout seul ; le second suppose que l’employeur fasse quelque chose, et qu’il puisse le justifier.'
+   +'</div>';
+
+  var R=function(t,x,a,c){
+    return '<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+(c||'#c9a84c')+';border-radius:9px;margin-bottom:9px">'
+      +'<div style="font-size:13px;font-weight:700;color:#fff">'+hubEsc(t)+'</div>'
+      +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-top:4px">'+hubEsc(x)+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">'+hubEsc(a)+'</div></div>';
+  };
+
+  h+= R('1. Le secret professionnel — les procédés de fabrication',
+        'Il joue de plein droit. L’employeur n’a rien à déclarer, rien à justifier : les membres de la délégation du personnel et les représentants syndicaux au comité y sont tenus par la loi elle-même. Il ne couvre que les procédés de fabrication — savoir-faire, formules, compositions, tours de main — et rien d’autre. La révélation d’un secret de fabrique est punie de deux ans d’emprisonnement et de 30 000 € d’amende.',
+        'Articles L.2315-3, alinéa 1, et L.1227-1', '#e05c5c')
+   + R('2. L’obligation de discrétion — les informations confidentielles',
+        'Elle ne joue que si l’employeur agit. Deux conditions CUMULATIVES : l’information doit être présentée comme confidentielle par l’employeur au moment où il la communique, ET elle doit être de nature confidentielle au regard des intérêts légitimes de l’entreprise — ce qu’il incombe à l’employeur d’établir. Une déclaration qui n’est pas justifiée ne lie personne.',
+        'Article L.2315-3, alinéa 2 — Cass. soc., 5 novembre 2014, n° 13-17.270, publié')
+   + R('Pour la base de données, une exigence de plus : la durée',
+        'L’employeur doit indiquer la DURÉE du caractère confidentiel de l’information. Une confidentialité sans terme n’est pas une confidentialité : c’est une déclaration incomplète, et le juge la traite comme telle.',
+        'Article R.2312-13 — et L.2312-36, dernier alinéa, pour les personnes tenues à la discrétion')
+   + R('On ne déclare pas confidentiel « en bloc »',
+        'Un dossier de consultation entièrement estampillé confidentiel, sans que la nécessité de protéger chacune des données soit justifiée, porte atteinte aux prérogatives des élus. La sanction n’est pas théorique : la procédure d’information-consultation doit être reprise depuis le début, et le délai d’examen ne court pas.',
+        'Articles L.2312-15 et R.2312-6')
+   + R('Qui est tenu à la discrétion',
+        'Les membres de la délégation du personnel du comité, le cas échéant les membres de la commission économique, les délégués syndicaux et, lorsqu’ils existent, les représentants de proximité. L’expert-comptable et l’expert habilité désignés par le comité y sont également tenus : la confidentialité ne leur est donc pas opposable pour refuser une pièce.',
+        'Articles L.2312-36, dernier alinéa, L.2315-3 et L.2315-84')
+   + R('À qui la confidentialité n’est jamais opposable',
+        'À l’inspecteur du travail, au juge saisi du litige, et à l’expert désigné par le comité. Opposer la confidentialité à l’un d’eux n’est pas une protection : c’est un refus de communication, apprécié comme tel.',
+        'Articles L.8113-4 et L.2315-84');
+
+  h+='<div style="font-size:13px;font-weight:800;color:#e8c97a;margin:16px 0 8px">Ce qui peut légitimement être déclaré confidentiel</div>'
+   +'<ul style="margin:0;padding-left:18px;font-size:12.5px;color:#cdd7e2;line-height:1.7">'
+     +'<li>Les prix de revient, les marges par produit ou par client, la structure de coûts.</li>'
+     +'<li>Le fichier clients et les conditions commerciales négociées avec un client nommé.</li>'
+     +'<li>Un projet de cession, d’acquisition ou de rapprochement non encore annoncé.</li>'
+     +'<li>Pour une société cotée, toute information privilégiée au sens du règlement (UE) n° 596/2014 : sa divulgation est un délit boursier, indépendamment du droit du travail.</li>'
+     +'<li>Les données à caractère personnel des salariés : ici, ce n’est pas la discrétion qui joue, c’est le RGPD — elles n’ont pas à figurer nominativement dans la base.</li>'
+     +'<li>Ce qui relève du secret des affaires au sens de l’article L.151-1 du code de commerce, à condition que les trois critères en soient réunis.</li>'
+   +'</ul>';
+
+  h+='<div style="font-size:13px;font-weight:800;color:#e05c5c;margin:16px 0 8px">Ce qui ne peut pas être déclaré confidentiel</div>'
+   +'<ul style="margin:0;padding-left:18px;font-size:12.5px;color:#cdd7e2;line-height:1.7">'
+     +'<li><b>L’index de l’égalité professionnelle</b> : la note globale et le résultat de chaque indicateur sont publiés sur le site internet de l’entreprise, et les objectifs de progression le sont aussi en dessous de 85 points (L.1142-8 et L.1142-9-1).</li>'
+     +'<li><b>Les comptes annuels déposés au greffe</b> : ils sont accessibles à tous (c. com., art. L.232-21 et s.). L’option de confidentialité des micro-entreprises et des petites entreprises vaut à l’égard des tiers, non à l’égard du comité.</li>'
+     +'<li><b>Les accords collectifs</b> : ils sont publiés dans la base nationale (L.2231-5-1). Un accord déposé ne redevient pas confidentiel dans la base de données.</li>'
+     +'<li><b>Le montant de la contribution aux activités sociales et culturelles</b> : le comité arrête ses comptes et les porte à la connaissance des salariés (L.2315-72).</li>'
+     +'<li><b>Le bilan des émissions de gaz à effet de serre</b>, lorsque l’entreprise y est assujettie : il est rendu public (c. env., art. L.229-25).</li>'
+     +'<li><b>Le document unique d’évaluation des risques</b>, le règlement intérieur et les affichages obligatoires : ils sont mis à la disposition des salariés eux-mêmes.</li>'
+     +'<li>Plus généralement, tout ce que la loi impose déjà de publier : l’employeur ne peut pas établir un intérêt légitime à taire ce qu’il est tenu de dire.</li>'
+   +'</ul>';
+
+  /* L'etat de ce qui a ete tranche, rubrique par rubrique. */
+  var conf=HUB_BDESE.filter(function(t){ return bdc(t.k).c==='oui'; });
+  var non =HUB_BDESE.filter(function(t){ return bdc(t.k).c==='non'; });
+  var rien=HUB_BDESE.filter(function(t){ return !bdc(t.k).c; });
+  h+='<div style="margin-top:16px;padding:11px;background:#16263c;border-radius:9px;font-size:12.5px;color:#cdd7e2;line-height:1.75">'
+    +'<b style="color:#fff">Où en êtes-vous</b><br>'
+    +'Déclarées confidentielles : <b>'+conf.length+'</b> · non confidentielles : <b>'+non.length+'</b> · non tranchées : <b>'+rien.length+'</b> sur '+HUB_BDESE.length+' rubriques.'
+    +'</div>';
+  var sd=bdcSansDuree(), ct=bdcContestables();
+  if(sd.length){
+    h+='<div style="margin-top:9px;padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+      +'<b>'+sd.length+' rubrique(s) déclarée(s) confidentielle(s) sans durée</b> — R.2312-13 impose de l’indiquer :<br>'
+      + sd.map(function(t){ return '• '+hubEsc(t.lib); }).join('<br>')
+      +'</div>';
+  }
+  if(ct.length){
+    h+='<div style="margin-top:9px;padding:11px;background:rgba(224,92,92,.10);border:1px solid #e05c5c;border-radius:9px;font-size:12.5px;color:#e8e4d8;line-height:1.65">'
+      +'<b>'+ct.length+' rubrique(s) déclarée(s) confidentielle(s) alors que la loi en impose la publicité :</b><br>'
+      + ct.map(function(t){ return '• <b>'+hubEsc(t.lib)+'</b> — '+HUB_BDESE_PUBLIC[t.k]; }).join('<br>')
+      +'</div>';
+  }
+  if(rien.length){
+    h+='<div style="margin-top:9px;font-size:11.5px;color:#9fb0c4;line-height:1.6">'
+      +'Une rubrique non tranchée n’est pas confidentielle : à défaut de déclaration au moment de la communication, l’obligation de discrétion ne joue pas.'
+      +'</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
 function hubVueBdese(){
   var eff=hubEff();
   var h='<div class="card"><div class="ct">Base de données économiques, sociales et environnementales</div>';
@@ -12071,6 +12331,24 @@ function hubVueBdese(){
       h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:6px">À partir de trois cents salariés, '+t.plus.length+' rubrique(s) supplémentaire(s) s’ajoutent (R.2312-9).</div>';
     }
     if(t.art) h+='<div style="font-size:11px;color:#9fb0c4;margin-top:6px">Article '+hubEsc(t.art)+'</div>';
+    /* Confidentialité, rubrique par rubrique : c'est là qu'elle se décide,
+       et nulle part ailleurs. Une déclaration globale ne vaut rien. */
+    var CF=bdc(t.k), pub=HUB_BDESE_PUBLIC[t.k];
+    h+='<div style="margin-top:8px;padding:8px;background:#16263c;border-radius:8px">'
+      +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'
+        +'<span style="font-size:11px;color:#9fb0c4;letter-spacing:.05em;text-transform:uppercase">Confidentialité</span>'
+        +'<select aria-label="Confidentialité de la rubrique '+hubEsc(t.lib)+'" onchange="bdcSet(\''+t.k+'\',this.value)" style="flex:1;min-width:160px;padding:6px;border-radius:7px;border:1px solid #3a4a5f;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+          +'<option value=""'+(!CF.c?' selected':'')+'>— non tranché —</option>'
+          +'<option value="non"'+(CF.c==='non'?' selected':'')+'>Non confidentiel</option>'
+          +'<option value="oui"'+(CF.c==='oui'?' selected':'')+'>Confidentiel — présenté comme tel</option>'
+        +'</select>'
+      +'</div>';
+    if(CF.c==='oui'){
+      h+='<input value="'+hubEsc(CF.duree||'')+'" onchange="bdcDuree(\''+t.k+'\',this.value)" placeholder="Durée de la confidentialité — obligatoire (R.2312-13)" aria-label="Durée de la confidentialité de la rubrique '+hubEsc(t.lib)+'" style="width:100%;margin-top:6px;padding:7px;border-radius:7px;border:1px solid '+(CF.duree?'#3a4a5f':'#e05c5c')+';background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">';
+      if(!CF.duree) h+='<div style="font-size:11.5px;color:#e05c5c;margin-top:4px;line-height:1.55">Sans durée indiquée, la déclaration est incomplète : R.2312-13 impose à l’employeur d’indiquer la durée du caractère confidentiel.</div>';
+      if(pub) h+='<div style="font-size:11.5px;color:#e05c5c;margin-top:4px;line-height:1.55"><b>Cette rubrique est publiée par la loi.</b> '+pub+'</div>';
+    }
+    h+='</div>';
     if(t.liens && t.liens.length){
       h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'
         + t.liens.map(function(l){
@@ -12115,6 +12393,9 @@ function hubVueBdese(){
        'L’absence, l’incomplétude ou l’inaccessibilité de la base peuvent caractériser une entrave au fonctionnement régulier du comité, punie de 7 500 € d’amende, portée à 37 500 € pour la personne morale.',
        'Article L.2317-1')
    +'</div>';
+
+  h+=hubVueBdesePerimetre(eff);
+  h+=hubVueConfidentialite();
 
   /* Informations trimestrielles a partir de trois cents salaries */
   if(eff!==null && eff>=300){

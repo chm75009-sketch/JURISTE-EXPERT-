@@ -262,6 +262,65 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
      'le 9° — les transferts entre entités du groupe — n’est plus absent de la liste');
   ok(/Registre du personnel/.test(r.t), 'et les rubriques renvoient aux documents qui les alimentent');
 
+  /* ── Le perimetre de la base : etablissements, groupe, UES ────────── */
+  console.log('\n— Où est la base, et qui y accède —');
+  r = await page.evaluate(() => {
+    RX.staff = Array.from({ length: 320 }, (_, i) => ({
+      id: 'x' + i, nom: 'S' + i, sexe: i % 2 ? 'Femme' : 'Homme', naissance: '1985-01-01',
+      statut: 'Employé', typeContrat: 'CDI', tempsTravail: 'Temps plein', salaire: '2500', entree: '2015-01-01'
+    }));
+    rxSaveLocal(); hubOnEnter(); hubGo('bdese');
+    HUB.bdeseOrg = {}; HUB.bdeseConf = {}; hubSave();
+    bdoSet('multi', 'Oui — au moins deux établissements distincts');
+    bdoSet('central', 'Non');
+    bdoSet('groupe', 'Oui — société dominante ou société contrôlée');
+    bdoSet('ues', 'Oui — UES reconnue par accord');
+    bdoSet('accord', 'Aucun accord — les règles supplétives s’appliquent');
+    bdoSet('support', 'Support papier');
+    return { eff: cseEffectif(), t: document.getElementById('csehub-body').innerText };
+  });
+  ok(r.eff === 320, 'l’effectif est calculé sur le registre', r.eff);
+  ok(/R\.2312-11/.test(r.t), 'la base est constituée au niveau de l’entreprise (R.2312-11)');
+  ok(/L\.2316-1 et L\.2316-20|L\.2316-20/.test(r.t),
+     'qui est consulté sur quoi : comité central et comité d’établissement');
+  ok(/L\.2312-18/.test(r.t), 'l’accès permanent est cité avec son article');
+  ok(/R\.2312-14/.test(r.t), 'la mise à disposition vaut communication, et fait courir le délai');
+  ok(/L\.2332-1/.test(r.t), 'le groupe renvoie au régime propre du comité de groupe');
+  ok(/n’existe pas de base de données de groupe/.test(r.t),
+     'et l’écran dit qu’il n’existe pas de base de groupe');
+  ok(/unité économique et sociale/i.test(r.t), 'l’UES appelle une clause d’accord');
+
+  console.log('\n— Les réponses incohérentes sont dites, pas absorbées —');
+  ok(/L\.2313-1/.test(r.t), 'deux établissements et aucun comité central : l’entrave est signalée');
+  ok(/support informatique s’impose/.test(r.t), '320 salariés et base papier : R.2312-12 est opposé');
+  ok(/accès permanent des élus des autres établissements/.test(r.t),
+     'base papier et plusieurs établissements : l’accès doit être organisé par écrit');
+
+  console.log('\n— Ce qui est confidentiel, et ce qui ne peut pas l’être —');
+  r = await page.evaluate(() => {
+    bdcSet('egalite', 'oui');
+    bdcSet('fonds', 'non');
+    const t = document.getElementById('csehub-body').innerText;
+    return { t, sd: bdcSansDuree().map(x => x.k), ct: bdcContestables().map(x => x.k) };
+  });
+  ok(/L\.1227-1/.test(r.t), 'le secret de fabrique et sa sanction pénale sont cités');
+  ok(/13-17\.270/.test(r.t), 'les deux conditions cumulatives, avec l’arrêt qui les pose');
+  ok(/R\.2312-13/.test(r.t), 'la durée de la confidentialité est exigée');
+  ok(/L\.2315-84/.test(r.t), 'l’expert du comité est tenu au secret : la confidentialité ne lui est pas opposable');
+  ok(r.sd.join(',') === 'egalite', 'une rubrique confidentielle sans durée est signalée', r.sd.join(','));
+  ok(r.ct.join(',') === 'egalite', 'et une rubrique que la loi impose de publier ne peut pas être confidentielle', r.ct.join(','));
+  ok(/publiée par la loi/.test(r.t), 'le motif est affiché sur la rubrique elle-même');
+  ok(/non tranchée n’est pas confidentielle/.test(r.t),
+     'à défaut de déclaration, l’obligation de discrétion ne joue pas — et l’écran le dit');
+
+  console.log('\n— La durée renseignée lève l’alerte —');
+  r = await page.evaluate(() => {
+    bdcDuree('egalite', 'jusqu’à la publication du 1er mars');
+    return { sd: bdcSansDuree().length, ct: bdcContestables().length };
+  });
+  ok(r.sd === 0, 'plus aucune rubrique confidentielle sans durée');
+  ok(r.ct === 1, 'mais la publicité légale, elle, ne se lève pas', r.ct);
+
   console.log('\nExceptions : ' + erreurs.length);
   ok(erreurs.length === 0, 'aucune exception JavaScript', erreurs.slice(0, 3).join(' | '));
   await nav.close();
