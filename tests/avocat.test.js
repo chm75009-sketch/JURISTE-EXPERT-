@@ -238,6 +238,14 @@ const ok = (c, m, d) => {
       await q.waitForTimeout(300);
       const vu = await q.locator('#lien-cabinet-admin').isVisible();
       ok(vu === admin, 'pour ' + role + ', l\'accès est ' + (admin ? 'visible' : 'masqué'));
+      if (admin) {
+        /* Le site du cabinet est public : il ne peut pas porter de lien de
+           retour vers l'application. L'onglet separe EST le retour. */
+        const cible = await q.locator('#lien-cabinet-admin').getAttribute('target');
+        ok(cible === '_blank', 'le site s\'ouvre dans un onglet à part', cible);
+        ok(/noopener/.test(await q.locator('#lien-cabinet-admin').getAttribute('rel') || ''),
+          'l\'onglet ouvert ne garde pas la main sur l\'application');
+      }
       await q.close();
     }
   }
