@@ -1062,7 +1062,7 @@
         </div>
       </div>
       <a class="btn s" id="g-lien" href="[LIEN_FICHE_GOOGLE]" target="_blank" rel="noopener noreferrer">
-        Voir les avis sur Google →
+        Tous les avis sur Google →
       </a>
     </div>
 
@@ -1836,19 +1836,29 @@
      trompeuse (art. L.121-2 et suivants du code de la consommation).
      ══════════════════════════════════════════════════════════════════════ */
   var AVIS = [
-    { nom:'Exemple d\'avis', quand:'il y a 2 semaines', note:5, exemple:true,
-      texte:'Emplacement d\'un avis Google réel. Recopiez ici le nom, la date, la note et le '
-          + 'texte tels qu\'ils apparaissent sur la fiche du cabinet.',
-      reponse:'Emplacement de la réponse publiée par le cabinet sous cet avis. Ce bloc '
-          + 'disparaît si le champ « reponse » est absent.' },
-    { nom:'Exemple d\'avis', quand:'il y a 1 mois', note:5, exemple:true,
-      texte:'Deuxième emplacement. Les cartes défilent au doigt sur téléphone et avec les '
-          + 'flèches sur ordinateur ; il n\'y a pas de nombre maximum d\'avis.' },
-    { nom:'Exemple d\'avis', quand:'il y a 2 mois', note:4, exemple:true,
-      texte:'Troisième emplacement. La note moyenne et le nombre d\'avis affichés en haut de '
-          + 'la section se calculent tout seuls à partir de cette liste.' }
+    { nom:'Houyem Bouchouicha', quand:'mars 2025', note:5,
+      texte:'Maître Adel Jeddi est, sans aucun doute, l\'un des meilleurs avocats du 95 '
+          + '(Val-d\'Oise). Très réactif, sérieux et impliqué, il sait défendre ses clients avec '
+          + 'une plaidoirie exemplaire. Son professionnalisme et sa maîtrise du droit font toute '
+          + 'la différence. Je le recommande vivement !' },
+
+    { nom:'Bassem Bettine', quand:'décembre 2025', note:5,
+      texte:'Très bon avocat. Sérieux et disponible.on a gagné au tribunal et la partie adverse '
+          + 'a même été condamnée à me rembourser mes frais. Encore merci' },
+
+    { nom:'Coumba Dieng', quand:'avril 2026', note:5,
+      texte:'Au final je mets 5 étoiles pour l\'assistante de maître JEDDI qui a pu résoudre ma '
+          + 'demande très rapidement qui était vraiment urgent malgré que j\'étais très en colère '
+          + 'car je n\'arrivais pas à joindre ni maître JEDDI ni son assistante mais ça c\'était '
+          + 'avant d\'avoir l\'assistante de maître JEDDI au téléphone.' },
+
+    { nom:'Mess B', quand:'mai 2026', note:5,
+      texte:'Très bon avocat. Il m\'a géré 2 affaires et a su répondre à mes attentes et résoudre '
+          + 'mes problématiques malgré son emploi du temps. Je recommande vivement' }
   ];
-  var LIEN_GOOGLE = '[LIEN_FICHE_GOOGLE]';   // ex. https://g.page/r/…/review
+  var LIEN_GOOGLE = 'https://www.google.com/maps/place/Ma%C3%AEtre+Adel+JEDDI+-+Cabinet+CJ+AVOCATS/'
+                  + '@48.9444752,2.251634,17z/data=!4m6!3m5!1s0x47e66670b8e20937:0x9c6194057852cbe0'
+                  + '!8m2!3d48.9444752!4d2.251634!16s%2Fg%2F1tfns9fw';
 
   (function(){
     var sec = document.getElementById('avis'), track = document.getElementById('av-track');
@@ -1891,8 +1901,9 @@
     var moy = total / AVIS.length;
     document.getElementById('g-moy').textContent = moy.toFixed(1).replace('.', ',');
     document.getElementById('g-etoiles').innerHTML = etoiles(Math.round(moy));
-    document.getElementById('g-nb').textContent =
-      'Sur ' + AVIS.length + ' avis' + (demo ? ' (exemples)' : ' Google');
+    document.getElementById('g-nb').textContent = demo
+      ? 'Sur ' + AVIS.length + ' avis (exemples)'
+      : 'Moyenne des ' + AVIS.length + ' avis repris ici';
     if (demo) document.getElementById('warn-avis').hidden = false;
 
     /* Le lien vers la fiche Google : tant qu'il n'est pas renseigné, on le

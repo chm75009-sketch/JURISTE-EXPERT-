@@ -188,12 +188,22 @@ const ok = (c, m, d) => {
   console.log('\n— Le carrousel d\'avis —');
   const cartes = await p.locator('.avis').count();
   ok(cartes >= 1, 'des avis sont affichés', cartes);
-  ok(await p.locator('#warn-avis').isVisible(),
-    'les avis d\'exemple sont signalés comme tels');
-  ok(await p.locator('.avis .dem').count() === cartes,
-    'chaque exemple porte son étiquette « à remplacer »');
-  ok(await p.locator('#g-lien').count() === 0,
-    'le lien Google non renseigné est retiré, pas affiché mort');
+  /* Les avis sont desormais ceux de la fiche Google, recopies sans retouche :
+     plus aucun exemple, et le bandeau qui les signalait doit avoir disparu. */
+  ok(!(await p.locator('#warn-avis').isVisible()),
+    'plus aucun avis d\'exemple : le bandeau d\'avertissement est retiré');
+  ok(await p.locator('.avis .dem').count() === 0,
+    'aucune étiquette « à remplacer » ne subsiste');
+  ok(cartes === 4, 'les quatre avis de la fiche sont repris', cartes);
+  /* Le lien mene bien a la fiche, et il est propre : sans les parametres de
+     suivi que Google colle a la fin de ses adresses. */
+  const gl = await p.locator('#g-lien').getAttribute('href');
+  ok(/google\.com\/maps\/place/.test(gl || ''), 'le lien mène à la fiche Google');
+  ok(!/entry=ttu|g_ep=/.test(gl || ''), 'le lien est débarrassé des paramètres de suivi');
+  /* On ne laisse pas croire que ce sont tous les avis du cabinet. */
+  ok(/repris ici/.test(await p.textContent('#g-nb')),
+    'la moyenne est annoncée comme portant sur les avis repris, pas sur tous',
+    await p.textContent('#g-nb'));
   ok(/^[0-9],[0-9]$/.test((await p.textContent('#g-moy')).trim()),
     'la note moyenne est calculée', await p.textContent('#g-moy'));
 

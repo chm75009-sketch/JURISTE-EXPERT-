@@ -66,7 +66,6 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
 | `[GARE / PARKING]` | accueil | Accès (gare d'Argenteuil, parking…) |
 | `[Photo]` | bandeau | Déposer la photo dans le dossier, puis écrire son nom dans `var PORTRAIT = ''` (script de `index.html`) — elle remplace alors le monogramme partout |
 | `[CLÉ_WEB3FORMS]` | accueil (formulaire) | Voir § 3 |
-| `[LIEN_FICHE_GOOGLE]` | accueil (avis) | Lien de la fiche Google du cabinet |
 | `[SIRET]`, `[N° TVA]`, `[Exercice individuel / SELARL…]` | mentions | Informations d'immatriculation |
 | `[ASSUREUR ET N° DE POLICE]` | mentions | RCP et garantie financière |
 | `[HÉBERGEUR]` | mentions | Netlify, ou l'hébergeur retenu |
@@ -89,12 +88,16 @@ grep -n "\[[A-ZÉÈÀÇ0-9]" avocat-aj/*.html
    La loi n'oblige qu'à le tenir — le publier est un parti pris, celui de Nomos.
    Vérifiez qu'il correspond à la réalité du cabinet avant la mise en ligne.
 
-Les **avis clients** ne sont pas des marques entre crochets : ils se saisissent
-dans le tableau `AVIS`, à la fin de `index.html`. Chaque entrée porte un champ
-`exemple: true` — retirez-le en même temps que vous saisissez un vrai avis.
-Tableau vide, la section disparaît du site. **N'inventez jamais d'avis** : un
-faux avis est une pratique commerciale trompeuse (art. L.121-2 du code de la
-consommation), et une faute déontologique pour un avocat.
+Les **avis clients** sont ceux de la fiche Google, recopiés sans retouche dans
+le tableau `AVIS`, à la fin de `index.html` — ni correction d'orthographe, ni
+coupe, ni tri favorable : la politique de confidentialité affirme qu'ils sont
+« reproduits tels quels », et il faut que ce soit vrai. Pour en ajouter un,
+copiez le nom, le mois, la note et le texte. **N'inventez jamais d'avis** :
+un faux avis est une pratique commerciale trompeuse (art. L.121-2 du code de
+la consommation), et une faute déontologique pour un avocat.
+
+Les dates sont écrites en mois absolus (« mars 2025 ») et non en relatif
+(« il y a un an ») : une date relative se périme toute seule.
 
 Les **années d'expérience** ne sont écrites nulle part en dur : elles se
 calculent à partir de la date de serment (7 juin 2004) inscrite dans le script.
