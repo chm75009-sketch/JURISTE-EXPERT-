@@ -991,7 +991,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.144';
+var JX_BUILD = 'v2026-08-07.145';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1000,6 +1000,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-07.145', d:'7 aout 2026', t:[
+   'LA BDESE ETAIT INTROUVABLE. Elle vivait au fond d\'un onglet de « Mon espace CSE » : trois écrans, et rien pour l\'annoncer. Deux entrées directes sont posées — un groupe « INFORMER LE COMITÉ » dans la famille Le CSE, avec la base de données et l\'index de l\'égalité, et les deux mêmes entrées dans le menu ☰. Une carte d\'accueil peut désormais porter une action et non une simple page : la base et l\'index sont des onglets, pas des pages, et ils s\'ouvrent maintenant en un geste.',
+   'L\'IMPORT DU PERSONNEL NE PORTAIT NI LE SALAIRE NI LE COEFFICIENT. Les deux colonnes étaient ignorées : l\'index de l\'égalité n\'avait donc rien à lire, et la méthode par niveaux de la convention non plus. Sur trois cents salariés, tout était à ressaisir à la main. Elles sont désormais reconnues (« salaire », « rémunération », « brut », « paie » ; « coefficient », « indice », « niveau », « échelon », « position »), et leur absence est signalée à la fin de l\'import comme le sont déjà le sexe et la nationalité.',
+   'LE CONTRAT DE PROFESSIONNALISATION N\'ETAIT PAS ECARTE DE L\'INDEX. Le registre porte « Contrat de pro (exclu) » après import ; l\'index cherchait « professionnalisation » et ne le trouvait pas. Ces salariés entraient donc dans le calcul de l\'écart de rémunération, que le décret leur interdit. Corrigé.',
+   'L\'EFFECTIF INCOMPLET DISAIT UNE RAISON PASSE-PARTOUT. « Le contrat ou le temps de travail reste à préciser » — alors que ce qui manquait était souvent tout autre chose : une date d\'entrée absente, ou la question « remplace-t-il un salarié absent ? » restée sans réponse (L.1111-2, 2°). L\'application énumère maintenant les raisons réelles, à l\'accueil comme dans les modules : elles ne se corrigent pas au même endroit.',
+   'UN FICHIER DU PERSONNEL FICTIF, POUR EPROUVER TOUT CELA. « exemples/PERSONNEL_FICTIF_BANQUE.csv » — 320 salariés inventés, aucune personne réelle. Il est construit pour malmener l\'application : au-dessus de 300 salariés et de 250, plus de vingt-cinq cadres, un apprenti, un contrat de pro, un intérimaire et un stagiaire à écarter, trois présences de moins de six mois, un sorti avant la période, un salarié sans sexe, un sans date de naissance, un sans statut, un sans date d\'entrée, un sans salaire, quinze temps partiels dont une quotité en fraction décimale, des noms à apostrophe et à tréma, des civilités à la place du sexe, des montants à la française. Un groupe de comparaison est volontairement non valide, un autre porte un écart en faveur des femmes pour vérifier que le SIGNE est conservé. Le test relit tout cela après import.'
+ ]},
  {v:'v2026-08-07.144', d:'7 aout 2026', t:[
    'IL N\'Y AVAIT PAS DE BASE DE DONNEES. Il y avait son architecture, son régime, ses preuves — et nulle part où écrire un chiffre. Une base de données qui ne contient aucune donnée n\'est pas une base : c\'est un sommaire. Les 42 sous-rubriques (52 à partir de trois cents salariés) portent désormais chacune leur grille de saisie.',
    'LES SIX ANNEES DE R.2312-10. Les deux années précédentes, l\'année en cours, et des perspectives sur les TROIS années suivantes. L\'année de référence se règle en tête de la base et commande les six colonnes : 2024, 2025, 2026, puis 2027, 2028, 2029. Une sous-rubrique n\'est comptée complète que si les six années portent quelque chose — une case vide n\'est jamais comptée comme renseignée, et les années manquantes sont nommées.',
@@ -4328,6 +4335,8 @@ Exemple :<br>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
+  <div class="mi" onclick="goBdese();closeMenu()"><span style="font-size:18px">🗃️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">BDESE — base de données</div></div></div>
+  <div class="mi" onclick="goIndexEgalite();closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Index égalité femmes-hommes</div></div></div>
   <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
   <div class="mi" onclick="goPage('socle');closeMenu()"><span style="font-size:18px">📐</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Socle — effectif &amp; seuils</div></div></div>
   <div class="mi" onclick="window.location.href='elections-cse.html'"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE — page séparée <span style="color:#5c8bd6;font-size:10px;font-weight:700">S’OUVRE SEULE</span></div></div></div>
@@ -8039,13 +8048,19 @@ function cseEffectifSource(){
          compte pas zero. Sans ce controle, six salaries au registre donnaient
          « 0 salarie — votre effectif », ecrasaient la tranche declaree et
          mettaient de cote huit modules du comite. */
-      var _m=0;
+      var _m=0, _pq=[];
       try{
         var t=new Date(), auj=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2);
-        var r=socEffectifAt(auj); _m=(r&&r.manque)?r.manque.length:0;
+        var r=socEffectifAt(auj);
+        _m=(r&&r.manque)?r.manque.length:0;
+        /* On dit CE QUI manque, et non une raison passe-partout : la nature
+           du contrat, le temps de travail, la date d'entrée et la question
+           du remplacement ne se corrigent pas au même endroit. */
+        if(r&&r.manque) r.manque.forEach(function(x){ if(x.quoi && _pq.indexOf(x.quoi)<0) _pq.push(x.quoi); });
       }catch(_){}
-      if(_m>0) return { n:null, src:'incomplet', declare:false, manque:_m, inscrits:st.length,
-        txt:'registre incomplet — '+_m+' salarié'+(_m>1?'s':'')+' sur '+st.length+' dont le contrat ou le temps de travail reste à préciser' };
+      if(_m>0) return { n:null, src:'incomplet', declare:false, manque:_m, inscrits:st.length, quoi:_pq,
+        txt:'registre incomplet — '+_m+' salarié'+(_m>1?'s':'')+' sur '+st.length+' à compléter'
+            +(_pq.length?(' : '+_pq.join(' · ')):'') };
       var s=socSerie(36);
       if(s.length) return { n:s[s.length-1].ent, src:'registre', declare:false,
         txt:'calculé d’après votre registre du personnel — '+st.length+' inscrit'+(st.length>1?'s':'') };
@@ -8693,6 +8708,10 @@ var FAM=[
      {emo:'🗂️', lib:'Quelles pièces à quelle étape', page:'csedos', tag:'Dossier'},
      {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'}
    ]},
+   {t:'INFORMER LE COMITÉ', s:'la base de données et l’index', pastille:'#3f9b7a', cartes:[
+     {emo:'🗃️', lib:'BDESE — la base de données', page:'csehub', act:'goBdese()', tag:'BDESE', chip:'Six années'},
+     {emo:'⚖️', lib:'Index égalité femmes-hommes', page:'csehub', act:'goIndexEgalite()', tag:'Index'}
+   ]},
    {t:'FAIRE VIVRE LE COMITÉ', s:'une fois qu’il est élu', pastille:'#d6a842', cartes:[
      {emo:'📅', lib:'Calendrier des réunions', page:'csecal', tag:'Calendrier'},
      {emo:'🗣️', lib:'Préparer une réunion', page:'csereu', tag:'Réunion'},
@@ -8703,6 +8722,13 @@ var FAM=[
    ]}
   ]}
 ];
+
+/* La base de données et l'index sont des onglets de l'espace CSE. On y
+   arrivait en trois écrans, sans que rien ne l'annonce : deux raccourcis
+   les ouvrent directement, depuis l'accueil comme depuis le menu.
+   L'onglet se choisit APRES goPage : hubOnEnter() ramene au guide. */
+function goBdese(){ goPage('csehub'); try{ hubGo('bdese'); }catch(e){} }
+function goIndexEgalite(){ goPage('csehub'); try{ hubGo('egalite'); }catch(e){} }
 
 function famChoisie(){
   try{ return localStorage.getItem(FAM_LS)||''; }catch(e){ return ''; }
@@ -8801,8 +8827,8 @@ function famRender(){
       +'<span class="en">!</span>'
       +'<span><span class="et">Registre incomplet — l’effectif ne peut pas être calculé</span>'
       +'<span class="ed">'+famEsc(_s.manque)+' salarié'+(_s.manque>1?'s':'')+' sur '+famEsc(_s.inscrits)
-      +' n’'+(_s.manque>1?'ont':'a')+' ni nature de contrat ni temps de travail renseignés. '
-      +'L’effectif se calcule sur ces deux données (L.1111-2) : sans elles, l’application ne compte pas zéro, elle vous le dit.</span>'
+      +' à compléter'+((_s.quoi&&_s.quoi.length)?(' : '+famEsc(_s.quoi.join(' · '))):'')+'. '
+      +'L’effectif se calcule sur ces données (L.1111-2) : sans elles, l’application ne compte pas zéro, elle vous le dit.</span>'
       +'<span class="ed" style="opacity:.7">dossier : '+famEsc(jxDossierLib())+'</span></span>'
       +'<span class="ec">›</span></button>';
   } else if(eff===null){
@@ -8859,7 +8885,7 @@ function famRender(){
       h+='<div class="fam-cartes">';
       _L.forEach(function(c){
         var p=famCoul(_famI++);
-        h+='<button class="fam-carte" onclick="goPage(\''+c.page+'\')" '
+        h+='<button class="fam-carte" onclick="'+(c.act||('goPage(\''+c.page+'\')'))+'" '
           +'style="background:linear-gradient(150deg,'+p[0]+','+p[1]+')">'
           +(c.chip?('<span class="cq">'+famEsc(c.chip)+'</span>'):'')
           +'<span class="ce">'+c.emo+'</span>'
@@ -10675,7 +10701,10 @@ function egaPeriode(){
 function egaExclusion(s, P){
   var t=String(s.typeContrat||'').toLowerCase();
   if(/apprenti/.test(t))            return 'contrat d’apprentissage';
-  if(/profession/.test(t))          return 'contrat de professionnalisation';
+  /* Le registre porte « Contrat de pro (exclu) » apres import : chercher
+     « professionnalisation » seul laissait passer ces salaries dans le
+     calcul, alors que le decret les en ecarte. */
+  if(/professionnalisation|contrat de pro\b|contrat_pro/.test(t)) return 'contrat de professionnalisation';
   if(/int[ée]rim/.test(t))          return 'mis à disposition par une entreprise extérieure';
   if(/stage|stagiaire/.test(t))     return 'stagiaire — non salarié';
   var e=s.entree||'', so=s.sortie||'';
@@ -16629,7 +16658,7 @@ function _rxSalarieToRecord(s){
   // Nom / Prénom : colonnes distinctes si le fichier les sépare, sinon découpe heuristique (dernier mot = prénom)
   var nm=(s.nomBase||s.nom||'').trim(), pr=(s.prenom||'').trim();
   if(!pr && nm.indexOf(' ')>-1){ var _p=nm.split(/\s+/); pr=_p.pop(); nm=_p.join(' '); }
-  return { id:rxUID(), nom:nm, prenom:pr, sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), nationalite:(s.nationalite||''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, pieceType:(s.titreSejour?('Titre de séjour : '+s.titreSejour):''), observations:(s.observations||'') };
+  return { id:rxUID(), nom:nm, prenom:pr, sexe:(s.sexe==='F'?'F':(s.sexe==='M'||s.sexe==='H')?'H':''), nationalite:(s.nationalite||''), naissance:s.dateNaissance||'', entree:s.dateEntree||'', sortie:s.dateSortie||'', typeContrat:lab, statut:stl, categorie:(s.emploi||''), tempsTravail:temps, salaire:(s.salaire||''), coeff:(s.coeff||''), pieceType:(s.titreSejour?('Titre de séjour : '+s.titreSejour):''), observations:(s.observations||'') };
 }
 function _rxIngestRows(rows){
   if(!rows||!rows.length){ alert('Fichier vide ou illisible.'); return null; }
@@ -16645,6 +16674,8 @@ function _rxIngestRows(rows){
   if(map.nationalite===undefined) manque.push('Nationalité');
   if(map.titre===undefined) manque.push('Titre de séjour');
   if(map.naissance===undefined) manque.push('Date de naissance');
+  if(map.salaire===undefined) manque.push('Salaire (nécessaire à l’index de l’égalité)');
+  if(map.coeff===undefined) manque.push('Coefficient / niveau de la convention');
   window._rxImportManque = manque;
   return n;
 }
@@ -21844,6 +21875,8 @@ function _mapperColonnes(entete){
     else if(map.titre === undefined && /titre.*s[ée]jour|s[ée]jour/.test(c)){ map.titre = idx; reconnu++; }
     else if(map.emploi === undefined && /emploi|qualif|fonction|poste|metier/.test(c)){ map.emploi = idx; reconnu++; }
     else if(map.temps === undefined && /temps|heures|duree|quotite/.test(c)){ map.temps = idx; reconnu++; }
+    else if(map.salaire === undefined && /salaire|r[ée]mun[ée]ration|brut|paie/.test(c)){ map.salaire = idx; reconnu++; }
+    else if(map.coeff === undefined && /coeff|indice|niveau|[ée]chelon|position/.test(c)){ map.coeff = idx; reconnu++; }
     else if(map.obs === undefined && /observ|remarq|note|commentaire|particul/.test(c)){ map.obs = idx; reconnu++; }
   });
   // Le statut (collège) se lit dans la colonne « Statut/Catégorie » ; à défaut seulement,
@@ -21914,6 +21947,11 @@ function _extraireSalarie(champs, map){
     finContrat: contratsDD.includes(contratFinal) ? dateSortie : '',
     telephone: '',
     adresse: '',
+    /* Le salaire et le coefficient alimentent l'index de l'egalite et la
+       methode par niveaux de la convention : sans eux, tout est a
+       ressaisir a la main pour chaque salarie. */
+    salaire: map.salaire !== undefined ? (champs[map.salaire]||'').toString().trim() : '',
+    coeff: map.coeff !== undefined ? (champs[map.coeff]||'').toString().trim() : '',
     observations: map.obs !== undefined ? (champs[map.obs]||'') : ''
   };
 }

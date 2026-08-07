@@ -470,6 +470,97 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(r.av.total === 42, 'les 42 sous-rubriques dues en dessous de trois cents salariés sont comptées', r.av.total);
   ok(r.av.alertes === 1, 'et la ligne à corriger est comptée', r.av.alertes);
 
+  /* ── L'IMPORT DU FICHIER DU PERSONNEL ─────────────────────────────── */
+  /* Le fichier d'exemple est fait pour malmener l'application : exclusions
+     du décret, informations manquantes, temps partiels, noms à apostrophe,
+     civilités à la place du sexe, montants à la française. */
+  console.log('\n— Le fichier du personnel s’importe, et ses pièges se déclenchent —');
+  const CSV = require('path').resolve(__dirname, '..', 'exemples', 'PERSONNEL_FICTIF_BANQUE.csv');
+  if (!require('fs').existsSync(CSV)) {
+    ok(false, 'le fichier d’exemple existe', CSV);
+  } else {
+    await page.evaluate(() => {
+      goPage('home'); rxLoad(); RX.staff = []; rxSaveLocal();
+      if (!document.getElementById('rx-csv')) {
+        const i = document.createElement('input');
+        i.type = 'file'; i.id = 'rx-csv'; i.style.display = 'none';
+        i.onchange = function () { rxImport(this); };
+        document.body.appendChild(i);
+      }
+      _rxImportMode = 'replace';
+    });
+    await page.setInputFiles('#rx-csv', CSV);
+    await page.waitForTimeout(1200);
+
+    r = await page.evaluate(() => {
+      const st = RX.staff, c = f => st.filter(f).length;
+      goPage('cse'); hubOnEnter();
+      const G = egaLoad(); G.periodeFin = '2025-12-31'; G.rem = {}; G.exclus = {}; hubSave();
+      const L = egaSalaries();
+      egaReprendreSalaires();
+      const R = egaIndex(egaDonnees());
+      const i1 = R.indicateurs[0].r;
+      return {
+        n: st.length, cadres: c(s => /Cadre/.test(s.statut)),
+        salaires: c(s => !!s.salaire), coeffs: c(s => !!s.coeff),
+        partiels: c(s => /partiel/i.test(s.tempsTravail || '')),
+        sansSexe: c(s => !s.sexe),
+        mmeLueFemme: (st.filter(s => s.nom === 'MÜLLER-SCHMIDT')[0] || {}).sexe,
+        apostrophe: c(s => /'/.test(s.nom)),
+        motifs: [...new Set(L.exclus.map(x => x.motif.replace(/\(\d+ jours\)/, '')))].sort(),
+        retenus: L.retenus.length,
+        i1: { calc: i1.calculable, ecart: i1.ecart, groupes: i1.retenus.length,
+              ecartes: i1.ecartes.length, manque: i1.manque.length },
+        grande: R.grande, nbInd: R.indicateurs.length,
+        src: cseEffectifSource()
+      };
+    });
+    ok(r.n === 320, '320 salariés importés', r.n);
+    ok(r.salaires >= 315 && r.coeffs >= 315,
+       'le salaire et le coefficient sont importés — sans eux l’index n’a rien à lire',
+       r.salaires + ' salaires / ' + r.coeffs + ' coefficients');
+    ok(r.cadres >= 25, 'plus de vingt-cinq cadres : le troisième collège se déclenche', r.cadres);
+    ok(r.partiels === 15, 'les quinze temps partiels sont reconnus, quotité comprise', r.partiels);
+    ok(r.mmeLueFemme === 'F', '« Mme » à la place du sexe est lue comme une femme', r.mmeLueFemme);
+    ok(r.sansSexe === 1, 'le salarié sans sexe reste sans sexe : rien n’est deviné', r.sansSexe);
+    ok(r.apostrophe >= 2, 'les noms à apostrophe passent l’import intacts', r.apostrophe);
+    ok(r.motifs.join(' | ') ===
+       ['contrat d’apprentissage', 'contrat de professionnalisation',
+        'mis à disposition par une entreprise extérieure',
+        'présent moins de six mois sur la période ', 'sorti avant le début de la période',
+        'stagiaire — non salarié'].sort().join(' | '),
+       'les six motifs d’exclusion du décret se déclenchent', r.motifs.join(' | '));
+    ok(r.grande === true && r.nbInd === 5,
+       'au-dessus de 250 salariés : cinq indicateurs', r.nbInd);
+    ok(r.i1.calc === true, 'l’écart de rémunération est calculable sur ce fichier');
+    ok(r.i1.ecartes >= 1, 'et au moins un groupe est écarté comme non valide', r.i1.ecartes);
+    ok(r.i1.manque >= 3, 'les salariés non classables sont nommés, pas comptés à zéro', r.i1.manque);
+    ok(r.src.src === 'incomplet' && r.src.quoi && r.src.quoi.length >= 2,
+       'l’effectif reste non calculé, et l’application dit CE QUI manque',
+       (r.src.quoi || []).join(' · '));
+  }
+
+  console.log('\n— La BDESE et l’index s’atteignent en un geste —');
+  r = await page.evaluate(() => {
+    goPage('home'); goBdese();
+    const b = (_hubT === 'bdese');
+    goIndexEgalite();
+    const e = (_hubT === 'egalite');
+    goPage('home');
+    try { localStorage.setItem(FAM_LS, 'cse'); } catch (x) {}
+    famRender();
+    const z = document.getElementById('fam-detail');
+    const t = z ? z.innerText : '';
+    return { b, e, t, menu: document.body.innerHTML };
+  });
+  ok(r.b, 'le raccourci ouvre directement l’onglet BDESE');
+  ok(r.e, 'et l’autre l’onglet Index égalité');
+  ok(/INFORMER LE COMITÉ/.test(r.t), 'un groupe « Informer le comité » apparaît dans la famille CSE');
+  ok(/BDESE — la base de données/.test(r.t) && /Index égalité femmes-hommes/.test(r.t),
+     'avec les deux cartes');
+  ok(/goBdese\(\);closeMenu\(\)/.test(r.menu) && /goIndexEgalite\(\);closeMenu\(\)/.test(r.menu),
+     'et les deux entrées de menu');
+
   console.log('\nExceptions : ' + erreurs.length);
   ok(erreurs.length === 0, 'aucune exception JavaScript', erreurs.slice(0, 3).join(' | '));
   await nav.close();
