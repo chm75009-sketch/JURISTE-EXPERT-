@@ -806,17 +806,16 @@
     #nav{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:0 4px;padding:4px 20px}
   }
   @media (max-width:760px){
-    /* Deux colonnes de quatre : les huit rubriques restent toutes visibles,
-       mais le menu ne prend plus que le tiers de l'écran — le bandeau
-       apparaît dessous, dans la même vue. */
-    #nav{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;
-      padding:2px 20px 6px;counter-reset:mnum}
-    #nav a{display:flex;align-items:baseline;gap:9px;padding:9px 2px !important;
-      border-bottom:1px solid var(--line-soft) !important;font-size:13.5px;
-      counter-increment:mnum;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    #nav a:nth-last-child(-n+2){border-bottom:0 !important}
+    /* Les huit rubriques côte à côte, en bande légère : elles s'enchaînent
+       sur deux ou trois lignes, toutes lisibles, sans grille ni filets —
+       le menu redevient une ligne de texte, pas un pavé. */
+    #nav{display:flex;flex-direction:row;flex-wrap:wrap;gap:1px 16px;
+      padding:9px 20px 11px;counter-reset:mnum;justify-content:flex-start}
+    #nav a{display:inline-flex;align-items:baseline;gap:6px;
+      padding:4px 0 !important;border:0 !important;font-size:13.5px;
+      counter-increment:mnum;white-space:nowrap}
     #nav a::before{content:counter(mnum,decimal-leading-zero);font-family:var(--mono-f);
-      font-size:9.5px;font-weight:700;color:var(--brass);letter-spacing:.08em;flex:none}
+      font-size:9px;font-weight:700;color:var(--brass);letter-spacing:.06em;flex:none}
     /* Le sommaire sous le bandeau doublerait ce menu : il s'efface ici. */
     .somm{display:none}
   }
@@ -879,7 +878,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v2</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v3</b></span>
       </span>
     </a>
     
