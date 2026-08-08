@@ -793,6 +793,30 @@
     .somm a{padding:11px 2px;margin-right:0}
   }
 
+  /* ── LE MENU, VISIBLE PARTOUT ──────────────────────────────────────────
+     Plus de bouton ☰ : un menu caché est un menu qu'on ne trouve pas.
+     Téléphone : liste verticale numérotée sous l'en-tête, dans la page.
+     Tablette : la même, en ligne. Grand écran : la colonne fixe de gauche
+     prend le relais et celle-ci s'efface. */
+  .burger{display:none !important}
+  #nav{position:static !important;transform:none !important;visibility:visible !important;
+    display:flex;background:var(--paper);border-bottom:1px solid var(--line);
+    max-width:1060px;margin:0 auto;box-shadow:none !important}
+  @media (min-width:761px) and (max-width:1279px){
+    #nav{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:0 4px;padding:4px 20px}
+  }
+  @media (max-width:760px){
+    #nav{flex-direction:column;padding:2px 20px 6px;counter-reset:mnum}
+    #nav a{display:flex;align-items:baseline;gap:12px;padding:11px 2px !important;
+      border-bottom:1px solid var(--line-soft) !important;font-size:14px;counter-increment:mnum}
+    #nav a:last-child{border-bottom:0 !important}
+    #nav a::before{content:counter(mnum,decimal-leading-zero);font-family:var(--mono-f);
+      font-size:10px;font-weight:700;color:var(--brass);letter-spacing:.08em;flex:none}
+    /* Le sommaire sous le bandeau doublerait ce menu : il s'efface ici. */
+    .somm{display:none}
+  }
+  @media (min-width:1280px){#nav{display:none}}
+
 </style>
 </head>
 <body>
@@ -824,7 +848,14 @@
         <span class="s">Maître Adel JEDDI · Argenteuil</span>
       </span>
     </a>
-    <nav id="nav">
+    
+    <div style="display:flex;gap:9px;align-items:center">
+      <a class="btn p desk" href="#contact">Prendre rendez-vous</a>
+    </div>
+  </div>
+</header>
+
+<nav id="nav">
       <a href="#cabinet">Le cabinet</a>
       <a href="#domaines">Domaines</a>
       <a href="#delai">Vos délais</a>
@@ -834,12 +865,6 @@
       <a href="#questions">Questions</a>
       <a href="#contact">Contact</a>
     </nav>
-    <div style="display:flex;gap:9px;align-items:center">
-      <a class="btn p desk" href="#contact">Prendre rendez-vous</a>
-      <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav">☰</button>
-    </div>
-  </div>
-</header>
 
 <nav class="lat" aria-label="Sommaire permanent">
   <span class="lt">Sommaire</span>
