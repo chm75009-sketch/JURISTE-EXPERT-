@@ -721,35 +721,84 @@
   header{border-bottom-color:var(--line)}
   header.defile{border-bottom-color:var(--ink)}
 
-  /* ── LA COUVERTURE DU DOSSIER ──────────────────────────────────────────
-     Elle recouvre l'écran une demi-seconde puis se soulève, découvrant la
-     page. Tout est en CSS : une animation qui dépend d'un script peut
-     rester bloquée sur un écran noir, une @keyframes ne le peut pas. Elle
-     n'intercepte aucun clic, et ne se joue pas du tout chez le visiteur qui
-     a demandé moins d'animations. */
-  .couv{position:fixed;inset:0;z-index:900;background:#0d0f12;
-    display:grid;place-items:center;pointer-events:none;
-    border-bottom:2px solid #8b1c2b;
-    animation:couv-leve .7s cubic-bezier(.76,0,.24,1) .5s forwards}
-  .couv-in{text-align:center;padding:0 20px;animation:couv-fond .38s ease .44s forwards}
+  /* ── LE CODE QUI S'OUVRE ───────────────────────────────────────────────
+     La couverture d'un code — encre, cadre rouge, titre au fer — tient
+     l'écran une bonne seconde, puis pivote lentement sur sa tranche gauche
+     comme on ouvre le livre, et découvre la page. Trois secondes en tout :
+     le geste se voit, il ne se subit pas. Tout est en CSS : une animation
+     qui dépend d'un script peut rester bloquée sur un écran noir, une
+     @keyframes ne le peut pas. Elle n'intercepte aucun clic, et ne se joue
+     pas du tout chez le visiteur qui a demandé moins d'animations. */
+  .couv{position:fixed;inset:0;z-index:900;pointer-events:none;perspective:1500px}
+  .couv-livre{position:absolute;inset:0;background:#0d0f12;transform-origin:0% 50%;
+    display:grid;place-items:center;
+    animation:couv-ouvre 2.1s cubic-bezier(.66,0,.32,1) 1.1s forwards}
+  /* Le cadre au fer, comme sur la couverture d'un vrai code. */
+  .couv-livre::before{content:"";position:absolute;inset:16px;
+    border:1.5px solid rgba(139,28,43,.85);pointer-events:none}
+  .couv-livre::after{content:"";position:absolute;inset:22px;
+    border:1px solid rgba(244,241,234,.14);pointer-events:none}
+  /* L'ombre de la tranche, qui se creuse pendant l'ouverture. */
+  .couv-in{text-align:center;padding:0 26px}
   .couv .c1{display:block;font-family:var(--mono-f);font-size:10.5px;letter-spacing:.22em;
     text-transform:uppercase;color:rgba(244,241,234,.55)}
   .couv .c2{display:block;font-family:var(--serif);font-size:clamp(30px,7vw,52px);
-    font-weight:700;letter-spacing:.05em;color:#f4f1ea;margin:12px 0 12px}
-  .couv .c3{display:block;width:56px;height:2px;background:#8b1c2b;margin:0 auto}
-  @keyframes couv-leve{to{transform:translateY(-101%);visibility:hidden}}
-  @keyframes couv-fond{to{opacity:0}}
+    font-weight:700;letter-spacing:.05em;color:#f4f1ea;margin:14px 0 14px}
+  .couv .c3{display:block;width:56px;height:2px;background:#8b1c2b;margin:0 auto 14px}
+  .couv .c4{display:block;font-family:var(--mono-f);font-size:9.5px;letter-spacing:.26em;
+    text-transform:uppercase;color:rgba(212,112,124,.85)}
+  @keyframes couv-ouvre{
+    0%{transform:rotateY(0);opacity:1}
+    72%{opacity:1}
+    99%{visibility:visible}
+    100%{transform:rotateY(-86deg);opacity:0;visibility:hidden}
+  }
   @media (prefers-reduced-motion:reduce){.couv{display:none}}
+
+  /* ── LE MENU VERTICAL ──────────────────────────────────────────────────
+     Sur grand écran, les rubriques ne se cachent plus dans une ligne
+     horizontale : elles tiennent une colonne fixe à gauche, numérotées,
+     toutes visibles en permanence — la tranche du classeur. Sur téléphone,
+     où la colonne ne tient pas, c'est le sommaire sous le bandeau qui
+     assure le même rôle, une rubrique par ligne. */
+  .lat{display:none}
+  @media (min-width:1280px){
+    body{padding-left:222px}
+    #nav{display:none}
+    .lat{display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;
+      width:222px;z-index:55;background:var(--paper);border-right:1px solid var(--line);
+      padding:20px 20px 16px;overflow:auto}
+    .lat .lt{font-family:var(--mono-f);font-size:9.5px;letter-spacing:.2em;
+      text-transform:uppercase;color:var(--muted);padding-bottom:10px;
+      border-bottom:1px solid var(--ink);margin-bottom:4px}
+    .lat a{display:flex;gap:11px;align-items:baseline;padding:11px 2px;
+      border-bottom:1px solid var(--line-soft);font-size:13.5px;color:var(--ink2);
+      text-decoration:none;line-height:1.35}
+    .lat a b{font-family:var(--mono-f);font-size:10px;font-weight:700;
+      color:var(--brass);letter-spacing:.08em;flex:none}
+    .lat a:hover{color:var(--ink)}
+    .lat .tel{margin-top:auto;border-bottom:0;padding-top:16px;
+      font-family:var(--mono-f);font-size:12.5px;color:var(--ink)}
+  }
+  /* Sur téléphone, le sommaire passe en colonne : huit lignes, toutes lisibles. */
+  @media (max-width:760px){
+    .somm ol{grid-template-columns:1fr}
+    .somm li{border-right:0 !important}
+    .somm a{padding:11px 2px;margin-right:0}
+  }
 
 </style>
 </head>
 <body>
 
 <div class="couv" aria-hidden="true">
-  <div class="couv-in">
-    <span class="c1">Dossier ouvert en 2004 · Barreau du Val-d'Oise</span>
-    <span class="c2">CJ AVOCATS</span>
-    <span class="c3"></span>
+  <div class="couv-livre">
+    <div class="couv-in">
+      <span class="c1">Barreau du Val-d'Oise · Depuis 2004</span>
+      <span class="c2">CJ AVOCATS</span>
+      <span class="c3"></span>
+      <span class="c4">Conseil &amp; contentieux</span>
+    </div>
   </div>
 </div>
 <a class="skip" href="#contenu">Aller au contenu</a>
@@ -785,6 +834,19 @@
   </div>
 </header>
 
+<nav class="lat" aria-label="Sommaire permanent">
+  <span class="lt">Sommaire</span>
+  <a href="#delai"><b>01</b>Vos délais</a>
+  <a href="#cabinet"><b>02</b>Le cabinet</a>
+  <a href="#domaines"><b>03</b>Domaines</a>
+  <a href="#deroule"><b>04</b>Votre dossier</a>
+  <a href="#honoraires"><b>05</b>Honoraires</a>
+  <a href="#avis"><b>06</b>Avis clients</a>
+  <a href="#questions"><b>07</b>Questions</a>
+  <a href="#contact"><b>08</b>Contact</a>
+  <a class="tel" href="tel:+33134340882">01 34 34 08 82</a>
+</nav>
+
 <main id="contenu">
 <div class="col">
 
@@ -815,7 +877,7 @@
       </div>
     </div>
     <div class="juris">
-      <span>Tribunal judiciaire</span><span>Tribunal de commerce</span><span>Conseil de prud'hommes</span>
+      <span>Tribunal judiciaire</span><span>Tribunal correctionnel</span><span>Tribunal de commerce</span><span>Conseil de prud'hommes</span>
       <span>Juge aux affaires familiales</span><span>Cour d'appel</span><span>Juridictions administratives</span>
     </div>
   </section>

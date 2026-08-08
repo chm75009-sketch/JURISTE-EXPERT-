@@ -630,12 +630,13 @@ const ok = (c, m, d) => {
     ok(await m.locator('.somm a').count() === 8, 'le sommaire numéroté mène aux huit sections');
     ok(await m.locator('.tampon').count() === 1, 'le tampon du barreau est posé');
     ok(await m.locator('.couv').count() === 1, 'la couverture d\'ouverture existe');
-    /* Elle doit être partie toute seule : animation CSS, fill-mode forwards. */
-    await m.waitForTimeout(1400);
-    ok(await m.locator('.couv').evaluate(e => {
-      const r = e.getBoundingClientRect();
-      return r.bottom <= 0 || getComputedStyle(e).visibility === 'hidden';
-    }), 'la couverture s\'est soulevée sans laisser d\'écran bloqué');
+    /* Elle doit être partie toute seule : animation CSS, fill-mode forwards.
+       Le code s'ouvre lentement — 1,1 s d'attente puis 2,1 s d'ouverture :
+       on regarde après 3,4 s. */
+    await m.waitForTimeout(3400);
+    ok(await m.locator('.couv-livre').evaluate(e =>
+      getComputedStyle(e).visibility === 'hidden' || +getComputedStyle(e).opacity === 0
+    ), 'le code s\'est ouvert sans laisser d\'écran bloqué');
     /* Plus une trace de la palette verte, dans le CSS comme dans le script. */
     const brut = fs.readFileSync(path.join(DOSSIER, 'maquette-3.html'), 'utf8');
     ok(!/#1f5a49|#163f33|#2c6f5b|#2b8168|#123a2e|#37997c|#9c7530|#d5ad5c|#cda85f/i.test(brut),
