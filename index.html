@@ -1081,7 +1081,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.156';
+var JX_BUILD = 'v2026-08-08.157';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1091,6 +1091,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.157', d:'8 aout 2026', t:[
+   'L\'ADAPTATION AU-DELA DE 50 SALARIES — elle n\'existait pas. Entre « 50-199 » et « 10 000 et plus », l\'accueil montrait exactement les memes modules : les seuls seuils branches etaient 11 et 50, et par page seulement. Les seuils se portent maintenant par CARTE : BDESE a 50 (L.2312-18), index egalite a 50 (L.1142-8), et la CSSCT — qui n\'avait pas de carte — apparait a 300 (L.2315-36). Le point « referent employeur » du module harcelement ne se pose plus qu\'a partir de 250 salaries, y compris quand l\'effectif vient d\'une tranche. Et le bandeau annoncait le reglement interieur a 20 salaries : c\'est 50 depuis la loi PACTE (L.1311-2).'
+ ]},
  {v:'v2026-08-08.156', d:'8 aout 2026', t:[
    'iPHONE — LA ROUE DES TRANCHES SE REFERMAIT AUSSITOT OUVERTE. iOS envoie le choix pendant que la roue est encore affichee ; l\'ecran se redessinait a cet instant et detruisait le selecteur sous elle. La reponse est desormais appliquee a la fermeture de la roue, plus pendant.'
  ]},
@@ -8959,8 +8962,8 @@ var FAM=[
      {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'}
    ]},
    {t:'INFORMER LE COMITÉ', s:'la base de données et l’index', pastille:'#3f9b7a', cartes:[
-     {emo:'🗃️', lib:'BDESE — la base de données', page:'csehub', act:'goBdese()', tag:'BDESE', chip:'Six années'},
-     {emo:'⚖️', lib:'Index égalité femmes-hommes', page:'csehub', act:'goIndexEgalite()', tag:'Index'}
+     {emo:'🗃️', lib:'BDESE — la base de données', page:'csehub', act:'goBdese()', tag:'BDESE', chip:'Six années', seuil:[50,'L.2312-18']},
+     {emo:'⚖️', lib:'Index égalité femmes-hommes', page:'csehub', act:'goIndexEgalite()', tag:'Index', seuil:[50,'L.1142-8']}
    ]},
    {t:'FAIRE VIVRE LE COMITÉ', s:'une fois qu’il est élu', pastille:'#d6a842', cartes:[
      {emo:'📅', lib:'Calendrier des réunions', page:'csecal', tag:'Calendrier'},
@@ -8968,6 +8971,7 @@ var FAM=[
      {emo:'📝', lib:'Réclamations', page:'csercl', tag:'Réclamations'},
      {emo:'📈', lib:'Consultations récurrentes', page:'csecns', tag:'Consultations'},
      {emo:'💶', lib:'Budgets et comptes', page:'csebud', tag:'Budgets'},
+     {emo:'🦺', lib:'CSSCT — commission santé, sécurité et conditions de travail', page:'csefonc', tag:'Commission', seuil:[300,'L.2315-36']},
      {emo:'⚙️', lib:'Fonctionnement — la référence', page:'csefonc', tag:'Référence'}
    ]},
    {t:'UNE QUESTION, UNE RÉPONSE', s:'sans chercher dans le Code', pastille:'#46b885', cartes:[
@@ -9059,9 +9063,13 @@ var FAM_SEUIL={
 };
 /* Vrai quand le module ne PEUT PAS s'appliquer, au vu de ce qu'on sait de
    l'effectif. Effectif inconnu : rien n'est mis de cote. */
+/* Le seuil d'une carte : porte par la carte elle-meme quand plusieurs
+   cartes partagent une page (BDESE et index vivent dans csehub), sinon
+   par la table des pages. */
+function famSeuilDe(c){ return (c&&c.seuil)||FAM_SEUIL[c&&c.page]||null; }
 function famHorsTaille(c){
   try{
-    var sl=FAM_SEUIL[c&&c.page]; if(!sl) return false;
+    var sl=famSeuilDe(c); if(!sl) return false;
     var m=jxEffectifMax(); if(m===null) return false;
     return m < sl[0];
   }catch(e){ return false; }
@@ -9134,7 +9142,7 @@ function famRender(){
   } else {
     var pro=[];
     if(eff>=11) pro.push('comité obligatoire'); else pro.push('pas de comité avant onze');
-    if(eff>=20) pro.push('règlement intérieur');
+    if(eff>=50) pro.push('règlement intérieur');   /* obligatoire a 50 — L.1311-2 */
     if(eff>=50) pro.push('budgets et consultations');
     if(eff>=300) pro.push('commissions');
     var _src=''; try{ _src=cseEffectifSource().txt||''; }catch(e){}
@@ -9234,7 +9242,7 @@ function famRender(){
         +(_m===Infinity?'cet effectif':(_m+' salarié'+(_m>1?'s':'')))+'</summary>'
         +'<div class="fam-hors-l">';
       _hors.forEach(function(c){
-        var sl=FAM_SEUIL[c.page];
+        var sl=famSeuilDe(c);
         h+='<button onclick="goPage(\''+c.page+'\')">'
           +'<span class="hl">'+famEsc(c.lib)+'</span>'
           +'<span class="hs">à partir de '+sl[0]+' salariés — '+famEsc(sl[1])+'</span></button>';
@@ -11163,7 +11171,14 @@ function hpSave(){ try{ localStorage.setItem(hpKey(), JSON.stringify(HP)); }catc
 function hpEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function hpFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
 function hpAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
-function hpEff(){ try{ return cseEffectif(); }catch(e){ return null; } }
+function hpEff(){
+  /* L'effectif calcule d'abord ; sinon la borne haute de la tranche —
+     comme partout ailleurs. Sans cela, le point « referent employeur
+     (250 salaries et plus) » se posait aussi a une entreprise de dix. */
+  try{ var n=cseEffectif(); if(n!==null) return n; }catch(e){}
+  try{ var m=jxEffectifMax(); if(m!==null && m!==Infinity) return m; if(m===Infinity) return 999999; }catch(e){}
+  return null;
+}
 function hpOnEnter(){ hpLoad(); hpRender(); }
 
 /* Les douze points. Chacun : la question posee a l'employeur, l'article,
