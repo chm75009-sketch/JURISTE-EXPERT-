@@ -730,23 +730,29 @@
      @keyframes ne le peut pas. Elle n'intercepte aucun clic, et ne se joue
      pas du tout chez le visiteur qui a demandé moins d'animations. */
   .couv{position:fixed;inset:0;z-index:900;pointer-events:none;perspective:1500px}
-  .couv-livre{position:absolute;inset:0;background:#0d0f12;transform-origin:0% 50%;
+  /* Rouge : c'est la couleur des codes en France, et c'est déjà le rouge du
+     site — la couverture et le tampon sortent du même encrier. */
+  .couv-livre{position:absolute;inset:0;background:#8b1c2b;transform-origin:0% 50%;
     display:grid;place-items:center;
-    animation:couv-ouvre 2.1s cubic-bezier(.66,0,.32,1) 1.1s forwards}
-  /* Le cadre au fer, comme sur la couverture d'un vrai code. */
+    background-image:linear-gradient(90deg,rgba(0,0,0,.30),rgba(0,0,0,0) 9%),
+      linear-gradient(180deg,rgba(255,255,255,.05),rgba(0,0,0,.12));
+    animation:couv-ouvre 3.4s cubic-bezier(.6,0,.3,1) 1.6s forwards}
+  /* Le double filet au fer, comme sur la couverture d'un vrai code. */
   .couv-livre::before{content:"";position:absolute;inset:16px;
-    border:1.5px solid rgba(139,28,43,.85);pointer-events:none}
+    border:1.5px solid rgba(244,241,234,.6);pointer-events:none}
   .couv-livre::after{content:"";position:absolute;inset:22px;
-    border:1px solid rgba(244,241,234,.14);pointer-events:none}
+    border:1px solid rgba(244,241,234,.22);pointer-events:none}
   /* L'ombre de la tranche, qui se creuse pendant l'ouverture. */
   .couv-in{text-align:center;padding:0 26px}
   .couv .c1{display:block;font-family:var(--mono-f);font-size:10.5px;letter-spacing:.22em;
-    text-transform:uppercase;color:rgba(244,241,234,.55)}
+    text-transform:uppercase;color:rgba(244,241,234,.75)}
   .couv .c2{display:block;font-family:var(--serif);font-size:clamp(30px,7vw,52px);
     font-weight:700;letter-spacing:.05em;color:#f4f1ea;margin:14px 0 14px}
-  .couv .c3{display:block;width:56px;height:2px;background:#8b1c2b;margin:0 auto 14px}
-  .couv .c4{display:block;font-family:var(--mono-f);font-size:9.5px;letter-spacing:.26em;
-    text-transform:uppercase;color:rgba(212,112,124,.85)}
+  .couv .c3{display:block;width:56px;height:2px;background:#f4f1ea;margin:0 auto 14px}
+  .couv .c4{display:block;font-family:var(--serif);font-size:clamp(17px,2.4vw,23px);
+    letter-spacing:.03em;color:#f4f1ea;margin-bottom:8px}
+  .couv .c5{display:block;font-family:var(--mono-f);font-size:9.5px;letter-spacing:.26em;
+    text-transform:uppercase;color:rgba(244,241,234,.8)}
   @keyframes couv-ouvre{
     0%{transform:rotateY(0);opacity:1}
     72%{opacity:1}
@@ -794,10 +800,11 @@
 <div class="couv" aria-hidden="true">
   <div class="couv-livre">
     <div class="couv-in">
-      <span class="c1">Barreau du Val-d'Oise · Depuis 2004</span>
+      <span class="c1">Conseil &amp; contentieux · Depuis 2004</span>
       <span class="c2">CJ AVOCATS</span>
       <span class="c3"></span>
-      <span class="c4">Conseil &amp; contentieux</span>
+      <span class="c4">Maître Adel JEDDI</span>
+      <span class="c5">Avocat au Barreau du Val-d'Oise</span>
     </div>
   </div>
 </div>

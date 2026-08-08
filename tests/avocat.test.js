@@ -631,9 +631,9 @@ const ok = (c, m, d) => {
     ok(await m.locator('.tampon').count() === 1, 'le tampon du barreau est posé');
     ok(await m.locator('.couv').count() === 1, 'la couverture d\'ouverture existe');
     /* Elle doit être partie toute seule : animation CSS, fill-mode forwards.
-       Le code s'ouvre lentement — 1,1 s d'attente puis 2,1 s d'ouverture :
-       on regarde après 3,4 s. */
-    await m.waitForTimeout(3400);
+       Le code s'ouvre lentement — 1,6 s fermé puis 3,4 s d'ouverture :
+       on regarde après 5,4 s. */
+    await m.waitForTimeout(5400);
     ok(await m.locator('.couv-livre').evaluate(e =>
       getComputedStyle(e).visibility === 'hidden' || +getComputedStyle(e).opacity === 0
     ), 'le code s\'est ouvert sans laisser d\'écran bloqué');
