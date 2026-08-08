@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MAQUETTE — seconde piste graphique, proposée à côté du site actuel.
+     Elle n'est liée depuis nulle part et porte, comme les autres pages,
+     une balise noindex. À SUPPRIMER si la piste n'est pas retenue. -->
+<meta name="robots" content="noindex, nofollow">
+<title>CJ AVOCATS — seconde maquette · Maître Adel JEDDI, Argenteuil</title>
+<meta name="description" content="Seconde piste graphique pour le site du cabinet CJ AVOCATS, Maître Adel JEDDI, avocat au Barreau du Val-d'Oise.">
+<meta name="theme-color" content="#f3f0e9">
+<link rel="icon" href="./icone-192.png" type="image/png">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   SECONDE MAQUETTE — « LE DOSSIER »
+
+   La première piste habille le cabinet : vert profond, laiton, portrait en
+   médaillon. Celle-ci fait le contraire — elle ne décore rien, elle emprunte
+   la forme de l'objet que l'avocat manipule toute la journée : un dossier.
+
+   Trois partis pris, et rien d'autre :
+
+   1. LA MARGE COTÉE. Chaque section porte, dans une colonne de gauche qui ne
+      contient que ça, son numéro de pièce et son intitulé, en machine à
+      écrire. C'est la structure entière du site : pas une carte, pas une
+      ombre portée. Ce qui organise la page, ce sont des filets et du blanc.
+
+   2. LE TAMPON. Un seul élément rouge sur toute la page d'accueil, tracé en
+      CSS, incliné de sept degrés : le barreau et l'année du serment. Le rouge
+      ne sert nulle part ailleurs qu'à ce qui engage — le tampon, les délais
+      courts, les erreurs de formulaire. Une couleur qui ne veut dire qu'une
+      chose se remarque ; une couleur décorative ne se voit plus.
+
+   3. LA TYPOGRAPHIE SEULE. Aucune police téléchargée : Georgia pour le
+      display, la police du système pour le texte, la monospace du système
+      pour les cotes. Le site s'affiche identique hors ligne, se charge
+      instantanément, et ne prévient aucun serveur tiers du passage du
+      visiteur — ce qui, pour un cabinet d'avocat, n'est pas un détail
+      technique mais une question de secret.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+*{box-sizing:border-box}
+:root{
+  --papier:#f4f1ea;
+  --papier-2:#ebe7dd;
+  --encre:#181a1e;
+  --encre-2:#4a4d54;
+  --gris:#75736c;
+  --rouge:#8b1c2b;
+  --rouge-cl:#a8323f;
+  --trait:rgba(24,26,30,.15);
+  --trait-f:rgba(24,26,30,.07);
+  --surlign:rgba(139,28,43,.10);
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --marge:168px;
+  --gout:52px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --papier:#131417;
+    --papier-2:#191b1f;
+    --encre:#eae6dd;
+    --encre-2:#b6b2a9;
+    --gris:#8b877e;
+    --rouge:#d4707c;
+    --rouge-cl:#e08a95;
+    --trait:rgba(234,230,221,.17);
+    --trait-f:rgba(234,230,221,.08);
+    --surlign:rgba(212,112,124,.14);
+  }
+}
+
+html{scroll-behavior:smooth}
+/* Les ancres ne doivent pas s'arrêter sous l'en-tête collé. */
+section[id]{scroll-margin-top:78px}
+body{
+  margin:0;background:var(--papier);color:var(--encre);
+  font-family:var(--sans);font-size:16.5px;line-height:1.68;
+  -webkit-font-smoothing:antialiased;
+  /* Une réglure très pâle, comme le papier d'un registre. Elle ne se lit
+     pas, elle se sent : elle empêche le fond d'être un aplat mort. */
+  background-image:repeating-linear-gradient(to bottom,
+    var(--trait-f) 0 1px, transparent 1px 34px);
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+.page{max-width:1220px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}
+
+/* ── Les cotes, l'élément de langage du site ─────────────────────────────── */
+.cote{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gris);font-weight:500}
+.cote b{color:var(--rouge);font-weight:700}
+
+/* ── En-tête ─────────────────────────────────────────────────────────────── */
+header{position:sticky;top:0;z-index:60;background:var(--papier);
+  border-bottom:1px solid transparent;transition:border-color .2s ease}
+header.defile{border-bottom-color:var(--trait)}
+.hd{display:flex;align-items:center;gap:22px;height:64px}
+.logo{display:flex;align-items:baseline;gap:10px;text-decoration:none;flex:none}
+.logo .n{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:.02em}
+.logo .s{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris)}
+#nav{margin-left:auto;display:flex;gap:26px}
+#nav a{font-size:13.5px;text-decoration:none;color:var(--encre-2);padding:4px 0;
+  border-bottom:1px solid transparent}
+#nav a:hover{color:var(--encre);border-bottom-color:var(--rouge)}
+.hd .appel{flex:none;font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  text-decoration:none;border:1px solid var(--encre);padding:9px 15px;color:var(--encre)}
+.hd .appel:hover{background:var(--encre);color:var(--papier)}
+.burger{display:none;margin-left:auto;background:none;border:1px solid var(--trait);
+  width:42px;height:38px;font-size:17px;cursor:pointer;color:var(--encre);font-family:inherit}
+
+/* ── Bandeau d'ouverture ─────────────────────────────────────────────────── */
+.ouv{padding-top:clamp(44px,7vw,84px);padding-bottom:clamp(38px,5vw,60px);position:relative}
+.ouv .grille{display:grid;grid-template-columns:1fr 300px;gap:var(--gout);align-items:start}
+.ouv h1{font-family:var(--serif);font-weight:400;margin:0 0 26px;
+  font-size:clamp(38px,6.1vw,72px);line-height:1.03;letter-spacing:-.022em;text-wrap:balance}
+.ouv h1 em{font-style:italic;color:var(--rouge)}
+.ouv .chapo{font-size:clamp(16.5px,1.6vw,19px);line-height:1.62;max-width:44ch;color:var(--encre-2);margin:0}
+.ouv .sous{margin-top:34px;display:flex;flex-wrap:wrap;gap:14px 26px;align-items:center}
+.bt{display:inline-block;text-decoration:none;font-family:var(--mono);font-size:12.5px;
+  letter-spacing:.09em;text-transform:uppercase;padding:14px 22px;border:1px solid var(--encre);
+  color:var(--encre);background:none;cursor:pointer}
+.bt:hover{background:var(--encre);color:var(--papier)}
+.bt.plein{background:var(--encre);color:var(--papier)}
+.bt.plein:hover{background:var(--rouge);border-color:var(--rouge);color:#fff}
+
+/* Le tampon. Deux traits, une inclinaison, rien de plus : un vrai tampon
+   d'huissier n'est jamais plus compliqué que ça. */
+.tampon{transform:rotate(-6.5deg);border:2.5px solid var(--rouge);flex:none;
+  color:var(--rouge);padding:11px 17px 9px;text-align:center;
+  box-shadow:0 0 0 1px var(--papier), 0 0 0 3.5px var(--rouge);margin-left:18px;
+  opacity:.9}
+.tampon .t1{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  display:block;line-height:1.5}
+.tampon .t2{font-family:var(--serif);font-size:27px;font-weight:700;display:block;line-height:1.05;
+  letter-spacing:.04em;margin:3px 0 1px}
+.tampon .t3{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;
+  display:block;color:var(--rouge-cl)}
+
+.portrait{width:184px;height:184px;border-radius:50%;overflow:hidden;position:relative;
+  border:1px solid var(--trait);margin-bottom:24px;background:var(--papier-2)}
+.portrait img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.06)}
+.ident{border-top:1px solid var(--encre);padding-top:14px}
+.ident .nom{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.2}
+.ident .qual{font-size:13.5px;color:var(--gris);margin-top:4px}
+.ident dl{margin:16px 0 0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px}
+.ident dt{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gris);padding-top:3px}
+.ident dd{margin:0;color:var(--encre-2)}
+
+/* ── Le sommaire, en première page comme dans un dossier ─────────────────── */
+.somm{border-top:1px solid var(--encre);border-bottom:1px solid var(--trait);
+  margin-top:clamp(38px,5vw,58px);padding:8px 0}
+.somm ol{list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){.somm ol{grid-template-columns:repeat(2,1fr)}}
+.somm li{border-right:1px solid var(--trait-f)}
+.somm li:nth-child(4n),.somm li:last-child{border-right:0}
+@media (max-width:900px){.somm li:nth-child(2n){border-right:0}
+  .somm li:nth-child(4n){border-right:1px solid var(--trait-f)}}
+.somm a{display:block;text-decoration:none;padding:15px 18px 15px 0;margin-right:18px}
+.somm a:hover .ti{color:var(--rouge)}
+.somm .nu{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--gris)}
+.somm .ti{display:block;font-family:var(--serif);font-size:16.5px;margin-top:3px;line-height:1.25}
+
+/* ── Le gabarit de section : marge cotée à gauche, contenu à droite ──────── */
+.sec{display:grid;grid-template-columns:var(--marge) 1fr;gap:var(--gout);
+  padding-top:clamp(44px,6vw,76px);padding-bottom:clamp(44px,6vw,76px);
+  border-top:1px solid var(--trait)}
+.sec > .marge{position:sticky;top:88px;align-self:start}
+.marge .num{font-family:var(--serif);font-size:40px;line-height:1;color:var(--rouge);
+  font-weight:400;letter-spacing:-.02em}
+.marge .lb{display:block;margin-top:9px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gris);line-height:1.7}
+.marge .fl{width:28px;height:1px;background:var(--encre);margin:14px 0 0}
+
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(27px,3.3vw,38px);line-height:1.16;
+  margin:0 0 18px;letter-spacing:-.018em;text-wrap:balance}
+h3{font-family:var(--serif);font-weight:700;font-size:19px;margin:0 0 6px;line-height:1.3}
+p{margin:0 0 15px;max-width:66ch}
+.txt-l p{max-width:none}
+.lead{font-size:18px;color:var(--encre-2);line-height:1.62}
+
+/* ── Domaines : un registre, pas des cartes ──────────────────────────────── */
+.reg{border-top:1px solid var(--encre)}
+.reg .li{display:grid;grid-template-columns:34px 1fr 152px;gap:20px;align-items:baseline;
+  padding:19px 0;border-bottom:1px solid var(--trait);text-decoration:none;color:inherit}
+.reg .li:hover{background:var(--papier-2)}
+.reg .li:hover h3{color:var(--rouge)}
+.reg .k{font-family:var(--mono);font-size:11px;color:var(--gris);letter-spacing:.1em}
+.reg .li p{margin:4px 0 0;font-size:14.5px;color:var(--encre-2);line-height:1.55}
+.reg .pub{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gris);text-align:right}
+.reg .li:hover .pub{color:var(--rouge)}
+@media (max-width:640px){
+  .reg .li{grid-template-columns:28px 1fr}
+  .reg .pub{display:none}
+}
+
+/* ── Chronologie du dossier ──────────────────────────────────────────────── */
+.chrono{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:8px}
+.chrono .et{padding:0 22px 0 0;position:relative}
+.chrono .et::before{content:"";position:absolute;left:0;right:0;top:9px;height:1px;background:var(--trait)}
+.chrono .et::after{content:"";position:absolute;left:0;top:5px;width:9px;height:9px;
+  border-radius:50%;background:var(--papier);border:1.5px solid var(--rouge)}
+.chrono .et:first-child::after{background:var(--rouge)}
+.chrono .qd{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gris);padding-top:28px;display:block}
+.chrono h3{margin-top:6px;font-size:17px}
+.chrono p{font-size:14.5px;color:var(--encre-2);margin:0;line-height:1.55}
+@media (max-width:820px){
+  .chrono{grid-template-columns:1fr;gap:26px}
+  .chrono .et{padding:0 0 0 26px}
+  .chrono .et::before{left:4px;right:auto;top:0;bottom:-26px;width:1px;height:auto}
+  .chrono .et:last-child::before{display:none}
+  .chrono .et::after{left:0;top:6px}
+  .chrono .qd{padding-top:0}
+}
+
+/* ── Le délai : la pièce maîtresse ───────────────────────────────────────── */
+.dsel{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:0;
+  border-top:1px solid var(--encre)}
+.sit{text-align:left;background:none;border:0;border-bottom:1px solid var(--trait);
+  border-right:1px solid var(--trait-f);padding:15px 18px 15px 0;cursor:pointer;
+  font-family:inherit;font-size:15px;color:var(--encre);line-height:1.4;display:block;width:100%}
+.sit:hover{background:var(--papier-2)}
+.sit:hover .st{color:var(--rouge)}
+.sit .sd{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gris);display:block;margin-bottom:5px}
+.sit .st{display:block}
+
+.fiche{display:none}
+.fiche.on{display:block}
+.fiche .rt{background:none;border:0;font-family:var(--mono);font-size:11px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--gris);cursor:pointer;padding:0 0 16px}
+.fiche .rt:hover{color:var(--rouge)}
+.fiche .cartouche{border:1px solid var(--encre);padding:22px 24px}
+.fiche .cartouche .hh{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;
+  border-bottom:1px solid var(--trait);padding-bottom:16px;margin-bottom:16px}
+.fiche .cartouche h3{font-size:22px;margin:0;flex:1 1 260px}
+.duree{font-family:var(--serif);font-size:36px;line-height:1;color:var(--rouge);white-space:nowrap}
+.duree small{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--gris);margin-top:6px}
+.ligne{display:grid;grid-template-columns:112px 1fr;gap:8px 18px;font-size:14.5px;
+  padding:11px 0;border-bottom:1px solid var(--trait-f)}
+.ligne:last-of-type{border-bottom:0}
+.ligne dt{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gris);padding-top:3px}
+.ligne dd{margin:0;color:var(--encre-2)}
+.ligne dd ul{margin:0;padding-left:17px}
+.ligne dd li{margin-bottom:3px}
+.nuance{display:none;border-left:2px solid var(--rouge);background:var(--surlign);
+  padding:13px 16px;margin:14px 0 0;font-size:14.5px;line-height:1.55}
+.nuance.on{display:block}
+.nuance::before{content:"Précision jurisprudentielle";display:block;font-family:var(--mono);
+  font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--rouge);margin-bottom:5px}
+.calc{margin-top:20px;border-top:1px solid var(--encre);padding-top:18px}
+.calc label{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--gris);display:block;margin-bottom:7px}
+.calc input{font-family:var(--mono);font-size:15px;padding:11px 13px;border:1px solid var(--trait);
+  background:var(--papier);color:var(--encre);width:210px;max-width:100%}
+.calc input:focus{outline:2px solid var(--rouge);outline-offset:-1px;border-color:transparent}
+.verdict{display:none;margin-top:16px;font-size:15px;line-height:1.6}
+.verdict.on{display:block}
+.verdict .gd{font-family:var(--serif);font-size:31px;line-height:1.1;display:block;margin-bottom:6px}
+.verdict.vert .gd{color:#1e6b4e}
+.verdict.orange .gd{color:#9a5a12}
+.verdict.rouge .gd{color:var(--rouge)}
+@media (prefers-color-scheme:dark){
+  .verdict.vert .gd{color:#5fbf95}
+  .verdict.orange .gd{color:#d99a4e}
+}
+.jauge{height:3px;background:var(--trait);margin-top:12px;position:relative;overflow:hidden}
+.jauge i{position:absolute;inset:0 auto 0 0;background:#1e6b4e}
+.jauge i.orange{background:#9a5a12}
+.jauge i.rouge{background:var(--rouge)}
+.avert{font-size:12.5px;color:var(--gris);margin-top:14px;line-height:1.55;max-width:70ch}
+
+/* ── Honoraires ──────────────────────────────────────────────────────────── */
+.tarif{width:100%;border-collapse:collapse;font-size:15px}
+.tarif th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gris);font-weight:500;padding:0 14px 11px 0;
+  border-bottom:1px solid var(--encre)}
+.tarif td{padding:15px 14px 15px 0;border-bottom:1px solid var(--trait);vertical-align:top}
+.tarif td small{display:block;font-size:13px;color:var(--gris);margin-top:3px;line-height:1.45}
+.tarif .prix{font-family:var(--serif);font-size:21px;white-space:nowrap}
+.tarif .prix em{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gris);display:block;margin-top:2px}
+.tarif .oui{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:#1e6b4e;white-space:nowrap}
+@media (prefers-color-scheme:dark){.tarif .oui{color:#5fbf95}}
+.encart{border-left:2px solid var(--encre);padding:2px 0 2px 18px;margin:24px 0 0;font-size:14.5px;
+  line-height:1.6;color:var(--encre-2)}
+.encart b{color:var(--encre)}
+
+/* ── Témoignages ─────────────────────────────────────────────────────────── */
+.avis{border-top:1px solid var(--encre)}
+.av{padding:26px 0;border-bottom:1px solid var(--trait);display:grid;
+  grid-template-columns:42px 1fr;gap:20px}
+.av .gm{font-family:var(--serif);font-size:52px;line-height:.78;color:var(--rouge);opacity:.5}
+.av blockquote{margin:0;font-family:var(--serif);font-size:18.5px;line-height:1.52;
+  letter-spacing:-.005em}
+.av .sig{margin-top:11px;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--gris)}
+.av .sig .et{color:var(--rouge);letter-spacing:.08em;margin-right:9px}
+.avis-note{font-size:13px;color:var(--gris);margin-top:16px;line-height:1.6;max-width:70ch}
+
+/* ── Questions ───────────────────────────────────────────────────────────── */
+details{border-bottom:1px solid var(--trait)}
+details:first-of-type{border-top:1px solid var(--encre)}
+summary{cursor:pointer;padding:17px 34px 17px 0;font-family:var(--serif);font-size:17.5px;
+  position:relative;list-style:none;line-height:1.35}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:2px;top:15px;font-family:var(--mono);
+  font-size:18px;color:var(--rouge);line-height:1}
+details[open] summary::after{content:"\2212"}
+summary:hover{color:var(--rouge)}
+details .rep{padding:0 0 18px;font-size:15px;color:var(--encre-2);line-height:1.65}
+details .rep p{margin:0 0 11px}
+details .rep p:last-child{margin:0}
+
+/* ── Contact ─────────────────────────────────────────────────────────────── */
+.contact{display:grid;grid-template-columns:1fr 296px;gap:var(--gout)}
+form label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gris);margin:0 0 6px}
+form input,form select,form textarea{width:100%;font-family:inherit;font-size:15.5px;
+  padding:12px 13px;border:1px solid var(--trait);background:var(--papier);color:var(--encre);
+  margin-bottom:17px}
+form textarea{min-height:132px;resize:vertical;line-height:1.55}
+form input:focus,form select:focus,form textarea:focus{outline:2px solid var(--rouge);
+  outline-offset:-1px;border-color:transparent}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media (max-width:560px){.duo{grid-template-columns:1fr}}
+.consent{display:flex;gap:11px;align-items:flex-start;font-size:13px;color:var(--encre-2);
+  line-height:1.55;margin-bottom:18px}
+.consent input{width:17px;height:17px;margin:2px 0 0;flex:none;accent-color:var(--rouge)}
+.retour{display:none;margin-top:16px;padding:14px 16px;font-size:14.5px;line-height:1.55;
+  border-left:2px solid var(--rouge);background:var(--surlign)}
+.retour.on{display:block}
+.coord{border-top:1px solid var(--encre)}
+.coord .r{padding:15px 0;border-bottom:1px solid var(--trait)}
+.coord .r b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gris);font-weight:500;margin-bottom:5px}
+.coord .r a{color:var(--encre);text-decoration:none;border-bottom:1px solid var(--rouge)}
+.coord .r a:hover{color:var(--rouge)}
+.tofill{background:var(--surlign);border-bottom:1px dashed var(--rouge);padding:0 3px}
+
+/* ── Pied ────────────────────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--encre);margin-top:20px;padding:38px 0 54px;font-size:13.5px;
+  color:var(--encre-2)}
+footer .fg{display:flex;flex-wrap:wrap;gap:18px 34px;align-items:baseline}
+footer a{color:var(--encre-2)}
+footer a:hover{color:var(--rouge)}
+footer .mentions{font-size:12.5px;color:var(--gris);margin-top:22px;max-width:78ch;line-height:1.6}
+
+/* ── Téléphone ───────────────────────────────────────────────────────────── */
+@media (max-width:900px){
+  :root{--marge:0px;--gout:0px}
+  .sec{grid-template-columns:1fr;gap:22px}
+  .sec > .marge{position:static;display:flex;align-items:baseline;gap:12px}
+  .marge .num{font-size:24px}
+  .marge .lb{margin-top:0}
+  .marge .fl{display:none}
+  .ouv .grille{grid-template-columns:1fr}
+  .ouv .fiche-id{display:flex;gap:22px;align-items:flex-start;margin-top:34px}
+  .portrait{width:104px;height:104px;margin:0;flex:none}
+  .ident{flex:1;border-top:0;padding-top:0}
+  .contact{grid-template-columns:1fr;gap:34px}
+  #nav{display:none;position:fixed;inset:64px 0 auto;flex-direction:column;gap:0;
+    background:var(--papier);border-bottom:1px solid var(--encre);padding:6px 0}
+  #nav.on{display:flex}
+  #nav a{padding:14px clamp(20px,4vw,44px);border-bottom:1px solid var(--trait-f)}
+  .burger{display:block}
+  .hd .appel{display:none}
+  body{padding-bottom:62px}
+  .barre{position:fixed;left:0;right:0;bottom:0;z-index:70;display:grid;grid-template-columns:1fr 1fr;
+    border-top:1px solid var(--encre);background:var(--papier)}
+  .barre a{padding:17px 8px;text-align:center;text-decoration:none;font-family:var(--mono);
+    font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--encre)}
+  .barre a+a{border-left:1px solid var(--trait);background:var(--encre);color:var(--papier)}
+}
+@media (min-width:901px){.barre{display:none}}
+
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header id="entete">
+  <div class="page hd">
+    <a class="logo" href="#haut">
+      <span class="n">CJ AVOCATS</span>
+      <span class="s">Argenteuil</span>
+    </a>
+    <nav id="nav">
+      <a href="#cabinet">Le cabinet</a>
+      <a href="#domaines">Domaines</a>
+      <a href="#delai">Délais</a>
+      <a href="#honoraires">Honoraires</a>
+      <a href="#temoignages">Témoignages</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="appel" href="tel:+33134340882">01 34 34 08 82</a>
+    <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main id="haut">
+
+<!-- ═══ OUVERTURE ═══════════════════════════════════════════════════════ -->
+<section class="page ouv">
+  <div class="grille">
+    <div>
+      <p class="cote" style="margin:0 0 22px"><b>Dossier ouvert</b> &nbsp;·&nbsp; Barreau du Val-d'Oise &nbsp;·&nbsp; <span id="depuis">2004</span></p>
+      <h1>Un dossier se gagne<br>avant l'audience,<br><em>dans sa préparation.</em></h1>
+      <p class="chapo">CJ AVOCATS assiste particuliers et entreprises en conseil comme en
+        contentieux — famille, immobilier, travail, baux commerciaux, sociétés, recouvrement.
+        Le cabinet plaide dans toute la France, devant les juridictions judiciaires comme
+        administratives.</p>
+      <div class="sous">
+        <a class="bt plein" href="#contact">Exposer ma situation</a>
+        <a class="bt" href="#delai">Vérifier mon délai</a>
+        <div class="tampon" aria-label="Barreau du Val-d'Oise, serment prêté en 2004">
+          <span class="t1">Barreau du</span>
+          <span class="t2">VAL-D'OISE</span>
+          <span class="t3">Serment · 7 juin 2004</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fiche-id">
+      <div class="portrait">
+        <img src="./portrait.png" alt="Portrait de Maître Adel JEDDI" width="184" height="184">
+      </div>
+      <div class="ident">
+        <div class="nom">Maître Adel JEDDI</div>
+        <div class="qual">Avocat · Fondateur du cabinet</div>
+        <dl>
+          <dt>Barreau</dt><dd>Val-d'Oise</dd>
+          <dt>Serment</dt><dd>7 juin 2004</dd>
+          <dt>Exercice</dt><dd><span id="ans">22</span> années</dd>
+          <dt>Ressort</dt><dd>Toute la France</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <nav class="somm" aria-label="Sommaire">
+    <ol>
+      <li><a href="#cabinet"><span class="nu">01</span><span class="ti">Le cabinet</span></a></li>
+      <li><a href="#domaines"><span class="nu">02</span><span class="ti">Domaines</span></a></li>
+      <li><a href="#delai"><span class="nu">03</span><span class="ti">Le délai qui court</span></a></li>
+      <li><a href="#deroule"><span class="nu">04</span><span class="ti">Le déroulé</span></a></li>
+      <li><a href="#honoraires"><span class="nu">05</span><span class="ti">Honoraires</span></a></li>
+      <li><a href="#temoignages"><span class="nu">06</span><span class="ti">Témoignages</span></a></li>
+      <li><a href="#questions"><span class="nu">07</span><span class="ti">Questions</span></a></li>
+      <li><a href="#contact"><span class="nu">08</span><span class="ti">Contact</span></a></li>
+    </ol>
+  </nav>
+</section>
+
+<!-- ═══ 01 · LE CABINET ═════════════════════════════════════════════════ -->
+<section class="page sec" id="cabinet">
+  <div class="marge">
+    <div class="num">01</div><span class="lb">Le cabinet</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Deux terrains à la fois : sécuriser en amont, défendre quand il le faut.</h2>
+    <p class="lead">Le conseil intervient tant que la décision peut encore être corrigée — un bail
+      à relire, une clause à négocier, une rupture à organiser. Le contentieux prend le relais
+      lorsque l'affaire doit être portée devant un juge. C'est le même avocat qui suit le dossier
+      d'un bout à l'autre : celui qui a lu les pièces est celui qui plaide.</p>
+
+    <p>Le périmètre va du <b>droit de la famille</b> — divorce, séparation, autorité parentale —
+      au <b>droit immobilier</b> et au <b>droit du travail</b>. Les entreprises y trouvent un
+      interlocuteur habitué au <b>tribunal de commerce</b>, qu'il s'agisse de recouvrer une créance
+      impayée ou de défendre une position dans un litige de <b>bail commercial</b>.</p>
+
+    <p>Un dossier ne s'arrête pas aux limites du Val-d'Oise. Le cabinet se déplace devant les
+      juridictions de tout le territoire et travaille à distance lorsque c'est plus efficace pour
+      le client.</p>
+
+    <div class="chrono" style="margin-top:34px">
+      <div class="et"><span class="qd">Engagement 1</span>
+        <h3>Répondre vite</h3>
+        <p>Les dossiers se perdent rarement sur le fond. Ils se perdent sur un délai laissé passer.</p></div>
+      <div class="et"><span class="qd">Engagement 2</span>
+        <h3>Rester joignable</h3>
+        <p>Vous parlez à l'avocat qui plaide votre dossier, et vous savez quand le joindre.</p></div>
+      <div class="et"><span class="qd">Engagement 3</span>
+        <h3>Décomposer</h3>
+        <p>Les faits, les preuves, les délais, les options — examinés dans cet ordre, jamais un autre.</p></div>
+      <div class="et"><span class="qd">Engagement 4</span>
+        <h3>Suivre jusqu'au bout</h3>
+        <p>De la première consultation à l'exécution de la décision, y compris ce qui vient après.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 02 · DOMAINES ═══════════════════════════════════════════════════ -->
+<section class="page sec" id="domaines">
+  <div class="marge">
+    <div class="num">02</div><span class="lb">Domaines</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Six matières, deux publics.</h2>
+    <p class="lead">Les trois premières concernent surtout les particuliers, les trois suivantes
+      les entreprises. Beaucoup de dossiers relèvent des deux à la fois — un divorce qui emporte
+      le sort d'une société, un bail commercial dans un immeuble en copropriété.</p>
+
+    <div class="reg" style="margin-top:28px">
+      <a class="li" href="./domaine-famille.html">
+        <span class="k">01</span>
+        <span><h3>Droit de la famille</h3>
+          <p>Divorce par consentement mutuel ou contentieux, séparation, résidence des enfants,
+             pension alimentaire, prestation compensatoire, liquidation du régime matrimonial.</p></span>
+        <span class="pub">Particuliers →</span>
+      </a>
+      <a class="li" href="./domaine-immobilier.html">
+        <span class="k">02</span>
+        <span><h3>Droit immobilier</h3>
+          <p>Acquisition, promesse de vente, vices cachés, malfaçons et garantie décennale,
+             troubles de voisinage, copropriété, baux d'habitation et impayés.</p></span>
+        <span class="pub">Particuliers →</span>
+      </a>
+      <a class="li" href="./domaine-travail.html">
+        <span class="k">03</span>
+        <span><h3>Droit du travail</h3>
+          <p>Licenciement, rupture conventionnelle, heures supplémentaires impayées, harcèlement,
+             requalification, prud'hommes — côté salarié comme côté employeur.</p></span>
+        <span class="pub">Particuliers →</span>
+      </a>
+      <a class="li" href="./domaine-commercial.html">
+        <span class="k">04</span>
+        <span><h3>Tribunal de commerce</h3>
+          <p>Recouvrement de créances — mise en demeure, injonction de payer, référé-provision —
+             rupture brutale de relation commerciale, litiges entre professionnels.</p></span>
+        <span class="pub">Entreprises →</span>
+      </a>
+      <a class="li" href="./domaine-baux-commerciaux.html">
+        <span class="k">05</span>
+        <span><h3>Baux commerciaux &amp; fonds de commerce</h3>
+          <p>Rédaction et négociation, révision et déplafonnement du loyer, congé, renouvellement,
+             indemnité d'éviction, cession du fonds. Côté bailleur comme côté preneur.</p></span>
+        <span class="pub">Entreprises →</span>
+      </a>
+      <a class="li" href="./domaine-societes.html">
+        <span class="k">06</span>
+        <span><h3>Sociétés &amp; création d'entreprise</h3>
+          <p>Choix de la forme sociale, statuts, pacte d'associés, cession de parts,
+             conflits entre associés, assemblées et décisions contestées.</p></span>
+        <span class="pub">Entreprises →</span>
+      </a>
+    </div>
+
+    <div class="encart">
+      <b>Une expérience particulière en baux commerciaux.</b> Le cabinet est intervenu pour une
+      clientèle institutionnelle — promoteurs, bailleurs sociaux — comme pour des commerçants
+      indépendants. Les deux côtés de la table ne se plaident pas de la même façon : les avoir
+      pratiqués l'un et l'autre change la lecture d'un congé ou d'une demande de déplafonnement.
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 03 · LE DÉLAI ═══════════════════════════════════════════════════ -->
+<section class="page sec" id="delai">
+  <div class="marge">
+    <div class="num">03</div><span class="lb">Le délai<br>qui court</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Est-il déjà trop tard ?</h2>
+    <p class="lead">C'est la seule question qui compte avant toutes les autres. Choisissez la
+      situation la plus proche de la vôtre : le cabinet indique le délai applicable, son point de
+      départ, les pièces à réunir — et, si vous donnez la date, ce qu'il vous reste.</p>
+
+    <div id="dsel" class="dsel" style="margin-top:26px"></div>
+
+    <div class="fiche" id="fiche">
+      <button class="rt" id="f-retour" type="button">← Toutes les situations</button>
+      <div class="cartouche">
+        <div class="hh">
+          <h3 id="f-titre"></h3>
+          <div class="duree" id="f-duree"></div>
+        </div>
+        <dl style="margin:0">
+          <div class="ligne"><dt>Matière</dt><dd id="f-dom"></dd></div>
+          <div class="ligne"><dt>Point de départ</dt><dd id="f-depart"></dd></div>
+          <div class="ligne"><dt>Pièces</dt><dd><ul id="f-pieces"></ul></dd></div>
+          <div class="ligne"><dt>Le réflexe</dt><dd id="f-reflexe"></dd></div>
+          <div class="ligne"><dt>Fondement</dt><dd><span class="cote" id="f-ref"></span></dd></div>
+        </dl>
+        <div class="nuance" id="f-nuance"></div>
+
+        <div class="calc">
+          <label for="f-date">Date de l'événement</label>
+          <input type="date" id="f-date">
+          <div class="verdict" id="f-verdict"></div>
+        </div>
+      </div>
+      <p class="avert">Ce calcul est une <b>indication</b>, faite dans votre navigateur : rien
+        n'est transmis, rien n'est enregistré. Un délai peut être interrompu, suspendu, ou remplacé
+        par un autre selon la qualification retenue. Seul l'examen du dossier permet de trancher.</p>
+      <div class="sous" style="margin-top:18px">
+        <a class="bt plein" href="#contact" id="f-cta">Faire vérifier ce délai</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 04 · LE DÉROULÉ ═════════════════════════════════════════════════ -->
+<section class="page sec" id="deroule">
+  <div class="marge">
+    <div class="num">04</div><span class="lb">Le déroulé</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Ce qui se passe, dans l'ordre.</h2>
+    <p class="lead">Aucune surprise sur la méthode, aucune surprise sur le coût : chaque étape est
+      annoncée avant d'être engagée.</p>
+
+    <div class="chrono" style="margin-top:32px">
+      <div class="et"><span class="qd">Étape 1</span>
+        <h3>Le premier échange</h3>
+        <p>Par téléphone ou au cabinet. On regarde s'il y a un délai en cours, ce qui est
+           défendable, et ce qui ne l'est pas. Cette franchise-là fait gagner du temps aux deux.</p></div>
+      <div class="et"><span class="qd">Étape 2</span>
+        <h3>La convention</h3>
+        <p>Écrite, signée avant toute intervention : mission, honoraires, ce qui est compris et
+           ce qui ne l'est pas. L'article 10 de la loi de 1971 l'impose, et c'est tant mieux.</p></div>
+      <div class="et"><span class="qd">Étape 3</span>
+        <h3>L'amiable, d'abord</h3>
+        <p>Mise en demeure, négociation, médiation. Une part importante des dossiers s'arrête
+           là — plus vite, pour moins cher, et sans l'aléa d'une audience.</p></div>
+      <div class="et"><span class="qd">Étape 4</span>
+        <h3>L'audience</h3>
+        <p>Si elle devient nécessaire : constitution du dossier, écritures, plaidoirie, puis
+           l'exécution de la décision obtenue — l'étape que beaucoup oublient.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 05 · HONORAIRES ═════════════════════════════════════════════════ -->
+<section class="page sec" id="honoraires">
+  <div class="marge">
+    <div class="num">05</div><span class="lb">Honoraires</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Annoncés avant, pas découverts après.</h2>
+    <p class="lead">Les taux ci-dessous sont exprimés en euros TTC. Le montant qui vous engage est
+      celui de la convention signée, arrêtée après examen de votre dossier.</p>
+
+    <table class="tarif" style="margin-top:26px">
+      <thead>
+        <tr><th>Matière</th><th>Taux horaire</th><th>Aide juridictionnelle</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Commercial<small>Baux commerciaux, fonds de commerce, recouvrement, sociétés</small></td>
+            <td class="prix">160 €<em>TTC / heure</em></td><td class="oui">✓ Acceptée</td></tr>
+        <tr><td>Famille &amp; personnes<small>Divorce, séparation, autorité parentale, pension</small></td>
+            <td class="prix">150 €<em>TTC / heure</em></td><td class="oui">✓ Acceptée</td></tr>
+        <tr><td>Immobilier<small>Acquisition, construction, baux d'habitation, expulsion</small></td>
+            <td class="prix">160 €<em>TTC / heure</em></td><td class="oui">✓ Acceptée</td></tr>
+        <tr><td>Travail<small>Licenciement, prud'hommes, rappels de salaire</small></td>
+            <td class="prix">160 €<em>TTC / heure</em></td><td class="oui">✓ Acceptée</td></tr>
+      </tbody>
+    </table>
+
+    <div class="encart">
+      <b>Forfait plutôt que taux horaire ?</b> Souvent préférable pour une procédure au périmètre
+      connu — un divorce par consentement mutuel, la rédaction d'un bail, une injonction de payer.
+      Le montant est arrêté à l'avance et ne bouge plus. Dans les dossiers au long cours, un
+      honoraire complémentaire de résultat peut s'ajouter à l'honoraire de base ; il n'en est
+      jamais la seule composante, ce que la loi interdit.
+    </div>
+    <div class="encart">
+      <b>Votre assurance paie peut-être déjà.</b> Beaucoup de contrats d'habitation, de carte
+      bancaire ou de mutuelle comportent une protection juridique. Vous restez libre de choisir
+      votre avocat : l'assureur ne peut pas vous en imposer un (art. L.127-3 du code des
+      assurances). Le cabinet vérifie ce point dès le premier échange.
+    </div>
+    <div class="encart">
+      <b>Aide juridictionnelle.</b> Sous conditions de ressources, l'État prend en charge tout ou
+      partie des frais. Signalez-le au premier contact : le cabinet vous dira si vous êtes
+      éligible et si le dossier peut être accepté à ce titre.
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 · TÉMOIGNAGES ════════════════════════════════════════════════ -->
+<section class="page sec" id="temoignages">
+  <div class="marge">
+    <div class="num">06</div><span class="lb">Témoignages</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Ce qu'écrivent les clients.</h2>
+    <p class="lead">Des avis publiés sur la fiche Google du cabinet, repris ici mot pour mot —
+      sans correction d'orthographe, sans coupe, sans tri.</p>
+
+    <div class="avis" id="avis" style="margin-top:26px"></div>
+
+    <p class="avis-note">Aucune note moyenne n'est affichée sur ce site : elle varie d'un jour à
+      l'autre et donnerait une précision que ces quelques témoignages n'ont pas. Les avis restent
+      consultables et vérifiables sur la fiche publique du cabinet.</p>
+  </div>
+</section>
+
+<!-- ═══ 07 · QUESTIONS ══════════════════════════════════════════════════ -->
+<section class="page sec" id="questions">
+  <div class="marge">
+    <div class="num">07</div><span class="lb">Questions</span><div class="fl"></div>
+  </div>
+  <div>
+    <h2>Les questions qui reviennent.</h2>
+    <div style="margin-top:24px">
+      <details>
+        <summary>Combien de temps dure un divorce ?</summary>
+        <div class="rep">
+          <p>Cela dépend entièrement de la voie choisie. Le <b>divorce par consentement mutuel</b>
+            se règle sans juge : les deux avocats rédigent la convention, elle est signée après un
+            délai de réflexion de quinze jours, puis déposée chez le notaire. Quelques mois
+            suffisent lorsque les époux s'entendent sur tout — enfants, biens, pension.</p>
+          <p>Le <b>divorce contentieux</b> suit un calendrier fixé par le juge. Comptez plutôt de
+            un à deux ans, davantage si un bien immobilier doit être partagé ou une entreprise
+            évaluée. Une audience d'orientation peut fixer très tôt des mesures provisoires :
+            résidence des enfants, pension, jouissance du logement.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Un client ne me paie pas. Que puis-je faire, et en combien de temps ?</summary>
+        <div class="rep">
+          <p>Trois voies, de la plus rapide à la plus complète. La <b>mise en demeure</b> par
+            avocat règle une part importante des impayés en quelques semaines. L'<b>injonction de
+            payer</b> s'obtient sur pièces, sans audience, en un à deux mois. Le
+            <b>référé-provision</b> permet d'obtenir rapidement une condamnation lorsque la
+            créance n'est pas sérieusement contestable.</p>
+          <p>Entre professionnels, les <b>pénalités de retard</b> et l'<b>indemnité forfaitaire de
+            40 €</b> sont dues de plein droit, sans qu'il soit besoin de les réclamer au préalable
+            (art. L.441-10 du code de commerce). L'action se prescrit par cinq ans à compter de
+            l'échéance de la facture.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Mon bailleur me donne congé de mon local commercial. Ai-je droit à une indemnité ?</summary>
+        <div class="rep">
+          <p>En principe oui. Le statut des baux commerciaux ouvre un <b>droit au renouvellement</b>,
+            et le bailleur qui refuse de renouveler doit verser une <b>indemnité d'éviction</b>
+            destinée à réparer le préjudice — sauf motif grave et légitime, ou immeuble insalubre.</p>
+          <p>Tout se joue sur la forme et les délais. Le congé doit être délivré par acte de
+            commissaire de justice, six mois à l'avance, pour le dernier jour d'un trimestre civil.
+            Une irrégularité de forme ou une date erronée change complètement le rapport de force.
+            Faites vérifier l'acte dès sa réception, pas après.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Mon locataire ne paie plus. Combien de temps pour l'expulser ?</summary>
+        <div class="rep">
+          <p>La procédure commence par un <b>commandement de payer</b> délivré par commissaire de
+            justice, qui ouvre un délai de six semaines. Passé ce délai sans régularisation, le
+            juge des contentieux de la protection peut être saisi pour constater la résiliation du
+            bail et ordonner l'expulsion.</p>
+          <p>Deux réalités à intégrer : le juge peut accorder des <b>délais de paiement</b> qui
+            suspendent les effets de la clause résolutoire, et la <b>trêve hivernale</b> — du
+            1<sup>er</sup> novembre au 31 mars — interdit l'expulsion effective. Agir tôt reste le
+            seul vrai levier ; la procédure ne va pas plus vite parce que la dette est plus lourde.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Le cabinet accepte-t-il l'aide juridictionnelle ?</summary>
+        <div class="rep">
+          <p>Oui, dans les quatre matières du tableau des honoraires, sous conditions de ressources
+            et sous réserve de l'acceptation du dossier. Signalez-le dès le premier échange : cela
+            change la manière dont la mission est organisée, et il vaut mieux le savoir avant que
+            la convention soit rédigée.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Faut-il se déplacer au cabinet ?</summary>
+        <div class="rep">
+          <p>Pas nécessairement. Les consultations se tiennent au cabinet, par téléphone ou en
+            visioconférence, selon ce qui est le plus simple pour vous. Le cabinet intervient
+            partout en France : la distance n'est pas un obstacle, ni pour le conseil, ni pour la
+            plupart des procédures écrites.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 08 · CONTACT ════════════════════════════════════════════════════ -->
+<section class="page sec" id="contact">
+  <div class="marge">
+    <div class="num">08</div><span class="lb">Contact</span><div class="fl"></div>
+  </div>
+  <div class="contact">
+    <div>
+      <h2>Exposez votre situation.</h2>
+      <p class="lead">Plus le message est précis — la date, la matière, ce qui a déjà été fait —
+        plus la première réponse est utile. Le cabinet revient vers vous rapidement.</p>
+
+      <form id="form" style="margin-top:24px" novalidate>
+        <div class="duo">
+          <div><label for="nom">Nom et prénom</label><input id="nom" name="nom" type="text" required autocomplete="name"></div>
+          <div><label for="tel">Téléphone</label><input id="tel" name="tel" type="tel" autocomplete="tel"></div>
+        </div>
+        <div class="duo">
+          <div><label for="mail">Courriel</label><input id="mail" name="mail" type="email" required autocomplete="email"></div>
+          <div><label for="obj">Objet</label>
+            <select id="obj" name="obj">
+              <option>Divorce, séparation, famille</option>
+              <option>Droit du travail</option>
+              <option>Immobilier : vente, construction, voisinage</option>
+              <option>Bail d'habitation, impayés, expulsion</option>
+              <option>Bail commercial ou fonds de commerce</option>
+              <option>Recouvrement d'une créance</option>
+              <option>Litige entre associés</option>
+              <option>Autre / je ne sais pas</option>
+            </select></div>
+        </div>
+        <label for="txt">Votre situation</label>
+        <textarea id="txt" name="txt" required placeholder="Ce qui s'est passé, à quelle date, et ce que vous avez déjà tenté."></textarea>
+
+        <div class="consent">
+          <input type="checkbox" id="lu" required>
+          <label for="lu" style="font-family:inherit;font-size:13px;letter-spacing:0;text-transform:none;color:inherit;margin:0">
+            Je reconnais avoir lu la <a href="./confidentialite.html">politique de confidentialité</a>.
+            Les informations transmises servent uniquement à traiter ma demande et sont couvertes
+            par le secret professionnel.
+          </label>
+        </div>
+
+        <button class="bt plein" type="submit">Envoyer la demande</button>
+        <div class="retour" id="retour"></div>
+      </form>
+    </div>
+
+    <aside>
+      <div class="coord">
+        <div class="r"><b>Cabinet</b>63 rue Paul Vaillant-Couturier<br>95100 Argenteuil<br>
+          <a href="https://www.openstreetmap.org/search?query=63%20rue%20Paul%20Vaillant-Couturier%2095100%20Argenteuil"
+             target="_blank" rel="noopener noreferrer">Voir le plan →</a></div>
+        <div class="r"><b>Téléphone</b><a href="tel:+33134340882">01 34 34 08 82</a></div>
+        <div class="r"><b>Courriel</b><a href="mailto:contact@cjavocats.fr"><span class="tofill">contact@cjavocats.fr</span></a></div>
+        <div class="r"><b>Horaires</b>Du lundi au vendredi, <span class="tofill">9 h</span> – 20 h</div>
+        <div class="r"><b>Consultations</b>Sur rendez-vous — au cabinet, par téléphone ou en visioconférence</div>
+        <div class="r"><b>Ressort</b>Toute la France, juridictions judiciaires et administratives</div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="page">
+    <div class="fg">
+      <span class="cote"><b>CJ AVOCATS</b> · SELARL · Barreau du Val-d'Oise</span>
+      <a href="./mentions-legales.html">Mentions légales</a>
+      <a href="./confidentialite.html">Données personnelles &amp; IA</a>
+      <a href="./registre-traitements.html">Registre des traitements</a>
+      <a href="./index.html">Première maquette</a>
+    </div>
+    <p class="mentions">Les informations juridiques publiées ici sont générales : elles décrivent
+      l'état du droit à la date de leur rédaction et ne remplacent pas une consultation. Aucun
+      cookie n'est déposé, aucune police de caractères n'est chargée depuis un serveur tiers,
+      aucune mesure d'audience n'est en place — ce que vous consultez sur ce site ne quitte pas
+      votre navigateur.</p>
+  </div>
+</footer>
+
+<nav class="barre" aria-label="Contact rapide">
+  <a href="tel:+33134340882">Appeler</a>
+  <a href="#contact">Écrire</a>
+</nav>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   Tout se calcule ici, dans le navigateur. Aucun appel réseau, aucune
+   dépendance, aucun cookie : c'est ce qui permet d'écrire en pied de page
+   que rien ne sort — et de le tenir.
+   ══════════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  /* ── Années d'exercice : jamais écrites en dur ──────────────────────── */
+  var SERMENT = new Date(2004, 5, 7);
+  (function(){
+    var h = new Date(), a = h.getFullYear() - SERMENT.getFullYear();
+    var m = h.getMonth() - SERMENT.getMonth();
+    if (m < 0 || (m === 0 && h.getDate() < SERMENT.getDate())) a--;
+    var e = document.getElementById('ans'); if (e) e.textContent = a;
+    var d = document.getElementById('depuis'); if (d) d.textContent = SERMENT.getFullYear();
+  })();
+
+  /* ── En-tête : un filet apparaît dès qu'on quitte le haut de page ───── */
+  (function(){
+    var h = document.getElementById('entete');
+    var maj = function(){ h.classList.toggle('defile', window.scrollY > 8); };
+    maj(); window.addEventListener('scroll', maj, { passive:true });
+  })();
+
+  /* ── Menu du téléphone ──────────────────────────────────────────────── */
+  (function(){
+    var b = document.getElementById('burger'), n = document.getElementById('nav');
+    if (!b || !n) return;
+    b.addEventListener('click', function(){
+      var o = n.classList.toggle('on');
+      b.setAttribute('aria-expanded', o ? 'true' : 'false');
+      b.textContent = o ? '×' : '☰';
+    });
+    n.addEventListener('click', function(e){
+      if (e.target.tagName === 'A') { n.classList.remove('on'); b.textContent = '☰';
+        b.setAttribute('aria-expanded','false'); }
+    });
+  })();
+
+  /* ══ LE DÉLAI QUI COURT ═════════════════════════════════════════════ */
+  var SITUATIONS = [
+    { dom:'Droit du travail', titre:"J'ai été licencié", n:12, u:'mois',
+      depart:'la <b>notification</b> du licenciement (réception de la lettre)',
+      objet:'Droit du travail',
+      pieces:['La lettre de licenciement','Le contrat de travail et ses avenants',
+              'Les douze derniers bulletins de paie','Le solde de tout compte et le certificat de travail',
+              'Le nom de la convention collective'],
+      reflexe:"Ne signez pas le reçu pour solde de tout compte sans l'avoir fait lire. Signé, il se conteste encore, mais seulement pendant six mois.",
+      ref:'art. L.1471-1 du code du travail' },
+
+    { dom:'Droit du travail', titre:"Des heures supplémentaires ou des salaires ne m'ont jamais été payés",
+      n:3, u:'ans',
+      depart:"la <b>saisine</b> du conseil de prud'hommes : les trois années qui la précèdent sont réclamables",
+      objet:'Droit du travail',
+      pieces:['Les bulletins de paie de la période','Vos relevés d’heures, agendas, plannings',
+              'Les courriels envoyés tôt le matin ou tard le soir','Le contrat et la convention collective'],
+      reflexe:'Notez vos horaires réels dès aujourd’hui, jour par jour. La loi ne fait pas peser la preuve sur vous seul, mais elle exige des éléments suffisamment précis.',
+      nuance:'<b>Le point de départ dépend de votre situation.</b> En cours de contrat, les trois ans '
+           + 'se comptent à rebours de la saisine du conseil. <b>Si le contrat est rompu</b>, la demande '
+           + 'porte sur les trois années qui ont précédé la rupture. Ce délai vaut pour l’ensemble des '
+           + '<b>rappels de salaire</b> — heures supplémentaires, primes, majorations, congés payés '
+           + 'afférents — et pas seulement pour les heures.',
+      ref:'art. L.3245-1 et L.3171-4 du code du travail' },
+
+    { dom:'Droit du travail', titre:"J'ai signé une rupture conventionnelle", n:15, u:'jours',
+      depart:'la <b>signature</b> du formulaire — délai de rétractation',
+      objet:'Droit du travail',
+      pieces:['Le formulaire de rupture signé','Les échanges qui ont précédé la signature',
+              'Le contrat de travail'],
+      reflexe:'La rétractation n’a pas à être justifiée : une lettre recommandée envoyée avant l’échéance suffit. Passé ce délai, la rupture reste contestable douze mois si le consentement n’était pas libre.',
+      ref:'art. L.1237-13 du code du travail' },
+
+    { dom:'Droit immobilier', titre:"J'ai découvert un vice caché après l'achat", n:2, u:'ans',
+      depart:'la <b>découverte</b> du vice, et non la date de la vente',
+      objet:'Immobilier : vente, construction, voisinage',
+      pieces:['L’acte de vente et les diagnostics','Les photographies du désordre',
+              'Les devis de réparation','Les échanges avec le vendeur'],
+      reflexe:'Faites constater le désordre par un professionnel avant toute réparation : une fois les travaux faits, la preuve disparaît avec le vice.',
+      nuance:'<b>Une seconde borne, extérieure à celle-ci.</b> Les deux ans de la découverte sont '
+           + 'eux-mêmes enfermés dans un <b>délai butoir de vingt ans à compter de la vente</b> : passé '
+           + 'ce terme, l’action est éteinte même si le vice vient d’apparaître. (Cour de cassation, '
+           + 'chambre mixte, 21 juillet 2023 ; art. 2232 du code civil.)',
+      ref:'art. 1648 et 2232 du code civil' },
+
+    { dom:'Droit immobilier', titre:'Des malfaçons apparaissent après des travaux', n:10, u:'ans',
+      depart:'la <b>réception</b> des travaux — garantie décennale',
+      objet:'Immobilier : vente, construction, voisinage',
+      pieces:['Le procès-verbal de réception','Le marché de travaux et les devis',
+              'L’attestation d’assurance décennale du constructeur','Les photographies datées'],
+      reflexe:'Déclarez le sinistre à votre assurance dommages-ouvrage si vous en avez une : elle préfinance les réparations sans attendre que les responsabilités soient jugées.',
+      ref:'art. 1792 et 1792-4-1 du code civil' },
+
+    { dom:'Copropriété', titre:'Une assemblée générale a voté une décision qui me lèse', n:2, u:'mois',
+      depart:'la <b>notification</b> du procès-verbal d’assemblée',
+      objet:'Immobilier : vente, construction, voisinage',
+      pieces:['Le procès-verbal notifié et son enveloppe (le cachet fait foi)',
+              'La convocation et l’ordre du jour','Le règlement de copropriété'],
+      reflexe:'Vérifiez d’abord que vous étiez opposant ou absent sur cette résolution : seuls eux peuvent agir. Un copropriétaire qui a voté pour ne peut plus contester.',
+      nuance:'<b>Ce n’est pas une prescription, c’est une forclusion</b> — plus sévère. Elle ne se '
+           + 'suspend pas et ne s’interrompt que par la saisine du juge : ni une lettre recommandée, '
+           + 'ni une réclamation au syndic ne gagnent un jour. Deux mois à compter de la notification '
+           + 'du procès-verbal, et le cachet de l’envoi fait foi.',
+      ref:'art. 42 de la loi du 10 juillet 1965' },
+
+    { dom:'Baux d’habitation', titre:'Mon locataire ne paie plus son loyer', n:6, u:'semaines',
+      depart:'le <b>commandement de payer</b> délivré par commissaire de justice',
+      objet:"Bail d'habitation, impayés, expulsion",
+      pieces:['Le bail et l’état des lieux','Le décompte précis des sommes dues',
+              'L’acte de cautionnement s’il en existe un','Vos relances écrites'],
+      reflexe:'N’attendez pas le troisième impayé. Le commandement délivré tôt suffit souvent à débloquer la situation, et la procédure ne va pas plus vite si la dette est plus lourde.',
+      ref:'art. 24 de la loi du 6 juillet 1989' },
+
+    { dom:'Bail commercial', titre:"J'ai reçu un congé de mon bailleur commercial", n:2, u:'ans',
+      depart:'la <b>date d’effet</b> du congé — prescription propre au statut',
+      objet:'Bail commercial ou fonds de commerce',
+      pieces:['L’acte de congé et sa date de signification','Le bail et ses avenants',
+              'Les trois derniers bilans du fonds','Les quittances de loyer'],
+      reflexe:'Faites vérifier la forme du congé dès sa réception : une date erronée ou un acte irrégulier change complètement le rapport de force, et l’indemnité d’éviction avec.',
+      ref:'art. L.145-9 et L.145-60 du code de commerce' },
+
+    { dom:'Contentieux commercial', titre:"Une facture ne m'a jamais été payée", n:5, u:'ans',
+      depart:'l’<b>échéance</b> de la facture impayée',
+      objet:"Recouvrement d'une créance",
+      pieces:['La facture et le bon de commande','La preuve de la livraison ou de la prestation',
+              'Les conditions générales de vente','Les relances déjà envoyées'],
+      reflexe:'Une mise en demeure par avocat interrompt la prescription et règle une part importante des impayés sans procédure. Les pénalités de retard et les 40 € d’indemnité sont dus de plein droit.',
+      ref:'art. L.110-4 et L.441-10 du code de commerce' },
+
+    { dom:'Contentieux commercial', titre:'Un partenaire a rompu notre relation du jour au lendemain',
+      n:5, u:'ans', depart:'la <b>rupture</b> de la relation commerciale',
+      objet:"Recouvrement d'une créance",
+      pieces:['Le chiffre d’affaires réalisé avec ce partenaire, année par année',
+              'Les contrats et commandes successifs','La lettre de rupture','Vos marges sur cette activité'],
+      reflexe:'Chiffrez tout de suite l’ancienneté de la relation : c’est elle qui détermine le préavis qui aurait dû vous être accordé, donc le montant du préjudice.',
+      ref:'art. L.442-1, II du code de commerce' },
+
+    { dom:'Droit de la famille', titre:'La pension alimentaire ne m’est plus versée', n:5, u:'ans',
+      depart:'chaque échéance impayée — les arriérés se réclament sur cinq ans',
+      objet:'Divorce, séparation, famille',
+      pieces:['Le jugement ou la convention qui fixe la pension','Le décompte des sommes impayées',
+              'Vos relevés bancaires sur la période'],
+      reflexe:'Le recouvrement peut être confié à un commissaire de justice ou à l’organisme de recouvrement des pensions, sans attendre un nouveau jugement. Le non-paiement pendant deux mois est un délit.',
+      ref:'art. 2224 du code civil · art. 227-3 du code pénal' },
+
+    { dom:'Droit des sociétés', titre:'Une décision d’associés me paraît irrégulière', n:3, u:'ans',
+      depart:'le jour où la <b>décision</b> a été prise',
+      objet:'Litige entre associés',
+      pieces:['Les statuts et le pacte d’associés','Le procès-verbal contesté',
+              'Les convocations reçues','Les comptes des trois derniers exercices'],
+      reflexe:'Demandez par écrit la communication des documents sociaux : le refus est en lui-même un élément, et la loi vous y donne droit.',
+      ref:'art. L.235-9 du code de commerce' }
+  ];
+
+  (function(){
+    var bac = document.getElementById('dsel'), fiche = document.getElementById('fiche');
+    if (!bac || !fiche) return;
+    var courante = null;
+    var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août',
+                'septembre','octobre','novembre','décembre'];
+    function frDate(d){ return d.getDate() + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear(); }
+    function txt(s){ var e = document.createElement('div'); e.textContent = s; return e.innerHTML; }
+
+    /* Mois et années se comptent de quantième à quantième : du 31 janvier
+       + 1 mois, le droit retient le 28 (ou le 29) février. */
+    function echeance(d, n, u){
+      var r = new Date(d.getTime());
+      if (u === 'jours')    { r.setDate(r.getDate() + n); return r; }
+      if (u === 'semaines') { r.setDate(r.getDate() + n * 7); return r; }
+      var q = r.getDate();
+      r.setDate(1);
+      r.setMonth(r.getMonth() + (u === 'ans' ? n * 12 : n));
+      var dernier = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+      r.setDate(Math.min(q, dernier));
+      return r;
+    }
+
+    SITUATIONS.forEach(function(s, i){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sit';
+      b.innerHTML = '<span class="sd">' + txt(s.dom) + '</span><span class="st">'
+                  + txt(s.titre) + '</span>';
+      b.addEventListener('click', function(){ ouvrir(i); });
+      bac.appendChild(b);
+    });
+
+    function ouvrir(i){
+      var s = SITUATIONS[i]; courante = s;
+      document.getElementById('f-titre').textContent = s.titre;
+      document.getElementById('f-dom').textContent = s.dom;
+      document.getElementById('f-duree').innerHTML = s.n + ' ' + s.u + '<small>délai pour agir</small>';
+      document.getElementById('f-depart').innerHTML = 'À compter de ' + s.depart + '.';
+      document.getElementById('f-ref').textContent = s.ref;
+      document.getElementById('f-reflexe').textContent = s.reflexe;
+      var nu = document.getElementById('f-nuance');
+      nu.innerHTML = s.nuance || '';
+      nu.className = s.nuance ? 'nuance on' : 'nuance';
+      var ul = document.getElementById('f-pieces'); ul.innerHTML = '';
+      s.pieces.forEach(function(p){
+        var li = document.createElement('li'); li.textContent = p; ul.appendChild(li);
+      });
+      document.getElementById('f-date').value = '';
+      document.getElementById('f-verdict').className = 'verdict';
+      bac.style.display = 'none';
+      fiche.classList.add('on');
+      fiche.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    }
+
+    document.getElementById('f-retour').addEventListener('click', function(){
+      fiche.classList.remove('on'); bac.style.display = '';
+      document.getElementById('delai').scrollIntoView({ block:'start', behavior:'smooth' });
+    });
+
+    document.getElementById('f-date').addEventListener('change', function(){
+      var v = this.value, z = document.getElementById('f-verdict');
+      if (!v || !courante) { z.className = 'verdict'; return; }
+      var d = new Date(v + 'T00:00:00');
+      if (isNaN(d.getTime())) { z.className = 'verdict'; return; }
+      var fin = echeance(d, courante.n, courante.u);
+      var h = new Date(); h.setHours(0,0,0,0);
+      var jour = 86400000;
+      var reste = Math.round((fin - h) / jour);
+      var total = Math.round((fin - d) / jour) || 1;
+      var ecoule = Math.max(0, Math.min(100, Math.round((total - reste) / total * 100)));
+
+      if (reste > 0) {
+        var court = reste <= Math.max(30, total * 0.2);
+        z.className = 'verdict on ' + (court ? 'orange' : 'vert');
+        z.innerHTML = '<span class="gd">' + reste + ' jour' + (reste > 1 ? 's' : '') + '</span>'
+          + 'Jusqu’au <b>' + frDate(fin) + '</b>.'
+          + (court ? ' Le délai touche à sa fin : appelez plutôt que d’écrire.' : '')
+          + '<div class="jauge"><i class="' + (court ? 'orange' : '') + '" style="width:' + ecoule + '%"></i></div>';
+      } else {
+        z.className = 'verdict on rouge';
+        z.innerHTML = '<span class="gd">Délai expiré</span>'
+          + 'Il paraît clos depuis le <b>' + frDate(fin) + '</b>. N’y renoncez pas pour autant : '
+          + 'un délai peut avoir été <b>interrompu</b> (mise en demeure, reconnaissance de dette, '
+          + 'action déjà engagée) ou <b>suspendu</b>, et d’autres fondements restent parfois '
+          + 'ouverts. Faites-le vérifier.'
+          + '<div class="jauge"><i class="rouge" style="width:100%"></i></div>';
+      }
+    });
+
+    /* Le bouton emmène la situation jusqu'au formulaire : le visiteur ne
+       réexplique pas ce qu'il vient de sélectionner. */
+    document.getElementById('f-cta').addEventListener('click', function(){
+      if (!courante) return;
+      var sel = document.getElementById('obj'), zone = document.getElementById('txt');
+      if (sel) for (var i = 0; i < sel.options.length; i++)
+        if (sel.options[i].text === courante.objet) { sel.selectedIndex = i; break; }
+      if (zone && !zone.value.trim()) {
+        var d = document.getElementById('f-date').value;
+        zone.value = 'Situation : ' + courante.titre + '.'
+          + (d ? '\nDate de l’événement : ' + frDate(new Date(d + 'T00:00:00')) + '.' : '')
+          + '\n\n';
+      }
+    });
+  })();
+
+  /* ══ TÉMOIGNAGES ════════════════════════════════════════════════════
+     Recopiés depuis la fiche Google, sans retouche. N'en inventez jamais :
+     un faux avis est une pratique commerciale trompeuse (art. L.121-2 du
+     code de la consommation) et une faute déontologique pour un avocat.
+     ═══════════════════════════════════════════════════════════════════ */
+  var AVIS = [
+    { nom:'Houyem Bouchouicha', quand:'mars 2025', note:5,
+      texte:'Maître Adel Jeddi est, sans aucun doute, l\'un des meilleurs avocats du 95 '
+          + '(Val-d\'Oise). Très réactif, sérieux et impliqué, il sait défendre ses clients avec '
+          + 'une plaidoirie exemplaire. Son professionnalisme et sa maîtrise du droit font toute '
+          + 'la différence. Je le recommande vivement !' },
+
+    { nom:'Bassem Bettine', quand:'décembre 2025', note:5,
+      texte:'Très bon avocat. Sérieux et disponible.on a gagné au tribunal et la partie adverse '
+          + 'a même été condamnée à me rembourser mes frais. Encore merci' },
+
+    { nom:'Coumba Dieng', quand:'avril 2026', note:5,
+      texte:'Au final je mets 5 étoiles pour l\'assistante de maître JEDDI qui a pu résoudre ma '
+          + 'demande très rapidement qui était vraiment urgent malgré que j\'étais très en colère '
+          + 'car je n\'arrivais pas à joindre ni maître JEDDI ni son assistante mais ça c\'était '
+          + 'avant d\'avoir l\'assistante de maître JEDDI au téléphone.' },
+
+    { nom:'Mess B', quand:'mai 2026', note:5,
+      texte:'Très bon avocat. Il m\'a géré 2 affaires et a su répondre à mes attentes et résoudre '
+          + 'mes problématiques malgré son emploi du temps. Je recommande vivement' },
+
+    { nom:'Carpin Anthony', quand:'octobre 2025', note:5,
+      texte:'Très professionnel, à l\'écoute de ces clients et vraiment efficace va au bout des '
+          + 'combats' },
+
+    { nom:'Francois Nesa', quand:'mai 2025', note:5,
+      texte:'Merci a maître jeddi il nous a bcp aider dans une situation très compliqué. '
+          + 'Il fais la taf très pro je recommande. Avocat très sérieux' },
+
+    { nom:'layla ouagandar', quand:'janvier 2025', note:5,
+      texte:'A chaque fois que je conseil le cabinets à mes connaissances, ils sont reçu avec '
+          + 'attention et beaucoup de bienveillance. Le conseil du cabinet est d\'une grande '
+          + 'qualité. Je recommande fortement' },
+
+    { nom:'IDETDECO IDETDECO', quand:'janvier 2025', note:5,
+      texte:'Très bon, AVOCAT extrêmement compétent. Sa réactivité est son point fort. '
+          + 'Je recommande Maitre, Jeddi sans retenue.' }
+  ];
+
+  (function(){
+    var z = document.getElementById('avis');
+    if (!z) return;
+    if (!AVIS.length) { var s = document.getElementById('temoignages'); if (s) s.remove(); return; }
+    AVIS.forEach(function(a){
+      var d = document.createElement('div'); d.className = 'av';
+      var g = document.createElement('div'); g.className = 'gm'; g.textContent = '“';
+      g.setAttribute('aria-hidden','true');
+      var c = document.createElement('div');
+      var q = document.createElement('blockquote'); q.textContent = a.texte;
+      var s = document.createElement('div'); s.className = 'sig';
+      var e = document.createElement('span'); e.className = 'et';
+      e.textContent = new Array(a.note + 1).join('★');
+      s.appendChild(e);
+      s.appendChild(document.createTextNode(a.nom + ' · ' + a.quand));
+      c.appendChild(q); c.appendChild(s);
+      d.appendChild(g); d.appendChild(c);
+      z.appendChild(d);
+    });
+  })();
+
+  /* ══ FORMULAIRE ═════════════════════════════════════════════════════
+     Pas de serveur, donc pas de clé : tant que le service d'expédition
+     n'est pas branché, le formulaire ouvre la messagerie du visiteur avec
+     le message déjà rédigé. Une demande n'est jamais perdue en silence.
+     ═══════════════════════════════════════════════════════════════════ */
+  var EMAIL = 'contact@cjavocats.fr';
+  (function(){
+    var f = document.getElementById('form'), r = document.getElementById('retour');
+    if (!f) return;
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      var nom = document.getElementById('nom').value.trim();
+      var mail = document.getElementById('mail').value.trim();
+      var txt = document.getElementById('txt').value.trim();
+      var lu = document.getElementById('lu').checked;
+      if (!nom || !mail || !txt) {
+        r.className = 'retour on';
+        r.innerHTML = '<b>Il manque quelque chose.</b> Le nom, le courriel et la description de '
+                    + 'votre situation sont nécessaires pour vous répondre utilement.';
+        return;
+      }
+      if (!lu) {
+        r.className = 'retour on';
+        r.innerHTML = '<b>Une case reste à cocher.</b> Merci de confirmer la lecture de la '
+                    + 'politique de confidentialité avant l’envoi.';
+        return;
+      }
+      var corps = 'Nom : ' + nom
+        + '\nTéléphone : ' + document.getElementById('tel').value.trim()
+        + '\nCourriel : ' + mail
+        + '\nObjet : ' + document.getElementById('obj').value
+        + '\n\n' + txt;
+      r.className = 'retour on';
+      r.innerHTML = '<b>Votre messagerie va s’ouvrir</b>, le message est déjà rédigé — il ne '
+                  + 'reste qu’à l’envoyer. Si rien ne se passe, écrivez directement à '
+                  + '<a href="mailto:' + EMAIL + '">' + EMAIL + '</a> ou appelez le '
+                  + '<a href="tel:+33134340882">01 34 34 08 82</a>.';
+      window.location.href = 'mailto:' + EMAIL
+        + '?subject=' + encodeURIComponent('Demande — ' + document.getElementById('obj').value)
+        + '&body=' + encodeURIComponent(corps);
+    });
+  })();
+
+})();
+</script>
+</body>
+</html>

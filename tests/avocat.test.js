@@ -18,6 +18,10 @@ const CHROME = process.env.CHROME_PATH || '/opt/pw-browsers/chromium-1194/chrome
 const DOSSIER = path.resolve(__dirname, '..', 'avocat-aj');
 const PAGES = ['index.html', 'mentions-legales.html', 'confidentialite.html',
                'registre-traitements.html'];
+/* La seconde maquette n'est pas une page du site : elle n'est liée de nulle
+   part et attend d'être retenue ou jetée. Elle doit néanmoins respecter les
+   mêmes règles — invisible pour les moteurs, autonome, le bon numéro. */
+const TOUTES = PAGES.concat(['maquette-2.html']);
 const url = f => 'file://' + path.join(DOSSIER, f);
 
 let echecs = 0;
@@ -51,7 +55,7 @@ const ok = (c, m, d) => {
 
   /* ── 2. Aucune dépendance à Juris Expert ────────────────────────────── */
   console.log('\n— L\'indépendance vis-à-vis de Juris Expert —');
-  for (const f of PAGES) {
+  for (const f of TOUTES) {
     const src = fs.readFileSync(path.join(DOSSIER, f), 'utf8');
     /* Les commentaires sont exclus : ils EXPLIQUENT que le site est hébergé
        provisoirement dans le dépôt de Juris Expert. C'est le contenu servi au
@@ -134,7 +138,7 @@ const ok = (c, m, d) => {
      ne doit plus subsister nulle part, sur aucune page. */
   ok(new Set(tels).size === 1 && tels[0] === 'tel:+33134340882',
     'tous les boutons appellent le même numéro, celui du cabinet', [...new Set(tels)].join(' '));
-  for (const f of PAGES) {
+  for (const f of TOUTES) {
     const src = fs.readFileSync(path.join(DOSSIER, f), 'utf8');
     ok(!/01\s*99\s*00\s*12\s*34|\+?33199001234/.test(src),
       'aucun reste du numéro fictif dans ' + f);
@@ -545,6 +549,50 @@ const ok = (c, m, d) => {
     ok(await t.evaluate(() => document.cookie === ''),
       'et le site n\'a effectivement déposé aucun cookie');
     await t.close();
+  }
+
+  /* ── La seconde maquette ────────────────────────────────────────────────
+     Elle n'est liée de nulle part, donc personne ne s'apercevrait qu'elle est
+     cassée. Elle porte pourtant les mêmes données que le site — les délais,
+     les avis, les tarifs — et une donnée fausse ici finirait par être recopiée
+     là-bas. On la tient donc au même niveau d'exigence. */
+  {
+    console.log('\n— La seconde maquette —');
+    const m = await ctx.newPage();
+    const err = [];
+    m.on('pageerror', e => err.push(String(e)));
+    m.on('console', c => { if (c.type() === 'error') err.push(c.text()); });
+    await m.goto(url('maquette-2.html'), { waitUntil: 'load' });
+    await m.waitForTimeout(500);
+    ok(err.length === 0, 'aucune erreur JavaScript', err[0]);
+    ok(await m.locator('.sit').count() === 12, 'les douze situations du module de délai',
+      await m.locator('.sit').count());
+    ok(await m.locator('.av').count() === 8, 'les huit avis, au complet',
+      await m.locator('.av').count());
+    /* Les avis sont les mêmes objets que sur le site : une divergence entre les
+       deux fichiers voudrait dire que l'un des deux a été retouché. */
+    const src = fs.readFileSync(path.join(DOSSIER, 'index.html'), 'utf8');
+    const noms = await m.$$eval('.av .sig', s => s.map(x => x.textContent.split('·')[0]
+      .replace(/[★\s]+/g, ' ').trim()));
+    noms.forEach(n => ok(src.indexOf("nom:'" + n + "'") > 0,
+      'avis identique à celui du site : ' + n));
+    /* Le module calcule vraiment : deux ans après le 10 février 2026 tombent
+       le 10 février 2028, de quantième à quantième. */
+    await m.locator('.sit').nth(3).click();
+    await m.waitForTimeout(200);
+    await m.locator('#f-date').fill('2026-02-10');
+    await m.locator('#f-date').dispatchEvent('change');
+    await m.waitForTimeout(200);
+    ok(/10 février 2028/.test(await m.textContent('#f-verdict')),
+      'le calcul de quantième à quantième est juste', await m.textContent('#f-verdict'));
+    /* Sur téléphone, rien ne doit déborder : c'est le défaut le plus fréquent
+       d'une mise en page tenue par des filets pleine largeur. */
+    await m.setViewportSize({ width: 360, height: 780 });
+    await m.waitForTimeout(300);
+    const deb = await m.evaluate(() =>
+      document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    ok(deb <= 1, 'aucun débordement horizontal sur téléphone', deb);
+    await m.close();
   }
 
   await nav.close();

@@ -29,6 +29,8 @@ avocat-aj/
 ├── icone-512.png
 ├── icone-180.png         ← icône iPhone (apple-touch-icon)
 ├── icones.py             ← régénère les trois icônes (python3 icones.py .)
+├── maquette-2.html       ← SECONDE PISTE GRAPHIQUE, autonome, liée de nulle
+│                           part — à retenir ou à supprimer (voir § 9)
 └── portrait.png          ← la photo, détourée au cercle : elle remplace le
                             monogramme dans le bandeau et dans la signature
 ```
@@ -211,3 +213,41 @@ les balises `noindex`, et l'absence totale de lien vers Juris Expert.
 
 Une fois le dossier sorti dans son propre dépôt, copiez-y ce test et remplacez
 le chemin en tête de fichier.
+
+---
+
+## 9. La seconde maquette
+
+`maquette-2.html` est une **autre piste graphique** pour le même site, à côté
+de la première et non à sa place. Elle n'est liée depuis aucune page, elle
+porte la même balise `noindex`, et le service worker ne la met pas en cache :
+elle n'existe que pour être regardée, puis retenue ou jetée.
+
+Elle emprunte sa forme au dossier d'avocat plutôt qu'au site vitrine :
+
+| | Première piste (`index.html`) | Seconde piste (`maquette-2.html`) |
+|---|---|---|
+| Couleurs | Vert profond, laiton, papier crème | Papier ivoire, encre noire, **un seul** rouge de robe |
+| Structure | Cartes, ombres portées, carrousel | Marge cotée, filets, blanc — aucune carte |
+| Titres | Serif sur fond vert | Serif éditorial très grand, sur papier |
+| Signature | Portrait en médaillon, monogramme | **Tampon** tracé en CSS : barreau et serment |
+| Sommaire | Menu seul | Table des matières numérotée, en première page |
+| Avis | Carrousel façon Google | Citations, comme dans une revue |
+| Polices | Système | Système également — rien n'est téléchargé |
+
+Les deux fichiers partagent les **mêmes données** : les douze situations du
+module de délai, les huit avis mot pour mot, la grille tarifaire, le numéro du
+cabinet. Le test le vérifie avis par avis : si l'un des deux fichiers est
+retouché, il le dit. Une donnée corrigée doit l'être **des deux côtés** tant
+que la piste n'est pas tranchée.
+
+Ce qui est encore surligné sur la première l'est aussi ici : le courriel et
+l'heure d'ouverture.
+
+**Si la piste est retenue** : renommer `maquette-2.html` en `index.html`,
+récupérer du fichier remplacé ce qui n'a pas été repris (le mot sur les
+cookies, la prise de rendez-vous, les six pages de domaine restent valables
+telles quelles), et incrémenter `CACHE` dans `sw.js`.
+
+**Si elle ne l'est pas** : supprimer le fichier, et retirer `maquette-2.html`
+de la constante `TOUTES` dans `tests/avocat.test.js`.
