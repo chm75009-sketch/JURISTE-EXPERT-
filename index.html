@@ -1081,7 +1081,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.158';
+var JX_BUILD = 'v2026-08-08.160';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1091,6 +1091,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.160', d:'8 aout 2026', t:[
+   'RETOUR ARRIERE. La v159 sortait le code du HTML pour accelerer les ouvertures ; sur iPhone elle a produit des ecrans a moitie noirs et une application au ralenti. Elle est retiree : cette version est identique a la v158, celle qui fonctionnait. L\'optimisation du demarrage sera reprise autrement, par petites etapes verifiees sur telephone — pas par une bascule.'
+ ]},
  {v:'v2026-08-08.158', d:'8 aout 2026', t:[
    'LE BOUTON « COMMENCER » DE LA FICHE ENTREPRISE NE REPONDAIT PAS. Il demarrait desactive, et seule la frappe dans un champ TEXTE le reveillait : remplir uniquement les menus deroulants — secteur, qualite, activite, effectif — laissait un bouton mort a 40 %% d\'opacite. La fiche est facultative : le bouton est desormais toujours actif.'
  ]},
