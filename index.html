@@ -1010,7 +1010,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.150';
+var JX_BUILD = 'v2026-08-08.151';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1019,6 +1019,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.151', d:'8 aout 2026', t:[
+   'NOUVEAU MODULE — PREVENTION DU HARCELEMENT : LE DOSSIER DE PREUVE. L\'application traitait l\'aval — qualifier, signaler, enquêter — et ne disait rien de l\'AMONT, qui est pourtant ce qui exonère. Depuis l\'arrêt Air France (Cass. soc., 25 novembre 2015, n° 14-24.444), transposé au harcèlement moral l\'année suivante (Cass. soc., 1er juin 2016, n° 14-19.702), l\'employeur ne se dégage qu\'en prouvant DEUX CHOSES A LA FOIS : en amont, des actions d\'information et de FORMATION ; en aval, une réaction immédiate. Le même arrêt précise que la seule procédure d\'alerte inscrite au règlement intérieur NE SUFFIT PAS. L\'enquête interne non plus : elle n\'est même pas obligatoire en soi (Cass. soc., 12 juin 2024, n° 23-13.975).',
+   'DOUZE POINTS, OUI OU NON, ET LA PIECE. Document unique, affichage, règlement intérieur, référent du comité, référent de l\'employeur, procédure de signalement, formation de l\'encadrement, formation des référents, information de tous, information à l\'embauche, registre des signalements, réaction datée. Répondre « oui » ne suffit pas : l\'application demande LA PIECE et sa date. Une action faite sans pièce reste comptée « sans preuve » — devant le juge, ce qui n\'est pas prouvé n\'a pas été fait. Les actions à durée limitée passent seules en « à renouveler ».',
+   'ET LE CONTENU DE CHAQUE ACTION — LE COURS A DONNER. Un plan qui dit « former l\'encadrement » ne prouve rien. Chaque point porte son PROGRAMME : objectif, public, durée, modules détaillés, pièces produites. Soixante modules, tirés de la loi et de la jurisprudence. La formation de l\'encadrement fait sept heures en neuf modules — définition et ses trois pièges, l\'intention qui ne compte pas, ce que les juges retiennent et écartent sur cas réels, harcèlement managérial et institutionnel, l\'exercice d\'objectivation des décisions, les mises en situation de recueil d\'un signalement, les conséquences chiffrées. Chaque programme s\'imprime avec sa feuille d\'émargement.',
+   'LE DOSSIER DE PREUVE S\'IMPRIME. Le document à produire devant le conseil de prud\'hommes : ce qui a été fait, quand, avec quelle pièce, et l\'état de chacun des douze points. Et la jurisprudence, repliée par défaut : les règles, les faits retenus, les faits écartés — d\'après les publications de Mounir CHIKHAOUI.'
+ ]},
  {v:'v2026-08-08.150', d:'8 aout 2026', t:[
    'ON REPOND SUR PLACE. L\'encadré « informations manquantes » nommait les salariés à compléter, puis renvoyait à un tableau de plusieurs milliers de lignes où il fallait les retrouver un par un. Ce n\'était pas une réponse. On répond désormais DANS l\'encadré : un bouton Oui / Non pour « remplace-t-il un salarié absent ? », un champ de date pour une date d\'entrée absente, un menu pour la nature du contrat ou le temps de travail. L\'effectif se recalcule à chaque réponse.',
    'ET LA REPONSE VA DANS LE REGISTRE. Ce n\'est pas une seconde saisie : répondre depuis le socle écrit dans la fiche du salarié, et le contrôle de cohérence du registre s\'en trouve corrigé du même geste. Sur un fichier de 2 500 salariés, dix réponses suffisent à passer d\'un effectif « non calculé » à 2 392 salariés calculés d\'après le registre.'
@@ -3248,6 +3254,12 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 
 <!-- ═══ HARCÈLEMENT MORAL — GRILLE DE QUALIFICATION ═══ -->
+<div id="pg-harcprev" class="page">
+<div class="topbar"><button onclick="goPage('harcele')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+<div style="flex:1"><div class="tt">Prévention du harcèlement</div><div class="ts">Ce qui exonère l’employeur — et comment le prouver</div></div>
+<button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+<div id="hp-body"><div style="padding:24px;text-align:center;color:#9fb0c4">Chargement…</div></div>
+</div>
 <div id="pg-harcmoral" class="page">
 <div class="topbar"><button onclick="goPage('harcele')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Harcèlement moral</div><div class="ts">Qualification · faits retenus et écartés · preuve</div></div>
@@ -4397,6 +4409,7 @@ Exemple :<br>
   <div class="mi" onclick="goPage('csereu');closeMenu()"><span style="font-size:18px">🗣️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Réunion du CSE</div></div></div>
   <div class="mi" onclick="goPage('csecal');closeMenu()"><span style="font-size:18px">📅</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Calendrier du CSE</div></div></div>
   <div class="mi" onclick="goPage('moncse');closeMenu()"><span style="font-size:18px">👥</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Mon CSE — composition</div></div></div>
+  <div class="mi" onclick="goPage('harcprev');closeMenu()"><span style="font-size:18px">🛡️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Prévention du harcèlement</div></div></div>
   <div class="mi" onclick="goBdese();closeMenu()"><span style="font-size:18px">🗃️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">BDESE — base de données</div></div></div>
   <div class="mi" onclick="goIndexEgalite();closeMenu()"><span style="font-size:18px">⚖️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Index égalité femmes-hommes</div></div></div>
   <div class="mi" onclick="goPage('csediag');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">CSE — Diagnostic</div></div></div>
@@ -5134,6 +5147,16 @@ Exemple :<br>
 <div style="flex:1"><div class="tt">Harcèlement &amp; discrimination</div><div class="ts">Prévention · preuve aménagée · nullité</div></div>
 <button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 
+<div class="card" style="border-color:#e05c5c">
+  <div style="font-size:14.5px;font-weight:800;color:#e05c5c;margin-bottom:6px">Réagir ne suffit pas — c’est l’avant qui vous exonère</div>
+  <div style="font-size:12.5px;color:#e8e4d8;line-height:1.7;margin-bottom:10px">
+    L’employeur ne se dégage qu’en prouvant <b>deux choses à la fois</b> : en amont, des actions d’information
+    et de <b>formation</b> ; en aval, une réaction immédiate. La seule procédure au règlement intérieur ne
+    suffit pas ; l’enquête interne non plus.
+  </div>
+  <button class="btn" onclick="goPage('harcprev')" style="width:100%">🛡️ Prévention — le dossier de preuve →</button>
+  <div style="font-size:11px;color:#9fb0c4;margin-top:7px">Cass. soc., 25 nov. 2015, n° 14-24.444 · Cass. soc., 1<sup>er</sup> juin 2016, n° 14-19.702</div>
+</div>
 <div class="card"><div class="ct">🛡️ Harcèlement &amp; discrimination — cadre</div><div class="al info" style="font-size:12px">Dispositions d'ordre public (Code du travail), applicables <b>tous secteurs</b>. L'employeur est tenu d'une <b>obligation de sécurité</b> incluant la prévention du harcèlement.</div></div>
 <div class="card" style="border-color:#c9a84c">
   <div class="ct" style="font-size:16px">Qualifier un harcèlement moral</div>
@@ -6480,6 +6503,7 @@ var JX_ONENTER={
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
   harcmoral:'hmOnEnter', csedos:'dosOnEnter', csebud:'budOnEnter',
+  harcprev:'hpOnEnter',
   contrat:'jxSousTitreContrat'
 };
 function jxEntrer(id){
@@ -10920,6 +10944,664 @@ function egaCCN(){
     var lib=(typeof E!=='undefined'&&E&&E.ccn)?E.ccn:((p&&p.ccnLib)?p.ccnLib:'');
     return {idcc:idcc, lib:lib};
   }catch(e){ return {idcc:'', lib:''}; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   PREVENTION DU HARCELEMENT — LE DOSSIER DE PREUVE
+   Ce qui exonere n'est pas la reaction : c'est la preuve de ce qui a
+   ete fait AVANT. Cass. soc. 25 nov. 2015 n° 14-24.444, transpose au
+   harcelement moral par Cass. soc. 1er juin 2016 n° 14-19.702.
+   ══════════════════════════════════════════════════════════════════ */
+var HP = {};
+var HP_LS = 'harc_prev_v1';
+function hpKey(){ return HP_LS+'::'+((typeof rxAccountId==='function')?rxAccountId():'local'); }
+function hpLoad(){
+  try{ HP=JSON.parse(localStorage.getItem(hpKey())||'{}')||{}; }catch(e){ HP={}; }
+  if(!HP.rep) HP.rep={};       /* oui / non par question */
+  if(!HP.act) HP.act={};       /* etat, date, preuve par action */
+  try{ if(typeof rxLoad==='function') rxLoad(); }catch(e){}
+}
+function hpSave(){ try{ localStorage.setItem(hpKey(), JSON.stringify(HP)); }catch(e){} }
+function hpEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function hpFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/); return m? m[3]+'/'+m[2]+'/'+m[1] : iso; }
+function hpAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function hpEff(){ try{ return cseEffectif(); }catch(e){ return null; } }
+function hpOnEnter(){ hpLoad(); hpRender(); }
+
+/* Les douze points. Chacun : la question posee a l'employeur, l'article,
+   l'action a mener s'il repond non, et LA PIECE qui la prouve. */
+var HP_POINTS = [
+ {k:'duerp', q:'Le risque de harcèlement moral et sexuel figure-t-il dans votre document unique ?',
+  art:'L.4121-3 et R.4121-1',
+  act:'Inscrire le risque de harcèlement moral, de harcèlement sexuel et d’agissements sexistes au document unique, unité de travail par unité de travail.',
+  piece:'Document unique daté et mis à jour', mois:12},
+ {k:'affichage', q:'Les textes sur le harcèlement sont-ils affichés dans l’entreprise ?',
+  art:'L.1152-4 et L.1153-5',
+  act:'Afficher les articles du code pénal et les voies de recours, avec les coordonnées de l’inspection du travail, du médecin du travail, du Défenseur des droits et des référents.',
+  piece:'Photographie de l’affichage, datée', mois:12},
+ {k:'ri', q:'Votre règlement intérieur rappelle-t-il l’interdiction du harcèlement ?',
+  art:'L.1321-2',
+  act:'Compléter le règlement intérieur, le soumettre au comité, le déposer au greffe et le transmettre à l’inspection du travail.',
+  piece:'Règlement intérieur, avis du comité, récépissé de dépôt', mois:0},
+ {k:'refcse', q:'Un référent harcèlement a-t-il été désigné parmi les élus du comité ?',
+  art:'L.2314-1, dernier alinéa',
+  act:'Faire désigner un référent par le comité, par une délibération à la majorité des membres présents.',
+  piece:'Extrait du procès-verbal de désignation', mois:0},
+ {k:'refemp', q:'Un référent employeur est-il désigné (entreprises d’au moins 250 salariés) ?',
+  art:'L.1153-5-1',
+  act:'Désigner un référent chargé d’orienter, d’informer et d’accompagner les salariés, et faire connaître son nom.',
+  piece:'Note de désignation diffusée', mois:0, seuil:250},
+ {k:'proc', q:'Une procédure de signalement écrite existe-t-elle, et est-elle diffusée ?',
+  art:'L.4121-1, 3° — organisation et moyens adaptés',
+  act:'Écrire la procédure : qui reçoit le signalement, sous quel délai, comment la confidentialité est assurée, ce qui suit. La diffuser à tous.',
+  piece:'Procédure écrite et preuve de sa diffusion', mois:0,
+  note:'Attention : la seule procédure d’alerte au règlement intérieur NE SUFFIT PAS à exonérer (Cass. soc., 1er juin 2016, n° 14-19.702).'},
+ {k:'formEnc', q:'Les dirigeants et l’encadrement ont-ils été formés ?',
+  art:'L.4121-1, 2° — actions d’information et de formation',
+  act:'Former tous ceux qui exercent un pouvoir hiérarchique : ce qui est du harcèlement, ce qui n’en est pas, comment recevoir un signalement.',
+  piece:'Programme, feuille d’émargement signée, attestations', mois:24, public:'encadrement'},
+ {k:'formRef', q:'Les référents ont-ils été formés ?',
+  art:'L.2315-18 pour les élus — L.4121-1, 2°',
+  act:'Former les référents : recueil du signalement, orientation, confidentialité, conduite d’une enquête.',
+  piece:'Attestation de formation', mois:24, public:'référents'},
+ {k:'formSal', q:'L’ensemble des salariés a-t-il été informé ou sensibilisé ?',
+  art:'L.4121-1, 2° et L.4121-2, 9°',
+  act:'Sensibiliser tout le personnel : définition, exemples, à qui s’adresser, protection du salarié qui dénonce de bonne foi.',
+  piece:'Support diffusé, liste des destinataires, date', mois:12, public:'tous'},
+ {k:'embauche', q:'Les nouveaux entrants reçoivent-ils cette information à l’embauche ?',
+  art:'L.4121-1, 2°',
+  act:'Intégrer la notice au livret d’accueil et la faire émarger le jour de l’embauche.',
+  piece:'Notice remise, émargement du salarié', mois:0},
+ {k:'registre', q:'Tenez-vous un registre daté des signalements reçus ?',
+  art:'L.4121-1 — l’employeur doit pouvoir établir ce qu’il a fait',
+  act:'Ouvrir un registre : date du signalement, auteur, faits rapportés, mesure prise, date de la mesure.',
+  piece:'Registre des signalements', mois:0},
+ {k:'reaction', q:'Chaque signalement reçu a-t-il donné lieu à une mesure datée ?',
+  art:'L.1152-4 — Cass. soc., 1er juin 2016, n° 14-19.702',
+  act:'Pour chaque signalement : une mesure immédiate, écrite et datée. La réaction seule n’exonère pas, mais son absence condamne.',
+  piece:'Courriers, décisions, comptes rendus datés', mois:0,
+  note:'L’enquête n’est pas obligatoire en soi (Cass. soc., 12 juin 2024, n° 23-13.975), et elle ne suffit pas davantage à exonérer.'}
+];
+/* Les points qui ne concernent pas cette taille d'entreprise sont retires,
+   jamais poses pour rien. */
+function hpPoints(){
+  var e=hpEff();
+  return HP_POINTS.filter(function(p){ return !(p.seuil && e!==null && e<p.seuil); });
+}
+function hpRep(k){ return (HP.rep||{})[k]||''; }
+function hpSetRep(k,v){ if(!HP.rep) HP.rep={}; HP.rep[k]=v; hpSave(); hpRender(); }
+function hpAct(k){ if(!HP.act) HP.act={}; if(!HP.act[k]) HP.act[k]={}; return HP.act[k]; }
+function hpSetAct(k,c,v){ var a=hpAct(k); a[c]=String(v==null?'':v).trim(); hpSave(); hpRender(); }
+
+/* L'etat d'un point. Une action faite SANS PIECE reste « sans preuve » :
+   c'est tout l'enjeu — devant le juge, ce qui n'est pas prouve n'a pas
+   ete fait. */
+function hpEtat(p){
+  var r=hpRep(p.k), a=hpAct(p.k);
+  if(r==='non') return {code:'afaire', lib:'À faire', c:'#e05c5c'};
+  if(r!=='oui') return {code:'inconnu', lib:'Non renseigné', c:'#9fb0c4'};
+  if(!a.piece) return {code:'sanspreuve', lib:'Fait, mais sans pièce', c:'#e8c97a'};
+  if(p.mois && a.date){
+    var d=new Date(a.date+'T00:00:00');
+    if(!isNaN(d)){ d.setMonth(d.getMonth()+p.mois);
+      if(hpAuj() > (d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)))
+        return {code:'perime', lib:'À renouveler', c:'#e8c97a'};
+    }
+  }
+  return {code:'ok', lib:'Prouvé', c:'#46b885'};
+}
+function hpBilan(){
+  var L=hpPoints(), n={ok:0, sanspreuve:0, afaire:0, perime:0, inconnu:0};
+  L.forEach(function(p){ n[hpEtat(p).code]++; });
+  n.total=L.length;
+  n.pct = L.length? Math.round(n.ok/L.length*100) : 0;
+  return n;
+}
+/* L'echeance d'une action a renouveler. */
+function hpEcheance(p){
+  var a=hpAct(p.k);
+  if(!p.mois || !a.date) return '';
+  var d=new Date(a.date+'T00:00:00'); if(isNaN(d)) return '';
+  d.setMonth(d.getMonth()+p.mois);
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+
+
+
+/* ══════════════════════════════════════════════════════════════════
+   LE CONTENU DE CHAQUE ACTION — le cours a donner
+   Un plan qui dit « former l'encadrement » ne prouve rien. Ce qui se
+   produit devant le juge, c'est un PROGRAMME : ce qui a ete dit, a qui,
+   pendant combien de temps, et ce qui a ete signe.
+   ══════════════════════════════════════════════════════════════════ */
+var HP_COURS = {
+
+/* ─────────────── 1. LE DOCUMENT UNIQUE ─────────────── */
+duerp:{
+ titre:'Inscrire le risque de harcèlement au document unique',
+ public:'Direction, service RH, avec le comité et le référent',
+ duree:'Une demi-journée de travail, puis mise à jour annuelle',
+ objectif:'Faire figurer le harcèlement moral, le harcèlement sexuel et les agissements sexistes parmi les risques professionnels identifiés, unité de travail par unité de travail. Un document unique qui ignore ces risques est la première pièce que le demandeur produira contre vous.',
+ modules:[
+  ['1 · Pourquoi le harcèlement est un risque professionnel',
+   'Le harcèlement n’est pas un incident relationnel : c’est un risque pour la santé physique et mentale, au même titre que le bruit ou la manutention. L’article L.4121-3 impose d’évaluer les risques « y compris dans le choix des procédés de fabrication, des équipements, dans l’aménagement des lieux de travail et dans la définition des postes ». Le 7° de l’article L.4121-2 vise expressément le harcèlement moral, le harcèlement sexuel et les agissements sexistes parmi ce que la planification de la prévention doit intégrer.'],
+  ['2 · Découper par unité de travail',
+   'Le risque ne se pose pas de la même manière au siège, en agence, de nuit, en télétravail ou chez un client. Chaque unité de travail reçoit sa propre évaluation. Les situations à examiner en priorité : travail isolé, relation client difficile, forte pression sur les résultats, réorganisation en cours, encadrement récemment nommé, équipes en sous-effectif.'],
+  ['3 · Coter le risque, et écrire ce qui le réduit',
+   'Pour chaque unité : la situation dangereuse, la gravité, la fréquence, puis les mesures existantes et les mesures décidées. Une cotation sans mesure décidée ne sert à rien. La mesure décidée doit porter un responsable et une date.'],
+  ['4 · Associer le comité',
+   'Le comité est consulté sur le document unique et sur ses mises à jour. Sa consultation se prouve par un procès-verbal, pas par un courriel.'],
+  ['5 · Mettre à jour',
+   'Au moins une fois par an, et à chaque décision d’aménagement important, et à chaque information supplémentaire sur un risque. Un signalement de harcèlement EST une information supplémentaire : il doit déclencher la mise à jour.']
+ ],
+ produit:['Document unique daté, avec le volet risques psychosociaux','Procès-verbal de consultation du comité','Plan d’actions avec responsable et échéance par mesure'],
+ art:'Articles L.4121-1, L.4121-2 (7°), L.4121-3 et R.4121-1 à R.4121-4'
+},
+
+/* ─────────────── 2. L'AFFICHAGE ─────────────── */
+affichage:{
+ titre:'Afficher les textes et les voies de recours',
+ public:'Service RH — affichage destiné à tous les salariés',
+ duree:'Une heure de mise en place, contrôle semestriel',
+ objectif:'Rendre visible, dans chaque lieu de travail et sur le lieu d’embauche, le texte qui interdit le harcèlement et le chemin pour le signaler. L’affichage est le premier élément matériel qu’un inspecteur du travail vérifie, et le premier que le demandeur photographie s’il est absent.',
+ modules:[
+  ['1 · Ce qui doit être affiché',
+   'Le texte de l’article 222-33-2 du code pénal pour le harcèlement moral (article L.1152-4) et celui de l’article 222-33 du code pénal pour le harcèlement sexuel (article L.1153-5). L’affichage porte aussi les actions contentieuses ouvertes et les coordonnées des autorités et services compétents.'],
+  ['2 · Qui doit y figurer, nommément',
+   'Le médecin du travail ou le service de prévention et de santé au travail · l’inspection du travail compétente, avec le nom de l’agent · le Défenseur des droits · le référent de l’entreprise · le référent du comité. Un affichage qui ne nomme personne n’oriente personne.'],
+  ['3 · Où',
+   'Dans les lieux de travail et dans les locaux ou à la porte des locaux où se fait l’embauche. Sur chaque site, chaque étage utile, y compris les locaux sociaux. Pour les salariés en télétravail ou itinérants, un relais numérique équivalent — intranet ou envoi individuel.'],
+  ['4 · Prouver l’affichage',
+   'Une photographie datée par site, versée au dossier, et un contrôle semestriel consigné. Un affichage tombé n’est plus un affichage.']
+ ],
+ produit:['Affiche à jour, par site','Photographies datées','Fiche de contrôle semestriel'],
+ art:'Articles L.1152-4 et L.1153-5 du code du travail'
+},
+
+/* ─────────────── 3. LE REGLEMENT INTERIEUR ─────────────── */
+ri:{
+ titre:'Compléter le règlement intérieur',
+ public:'Direction, RH, comité',
+ duree:'Rédaction puis procédure de deux à trois mois',
+ objectif:'Le règlement intérieur rappelle les dispositions relatives à l’interdiction du harcèlement moral et sexuel et des agissements sexistes. Il fonde aussi le pouvoir disciplinaire : sans lui, sanctionner l’auteur des faits devient contestable.',
+ modules:[
+  ['1 · Ce que le règlement doit contenir',
+   'Le rappel des dispositions relatives à l’interdiction de toute pratique de harcèlement moral et de harcèlement sexuel, et des agissements sexistes (article L.1321-2). L’échelle des sanctions, sans laquelle une sanction est inopposable. La procédure disciplinaire.'],
+  ['2 · Ce qu’il ne doit pas contenir',
+   'Une clause qui restreint le droit de dénoncer, qui impose un passage obligé par la hiérarchie directe — souvent l’auteur présumé — ou qui menace de sanction le salarié dont la dénonciation ne serait pas confirmée. Le salarié qui relate des faits de bonne foi est protégé : la mauvaise foi ne peut résulter que de la connaissance par le salarié de la fausseté des faits qu’il dénonce.'],
+  ['3 · La procédure',
+   'Consultation du comité · transmission à l’inspection du travail · dépôt au greffe du conseil de prud’hommes · affichage · entrée en vigueur un mois après ces formalités. Chaque étape produit sa pièce.'],
+  ['4 · Le piège à connaître',
+   'Une procédure d’alerte inscrite au règlement intérieur, même utilisée par la victime, NE SUFFIT PAS à démontrer que toutes les mesures de prévention ont été prises. C’est exactement ce que la Cour de cassation a jugé le 1er juin 2016. Le règlement est nécessaire ; il n’est pas suffisant.']
+ ],
+ produit:['Règlement intérieur à jour','Avis du comité','Récépissé de dépôt au greffe','Preuve de transmission à l’inspection du travail'],
+ art:'Article L.1321-2 — Cass. soc., 1er juin 2016, n° 14-19.702'
+},
+
+/* ─────────────── 4 et 5. LES REFERENTS ─────────────── */
+refcse:{
+ titre:'Faire désigner le référent du comité',
+ public:'Le comité social et économique',
+ duree:'Une délibération en réunion ordinaire',
+ objectif:'Le comité désigne parmi ses membres un référent en matière de lutte contre le harcèlement sexuel et les agissements sexistes. Cette désignation est obligatoire dans toute entreprise dotée d’un comité, quelle que soit sa taille.',
+ modules:[
+  ['1 · Qui peut être désigné',
+   'Un membre du comité, titulaire ou suppléant. La désignation prend la forme d’une résolution adoptée à la majorité des membres présents. Elle vaut pour la durée du mandat.'],
+  ['2 · Ce qu’il fait',
+   'Il oriente, informe et accompagne les salariés. Il n’enquête pas seul, il n’arbitre pas, il ne décide pas de la sanction : il est le point d’entrée. Confondre référent et enquêteur est la première erreur.'],
+  ['3 · Ses moyens',
+   'Le temps nécessaire pris sur le crédit d’heures, une formation, et la possibilité d’être reçu par la direction. Un référent désigné sans moyens est une désignation de façade.'],
+  ['4 · Le faire connaître',
+   'Son nom et le moyen de le joindre figurent sur l’affichage et dans le livret d’accueil. Un référent que personne ne peut nommer ne sert à rien.']
+ ],
+ produit:['Extrait du procès-verbal de désignation','Note diffusée avec le nom et le contact','Attestation de formation'],
+ art:'Article L.2314-1, dernier alinéa'
+},
+refemp:{
+ titre:'Désigner le référent de l’employeur',
+ public:'Direction — entreprises d’au moins deux cent cinquante salariés',
+ duree:'Une note de désignation, puis formation',
+ objectif:'Dans les entreprises d’au moins deux cent cinquante salariés, l’employeur désigne un référent chargé d’orienter, d’informer et d’accompagner les salariés en matière de lutte contre le harcèlement sexuel et les agissements sexistes.',
+ modules:[
+  ['1 · Le choisir',
+   'Une personne accessible, distincte de la ligne hiérarchique directe des équipes exposées, capable de garder une information confidentielle. Le directeur des ressources humaines n’est pas toujours le meilleur choix : il est aussi celui qui sanctionne.'],
+  ['2 · Écrire sa lettre de mission',
+   'Périmètre, disponibilité, obligation de confidentialité, articulation avec le référent du comité, avec le service de santé au travail et avec la direction. Ce qu’il fait et ce qu’il ne fait pas.'],
+  ['3 · Le faire connaître et le former',
+   'Diffusion du nom, formation identique à celle du référent du comité, et point annuel avec la direction sur les signalements reçus.']
+ ],
+ produit:['Note de désignation','Lettre de mission','Attestation de formation','Compte rendu du point annuel'],
+ art:'Article L.1153-5-1'
+},
+
+/* ─────────────── 6. LA PROCEDURE ─────────────── */
+proc:{
+ titre:'Écrire et diffuser la procédure de signalement',
+ public:'Direction, RH, référents, comité',
+ duree:'Rédaction en une journée, diffusion à tous',
+ objectif:'Organiser à l’avance ce qui se passe quand un signalement arrive. L’improvisation au moment des faits est ce qui coûte le procès : délais perdus, confidentialité rompue, victime laissée en présence de l’auteur présumé.',
+ modules:[
+  ['1 · Les portes d’entrée',
+   'Plusieurs, et jamais une seule : le supérieur hiérarchique, le service RH, le référent de l’entreprise, le référent du comité, le service de santé au travail, un élu. Le salarié doit pouvoir contourner sa hiérarchie — c’est souvent elle qui est en cause.'],
+  ['2 · Le délai',
+   'Un accusé de réception écrit sous quarante-huit heures. Une première mesure sous huit jours. Ces délais s’écrivent dans la procédure et se tiennent : c’est la « réaction immédiate » que la jurisprudence exige.'],
+  ['3 · Les mesures conservatoires',
+   'Séparer les personnes sans sanctionner : aménagement d’horaires, changement temporaire de rattachement, télétravail, mise à pied conservatoire de l’auteur présumé si les faits sont graves. Ne JAMAIS déplacer la victime contre son gré : le déplacement de la victime est régulièrement retenu comme un élément supplémentaire de harcèlement.'],
+  ['4 · La confidentialité',
+   'Qui sait quoi. Le nom de la victime n’est pas diffusé. Les auditions se tiennent hors de la vue des équipes. Les notes sont conservées sous accès restreint. Une rumeur qui part de l’enquête est imputable à l’employeur.'],
+  ['5 · Ce que l’on fait ensuite, et ce que l’on écrit',
+   'Enquête ou non — elle n’est pas obligatoire en soi, mais son absence doit être justifiée par d’autres mesures suffisantes. Décision motivée. Information de la victime et de l’auteur présumé. Suivi à trois mois.'],
+  ['6 · La protection du salarié qui dénonce',
+   'Aucune sanction, aucun licenciement, aucune mesure discriminatoire pour avoir subi, refusé de subir, relaté ou témoigné de faits de harcèlement. La procédure doit le dire en toutes lettres, parce que c’est ce qui délie les langues.']
+ ],
+ produit:['Procédure écrite','Preuve de diffusion (courriel horodaté, émargement, intranet)','Modèles : accusé de réception, convocation, compte rendu, décision'],
+ art:'Articles L.1152-2, L.1152-4, L.4121-1 (3°) — Cass. soc., 12 juin 2024, n° 23-13.975'
+},
+
+/* ─────────────── 7. LA FORMATION DE L'ENCADREMENT ─────────────── */
+formEnc:{
+ titre:'Former les dirigeants et l’encadrement',
+ public:'Tous ceux qui exercent une autorité hiérarchique, sans exception',
+ duree:'Une journée — sept heures — puis un rappel de deux heures tous les deux ans',
+ objectif:'C’est LA formation qui exonère. La Cour de cassation invite les juges à rechercher si l’employeur avait mis en œuvre des actions d’information et de formation propres à prévenir la survenance de faits de harcèlement moral. Sans elle, tout le reste tombe.',
+ modules:[
+  ['1 · La définition, et ce qu’elle ne dit pas — 45 min',
+   'Article L.1152-1 : des agissements RÉPÉTÉS, qui ont pour OBJET OU POUR EFFET une dégradation des conditions de travail SUSCEPTIBLE de porter atteinte aux droits et à la dignité, d’altérer la santé ou de compromettre l’avenir professionnel. Trois pièges : « répétés » n’exige pas des faits de nature différente — un même fait répété suffit ; la durée n’est pas une condition — dix-sept jours ont suffi ; l’atteinte n’a pas à être réalisée, le texte dit « susceptible ».'],
+  ['2 · L’intention ne compte pas — 30 min',
+   'On peut harceler sans le vouloir. L’intention de nuire n’est pas exigée. Un encadrant convaincu de bien faire, qui met la pression « pour le bien du service », peut être l’auteur de faits de harcèlement. C’est le point le plus difficile à faire admettre, et le plus important.'],
+  ['3 · Ce que les juges retiennent — 1 h 30, sur cas réels',
+   'Mutation irrégulière puis poste vidé de sa substance · retour de congé maternité, retrait de responsabilités, mise à pied injustifiée · changements quotidiens de tâches et interdiction faite aux collègues de lui parler · local exigu, sans outils, isolé · plus aucun travail fourni pendant deux ans · mise à l’écart organisée par les collègues · avertissement injustifié et congés imposés sans consultation · privation des moyens de travail et suppression des accès · pressions pour faire signer une rupture conventionnelle.'],
+  ['4 · Ce que les juges écartent — 45 min',
+   'Deux sanctions en un mois, même irrégulières · le fait unique non répété · des accusations générales sans faits précis, datés et concordants · une mésentente réciproque aux torts partagés. Et surtout : les décisions de gestion légitimes — évaluer, réorganiser, sanctionner à bon droit — ne sont pas du harcèlement, à condition d’être objectivées.'],
+  ['5 · Le harcèlement managérial et institutionnel — 45 min',
+   'Des méthodes de gestion peuvent caractériser un harcèlement dès lors qu’elles se manifestent, pour un salarié déterminé, par des agissements répétés. Et une politique d’entreprise arrêtée en connaissance de cause pour dégrader les conditions de travail de tout ou partie des salariés est un harcèlement institutionnel — le passage d’un objectif indicatif à un objectif à atteindre « coûte que coûte » a été retenu comme la faute majeure.'],
+  ['6 · Objectiver ses décisions — 1 h, exercice',
+   'La charge de la preuve est aménagée : le salarié présente des éléments laissant supposer un harcèlement, et c’est ensuite à l’employeur de prouver que ses décisions reposent sur des éléments objectifs étrangers à tout harcèlement. Exercice : reprendre trois décisions récentes de chaque participant et écrire, pour chacune, ce qui la justifie objectivement et où se trouve la trace écrite.'],
+  ['7 · Recevoir un signalement — 1 h, mises en situation',
+   'Ce qu’on dit, ce qu’on ne dit pas. Ne pas minimiser, ne pas promettre le secret absolu, ne pas enquêter seul, ne pas confronter les parties. Écrire immédiatement ce qui a été dit, dater, transmettre. Le salarié n’a pas à employer le mot « harcèlement » : c’est la révélation des faits qui déclenche l’obligation d’agir.'],
+  ['8 · Les conséquences, chiffrées — 30 min',
+   'Nullité du licenciement s’il est fondé sur le harcèlement subi ou dénoncé : réintégration avec rappel de salaires, ou indemnité d’au moins six mois SANS PLAFOND — le barème ne s’applique pas. Dommages-intérêts distincts pour le harcèlement lui-même, cumulables. Et au pénal, deux ans d’emprisonnement et 30 000 € d’amende pour l’auteur.'],
+  ['9 · Évaluation — 15 min',
+   'Un questionnaire de dix cas à qualifier. Le résultat est conservé : il prouve que la formation a été suivie, pas seulement dispensée.']
+ ],
+ produit:['Programme daté et signé','Feuille d’émargement par demi-journée','Support remis à chaque participant','Questionnaire d’évaluation corrigé','Attestation individuelle'],
+ art:'Articles L.4121-1 (2°) et L.4121-2 — Cass. soc., 1er juin 2016, n° 14-19.702'
+},
+
+/* ─────────────── 8. LA FORMATION DES REFERENTS ─────────────── */
+formRef:{
+ titre:'Former les référents',
+ public:'Référent du comité, référent de l’employeur, membres de la commission santé s’il y en a une',
+ duree:'Deux jours — quatorze heures',
+ objectif:'Le référent est le point d’entrée. Mal formé, il devient le premier vice de procédure : promesse de confidentialité intenable, enquête bâclée, notes non datées, victime déplacée.',
+ modules:[
+  ['1 · Le cadre juridique — 3 h',
+   'Reprise complète du module de l’encadrement : définition, jurisprudence retenue et écartée, harcèlement institutionnel, régime de la preuve, sanctions.'],
+  ['2 · Recevoir la parole — 3 h',
+   'Conduire un entretien de recueil : questions ouvertes, chronologie, faits datés, pas d’interprétation. Ce qu’on note et comment on le note. Ce qu’on promet et ce qu’on ne promet pas. Repérer l’urgence : idées suicidaires, arrêt de travail imminent, isolement total — dans ces cas, saisine immédiate du service de santé au travail.'],
+  ['3 · Le régime de la preuve — 2 h',
+   'Le salarié n’a pas à prouver : il présente des éléments de fait précis et concordants laissant supposer le harcèlement. La preuve est libre. Un enregistrement obtenu à l’insu de son auteur peut même être recevable s’il est indispensable à l’exercice du droit à la preuve et proportionné au but poursuivi. Et le juge apprécie les faits DANS LEUR ENSEMBLE : une addition de décisions anodines peut caractériser un harcèlement.'],
+  ['4 · Conduire une enquête — 4 h, cas pratique complet',
+   'Décider s’il faut enquêter — elle n’est pas obligatoire en soi. Composer la commission : jamais l’auteur présumé, jamais le supérieur direct de la victime, de préférence à parité et avec un élu. Rédiger la lettre de mission. Auditionner : victime, auteur présumé, témoins désignés par chacun. Signer chaque compte rendu. Rédiger un rapport qui distingue les faits établis, les faits non établis et les faits contestés — et qui NE QUALIFIE PAS juridiquement à la place de l’employeur.'],
+  ['5 · Après l’enquête — 1 h',
+   'Décision motivée, notifiée aux deux parties. Mesures : sanction, mutation de l’auteur, accompagnement de la victime, saisine du service de santé au travail. Suivi à trois mois, écrit. Information du comité, sans nommer.'],
+  ['6 · Les erreurs qui coûtent le procès — 1 h',
+   'Déplacer la victime · laisser l’auteur présumé participer à l’enquête · ne pas dater les notes · promettre l’anonymat · classer sans écrire · ne rien faire parce que le mot « harcèlement » n’a pas été prononcé · sanctionner le salarié qui a dénoncé.']
+ ],
+ produit:['Programme','Émargement','Trame d’entretien','Modèle de rapport d’enquête','Attestation individuelle'],
+ art:'Articles L.2315-18, L.4121-1 (2°) — Cass. soc., 12 juin 2024, n° 23-13.975'
+},
+
+/* ─────────────── 9. L'INFORMATION DE TOUS ─────────────── */
+formSal:{
+ titre:'Informer et sensibiliser l’ensemble des salariés',
+ public:'Tout le personnel, y compris les contrats courts, les alternants et les intérimaires présents',
+ duree:'Une heure trente en présentiel, ou un module écrit émargé — rappel annuel',
+ objectif:'La loi parle d’actions d’information ET de formation. Former l’encadrement sans informer les salariés laisse la moitié du chemin. Et un salarié qui sait à qui parler parle plus tôt — c’est-à-dire avant que le dossier ne devienne un contentieux.',
+ modules:[
+  ['1 · Ce qu’est le harcèlement, en clair — 30 min',
+   'La définition, en mots simples, avec des exemples tirés de la jurisprudence. Et la limite : un manager exigeant n’est pas un harceleur ; une sanction justifiée n’est pas du harcèlement ; un conflit aux torts partagés non plus.'],
+  ['2 · Ce que vous devez savoir de vos droits — 20 min',
+   'Vous n’avez pas à prouver : vous devez présenter des éléments laissant supposer. Vous n’avez pas à employer le mot « harcèlement ». Vous êtes protégé si vous dénoncez de bonne foi — la mauvaise foi ne se déduit que de la connaissance de la fausseté des faits. Toute sanction ou rupture prise en raison de cette dénonciation est nulle.'],
+  ['3 · À qui parler — 20 min',
+   'Les noms, les visages, les moyens de joindre : référent de l’entreprise, référent du comité, élus, service de santé au travail, inspection du travail, Défenseur des droits. Distribuer une carte au format portefeuille avec ces coordonnées.'],
+  ['4 · Ce qui se passe ensuite — 10 min',
+   'Le déroulé de la procédure, les délais, ce qui est confidentiel et ce qui ne peut pas l’être. Dire la vérité sur ce point évite les signalements retirés.'],
+  ['5 · Et si vous êtes témoin — 10 min',
+   'Le témoin est protégé au même titre. Ce qu’il peut faire : écrire ce qu’il a vu, daté et signé, et le remettre. Ce qu’il ne doit pas faire : enquêter lui-même, ou en parler à l’équipe.']
+ ],
+ produit:['Support diffusé','Liste des destinataires et date','Émargement ou accusé de lecture','Carte de contacts remise'],
+ art:'Articles L.4121-1 (2°) et L.4121-2 (9°)'
+},
+
+/* ─────────────── 10. L'EMBAUCHE ─────────────── */
+embauche:{
+ titre:'Informer à l’embauche',
+ public:'Chaque nouvel entrant, le jour de son arrivée',
+ duree:'Quinze minutes, intégrées à l’accueil',
+ objectif:'Un salarié entré il y a trois mois et jamais informé est un trou dans votre dossier de preuve. L’information à l’embauche est la seule qui se tienne toute seule, sans campagne.',
+ modules:[
+  ['1 · La notice remise',
+   'Deux pages : la définition, les exemples, les contacts nommés, la procédure, la protection du salarié qui dénonce. Datée, remise en main propre, émargée.'],
+  ['2 · Le passage à l’oral',
+   'Cinq minutes pendant l’accueil : à qui parler, et le fait que l’entreprise attend qu’on parle tôt. Ce court passage double le taux de signalement précoce.'],
+  ['3 · Le contrôle',
+   'Chaque mois, croiser la liste des entrants avec les émargements. Un entrant sans émargement est une ligne du plan d’action.']
+ ],
+ produit:['Notice d’information','Émargement signé et daté','Contrôle mensuel entrants / émargements'],
+ art:'Article L.4121-1 (2°)'
+},
+
+/* ─────────────── 11. LE REGISTRE ─────────────── */
+registre:{
+ titre:'Tenir le registre des signalements',
+ public:'RH et référents — accès restreint',
+ duree:'Ouverture immédiate, tenue au fil de l’eau',
+ objectif:'C’est la pièce qui prouve la réaction. Sans registre, l’employeur affirme avoir agi ; avec lui, il le démontre, date par date.',
+ modules:[
+  ['1 · Ce que le registre porte',
+   'Date du signalement · par qui il est reçu · forme (oral, écrit, courriel) · faits rapportés en une phrase, sans qualification · mesures conservatoires prises et leur date · enquête ou non, et pourquoi · décision et sa date · information des parties · suivi à trois mois.'],
+  ['2 · Ce qu’il ne porte pas',
+   'Aucune appréciation sur la personnalité des intéressés, aucune donnée de santé, aucun jugement. Le registre est un journal de bord, pas un dossier médical ni un avis.'],
+  ['3 · Qui y accède',
+   'Accès nominatif restreint, tracé. Les données personnelles obéissent au RGPD : durée de conservation définie, information des personnes concernées, base légale — l’obligation légale de l’employeur.'],
+  ['4 · Ce qu’on en tire',
+   'Une fois par an : combien de signalements, sur quels sites, quels délais de réaction, quelles suites. Ce bilan alimente le document unique et la consultation du comité. Un registre qui ne produit aucun bilan n’est qu’une liste.']
+ ],
+ produit:['Registre tenu','Bilan annuel','Politique de conservation et d’accès'],
+ art:'Articles L.4121-1 et L.1152-4 — RGPD pour les données'
+},
+
+/* ─────────────── 12. LA REACTION ─────────────── */
+reaction:{
+ titre:'Réagir : ce qu’il faut faire, dans l’ordre',
+ public:'Direction, RH, référents',
+ duree:'Protocole de crise — à connaître avant d’en avoir besoin',
+ objectif:'La réaction seule n’exonère pas, mais son absence condamne à coup sûr. Ce module est le protocole : qui fait quoi, dans quel délai, et ce qui est écrit à chaque étape.',
+ modules:[
+  ['J · Le jour du signalement',
+   'Accusé de réception écrit. Entretien de recueil dans les quarante-huit heures. Écrire les faits, datés, sans les qualifier. Évaluer l’urgence : si la santé est en jeu, saisir le service de santé au travail le jour même.'],
+  ['J+2 à J+8 · Les mesures conservatoires',
+   'Séparer sans sanctionner. Ne jamais déplacer la victime contre son gré. Si les faits sont graves et concordants, mise à pied conservatoire de l’auteur présumé — c’est une mesure d’attente, pas une sanction.'],
+  ['J+8 · Décider de la suite',
+   'Enquête, ou mesures suffisantes sans enquête — et dans ce second cas, écrire pourquoi. L’enquête n’est pas obligatoire en soi, mais l’absence de toute mesure l’est encore moins.'],
+  ['J+30 à J+45 · L’enquête',
+   'Commission composée, lettre de mission, auditions, comptes rendus signés, rapport distinguant faits établis, non établis et contestés. Délai maximal annoncé et tenu.'],
+  ['À l’issue · La décision',
+   'Motivée, écrite, notifiée aux deux parties. Si les faits sont établis : sanction proportionnée, jusqu’au licenciement pour faute grave. Si l’auteur est un salarié protégé, autorisation de l’inspection du travail. Si les faits ne sont pas établis : le dire, sans mettre en cause la bonne foi de l’auteur du signalement.'],
+  ['J+90 · Le suivi',
+   'Un entretien avec la victime, écrit. Vérifier que rien n’a repris et qu’aucune mesure défavorable n’a suivi la dénonciation. C’est là que se joue la nullité d’un licenciement ultérieur.'],
+  ['Le piège à retenir',
+   'Un licenciement prononcé après une dénonciation de bonne foi est nul si le harcèlement en est la cause. Mais la nullité suppose un lien établi : si le motif de licenciement est réel, sérieux et étranger au harcèlement, il tient. D’où la règle : documenter le motif, séparément et à l’avance.']
+ ],
+ produit:['Accusé de réception','Comptes rendus d’audition signés','Rapport d’enquête','Décision motivée notifiée','Compte rendu de suivi à trois mois'],
+ art:'Articles L.1152-2, L.1152-3, L.1152-4 — Cass. soc., 9 avril 2025, n° 24-11.421 et 6 mai 2025, n° 23-22.588'
+}
+};
+
+var HP_COURS_OUVERT = {};
+function hpCoursBasculer(k){ HP_COURS_OUVERT[k]=!HP_COURS_OUVERT[k]; hpRender(); }
+function hpVueCours(k){
+  var C=HP_COURS[k]; if(!C) return '';
+  var h='<div style="margin-top:9px;padding:11px;background:#0b1420;border:1px solid #3a4a5f;border-radius:9px">'
+   +'<div style="font-size:13.5px;font-weight:800;color:#c9a84c">'+hpEsc(C.titre)+'</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6;margin:4px 0 8px">'
+     +'<b>Public :</b> '+hpEsc(C.public)+'<br><b>Durée :</b> '+hpEsc(C.duree)+'</div>'
+   +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.7;margin-bottom:10px"><b>Objectif.</b> '+hpEsc(C.objectif)+'</div>';
+  C.modules.forEach(function(m){
+    h+='<div style="padding:9px;background:#0f1b2c;border-left:3px solid #c9a84c;border-radius:8px;margin-bottom:7px">'
+      +'<div style="font-size:12.5px;font-weight:700;color:#fff;line-height:1.5">'+hpEsc(m[0])+'</div>'
+      +'<div style="font-size:12.5px;color:#cdd7e2;line-height:1.7;margin-top:4px">'+hpEsc(m[1])+'</div></div>';
+  });
+  h+='<div style="font-size:12px;color:#9fb0c4;line-height:1.7;margin-top:8px">'
+    +'<b style="color:#46b885">Ce que l’action produit — les pièces à conserver :</b><br>'
+    + C.produit.map(function(x){ return '• '+hpEsc(x); }).join('<br>')
+    +'</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:6px">'+hpEsc(C.art)+'</div>'
+   +'<div style="margin-top:9px"><button onclick="hpImprimerCours(\''+k+'\')" style="width:100%;border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;border-radius:9px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">🖨️ Imprimer ce programme</button></div>'
+   +'</div>';
+  return h;
+}
+
+/* Le programme imprimable — c'est ce qu'on remet au client, et ce qu'on
+   verse au dossier. */
+function hpImprimerCours(k){
+  var C=HP_COURS[k]; if(!C) return;
+  var ent=''; try{ ent=(RX.ent&&RX.ent.nom)?RX.ent.nom:''; }catch(e){}
+  var mods=C.modules.map(function(m){
+    return '<div class="m"><div class="mt">'+hpEsc(m[0])+'</div><div>'+hpEsc(m[1])+'</div></div>';
+  }).join('');
+  var w=window.open('','_blank');
+  if(!w){ alert('La fenêtre d’impression a été bloquée. Autorisez les pop-ups, puis réessayez.'); return; }
+  w.document.open();
+  w.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>'+hpEsc(C.titre)+'</title><style>'
+   +'body{font-family:Georgia,serif;color:#111;margin:28px;font-size:12pt;line-height:1.6}'
+   +'h1{font-size:16pt;margin:0 0 4px}.s{color:#555;font-size:10pt;margin-bottom:14px}'
+   +'.o{background:#f4f1e8;border-left:4px solid #C9A84C;padding:10px 12px;margin:14px 0;font-size:11pt}'
+   +'.m{margin:12px 0;page-break-inside:avoid}.mt{font-weight:bold;font-size:11.5pt;margin-bottom:3px}'
+   +'.p{margin-top:18px;font-size:11pt}.p b{display:block;margin-bottom:4px}'
+   +'.a{margin-top:14px;font-size:9.5pt;color:#555}'
+   +'.e{margin-top:26px;border-top:1px solid #999;padding-top:10px;font-size:10pt}'
+   +'table{width:100%;border-collapse:collapse;margin-top:8px}'
+   +'th,td{border:1px solid #999;padding:7px;font-size:10pt;text-align:left}'
+   +'th{background:#1F3B57;color:#fff}'
+   +'</style></head><body>'
+   +'<h1>'+hpEsc(C.titre)+'</h1>'
+   +'<div class="s">'+(ent?hpEsc(ent)+' — ':'')+'Public : '+hpEsc(C.public)+' — Durée : '+hpEsc(C.duree)+' — '+hpFR(hpAuj())+'</div>'
+   +'<div class="o"><b>Objectif.</b> '+hpEsc(C.objectif)+'</div>'
+   + mods
+   +'<div class="p"><b>Ce que l’action produit — pièces à conserver</b>'
+   + C.produit.map(function(x){ return '— '+hpEsc(x); }).join('<br>')+'</div>'
+   +'<div class="a">'+hpEsc(C.art)+'</div>'
+   +'<div class="e"><b>Feuille d’émargement</b>'
+   +'<table><tr><th style="width:34%">Nom et prénom</th><th style="width:26%">Fonction</th><th style="width:20%">Date</th><th style="width:20%">Signature</th></tr>'
+   + '<tr><td style="height:34px"></td><td></td><td></td><td></td></tr>'.repeat(14)
+   +'</table></div>'
+   +'</body></html>');
+  w.document.close();
+  try{ w.focus(); w.print(); }catch(e){}
+}
+
+/* ── L'ECRAN ────────────────────────────────────────────────────────
+   Quatre blocs : l'alerte, les douze questions, ce qui reste a faire,
+   le dossier de preuve. Rien d'autre. */
+var HP_JURIS_OUVERT=false;
+function hpJuris(){ HP_JURIS_OUVERT=!HP_JURIS_OUVERT; hpRender(); }
+
+function hpRender(){
+  var host=document.getElementById('hp-body'); if(!host) return;
+  var L=hpPoints(), B=hpBilan(), eff=hpEff();
+
+  /* 1 — L'ALERTE. Trois phrases, et l'arrêt qui les porte. */
+  var h='<div class="card" style="border-color:#e05c5c">'
+   +'<div style="font-size:15px;font-weight:800;color:#e05c5c;margin-bottom:8px">Réagir ne suffit pas. C’est l’AVANT qui vous exonère.</div>'
+   +'<div style="font-size:13.5px;color:#e8e4d8;line-height:1.75">'
+     +'L’employeur ne se dégage de sa responsabilité que s’il prouve <b>deux choses à la fois</b> :<br>'
+     +'<b>1.</b> en amont, des actions d’<b>information et de formation</b> ;<br>'
+     +'<b>2.</b> en aval, une <b>réaction immédiate</b> dès qu’il a connaissance des faits.<br><br>'
+     +'La seule procédure d’alerte inscrite au règlement intérieur <b>ne suffit pas</b>. '
+     +'L’enquête interne non plus : elle n’est même pas obligatoire en soi.'
+   +'</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;line-height:1.6;margin-top:8px">'
+     +'Cass. soc., 25 novembre 2015, n° 14-24.444 (Air France) · Cass. soc., 1<sup>er</sup> juin 2016, n° 14-19.702 · '
+     +'Cass. soc., 12 juin 2024, n° 23-13.975 · articles L.4121-1 et L.4121-2'
+   +'</div></div>';
+
+  /* 2 — OU EN ETES-VOUS : les douze questions, Oui / Non. */
+  h+='<div class="card"><div class="ct">Où en êtes-vous</div>'
+   +'<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px">'
+     +'<div style="flex:1;min-width:170px">'
+       +'<div style="height:10px;background:#0f1b2c;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+B.pct+'%;background:'+(B.pct===100?'#46b885':'#c9a84c')+'"></div></div>'
+     +'</div>'
+     +'<div style="font-size:22px;font-weight:800;color:'+(B.pct===100?'#46b885':'#e8c97a')+'">'+B.pct+' %</div>'
+   +'</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.65;margin-bottom:12px">'
+     +'<b style="color:#46b885">'+B.ok+' prouvé(s)</b> · <b style="color:#e8c97a">'+(B.sanspreuve+B.perime)+' sans pièce ou à renouveler</b> · '
+     +'<b style="color:#e05c5c">'+B.afaire+' à faire</b>'+(B.inconnu?(' · '+B.inconnu+' non renseigné(s)'):'')
+   +'</div>';
+
+  L.forEach(function(p){
+    var r=hpRep(p.k), a=hpAct(p.k), E=hpEtat(p);
+    h+='<div style="padding:11px;background:#0f1b2c;border:1px solid #3a4a5f;border-left:3px solid '+E.c+';border-radius:9px;margin-bottom:9px">'
+      +'<div style="font-size:13.5px;font-weight:700;color:#fff;line-height:1.5">'+hpEsc(p.q)+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin:3px 0 8px">'+hpEsc(p.art)+'</div>'
+      +'<div style="display:flex;gap:8px;margin-bottom:6px">'
+        +'<button onclick="hpSetRep(\''+p.k+'\',\'oui\')" style="flex:1;padding:11px;border:1px solid '+(r==='oui'?'#46b885':'#3a4a5f')+';border-radius:9px;background:'+(r==='oui'?'rgba(70,184,133,.18)':'#16263c')+';color:'+(r==='oui'?'#46b885':'#e8e4d8')+';font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">Oui</button>'
+        +'<button onclick="hpSetRep(\''+p.k+'\',\'non\')" style="flex:1;padding:11px;border:1px solid '+(r==='non'?'#e05c5c':'#3a4a5f')+';border-radius:9px;background:'+(r==='non'?'rgba(224,92,92,.18)':'#16263c')+';color:'+(r==='non'?'#e05c5c':'#e8e4d8')+';font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">Non</button>'
+      +'</div>';
+    if(r==='oui'){
+      /* On demande la PIECE. Sans elle, ce n'est pas prouve. */
+      h+='<input value="'+hpEsc(a.piece||'')+'" onchange="hpSetAct(\''+p.k+'\',\'piece\',this.value)" placeholder="La pièce : '+hpEsc(p.piece)+'" aria-label="Pièce justificative" style="width:100%;padding:9px;border-radius:8px;border:1px solid '+(a.piece?'#3a4a5f':'#e8c97a')+';background:#0b1420;color:#fff;font-size:16px;box-sizing:border-box">'
+        +'<input type="date" value="'+hpEsc(a.date||'')+'" onchange="hpSetAct(\''+p.k+'\',\'date\',this.value)" aria-label="Date de la pièce" style="width:100%;margin-top:6px;padding:9px;border-radius:8px;border:1px solid '+(a.date?'#3a4a5f':'#e8c97a')+';background:#0b1420;color:#fff;font-size:16px;box-sizing:border-box">';
+      if(!a.piece) h+='<div style="font-size:11.5px;color:#e8c97a;margin-top:5px;line-height:1.5">Sans pièce, ce n’est pas prouvé — et devant le juge, ce qui n’est pas prouvé n’a pas été fait.</div>';
+      var ech=hpEcheance(p);
+      if(ech) h+='<div style="font-size:11.5px;color:'+(E.code==='perime'?'#e8c97a':'#9fb0c4')+';margin-top:5px">À renouveler avant le '+hpFR(ech)+'</div>';
+    } else if(r==='non'){
+      h+='<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6;padding:9px;background:rgba(224,92,92,.10);border-radius:8px">'
+        +'<b>À faire :</b> '+hpEsc(p.act)+'</div>';
+    }
+    if(p.note) h+='<div style="font-size:11.5px;color:#e8c97a;line-height:1.55;margin-top:6px">'+hpEsc(p.note)+'</div>';
+    if(HP_COURS[p.k]){
+      h+='<div style="margin-top:8px"><button onclick="hpCoursBasculer(\''+p.k+'\')" style="border:1px solid '+(HP_COURS_OUVERT[p.k]?'#c9a84c':'#3a4a5f')+';background:'+(HP_COURS_OUVERT[p.k]?'rgba(201,168,76,.14)':'#16263c')+';color:'+(HP_COURS_OUVERT[p.k]?'#e8c97a':'#e8e4d8')+';border-radius:8px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'
+        +(HP_COURS_OUVERT[p.k]?'▾ Masquer le contenu':'▸ Le contenu à donner')+'</button></div>';
+      if(HP_COURS_OUVERT[p.k]) h+=hpVueCours(p.k);
+    }
+    h+='</div>';
+  });
+  h+='</div>';
+
+  /* 3 — CE QUI RESTE A FAIRE, en clair. */
+  var reste=L.filter(function(p){ return hpEtat(p).code!=='ok'; });
+  h+='<div class="card" style="border-color:'+(reste.length?'#e05c5c':'#46b885')+'">'
+   +'<div class="ct">Ce qui reste à faire</div>';
+  if(!reste.length){
+    h+='<div style="font-size:13px;color:#46b885;line-height:1.7">Les douze points sont prouvés. Imprimez le dossier et conservez-le : c’est lui qui vous exonère.</div>';
+  } else {
+    reste.forEach(function(p){
+      var E=hpEtat(p);
+      h+='<div style="padding:10px;background:#0f1b2c;border-left:3px solid '+E.c+';border-radius:8px;margin-bottom:8px">'
+        +'<div style="font-size:12px;font-weight:800;color:'+E.c+';text-transform:uppercase;letter-spacing:.05em">'+hpEsc(E.lib)+'</div>'
+        +'<div style="font-size:13px;color:#fff;line-height:1.55;margin-top:3px">'+hpEsc(p.act)+'</div>'
+        +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:4px">Pièce à produire : '+hpEsc(p.piece)+' — '+hpEsc(p.art)+'</div>'
+        +'</div>';
+    });
+  }
+  h+='</div>';
+
+  /* 4 — LE DOSSIER DE PREUVE. */
+  h+='<div class="card" style="border-color:#c9a84c"><div class="ct">Le dossier de preuve</div>'
+   +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.7;margin-bottom:10px">'
+     +'Le document à produire devant le conseil de prud’hommes : ce qui a été fait, quand, et avec quelle pièce.'
+     +(eff!==null?(' Effectif retenu : <b>'+eff+'</b> salariés.'):'')
+   +'</div>'
+   +'<button class="btn" onclick="hpImprimer()" style="width:100%">🖨️ Imprimer le dossier de preuve</button>'
+   +'</div>';
+
+  /* 5 — La jurisprudence, repliee. On ne l'impose pas. */
+  h+='<div class="card">'
+   +'<button onclick="hpJuris()" style="width:100%;text-align:left;border:none;background:none;color:#c9a84c;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;padding:0">'
+     +(HP_JURIS_OUVERT?'▾':'▸')+' Ce que les juges retiennent, ce qu’ils écartent</button>';
+  if(HP_JURIS_OUVERT) h+=hpVueJuris();
+  h+='</div>';
+
+  host.innerHTML=h;
+}
+
+/* La jurisprudence, telle qu'elle a ete publiee. */
+var HP_RETENUS = [
+ ['Mutation irrégulière avec changement de résidence, puis poste vidé de son contenu.','Cass. soc., 3 décembre 2008, n° 07-41.491'],
+ ['Refus de laisser reprendre le travail au retour de congé maternité, retrait de responsabilités et mise à pied injustifiée.','Cass. soc., 7 juillet 2009, n° 07-44.590'],
+ ['Changements quotidiens de tâches et interdiction faite aux collègues de lui adresser la parole.','Cass. soc., 6 avril 2011, n° 09-71.170'],
+ ['Local exigu, sans chauffage correct, sans outils, isolé des collègues, avec des réflexions mettant en doute son équilibre psychologique.','Cass. soc., 29 juin 2005, n° 03-44.055'],
+ ['Plus aucun travail fourni pendant plus de deux ans, avec obligation de se présenter chaque jour chez un tiers.','Cass. soc., 19 octobre 2010, n° 09-42.391'],
+ ['Mise à l’écart organisée par six collègues après un aménagement de planning perçu comme un privilège.','Cass. crim., 26 janvier 2016, n° 14-80.455'],
+ ['Avertissement injustifié et absence de consultation sur la fixation des congés — sans dégradation effective déjà réalisée.','Cass. soc., 11 mars 2025, n° 23-16.415'],
+ ['Absence d’aide de l’équipe, privation des moyens de travail, suppression de l’accès au répertoire ressources.','Cass. soc., 11 mars 2026, n° 24-21.502'],
+ ['Pressions exercées pour faire accepter une rupture conventionnelle.','Cass. soc., 10 juillet 2024, n° 23-14.900'],
+ ['Méthodes de gestion d’un supérieur hiérarchique, dès lors qu’elles se manifestent pour un salarié déterminé par des agissements répétés.','Cass. soc., 10 novembre 2009, n° 07-45.321'],
+ ['Harcèlement institutionnel : une politique d’entreprise arrêtée en connaissance de cause, ayant pour objet ou pour effet de dégrader les conditions de travail de tout ou partie des salariés.','Cass. crim., 21 janvier 2025, n° 22-87.145']
+];
+var HP_ECARTES = [
+ ['Deux sanctions disciplinaires en un mois, même irrégulières, ne constituent pas en soi un harcèlement.','Cass. soc., 16 juin 2004, n° 02-41.795'],
+ ['Le fait unique, non répété, est exclu de la qualification.','Cass. soc., 22 janvier 2014, n° 12-29.131'],
+ ['Accusations générales, tracts critiques et une attestation ne suffisent pas : il faut des faits précis, datés et concordants.','Cass. soc., 9 juin 2010, n° 09-40.544'],
+ ['Une mésentente réciproque, aux torts partagés, n’est pas un harcèlement.','Cass. soc., 4 novembre 2015, n° 14-12.281']
+];
+var HP_REGLES = [
+ ['Un même fait répété suffit — exiger des faits de nature différente ajoute à la loi une condition qu’elle ne comporte pas.','Cass. crim., 26 janvier 2016, n° 14-80.455'],
+ ['À défaut de répétition d’un fait unique, deux faits distincts suffisent.','Cass. soc., 11 mars 2025, n° 23-16.415'],
+ ['La durée n’est pas une condition : le harcèlement a été retenu sur dix-sept jours.','Cass. soc., 6 avril 2011, n° 09-71.170'],
+ ['L’atteinte n’a pas à être réalisée : le texte dit « susceptible ».','Cass. soc., 11 mars 2025, n° 23-16.415'],
+ ['Le juge doit examiner les faits DANS LEUR ENSEMBLE ; l’analyse fait par fait est censurée.','Cass. soc., 11 mars 2026, n° 24-21.502'],
+ ['Aucun lien de subordination n’est requis : l’auteur peut être un collègue, ou une personne étrangère à l’entreprise.','Cass. soc., 1er mars 2011, n° 09-69.616'],
+ ['L’intention de nuire n’est pas exigée.','Cass. soc., 10 novembre 2009, n° 08-41.497'],
+ ['Le salarié n’a pas à employer le mot « harcèlement » : c’est la révélation des faits qui déclenche l’obligation d’agir.','Cass. soc., 8 janvier 2025, n° 23-19.996'],
+ ['Le salarié n’a pas à prouver le harcèlement, seulement à présenter des éléments le laissant supposer.','Article L.1154-1 — Cass. soc., 7 juillet 2021, n° 19-20.320'],
+ ['Un enregistrement obtenu à l’insu de son auteur peut être recevable s’il est indispensable au droit à la preuve et proportionné.','Cass. ass. plén., 22 décembre 2023, n° 20-20.648 — Cass. soc., 10 juillet 2024, n° 23-14.900'],
+ ['La nullité du licenciement suppose que le licenciement soit FONDÉ sur le harcèlement subi, refusé ou dénoncé : l’existence du harcèlement ne suffit pas.','Cass. soc., 9 avril 2025, n° 24-11.421 · Cass. soc., 6 mai 2025, n° 23-22.588'],
+ ['Le harcèlement avéré ouvre droit à des dommages-intérêts distincts, même si le licenciement n’est pas annulé.','Cass. soc., 1er juin 2023, n° 21-23.438']
+];
+function hpListe(titre, L, coul){
+  var h='<div style="font-size:13px;font-weight:800;color:'+coul+';margin:14px 0 8px">'+hpEsc(titre)+'</div>';
+  L.forEach(function(x){
+    h+='<div style="padding:9px;background:#0f1b2c;border-left:3px solid '+coul+';border-radius:8px;margin-bottom:7px">'
+      +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.6">'+hpEsc(x[0])+'</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:3px">'+hpEsc(x[1])+'</div></div>';
+  });
+  return h;
+}
+function hpVueJuris(){
+  return '<div style="margin-top:12px">'
+    + hpListe('Les règles', HP_REGLES, '#c9a84c')
+    + hpListe('Retenus par les juges', HP_RETENUS, '#e05c5c')
+    + hpListe('Écartés par les juges', HP_ECARTES, '#46b885')
+    +'</div>';
+}
+
+/* Le dossier de preuve, imprimable. */
+function hpImprimer(){
+  var L=hpPoints(), B=hpBilan(), eff=hpEff();
+  var ent=''; try{ ent=(RX.ent&&RX.ent.nom)?RX.ent.nom:''; }catch(e){}
+  var li='';
+  L.forEach(function(p){
+    var a=hpAct(p.k), E=hpEtat(p);
+    li+='<tr><td>'+hpEsc(p.q)+'<div class="a">'+hpEsc(p.art)+'</div></td>'
+      +'<td class="e">'+hpEsc(E.lib)+'</td>'
+      +'<td>'+hpEsc(a.piece||'—')+'</td>'
+      +'<td>'+hpEsc(hpFR(a.date||'')||'—')+'</td></tr>';
+  });
+  var w=window.open('','_blank');
+  if(!w){ alert('La fenêtre d’impression a été bloquée. Autorisez les pop-ups, puis réessayez.'); return; }
+  w.document.open();
+  w.document.write('<!doctype html><html lang="fr"><head><meta charset="utf-8">'
+   +'<title>Dossier de preuve — prévention du harcèlement</title><style>'
+   +'body{font-family:Georgia,serif;color:#111;margin:28px;font-size:12pt;line-height:1.5}'
+   +'h1{font-size:16pt;margin:0 0 4px}h2{font-size:12pt;margin:20px 0 6px}'
+   +'.s{color:#555;font-size:10pt;margin-bottom:16px}'
+   +'table{width:100%;border-collapse:collapse;margin-top:8px}'
+   +'th{background:#1F3B57;color:#fff;font-size:9.5pt;padding:6px;text-align:left}'
+   +'td{border:1px solid #ccc;padding:6px;font-size:10pt;vertical-align:top}'
+   +'.a{color:#666;font-size:8.5pt;margin-top:2px}.e{white-space:nowrap;font-weight:bold}'
+   +'.f{margin-top:18px;font-size:9.5pt;color:#444;line-height:1.6}'
+   +'</style></head><body>'
+   +'<h1>Dossier de preuve — prévention du harcèlement</h1>'
+   +'<div class="s">'+(ent?hpEsc(ent)+' — ':'')+(eff!==null?(eff+' salariés — '):'')
+   +'établi le '+hpFR(hpAuj())+'</div>'
+   +'<h2>Ce qui exonère</h2>'
+   +'<div>L’employeur ne se dégage de sa responsabilité que s’il justifie <b>cumulativement</b> '
+   +'d’actions d’information et de formation menées <b>en amont</b>, et d’une réaction immédiate '
+   +'<b>en aval</b> dès qu’il a connaissance des faits (Cass. soc., 25 novembre 2015, n° 14-24.444 ; '
+   +'Cass. soc., 1<sup>er</sup> juin 2016, n° 14-19.702 ; articles L.4121-1 et L.4121-2 du code du travail). '
+   +'La seule procédure d’alerte inscrite au règlement intérieur ne suffit pas ; l’enquête interne '
+   +'non plus, qui n’est pas obligatoire en soi (Cass. soc., 12 juin 2024, n° 23-13.975).</div>'
+   +'<h2>État des douze points — '+B.ok+' prouvé(s) sur '+B.total+'</h2>'
+   +'<table><tr><th>Ce qui est exigé</th><th>État</th><th>Pièce</th><th>Date</th></tr>'+li+'</table>'
+   +'<div class="f">Ce document recense les mesures déclarées et les pièces qui les établissent. '
+   +'Les pièces elles-mêmes doivent être jointes : une mesure sans pièce n’est pas prouvée.</div>'
+   +'</body></html>');
+  w.document.close();
+  try{ w.focus(); w.print(); }catch(e){}
 }
 
 /* ══════════ LA BASE BDESE ══════════ */
