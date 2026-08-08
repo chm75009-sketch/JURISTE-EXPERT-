@@ -1081,7 +1081,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.155';
+var JX_BUILD = 'v2026-08-08.156';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1091,6 +1091,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.156', d:'8 aout 2026', t:[
+   'iPHONE — LA ROUE DES TRANCHES SE REFERMAIT AUSSITOT OUVERTE. iOS envoie le choix pendant que la roue est encore affichee ; l\'ecran se redessinait a cet instant et detruisait le selecteur sous elle. La reponse est desormais appliquee a la fermeture de la roue, plus pendant.'
+ ]},
  {v:'v2026-08-08.155', d:'8 aout 2026', t:[
    'SECTEUR ET EFFECTIF : BLOQUANTS. Le nombre de modules et leur contenu dependent du secteur et de l\'effectif — les afficher sans les connaitre, c\'etait montrer des modules impossibles a trier. Tant que l\'une des deux reponses manque, l\'accueil pose les deux questions et n\'affiche aucune famille : le secteur par menu deroulant (avec « Autre convention »), l\'effectif par le registre du personnel — recommande, c\'est lui qui fait foi (L.1111-2) — ou par une tranche d\'attente. Des que le registre est complet, il reprend la main sur la tranche.'
  ]},
@@ -8989,10 +8992,21 @@ function goIndexEgalite(){ goPage('csehub'); try{ hubGo('egalite'); }catch(e){} 
 /* Les reponses de la porte. Le secteur passe par le meme chemin que la
    puce de secteur ; la tranche s'ecrit ou la page Parametrage l'ecrit :
    E.effectif — une seule source. */
+/* iOS envoie change pendant que la roue du select est encore ouverte :
+   re-rendre a cet instant detruit le select et referme la roue. On
+   enregistre la valeur tout de suite, on ne re-rend qu'a la fermeture. */
+function famPorteApres(id, fin){
+  var el=document.getElementById(id);
+  if(el && document.activeElement===el){
+    el.addEventListener('blur', function(){ setTimeout(fin, 30); }, {once:true});
+  } else setTimeout(fin, 60);
+}
 function famPorteSecteur(v){
   if(!v) return;
-  try{ if(typeof secChoisir==='function'){ secChoisir(v); return; } }catch(e){}
-  try{ appSetSecteur(v); famRender(); }catch(e){}
+  famPorteApres('fp-sec', function(){
+    try{ if(typeof secChoisir==='function'){ secChoisir(v); return; } }catch(e){}
+    try{ appSetSecteur(v); famRender(); }catch(e){}
+  });
 }
 function famPorteTranche(v){
   if(!v) return;
@@ -9001,8 +9015,10 @@ function famPorteTranche(v){
     E.effectif=v;
     jxEcrire(jxEntKey(), JSON.stringify(E));
   }catch(e){}
-  try{ famRender(); }catch(e){}
-  try{ updateHeroTop(); }catch(e){}
+  famPorteApres('fp-eff', function(){
+    try{ famRender(); }catch(e){}
+    try{ updateHeroTop(); }catch(e){}
+  });
 }
 function famChoisie(){
   try{
