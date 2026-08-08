@@ -1010,7 +1010,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.151';
+var JX_BUILD = 'v2026-08-08.152';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1019,6 +1019,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.152', d:'8 aout 2026', t:[
+   'L\'ADRESSE DU SITE, ECRITE SUR L\'ACCUEIL. Une application installee n\'a pas de barre d\'adresse : impossible d\'y lire l\'URL du site, donc impossible de la donner a quelqu\'un ou de l\'ouvrir sur un autre poste. Elle s\'affiche maintenant sous le numero de version, avec un bouton Copier.'
+ ]},
  {v:'v2026-08-08.151', d:'8 aout 2026', t:[
    'NOUVEAU MODULE — PREVENTION DU HARCELEMENT : LE DOSSIER DE PREUVE. L\'application traitait l\'aval — qualifier, signaler, enquêter — et ne disait rien de l\'AMONT, qui est pourtant ce qui exonère. Depuis l\'arrêt Air France (Cass. soc., 25 novembre 2015, n° 14-24.444), transposé au harcèlement moral l\'année suivante (Cass. soc., 1er juin 2016, n° 14-19.702), l\'employeur ne se dégage qu\'en prouvant DEUX CHOSES A LA FOIS : en amont, des actions d\'information et de FORMATION ; en aval, une réaction immédiate. Le même arrêt précise que la seule procédure d\'alerte inscrite au règlement intérieur NE SUFFIT PAS. L\'enquête interne non plus : elle n\'est même pas obligatoire en soi (Cass. soc., 12 juin 2024, n° 23-13.975).',
    'DOUZE POINTS, OUI OU NON, ET LA PIECE. Document unique, affichage, règlement intérieur, référent du comité, référent de l\'employeur, procédure de signalement, formation de l\'encadrement, formation des référents, information de tous, information à l\'embauche, registre des signalements, réaction datée. Répondre « oui » ne suffit pas : l\'application demande LA PIECE et sa date. Une action faite sans pièce reste comptée « sans preuve » — devant le juge, ce qui n\'est pas prouvé n\'a pas été fait. Les actions à durée limitée passent seules en « à renouveler ».',
@@ -2109,6 +2112,27 @@ try{
 </div>
 
 
+<script>
+/* Depuis l'application installee il n'y a pas de barre d'adresse : sans
+   ceci, l'utilisateur ne peut pas retrouver l'adresse de son propre site. */
+function jxCopierUrl(btn){
+  var u=location.origin+location.pathname.replace(/index\.html$/,'');
+  var fini=function(){ if(btn){ var t=btn.textContent; btn.textContent='Copié ✓'; setTimeout(function(){ btn.textContent=t; },1800); } };
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(u).then(fini,function(){ jxCopierUrlSecours(u,fini); }); }
+    else jxCopierUrlSecours(u,fini);
+  }catch(e){ jxCopierUrlSecours(u,fini); }
+}
+function jxCopierUrlSecours(u,fini){
+  try{
+    var z=document.createElement('textarea'); z.value=u;
+    z.style.position='fixed'; z.style.opacity='0';
+    document.body.appendChild(z); z.select(); document.execCommand('copy');
+    document.body.removeChild(z); fini();
+  }catch(e){ prompt('Adresse du site — copiez-la :', u); }
+}
+</script>
+
 <!-- ═══ PAGE ACCUEIL ═══ -->
 <div id="pg-home" class="page act">
 <div class="home-hero">
@@ -2116,7 +2140,14 @@ try{
   <h2>Que voulez-vous faire&nbsp;?</h2>
   <p><span id="hero-secteur">Transport routier de marchandises — CCN IDCC 0016</span>. Procédures guidées, documents prêts à signer et jurisprudence à l'appui.</p>
   <div style="font-size:11px;color:#9fb0c4;margin-top:6px">Version <span id="home-build">…</span></div>
-  <script>try{document.getElementById('home-build').textContent=(typeof JX_BUILD!=='undefined'?JX_BUILD:'—');}catch(e){}</script>
+  <div style="font-size:11px;color:#9fb0c4;margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span>Adresse du site&nbsp;: <b id="home-url" style="color:#e8c97a;word-break:break-all">…</b></span>
+    <button onclick="jxCopierUrl(this)" style="padding:4px 10px;border:1px solid #3a4a5f;border-radius:8px;background:#16263c;color:#e8e4d8;font-family:inherit;font-size:11px;cursor:pointer">Copier</button>
+  </div>
+  <script>try{
+    document.getElementById('home-build').textContent=(typeof JX_BUILD!=='undefined'?JX_BUILD:'—');
+    document.getElementById('home-url').textContent=location.origin+location.pathname.replace(/index\.html$/,'');
+  }catch(e){}</script>
 </div>
 <div class="home-wrap">
 
