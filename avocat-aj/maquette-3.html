@@ -844,6 +844,10 @@
     .pf{width:170px;height:170px}
   }
 
+  /* Le numéro de version de la maquette, dans l'en-tête : si l'écran ne
+     montre pas le bon numéro, c'est une copie en cache, pas la dernière. */
+  .ver{font-family:var(--mono-f);font-size:10px;font-weight:700;color:var(--brass);
+    letter-spacing:.08em;margin-left:4px}
 </style>
 </head>
 <body>
@@ -872,7 +876,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil</span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v1</b></span>
       </span>
     </a>
     
