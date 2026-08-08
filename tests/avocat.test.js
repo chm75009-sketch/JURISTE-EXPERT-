@@ -18,10 +18,10 @@ const CHROME = process.env.CHROME_PATH || '/opt/pw-browsers/chromium-1194/chrome
 const DOSSIER = path.resolve(__dirname, '..', 'avocat-aj');
 const PAGES = ['index.html', 'mentions-legales.html', 'confidentialite.html',
                'registre-traitements.html'];
-/* La seconde maquette n'est pas une page du site : elle n'est liée de nulle
-   part et attend d'être retenue ou jetée. Elle doit néanmoins respecter les
-   mêmes règles — invisible pour les moteurs, autonome, le bon numéro. */
-const TOUTES = PAGES.concat(['maquette-2.html']);
+/* Les maquettes ne sont pas des pages du site : liées de nulle part, elles
+   attendent d'être retenues ou jetées. Elles doivent néanmoins respecter les
+   mêmes règles — invisibles pour les moteurs, autonomes, le bon numéro. */
+const TOUTES = PAGES.concat(['maquette-2.html', 'maquette-3.html']);
 const url = f => 'file://' + path.join(DOSSIER, f);
 
 let echecs = 0;
@@ -140,7 +140,10 @@ const ok = (c, m, d) => {
     'tous les boutons appellent le même numéro, celui du cabinet', [...new Set(tels)].join(' '));
   for (const f of TOUTES) {
     const src = fs.readFileSync(path.join(DOSSIER, f), 'utf8');
-    ok(!/01\s*99\s*00\s*12\s*34|\+?33199001234/.test(src),
+    /* La forme espacée du JSON-LD (« +33 1 99 00 12 34 ») avait échappé à la
+       première version de ce motif : il attrape désormais toutes les
+       écritures du numéro fictif, collées ou espacées. */
+    ok(!/(?:\+?33|0)\s*1?\s*99\s*00\s*12\s*34/.test(src),
       'aucun reste du numéro fictif dans ' + f);
   }
 
@@ -587,6 +590,65 @@ const ok = (c, m, d) => {
       'le calcul de quantième à quantième est juste', await m.textContent('#f-verdict'));
     /* Sur téléphone, rien ne doit déborder : c'est le défaut le plus fréquent
        d'une mise en page tenue par des filets pleine largeur. */
+    await m.setViewportSize({ width: 360, height: 780 });
+    await m.waitForTimeout(300);
+    const deb = await m.evaluate(() =>
+      document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    ok(deb <= 1, 'aucun débordement horizontal sur téléphone', deb);
+    await m.close();
+  }
+
+  /* ── La troisième maquette ──────────────────────────────────────────────
+     Copie du site habillée de la charte « dossier » : même déroulé, même
+     script. Si elle diverge du site sur une donnée, l'un des deux a été
+     retouché — et le tableau AVIS doit être identique au caractère près. */
+  {
+    console.log('\n— La troisième maquette —');
+    const m = await ctx.newPage();
+    const err = [];
+    m.on('pageerror', e => err.push(String(e)));
+    m.on('console', c => { if (c.type() === 'error') err.push(c.text()); });
+    await m.goto(url('maquette-3.html'), { waitUntil: 'load' });
+    await m.waitForTimeout(500);
+    ok(err.length === 0, 'aucune erreur JavaScript', err[0]);
+
+    const avisDe = f => {
+      const t = fs.readFileSync(path.join(DOSSIER, f), 'utf8');
+      const a = t.indexOf('var AVIS = [');
+      return t.slice(a, t.indexOf('];', a)).replace(/\s+/g, ' ');
+    };
+    ok(avisDe('maquette-3.html') === avisDe('index.html'),
+      'le tableau AVIS est identique à celui du site, au caractère près');
+
+    for (const id of ['delai', 'cabinet', 'domaines', 'deroule', 'honoraires',
+                      'avis', 'questions', 'contact'])
+      ok(await m.locator('#' + id).count() === 1, 'section présente : #' + id);
+    ok(await m.locator('.sit').count() === 12, 'les douze situations du module de délai',
+      await m.locator('.sit').count());
+    ok(await m.locator('#av-track .avis').count() === 8, 'les huit avis, au complet',
+      await m.locator('#av-track .avis').count());
+    ok(await m.locator('.somm a').count() === 8, 'le sommaire numéroté mène aux huit sections');
+    ok(await m.locator('.tampon').count() === 1, 'le tampon du barreau est posé');
+    ok(await m.locator('.couv').count() === 1, 'la couverture d\'ouverture existe');
+    /* Elle doit être partie toute seule : animation CSS, fill-mode forwards. */
+    await m.waitForTimeout(1400);
+    ok(await m.locator('.couv').evaluate(e => {
+      const r = e.getBoundingClientRect();
+      return r.bottom <= 0 || getComputedStyle(e).visibility === 'hidden';
+    }), 'la couverture s\'est soulevée sans laisser d\'écran bloqué');
+    /* Plus une trace de la palette verte, dans le CSS comme dans le script. */
+    const brut = fs.readFileSync(path.join(DOSSIER, 'maquette-3.html'), 'utf8');
+    ok(!/#1f5a49|#163f33|#2c6f5b|#2b8168|#123a2e|#37997c|#9c7530|#d5ad5c|#cda85f/i.test(brut),
+      'plus une trace du vert ni du laiton');
+
+    await m.locator('.sit').nth(3).click();
+    await m.waitForTimeout(250);
+    await m.locator('#f-date').fill('2026-02-10');
+    await m.locator('#f-date').dispatchEvent('change');
+    await m.waitForTimeout(250);
+    ok(/10 février 2028/.test(await m.textContent('#f-verdict')),
+      'le calcul de quantième à quantième est juste', await m.textContent('#f-verdict'));
+
     await m.setViewportSize({ width: 360, height: 780 });
     await m.waitForTimeout(300);
     const deb = await m.evaluate(() =>

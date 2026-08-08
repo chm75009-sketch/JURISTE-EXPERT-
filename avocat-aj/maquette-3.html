@@ -5,19 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <!-- ════════════════════════════════════════════════════════════════════════
-     TANT QUE LE SITE EST HÉBERGÉ DANS LE DÉPÔT DE JURIS EXPERT, IL RESTE
-     INVISIBLE : la ligne ci-dessous l'interdit aux moteurs de recherche.
-     À SUPPRIMER (ici et dans les 2 autres pages) le jour de la mise en ligne
-     sur son propre domaine. Voir README.md § « Mettre le site en ligne ».
+     TROISIÈME MAQUETTE — le déroulé du site actuel, habillé de la charte
+     « dossier » de la seconde. Elle n'est liée de nulle part et reste
+     interdite aux moteurs. À retenir ou à supprimer (README § 9).
      ════════════════════════════════════════════════════════════════════ -->
 <meta name="robots" content="noindex, nofollow">
 
-<title>CJ AVOCATS — Maître Adel JEDDI, avocat à Argenteuil | Conseil et contentieux</title>
+<title>CJ AVOCATS — maquette 3 · le déroulé du site, la charte du dossier</title>
 <meta name="description" content="Cabinet CJ AVOCATS à Argenteuil, dirigé par Maître Adel JEDDI Droit de la famille, droit immobilier, droit du travail, droit des sociétés, baux commerciaux et recouvrement de créances. Conseil et contentieux dans toute la France.">
 <meta name="author" content="CJ AVOCATS">
-<meta name="theme-color" content="#1f5a49">
+<meta name="theme-color" content="#f4f1ea">
 <link rel="manifest" href="./manifest.json">
-<link rel="canonical" href="https://www.cjavocats.fr/">
 <link rel="icon" href="./icone-192.png" type="image/png">
 <link rel="apple-touch-icon" href="./icone-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -56,36 +54,37 @@
 
 <style>
   :root{
-    --paper:#f4efe4; --paper2:#ece4d4; --card:#fffdf7;
-    --ink:#23282b; --ink2:#454d50; --muted:#7c7669;
-    --green:#1f5a49; --green-d:#163f33; --green-l:#2c6f5b;
-    --brass:#9c7530; --brass-l:#d5ad5c; --cream:#f3ead4;
-    --line:#e3d8c1; --line-soft:#efe7d6;
+    --paper:#f4f1ea; --paper2:#edeae1; --card:#fbf9f3;
+    --ink:#181a1e; --ink2:#4a4d54; --muted:#75736c;
+    --green:#1b1d21; --green-d:#0d0f12; --green-l:#2e3238;
+    --brass:#8b1c2b; --brass-l:#a8323f; --cream:#f4f1ea;
+    --line:#dcd7ca; --line-soft:#eae5d9;
+    --mono-f:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
     --ok:#3f8f6c; --alert:#c0564d;
-    --r:16px;
-    --sh:0 1px 2px rgba(60,48,24,.05),0 14px 30px -20px rgba(60,48,24,.28);
-    --sh-green:0 18px 38px -18px rgba(20,55,44,.55);
+    --r:3px;
+    --sh:0 0 0 0 transparent;
+    --sh-green:none;
     --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   :root[data-theme="dark"]{
-    --paper:#14171a; --paper2:#191d20; --card:#1e2327;
-    --ink:#ece7db; --ink2:#c6c1b4; --muted:#98937f;
-    --green:#2b8168; --green-d:#123a2e; --green-l:#37997c;
-    --brass:#cda85f; --brass-l:#e2c684; --cream:#f0e7d3;
-    --line:#2f3633; --line-soft:#242a27;
+    --paper:#131417; --paper2:#17191d; --card:#1b1d22;
+    --ink:#eae6dd; --ink2:#b6b2a9; --muted:#8b877e;
+    --green:#e6e2d7; --green-d:#0b0d10; --green-l:#272b31;
+    --brass:#d4707c; --brass-l:#e08a95; --cream:#f4f1ea;
+    --line:#2f3136; --line-soft:#232529;
     --ok:#4faa80; --alert:#dd6f66;
-    --sh:0 1px 2px rgba(0,0,0,.3),0 16px 32px -20px rgba(0,0,0,.6);
-    --sh-green:0 20px 40px -18px rgba(0,0,0,.7);
+    --sh:0 0 0 0 transparent;
+    --sh-green:none;
   }
   @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-    --paper:#14171a; --paper2:#191d20; --card:#1e2327;
-    --ink:#ece7db; --ink2:#c6c1b4; --muted:#98937f;
-    --green:#2b8168; --green-d:#123a2e; --green-l:#37997c;
-    --brass:#cda85f; --brass-l:#e2c684; --cream:#f0e7d3;
-    --line:#2f3633; --line-soft:#242a27; --ok:#4faa80; --alert:#dd6f66;
-    --sh:0 1px 2px rgba(0,0,0,.3),0 16px 32px -20px rgba(0,0,0,.6);
-    --sh-green:0 20px 40px -18px rgba(0,0,0,.7);}}
+    --paper:#131417; --paper2:#17191d; --card:#1b1d22;
+    --ink:#eae6dd; --ink2:#b6b2a9; --muted:#8b877e;
+    --green:#e6e2d7; --green-d:#0b0d10; --green-l:#272b31;
+    --brass:#d4707c; --brass-l:#e08a95; --cream:#f4f1ea;
+    --line:#2f3136; --line-soft:#232529; --ok:#4faa80; --alert:#dd6f66;
+    --sh:0 0 0 0 transparent;
+    --sh-green:none;}}
 
   *{box-sizing:border-box}
   html{scroll-behavior:smooth;scroll-padding-top:78px}
@@ -625,10 +624,134 @@
     .d1{animation-delay:.05s}.d2{animation-delay:.13s}
     @keyframes rise{to{opacity:1;transform:none}}}
   @media print{header,nav,.hero .acts,form{display:none}body{background:#fff}}
+  /* ══════════════════════════════════════════════════════════════════════
+     CHARTE « DOSSIER » — posée par-dessus la structure du site actuel.
+     Le déroulé, les modules et le script ne changent pas d'une ligne : seul
+     l'habillage est remplacé. Papier ivoire, encre, un rouge de robe réservé
+     à ce qui engage — le tampon, les délais courts, les erreurs. Trois
+     règles tenues jusqu'au bout : pas d'ombre portée, pas d'angle arrondi,
+     aucune police téléchargée.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* La réglure du fond, quasi invisible : elle empêche l'aplat d'être mort. */
+  body{background-image:repeating-linear-gradient(to bottom,
+    color-mix(in srgb,var(--ink) 5%,transparent) 0 1px,transparent 1px 34px)}
+
+  /* Le papier se coupe net. Une règle volontairement large : cent rayons
+     écrits en dur ne valent pas cent corrections à la main. On rend ensuite
+     leur cercle aux seuls éléments qui doivent rester ronds. */
+  main *,header *,footer *,.barre *,#cookies *{border-radius:3px !important;
+    box-shadow:none !important}
+  .pf,.pf.has,.pf.has::before,.pf.has::after,.kick .dot,.avis .pic,
+  .cab .txt .sig .av{border-radius:50% !important}
+
+  /* Les libellés de section deviennent des cotes de dossier, numérotées
+     par la feuille de style elle-même : aucun numéro à maintenir à la main. */
+  body{counter-reset:cote}
+  .lab{counter-increment:cote;border-bottom:1px solid var(--line);padding-bottom:12px}
+  .lab h2{font-family:var(--mono-f);font-size:10.5px;letter-spacing:.17em;font-weight:500;
+    color:var(--muted)}
+  .lab h2::before{content:counter(cote,decimal-leading-zero) " · ";
+    color:var(--brass);font-weight:700}
+  .h3{font-weight:400;font-size:clamp(26px,3.2vw,34px);letter-spacing:-.018em}
+
+  /* ── Le bandeau : plus d'aplat vert — du papier, un filet d'encre ────── */
+  .hero{background:var(--paper);color:var(--ink);border:1px solid var(--ink);
+    padding-top:44px}
+  .hero::before{display:none}
+  .hero::after{color:var(--ink);opacity:.04}
+  .hero h1{font-weight:400;font-size:clamp(34px,5.2vw,56px);line-height:1.06;
+    letter-spacing:-.022em;max-width:20ch}
+  .hero h1 em{color:var(--brass)}
+  .hero .lead{color:var(--ink2)}
+  .hero .btn.p{background:var(--ink);color:var(--paper)}
+  .hero .btn.p:hover{background:var(--brass);color:#fff}
+  .hero .btn.g{background:none;color:var(--ink);border-color:var(--ink)}
+  .hero .btn.g:hover{background:var(--ink);color:var(--paper)}
+  .kick{border:0;padding:0;color:var(--muted);font-family:var(--mono-f);
+    font-size:10.5px;letter-spacing:.17em;gap:6px 10px;flex-wrap:wrap;line-height:1.8}
+  /* Les colonnes du bandeau doivent pouvoir se resserrer : sans min-width:0,
+     le segment insécable le plus large impose sa largeur à toute la grille —
+     c'est exactement le débordement vu sur téléphone. */
+  .hero .in > div{min-width:0}
+  @media (max-width:760px){.kick{letter-spacing:.1em}}
+  .kick .dot{background:var(--brass)}
+  .juris span{color:var(--ink2);background:none;border:1px solid var(--line)}
+  .pf{border-color:var(--line);background:var(--paper2)}
+  .pf .mg{color:var(--muted)}
+  .pf .ph{color:var(--muted)}
+
+  /* ── Le tampon : le seul ornement, le seul rouge qui s'étale ─────────── */
+  .tampon{display:inline-block;transform:rotate(-6.5deg);border:2.5px solid var(--brass);
+    color:var(--brass);padding:10px 16px 8px;text-align:center;margin:22px 0 0 8px;
+    box-shadow:0 0 0 1px var(--paper),0 0 0 3.5px var(--brass) !important;opacity:.9}
+  .tampon .t1,.tampon .t3{display:block;font-family:var(--mono-f);letter-spacing:.19em;
+    text-transform:uppercase;line-height:1.5}
+  .tampon .t1{font-size:9.5px}
+  .tampon .t3{font-size:8.5px;color:var(--brass-l)}
+  .tampon .t2{display:block;font-family:var(--serif);font-size:23px;font-weight:700;
+    letter-spacing:.04em;line-height:1.05;margin:2px 0 1px}
+
+  /* ── Le sommaire : la table des matières du dossier ──────────────────── */
+  .somm{border-top:1px solid var(--ink);border-bottom:1px solid var(--line);
+    margin-top:26px;padding:4px 0}
+  .somm ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr)}
+  .somm li{border-right:1px solid var(--line-soft)}
+  .somm li:nth-child(4n),.somm li:last-child{border-right:0}
+  .somm a{display:block;text-decoration:none;color:inherit;padding:13px 14px 13px 0;margin-right:12px}
+  .somm a:hover .ti{color:var(--brass)}
+  .somm .nu{font-family:var(--mono-f);font-size:10px;letter-spacing:.14em;color:var(--muted)}
+  .somm .ti{display:block;font-family:var(--serif);font-size:15.5px;margin-top:2px;line-height:1.25}
+  @media (max-width:760px){
+    .somm ol{grid-template-columns:repeat(2,1fr)}
+    .somm li:nth-child(2n){border-right:0}
+    .somm li:nth-child(4n){border-right:1px solid var(--line-soft)}
+  }
+
+  /* ── Ce que la palette seule ne rattrape pas ─────────────────────────── */
+  a:hover{color:var(--brass)}
+  .skip{background:var(--ink);color:var(--paper)}
+  .btn.p{background:var(--ink);color:var(--paper)}
+  .btn.p:hover{background:var(--brass)}
+  .cre.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .sit:hover{border-color:var(--brass)}
+  .dom:hover{border-color:var(--ink)}
+  footer .tofill{background:color-mix(in srgb,var(--brass) 26%,transparent);
+    border-bottom-color:var(--brass-l)}
+  header{border-bottom-color:var(--line)}
+  header.defile{border-bottom-color:var(--ink)}
+
+  /* ── LA COUVERTURE DU DOSSIER ──────────────────────────────────────────
+     Elle recouvre l'écran une demi-seconde puis se soulève, découvrant la
+     page. Tout est en CSS : une animation qui dépend d'un script peut
+     rester bloquée sur un écran noir, une @keyframes ne le peut pas. Elle
+     n'intercepte aucun clic, et ne se joue pas du tout chez le visiteur qui
+     a demandé moins d'animations. */
+  .couv{position:fixed;inset:0;z-index:900;background:#0d0f12;
+    display:grid;place-items:center;pointer-events:none;
+    border-bottom:2px solid #8b1c2b;
+    animation:couv-leve .7s cubic-bezier(.76,0,.24,1) .5s forwards}
+  .couv-in{text-align:center;padding:0 20px;animation:couv-fond .38s ease .44s forwards}
+  .couv .c1{display:block;font-family:var(--mono-f);font-size:10.5px;letter-spacing:.22em;
+    text-transform:uppercase;color:rgba(244,241,234,.55)}
+  .couv .c2{display:block;font-family:var(--serif);font-size:clamp(30px,7vw,52px);
+    font-weight:700;letter-spacing:.05em;color:#f4f1ea;margin:12px 0 12px}
+  .couv .c3{display:block;width:56px;height:2px;background:#8b1c2b;margin:0 auto}
+  @keyframes couv-leve{to{transform:translateY(-101%);visibility:hidden}}
+  @keyframes couv-fond{to{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.couv{display:none}}
+
 </style>
 </head>
 <body>
 
+<div class="couv" aria-hidden="true">
+  <div class="couv-in">
+    <span class="c1">Dossier ouvert en 2004 · Barreau du Val-d'Oise</span>
+    <span class="c2">CJ AVOCATS</span>
+    <span class="c3"></span>
+  </div>
+</div>
 <a class="skip" href="#contenu">Aller au contenu</a>
 
 <!-- Bandeau d'annonce : reste invisible tant que la variable ANNONCE, en bas
@@ -681,6 +804,11 @@
           <a class="btn p" href="#contact">Exposer ma situation</a>
           <a class="btn g" href="tel:+33134340882">Appeler le cabinet</a>
         </div>
+        <div class="tampon" aria-hidden="true">
+          <span class="t1">Barreau du</span>
+          <span class="t2">VAL-D'OISE</span>
+          <span class="t3">Serment · 7 juin 2004</span>
+        </div>
       </div>
       <div class="pf" data-photo role="img" aria-label="Portrait de Maître Adel JEDDI">
         <div><span class="mg">AJ</span><span class="ph">[Photo]</span></div>
@@ -691,6 +819,21 @@
       <span>Juge aux affaires familiales</span><span>Cour d'appel</span><span>Juridictions administratives</span>
     </div>
   </section>
+
+  <!-- Le sommaire : la table des matières du dossier, dans l'ordre réel
+       des sections. Le délai d'abord — c'est lui qu'on vient chercher. -->
+  <nav class="somm" aria-label="Sommaire">
+    <ol>
+      <li><a href="#delai"><span class="nu">01</span><span class="ti">Le délai qui court</span></a></li>
+      <li><a href="#cabinet"><span class="nu">02</span><span class="ti">Le cabinet</span></a></li>
+      <li><a href="#domaines"><span class="nu">03</span><span class="ti">Domaines</span></a></li>
+      <li><a href="#deroule"><span class="nu">04</span><span class="ti">Votre dossier</span></a></li>
+      <li><a href="#honoraires"><span class="nu">05</span><span class="ti">Honoraires</span></a></li>
+      <li><a href="#avis"><span class="nu">06</span><span class="ti">Avis clients</span></a></li>
+      <li><a href="#questions"><span class="nu">07</span><span class="ti">Questions</span></a></li>
+      <li><a href="#contact"><span class="nu">08</span><span class="ti">Contact</span></a></li>
+    </ol>
+  </nav>
 
   <div class="band rise d2">
     <div><b>Réactivité</b>Un appel ou un message reçoit une réponse rapide — et jamais un silence qui laisse un délai courir.</div>
@@ -1849,7 +1992,7 @@
     if (!sec || !track) return;
     if (!AVIS.length) { sec.remove(); return; }       // pas d'avis → pas de section vide
 
-    var TEINTES = ['#7b3fa0','#c0564d','#1f5a49','#b0863a','#2c5f8a','#8a4b2c'];
+    var TEINTES = ['#7b3fa0','#c0564d','#33373e','#b0863a','#2c5f8a','#8a4b2c'];
     function etoiles(n){
       var s = '';
       for (var i = 1; i <= 5; i++) s += i <= n ? '★' : '<span class="off">★</span>';
