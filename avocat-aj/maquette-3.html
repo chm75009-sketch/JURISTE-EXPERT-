@@ -817,6 +817,28 @@
   }
   @media (min-width:1360px){#nav{display:none}}
 
+  /* ── L'écran d'un portable est large mais bas ─────────────────────────
+     Le menu reste collé sous l'en-tête pendant le défilement (sauf sur
+     téléphone, où huit lignes collées mangeraient l'écran), et le bandeau
+     se resserre quand la fenêtre manque de hauteur : le titre, le texte et
+     les boutons doivent tenir ensemble dans le premier écran. */
+  @media (min-width:761px){
+    #nav{position:sticky !important;top:65px;z-index:49}
+    /* Les ancres s'arrêtent sous l'en-tête ET le menu collés. */
+    html{scroll-padding-top:122px}
+  }
+  @media (min-width:1360px){
+    /* Ici le menu est la colonne de gauche : seul l'en-tête reste en haut. */
+    html{scroll-padding-top:84px}
+  }
+  @media (min-width:761px) and (max-height:880px){
+    .hero{padding-top:30px}
+    .hero h1{font-size:clamp(28px,3.4vw,44px)}
+    .hero .lead{margin-top:14px}
+    .hero .acts{margin-top:20px}
+    .pf{width:170px;height:170px}
+  }
+
 </style>
 </head>
 <body>
@@ -1103,6 +1125,16 @@
         <a class="plus" href="./domaine-travail.html">En savoir plus →</a>
       </article>
 
+      <article class="dom">
+        <div class="ic" aria-hidden="true">🛡️</div>
+        <h4>Droit pénal</h4>
+        <p>Assistance dès la garde à vue ou l'audition libre, défense devant le tribunal
+          correctionnel, et constitution de partie civile pour les victimes. Au pénal plus
+          qu'ailleurs, les premières heures pèsent sur toute la suite.</p>
+        <ul><li>Garde à vue</li><li>Tribunal correctionnel</li><li>Partie civile</li><li>Comparution immédiate</li></ul>
+        <div class="art">Prescription des délits : <b>6 ans</b> (art. 8 C. proc. pén.)</div>
+        <a class="plus" href="#contact">Exposer ma situation →</a>
+      </article>
     </div>
 
     <div class="pub"><span>Pour les entreprises et les professionnels</span><i></i></div>
