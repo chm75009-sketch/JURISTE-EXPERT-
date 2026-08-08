@@ -1081,7 +1081,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.157';
+var JX_BUILD = 'v2026-08-08.158';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1091,6 +1091,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.158', d:'8 aout 2026', t:[
+   'LE BOUTON « COMMENCER » DE LA FICHE ENTREPRISE NE REPONDAIT PAS. Il demarrait desactive, et seule la frappe dans un champ TEXTE le reveillait : remplir uniquement les menus deroulants — secteur, qualite, activite, effectif — laissait un bouton mort a 40 %% d\'opacite. La fiche est facultative : le bouton est desormais toujours actif.'
+ ]},
  {v:'v2026-08-08.157', d:'8 aout 2026', t:[
    'L\'ADAPTATION AU-DELA DE 50 SALARIES — elle n\'existait pas. Entre « 50-199 » et « 10 000 et plus », l\'accueil montrait exactement les memes modules : les seuls seuils branches etaient 11 et 50, et par page seulement. Les seuils se portent maintenant par CARTE : BDESE a 50 (L.2312-18), index egalite a 50 (L.1142-8), et la CSSCT — qui n\'avait pas de carte — apparait a 300 (L.2315-36). Le point « referent employeur » du module harcelement ne se pose plus qu\'a partir de 250 salaries, y compris quand l\'effectif vient d\'une tranche. Et le bandeau annoncait le reglement interieur a 20 salaries : c\'est 50 depuis la loi PACTE (L.1311-2).'
  ]},
@@ -2152,8 +2155,11 @@ try{
     <option value="">— À préciser —</option><option value="autre">Autre — préciser</option>
   </select>
   <input class="ins-input" id="ins-org-autre" placeholder="Précisez votre organisation patronale" style="display:none"/>
-  <button id="ins-btn" onclick="validerInscription()" disabled
-    style="width:100%;background:#c9a84c;color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.4;transition:opacity .2s;margin-top:6px">
+  <!-- Ce bouton demarrait desactive, et seule la frappe dans un champ
+       TEXTE le reveillait : remplir uniquement les menus deroulants
+       laissait un bouton mort. La fiche est facultative : il est actif. -->
+  <button id="ins-btn" onclick="validerInscription()"
+    style="width:100%;background:#c9a84c;color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;opacity:1;transition:opacity .2s;margin-top:6px">
     Commencer →
   </button>
   <div style="margin-top:14px;font-size:11px;color:#aaa;text-align:center;line-height:1.6">
