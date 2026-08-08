@@ -31,30 +31,45 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     const t = a.innerText;
     const pos = s => t.indexOf(s);
     return {
-      hero: pos('Votre assistant juridique RH'),
+      hero: pos('Sécurisez votre gestion RH'),
       essai: pos('Essai gratuit'),
-      quoi: pos('QUE VOULEZ-VOUS FAIRE'),
+      defi: pos('LE DÉFI DE LA GESTION RH'),
+      quoi: pos('UNE COUVERTURE RH COMPLÈTE'),
       phares: pos('LES MODULES PHARES'),
+      pourquoi: pos('POURQUOI NOUS CHOISIR'),
+      action: pos('PASSEZ À L’ACTION'),
       pied: pos('Mounir CHIKHAOUI'),
       maj: pos('Base juridique à jour')
     };
   });
-  ok(ordre.hero >= 0 && ordre.essai > ordre.hero, 'la bannière et ses deux boutons ouvrent la page');
-  ok(ordre.quoi > ordre.essai, '« Que voulez-vous faire ? » vient juste après');
+  ok(ordre.hero >= 0 && ordre.essai > ordre.hero, 'le slogan de la plaquette ouvre la page');
+  ok(ordre.defi > ordre.essai, 'le défi de la gestion RH vient juste après');
+  ok(ordre.quoi > ordre.defi, 'puis la couverture RH en quatre phases');
   ok(ordre.phares > ordre.quoi, 'et les modules de démonstration passent après', JSON.stringify(ordre));
-  ok(ordre.pied > ordre.phares && ordre.maj > 0, 'le pied de page ferme la lecture, avec la date de mise à jour');
+  ok(ordre.pourquoi > ordre.phares && ordre.action > ordre.pourquoi,
+     'pourquoi nous choisir, puis passez à l’action');
+  ok(ordre.pied > ordre.action && ordre.maj > 0, 'le pied de page ferme la lecture, avec la date de mise à jour');
 
-  // ── Les six blocs métier ─────────────────────────────────────────
-  console.log('\n— Les six blocs —');
+  // ── La couverture en quatre phases ───────────────────────────────
+  console.log('\n— Les quatre phases —');
+  const phases = await page.evaluate(() =>
+    [...document.querySelectorAll('#accueil-screen .cov .cr .cp')].map(e => e.textContent.trim()));
+  phases.forEach(b => console.log('    · ' + b));
+  ok(phases.length === 4, 'il y a exactement quatre phases', phases.length);
+  ['Embauche', 'Vie du contrat', 'Sortie', 'Pilotage']
+    .forEach(m => ok(phases.some(b => b.indexOf(m) >= 0), 'la phase « ' + m + ' » est présente'));
+
+  // ── Les six raisons ──────────────────────────────────────────────
+  console.log('\n— Pourquoi nous choisir —');
   const blocs = await page.evaluate(() =>
     [...document.querySelectorAll('#accueil-screen .b6 .bc .bt')].map(e => e.textContent.trim()));
   blocs.forEach(b => console.log('    · ' + b));
-  ok(blocs.length === 6, 'il y a exactement six blocs', blocs.length);
-  ['Embauche', 'Discipline', 'Ruptures', 'Comité social', 'Analyse', 'Calculs']
-    .forEach(m => ok(blocs.some(b => b.indexOf(m) >= 0), 'le bloc « ' + m + ' » est présent'));
+  ok(blocs.length === 6, 'il y a exactement six raisons', blocs.length);
+  ['Conformité', 'anti-litige', 'Productivité', 'Accessibilité', 'à jour', 'Souveraineté']
+    .forEach(m => ok(blocs.some(b => b.indexOf(m) >= 0), 'la raison « ' + m + ' » est présente'));
   const puces = await page.evaluate(() =>
     [...document.querySelectorAll('#accueil-screen .b6 .bc')].map(c => c.querySelectorAll('.bpts li').length));
-  ok(puces.every(n => n >= 3), 'chaque bloc annonce au moins trois choses concrètes', JSON.stringify(puces));
+  ok(puces.every(n => n >= 2), 'chaque raison annonce au moins deux choses concrètes', JSON.stringify(puces));
   // La classe .bl existe deja ailleurs, en capitales : reprendre un nom de
   // classe deja pris, c'est heriter d'un style qu'on n'a pas voulu.
   const casse = await page.evaluate(() =>

@@ -405,6 +405,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .wz-back{background:none;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;color:#cfc8b8;font-family:inherit;font-size:13px;cursor:pointer}
 
 /* ═══════════ Composants PSE dédiés (page intégrée) ═══════════ */
+.cse-frise{display:flex;overflow-x:auto;padding-bottom:6px}
+.cse-frise .cf{flex:none;text-align:center;min-width:64px;position:relative}
+.cse-frise .cf i{display:block;width:11px;height:11px;border-radius:50%;background:#c9a84c;margin:0 auto 6px;position:relative;z-index:1;box-shadow:0 0 0 3px rgba(201,168,76,.18)}
+.cse-frise .cf:not(:last-child)::after{content:"";position:absolute;top:5px;left:50%;width:100%;height:2px;background:rgba(255,255,255,.14)}
+.cse-frise .cf b{display:block;font-size:10.5px;font-weight:800;color:#e8c97a;letter-spacing:.2px}
+.cse-frise .cf span{display:block;font-size:9.5px;color:#9fb0c4;margin-top:2px;line-height:1.25}
 .pse-tri{display:grid;gap:10px;margin-top:12px}
 @media(min-width:560px){.pse-tri{grid-template-columns:1fr 1fr 1fr}}
 .pse-ref{border-radius:12px;padding:13px 14px;background:rgba(255,255,255,.03);border:1px solid var(--ligne2)}
@@ -467,6 +473,28 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
   #accueil-screen .cta1 .u,#accueil-screen .cta2 .u{display:block;font-size:11.5px;
     color:rgba(35,40,43,.66);margin-top:2px;line-height:1.4}
 
+  #accueil-screen .labsub{font-size:12.5px;color:var(--muted);margin:-6px 0 12px}
+  #accueil-screen .defi{display:grid;grid-template-columns:1fr;gap:11px}
+  @media(min-width:560px){ #accueil-screen .defi{grid-template-columns:1fr 1fr 1fr} }
+  #accueil-screen .defi .dc{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:var(--sh);padding:15px 16px;display:block}
+  #accueil-screen .defi .de{font-size:21px;display:block;margin-bottom:8px}
+  #accueil-screen .defi b{display:block;font-size:14.5px;color:var(--ink);margin-bottom:5px}
+  #accueil-screen .defi span:not(.de){font-size:12.5px;color:var(--ink2);line-height:1.55}
+  #accueil-screen .dquote{margin:14px 0 4px;padding:13px 16px;border-left:3px solid var(--brass);background:var(--cream);border-radius:0 12px 12px 0;font-family:Georgia,serif;font-style:italic;font-size:13.5px;color:var(--ink2);line-height:1.55}
+  #accueil-screen .cov{display:grid;gap:10px;margin-top:4px}
+  #accueil-screen .cov .cr{display:grid;grid-template-columns:150px 1fr 22px;gap:12px;align-items:center;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);
+    padding:14px 15px;text-decoration:none;cursor:pointer}
+  @media(max-width:559px){ #accueil-screen .cov .cr{grid-template-columns:1fr 22px}
+    #accueil-screen .cov .cd{grid-column:1/-1} }
+  #accueil-screen .cov .cp{font-size:14px;font-weight:800;color:var(--green-d);line-height:1.3}
+  #accueil-screen .cov .cd{font-size:12.5px;color:var(--ink2);line-height:1.55}
+  #accueil-screen .cov .ck{font-size:12px;opacity:.45;text-align:right}
+  #accueil-screen .pact{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:560px){ #accueil-screen .pact{grid-template-columns:1fr 1fr 1fr} }
+  #accueil-screen .pact .pe{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px}
+  #accueil-screen .pact .pe b{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
+  #accueil-screen .pact .pe span{font-size:13px;color:var(--ink);font-weight:600;line-height:1.4}
   #accueil-screen .b6{display:grid;grid-template-columns:1fr;gap:11px;margin-top:4px}
   @media(min-width:560px){ #accueil-screen .b6{grid-template-columns:1fr 1fr} }
   #accueil-screen .bc{display:block;padding:15px 16px;border-radius:15px;text-decoration:none;cursor:pointer;
@@ -738,7 +766,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
     </header>
 
     <section class="heroband">
-      <h1 class="serif">Votre assistant juridique RH, <em>pas à pas.</em></h1>
+      <h1 class="serif">Sécurisez votre gestion RH avec un <em>assistant juridique expert.</em></h1>
       <p>Choisissez votre situation, répondez à des questions simples, et repartez avec vos actes et vos démarches conformes.</p>
       <div class="ctarow">
         <a class="cta1" href="controle-minute.html">
@@ -752,31 +780,34 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       </div>
     </section>
 
-    <div class="lab"><h2>Que voulez-vous faire&nbsp;?</h2><div class="rule"></div></div>
-    <div class="b6">
-      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
-        <div class="bh"><span class="be">🧑‍💼</span><span class="bt">Embauche &amp; contrats</span></div>
-        <ul class="bpts"><li>Rédaction CDI, CDD, apprentissage</li><li>Déclaration d’embauche et fiche de poste</li><li>Période d’essai et renouvellement</li></ul></a>
+    <div class="lab"><h2>Le défi de la gestion RH</h2><div class="rule"></div></div>
+    <p class="labsub">La complexité du droit est un risque permanent.</p>
+    <div class="defi">
+      <div class="dc"><span class="de">📚</span><b>Complexité législative</b><span>Des lois et des conventions collectives en évolution constante, difficiles à suivre.</span></div>
+      <div class="dc"><span class="de">⚠️</span><b>Risque financier</b><span>Les erreurs de procédure coûtent cher : prud’hommes, redressements URSSAF.</span></div>
+      <div class="dc"><span class="de">⏱️</span><b>Perte de temps</b><span>Rédiger des actes et suivre des calendriers légaux est chronophage.</span></div>
+    </div>
+    <div class="dquote">« L’erreur n’est plus une option quand la conformité devient un levier de performance. »</div>
 
-      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
-        <div class="bh"><span class="be">⚖️</span><span class="bt">Discipline &amp; sanctions</span></div>
-        <ul class="bpts"><li>Procédure disciplinaire guidée</li><li>Convocation, entretien, avertissement</li><li>Délais de prescription des faits</li></ul></a>
-
-      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
-        <div class="bh"><span class="be">🚪</span><span class="bt">Ruptures du contrat</span></div>
-        <ul class="bpts"><li>Rupture conventionnelle</li><li>Licenciement et inaptitude</li><li>Calculateur d’indemnités</li></ul></a>
-
-      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
-        <div class="bh"><span class="be">🗳️</span><span class="bt">Comité social et économique</span></div>
-        <ul class="bpts"><li>Élections : rétroplanning de J−90 à J+15</li><li>Procès-verbaux, quorums, sièges</li><li>Réunions, consultations, budgets, dossier par étape</li></ul></a>
-
-      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
-        <div class="bh"><span class="be">🔎</span><span class="bt">Analyse de documents</span></div>
-        <ul class="bpts"><li>Audit d’un contrat ou d’un accord</li><li>Détection des clauses nulles</li><li>Vérification des pièges et des délais</li></ul></a>
-
-      <a class="bc" onclick="accueilShowAbo();return false"><span class="bk">🔒</span>
-        <div class="bh"><span class="be">🧮</span><span class="bt">Calculs &amp; salaires</span></div>
-        <ul class="bpts"><li>Coût employeur</li><li>Maintien de salaire et paie</li><li>Heures supplémentaires</li></ul></a>
+    <div class="lab"><h2>Une couverture RH complète</h2><div class="rule"></div></div>
+    <p class="labsub">Quatre phases du cycle RH — la même logique que les modules de l’application.</p>
+    <div class="cov">
+      <a class="cr" onclick="accueilShowAbo();return false">
+        <span class="cp">🧑‍💼 Embauche</span>
+        <span class="cd">Rédaction CDI, CDD, apprentissage · déclaration d’embauche · fiche de poste · période d’essai.</span>
+        <span class="ck">🔒</span></a>
+      <a class="cr" onclick="accueilShowAbo();return false">
+        <span class="cp">📆 Vie du contrat</span>
+        <span class="cd">Absences, salaire, temps de travail · procédures disciplinaires guidées · alertes d’échéances (visites médicales, habilitations) · prévention du harcèlement.</span>
+        <span class="ck">🔒</span></a>
+      <a class="cr" onclick="accueilShowAbo();return false">
+        <span class="cp">🚪 Sortie</span>
+        <span class="cd">Ruptures conventionnelles · licenciements et inaptitude · calculateur d’indemnités de fin de contrat.</span>
+        <span class="ck">🔒</span></a>
+      <a class="cr" onclick="accueilShowAbo();return false">
+        <span class="cp">🗳️ Pilotage &amp; CSE</span>
+        <span class="cd">Élections CSE de A à Z · BDESE et index égalité · audit de documents · contrôle-minute de conformité.</span>
+        <span class="ck">🔒</span></a>
     </div>
 
     <div class="access">
@@ -821,15 +852,38 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       <a class="cta" onclick="accueilShowAbo();return false">Analyser un document →</a>
     </div>
 
-    <div class="lab"><h2>Pilotage &amp; conformité</h2><div class="rule"></div></div>
-    <div class="flag">
-      <a class="fc" style="--c:var(--ok)" href="controle-minute.html"><div class="ic">🎯</div><div><div class="tt">Contrôle-minute</div><div class="dd">Prêt pour un contrôle URSSAF ou inspection ? Questions ciblées, score de conformité, plan d'action.</div><span class="chip"><span class="pt"></span>Essai gratuit · sans code</span></div><div class="chev">›</div></a>
-      <a class="fc" style="--c:var(--alert)" onclick="accueilShowAbo();return false"><div class="ic">🔔</div><div><div class="tt">Alertes d'échéances</div><div class="dd">Titres, habilitations, visites médicales : les dates limites de vos salariés, surveillées.</div><span class="chip"><span class="pt"></span>3 à renouveler</span></div><div class="chev">🔒</div></a>
+    <div class="lab"><h2>Pourquoi nous choisir&nbsp;?</h2><div class="rule"></div></div>
+    <div class="b6">
+      <a class="bc"><div class="bh"><span class="be">📜</span><span class="bt">Conformité totale</span></div>
+        <ul class="bpts"><li>Le pilotage suit votre convention collective</li><li>Chaque règle appliquée est citée, article en regard</li></ul></a>
+      <a class="bc"><div class="bh"><span class="be">🛡️</span><span class="bt">Sécurité anti-litige</span></div>
+        <ul class="bpts"><li>Détection des clauses nulles et des pièges avant signature</li><li>Protégez votre entreprise des prud’hommes</li></ul></a>
+      <a class="bc"><div class="bh"><span class="be">🚀</span><span class="bt">Productivité RH</span></div>
+        <ul class="bpts"><li>Des procédures guidées qui réduisent le temps de rédaction</li><li>Concentrez-vous sur l’humain, pas la paperasse</li></ul></a>
+      <a class="bc"><div class="bh"><span class="be">🎯</span><span class="bt">Accessibilité maximale</span></div>
+        <ul class="bpts"><li>Une interface pensée pour les non-juristes</li><li>Des décisions complexes sans jargon technique</li></ul></a>
+      <a class="bc"><div class="bh"><span class="be">🔄</span><span class="bt">Base juridique tenue à jour</span></div>
+        <ul class="bpts"><li>Sources officielles : Code du travail, conventions, Cour de cassation</li><li>La date de mise à jour est affichée en bas de page</li></ul></a>
+      <a class="bc"><div class="bh"><span class="be">🔐</span><span class="bt">Souveraineté des données</span></div>
+        <ul class="bpts"><li>Vos données RH sont stockées sur votre appareil</li><li>Elles ne quittent pas votre environnement sans votre choix</li></ul></a>
     </div>
 
-    <div class="trust">
-      <div class="row"><span class="k">✓</span><div><b>Multisectoriel.</b> <span>Votre convention collective (transport, banque, assurances, Syntec…) pilote chaque réponse et chaque document.</span></div></div>
-      <div class="row"><span class="k">✓</span><div><b>Sources officielles.</b> <span>Code du travail, conventions collectives, jurisprudence de la Cour de cassation — vérifiées sur Légifrance.</span></div></div>
+    <div class="lab"><h2>Passez à l’action</h2><div class="rule"></div></div>
+    <p class="labsub">Ne laissez plus le hasard gérer vos risques RH.</p>
+    <div class="pact">
+      <div class="pe"><b>Étape 1</b><span>Choisissez votre secteur d’activité</span></div>
+      <div class="pe"><b>Étape 2</b><span>Lancez un contrôle-minute gratuit</span></div>
+      <div class="pe"><b>Étape 3</b><span>Obtenez votre score et votre plan d’action</span></div>
+    </div>
+    <div class="ctarow" style="margin-top:12px">
+      <a class="cta2" href="controle-minute.html">
+        <span class="e">🎯</span>
+        <span class="w"><span class="t">Prêt pour un audit gratuit&nbsp;?</span><span class="u">Essayer le contrôle-minute — sans code</span></span>
+      </a>
+      <a class="cta1" onclick="accueilShowAbo();return false">
+        <span class="e">⚡</span>
+        <span class="w"><span class="t">Lancer un dossier</span><span class="u">Accès complet — abonnés</span></span>
+      </a>
     </div>
 
     <footer>
@@ -1016,7 +1070,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.153';
+var JX_BUILD = 'v2026-08-08.154';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1026,6 +1080,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.154', d:'8 aout 2026', t:[
+   'LA PRESENTATION, REORGANISEE SELON LA PLAQUETTE. La vitrine suit maintenant l\'ordre du discours commercial : le slogan — Securisez votre gestion RH avec un assistant juridique expert — puis le defi de la gestion RH (complexite, risque financier, temps), la couverture RH en quatre phases, les deux modules phares, six raisons de nous choisir, et Passez a l\'action en trois etapes.',
+   'QUATRE FAMILLES AU LIEU DE CINQ. Les modules suivent le cycle RH de la plaquette : Embauche · Vie du contrat · Sortie · Pilotage & CSE. « Je gere » disparait ; les sanctions (le contrat continue) rejoignent la Vie du contrat, les ruptures (le contrat prend fin) forment la Sortie, et « Je verifie » rejoint le Pilotage. Aucune carte supprimee ; la prevention du harcelement, accessible seulement par le menu, gagne sa carte dans « Ce qui ne va pas ».',
+   'LA FRISE J-90 -> J+15 EN TETE DU MODULE ELECTIONS. Les sept jalons — information du personnel, invitation des syndicats, protocole, candidatures, convocations, premier tour, second tour et PV — s\'affichent des l\'ouverture, avant le retroplanning qui les calcule a rebours.'
+ ]},
  {v:'v2026-08-08.153', d:'8 aout 2026', t:[
    'L\'ADRESSE AUSSI SUR LA VITRINE. Elle n\'etait affichee que derriere le code, sur l\'accueil de l\'application : celui qui ouvre l\'application installee tombe sur la vitrine et ne la voyait pas. Elle figure maintenant sous le badge de version, des le premier ecran, avec son bouton Copier.'
  ]},
@@ -3514,8 +3573,21 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 </div>
 <div id="pg-cse" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
-<div style="flex:1"><div class="tt">Élections CSE</div><div class="ts">Procédure Code du travail · convention paramétrable</div></div>
+<div style="flex:1"><div class="tt">Élections CSE</div><div class="ts">De l'obligation à la validation — J−90 à J+15</div></div>
 <button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+
+<div class="card">
+<div class="cse-frise" aria-label="Les jalons de l'élection, de J moins 90 à J plus 15">
+  <div class="cf"><i></i><b>J−90</b><span>Info personnel</span></div>
+  <div class="cf"><i></i><b>J−78</b><span>Invit. syndicats</span></div>
+  <div class="cf"><i></i><b>J−60</b><span>Négo PAP</span></div>
+  <div class="cf"><i></i><b>J−15</b><span>Candidatures</span></div>
+  <div class="cf"><i></i><b>J−7</b><span>Convocations</span></div>
+  <div class="cf"><i></i><b>J 0</b><span>1ᵉʳ tour</span></div>
+  <div class="cf"><i></i><b>J+15</b><span>2ᵉ tour / PV</span></div>
+</div>
+<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">Le rétroplanning ci-dessous calcule ces jalons à rebours depuis votre date de 1ᵉʳ tour, avec chaque pièce à produire.</div>
+</div>
 
 <div class="card">
 <div class="bl">Secteur / convention collective</div>
@@ -8787,7 +8859,7 @@ try{ if(document.readyState!=='loading') secChipMaj(); else document.addEventLis
    ══════════════════════════════════════════════════════════════════════ */
 var FAM_LS='accueil_famille_v1';
 var FAM=[
- {k:'embauche', emo:'🧑‍💼', lib:'J’embauche',
+ {k:'embauche', emo:'🧑‍💼', lib:'Embauche',
   det:'Choisir le bon contrat, l’écrire sans oublier de mention, déclarer le salarié.',
   c1:'#3a6fd8', c2:'#2a5099', pastille:'#5b9bd5',
   groupes:[
@@ -8803,8 +8875,8 @@ var FAM=[
    ]}
   ]},
 
- {k:'gere', emo:'📆', lib:'Je gère',
-  det:'La vie du contrat au quotidien : absences, maladie, accident, salaire, horaires.',
+ {k:'viecontrat', emo:'📆', lib:'Vie du contrat',
+  det:'Le contrat au quotidien : absences, salaire, temps, obligations — et la discipline tant que le contrat continue.',
   c1:'#2f9e6e', c2:'#1e7050', pastille:'#46b885',
   groupes:[
    {t:'LES ABSENCES', s:'ce qui suspend le contrat', pastille:'#46b885', cartes:[
@@ -8825,50 +8897,38 @@ var FAM=[
      {emo:'🚚', lib:'Parc de véhicules et contraventions', page:'parc', tag:'Parc', secteurs:['transport']}
    ]},
    {t:'CE QUI NE VA PAS', s:'à traiter sans attendre', pastille:'#e05c5c', cartes:[
-     {emo:'🛡️', lib:'Harcèlement et discrimination', page:'harcele', tag:'Protection'},
+     {emo:'🛡️', lib:'Prévention du harcèlement — le dossier de preuve', page:'harcprev', tag:'Prévention', chip:'12 actions'},
+     {emo:'🚨', lib:'Harcèlement et discrimination', page:'harcele', tag:'Protection'},
      {emo:'⚖️', lib:'Qualifier un harcèlement moral', page:'harcmoral', tag:'Qualification'}
-   ]}
-  ]},
-
- {k:'disc', emo:'⚖️', lib:'Mesures disciplinaires',
-  det:'De l’avertissement au licenciement : choisir la mesure juste, puis la conduire sans faute de procédure.',
-  c1:'#d4762e', c2:'#a8531b', pastille:'#e0a35c',
-  groupes:[
-   {t:'CHOISIR LA MESURE', s:'commencez ici', pastille:'#e05c5c', cartes:[
-     {emo:'🧭', lib:'Quelle mesure pour quels faits ?', page:'disciplinaire', tag:'Guidé', chip:'Questions → lettre'},
-     {emo:'🚪', lib:'Assistant — je romps un contrat', page:'rupture', tag:'Guidé', chip:'Questions → lettre'}
    ]},
-   {t:'LES SANCTIONS', s:'le contrat continue', pastille:'#d6a842', cartes:[
+   {t:'LA DISCIPLINE', s:'le contrat continue', pastille:'#d6a842', cartes:[
+     {emo:'🧭', lib:'Quelle mesure pour quels faits ?', page:'disciplinaire', tag:'Guidé', chip:'Questions → lettre'},
      {emo:'✉️', lib:'Avertissement, blâme', page:'disciplinaire', tag:'Sanction'},
      {emo:'⏸️', lib:'Mise à pied disciplinaire', page:'disciplinaire', tag:'Sanction'},
      {emo:'🔁', lib:'Mutation, rétrogradation', page:'disciplinaire', tag:'Sanction'}
+   ]}
+  ]},
+
+ {k:'sortie', emo:'🚪', lib:'Sortie',
+  det:'Le contrat prend fin : choisir la voie juste, la conduire sans faute de procédure, chiffrer les indemnités.',
+  c1:'#d4762e', c2:'#a8531b', pastille:'#e0a35c',
+  groupes:[
+   {t:'PAR OÙ COMMENCER', s:'l’assistant pose les questions', pastille:'#46b885', cartes:[
+     {emo:'🧭', lib:'Assistant — je romps un contrat', page:'rupture', tag:'Guidé', chip:'Questions → lettre'}
    ]},
-   {t:'LES RUPTURES', s:'le contrat prend fin', pastille:'#e05c5c', cartes:[
+   {t:'LES RUPTURES', s:'chaque voie a sa procédure', pastille:'#e05c5c', cartes:[
+     {emo:'🤝', lib:'Rupture conventionnelle', page:'rupconv', tag:'Rupture'},
      {emo:'📑', lib:'Licenciement pour motif personnel', page:'licenc', tag:'Rupture'},
      {emo:'📉', lib:'Licenciement économique et PSE', page:'pse', tag:'Rupture'},
-     {emo:'🏥', lib:'Inaptitude et reclassement', page:'inapt', tag:'Rupture'},
-     {emo:'🤝', lib:'Rupture conventionnelle', page:'rupconv', tag:'Rupture'},
+     {emo:'🏥', lib:'Inaptitude et reclassement', page:'inapt', tag:'Rupture'}
+   ]},
+   {t:'LES COMPTES', s:'ce que la sortie coûte', pastille:'#4a86c8', cartes:[
      {emo:'🧮', lib:'Indemnités de rupture', page:'calc', tag:'Calcul'}
    ]}
   ]},
 
- {k:'verif', emo:'🔎', lib:'Je vérifie',
-  det:'Ce qu’on ouvre quand on doute : une question précise, un arrêt, un document à relire, un contrôle à préparer.',
-  c1:'#2f7a91', c2:'#1f5a6b', pastille:'#4a86c8',
-  groupes:[
-   {t:'UNE QUESTION, UNE RÉPONSE', s:'sans chercher dans le Code', pastille:'#46b885', cartes:[
-     {emo:'💬', lib:'FAQ — 1 194 questions', page:'faq', tag:'Questions'},
-     {emo:'⚖️', lib:'Jurisprudence de la Cour de cassation', page:'juris', tag:'Arrêts'},
-     {emo:'🧭', lib:'Parcours de la relation de travail', page:'parcours', tag:'Guide'}
-   ]},
-   {t:'AVANT DE SIGNER, AVANT UN CONTRÔLE', s:'pour ne pas se faire prendre', pastille:'#e05c5c', cartes:[
-     {emo:'🔍', lib:'Analyser un contrat, une lettre, un accord', page:'diag', tag:'Analyse', chip:'Détecte les pièges'},
-     {emo:'🎯', lib:'Contrôle-minute — êtes-vous prêt ?', page:'audit', tag:'Conformité'}
-   ]}
-  ]},
-
- {k:'cse', emo:'🗳️', lib:'Le CSE',
-  det:'Le comité, de sa mise en place à ses budgets. Chaque module pose ses questions et sort ses documents.',
+ {k:'pilotage', emo:'🗳️', lib:'Pilotage & CSE',
+  det:'Le comité, la base de données, l’index — et tout ce qu’on vérifie avant de signer ou d’être contrôlé.',
   c1:'#7a5cc4', c2:'#553c94', pastille:'#8e79c9',
   groupes:[
    {t:'PAR OÙ COMMENCER', s:'le guide répond pour vous', pastille:'#46b885', cartes:[
@@ -8877,7 +8937,7 @@ var FAM=[
      {emo:'📐', lib:'Mon effectif et mes seuils', page:'socle', tag:'Effectif'}
    ]},
    {t:'METTRE EN PLACE', s:'avant d’avoir un comité', pastille:'#4a86c8', cartes:[
-     {emo:'🗳️', lib:'Organiser les élections', page:'cse', tag:'Élections'},
+     {emo:'🗳️', lib:'Organiser les élections', page:'cse', tag:'Élections', chip:'J−90 → J+15'},
      {emo:'🗂️', lib:'Quelles pièces à quelle étape', page:'csedos', tag:'Dossier'},
      {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'}
    ]},
@@ -8892,6 +8952,15 @@ var FAM=[
      {emo:'📈', lib:'Consultations récurrentes', page:'csecns', tag:'Consultations'},
      {emo:'💶', lib:'Budgets et comptes', page:'csebud', tag:'Budgets'},
      {emo:'⚙️', lib:'Fonctionnement — la référence', page:'csefonc', tag:'Référence'}
+   ]},
+   {t:'UNE QUESTION, UNE RÉPONSE', s:'sans chercher dans le Code', pastille:'#46b885', cartes:[
+     {emo:'💬', lib:'FAQ — 1 194 questions', page:'faq', tag:'Questions'},
+     {emo:'⚖️', lib:'Jurisprudence de la Cour de cassation', page:'juris', tag:'Arrêts'},
+     {emo:'🧭', lib:'Parcours de la relation de travail', page:'parcours', tag:'Guide'}
+   ]},
+   {t:'AVANT DE SIGNER, AVANT UN CONTRÔLE', s:'pour ne pas se faire prendre', pastille:'#e05c5c', cartes:[
+     {emo:'🔍', lib:'Analyser un contrat, une lettre, un accord', page:'diag', tag:'Analyse', chip:'Détecte les pièges'},
+     {emo:'🎯', lib:'Contrôle-minute — êtes-vous prêt ?', page:'audit', tag:'Conformité'}
    ]}
   ]}
 ];
@@ -8904,7 +8973,11 @@ function goBdese(){ goPage('csehub'); try{ hubGo('bdese'); }catch(e){} }
 function goIndexEgalite(){ goPage('csehub'); try{ hubGo('egalite'); }catch(e){} }
 
 function famChoisie(){
-  try{ return localStorage.getItem(FAM_LS)||''; }catch(e){ return ''; }
+  try{
+    var v=localStorage.getItem(FAM_LS)||'';
+    var suit={gere:'viecontrat', disc:'viecontrat', verif:'pilotage', cse:'pilotage'};
+    return suit[v]||v;
+  }catch(e){ return ''; }
 }
 function famOuvrir(k){
   var a=famChoisie();

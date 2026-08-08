@@ -1,5 +1,5 @@
-/* L'accueil de l'application : cinq familles.
-   « J'embauche · Je gère · Mesures disciplinaires · Je vérifie · Le CSE ».
+/* L'accueil de l'application : quatre familles, le cycle RH de la plaquette.
+   « Embauche · Vie du contrat · Sortie · Pilotage & CSE ».
    Traça. Ce test garde ce qui rend ces cartes utilisables : elles mènent
    quelque part, elles se distinguent, et elles se lisent. */
 let chromium;
@@ -27,16 +27,16 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   });
   await page.waitForTimeout(300);
 
-  // ── Les cinq familles ────────────────────────────────────────────
-  console.log('\n— Les cinq familles —');
+  // ── Les quatre familles ──────────────────────────────────────────
+  console.log('\n— Les quatre familles —');
   const fam = await page.evaluate(() => FAM.map(f => ({
     k: f.k, lib: f.lib,
     n: f.groupes.reduce((s, g) => s + g.cartes.length, 0),
     groupes: f.groupes.map(g => g.t)
   })));
   fam.forEach(f => console.log('    ' + f.lib + ' — ' + f.n + ' cartes : ' + f.groupes.join(' / ')));
-  ok(fam.length === 5, 'il y a cinq familles', fam.length);
-  ['J’embauche', 'Je gère', 'Mesures disciplinaires', 'Je vérifie', 'Le CSE']
+  ok(fam.length === 4, 'il y a quatre familles — le cycle RH', fam.length);
+  ['Embauche', 'Vie du contrat', 'Sortie', 'Pilotage & CSE']
     .forEach(l => ok(fam.some(f => f.lib === l), 'la famille « ' + l + ' » existe'));
   ok(fam.every(f => f.n >= 4), 'chaque famille propose au moins quatre cartes',
      fam.map(f => f.lib + ':' + f.n).join(' · '));
@@ -53,18 +53,26 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(morts.length === 0, 'aucune carte ne mène à une page absente', morts.join(', '));
 
   const cse = await page.evaluate(() => {
-    const f = FAM.filter(x => x.k === 'cse')[0];
+    const f = FAM.filter(x => x.k === 'pilotage')[0];
     return f.groupes.flatMap(g => g.cartes).map(c => c.page);
   });
   ['csehub', 'csediag', 'socle', 'cse', 'csedos', 'moncse', 'csecal', 'csereu', 'csercl', 'csecns', 'csebud']
     .forEach(p => ok(cse.indexOf(p) >= 0, 'le CSE reprend « ' + p +' »'));
 
-  const mesures = await page.evaluate(() => {
-    const f = FAM.filter(x => x.k === 'disc')[0];
+  /* La discipline (le contrat continue) est dans la Vie du contrat ;
+     les ruptures (le contrat prend fin) sont dans la Sortie. */
+  const vie = await page.evaluate(() => {
+    const f = FAM.filter(x => x.k === 'viecontrat')[0];
     return f.groupes.flatMap(g => g.cartes).map(c => c.lib).join(' | ');
   });
-  ['Avertissement', 'Mise à pied', 'motif personnel', 'économique', 'Inaptitude', 'conventionnelle']
-    .forEach(m => ok(mesures.indexOf(m) >= 0, 'les mesures vont jusqu’à « ' + m + ' »'));
+  ['Avertissement', 'Mise à pied', 'Prévention du harcèlement']
+    .forEach(m => ok(vie.indexOf(m) >= 0, 'la Vie du contrat porte « ' + m + ' »'));
+  const sortie = await page.evaluate(() => {
+    const f = FAM.filter(x => x.k === 'sortie')[0];
+    return f.groupes.flatMap(g => g.cartes).map(c => c.lib).join(' | ');
+  });
+  ['motif personnel', 'économique', 'Inaptitude', 'conventionnelle', 'Indemnités']
+    .forEach(m => ok(sortie.indexOf(m) >= 0, 'la Sortie va jusqu’à « ' + m + ' »'));
 
   /* Toutes les pages de l'application, hors configuration, doivent etre
      atteignables par une famille : sinon un module existe sans que personne
@@ -104,7 +112,7 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
 
   // ── Ouvrir une famille ───────────────────────────────────────────
   console.log('\n— L’ouverture d’une famille —');
-  await page.evaluate(() => famOuvrir('disc'));
+  await page.evaluate(() => famOuvrir('viecontrat'));
   await page.waitForTimeout(250);
   const vis = await page.evaluate(() => ({
     cartes: document.querySelectorAll('#fam-zone .fam-carte').length,
@@ -113,9 +121,18 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   }));
   ok(vis.cartes >= 10, 'les cartes de la famille s’affichent', vis.cartes);
   ok(vis.titres >= 3, 'avec leurs sous-titres de groupe', vis.titres);
-  ok(vis.memoire === 'disc', 'le choix est retenu d’une visite à l’autre', vis.memoire);
+  ok(vis.memoire === 'viecontrat', 'le choix est retenu d’une visite à l’autre', vis.memoire);
 
-  await page.evaluate(() => famOuvrir('disc'));
+  /* Une selection memorisee sous un ancien nom (« gere », « disc »…)
+     doit suivre vers la famille qui a repris ses cartes. */
+  const suivi = await page.evaluate(() => {
+    localStorage.setItem('accueil_famille_v1', 'disc');
+    return famChoisie();
+  });
+  ok(suivi === 'viecontrat', 'une mémoire « disc » suit vers la Vie du contrat', suivi);
+  await page.evaluate(() => localStorage.setItem('accueil_famille_v1', 'viecontrat'));
+
+  await page.evaluate(() => famOuvrir('viecontrat'));
   await page.waitForTimeout(200);
   ok(await page.evaluate(() => document.querySelectorAll('#fam-zone .fam-carte').length === 0),
      're-cliquer sur la même tuile referme la famille');
