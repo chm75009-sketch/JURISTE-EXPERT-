@@ -768,12 +768,12 @@
      où la colonne ne tient pas, c'est le sommaire sous le bandeau qui
      assure le même rôle, une rubrique par ligne. */
   .lat{display:none}
-  @media (min-width:1280px){
-    body{padding-left:222px}
+  @media (min-width:1360px){
+    body{padding-left:206px}
     #nav{display:none}
     .lat{display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;
-      width:222px;z-index:55;background:var(--paper);border-right:1px solid var(--line);
-      padding:20px 20px 16px;overflow:auto}
+      width:206px;z-index:55;background:var(--paper);border-right:1px solid var(--line);
+      padding:18px 16px 14px;overflow:auto}
     .lat .lt{font-family:var(--mono-f);font-size:9.5px;letter-spacing:.2em;
       text-transform:uppercase;color:var(--muted);padding-bottom:10px;
       border-bottom:1px solid var(--ink);margin-bottom:4px}
@@ -802,7 +802,7 @@
   #nav{position:static !important;transform:none !important;visibility:visible !important;
     display:flex;background:var(--paper);border-bottom:1px solid var(--line);
     max-width:1060px;margin:0 auto;box-shadow:none !important}
-  @media (min-width:761px) and (max-width:1279px){
+  @media (min-width:761px) and (max-width:1359px){
     #nav{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:0 4px;padding:4px 20px}
   }
   @media (max-width:760px){
@@ -815,7 +815,7 @@
     /* Le sommaire sous le bandeau doublerait ce menu : il s'efface ici. */
     .somm{display:none}
   }
-  @media (min-width:1280px){#nav{display:none}}
+  @media (min-width:1360px){#nav{display:none}}
 
 </style>
 </head>
