@@ -27,6 +27,34 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   });
   await page.waitForTimeout(300);
 
+  /* ── La porte : secteur et effectif sont BLOQUANTS ─────────────────
+     Le nombre de modules depend d'eux : tant qu'ils manquent, l'accueil
+     pose les deux questions et ne montre aucune famille. */
+  console.log('\n— La porte —');
+  const porte0 = await page.evaluate(() => ({
+    porte: !!document.querySelector('.fam-porte'),
+    tuiles: document.querySelectorAll('.fam-tuile').length,
+    questions: [...document.querySelectorAll('.fam-porte label')].map(e => e.textContent)
+  }));
+  ok(porte0.porte && porte0.tuiles === 0,
+     'sans secteur ni effectif : la porte, aucune tuile', JSON.stringify(porte0));
+  ok(porte0.questions.length === 2, 'elle pose les deux questions', porte0.questions.join(' / '));
+
+  await page.evaluate(() => famPorteSecteur('banque'));
+  await page.waitForTimeout(300);
+  const porte1 = await page.evaluate(() => ({
+    tuiles: document.querySelectorAll('.fam-tuile').length,
+    questions: [...document.querySelectorAll('.fam-porte label')].map(e => e.textContent)
+  }));
+  ok(porte1.tuiles === 0 && porte1.questions.length === 1,
+     'le secteur répondu, il reste la question de l’effectif', JSON.stringify(porte1));
+
+  await page.evaluate(() => famPorteTranche('50'));
+  await page.waitForTimeout(300);
+  ok(await page.evaluate(() => !document.querySelector('.fam-porte')
+      && document.querySelectorAll('.fam-tuile').length === 4),
+     'les deux réponses données, les quatre familles s’ouvrent');
+
   // ── Les quatre familles ──────────────────────────────────────────
   console.log('\n— Les quatre familles —');
   const fam = await page.evaluate(() => FAM.map(f => ({
@@ -108,7 +136,7 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(bq.indexOf('parc') < 0 && bq.indexOf('temps') < 0 && bq.indexOf('tableau-bord') < 0,
      'la banque ne voit ni parc, ni temps de conduite, ni échéances de conducteurs',
      bq.filter(p => ['parc', 'temps', 'tableau-bord'].indexOf(p) >= 0).join(', '));
-  await page.evaluate(() => { sessionStorage.removeItem('jte_sector'); localStorage.removeItem('app_secteur::' + jxCompte()); famRender(); });
+  await page.evaluate(() => { sessionStorage.removeItem('jte_sector'); appSetSecteur('transport'); famRender(); });
 
   // ── Ouvrir une famille ───────────────────────────────────────────
   console.log('\n— L’ouverture d’une famille —');

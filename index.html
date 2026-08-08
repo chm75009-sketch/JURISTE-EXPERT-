@@ -544,6 +544,17 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 .eff-bandeau.vide{border-color:rgba(224,168,58,.55);background:rgba(224,168,58,.10)}
 .eff-bandeau.vide .en{font-size:26px}
 /* ── Accueil par familles : tuiles de categorie, puis cartes colorees ── */
+.fam-porte{margin:2px 0 16px;padding:18px 16px;border-radius:16px;background:rgba(232,201,122,.07);border:1.5px solid rgba(232,201,122,.45)}
+.fam-porte .fp-t{font-size:17px;font-weight:800;color:#fff;margin-bottom:6px}
+.fam-porte .fp-s{font-size:13px;color:#9fb0c4;line-height:1.6;margin-bottom:14px}
+.fam-porte .fp-q{margin-top:14px}
+.fam-porte label{display:block;font-size:12.5px;font-weight:800;color:#e8c97a;margin-bottom:7px}
+.fam-porte select{width:100%;box-sizing:border-box}
+.fam-porte .fp-reg{display:block;width:100%;box-sizing:border-box;margin-bottom:9px;padding:13px 14px;text-align:left;
+  border:1px solid #46b885;border-radius:11px;background:rgba(70,184,133,.12);color:#bfe9cd;
+  font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;line-height:1.45}
+.fam-porte .fp-ou{font-size:12px;color:#9fb0c4;margin:2px 0 7px}
+.fam-porte .fp-inc{margin-top:9px;font-size:12px;color:#ecdcb6;line-height:1.55}
 .fam-tuiles{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:2px 0 16px}
 /* Cinq familles sur deux colonnes : la derniere restait seule, a moitie de
    largeur, et la grille paraissait cassee. Elle prend la ligne entiere. */
@@ -1070,7 +1081,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.154';
+var JX_BUILD = 'v2026-08-08.155';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1080,6 +1091,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.155', d:'8 aout 2026', t:[
+   'SECTEUR ET EFFECTIF : BLOQUANTS. Le nombre de modules et leur contenu dependent du secteur et de l\'effectif — les afficher sans les connaitre, c\'etait montrer des modules impossibles a trier. Tant que l\'une des deux reponses manque, l\'accueil pose les deux questions et n\'affiche aucune famille : le secteur par menu deroulant (avec « Autre convention »), l\'effectif par le registre du personnel — recommande, c\'est lui qui fait foi (L.1111-2) — ou par une tranche d\'attente. Des que le registre est complet, il reprend la main sur la tranche.'
+ ]},
  {v:'v2026-08-08.154', d:'8 aout 2026', t:[
    'LA PRESENTATION, REORGANISEE SELON LA PLAQUETTE. La vitrine suit maintenant l\'ordre du discours commercial : le slogan — Securisez votre gestion RH avec un assistant juridique expert — puis le defi de la gestion RH (complexite, risque financier, temps), la couverture RH en quatre phases, les deux modules phares, six raisons de nous choisir, et Passez a l\'action en trois etapes.',
    'QUATRE FAMILLES AU LIEU DE CINQ. Les modules suivent le cycle RH de la plaquette : Embauche · Vie du contrat · Sortie · Pilotage & CSE. « Je gere » disparait ; les sanctions (le contrat continue) rejoignent la Vie du contrat, les ruptures (le contrat prend fin) forment la Sortie, et « Je verifie » rejoint le Pilotage. Aucune carte supprimee ; la prevention du harcelement, accessible seulement par le menu, gagne sa carte dans « Ce qui ne va pas ».',
@@ -8972,6 +8986,24 @@ var FAM=[
 function goBdese(){ goPage('csehub'); try{ hubGo('bdese'); }catch(e){} }
 function goIndexEgalite(){ goPage('csehub'); try{ hubGo('egalite'); }catch(e){} }
 
+/* Les reponses de la porte. Le secteur passe par le meme chemin que la
+   puce de secteur ; la tranche s'ecrit ou la page Parametrage l'ecrit :
+   E.effectif — une seule source. */
+function famPorteSecteur(v){
+  if(!v) return;
+  try{ if(typeof secChoisir==='function'){ secChoisir(v); return; } }catch(e){}
+  try{ appSetSecteur(v); famRender(); }catch(e){}
+}
+function famPorteTranche(v){
+  if(!v) return;
+  try{
+    if(typeof E==='undefined'||!E) window.E={};
+    E.effectif=v;
+    jxEcrire(jxEntKey(), JSON.stringify(E));
+  }catch(e){}
+  try{ famRender(); }catch(e){}
+  try{ updateHeroTop(); }catch(e){}
+}
 function famChoisie(){
   try{
     var v=localStorage.getItem(FAM_LS)||'';
@@ -9098,6 +9130,41 @@ function famRender(){
       +(_src?('<span class="ed" style="opacity:.85">'+famEsc(_src)+'</span>'):'')
       +'<span class="ed" style="opacity:.7">dossier : '+famEsc(jxDossierLib())+'</span></span>'
       +'<span class="ec">›</span></button>';
+  }
+
+  /* LA PORTE. Le secteur decide des cartes montrees, l'effectif decide
+     des modules mis de cote : sans eux, tout tri serait une supposition.
+     Tant que l'un des deux manque, on pose les deux questions ici — et
+     on n'affiche pas les familles. Une tranche suffit : elle borne. */
+  var _pSec=''; try{ _pSec=(typeof secCourant==='function'?secCourant():'')||''; }catch(e){}
+  var _pEff=(eff!==null)||(_s.src==='tranche');
+  if(!_pSec || !_pEff){
+    var _manq=(!_pSec&&!_pEff)?'Deux réponses ouvrent':'Une réponse ouvre';
+    h+='<div class="fam-porte">'
+      +'<div class="fp-t">'+_manq+' vos modules</div>'
+      +'<div class="fp-s">Le nombre de modules et leur contenu dépendent du secteur et de l’effectif. On ne vous montre rien qui ne vous concerne pas.</div>';
+    if(!_pSec){
+      h+='<div class="fp-q"><label for="fp-sec">1 · Votre secteur — la convention collective</label>'
+        +'<select id="fp-sec" onchange="famPorteSecteur(this.value)">'
+        +'<option value="">— Choisissez votre convention —</option>'
+        + (typeof SEC_LISTE!=='undefined'?SEC_LISTE:[]).map(function(x){ return '<option value="'+x.v+'">'+famEsc(x.lib)+(x.idcc?(' ('+x.idcc+')'):'')+'</option>'; }).join('')
+        +'<option value="autre">Autre convention</option>'
+        +'</select></div>';
+    }
+    if(!_pEff){
+      h+='<div class="fp-q"><label for="fp-eff">'+(!_pSec?'2':'1')+' · Votre effectif</label>'
+        +'<button class="fp-reg" onclick="goPage(\'socle\')">👥 Le compter par le registre du personnel — recommandé, c’est lui qui fait foi (L.1111-2)</button>'
+        +'<div class="fp-ou">ou, en attendant, une tranche :</div>'
+        +'<select id="fp-eff" onchange="famPorteTranche(this.value)">'
+        +'<option value="">— Choisissez une tranche —</option>'
+        + ((typeof jxTranches==='function')?jxTranches():[]).map(function(t){ return '<option value="'+t.v+'">'+famEsc(t.lib)+'</option>'; }).join('')
+        +'</select>'
+        +(_s.src==='incomplet'?'<div class="fp-inc">Votre registre est commencé mais incomplet : l’effectif ne peut pas encore se calculer. La tranche sert d’attente ; le registre reprendra la main dès qu’il sera complet.</div>':'')
+        +'</div>';
+    }
+    h+='</div></div>';
+    z.innerHTML=h;
+    return;
   }
 
   h+='<div class="fam-tuiles">';
