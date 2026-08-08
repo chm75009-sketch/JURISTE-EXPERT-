@@ -932,7 +932,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
 
 <script>
 // Date de référence de la base juridique (à mettre à jour à chaque actualisation des contenus)
-var JX_MAJ = '7 août 2026';
+var JX_MAJ = '8 août 2026';
 /* Le compte actif. Tout ce qui appartient a un dossier client — la fiche
    entreprise, le secteur, le registre du personnel, les modules CSE — est
    range sous cette cle. Un cabinet ouvre plusieurs dossiers depuis le meme
@@ -1010,7 +1010,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-07.149';
+var JX_BUILD = 'v2026-08-08.150';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1019,6 +1019,10 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.150', d:'8 aout 2026', t:[
+   'ON REPOND SUR PLACE. L\'encadré « informations manquantes » nommait les salariés à compléter, puis renvoyait à un tableau de plusieurs milliers de lignes où il fallait les retrouver un par un. Ce n\'était pas une réponse. On répond désormais DANS l\'encadré : un bouton Oui / Non pour « remplace-t-il un salarié absent ? », un champ de date pour une date d\'entrée absente, un menu pour la nature du contrat ou le temps de travail. L\'effectif se recalcule à chaque réponse.',
+   'ET LA REPONSE VA DANS LE REGISTRE. Ce n\'est pas une seconde saisie : répondre depuis le socle écrit dans la fiche du salarié, et le contrôle de cohérence du registre s\'en trouve corrigé du même geste. Sur un fichier de 2 500 salariés, dix réponses suffisent à passer d\'un effectif « non calculé » à 2 392 salariés calculés d\'après le registre.'
+ ]},
  {v:'v2026-08-07.149', d:'7 aout 2026', t:[
    'LA BDESE SE REMPLIT AVEC CE QUI EST DEJA SAISI. Neuf sous-rubriques ne demandaient rien de nouveau : elles étaient pourtant à ressaisir à la main. Les effectifs par type de contrat, par âge et par ancienneté, les emplois par catégorie professionnelle, le nombre de stagiaires, la durée du travail et le temps partiel, la répartition femmes-hommes par catégorie, les rémunérations médianes par sexe, l\'index de l\'égalité et ses cinq indicateurs, le salaire minimum, médian et moyen, et la contribution aux activités sociales et culturelles se lisent désormais du REGISTRE DU PERSONNEL, de l\'onglet INDEX ÉGALITÉ et du module BUDGETS DU COMITÉ.',
    'RIEN N\'EST ECRIT SANS QU\'ON LE DEMANDE. Chaque ligne calculable porte son bouton « ⟳ Calculer depuis le registre du personnel », et un bouton unique reprend tout d\'un coup. La valeur obtenue porte SA SOURCE ET SA DATE à l\'écran — « calculé le 07/08/2026 depuis le registre du personnel » — parce qu\'il faut pouvoir dire d\'où elle vient six mois plus tard, devant le comité. Elle reste modifiable.',
@@ -7307,14 +7311,43 @@ function socRenderEffectif(c){
   if(r.manque.length){
     var vus={}, uniq=[];
     r.manque.forEach(function(m){ var k=m.id+'|'+m.quoi; if(!vus[k]){ vus[k]=1; uniq.push(m); } });
+    /* On repond ICI. Renvoyer a un tableau de plusieurs milliers de lignes
+       pour y retrouver neuf noms n'etait pas une reponse. */
     h+='<div style="margin:12px 0;padding:12px;background:rgba(232,201,122,.10);border:1px solid #e8c97a;border-radius:10px">'
-     +'<div style="font-size:13px;font-weight:800;color:#e8c97a;margin-bottom:6px">⚠ '+uniq.length+' information(s) manquante(s) — l\'effectif affiché est incomplet</div>'
-     +'<div style="font-size:12.5px;color:#e8e4d8;line-height:1.7">'
-     + uniq.slice(0,12).map(function(m){ return '• <b>'+socEsc(m.nom)+'</b> — '+socEsc(m.quoi); }).join('<br>')
-     + (uniq.length>12?('<br>• … et '+(uniq.length-12)+' autre(s)'):'')
-     +'</div>'
-     +'<div style="margin-top:10px"><button class="btn" onclick="socTab(\'eff\');socScrollDetail()">Completer ci-dessous</button></div>'
-     +'</div>';
+     +'<div style="font-size:13px;font-weight:800;color:#e8c97a;margin-bottom:4px">⚠ '+uniq.length+' réponse(s) manquante(s)</div>'
+     +'<div style="font-size:12.5px;color:#9fb0c4;line-height:1.55;margin-bottom:10px">Répondez ici. L’effectif se recalcule à chaque réponse.</div>';
+    uniq.slice(0,40).forEach(function(m){
+      h+='<div style="padding:10px;background:#0f1b2c;border:1px solid #3a4a5f;border-radius:9px;margin-bottom:8px">'
+        +'<div style="font-size:13px;font-weight:700;color:#fff">'+socEsc(m.nom)+'</div>'
+        +'<div style="font-size:12px;color:#9fb0c4;margin:3px 0 8px">'+socEsc(m.quoi)+'</div>';
+      if(/remplace/i.test(m.quoi)){
+        h+='<div style="display:flex;gap:8px">'
+          +'<button onclick="socSetRempl(\''+socEsc(m.id)+'\',\'1\')" style="flex:1;padding:11px;border:1px solid #46b885;border-radius:9px;background:rgba(70,184,133,.15);color:#46b885;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">Oui</button>'
+          +'<button onclick="socSetRempl(\''+socEsc(m.id)+'\',\'0\')" style="flex:1;padding:11px;border:1px solid #3a4a5f;border-radius:9px;background:#16263c;color:#e8e4d8;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">Non</button>'
+          +'</div>';
+      } else if(/date d.entree/i.test(m.quoi)){
+        h+='<input type="date" onchange="socSetChamp(\''+socEsc(m.id)+'\',\'entree\',this.value)" aria-label="Date d’entrée de '+socEsc(m.nom)+'" style="width:100%;padding:10px;border-radius:9px;border:1px solid #e8c97a;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">';
+      } else if(/nature du contrat/i.test(m.quoi)){
+        h+='<select onchange="socSetChamp(\''+socEsc(m.id)+'\',\'typeContrat\',this.value)" aria-label="Nature du contrat de '+socEsc(m.nom)+'" style="width:100%;padding:10px;border-radius:9px;border:1px solid #e8c97a;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+          +'<option value="">— choisir —</option>'
+          + ['CDI temps plein','CDI temps partiel','CDD accroissement','CDD remplacement',
+             'Intérimaire','Saisonnier','Apprenti','Contrat de professionnalisation','Stagiaire']
+            .map(function(o){ return '<option>'+o+'</option>'; }).join('')
+          +'</select>';
+      } else if(/temps de travail/i.test(m.quoi)){
+        h+='<select onchange="socSetChamp(\''+socEsc(m.id)+'\',\'tempsTravail\',this.value)" aria-label="Temps de travail de '+socEsc(m.nom)+'" style="width:100%;padding:10px;border-radius:9px;border:1px solid #e8c97a;background:#0f1b2c;color:#fff;font-size:16px;box-sizing:border-box">'
+          +'<option value="">— choisir —</option>'
+          + ['Temps plein','Temps partiel 90%','Temps partiel 80%','Temps partiel 70%',
+             'Temps partiel 60%','Temps partiel 50%','Forfait jours']
+            .map(function(o){ return '<option>'+o+'</option>'; }).join('')
+          +'</select>';
+      } else {
+        h+='<button class="btn" onclick="rxFiche(\''+socEsc(m.id)+'\')" style="width:100%">Ouvrir la fiche</button>';
+      }
+      h+='</div>';
+    });
+    if(uniq.length>40) h+='<div style="font-size:12px;color:#9fb0c4">… et '+(uniq.length-40)+' autre(s), qui apparaîtront une fois celles-ci répondues.</div>';
+    h+='</div>';
   }
   h+='</div>';
 
@@ -7523,6 +7556,23 @@ function _socSal(id){ if(!SOC.sal[id]) SOC.sal[id]={}; return SOC.sal[id]; }
 function socSetFam(id,v){ var c=_socSal(id); if(v) c.fam=v; else delete c.fam; socSave(); socRender(); }
 function socSetH(id,v){ var c=_socSal(id); var n=parseFloat(String(v).replace(',','.')); if(String(v).trim()==='' || isNaN(n)) delete c.h; else c.h=n; socSave(); socRender(); }
 function socSetRempl(id,v){ var c=_socSal(id); if(v==='') delete c.rempl; else c.rempl=(v==='1'); socSave(); socRender(); }
+/* Repondre depuis le socle ECRIT DANS LE REGISTRE : c'est la meme donnee,
+   il n'y en a pas deux. La fiche du salarie s'en trouve corrigee, et le
+   controle de coherence du registre aussi. */
+function socSetChamp(id, champ, v){
+  try{ if(typeof rxLoad==='function' && (typeof RX==='undefined' || !RX.staff)) rxLoad(); }catch(e){}
+  var st=(typeof RX!=='undefined' && RX.staff)?RX.staff:[];
+  var s=st.filter(function(x){ return x.id===id; })[0];
+  if(!s) return;
+  if(champ==='entree' || champ==='sortie'){
+    s[champ]=(typeof rxISO==='function')?rxISO(v):v;
+  } else {
+    s[champ]=String(v==null?'':v).trim();
+  }
+  try{ rxSaveLocal(); }catch(e){}
+  try{ rxCloudPushOne(s); }catch(e){}
+  socRender();
+}
 
 /* ── S.3 : convention collective ── */
 function socRenderCCN(c){
