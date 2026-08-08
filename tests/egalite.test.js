@@ -557,6 +557,11 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     goIndexEgalite();
     const e = (_hubT === 'egalite');
     goPage('home');
+    /* La porte (v155) exige secteur + effectif avant d'afficher les
+       familles ; et les cartes BDESE / index portent un seuil de 50. */
+    try { appSetSecteur('banque'); } catch (x) {}
+    try { if (typeof E === 'undefined' || !E) window.E = {};
+          E.effectif = '50'; jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (x) {}
     try { localStorage.setItem(FAM_LS, 'cse'); } catch (x) {}
     famRender();
     const z = document.getElementById('fam-detail');

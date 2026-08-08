@@ -4,6 +4,13 @@ import io, re, sys, json
 
 P='/home/user/JURISTE-EXPERT-/index.html'
 d=io.open(P,encoding='utf-8').read()
+# Le script vit desormais dans app.js : on le rattache au document sous la
+# forme d'un bloc <script> ordinaire, pour que tous les controles le voient.
+try:
+    _js=io.open('/home/user/JURISTE-EXPERT-/app.js',encoding='utf-8').read()
+    d=d+'\n<script>\n'+_js+'\n</script>\n'
+except Exception:
+    pass
 
 def ligne(i): return d[:i].count('\n')+1
 

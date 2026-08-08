@@ -1,6 +1,6 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v141';
-const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
+const CACHE = 'jem-v142';
+const CORE = ['./', './index.html', './app.js', './manifest.json', './icon-192.png', './icon-512.png',
   './vendor/xlsx.full.min.js', './vendor/jszip.min.js',
   /* Les pages annexes atteignables depuis le menu ou l'accueil. Elles
      n'etaient pas mises en cache : l'application se disait « utilisable hors
