@@ -12,10 +12,7 @@ const fs = require('fs');
 const path = require('path');
 
 const RACINE = path.join(__dirname, '..');
-/* Le script vit dans app.js depuis la v159 : les blocs s'extraient du
-   fichier de code, plus du HTML. */
-const SRC = fs.readFileSync(path.join(RACINE, 'index.html'), 'utf8')
-          + fs.readFileSync(path.join(RACINE, 'app.js'), 'utf8');
+const SRC = fs.readFileSync(path.join(RACINE, 'index.html'), 'utf8');
 
 /* ── Extraction des modules depuis le fichier unique ── */
 function bloc(debut, finMarqueur) {

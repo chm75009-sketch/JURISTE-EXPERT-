@@ -84,11 +84,7 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
              genCodes: !!pg.querySelector('#cg-client'),
              entete: document.getElementById('top-nom').textContent };
   });
-  /* Depuis la porte (v155), l'accueil PEUT porter deux selecteurs — et
-     seulement ceux-la : la question du secteur et celle de l'effectif,
-     tant qu'il manque une reponse. Rien d'autre ne doit trainer. */
-  ok(sec.selecteurs.every(id => id === 'fp-sec' || id === 'fp-eff'),
-     'aucune liste déroulante ne traîne sur l’accueil, hors les deux questions de la porte',
+  ok(sec.selecteurs.length === 0, 'aucune liste déroulante de secteur ne traîne sur l’accueil',
      sec.selecteurs.join(', '));
   ok(sec.chipTxt.length <= 2, 'le bouton de secteur est une icône, il n’écrase plus le titre',
      '« ' + sec.chipTxt + ' »');
