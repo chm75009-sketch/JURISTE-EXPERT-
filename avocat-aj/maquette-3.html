@@ -806,12 +806,17 @@
     #nav{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:0 4px;padding:4px 20px}
   }
   @media (max-width:760px){
-    #nav{flex-direction:column;padding:2px 20px 6px;counter-reset:mnum}
-    #nav a{display:flex;align-items:baseline;gap:12px;padding:11px 2px !important;
-      border-bottom:1px solid var(--line-soft) !important;font-size:14px;counter-increment:mnum}
-    #nav a:last-child{border-bottom:0 !important}
+    /* Deux colonnes de quatre : les huit rubriques restent toutes visibles,
+       mais le menu ne prend plus que le tiers de l'écran — le bandeau
+       apparaît dessous, dans la même vue. */
+    #nav{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;
+      padding:2px 20px 6px;counter-reset:mnum}
+    #nav a{display:flex;align-items:baseline;gap:9px;padding:9px 2px !important;
+      border-bottom:1px solid var(--line-soft) !important;font-size:13.5px;
+      counter-increment:mnum;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #nav a:nth-last-child(-n+2){border-bottom:0 !important}
     #nav a::before{content:counter(mnum,decimal-leading-zero);font-family:var(--mono-f);
-      font-size:10px;font-weight:700;color:var(--brass);letter-spacing:.08em;flex:none}
+      font-size:9.5px;font-weight:700;color:var(--brass);letter-spacing:.08em;flex:none}
     /* Le sommaire sous le bandeau doublerait ce menu : il s'efface ici. */
     .somm{display:none}
   }
