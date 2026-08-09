@@ -937,7 +937,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v12</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v13</b></span>
       </span>
     </a>
     
@@ -2261,16 +2261,39 @@
      le livre rejoue la couverture en la remplaçant par un clone neuf — un
      élément neuf repart de la première image de son animation. */
   (function(){
+    /* La flèche ne dépend plus de l'historique du navigateur — vide quand on
+       arrive par un lien direct, donc muette. Elle tient sa propre mémoire :
+       chaque saut interne (menu, sommaire, bouton) note d'où l'on part, et la
+       flèche y ramène, saut après saut. Sans mémoire, elle remonte en haut ;
+       en haut sans mémoire, elle se cache — un bouton qui ne peut rien faire
+       ne doit pas s'afficher. */
     var r = document.getElementById('flot-retour');
-    if (r) r.addEventListener('click', function(){
-      if (history.length > 1) history.back();
-      else window.scrollTo({ top:0, behavior:'smooth' });
-    });
+    var pile = [];
+    document.addEventListener('click', function(e){
+      var a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+      if (!a) return;
+      var h = a.getAttribute('href');
+      if (h && h.length > 1) { try { if (document.querySelector(h)) pile.push(window.scrollY); } catch(err){} }
+    }, true);
+    function maj(){
+      if (r) r.style.display = (pile.length || window.scrollY > 400) ? '' : 'none';
+    }
+    if (r) {
+      r.addEventListener('click', function(){
+        var y = pile.length ? pile.pop() : 0;
+        window.scrollTo({ top:y, behavior:'smooth' });
+        setTimeout(maj, 450);
+      });
+      window.addEventListener('scroll', maj, { passive:true });
+      maj();
+    }
     var b = document.getElementById('flot-couv');
     if (b) b.addEventListener('click', function(){
+      pile.push(window.scrollY);
       window.scrollTo(0, 0);
       var c = document.querySelector('.couv');
       if (c) c.replaceWith(c.cloneNode(true));
+      setTimeout(maj, 100);
     });
   })();
 })();
