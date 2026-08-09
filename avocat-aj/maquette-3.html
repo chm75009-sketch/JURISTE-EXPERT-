@@ -889,6 +889,22 @@
     .pf{margin:0}
   }
 
+  /* ── LES DEUX BOUTONS FLOTTANTS ────────────────────────────────────────
+     « ← » revient à l'écran précédent — le geste que le navigateur fait
+     déjà, mais posé sous le pouce. Le petit livre rouge rejoue le générique
+     d'ouverture : la page rouge se referme puis s'ouvre à nouveau. */
+  .flot{position:fixed;right:14px;bottom:16px;z-index:80;display:flex;
+    flex-direction:column;gap:9px}
+  .flot button{width:46px;height:46px;border:1px solid var(--ink);cursor:pointer;
+    background:var(--paper);color:var(--ink);font-size:19px;line-height:1;
+    display:grid;place-items:center;font-family:inherit;padding:0}
+  .flot button:hover{background:var(--ink);color:var(--paper)}
+  .flot .mini-livre{background:#8b1c2b;border-color:#6d1522;position:relative}
+  .flot .mini-livre::before{content:"";position:absolute;inset:6px;
+    border:1px solid rgba(244,241,234,.6)}
+  .flot .mini-livre:hover{background:#6d1522}
+  @media (max-width:760px){.flot{bottom:74px;right:10px}}
+
 </style>
 </head>
 <body>
@@ -917,7 +933,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v9</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v10</b></span>
       </span>
     </a>
     
@@ -1623,6 +1639,11 @@
 </div>
 
 <!-- Barre d'action, sur téléphone uniquement -->
+<div class="flot">
+  <button type="button" id="flot-retour" aria-label="Revenir en arrière" title="Revenir en arrière">←</button>
+  <button type="button" class="mini-livre" id="flot-couv" aria-label="Revoir l'ouverture du code" title="Revoir l'ouverture"></button>
+</div>
+
 <nav class="barre" aria-label="Contacter le cabinet">
   <a href="#nav"><span class="bi" aria-hidden="true">☰</span>Menu</a>
   <a href="tel:+33134340882"><span class="bi" aria-hidden="true">📞</span>Appeler</a>
@@ -2232,6 +2253,22 @@
       navigator.serviceWorker.register('./sw.js').catch(function(){});
     });
   }
+  /* Les deux boutons flottants. Le retour refait le geste du navigateur ;
+     le livre rejoue la couverture en la remplaçant par un clone neuf — un
+     élément neuf repart de la première image de son animation. */
+  (function(){
+    var r = document.getElementById('flot-retour');
+    if (r) r.addEventListener('click', function(){
+      if (history.length > 1) history.back();
+      else window.scrollTo({ top:0, behavior:'smooth' });
+    });
+    var b = document.getElementById('flot-couv');
+    if (b) b.addEventListener('click', function(){
+      window.scrollTo(0, 0);
+      var c = document.querySelector('.couv');
+      if (c) c.replaceWith(c.cloneNode(true));
+    });
+  })();
 })();
 </script>
 </body>
