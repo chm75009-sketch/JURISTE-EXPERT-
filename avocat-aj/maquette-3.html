@@ -858,6 +858,37 @@
      montre pas le bon numéro, c'est une copie en cache, pas la dernière. */
   .ver{font-family:var(--mono-f);font-size:10px;font-weight:700;color:var(--brass);
     letter-spacing:.08em;margin-left:4px}
+  /* ── LE LIVRE ROUGE, POSÉ SUR L'ACCUEIL ────────────────────────────────
+     Le code du générique d'ouverture, en miniature : couverture rouge au
+     double filet, tranche de pages sur la droite, légèrement incliné comme
+     posé sur le bureau. Tout est dessiné en CSS — aucune image. */
+  .colportrait{display:flex;flex-direction:column;align-items:center;gap:22px}
+  .livre{position:relative;width:132px;height:184px;background:#8b1c2b;
+    background-image:linear-gradient(105deg,rgba(0,0,0,.28),rgba(0,0,0,0) 14%),
+      linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.14));
+    transform:rotate(-3.5deg);
+    box-shadow:6px 6px 0 -1px #6d1522,7px 7px 0 0 rgba(0,0,0,.18),
+      0 18px 32px -14px rgba(0,0,0,.5);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:14px 10px}
+  .livre::before{content:"";position:absolute;inset:7px;
+    border:1px solid rgba(244,241,234,.55);pointer-events:none}
+  .livre::after{content:"";position:absolute;top:3px;bottom:3px;right:-5px;width:5px;
+    background:repeating-linear-gradient(to bottom,#f1ecdf 0 2px,#cfc8b6 2px 3px)}
+  .livre .lv1{font-family:var(--serif);font-weight:700;font-size:14.5px;
+    letter-spacing:.06em;color:#f4f1ea}
+  .livre .lv2{width:26px;height:1.5px;background:rgba(244,241,234,.8);margin:9px 0}
+  .livre .lv3{font-family:var(--serif);font-style:italic;font-size:11px;
+    color:rgba(244,241,234,.95);line-height:1.4}
+  .livre .lv4{font-family:var(--mono-f);font-size:7.5px;letter-spacing:.22em;
+    text-transform:uppercase;color:rgba(244,241,234,.7);margin-top:9px}
+  @media (max-width:900px){
+    .colportrait{flex-direction:row;justify-content:center;align-items:center;
+      gap:30px;margin-top:26px}
+    .livre{width:112px;height:156px}
+    .pf{margin:0}
+  }
+
 </style>
 </head>
 <body>
@@ -886,7 +917,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v8</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v9</b></span>
       </span>
     </a>
     
@@ -945,8 +976,16 @@
           <span class="t3">Serment · 7 juin 2004</span>
         </div>
       </div>
-      <div class="pf" data-photo role="img" aria-label="Portrait de Maître Adel JEDDI">
-        <div><span class="mg">AJ</span><span class="ph">[Photo]</span></div>
+      <div class="colportrait">
+        <div class="pf" data-photo role="img" aria-label="Portrait de Maître Adel JEDDI">
+          <div><span class="mg">AJ</span><span class="ph">[Photo]</span></div>
+        </div>
+        <div class="livre" aria-hidden="true">
+          <span class="lv1">CJ AVOCATS</span>
+          <span class="lv2"></span>
+          <span class="lv3">Maître Adel JEDDI</span>
+          <span class="lv4">Depuis 2004</span>
+        </div>
       </div>
     </div>
     <div class="juris">
