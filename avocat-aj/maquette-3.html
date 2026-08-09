@@ -851,9 +851,6 @@
     .pf{width:170px;height:170px}
   }
 
-  /* Quatre cases dans la barre du bas : le menu s'y gagne d'un pouce. */
-  @media (max-width:760px){.barre{grid-template-columns:repeat(4,1fr)}}
-
   /* Le numéro de version de la maquette, dans l'en-tête : si l'écran ne
      montre pas le bon numéro, c'est une copie en cache, pas la dernière. */
   .ver{font-family:var(--mono-f);font-size:10px;font-weight:700;color:var(--brass);
@@ -933,7 +930,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v14</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v15</b></span>
       </span>
     </a>
     
@@ -1644,7 +1641,6 @@
 </div>
 
 <nav class="barre" aria-label="Contacter le cabinet">
-  <a href="#nav"><span class="bi" aria-hidden="true">☰</span>Menu</a>
   <a href="tel:+33134340882"><span class="bi" aria-hidden="true">📞</span>Appeler</a>
   <a href="#contact"><span class="bi" aria-hidden="true">✉️</span>Écrire</a>
   <a class="pri" href="#contact"><span class="bi" aria-hidden="true">📅</span>Rendez-vous</a>
