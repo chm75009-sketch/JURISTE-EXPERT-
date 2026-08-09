@@ -883,8 +883,10 @@
   .livre .lv4{font-family:var(--mono-f);font-size:7.5px;letter-spacing:.22em;
     text-transform:uppercase;color:rgba(244,241,234,.7);margin-top:9px}
   @media (max-width:900px){
+    /* La photo et le livre ouvrent la page : premiers éléments du bandeau,
+       avant la cote et le titre. */
     .colportrait{flex-direction:row;justify-content:center;align-items:center;
-      gap:30px;margin-top:26px}
+      gap:30px;margin:2px 0 26px;order:-1}
     .livre{width:112px;height:156px}
     .pf{margin:0}
   }
@@ -933,7 +935,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v10</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v11</b></span>
       </span>
     </a>
     
