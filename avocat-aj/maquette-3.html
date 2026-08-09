@@ -2266,7 +2266,10 @@
     r.addEventListener('click', function(){
       /* Remontée immédiate, sous la couverture : le défilement doux du site
          mettrait deux secondes, et le livre s'ouvrirait sur le milieu de page. */
-      document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+      var de = document.documentElement;
+      de.style.scrollBehavior = 'auto';          /* le lissage CSS s'applique aussi ici */
+      de.scrollTop = 0; document.body.scrollTop = 0;
+      de.style.scrollBehavior = '';
       var c = document.querySelector('.couv');
       if (c) c.replaceWith(c.cloneNode(true));
       setTimeout(maj, 100);
