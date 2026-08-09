@@ -855,12 +855,12 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
       <div class="top"><div class="fic">🔎</div><div><div class="ft serif">Lecture &amp; analyse de documents</div><span class="star">★ Anti-contentieux</span></div></div>
       <p class="fp">Importez un contrat, une lettre, un CDD, un accord : l'application lit le texte et vérifie ce qui déclenche les litiges — mentions obligatoires, <b>délais</b>, <b>prescriptions</b>, régularité des procédures — puis signale chaque piège <b>avant</b> la signature.</p>
       <div class="statline">
-        <!-- « 1 300+ questions de contrôle » : chiffre condamné par le
-             journal v.1xx lui-même (1 194 questions, et c'était la FAQ,
-             pas ce module). Aucun chiffre ici tant qu'aucun n'est compté. -->
-        <div class="stat"><div class="sv">Mentions</div><div class="sk">obligatoires vérifiées</div></div>
-        <div class="stat"><div class="sv">Délais</div><div class="sk">&amp; prescriptions</div></div>
-        <div class="stat"><div class="sv">Pièges</div><div class="sk">clauses nulles détectées</div></div>
+        <!-- Chiffres comptes dans le code (v162) : Object.keys(DOCS) = 18
+             types ; somme des DOCS[t].q = 83 questions. A recompter a
+             chaque ajout de type ou de question. -->
+        <div class="stat"><div class="sv">18</div><div class="sk">types de documents</div></div>
+        <div class="stat"><div class="sv">83</div><div class="sk">questions de contrôle</div></div>
+        <div class="stat"><div class="sv">Pièges</div><div class="sk">clauses nulles &amp; délais</div></div>
       </div>
       <div class="legal">Repère les <b>négations</b> (« aucune indemnité de fin de contrat… »), les <b>faits hors délai</b>, les <b>clauses nulles</b> (non-concurrence sans contrepartie…) et les <b>salaires sous le minimum</b>.</div>
       <a class="cta" onclick="accueilShowAbo();return false">Analyser un document →</a>
@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.161';
+var JX_BUILD = 'v2026-08-08.162';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-08.162', d:'8 aout 2026', t:[
+   'LES CHIFFRES DE L\'ANALYSE, COMPTES DANS LE CODE. La vitrine affiche desormais 18 types de documents et 83 questions de controle — comptes mecaniquement dans le module (18 entrees DOCS, somme de leurs questionnaires). Le commentaire du code indique comment recompter a chaque ajout.'
+ ]},
  {v:'v2026-08-08.161', d:'8 aout 2026', t:[
    'LE CHIFFRE « 1 300+ QUESTIONS DE CONTROLE » RETIRE DE LA VITRINE. Le journal l\'avait deja condamne (1 194 questions reelles, et c\'etait le compteur de la FAQ, pas celui du module d\'analyse) ; il avait ete repris sans verification lors de la refonte de la vitrine. Aucun chiffre n\'y reviendra sans avoir ete compte dans le code.'
  ]},
