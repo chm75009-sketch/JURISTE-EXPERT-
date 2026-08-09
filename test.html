@@ -18694,6 +18694,10 @@ function adminSecPrompt(pageId){
   try{
     if(sessionStorage.getItem('jte_admin')!=='1')return;              // administrateur uniquement
     if(sessionStorage.getItem('jte_sector')||sessionStorage.getItem('jte_secchosen'))return; // déjà choisi
+    /* Un secteur repondu a la porte de l'accueil (ou par la puce) est un
+       secteur choisi : le redemander ici, c'est demander deux fois la
+       meme chose a deux endroits qui ne se lisaient pas. */
+    try{ if(typeof secCourant==='function' && secCourant()){ sessionStorage.setItem('jte_secchosen','1'); return; } }catch(e){}
     if(pageId && ADMIN_SEC_NONE[pageId])return;                        // page sans dimension conventionnelle
     var ov=document.getElementById('admin-sec-modal');
     if(!ov){

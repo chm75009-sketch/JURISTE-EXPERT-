@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-08.163';
+var JX_BUILD = 'v2026-08-09.164';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-09.164', d:'9 aout 2026', t:[
+   'LE SECTEUR N\'EST PLUS DEMANDE DEUX FOIS. Le secteur repondu a la porte de l\'accueil etait enregistre a un endroit ; la fenetre « Choisissez le secteur » de l\'administrateur en lisait un autre, le trouvait vide, et redemandait au premier module ouvert. Elle lit desormais la meme source que la porte.'
+ ]},
  {v:'v2026-08-08.163', d:'9 aout 2026', t:[
    'LES PAVES NOIRS SUR iPHONE : QUATRE PAGES DEPASSAIENT CE QUE LE TELEPHONE ACCEPTE DE PEINDRE. La FAQ construisait ses 1 194 fiches d\'un coup — 10 000 elements, 136 000 pixels de haut ; le journal des nouveautes, la base PSE et la jurisprudence depassaient 40 000 pixels. Ces quatre pages s\'affichent desormais par pages — 80 fiches, 60 decisions, 6 versions — avec un bouton « Afficher la suite ». Les recherches et les compteurs parcourent toujours l\'integralite. Mesure : la FAQ est quatorze fois moins haute.'
  ]},
@@ -18696,6 +18699,10 @@ function adminSecPrompt(pageId){
   try{
     if(sessionStorage.getItem('jte_admin')!=='1')return;              // administrateur uniquement
     if(sessionStorage.getItem('jte_sector')||sessionStorage.getItem('jte_secchosen'))return; // déjà choisi
+    /* Un secteur repondu a la porte de l'accueil (ou par la puce) est un
+       secteur choisi : le redemander ici, c'est demander deux fois la
+       meme chose a deux endroits qui ne se lisaient pas. */
+    try{ if(typeof secCourant==='function' && secCourant()){ sessionStorage.setItem('jte_secchosen','1'); return; } }catch(e){}
     if(pageId && ADMIN_SEC_NONE[pageId])return;                        // page sans dimension conventionnelle
     var ov=document.getElementById('admin-sec-modal');
     if(!ov){
