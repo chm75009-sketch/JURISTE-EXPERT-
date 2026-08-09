@@ -809,18 +809,16 @@
     /* Une seule ligne, collée sous l'en-tête, qui suit le défilement : on
        clique une rubrique, la section arrive, et le menu est toujours là.
        La ligne glisse du doigt pour atteindre les rubriques suivantes. */
-    #nav{display:flex;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;
-      position:sticky !important;top:65px;z-index:49;gap:0 18px;
-      padding:11px 20px;counter-reset:mnum;-webkit-overflow-scrolling:touch;
-      scrollbar-width:none}
-    #nav::-webkit-scrollbar{display:none}
-    #nav a{display:inline-flex;align-items:baseline;gap:6px;flex:none;
-      padding:1px 0 !important;border:0 !important;font-size:13.5px;
+    #nav{display:flex;flex-direction:row;flex-wrap:wrap;
+      position:sticky !important;top:65px;z-index:49;gap:1px 15px;
+      padding:8px 18px 9px;counter-reset:mnum;justify-content:space-between}
+    #nav a{display:inline-flex;align-items:baseline;gap:5px;flex:none;
+      padding:2px 0 !important;border:0 !important;font-size:12.5px;
       counter-increment:mnum;white-space:nowrap}
     #nav a::before{content:counter(mnum,decimal-leading-zero);font-family:var(--mono-f);
       font-size:9px;font-weight:700;color:var(--brass);letter-spacing:.06em;flex:none}
     /* Les ancres s'arrêtent sous l'en-tête et la ligne du menu. */
-    html{scroll-padding-top:112px}
+    html{scroll-padding-top:142px}
     /* Le sommaire sous le bandeau doublerait ce menu : il s'efface ici. */
     .somm{display:none}
   }
@@ -883,7 +881,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v4</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v5</b></span>
       </span>
     </a>
     
