@@ -903,10 +903,6 @@
     background:var(--paper);color:var(--ink);font-size:19px;line-height:1;
     display:grid;place-items:center;font-family:inherit;padding:0}
   .flot button:hover{background:var(--ink);color:var(--paper)}
-  .flot .mini-livre{background:#8b1c2b;border-color:#6d1522;position:relative}
-  .flot .mini-livre::before{content:"";position:absolute;inset:6px;
-    border:1px solid rgba(244,241,234,.6)}
-  .flot .mini-livre:hover{background:#6d1522}
   @media (max-width:760px){.flot{bottom:74px;right:10px}}
 
 </style>
@@ -937,7 +933,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v13</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v14</b></span>
       </span>
     </a>
     
@@ -1644,8 +1640,7 @@
 
 <!-- Barre d'action, sur téléphone uniquement -->
 <div class="flot">
-  <button type="button" id="flot-retour" aria-label="Revenir en arrière" title="Revenir en arrière">←</button>
-  <button type="button" class="mini-livre" id="flot-couv" aria-label="Revoir l'ouverture du code" title="Revoir l'ouverture"></button>
+  <button type="button" id="flot-retour" aria-label="Revenir au livre rouge" title="Revenir au livre rouge">←</button>
 </div>
 
 <nav class="barre" aria-label="Contacter le cabinet">
@@ -2261,40 +2256,23 @@
      le livre rejoue la couverture en la remplaçant par un clone neuf — un
      élément neuf repart de la première image de son animation. */
   (function(){
-    /* La flèche ne dépend plus de l'historique du navigateur — vide quand on
-       arrive par un lien direct, donc muette. Elle tient sa propre mémoire :
-       chaque saut interne (menu, sommaire, bouton) note d'où l'on part, et la
-       flèche y ramène, saut après saut. Sans mémoire, elle remonte en haut ;
-       en haut sans mémoire, elle se cache — un bouton qui ne peut rien faire
-       ne doit pas s'afficher. */
+    /* La flèche n'a qu'un métier, celui que la cliente lui a donné :
+       revenir au livre rouge. Elle remonte en haut et rejoue le générique —
+       un clone neuf de la couverture repart de la première image. En haut
+       de page elle se cache : le livre y est déjà. */
     var r = document.getElementById('flot-retour');
-    var pile = [];
-    document.addEventListener('click', function(e){
-      var a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
-      if (!a) return;
-      var h = a.getAttribute('href');
-      if (h && h.length > 1) { try { if (document.querySelector(h)) pile.push(window.scrollY); } catch(err){} }
-    }, true);
-    function maj(){
-      if (r) r.style.display = (pile.length || window.scrollY > 400) ? '' : 'none';
-    }
-    if (r) {
-      r.addEventListener('click', function(){
-        var y = pile.length ? pile.pop() : 0;
-        window.scrollTo({ top:y, behavior:'smooth' });
-        setTimeout(maj, 450);
-      });
-      window.addEventListener('scroll', maj, { passive:true });
-      maj();
-    }
-    var b = document.getElementById('flot-couv');
-    if (b) b.addEventListener('click', function(){
-      pile.push(window.scrollY);
-      window.scrollTo(0, 0);
+    if (!r) return;
+    function maj(){ r.style.display = window.scrollY > 400 ? '' : 'none'; }
+    r.addEventListener('click', function(){
+      /* Remontée immédiate, sous la couverture : le défilement doux du site
+         mettrait deux secondes, et le livre s'ouvrirait sur le milieu de page. */
+      document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
       var c = document.querySelector('.couv');
       if (c) c.replaceWith(c.cloneNode(true));
       setTimeout(maj, 100);
     });
+    window.addEventListener('scroll', maj, { passive:true });
+    maj();
   })();
 })();
 </script>
