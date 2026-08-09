@@ -179,7 +179,12 @@
   .pf .ph{display:block;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;
     color:rgba(243,234,212,.6);margin-top:8px}
   .pf.has .mg,.pf.has .ph{display:none}
-  @media (max-width:900px){.pf{display:none}}
+  /* Sur téléphone, le portrait reste : en médaillon réduit, centré sous
+     les boutons — le site d'origine le masquait, la cliente le veut. */
+  @media (max-width:900px){
+    .pf{width:132px;height:132px;margin:26px auto 0}
+    .pf .mg{font-size:28px}
+  }
 
   /* Traitement de la photo : noir et blanc légèrement réchauffé pour qu'elle
      tienne avec le vert et le laiton, contraste relevé, et un fondu par le bas
@@ -881,7 +886,7 @@
       <span class="mono" aria-hidden="true">CJ</span>
       <span>
         <span class="n">CJ AVOCATS</span>
-        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v7</b></span>
+        <span class="s">Maître Adel JEDDI · Argenteuil <b class="ver">v8</b></span>
       </span>
     </a>
     
