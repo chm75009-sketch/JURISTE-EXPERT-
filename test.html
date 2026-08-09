@@ -6209,12 +6209,15 @@ function jurChips(){var h='';JUR_SECTEURS.forEach(function(a){h+='<span onclick=
 function jurSetSecteur(x){jurSecteur=x;jurRender();}
 function jurToggleFav(){jurFav=!jurFav;jurRender();}
 function jurMatch(d){if(jurSecteur==='general'){if(d.secteur)return false;}else if(jurSecteur!=='tous'){if(d.secteur!==jurSecteur)return false;}if(jurFav&&!d.fav)return false;return true;}
+var jurMax=60;
+function jurPlus(){ jurMax+=200; jurRender(); }
 function jurRender(){jurChips();
   var q=(document.getElementById('jur-q').value||'').toLowerCase();
-  var host=document.getElementById('jur-list'),h='',n=0;
+  var host=document.getElementById('jur-list'),h='',n=0,jurRendus=0;
   JURIS_ALL.forEach(function(d){if(!jurMatch(d))return;
     var blob=((d.titre||'')+' '+(d.resume||d.regle||'')+' '+d.ref+' '+d.jur+' '+(d.theme||'')+' '+d.date).toLowerCase();
     if(q&&blob.indexOf(q)<0)return; n++;
+    if(jurRendus>=jurMax)return; jurRendus++;
     var lien=srcLien(d);
     h+='<div class="juris-card"><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:5px">'+pseEsc(d.titre||d.ref)+'</div>'
       +'<div class="juris-ref">'+pseEsc(d.ref)+'</div>'
@@ -6222,6 +6225,7 @@ function jurRender(){jurChips();
       +'<div style="font-size:13px;color:#e8e4d8;line-height:1.55">'+pseEsc(d.resume||d.regle||'')+'</div>'
       +'<div class="juris-regle"><a href="'+lien+'" target="_blank" rel="noopener" style="color:#e8c97a">🔎 Rechercher la décision (Légifrance) ↗</a></div></div>';
   });
+  if(n>jurMax) h+='<button class="btn" style="width:100%;margin-top:6px" onclick="jurPlus()">Afficher la suite — '+(n-jurMax)+' décision(s) restante(s)</button>';
   host.innerHTML=h||'<div class="al info">Aucune décision ne correspond.</div>';
   document.getElementById('jur-count').textContent=n+' décision(s) sur '+JURIS_ALL.length;}
 
@@ -6279,7 +6283,9 @@ function pseJurisSetTheme(t){pseJurisTheme=t;pseJurisRender();}
 function pseJurisToggleFav(){pseJurisFav=!pseJurisFav;pseJurisRender();}
 function pseEsc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function srcLien(d){return 'https://www.google.com/search?q='+encodeURIComponent((d.ref||d.titre||'')+' Légifrance');}
-function pseJurisRender(){
+var pseJMax=60;
+function pseJPlus(){ pseJMax+=200; pseJurisRender(); }
+function pseJurisRender(){ var pseJRendus=0;
   pseJurisChips();
   var q=(document.getElementById('pse-db-q').value||'').toLowerCase();
   var host=document.getElementById('pse-db-list'),h='',n=0;
@@ -6288,7 +6294,7 @@ function pseJurisRender(){
     if(pseJurisFav&&!d.fav)return;
     var blob=(d.titre+' '+d.resume+' '+d.ref+' '+d.jur+' '+d.theme+' '+d.date).toLowerCase();
     if(q&&blob.indexOf(q)<0)return;
-    n++;
+    n++; if(pseJRendus>=pseJMax)return; pseJRendus++;
     var lien=srcLien(d);
     h+='<div class="juris-card">'
       +'<div style="font-size:14px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:5px">'+pseEsc(d.titre)+'</div>'
@@ -6303,6 +6309,7 @@ function pseJurisRender(){
       +'<div class="juris-regle"><a href="'+lien+'" target="_blank" rel="noopener" style="color:#e8c97a">🔎 Rechercher la décision (Légifrance) ↗</a></div>'
       +'</div>';
   });
+  if(n>pseJMax) h+='<button class="btn" style="width:100%;margin-top:6px" onclick="pseJPlus()">Afficher la suite — '+(n-pseJMax)+' fiche(s) restante(s)</button>';
   host.innerHTML=h||'<div class="al info">Aucune décision ne correspond à votre recherche.</div>';
   document.getElementById('pse-db-count').textContent=n+' décision(s) sur '+PSE_JURIS.length;
 }
@@ -27759,7 +27766,10 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var box=document.getElementById('nouveautes-list');
     if(!box || typeof JX_CHANGELOG==='undefined') return;
     var h='';
+    var nvMax=window.__nvMax||6;
+    window.nvPlus=function(){ window.__nvMax=(window.__nvMax||6)+30; render(); };
     JX_CHANGELOG.forEach(function(r,i){
+      if(i>=nvMax){ return; }
       h+='<div class="card">'
         +'<div class="ct">'+(i===0?'🆕 ':'')+'Version '+r.v
         +(i===0?' <span style="font-size:10px;background:rgba(94,181,122,.15);color:#5eb57a;border:1px solid rgba(94,181,122,.35);border-radius:20px;padding:2px 10px;vertical-align:middle;margin-left:6px">VERSION ACTUELLE</span>':'')
@@ -27769,6 +27779,8 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
         +r.t.map(function(x){return '<li>'+x+'</li>';}).join('')
         +'</ul></div>';
     });
+    if(JX_CHANGELOG.length>nvMax)
+      h+='<button class="btn" style="width:100%" onclick="nvPlus()">Afficher les '+(JX_CHANGELOG.length-nvMax)+' versions précédentes</button>';
     box.innerHTML=h;
   }
   function banner(){
