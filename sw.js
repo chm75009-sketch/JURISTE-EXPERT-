@@ -1,5 +1,5 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v147';
+const CACHE = 'jem-v148';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './vendor/xlsx.full.min.js', './vendor/jszip.min.js',
   /* Les pages annexes atteignables depuis le menu ou l'accueil. Elles
@@ -36,16 +36,25 @@ self.addEventListener('fetch', e => {
   if (url.origin !== location.origin) return;
   // version.json : TOUJOURS le réseau, jamais le cache (pilote la mise à jour forcée)
   if (url.pathname.indexOf('version.json') >= 0) { e.respondWith(fetch(req)); return; }
-  // Navigation : réseau d'abord (mises à jour), cache en secours hors ligne
+  /* Navigation : cache d'abord, rafraichissement en arriere-plan.
+     Le reseau d'abord obligeait le telephone a retelecharger index.html
+     (880 Ko compresses) AVANT le moindre affichage, a chaque ouverture.
+     La mise a jour n'est pas perdue pour autant : version.json reste
+     toujours pris sur le reseau et declenche la mise a jour forcee. */
   if (req.mode === 'navigate') {
     const isApp = (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'));
     e.respondWith(
-      fetch(req).then(r => {
-        // On ne met en cache "./index.html" QUE pour l'app elle-même — pas pour les autres pages
-        // (sinon ouvrir maquette-accueil.html écrasait l'app en cache).
-        if (isApp) { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); }
-        return r;
-      }).catch(() => caches.match(req).then(m => m || (isApp ? caches.match('./index.html') : undefined)))
+      caches.match(isApp ? './index.html' : req).then(cached => {
+        const reseau = fetch(req).then(r => {
+          // On ne met en cache "./index.html" QUE pour l'app elle-même — pas pour les autres pages
+          // (sinon ouvrir maquette-accueil.html écrasait l'app en cache).
+          if (isApp && r && r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); }
+          return r;
+        }).catch(() => cached);
+        // Le rafraichissement continue meme si la reponse en cache est deja rendue.
+        if (cached) e.waitUntil(reseau.catch(() => null));
+        return cached || reseau;
+      })
     );
     return;
   }

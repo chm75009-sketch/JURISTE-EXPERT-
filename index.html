@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-09.164';
+var JX_BUILD = 'v2026-08-10.165';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-10.165', d:'10 aout 2026', t:[
+   'L\'APPLICATION RETELECHARGEAIT SES 880 Ko A CHAQUE OUVERTURE. Le service worker servait la page « reseau d\'abord » : le telephone attendait le telechargement complet d\'index.html avant le moindre affichage, meme quand la version en cache etait identique. Il sert desormais la version en cache immediatement et rafraichit en arriere-plan. La mise a jour reste forcee : version.json continue d\'etre lu sur le reseau et impose le redemarrage des qu\'une nouvelle version est publiee. Mesure : le fichier fait 3,2 Mo brut, 880 Ko compresses, et se lit en 498 ms une fois en cache.'
+ ]},
  {v:'v2026-08-09.164', d:'9 aout 2026', t:[
    'LE SECTEUR N\'EST PLUS DEMANDE DEUX FOIS. Le secteur repondu a la porte de l\'accueil etait enregistre a un endroit ; la fenetre « Choisissez le secteur » de l\'administrateur en lisait un autre, le trouvait vide, et redemandait au premier module ouvert. Elle lit desormais la meme source que la porte.'
  ]},
