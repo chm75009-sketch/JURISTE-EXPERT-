@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-10.165';
+var JX_BUILD = 'v2026-08-10.166';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-10.166', d:'10 aout 2026', t:[
+   'LES QUATRE FAMILLES NE REPONDAIENT PLUS. Le verrou pose en .165 pour empecher l\'accueil de se reconstruire sous le doigt regardait n\'importe quel element ayant le focus. Or un bouton garde le focus apres le clic : ouvrir « Embauche » declenchait famRender, qui se voyait lui-meme dans la zone et refusait de dessiner. Le verrou ne regarde plus que les champs de saisie — select, input, textarea. Les quatre tuiles ont ete rouvertes une par une pour le verifier, et le menu des tranches tient toujours.'
+ ]},
  {v:'v2026-08-10.165', d:'10 aout 2026', t:[
    'L\'APPLICATION TOURNAIT A VIDE EN PERMANENCE, ET LE MENU DES TRANCHES SE REFERMAIT SOUS LE DOIGT. applyClientSector() se replanifiait toutes les 500 ms et reposait un evenement « change » sur chaque selecteur de secteur, y compris ceux qui portaient deja la bonne valeur ; chaque « change » rappelait appSetSecteur, qui rappelait applyClientSector. Le garde-fou de reentrance ne voyait rien : le setTimeout sortait de sa portee. Mesure, iPhone au repos, aucune interaction : 5 640 ms de travail sur 6 000 ms — 94 % du telephone occupe a ne rien faire — et le DOM enflait a 50 602 noeuds. Apres correction : 769 ms sur 6 000, et 30 434 noeuds. Consequence directe : l\'accueil se reconstruisait deux fois par seconde, ce qui detruisait le menu deroulant « Choisissez une tranche » au moment ou on l\'ouvrait. Trois verrous : la variante qui ne se replanifie pas, le « change » repose seulement si la valeur bouge, et l\'accueil qui refuse de se reconstruire tant que le doigt est dans un de ses champs.',
    'IMPORTER N\'EST PAS REMPLACER. Pour charger un fichier de personnel, il fallait cliquer sur « Remplacer (fichier) » ou sur « Modifier / completer » : aucun bouton ne disait « importer », et le registre vide invitait pourtant a importer. Les trois boutons portent desormais ce qu\'ils font — « Ajouter un salarie » (a la main), « Importer un fichier » (ajoute au registre), « Remplacer tout par un fichier » (vide puis recharge) — aux deux endroits du module Personnel.',
@@ -9157,7 +9160,11 @@ function famRender(){
   /* Ne JAMAIS reconstruire la zone pendant que le doigt est dessus. Sur
      iPhone, refaire le HTML detruit le <select> ouvert : la liste des
      tranches se refermait aussitot et le choix etait impossible. */
-  try{ var _a=document.activeElement; if(_a && _a!==document.body && z.contains(_a)){ return; } }catch(e){}
+  try{ var _a=document.activeElement;
+    /* Uniquement les champs de saisie : un bouton garde le focus apres le clic,
+       et bloquer le rendu sur ce seul motif rendait les quatre familles muettes. */
+    if(_a && z.contains(_a) && /^(SELECT|INPUT|TEXTAREA)$/.test(_a.tagName)){ return; }
+  }catch(e){}
   var sel=famChoisie(), h='';
 
   /* L'effectif d'abord : c'est lui qui commande l'obligation d'elire, le
