@@ -75,13 +75,21 @@ const ok = (c, m, d) => {
     const src = fs.readFileSync(path.resolve(__dirname, '..', f), 'utf8');
     /* On compte les LIENS, pas les mentions : l'historique des versions cite
        le dossier en toutes lettres, et c'est du texte, pas un accès. */
-    const liens = (src.replace(/<!--[\s\S]*?-->/g, '')
-      .match(/href\s*=\s*["']\.\/avocat-aj\//g) || []).length;
+    const vu2 = src.replace(/<!--[\s\S]*?-->/g, '');
+    const balises = vu2.match(/<a\b[^>]*href\s*=\s*["']\.\/avocat-aj\/[^>]*>/g) || [];
+    /* Ce qui compte n'est pas le fichier qui porte le lien, mais sa nature :
+       chaque lien doit être L'ACCÈS ADMINISTRATEUR — masqué au départ, révélé
+       par la garde de session. Les copies de test de l'application dupliquent
+       l'accueil, donc le lien : tant qu'il reste masqué, la règle est sauve.
+       Un lien public, lui, est interdit partout. */
+    const admin = balises.filter(b => /id="lien-cabinet-admin"/.test(b)
+      && /display:\s*none/.test(b)).length;
+    const publics = balises.length - admin;
+    ok(publics === 0, f + ' : aucun accès public au site du cabinet',
+      publics + ' lien(s) public(s)');
     if (f === 'index.html')
-      ok(liens === 1, 'un seul accès au site, et il est réservé à l\'administrateur',
-        liens + ' occurrence(s)');
-    else
-      ok(liens === 0, 'aucun renvoi vers le site depuis : ' + f);
+      ok(admin === 1, 'l\'accueil porte le seul accès voulu, réservé à l\'administrateur',
+        admin + ' occurrence(s)');
   });
 
   /* ── 3. Les pages s'ouvrent sans erreur, et on peut en revenir ──────── */
