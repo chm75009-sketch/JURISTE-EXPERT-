@@ -1,0 +1,6 @@
+Nom;Prénom;Type de contrat;Date d'entrée;Date de sortie;Temps de travail;Remplacement
+DUPONT;Marie;CDI;01/09/2015;;35;non
+MARTIN;Paul;CDI;15/01/2021;;28;non
+NGUYEN;Linh;Apprentissage;01/10/2024;30/09/2026;35;non
+BERNARD;Sofiane;CDD;03/02/2025;31/08/2026;35;oui
+LOPES;Ana;Intérim;12/05/2026;30/06/2026;35;non

@@ -500,29 +500,142 @@ function csvModele(){
   var b=new Blob([t],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='modele-salaries.csv'; a.click();
 }
+/* L'import etait strictement positionnel : colonne 1 le nom, colonne 2 le
+   contrat, colonne 3 l'entree. Un vrai export de paie commence par un
+   matricule et un etablissement — le contrat, l'entree et les heures
+   tombaient a cote, et l'effectif calcule restait a zero sur 84 salaries.
+   Les colonnes sont desormais reconnues par leur intitule, quel que soit
+   leur ordre. */
+function _csvSep(lignes){
+  var meilleur=';', score=-1;
+  [';','\t',','].forEach(function(c){
+    var n=0, vues=0;
+    for(var i=0;i<lignes.length && vues<15;i++){ if(!lignes[i].trim()) continue; vues++; n+=lignes[i].split(c).length-1; }
+    if(n>score){ score=n; meilleur=c; }
+  });
+  return meilleur;
+}
+function _csvSansAccent(s){
+  try{ return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim(); }
+  catch(e){ return String(s).toLowerCase().trim(); }
+}
+/* Rend la position de chaque colonne utile, ou -1. */
+function _csvColonnes(entete){
+  var h=entete.map(_csvSansAccent);
+  var trouve=function(mots, exclure){
+    for(var m=0;m<mots.length;m++) for(var j=0;j<h.length;j++)
+      if(h[j].indexOf(mots[m])>=0 && !(exclure && h[j].indexOf(exclure)>=0)) return j;
+    return -1;
+  };
+  var col={
+    nom:      trouve(['nom de famille','nom']),
+    prenom:   trouve(['prenom']),
+    contrat:  trouve(['type de contrat','nature du contrat','contrat']),
+    entree:   trouve(["date d'entree",'date entree','entree','embauche','anciennete'],'sortie'),
+    sortie:   trouve(['date de sortie','sortie','depart','fin de contrat']),
+    heures:   trouve(['temps de travail','heures','quotite','horaire']),
+    rempl:    trouve(['remplac'])
+  };
+  col._reconnu=0;
+  ['nom','contrat','entree','sortie','heures'].forEach(function(k){ if(col[k]>=0) col._reconnu++; });
+  return col;
+}
+/* Un libelle libre (« CDI », « Apprentissage », « Contrat de pro »…) vers une
+   famille de L.1111-2 / L.1111-3. */
+function _csvFamille(txt){
+  var t=_csvSansAccent(txt); if(!t) return '';
+  if(FAM[t]) return t;
+  if(/apprenti|apprentissage/.test(t)) return 'appr';
+  if(/professionnalisation|^pro$/.test(t)) return 'pro';
+  if(/stagiaire|stage/.test(t)) return 'stage';
+  if(/interim|temporaire|\bett\b/.test(t)) return 'interim';
+  if(/mise? a disposition|\bmad\b/.test(t)) return 'mad';
+  if(/intermittent/.test(t)) return 'interm';
+  if(/domicile/.test(t)) return 'domicile';
+  if(/initiative.?emploi|\bcie\b/.test(t)) return 'cie';
+  if(/accompagnement|\bcae\b/.test(t)) return 'cae';
+  if(/\bcdd\b|duree determinee/.test(t)) return 'cdd';
+  if(/\bcdi\b|duree indeterminee/.test(t)) return 'cdi';
+  return '';
+}
+/* Les dates arrivaient telles quelles : « 01/09/2008 » etait range dans un
+   champ qui attend « 2008-09-01 ». effectifAt ne savait pas les lire et
+   ecartait le salarie — 250 salaries donnaient un effectif de 11. */
+function _csvDate(v){
+  var s=String(v==null?'':v).trim(); if(!s) return '';
+  var m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+  if(m) return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);
+  m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/);
+  if(m) return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);
+  m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2})$/);
+  if(m){ var an=parseInt(m[3],10); an += (an>50?1900:2000); return an+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2); }
+  return '';
+}
+/* Le temps de travail s'ecrit rarement en nombre : « Temps plein », « 28 h
+   / semaine », « 80 % ». parseFloat rendait NaN et le salarie tombait dans
+   « heures hebdomadaires a preciser ». */
+function _csvHeures(v){
+  var s=_csvSansAccent(v); if(!s) return NaN;
+  if(/temps plein|plein temps|complet/.test(s)) return duree();
+  var pc=s.match(/(\d{1,3})\s*%/);
+  if(pc){ var q=parseFloat(pc[1])/100; if(q>0&&q<=1) return q*duree(); }
+  var nb=s.replace(',','.').match(/(\d+(?:\.\d+)?)/);
+  if(nb){ var h=parseFloat(nb[1]); if(h>0&&h<=60) return h; }
+  if(/temps partiel|partiel/.test(s)) return NaN;   /* partiel sans quotite : on demande */
+  return NaN;
+}
 function csvImport(inp){
   var f=inp.files&&inp.files[0]; if(!f) return;
   var rd=new FileReader();
   rd.onload=function(){
-    var lignes=String(rd.result).split(/\r?\n/).filter(function(l){ return l.trim() && l.trim().charAt(0)!=='#'; });
+    var lignes=String(rd.result).replace(/^﻿/,'').split(/\r?\n/).filter(function(l){ return l.trim() && l.trim().charAt(0)!=='#'; });
     if(!lignes.length){ alert('Fichier vide.'); return; }
-    var sep=(lignes[0].indexOf(';')>=0)?';':',';
-    var ent=lignes[0].toLowerCase();
-    var debut=(ent.indexOf('nom')>=0 && ent.indexOf('contrat')>=0)?1:0;
-    var ajout=0, refus=[];
-    for(var i=debut;i<lignes.length;i++){
-      var c=lignes[i].split(sep).map(function(x){ return x.trim(); });
-      if(!c[0]) continue;
-      var fam=(c[1]||'').toLowerCase();
-      if(fam && !FAM[fam]){ refus.push(c[0]+' — contrat « '+c[1]+' » inconnu'); fam=''; }
-      var r=(c[5]||'').toLowerCase();
-      var o={nom:c[0], fam:fam, entree:c[2]||'', sortie:c[3]||'', h:parseFloat(String(c[4]||'').replace(',','.'))};
+    var sep=_csvSep(lignes);
+    var decoupe=function(l){ return l.split(sep).map(function(x){ return x.trim().replace(/^["']|["']$/g,''); }); };
+    /* L'en-tete n'est pas toujours la premiere ligne : les exports de paie
+       commencent par un titre et des lignes vides. On retient la ligne qui
+       reconnait le plus de colonnes. */
+    var hdr=0, col=_csvColonnes(decoupe(lignes[0]));
+    for(var k=1;k<Math.min(lignes.length,15);k++){
+      var essai=_csvColonnes(decoupe(lignes[k]));
+      if(essai._reconnu>col._reconnu){ col=essai; hdr=k; }
+    }
+    if(col._reconnu<2 || col.nom<0){
+      alert('Colonnes non reconnues — rien n’a été importé.\n\n'
+        +'Attendu : une ligne d’intitulés puis une ligne par salarié. Sont lues, '
+        +'dans n’importe quel ordre : Nom, Prénom, Type de contrat, Date d’entrée, '
+        +'Date de sortie, Temps de travail, Remplacement.');
+      inp.value=''; return;
+    }
+    var ajout=0, refus=[], sansContrat=0, datesIllisibles=0;
+    for(var i=hdr+1;i<lignes.length;i++){
+      var c=decoupe(lignes[i]);
+      var nom=(c[col.nom]||'').trim();
+      if(col.prenom>=0 && (c[col.prenom]||'').trim()) nom=(nom+' '+c[col.prenom].trim()).trim();
+      if(!nom) continue;
+      var brut=col.contrat>=0?(c[col.contrat]||''):'';
+      var fam=_csvFamille(brut);
+      if(brut && !fam){ refus.push(nom+' — contrat « '+brut+' » non reconnu'); }
+      if(!brut) sansContrat++;
+      var o={ nom:nom, fam:fam,
+        entree: col.entree>=0?_csvDate(c[col.entree]):'',
+        sortie: col.sortie>=0?_csvDate(c[col.sortie]):'',
+        h: col.heures>=0?_csvHeures(c[col.heures]):NaN };
       if(isNaN(o.h)) delete o.h;
-      if(r==='oui') o.rempl=true; else if(r==='non') o.rempl=false;
+      if(col.entree>=0 && (c[col.entree]||'').trim() && !o.entree) datesIllisibles++;
+      if(col.rempl>=0){ var r=_csvSansAccent(c[col.rempl]||''); if(r==='oui') o.rempl=true; else if(r==='non') o.rempl=false; }
       D.sal.push(o); ajout++;
     }
     save(); inp.value=''; render();
-    alert(ajout+' ligne(s) importée(s).'+(refus.length?('\n\nÀ compléter à la main :\n'+refus.join('\n')):''));
+    /* On dit ce qui manque : sans nature de contrat, L.1111-2 ne peut rien
+       compter et l'effectif reste a zero. Le taire laissait croire a un bug. */
+    var msg=ajout+' ligne(s) importée(s) ('+col._reconnu+' colonne(s) reconnue(s)).';
+    if(datesIllisibles) msg+='\n\n'+datesIllisibles+' date(s) d’entrée illisible(s) : attendu jj/mm/aaaa ou aaaa-mm-jj.';
+    if(sansContrat) msg+='\n\n'+sansContrat+' salarié(s) sans nature de contrat : tant qu’elle '
+      +'n’est pas renseignée, ils ne comptent pas dans l’effectif (L.1111-2).';
+    if(refus.length) msg+='\n\nÀ compléter à la main :\n'+refus.slice(0,12).join('\n')
+      +(refus.length>12?('\n… et '+(refus.length-12)+' autre(s)'):'');
+    alert(msg);
   };
   rd.readAsText(f,'utf-8');
 }

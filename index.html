@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-10.166';
+var JX_BUILD = 'v2026-08-10.167';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-10.167', d:'10 aout 2026', t:[
+   'LE REGISTRE IMPORTE NE COMPTAIT PLUS PERSONNE. Le module Elections CSE lisait le fichier par POSITION : colonne 1 le nom, colonne 2 le contrat, colonne 3 l\u2019entree. Un export de paie commence par un matricule et un etablissement — la nature du contrat, la date d\u2019entree et les heures tombaient a cote, et l\u2019effectif restait a zero sur 84 salaries. Les colonnes sont desormais reconnues par leur intitule, dans n\u2019importe quel ordre. Les dates sont converties (01/09/2008 etait range dans un champ qui attend 2008-09-01, et le salarie etait ecarte). Le temps de travail est traduit : « Temps plein », « 28 h/semaine », « 80 % ». Mesure sur le registre fictif de 250 salaries : effectif 11 avant, 238 apres.',
+   'UN FICHIER QUI N\u2019EST PAS UN REGISTRE EST REFUSE. Sans en-tete reconnu, l\u2019import avalait tout : le titre d\u2019un rapport devenait un electeur — « Societe TEC : RAPPORT DE PREPARATION DES ELECTIONS CSE », « Date du 1er tour du scrutin ». Les trois imports de l\u2019application exigent maintenant de vraies colonnes avant d\u2019ecrire quoi que ce soit.',
+   'LE SEPARATEUR ETAIT DEVINE SUR LA SEULE PREMIERE LIGNE. Un export de paie commence par un titre sans point-virgule : tout le fichier partait alors en decoupe sur la virgule et 400 salaries devenaient illisibles. Il est desormais compte sur les quinze premieres lignes.',
+   'DEUX MODELES DE FICHIER SONT FOURNIS, dans exemples/ : MODELE_REGISTRE_PERSONNEL.csv et MODELE_EFFECTIF_CSE.csv.'
+ ]},
  {v:'v2026-08-10.166', d:'10 aout 2026', t:[
    'LES QUATRE FAMILLES NE REPONDAIENT PLUS. Le verrou pose en .165 pour empecher l\'accueil de se reconstruire sous le doigt regardait n\'importe quel element ayant le focus. Or un bouton garde le focus apres le clic : ouvrir « Embauche » declenchait famRender, qui se voyait lui-meme dans la zone et refusait de dessiner. Le verrou ne regarde plus que les champs de saisie — select, input, textarea. Les quatre tuiles ont ete rouvertes une par une pour le verifier, et le menu des tranches tient toujours.'
  ]},
@@ -23596,7 +23602,25 @@ function importCSVCore(f, input){
       }
       const lignes = text.split(/\r?\n/).filter(l => l.trim());
       if(lignes.length === 0){ alert('Fichier vide : rien n’a été importé.'); return; }
-      const sep = lignes[0].includes(';') ? ';' : ',';
+      /* Le separateur etait devine sur la SEULE premiere ligne. Un export de
+         paie commence par un titre — « EXTRACTION PAIE — Etablissement
+         principal » — qui ne contient pas de point-virgule : tout le fichier
+         etait alors decoupe sur la virgule, aucune colonne n'etait reconnue,
+         et 400 salaries partaient en bouillie. On compte sur les quinze
+         premieres lignes et on retient le separateur qui domine. */
+      const sep = (function(){
+        const cands = [';', '\t', ','];
+        let meilleur = ';', score = -1;
+        cands.forEach(function(c){
+          let n = 0, vues = 0;
+          for(let i=0; i<lignes.length && vues<15; i++){
+            if(!lignes[i].trim()) continue;
+            vues++; n += lignes[i].split(c).length - 1;
+          }
+          if(n > score){ score = n; meilleur = c; }
+        });
+        return meilleur;
+      })();
       const splitLigne = l => l.split(sep).map(c => c.trim().replace(/^["']|["']$/g,''));
 
       // Détection de la ligne d'en-tête (titre + lignes vides éventuels avant)
@@ -23607,6 +23631,28 @@ function importCSVCore(f, input){
       }
       const entete = splitLigne(lignes[hdrIdx]).map(_fixMojibake);
       const aEntete = map._reconnu >= 3; // au moins 3 colonnes reconnues = en-tête présent
+
+      /* Sans en-tete reconnu, le repli positionnel avalait TOUT : le titre
+         d'un rapport devenait un electeur (« Societe TEC : RAPPORT DE
+         PREPARATION DES ELECTIONS CSE », « Date du 1er tour du scrutin »…).
+         Un registre a des colonnes ; un rapport n'en a pas. On exige donc au
+         moins deux colonnes sur la majorite des lignes avant d'y croire. */
+      if(!aEntete){
+        var _aDeuxCol = 0, _lues = 0;
+        for(var _i=0;_i<lignes.length && _lues<40;_i++){
+          var _c = splitLigne(lignes[_i]).filter(function(x){ return x!==''; });
+          if(!_c.length) continue;
+          _lues++; if(_c.length>=2) _aDeuxCol++;
+        }
+        if(!_lues || _aDeuxCol < _lues*0.6){
+          alert('Ce fichier ne ressemble pas à un registre du personnel.\n\n'
+            +'Rien n’a été importé. Ses lignes ne portent pas de colonnes : c’est '
+            +'un rapport ou un texte, pas un tableau de salariés.\n\n'
+            +'Attendu : une première ligne d’intitulés (Nom, Date de naissance, '
+            +'Date d’entrée, Type de contrat…), puis une ligne par salarié.');
+          if(input) input.value=''; return;
+        }
+      }
 
       let nbImportes = 0, nbIgnores = 0;
       const lignesData = aEntete ? lignes.slice(hdrIdx+1) : lignes;
@@ -23661,6 +23707,24 @@ function importExcelCore(f, input){
       }
       const entete = rows[hdrIdx].map(c => _fixMojibake((c||'').toString()));
       const aEntete = map._reconnu >= 3;
+      /* Meme garde que pour le CSV : sans en-tete reconnu, on n'avale un
+         fichier que s'il a vraiment des colonnes. Un rapport n'en a pas. */
+      if(!aEntete){
+        var _aDeuxColX = 0, _luesX = 0;
+        for(var _j=0;_j<rows.length && _luesX<40;_j++){
+          var _cx = (rows[_j]||[]).map(function(c){ return (c==null?'':c).toString().trim(); }).filter(function(x){ return x!==''; });
+          if(!_cx.length) continue;
+          _luesX++; if(_cx.length>=2) _aDeuxColX++;
+        }
+        if(!_luesX || _aDeuxColX < _luesX*0.6){
+          alert('Ce fichier ne ressemble pas à un registre du personnel.\n\n'
+            +'Rien n’a été importé. Ses lignes ne portent pas de colonnes : c’est '
+            +'un rapport ou un texte, pas un tableau de salariés.\n\n'
+            +'Attendu : une première ligne d’intitulés (Nom, Date de naissance, '
+            +'Date d’entrée, Type de contrat…), puis une ligne par salarié.');
+          if(input) input.value=''; return;
+        }
+      }
       const lignesData = aEntete ? rows.slice(hdrIdx+1) : rows;
 
       let nbImportes = 0, nbIgnores = 0;

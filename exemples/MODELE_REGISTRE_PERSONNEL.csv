@@ -1,0 +1,5 @@
+Nom;Prénom;Sexe;Date de naissance;Nationalité;Titre de séjour;Date d'entrée;Date de sortie;Type de contrat;Statut;Emploi;Temps de travail;Salaire mensuel brut;Coefficient;Observations
+DUPONT;Marie;F;14/03/1985;Française;;01/09/2015;;CDI;Cadre;Responsable d'agence;Temps plein;3 900,00;H;
+MARTIN;Paul;H;02/11/1992;Française;;15/01/2021;;CDI;Employé;Assistant administratif;28 h/semaine;1 850,00;E;Temps partiel
+NGUYEN;Linh;F;27/06/1999;Vietnamienne;Carte de séjour pluriannuelle;01/10/2024;30/09/2026;Apprentissage;Employé;Apprentie gestionnaire;Temps plein;1 210,00;A;Apprenti — exclu de l'effectif (L.1111-3)
+BERNARD;Sofiane;H;19/08/1988;Française;;03/02/2025;31/08/2026;CDD;Ouvrier;Agent d'exploitation;Temps plein;2 100,00;C;Remplacement d'un salarié absent
