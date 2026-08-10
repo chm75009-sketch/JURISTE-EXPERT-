@@ -1095,6 +1095,7 @@ try{ (function(){
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-08-10.165', d:'10 aout 2026', t:[
+   'IMPORTER N\'EST PAS REMPLACER. Pour charger un fichier de personnel, il fallait cliquer sur « Remplacer (fichier) » ou sur « Modifier / completer » : aucun bouton ne disait « importer », et le registre vide invitait pourtant a importer. Les trois boutons portent desormais ce qu\'ils font — « Ajouter un salarie » (a la main), « Importer un fichier » (ajoute au registre), « Remplacer tout par un fichier » (vide puis recharge) — aux deux endroits du module Personnel.',
    'L\'APPLICATION RETELECHARGEAIT SES 880 Ko A CHAQUE OUVERTURE. Le service worker servait la page « reseau d\'abord » : le telephone attendait le telechargement complet d\'index.html avant le moindre affichage, meme quand la version en cache etait identique. Il sert desormais la version en cache immediatement et rafraichit en arriere-plan. La mise a jour reste forcee : version.json continue d\'etre lu sur le reseau et impose le redemarrage des qu\'une nouvelle version est publiee. Mesure : le fichier fait 3,2 Mo brut, 880 Ko compresses, et se lit en 498 ms une fois en cache.'
  ]},
  {v:'v2026-08-09.164', d:'9 aout 2026', t:[
@@ -16680,9 +16681,9 @@ function rhRegistre(){
   // Barre d'ACTIONS en premier (tout en haut), boutons pleine largeur sur mobile
   var bstyle='flex:1 1 auto;min-width:130px;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-align:center';
   var h='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
-   +'<button onclick="rhFiche(\'\')" style="'+bstyle+';border:none;background:#46b885;color:#04150e">＋ Ajouter</button>'
-   +'<button onclick="rhReplacePrompt()" style="'+bstyle+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">🔁 Remplacer (fichier)</button>'
-   +'<button onclick="rhAddPrompt()" style="'+bstyle+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">✏️ Modifier / compléter</button>'
+   +'<button onclick="rhFiche(\'\')" style="'+bstyle+';border:none;background:#46b885;color:#04150e">＋ Ajouter un salarié</button>'
+   +'<button onclick="rhAddPrompt()" style="'+bstyle+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">📥 Importer un fichier</button>'
+   +'<button onclick="rhReplacePrompt()" style="'+bstyle+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">🔁 Remplacer tout par un fichier</button>'
    +(RH.staff.length?'<button onclick="rhWipeRegistre()" style="'+bstyle+';border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c">🗑️ Supprimer le registre</button>':'')
    +'<button onclick="rhExportRegistre()" style="'+bstyle+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">🖨️ Imprimer</button>'
    +'</div>'
@@ -16693,7 +16694,7 @@ function rhRegistre(){
    +'</div>'
    +(RH.staff.length?'<div style="font-size:11.5px;color:#9fb0c4;margin:0 0 12px">✏️ Pour <b>modifier</b> ou <b>supprimer un salarié</b>, cliquez sur sa ligne dans la liste ci-dessous.</div>':'');
   if(!RH.staff.length){
-    h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:20px;text-align:center;color:#9fb0c4;font-size:13px">Registre vide. Importez votre fichier CSV, ajoutez un salarié, ou <button onclick="rhSeedDemo()" style="background:none;border:none;color:#c9a84c;text-decoration:underline;cursor:pointer;font-size:13px">charger 3 fiches de démonstration</button>.</div>';
+    h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:20px;text-align:center;color:#9fb0c4;font-size:13px">Registre vide. « 📥 Importer un fichier » pour charger votre CSV ou votre Excel, « ＋ Ajouter un salarié » pour le saisir à la main, ou<button onclick="rhSeedDemo()" style="background:none;border:none;color:#c9a84c;text-decoration:underline;cursor:pointer;font-size:13px">charger 3 fiches de démonstration</button>.</div>';
     return h;
   }
   h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px">'
@@ -17707,9 +17708,9 @@ function rxRegistre(){
   }
   var _rxb='flex:1 1 auto;min-width:130px;padding:11px 12px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;text-align:center';
   h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">'
-    +'<button onclick="rxFiche(\'\')" style="'+_rxb+';border:none;background:#46b885;color:#04150e">＋ Ajouter</button>'
-    +'<button onclick="rxReplacePrompt()" style="'+_rxb+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">🔁 Remplacer (fichier)</button>'
-    +'<button onclick="rxAddPrompt()" style="'+_rxb+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">✏️ Modifier / compléter</button>'
+    +'<button onclick="rxFiche(\'\')" style="'+_rxb+';border:none;background:#46b885;color:#04150e">＋ Ajouter un salarié</button>'
+    +'<button onclick="rxAddPrompt()" style="'+_rxb+';border:1px solid rgba(70,184,133,.5);background:rgba(70,184,133,.14);color:#8fe3bd">📥 Importer un fichier</button>'
+    +'<button onclick="rxReplacePrompt()" style="'+_rxb+';border:1px solid #3a4a5f;background:#16263c;color:#e8e4d8;font-weight:500">🔁 Remplacer tout par un fichier</button>'
     +(RX.staff.length?'<button onclick="rxSplitNames()" style="'+_rxb+';border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a">✂️ Séparer Nom / Prénom</button>':'')
     +(RX.staff.length?'<button onclick="rxPrintRegistre()" style="'+_rxb+';border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.14);color:#e8c97a">🖨️ Registre officiel</button>':'')
     +(RX.staff.length?'<button onclick="rxWipeRegistre()" style="'+_rxb+';border:1px solid rgba(224,92,92,.45);background:rgba(224,92,92,.12);color:#e05c5c">🗑️ Supprimer le registre</button>':'')
@@ -17717,7 +17718,7 @@ function rxRegistre(){
     +'</div>'
     +(RX.staff.length?'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:10px">✏️ Pour <b>modifier</b> ou <b>supprimer un salarié</b>, cliquez sur sa ligne ci-dessous.</div>':'');
   if(!RX.staff.length){
-    h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>Importez votre fichier CSV, ou ajoutez un salarié.</div>';
+    h+='<div style="border:1px dashed #3a4a5f;border-radius:12px;padding:22px;text-align:center;color:#9fb0c4;font-size:13px">Aucun salarié pour l\'instant.<br>« 📥 Importer un fichier » pour charger votre CSV ou votre Excel, ou « ＋ Ajouter un salarié » pour le saisir à la main.</div>';
     return h;
   }
   var _th='padding:7px;white-space:nowrap';
