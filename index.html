@@ -1095,6 +1095,7 @@ try{ (function(){
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
  {v:'v2026-08-10.165', d:'10 aout 2026', t:[
+   'L\'APPLICATION TOURNAIT A VIDE EN PERMANENCE, ET LE MENU DES TRANCHES SE REFERMAIT SOUS LE DOIGT. applyClientSector() se replanifiait toutes les 500 ms et reposait un evenement « change » sur chaque selecteur de secteur, y compris ceux qui portaient deja la bonne valeur ; chaque « change » rappelait appSetSecteur, qui rappelait applyClientSector. Le garde-fou de reentrance ne voyait rien : le setTimeout sortait de sa portee. Mesure, iPhone au repos, aucune interaction : 5 640 ms de travail sur 6 000 ms — 94 % du telephone occupe a ne rien faire — et le DOM enflait a 50 602 noeuds. Apres correction : 769 ms sur 6 000, et 30 434 noeuds. Consequence directe : l\'accueil se reconstruisait deux fois par seconde, ce qui detruisait le menu deroulant « Choisissez une tranche » au moment ou on l\'ouvrait. Trois verrous : la variante qui ne se replanifie pas, le « change » repose seulement si la valeur bouge, et l\'accueil qui refuse de se reconstruire tant que le doigt est dans un de ses champs.',
    'IMPORTER N\'EST PAS REMPLACER. Pour charger un fichier de personnel, il fallait cliquer sur « Remplacer (fichier) » ou sur « Modifier / completer » : aucun bouton ne disait « importer », et le registre vide invitait pourtant a importer. Les trois boutons portent desormais ce qu\'ils font — « Ajouter un salarie » (a la main), « Importer un fichier » (ajoute au registre), « Remplacer tout par un fichier » (vide puis recharge) — aux deux endroits du module Personnel.',
    'L\'APPLICATION RETELECHARGEAIT SES 880 Ko A CHAQUE OUVERTURE. Le service worker servait la page « reseau d\'abord » : le telephone attendait le telechargement complet d\'index.html avant le moindre affichage, meme quand la version en cache etait identique. Il sert desormais la version en cache immediatement et rafraichit en arriere-plan. La mise a jour reste forcee : version.json continue d\'etre lu sur le reseau et impose le redemarrage des qu\'une nouvelle version est publiee. Mesure : le fichier fait 3,2 Mo brut, 880 Ko compresses, et se lit en 498 ms une fois en cache.'
  ]},
@@ -6471,7 +6472,12 @@ function _appSetSecteur(id){
   secSet('app_secteur',id);
   /* L'interface doit suivre immediatement : sans cet appel, les rubriques
      propres au transport restaient au menu d'un dossier bancaire. */
-  try{ if(typeof applyClientSector==='function') applyClientSector(); }catch(e){}
+  /* applyClientSector() sans argument se replanifie a 500 ms ET repose des
+     evenements « change » qui rappellent appSetSecteur : la boucle repartait
+     deux fois par seconde, hors de portee du garde-fou ci-dessus, et refaisait
+     l'accueil sans arret. On passe donc par la variante qui ne se replanifie
+     pas. */
+  try{ if(typeof applyClientSector==='function') applyClientSector(true); }catch(e){}
   var hs=document.getElementById('home-secteur');if(hs)hs.value=id;
   var pe=document.getElementById('pse-secteur');if(pe)pe.value=id; secSet('secteur_pse',id); if(typeof pseSetSecteur==='function')pseSetSecteur();
   var ce=document.getElementById('cse-secteur');if(ce)ce.value=id; secSet('secteur_cse',id); if(typeof cseSetSecteur==='function')cseSetSecteur();
@@ -9148,6 +9154,10 @@ function famCoul(i){ return FAM_PAL[i % FAM_PAL.length]; }
 
 function famRender(){
   var z=document.getElementById('fam-zone'); if(!z) return;
+  /* Ne JAMAIS reconstruire la zone pendant que le doigt est dessus. Sur
+     iPhone, refaire le HTML detruit le <select> ouvert : la liste des
+     tranches se refermait aussitot et le choix etait impossible. */
+  try{ var _a=document.activeElement; if(_a && _a!==document.body && z.contains(_a)){ return; } }catch(e){}
   var sel=famChoisie(), h='';
 
   /* L'effectif d'abord : c'est lui qui commande l'obligation d'elire, le
@@ -18784,7 +18794,12 @@ function applyClientSector(retry){
     document.querySelectorAll('select[id$="secteur"]').forEach(function(el){
       if(el.id==='admin-secteur'||el.id==='ins-secteur')return;
       if(sec){ var has=[].some.call(el.options,function(o){return o.value===sec;});
-        if(has){ el.value=sec; try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} el.disabled=true; el.style.opacity='0.9'; el.title='Verrouillé sur le secteur choisi'; }
+        /* Le « change » n'est repose que si la valeur bouge vraiment. Sinon
+           chaque passage relancait appSetSecteur sur des selecteurs deja bons,
+           et la cascade se nourrissait elle-meme. */
+        if(has){ var _bouge=(el.value!==sec); el.value=sec;
+          if(_bouge){ try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} }
+          el.disabled=true; el.style.opacity='0.9'; el.title='Verrouillé sur le secteur choisi'; }
       } else { el.disabled=false; el.style.opacity=''; el.title=''; }
     });
     // Jurisprudence : filtrer sur le secteur (pour ceux qui ont un onglet dédié)
