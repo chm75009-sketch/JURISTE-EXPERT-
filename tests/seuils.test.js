@@ -152,6 +152,11 @@ const ATTENDUS = [
     document.getElementById('pg-inscription').style.display = 'none';
     document.getElementById('pg-app').style.display = 'block';
     document.getElementById('accueil-screen').style.display = 'none';
+    /* Un secteur, sinon la porte se referme : depuis que secteur et effectif
+       sont exiges avant tout affichage, aucune carte n'est rendue tant que
+       la convention n'est pas choisie. Ce test-ci porte sur le tri par
+       l'effectif, pas sur la porte — on la franchit comme un client. */
+    appSetSecteur('transport');
     goPage('home'); famOuvrir('cse');
   });
 
@@ -184,8 +189,19 @@ const ATTENDUS = [
   ok(t11.hors.indexOf('Consultations récurrentes') >= 0 && t11.hors.indexOf('Budgets et comptes') >= 0,
      'mais les consultations et les budgets attendent cinquante', t11.hors.join(', '));
 
+  /* A cinquante, tout ce qui attendait cinquante revient. Ce qui reste de
+     cote ne peut avoir qu'un seuil plus haut : la CSSCT n'est obligatoire
+     qu'a trois cents salaries (L.2315-36). L'assertion porte donc sur la
+     regle, pas sur un compte : aucun module de seuil <= 50 ne subsiste. */
   const t50 = await parTaille('50');
-  ok(t50.hors.length === 0, 'à cinquante salariés, plus rien n’est mis de côté', t50.hors.join(', '));
+  ok(t50.hors.indexOf('Consultations récurrentes') < 0 && t50.hors.indexOf('Budgets et comptes') < 0,
+     'à cinquante salariés, les consultations et les budgets reviennent', t50.hors.join(', '));
+  ok(t50.seuilsAffiches.every(t => { const m = /à partir de (\d+) salariés/.exec(t); return m && +m[1] > 50; }),
+     'et ce qui reste de côté a un seuil plus haut — rien qui soit dû à cinquante',
+     t50.hors.join(', ') + ' | ' + t50.seuilsAffiches.join(', '));
+
+  const t300 = await parTaille('300');
+  ok(t300.hors.length === 0, 'à trois cents salariés, plus rien n’est mis de côté', t300.hors.join(', '));
 
   const t0 = await parTaille('');
   ok(t0.max === null && t0.hors.length === 0,

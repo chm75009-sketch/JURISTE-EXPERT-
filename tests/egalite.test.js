@@ -557,6 +557,10 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     goIndexEgalite();
     const e = (_hubT === 'egalite');
     goPage('home');
+    /* Secteur et effectif d'abord : sans eux, la porte remplace les familles
+       et aucune carte n'est rendue. Ce test-ci porte sur le groupe
+       « Informer le comité », pas sur la porte — on la franchit. */
+    appSetSecteur('transport'); E.effectif = '50';
     try { localStorage.setItem(FAM_LS, 'cse'); } catch (x) {}
     famRender();
     const z = document.getElementById('fam-detail');
