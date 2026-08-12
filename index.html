@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-13.170';
+var JX_BUILD = 'v2026-08-13.171';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-13.171', d:'13 aout 2026', t:[
+   'PSE — DEUX REGLES ANTI-CONTOURNEMENT CONFONDUES EN UNE FAUSSE. La page PSE annonçait « moins de 10 sur 30 jours mais 18 ou plus sur 3 mois ». Ce seuil n\u2019existe pas. L\u2019article L.1233-26 vise PLUS DE DIX licenciements economiques au total sur trois mois consecutifs, sans en atteindre dix sur trente jours : tout nouveau licenciement des trois mois suivants passe au PSE. L\u2019article L.1233-27 vise PLUS DE DIX-HUIT sur une ANNEE CIVILE : tout nouveau licenciement des trois premiers mois de l\u2019annee suivante y passe. Les deux regles sont desormais enoncees separement, avec leur declencheur et leur consequence.',
+   'CONSULTATIONS RECURRENTES : LA CLAUSE DE PLUS DE TROIS ANS EST TRANCHEE, ET LE DOUTE EST DIT. Un accord ne peut fixer une periodicite superieure a trois ans (L.2312-19). Ce qu\u2019il advient d\u2019une clause qui le fait se discute — la ramener au plafond, ou la tenir pour non ecrite et revenir a l\u2019annuel (L.2312-17). L\u2019application retient l\u2019annuel, parce que c\u2019est la seule lecture qui n\u2019expose pas celui qui la suit a l\u2019entrave, et elle enonce les deux a l\u2019ecran. Le calcul suit la lecture retenue.',
+   'CONTROLE-MINUTE : deux references remises a leur article. La formation continue des distributeurs d\u2019assurance tient a L.511-2 II du code des assurances, ses quinze heures a R.512-13-1 — non a L.511-4. Les documents de bord du transport de marchandises tiennent a R.3411-13 et a l\u2019arrete du 9 novembre 1999 — non a R.3411-1.',
+ ]},
  {v:'v2026-08-13.170', d:'13 aout 2026', t:[
    'LE CONDUCTEUR ROUTIER N\u2019EST PAS D\u2019OFFICE EN SUIVI INDIVIDUEL RENFORCE. Le module Parcours l\u2019affirmait, et le modele de convocation a la visite d\u2019embauche avec lui. La conduite routiere ne figure pas parmi les postes a risques particuliers de l\u2019article R.4624-23 : le conducteur releve de la visite d\u2019information et de prevention, dans les trois mois de la prise de poste (R.4624-10), et separement du controle d\u2019aptitude a la conduite par un medecin agree par le prefet. Le suivi renforce ne s\u2019impose que si l\u2019employeur a inscrit le poste sur la liste des postes a risques. Corrige aux trois endroits, controle-minute compris.',
    'UNE DATE D\u2019ARRET RECTIFIEE : l\u2019arret sur la competence internationale (article 19 du reglement Bruxelles I) est du 27 novembre 2013, non du 26 — Cass. soc., n\u00b0 12-20.426, verifie a la source.',
@@ -14317,12 +14322,19 @@ function cnsPeriodicite(){
   if(CNS.accord!=='oui') return 1;            // regle suppletive : annuelle
   var n=parseInt(CNS.periodicite||'',10);
   if(isNaN(n) || n<=0) return 1;
-  /* Une clause qui depasse trois ans est ecartee. Deux lectures sont
-     defendables : ramener au plafond legal de trois ans, ou revenir a la regle
-     suppletive annuelle. Le choix retenu ici — le plafond — est celui que
-     verifie tests/cse.test.js ; il reste a arbitrer (constat d'audit du
-     12 aout 2026). */
-  return Math.min(n, 3);
+  /* Une clause qui depasse trois ans est ecartee : l'accord ne pouvait pas la
+     stipuler (L.2312-19). Deux lectures restent defendables — ramener la clause
+     au plafond de trois ans, ou la tenir pour non ecrite et revenir a la regle
+     suppletive annuelle (L.2312-17). Aucune decision publiee ne tranche a ce
+     jour, a notre connaissance.
+     L'application retient la seconde, non parce qu'elle serait plus sure en
+     droit, mais parce qu'elle est la seule qui ne fasse courir aucun risque a
+     celui qui la suit : consulter chaque annee quand on pouvait espacer coute
+     du temps ; espacer quand il fallait consulter expose a l'entrave. Le doute
+     ne se resout pas au detriment de l'utilisateur. Les deux lectures sont
+     enoncees a l'ecran : c'est a lui, ou a son conseil, de trancher. */
+  if(n > 3) return 1;
+  return n;
 }
 
 /* ══════════ ANALYSE ══════════ */
@@ -14347,9 +14359,13 @@ function cnsAnalyse(){
       A.push({gravite:'question', titre:'Périodicité prévue par l’accord non renseignée',
         texte:'Précisez la périodicité en années que fixe l’accord.'});
     } else if(n>3){
-      A.push({gravite:'stop', titre:'Consultez tous les trois ans au plus : la clause est écartée',
-        texte:'L’accord fixe une périodicité de '+n+' ans, ce qui est trop long. '
-          +'Un accord peut définir le contenu, la périodicité et les modalités des consultations récurrentes, mais la périodicité ne peut excéder trois ans (L.2312-19).'});
+      A.push({gravite:'stop', titre:'La clause est écartée : l’application repart sur une consultation annuelle',
+        texte:'L’accord fixe une périodicité de '+n+' ans. Un accord peut définir le contenu, la périodicité et les modalités des consultations récurrentes, '
+          +'mais la périodicité ne peut excéder trois ans (L.2312-19) : la clause excède ce que l’accord pouvait stipuler. '
+          +'Ce qu’il advient alors se discute — ramener la clause au plafond de trois ans, ou la tenir pour non écrite et revenir à la règle supplétive annuelle (L.2312-17). '
+          +'À notre connaissance, aucune décision publiée ne tranche. L’application retient la seconde lecture et calcule les échéances comme si la consultation était annuelle : '
+          +'consulter chaque année quand on pouvait espacer ne coûte que du temps ; espacer quand il fallait consulter expose à l’entrave. '
+          +'Si votre conseil retient l’autre lecture, saisissez « 3 ».'});
     } else {
       A.push({gravite:'info', titre:'Périodicité fixée par accord',
         texte:'Consultation tous les '+n+' an(s), dans la limite de trois ans (L.2312-19). L’accord peut aussi prévoir un avis unique sur tout ou partie des trois thèmes. '

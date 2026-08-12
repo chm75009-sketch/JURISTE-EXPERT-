@@ -277,11 +277,33 @@ test('accord sous six reunions : la clause annoncee ecartee l’est reellement',
   egal(r.seances.length, 6, 'et engendrer six seances, pas quatre');
 });
 
-test('periodicite de consultation au-dela de trois ans : plafonnee reellement', () => {
+/* Une clause de periodicite superieure a trois ans excede ce que l'accord
+   pouvait stipuler (L.2312-19). Ce qu'il en advient se discute : plafonner a
+   trois ans, ou tenir la clause pour non ecrite et revenir a l'annuel
+   (L.2312-17). L'application retient l'annuel — la seule lecture qui n'expose
+   pas celui qui la suit a l'entrave — et le DIT, en enoncant les deux. Ce test
+   garde les trois choses : l'alerte, les deux lectures annoncees, et le calcul
+   qui suit reellement celle qui est retenue. */
+test('periodicite de consultation au-dela de trois ans : la clause est ecartee', () => {
   entreprise(120, { cns: { bdese: 'oui', accord: 'oui', periodicite: '5', c: {} } });
   const r = ctx.cnsAnalyse();
-  assert(contient(r.alertes, /trois ans/), 'l’alerte doit annoncer le plafond');
-  egal(ctx.cnsPeriodicite(), 3, 'la periodicite retenue doit etre plafonnee a trois ans');
+  assert(contient(r.alertes, /clause est ecartee/), 'le titre doit annoncer que la clause est ecartee');
+  assert(contient(r.alertes, /annuelle/), 'et le retour a la regle suppletive annuelle');
+  /* contient() ne lit que les titres : les deux lectures sont dans le corps. */
+  const corps = r.alertes.map(a => neutre(String(a.texte || ''))).join(' ');
+  assert(/trois ans/.test(corps), 'le corps doit rappeler le plafond de trois ans');
+  assert(/se discute/.test(corps) && /non ecrite/.test(corps),
+    'les deux lectures doivent etre enoncees, pas une seule');
+  egal(ctx.cnsPeriodicite(), 1, 'et le calcul doit suivre : consultation annuelle');
+});
+
+/* En deca du plafond, la clause s'applique telle quelle : ecarter une clause
+   licite serait le defaut symetrique. */
+test('periodicite de trois ans ou moins : la clause de l’accord s’applique', () => {
+  entreprise(120, { cns: { bdese: 'oui', accord: 'oui', periodicite: '3', c: {} } });
+  egal(ctx.cnsPeriodicite(), 3, 'trois ans est licite : la clause tient');
+  entreprise(120, { cns: { bdese: 'oui', accord: 'oui', periodicite: '2', c: {} } });
+  egal(ctx.cnsPeriodicite(), 2, 'deux ans aussi');
 });
 
 test('sans base de donnees, aucune echeance d’avis n’est calculee', () => {
