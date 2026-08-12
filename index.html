@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-10.167';
+var JX_BUILD = 'v2026-08-12.168';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,17 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-12.168', d:'12 aout 2026', t:[
+   'AUDIT DES 35 MODULES : 360 CONSTATS, HUIT CORRECTIONS GRAVES. Trente-six juristes ont relu un module chacun, chaque constat grave etant soumis a un contradicteur charge de le refuter. Cinquante-quatre constats graves, dont quinze contre-verifies. Huit sont corriges ici.',
+   'LE SEUIL DU GRAND ROUTIER ETAIT FAUX. Le tableau des equivalences, les deux menus deroulants et la fiche hebdomadaire annoncaient 200 heures par mois. L\u2019article D.3312-45 du code des transports fixe 43 heures par semaine, soit 186,33 heures par mois. Les trois categories etaient en outre decalees d\u2019un cran : la courte distance portait le seuil de la messagerie et la longue distance celui des autres roulants. Grand routier et longue distance sont une seule et meme categorie.',
+   'LA FICHE HEBDOMADAIRE COMPARAIT UNE SEMAINE A UN SEUIL MENSUEL. Elle concluait « dans le seuil » pour des semaines tres largement en heures supplementaires. Elle compare desormais a la duree d\u2019equivalence hebdomadaire : 43, 39 ou 35 heures.',
+   'DES SALAIRES SOUS LE MINIMUM ETAIENT CERTIFIES CONFORMES. Le controle divisait le salaire par la duree d\u2019equivalence sans majorer de 25 % les heures au-dela de 151,67. Pour un coefficient 150, il declarait conforme 2 316,08 euros quand le minimum est de 2 423,79 : 107,71 euros de moins par mois, 1 292 euros par an. Le calcul se compose desormais 151,67 heures au taux, puis les heures d\u2019equivalence majorees. Le plancher du SMIC est applique des deux cotes.',
+   'LE CDD SORTAIT AVEC DEUX PERIODES D\u2019ESSAI CONTRADICTOIRES. Le generateur transport ecrivait l\u2019article du CDI — deux mois, renouvelable — puis le bloc CDD qui le dementait. En CDD l\u2019essai se compte a raison d\u2019un jour par semaine, plafonne a deux semaines ou un mois, et n\u2019est pas renouvelable (L.1242-10). L\u2019article du CDI ne s\u2019ecrit plus que pour un CDI, et la carte de saisie se masque des que le contrat n\u2019en est pas un.',
+   'LA FAUTE LOURDE NE PRIVE PLUS DES CONGES PAYES DEPUIS 2016. Le module l\u2019affirmait encore, et se contredisait deux ecrans plus loin. La disposition a ete declaree contraire a la Constitution le 2 mars 2016.',
+   'L\u2019AVIS DU CSE SUR LE RECLASSEMENT ETAIT DIT « RECOMMANDE ». Il est obligatoire pour toute inaptitude depuis le 1er janvier 2017, quelle qu\u2019en soit l\u2019origine, et son omission prive le licenciement de cause reelle et serieuse.',
+   'L\u2019ABANDON DE POSTE : LA PRESOMPTION DE DEMISSION N\u2019EST PAS UN PASSAGE OBLIGE. Le module interdisait de licencier sans elle. L\u2019article L.1237-1-1 ouvre une faculte — le salarie « peut etre mis en demeure ».',
+   'LES DATES A ECHEANCE EN MOIS DEBORDAIENT SUR LE MOIS SUIVANT. Au 31 janvier, « plus un mois » rendait le 3 mars : toute echeance partant d\u2019une fin de mois etait posterieure de un a trois jours a la date reelle, y compris la date d\u2019avis reputé negatif du CSE. Corrige dans les quatre calculateurs de dates de l\u2019application.'
+ ]},
  {v:'v2026-08-10.167', d:'10 aout 2026', t:[
    'LE REGISTRE IMPORTE NE COMPTAIT PLUS PERSONNE. Le module Elections CSE lisait le fichier par POSITION : colonne 1 le nom, colonne 2 le contrat, colonne 3 l\u2019entree. Un export de paie commence par un matricule et un etablissement — la nature du contrat, la date d\u2019entree et les heures tombaient a cote, et l\u2019effectif restait a zero sur 84 salaries. Les colonnes sont desormais reconnues par leur intitule, dans n\u2019importe quel ordre. Les dates sont converties (01/09/2008 etait range dans un champ qui attend 2008-09-01, et le salarie etait ecarte). Le temps de travail est traduit : « Temps plein », « 28 h/semaine », « 80 % ». Mesure sur le registre fictif de 250 salaries : effectif 11 avant, 238 apres.',
    'UN FICHIER QUI N\u2019EST PAS UN REGISTRE EST REFUSE. Sans en-tete reconnu, l\u2019import avalait tout : le titre d\u2019un rapport devenait un electeur — « Societe TEC : RAPPORT DE PREPARATION DES ELECTIONS CSE », « Date du 1er tour du scrutin ». Les trois imports de l\u2019application exigent maintenant de vraies colonnes avant d\u2019ecrire quoi que ce soit.',
@@ -2884,10 +2895,10 @@ function jxCopierUrlSecours(u,fini){
 <div class="item-titre">Durées d'équivalence selon la catégorie — code des transports, art. R.3312-9 et s.</div>
 <div class="table-wrap" style="margin-top:8px">
 <table>
-<tr><th>Catégorie</th><th>Seuil mensuel</th><th>Au-delà = heures sup</th></tr>
-<tr><td>Courte distance / Messagerie</td><td style="color:#e8c97a;font-weight:600">152 heures</td><td>Oui — taux CCN</td></tr>
-<tr><td>Longue distance / Régional</td><td style="color:#e8c97a;font-weight:600">169 heures</td><td>Oui — taux CCN</td></tr>
-<tr><td>Grand routier (>150km habituel)</td><td style="color:#e8c97a;font-weight:600">200 heures</td><td>Oui — taux CCN</td></tr>
+<tr><th>Catégorie</th><th>Durée d’équivalence (D.3312-45 c. transports)</th><th>Au-delà = heures sup</th></tr>
+<tr><td>Grand routier / longue distance</td><td style="color:#e8c97a;font-weight:600">43 h/semaine — 186,33 h/mois</td><td>Oui — taux CCN</td></tr>
+<tr><td>Autres personnels roulants (courte distance)</td><td style="color:#e8c97a;font-weight:600">39 h/semaine — 169 h/mois</td><td>Oui — taux CCN</td></tr>
+<tr><td>Messagerie / convoyage</td><td style="color:#e8c97a;font-weight:600">35 h/semaine — 151,67 h/mois</td><td>Oui — taux CCN</td></tr>
 <tr><td>Personnel sédentaire</td><td style="color:#e8c97a;font-weight:600">151,67 heures</td><td>Droit commun</td></tr>
 </table>
 </div>
@@ -2962,9 +2973,9 @@ function jxCopierUrlSecours(u,fini){
 <div class="bloc">
 <div class="fg"><label class="fl">Catégorie du conducteur</label>
 <select id="calc-cat">
-  <option value="gr">Grand routier (seuil 200h)</option>
-  <option value="ld">Longue distance (seuil 169h)</option>
-  <option value="cd" selected>Courte distance (seuil 152h)</option>
+  <option value="gr">Grand routier / longue distance (seuil 186,33 h)</option>
+  <option value="ld">Autres personnels roulants — courte distance (seuil 169 h)</option>
+  <option value="cd" selected>Messagerie / convoyage (seuil 151,67 h)</option>
 </select></div>
 <div class="fg"><label class="fl">Temps de conduite ce jour (heures)</label><input type="number" inputmode="decimal" id="calc-cj" placeholder="Ex : 8.5" step="0.5" oninput="calcTemps()"/></div>
 <div class="fg"><label class="fl">Nombre de fois que 10h ont déjà été faites cette semaine</label>
@@ -2986,9 +2997,9 @@ function jxCopierUrlSecours(u,fini){
 <div class="fg"><label class="fl">Semaine du</label><input type="date" id="fh-debut"/></div>
 <div class="fg"><label class="fl">Catégorie</label>
 <select id="fh-cat">
-  <option value="gr">Grand routier (200h/mois)</option>
-  <option value="ld">Longue distance (169h/mois)</option>
-  <option value="cd" selected>Courte distance (152h/mois)</option>
+  <option value="gr">Grand routier / longue distance (43 h/semaine)</option>
+  <option value="ld">Autres personnels roulants — courte distance (39 h/semaine)</option>
+  <option value="cd" selected>Messagerie / convoyage (35 h/semaine)</option>
 </select></div>
 
 <div id="fiche-jours"></div>
@@ -14212,8 +14223,12 @@ function cnsFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2
 function cnsAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
 function cnsPlus(iso,j,mois,ans){
   if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
-  if(ans) d.setFullYear(d.getFullYear()+ans);
-  if(mois) d.setMonth(d.getMonth()+mois);
+  /* setMonth deborde : au 31 janvier, « + 1 mois » rendait le 3 mars. Toute
+     echeance partant d'une fin de mois etait posterieure de un a trois jours a
+     la date reelle. On ramene au dernier jour du mois d'arrivee, de quantieme
+     a quantieme. Meme correction dans les quatre calculateurs de dates. */
+  if(ans){ var _qa=d.getDate(); d.setFullYear(d.getFullYear()+ans); if(d.getDate()!==_qa) d.setDate(0); }
+  if(mois){ var _qm=d.getDate(); d.setMonth(d.getMonth()+mois); if(d.getDate()!==_qm) d.setDate(0); }
   if(j) d.setDate(d.getDate()+j);
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
@@ -14273,8 +14288,11 @@ function cnsPeriodicite(){
   if(CNS.accord!=='oui') return 1;            // regle suppletive : annuelle
   var n=parseInt(CNS.periodicite||'',10);
   if(isNaN(n) || n<=0) return 1;
-  // Une clause qui depasse trois ans est ecartee : le calcul suit alors le
-  // plafond legal, comme le dit l'alerte (L.2312-19).
+  /* Une clause qui depasse trois ans est ecartee. Deux lectures sont
+     defendables : ramener au plafond legal de trois ans, ou revenir a la regle
+     suppletive annuelle. Le choix retenu ici — le plafond — est celui que
+     verifie tests/cse.test.js ; il reste a arbitrer (constat d'audit du
+     12 aout 2026). */
   return Math.min(n, 3);
 }
 
@@ -15297,7 +15315,8 @@ function calFR(iso){ if(!iso) return ''; var m=String(iso).match(/^(\d{4})-(\d{2
 function calAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
 function calPlus(iso,j,mois){
   if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
-  if(mois) d.setMonth(d.getMonth()+mois);
+  /* Meme debordement de setMonth que dans les trois autres calculateurs. */
+  if(mois){ var _qm=d.getDate(); d.setMonth(d.getMonth()+mois); if(d.getDate()!==_qm) d.setDate(0); }
   if(j) d.setDate(d.getDate()+j);
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
@@ -15628,8 +15647,12 @@ function mcBareme(eff){ return jxBareme(eff); }   /* le tableau est en un seul e
 function mcEffectif(){ return cseEffectif(); }
 function mcPlus(iso,j,mois,ans){
   if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
-  if(ans) d.setFullYear(d.getFullYear()+ans);
-  if(mois) d.setMonth(d.getMonth()+mois);
+  /* setMonth deborde : au 31 janvier, « + 1 mois » rendait le 3 mars. Toute
+     echeance partant d'une fin de mois etait posterieure de un a trois jours a
+     la date reelle. On ramene au dernier jour du mois d'arrivee, de quantieme
+     a quantieme. Meme correction dans les quatre calculateurs de dates. */
+  if(ans){ var _qa=d.getDate(); d.setFullYear(d.getFullYear()+ans); if(d.getDate()!==_qa) d.setDate(0); }
+  if(mois){ var _qm=d.getDate(); d.setMonth(d.getMonth()+mois); if(d.getDate()!==_qm) d.setDate(0); }
   if(j) d.setDate(d.getDate()+j);
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
@@ -15906,8 +15929,12 @@ function csedAuj(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMont
 function csedPlus(iso, j, mois, ans){
   if(!iso) return '';
   var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return '';
-  if(ans) d.setFullYear(d.getFullYear()+ans);
-  if(mois) d.setMonth(d.getMonth()+mois);
+  /* setMonth deborde : au 31 janvier, « + 1 mois » rendait le 3 mars. Toute
+     echeance partant d'une fin de mois etait posterieure de un a trois jours a
+     la date reelle. On ramene au dernier jour du mois d'arrivee, de quantieme
+     a quantieme. Meme correction dans les quatre calculateurs de dates. */
+  if(ans){ var _qa=d.getDate(); d.setFullYear(d.getFullYear()+ans); if(d.getDate()!==_qa) d.setDate(0); }
+  if(mois){ var _qm=d.getDate(); d.setMonth(d.getMonth()+mois); if(d.getDate()!==_qm) d.setDate(0); }
   if(j) d.setDate(d.getDate()+j);
   return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
 }
@@ -18950,6 +18977,16 @@ function setContratType(t){
   contratType=t;
   sa(['ct-cdi','ct-cdd','ct-cddi'],'ct-'+t);
   document.getElementById('cdd-bloc').classList.toggle('hidden',t==='cdi');
+  /* La carte « periode d'essai » est celle du CDI : elle proposait 1, 2 ou 3
+     mois et un renouvellement, alors qu'en CDD l'essai se compte a raison d'un
+     jour par semaine, plafonne a deux semaines (duree initiale <= six mois) ou
+     un mois au-dela, et n'est pas renouvelable (L.1242-10). Elle se masque
+     desormais des que le contrat n'est plus un CDI. */
+  try{
+    var _c=document.getElementById('c-pe');
+    var _carte=_c?_c.closest('.fg'):null;
+    if(_carte) _carte.classList.toggle('hidden', t!=='cdi');
+  }catch(e){}
 }
 function setDurType(t){
   durType=t;
@@ -19033,15 +19070,24 @@ function checkSalaire(){
   const coeff=sel?.options[sel.selectedIndex]?.dataset?.coeff;
   const seuil=parseFloat(sel?.options[sel.selectedIndex]?.dataset?.seuil||'169');
   if(!sal||!coeff)return;
-  const taux=sal/seuil;
-  const min=MINIMA[coeff]||0;
+  const min=Math.max(SMIC_H, MINIMA[coeff]||0);
+  /* Le controle divisait le salaire par la duree d'equivalence et comparait
+     le quotient au taux minimum : il declarait « conforme » des salaires
+     inferieurs au minimum, faute de majorer les heures au-dela de 151,67.
+     Le minimum mensuel se compose : 151,67 h au taux, puis les heures
+     d'equivalence majorees de 25 % (article D.3312-46 du code des
+     transports). Le plancher du SMIC est en outre applique, comme dans le
+     generateur de contrat. */
+  const BASE=151.67;
+  const hSup=Math.max(0, seuil-BASE);
+  const miniMensuel=min*BASE + hSup*min*1.25;
   const warn=document.getElementById('salaire-warn');
   const ok=document.getElementById('salaire-ok');
-  if(taux<min){
-    warn.textContent=`⚠ Salaire inférieur au minimum CCN — coeff. ${coeff} : min ${min} €/h soit ${(min*seuil).toFixed(2)} €/mois`;
+  if(sal < miniMensuel-0.005){
+    warn.textContent=`⚠ Salaire inférieur au minimum conventionnel — coeff. ${coeff} : ${min.toFixed(4)} €/h, soit ${miniMensuel.toFixed(2)} €/mois pour ${seuil} h (151,67 h + ${hSup.toFixed(2)} h majorées à 25 %). Manque ${(miniMensuel-sal).toFixed(2)} €.`;
     warn.classList.remove('hidden');ok.classList.add('hidden');
   } else {
-    ok.textContent=`✓ Salaire conforme — Taux horaire : ${taux.toFixed(2)} €/h (min CCN : ${min} €/h)`;
+    ok.textContent=`✓ Salaire conforme — ${sal.toFixed(2)} € pour un minimum de ${miniMensuel.toFixed(2)} €/mois (${seuil} h : 151,67 h à ${min.toFixed(4)} €/h + ${hSup.toFixed(2)} h majorées à 25 %)`;
     ok.classList.remove('hidden');warn.classList.add('hidden');
   }
 }
@@ -19167,7 +19213,12 @@ function genContrat(){
   const _seuilNum=parseFloat(String(seuil).replace(',','.'))||169;
   const _smicH=(typeof SMIC_H!=='undefined'?SMIC_H:12.31);
   const _tauxMin=Math.max(_smicH,(typeof MINIMA!=='undefined'&&MINIMA[coeff]!=null?MINIMA[coeff]:0));
-  const _miniMensuel=Math.round(_tauxMin*_seuilNum*100)/100;
+  /* Le minimum mensuel se composait taux x duree d'equivalence, sans majorer
+     les heures au-dela de 151,67 : il certifiait « conforme » des salaires
+     inferieurs de plus de cent euros au minimum (D.3312-46 c. transports). */
+  const _BASE=151.67;
+  const _hSup=Math.max(0,_seuilNum-_BASE);
+  const _miniMensuel=Math.round((_tauxMin*_BASE + _hSup*_tauxMin*1.25)*100)/100;
   const _eur=function(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});};
   const _salConforme=!(isFinite(_salNum)&&_salNum>0&&_salNum<_miniMensuel-1);
   const _remClause=_salConforme
@@ -19214,8 +19265,8 @@ function genContrat(){
 <p style="${S}"><strong style="${S}">${art("Engagement")}</strong></p>
 <p style="${S}">${E.nom} engage ${civ} ${nom} à compter du ${debut} en qualité de <strong style="${S}">${poste}</strong>, coefficient <strong style="${S}">${coeff}</strong> de la CCN Transports Routiers IDCC 0016. Véhicule conduit : ${vehicule}. Point d'attache : ${depot}.</p>
 <p style="${S}">Le présent contrat est régi par la CCN Transports Routiers IDCC 0016, par la réglementation de la durée du travail propre au transport routier (décret n°83-40 du 26 janvier 1983 pour le transport de marchandises ; décret n°2003-1242 du 22 décembre 2003 pour le transport de voyageurs), et par les Règlements (CE) n°561/2006 (temps de conduite et de repos) et (UE) n°165/2014 (tachygraphe). Le salarié reconnaît avoir été informé de la convention collective et du règlement intérieur applicables (art. R.1221-34 C. trav.).</p>
-<p style="${S}"><strong style="${S}">${art("Période d'essai")}</strong></p>
-<p style="${S}">${_essaiClause} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>
+${contratType==='cdi'?`<p style="${S}"><strong style="${S}">${art("Période d'essai")}</strong></p>
+<p style="${S}">${_essaiClause} Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>`:`<p style="${S}">Le contrat est conclu sous réserve d'un avis médical favorable à l'embauche.</p>`}
 ${contratType==='cdi'?'':jxBlocCDD(S, art, debut, 'CARCEPT (groupe KLESIA) — prévoyance : régime conventionnel de branche CARCEPT-Prévoyance [à adapter selon les organismes de l’entreprise]', true)}
 
 <p style="${S}"><strong style="${S}">${art("Qualifications professionnelles et aptitude médicale")}</strong></p>
@@ -19822,7 +19873,11 @@ function genFicheHebdo(){
     const okRepos=repos>=9;const okCond=cond<=10;
     lignes+=`<tr><td style="border:1px solid #ccc;padding:6px">${j}</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${cond}h</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${autre}h</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${cond+autre}h</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${repos}h</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${okCond?'✓':'⚠'}</td><td style="border:1px solid #ccc;padding:6px;text-align:center">${okRepos?'✓':'🚫'}</td></tr>`;
   });
-  const seuil={'gr':200,'ld':169,'cd':152}[gv('fh-cat')]||169;
+  /* La fiche est hebdomadaire : elle comparait un total de SEMAINE a un seuil
+     MENSUEL, et concluait « dans le seuil » pour des semaines tres largement en
+     heures supplementaires. Les durees d'equivalence de l'article D.3312-45 du
+     code des transports sont hebdomadaires : 43 h, 39 h, 35 h. */
+  const seuil={'gr':43,'ld':39,'cd':35}[gv('fh-cat')]||39;
   const S=`font-family:'Times New Roman',serif;font-size:11pt;color:#000;line-height:1.7;`;
   const html=`<div style="${S}">
 <h2 style="${S}font-size:12pt;text-align:center;text-decoration:underline">FICHE HEBDOMADAIRE DE CONTRÔLE DES TEMPS</h2>
@@ -19835,7 +19890,7 @@ ${lignes}
 </table>
 <p style="${S}margin-top:10px"><strong>Conformité hebdomadaire :</strong></p>
 <p style="${S}">Conduite hebdo : ${totalCond}h — Limite : 56h — ${totalCond<=56?'✓ Conforme':'🚫 DÉPASSEMENT'}<br>
-Travail hebdo : ${totalTrav}h — Seuil conventionnel : ${seuil}h — ${totalTrav<=seuil?'✓ Dans le seuil':'⚠ Heures supplémentaires : '+(totalTrav-seuil)+'h'}<br>
+Travail hebdo : ${totalTrav}h — Durée d’équivalence hebdomadaire : ${seuil}h (D.3312-45 c. transports) — ${totalTrav<=seuil?'✓ Dans le seuil':'⚠ Heures supplémentaires : '+(totalTrav-seuil)+'h'}<br>
 Conduite bimensuelle : limite absolue de 90h sur deux semaines consécutives (règlement CE 561/2006, art. 6-3)<br>
 Repos hebdomadaire : au moins 45h consécutives (repos normal) ou 24h (repos réduit, à compenser avant la fin de la 3<sup>e</sup> semaine suivante) — règlement CE 561/2006, art. 8.</p>
 <p style="${S}font-size:9pt;font-style:italic;margin-top:12px">CE 561/2006 · Code des transports · Accord branche 20/04/2021 — À conserver 12 mois minimum — Ne constitue pas un conseil juridique</p>
@@ -20442,8 +20497,8 @@ const JURISPRUDENCE_DISCIPLINE={
   alcool_travail:{titre:`Alcoolémie positive — En service`,analyse:`<div class="juris-card"><div class="juris-ref">Cass. soc. 24 février 2004 — n°01-47.000 · Cass. soc. 27 mars 2012 — n°10-19.915</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> Alcoolémie conducteur PL en service = faute grave. Seuil légal : 0,5 g/L — 0,2 g/L pour le transport en commun de personnes et le permis probatoire (art. R.234-1 C. route) ; l'état alcoolique en service reste une faute grave quel que soit le seuil fixé par le RI. Test valide si RI le prévoit + poste à risque + contre-expertise possible.</div></div><div class="al err" style="font-size:12px;margin-top:8px">Procédure immédiate : MAP conservatoire → convocation → licenciement faute grave</div>`,docs:['map_conservatoire','convocation','lettre_fg']},
   alcool_hors:{titre:`Alcoolémie — Hors travail`,analyse:`<div class="juris-card"><div class="juris-ref">Cass. soc. 2 décembre 2003</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> Faits hors travail → licenciement CRS si permis indispensable + reclassement impossible. PAS de faute grave pour faits extérieurs au travail.</div></div>`,docs:['convocation','lettre_lic']},
   tachygraphe:{titre:`Falsification du tachygraphe`,analyse:`<div class="juris-card"><div class="juris-ref">Cass. soc. 13 décembre 2017 — n°16-19.044 · Cass. crim. 7 mars 2018</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> Falsification = faute grave systématique. Double responsabilité pénale conducteur + employeur (art. L.3315-4 C. transports — 1 an + 30 000 €).</div></div><div class="al err" style="font-size:12px;margin-top:8px">⚠ Envisager un signalement DREAL et consulter un avocat pénaliste</div>`,docs:['map_conservatoire','convocation','lettre_fg']},
-  inaptitude:{titre:`Inaptitude médicale`,analyse:`<div class="juris-card"><div class="badge badge-blue" style="margin-bottom:6px">ORIGINE NON PRO — Art. L.1226-2</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7">Indemnité légale normale · Reclassement obligatoire · Consultation CSE recommandée</div></div><div class="juris-card" style="margin-top:8px"><div class="badge badge-red" style="margin-bottom:6px">ORIGINE PRO (AT/MP) — Art. L.1226-10</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7">Consultation CSE OBLIGATOIRE · Indemnité DOUBLÉE · Préavis dû même si non exécuté (art. L.1226-14)</div></div>`,docs:['reclassement','lettre_inaptitude']},
-  absence:{titre:`Absence injustifiée / Abandon de poste`,analyse:`<div class="juris-card"><div class="juris-ref">Loi du 21/12/2022 — Art. L.1237-1-1 C. trav.</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> Mise en demeure OBLIGATOIRE (délai 15 jours min.) avant présomption de démission. Ne pas licencier sans cette étape préalable.</div></div>`,docs:['mise_demeure','convocation','lettre_fg']},
+  inaptitude:{titre:`Inaptitude médicale`,analyse:`<div class="juris-card"><div class="badge badge-blue" style="margin-bottom:6px">ORIGINE NON PRO — Art. L.1226-2</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7">Indemnité légale normale · Reclassement obligatoire · Consultation du CSE OBLIGATOIRE (L.1226-2, depuis le 1er janvier 2017) — son omission prive le licenciement de cause réelle et sérieuse</div></div><div class="juris-card" style="margin-top:8px"><div class="badge badge-red" style="margin-bottom:6px">ORIGINE PRO (AT/MP) — Art. L.1226-10</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7">Consultation CSE OBLIGATOIRE · Indemnité DOUBLÉE · Préavis dû même si non exécuté (art. L.1226-14)</div></div>`,docs:['reclassement','lettre_inaptitude']},
+  absence:{titre:`Absence injustifiée / Abandon de poste`,analyse:`<div class="juris-card"><div class="juris-ref">Loi du 21/12/2022 — Art. L.1237-1-1 C. trav.</div><div style="font-size:13px;color:#e8e4d8;line-height:1.7;margin-top:6px"><strong style="color:#e8c97a">Règle :</strong> La présomption de démission est une FACULTÉ de l'employeur (L.1237-1-1 : le salarié « peut être mis en demeure »), non un passage obligé. Deux voies ouvertes : mise en demeure (délai 15 jours min.) puis présomption de démission ; ou licenciement disciplinaire pour absence injustifiée. La question de savoir si le licenciement reste ouvert après la loi de 2022 n'est pas tranchée par la Cour de cassation.</div></div>`,docs:['mise_demeure','convocation','lettre_fg']},
   standard:{titre:`Licenciement — Procédure standard`,analyse:`<div class="al info" style="font-size:13px">Procédure de droit commun — Étapes : convocation (5 jours ouvrables) → entretien → notification (2j ouvrables min., 1 mois max). Vérifiez le préavis et l'indemnité prévus par votre convention collective (souvent plus favorables que la loi — art. L2251-1).</div>`,docs:['convocation','lettre_lic']},
 };
 
@@ -20653,7 +20708,7 @@ function updateSanction(){
     'map_disc':{txt:`Mise à pied disciplinaire : entretien préalable obligatoire.`,etapes:[`Convoquer (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier (2j ouvrables min., 1 mois max)`]},
     'lic_crs':{txt:`Licenciement pour cause réelle et sérieuse.`,etapes:[`Convoquer à entretien (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier le licenciement (2j ouvrables min., 1 mois max)`]},
     'lic_fg':{txt:`Faute grave : licenciement sans préavis ni indemnité. MAP conservatoire possible.`,etapes:[`Mettre à pied à titre conservatoire`,`Convoquer (5 jours ouvrables)`,`Tenir l'entretien`,`Notifier le licenciement pour faute grave`]},
-    'lic_fl':{txt:`Faute lourde : intention de nuire requise. Exclut indemnité compensatrice de CP.`,etapes:[`MAP conservatoire`,`Convocation`,`Entretien`,`Notification`]},
+    'lic_fl':{txt:`Faute lourde : intention de nuire requise. L'indemnité compensatrice de congés payés reste DUE (Cons. const., 2 mars 2016, n° 2015-523 QPC) : la faute lourde ne se distingue plus de la faute grave que par la responsabilité pécuniaire du salarié.`,etapes:[`MAP conservatoire`,`Convocation`,`Entretien`,`Notification`]},
     'lic_inaptitude_np':{txt:`Inaptitude non professionnelle : reclassement + indemnité légale normale.`,etapes:[`Avis inaptitude médecin du travail`,`Recherche reclassement`,`Consultation CSE`,`Convoquer à entretien préalable (5 jours ouvrables — L.1232-2)`,`Tenir l'entretien`,`Notifier le licenciement (motif : inaptitude + impossibilité de reclassement)`]},
     'lic_inaptitude_p':{txt:`Inaptitude d'origine professionnelle : consultation CSE OBLIGATOIRE + indemnités DOUBLÉES.`,etapes:[`Avis inaptitude`,`Consultation CSE obligatoire`,`Recherche reclassement`,`Convoquer à entretien préalable (5 jours ouvrables — L.1232-2)`,`Tenir l'entretien`,`Notifier le licenciement — indemnité spéciale 2× + préavis dû`]},
   };
