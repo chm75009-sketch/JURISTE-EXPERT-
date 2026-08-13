@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-13.173';
+var JX_BUILD = 'v2026-08-13.174';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,14 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-13.174', d:'13 aout 2026', t:[
+   'UNE BANQUE NE LIT PLUS DU TRANSPORT. Signale par le client : « une banque, une assurance avec secteur et interface transport ? ». C\u2019etait vrai. L\u2019application declare huit secteurs, mais elle est nee pour le transport et une partie n\u2019en etait jamais sortie.',
+   'LE MODULE PARCOURS ne regardait meme pas le secteur choisi : une banque y lisait qu\u2019il fallait penser a la FIMO du conducteur, au chronotachygraphe, aux decouchers et au conge de fin d\u2019activite, avec un camion dessine devant CHAQUE conseil. Ses vingt-six etapes ont ete rouvertes une a une : ce qui vaut pour tous est reste, ce qui ne vaut que pour le transport s\u2019affiche desormais sous le nom du secteur, et pour lui seul. Le modele de convocation a la FCO avec.',
+   'LE CONTROLE-MINUTE savait filtrer ses questions par secteur, mais ne se re-rendait jamais : le filtre etait applique au chargement, changer de secteur n\u2019y changeait rien. Une banque repondait sur la garantie annuelle de remuneration et le telechargement des donnees tachygraphe. Corrige — et cinq questions generales redigees pour le seul transport ont ete rendues a tous : le document unique, l\u2019affichage des horaires, le reglement interieur, le protocole de chargement, le cadre alcool.',
+   'LE MODULE CONTRAT proposait a tout le monde « GR qualifie — coefficient 150 (longue distance : decouchers) », un semi-remorque et 43 h d\u2019equivalence. La liste des classifications se construit maintenant sur la grille du secteur, et les durees repartent du droit commun. La carte des qualifications conducteur (CQC, FIMO, FCO, carte de conducteur) ne s\u2019affiche plus que pour le transport.',
+   'UN ATTRIBUT PLUTOT QU\u2019UN RUSTINE : data-sec="transport" sur un element, et il dispara?t partout ailleurs. Un defaut de cette classe se corrige desormais en posant l\u2019attribut. Tant qu\u2019aucun secteur n\u2019est choisi, rien n\u2019est cache : on ne suppose pas.',
+   'ET UN TEST POUR QUE CELA NE REVIENNE PAS : tests/secteur-fuite.test.js ouvre les 44 pages sous quatre secteurs et cherche le vocabulaire du transport dans ce qui est REELLEMENT affiche. Il verifie aussi l\u2019inverse — que le transport garde les siennes.',
+ ]},
  {v:'v2026-08-13.173', d:'13 aout 2026', t:[
    'CENT QUATRE-VINGT-SIX CORRECTIONS, UN AGENT PAR MODULE. Les 306 constats moyens et mineurs ont ete soumis module par module a un juriste charge de VERIFIER avant de corriger, fichier en main, avec consigne de refuter au moindre doute. Trente-deux modules ont rendu : 285 constats confirmes, 5 refutes, 186 correctifs mecaniques appliques. Chacun s\u2019est pose sans collision : la chaine a remplacer existait exactement une fois dans le fichier. Restent 98 corrections qui supposent un choix juridique ou editorial : elles ne sont pas appliquees, elles sont soumises.',
    'UNE LISTE NE RECOIT PAS PLUS DE SIEGES QU\u2019ELLE NE PRESENTE DE CANDIDATS. L\u2019attribution donnait a une liste autant de sieges que sa moyenne en contenait, sans regarder combien de candidats elle presentait — trois listes d\u2019un candidat pouvaient se voir attribuer six sieges. Les sieges reviennent aux CANDIDATS de la liste (R.2314-19, R.2314-20) : le calcul est desormais plafonne, et les sieges qui ne peuvent etre pourvus sont annonces vacants, ouvrant le second tour. Le test qui gardait l\u2019ancien invariant le disait faux : il a ete refait.',
@@ -2718,7 +2726,7 @@ function jxCopierUrlSecours(u,fini){
     <option value="sed_115" data-coeff="115" data-pe="1" data-preavis="1" data-seuil="151.67">Employé administratif — coeff. 115</option>
   </optgroup>
 </select>
-<div class="loi">Le coefficient détermine le salaire minimum, la période d'essai et le préavis conventionnel — CCN Transport IDCC 0016</div>
+<div class="loi" id="c-cat-note">Le coefficient détermine le salaire minimum, la période d'essai et le préavis conventionnel — CCN Transport IDCC 0016</div>
 </div>
 <div class="fg"><label class="fl">Temps plein ou temps partiel</label>
 <div class="rr">
@@ -2773,7 +2781,7 @@ function jxCopierUrlSecours(u,fini){
 <div class="ct">Poste et qualifications</div>
 <div class="fg"><label class="fl">Intitulé du poste</label><input id="c-poste" list="dl-poste" placeholder="Ex : Conducteur SPL grand routier"/></div>
 <div class="fg"><label class="fl">Coefficient (renseigné automatiquement)</label><input id="c-coeff" inputmode="numeric" readonly style="color:#9a9585;background:rgba(255,255,255,0.04)"/></div>
-<div class="fg"><label class="fl">Véhicule conduit</label>
+<div class="fg" data-sec="transport"><label class="fl">Véhicule conduit</label>
 <select id="c-vehicule">
   <option value="SPL">Semi-remorque (SPL) — Permis CE</option>
   <option value="PL">Poids lourd (PL) — Permis C</option>
@@ -2786,7 +2794,7 @@ function jxCopierUrlSecours(u,fini){
 <div class="fg"><label class="fl">Point d'attache / Dépôt de rattachement</label><input id="c-depot" placeholder="Ex : Dépôt ZI des Béthunes, 95310 Cergy"/></div>
 </div>
 
-<div class="card">
+<div class="card" data-sec="transport">
 <div class="ct">Qualifications conducteur à vérifier à l'embauche</div>
 <div class="al warn" style="font-size:12px">Obligation de vérification AVANT la prise de poste. L'employeur engage sa responsabilité pénale en cas d'accident avec un conducteur non qualifié (Cass. crim. 3 juin 2003).</div>
 <div class="fg"><label class="fl">N° permis de conduire</label><input id="c-permis-num" placeholder="Ex : 75-1234567890"/></div>
@@ -3280,7 +3288,7 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
 
 <div class="card">
 <div class="ct">Questionnaire préalable</div>
-<div class="al info" style="font-size:12px">Le règlement intérieur est obligatoire à partir de 50 salariés (art. L.1311-2 C. trav. — seuil relevé de 20 à 50 par la loi PACTE de 2019, applicable depuis 2020). L'obligation ne prend effet qu'au terme d'un délai de douze mois à compter de la date à laquelle le seuil de cinquante salariés a été atteint (art. L.1311-2, al. 2, qui renvoie à L.2312-2) : l'entreprise qui vient de franchir le seuil dispose de ces douze mois. En dessous du seuil, et pendant ce délai, le règlement intérieur reste facultatif mais recommandé (alcool, tachygraphe, discipline). Il doit être soumis au CSE, déposé à la DREETS et au greffe du CPH avant affichage. Entrée en vigueur : 1 mois après accomplissement des formalités.</div>
+<div class="al info" style="font-size:12px">Le règlement intérieur est obligatoire à partir de 50 salariés (art. L.1311-2 C. trav. — seuil relevé de 20 à 50 par la loi PACTE de 2019, applicable depuis 2020). L'obligation ne prend effet qu'au terme d'un délai de douze mois à compter de la date à laquelle le seuil de cinquante salariés a été atteint (art. L.1311-2, al. 2, qui renvoie à L.2312-2) : l'entreprise qui vient de franchir le seuil dispose de ces douze mois. En dessous du seuil, et pendant ce délai, le règlement intérieur reste facultatif mais recommandé (alcool, sécurité, discipline). Il doit être soumis au CSE, déposé à la DREETS et au greffe du CPH avant affichage. Entrée en vigueur : 1 mois après accomplissement des formalités.</div>
 <div class="fg"><label class="fl">Effectif de l'entreprise</label>
 <select id="ri-effectif">
   <option value="moins20">Moins de 50 salariés (RI facultatif mais fortement recommandé)</option>
@@ -3821,13 +3829,13 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 </div>
 <div class="fg"><label class="fl">Plusieurs établissements distincts ?</label>
 <div class="rr"><div class="ro sel" id="cse-etab-non" onclick="setCseEtab('non')">Non</div><div class="ro" id="cse-etab-oui" onclick="setCseEtab('oui')">Oui</div></div></div>
-<div class="fg"><label class="fl">Conducteurs en déplacement permanent (GR)</label><input type="number" inputmode="decimal" id="cse-routiers" value="0" min="0" placeholder="Nombre"/></div>
+<div class="fg" data-sec="transport"><label class="fl">Conducteurs en déplacement permanent (GR)</label><input type="number" inputmode="decimal" id="cse-routiers" value="0" min="0" placeholder="Nombre"/></div>
 <div id="cse-result" style="margin-top:10px"></div>
 </div>
 
 <div class="card">
 <div class="ct">Procédure électorale complète</div>
-<div class="al info" style="font-size:12px;margin-bottom:10px">Spécificité transport : les conducteurs en déplacement doivent pouvoir exercer leur droit de vote. Le PAP doit prévoir des modalités adaptées : vote par correspondance, vote anticipé, ou bureau de vote ouvert sur une large plage horaire. Ces modalités relèvent de l'accord sur l'organisation et le déroulement des opérations électorales (art. L.2314-28 C. trav.) ; à défaut d'accord, elles sont fixées par le président du tribunal judiciaire (art. R.2314-2 C. trav.). L'article R.2314-7 ne concerne que le vote électronique.</div>
+<div class="al info" data-sec="transport" style="font-size:12px;margin-bottom:10px">Spécificité transport : les conducteurs en déplacement doivent pouvoir exercer leur droit de vote. Le PAP doit prévoir des modalités adaptées : vote par correspondance, vote anticipé, ou bureau de vote ouvert sur une large plage horaire. Ces modalités relèvent de l'accord sur l'organisation et le déroulement des opérations électorales (art. L.2314-28 C. trav.) ; à défaut d'accord, elles sont fixées par le président du tribunal judiciaire (art. R.2314-2 C. trav.). L'article R.2314-7 ne concerne que le vote électronique.</div>
 
 <div class="table-wrap">
 <table>
@@ -4271,7 +4279,7 @@ Exemple :<br>
 </select></div>
 <div class="fg"><label class="fl">Date de début de l'absence</label><input type="date" id="abs-debut"/></div>
 <div class="fg"><label class="fl">Durée estimée (jours)</label><input type="number" inputmode="decimal" id="abs-duree" placeholder="Ex : 30" oninput="analyserAbsence()"/></div>
-<div class="fg"><label class="fl">Le salarié est-il conducteur ?</label>
+<div class="fg" data-sec="transport"><label class="fl">Le salarié est-il conducteur ?</label>
 <div class="rr"><div class="ro sel" id="abs-cond-oui" onclick="setAbsCond('oui')">Oui</div><div class="ro" id="abs-cond-non" onclick="setAbsCond('non')">Non</div></div></div>
 <div id="abs-result" class="hidden" style="margin-top:10px"></div>
 <button class="btn" onclick="analyserAbsence(true)" style="margin-top:6px">Analyser et générer les documents →</button>
@@ -4685,7 +4693,7 @@ Exemple :<br>
   Par défaut, dans le <b>stockage local de votre navigateur</b> (localStorage / sessionStorage), sur votre appareil. Vider le stockage de votre navigateur efface ces données.
   <div style="margin-top:10px;background:rgba(224,168,58,.10);border:1px solid #e0a83a;border-radius:8px;padding:9px 11px">
   <b>Deux exceptions, et il faut les connaître :</b><br>
-  • <b>Le compte en ligne.</b> Si vous ouvrez un compte, la fiche entreprise, le registre du personnel, les conducteurs et les véhicules sont <b>synchronisés vers un serveur</b> (Supabase, hébergement dans l'Union européenne — sous-traitant au sens de l'art. 28 du RGPD). Ces données quittent alors votre appareil.<br>
+  • <b>Le compte en ligne.</b> Si vous ouvrez un compte, la fiche entreprise, le registre du personnel et les registres propres à votre secteur sont <b>synchronisés vers un serveur</b> (Supabase, hébergement dans l'Union européenne — sous-traitant au sens de l'art. 28 du RGPD). Ces données quittent alors votre appareil.<br>
   • <b>Le Contrôle-minute.</b> Lorsque vous demandez votre score, la société, le SIRET, l'adresse, le téléphone, l'adresse électronique <b>et l'intégralité de vos réponses</b> sont transmis à ce même serveur et au service de formulaire utilisé pour la mise en relation.<br>
   Hors de ces deux cas, aucune donnée saisie dans l'application n'est transmise.
   </div>
@@ -4785,7 +4793,7 @@ Exemple :<br>
 <div style="flex:1"><div class="tt">Parcours de la relation de travail</div><div class="ts">Étape par étape · de l'embauche à la rupture</div></div>
 <button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
 <div class="card">
-  <div class="al info" style="font-size:12px;margin:0 0 10px">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Repères transport routier (CCN IDCC 0016) indiqués le cas échéant.</div>
+  <div class="al info" style="font-size:12px;margin:0 0 10px">Suivez la relation de travail dans l'ordre chronologique. Chaque étape renvoie à l'outil qui la traite (avec questionnaire et documents), avec les rappels adaptés à votre secteur. Les repères propres à votre secteur, lorsqu’il y en a, apparaissent sous son nom.</div>
   <div class="ct" style="font-size:15px">Fiche salarié — pré-remplit les modèles</div>
   <div class="fg"><label class="fl">Sélectionner un salarié enregistré</label><select id="sal-select-parcours" onchange="salPick('parcours',this.value)"><option value="">— choisir ou créer ci-dessous —</option></select></div>
   <div class="fg"><label class="fl">Nom et prénom du salarié</label><input id="pc-nom" placeholder="Ex : DUPONT Jean"></div>
@@ -4802,7 +4810,7 @@ Exemple :<br>
     <button class="btn-outline" style="margin:0;width:auto;flex:0 0 auto" onclick="salDelete()">🗑️ Supprimer</button>
   </div>
   <div id="sal-save-msg" style="display:none;font-size:12px;color:#46b885;margin-top:6px"></div>
-  <div class="al info" style="font-size:11.5px;margin:8px 0 0">Enregistrez la fiche : elle devient sélectionnable ici et dans le module Discipline. Les modèles générés (contrat, période d'essai, visite médicale, clauses, FCO, solde de tout compte…) se pré-remplissent automatiquement.</div>
+  <div class="al info" style="font-size:11.5px;margin:8px 0 0">Enregistrez la fiche : elle devient sélectionnable ici et dans le module Discipline. Les modèles générés (contrat, période d'essai, visite médicale, clauses, solde de tout compte…) se pré-remplissent automatiquement.</div>
 </div>
 <div id="parcours-list" style="padding:0 4px"></div>
 <div style="height:20px"></div>
@@ -4811,20 +4819,20 @@ Exemple :<br>
 (function(){
   var P=[
    {ph:'A · EMBAUCHE',steps:[
-     {n:1,t:'Contrat de travail (CDI / CDD)',d:'Rédiger le contrat : mentions obligatoires, coefficient, rémunération, lieu, durée.',go:'contrat',gol:'✍️ Générer le CONTRAT complet (CDI/CDD) →',docs:[{k:'promesse',l:'📄 Promesse d’embauche (proposition AVANT le contrat) →'}],note:'Transport : mentionner le coefficient et le groupe (CCN IDCC 0016), le taux horaire conventionnel, le lieu de rattachement, la nature de l’activité (marchandises/voyageurs).'},
-     {n:2,t:'Clauses (non-concurrence, mobilité, exclusivité, dédit-formation)',d:'Vérifier la validité des clauses insérées au contrat.',docs:[{k:'clauses',l:'📄 Clauses types : non-concurrence, mobilité, dédit →'}],note:'Non-concurrence : nulle sans contrepartie financière. Mobilité : zone géographique précise. FIMO/FCO financées par l’employeur : un dédit-formation est en principe exclu pour ces formations obligatoires.'},
-     {n:3,t:'Déclarations & formalités d’embauche',d:'DPAE, registre unique du personnel, affiliation mutuelle/prévoyance.',go:'contrat',gol:'Ouvrir l’outil (DPAE, checklist) →',docs:[{k:'attestation',l:'📄 Attestation de travail →'}],note:'DPAE à adresser à l’URSSAF dans les 8 jours précédant l’embauche. Vérifier l’affiliation à la prévoyance et à la mutuelle conventionnelles du transport.'},
-     {n:4,t:'Visite médicale d’embauche',d:'Visite d’information et de prévention, ou examen d’aptitude si poste à risques.',docs:[{k:'visite',l:'📄 Convocation visite médicale d’embauche →'}],note:'Deux contrôles distincts, à ne pas confondre : la visite d’information et de prévention au SPST, dans les 3 mois suivant la prise de poste (art. R.4624-10) ; et le contrôle médical de l’aptitude à la conduite des catégories lourdes, par un médecin agréé par le préfet, préalable et périodique (permis C, CE, D, DE). Le conducteur ne relève du suivi individuel renforcé que si son poste figure sur la liste des postes à risques particuliers établie par l’employeur (art. R.4624-23) — la conduite routière n’y est pas inscrite d’office.'},
+     {n:1,t:'Contrat de travail (CDI / CDD)',d:'Rédiger le contrat : mentions obligatoires, coefficient, rémunération, lieu, durée.',go:'contrat',gol:'✍️ Générer le CONTRAT complet (CDI/CDD) →',docs:[{k:'promesse',l:'📄 Promesse d’embauche (proposition AVANT le contrat) →'}],note:'Mentionner la classification prévue par votre convention collective (niveau, coefficient), la rémunération, le lieu de travail et la durée du travail.',sec:{transport:'Coefficient et groupe (CCN IDCC 0016), taux horaire conventionnel, lieu de rattachement, nature de l’activité (marchandises ou voyageurs).'}},
+     {n:2,t:'Clauses (non-concurrence, mobilité, exclusivité, dédit-formation)',d:'Vérifier la validité des clauses insérées au contrat.',docs:[{k:'clauses',l:'📄 Clauses types : non-concurrence, mobilité, dédit →'}],note:'Non-concurrence : nulle sans contrepartie financière. Mobilité : zone géographique précise. Un dédit-formation ne vaut que pour une formation allant au-delà des obligations légales : une formation obligatoire est à la charge de l’employeur (L.6321-2) et ne peut donner lieu à dédit.',sec:{transport:'FIMO et FCO sont des formations obligatoires : aucun dédit-formation ne peut les couvrir.'}},
+     {n:3,t:'Déclarations & formalités d’embauche',d:'DPAE, registre unique du personnel, affiliation mutuelle/prévoyance.',go:'contrat',gol:'Ouvrir l’outil (DPAE, checklist) →',docs:[{k:'attestation',l:'📄 Attestation de travail →'}],note:'DPAE à adresser à l’URSSAF dans les 8 jours précédant l’embauche. Vérifier l’affiliation aux régimes de prévoyance et de complémentaire santé prévus par votre convention collective.',sec:{transport:'Prévoyance et mutuelle conventionnelles du transport : vérifier l’organisme désigné par les accords applicables.'}},
+     {n:4,t:'Visite médicale d’embauche',d:'Visite d’information et de prévention, ou examen d’aptitude si poste à risques.',docs:[{k:'visite',l:'📄 Convocation visite médicale d’embauche →'}],note:'Visite d’information et de prévention au SPST, dans les 3 mois suivant la prise effective du poste (art. R.4624-10). Examen médical d’aptitude préalable à l’affectation seulement si le poste figure sur la liste des postes à risques particuliers établie par l’employeur (art. R.4624-23).',sec:{transport:'S’y ajoute, distinct du précédent, le contrôle médical de l’aptitude à la conduite des catégories lourdes (permis C, CE, D, DE), par un médecin agréé par le préfet, préalable et périodique. La conduite routière n’est pas inscrite d’office parmi les postes à risques particuliers.'}},
      {n:5,t:'Période d’essai',d:'Durée, renouvellement, confirmation ou rupture.',go:'contrat',docs:[{k:'essai',l:'📄 Période d’essai : confirmation / rupture →'}],note:'Durées légales : 2 mois (ouvriers/employés), 3 mois (AM/TAM), 4 mois (cadres), renouvelables selon la CCN. Respecter le délai de prévenance.'},
-     {n:6,t:'Rémunération & bulletin de paie',d:'Salaire conventionnel, heures supplémentaires, primes, frais de déplacement.',go:'remuneration',docs:[{k:'avenant',l:'📄 Avenant au contrat de travail →'}],note:'Transport : garantie annuelle de rémunération (GAR), taux horaires par coefficient, majoration heures sup, indemnités de repas/découcher.'},
-     {n:7,t:'Durée du travail & horaires',d:'Temps de service, temps de conduite et de repos.',go:'temps',note:'Réglementation spécifique : Code des transports (durée du travail) et Règlement CE 561/2006 (conduite/repos). Contrôle par chronotachygraphe.'}
+     {n:6,t:'Rémunération & bulletin de paie',d:'Salaire conventionnel, heures supplémentaires, primes, frais de déplacement.',go:'remuneration',docs:[{k:'avenant',l:'📄 Avenant au contrat de travail →'}],note:'Vérifier le minimum conventionnel attaché au coefficient, les majorations d’heures supplémentaires, les primes et les frais professionnels prévus par la convention.',sec:{transport:'Garantie annuelle de rémunération (GAR), taux horaires par coefficient, indemnités de repas et de découcher.'}},
+     {n:7,t:'Durée du travail & horaires',d:'Temps de service, temps de conduite et de repos.',go:'temps',note:'Durée légale de 35 heures ; repos quotidien de 11 heures et repos hebdomadaire de 35 heures consécutives ; décompte et paiement des heures supplémentaires.',sec:{transport:'Régime propre : code des transports pour la durée du travail, règlement CE 561/2006 pour les temps de conduite et de repos, contrôle par chronotachygraphe.'}}
    ]},
    {ph:'B · VIE DU CONTRAT',steps:[
      {n:8,t:'Congés payés & événements familiaux',d:'Acquisition, prise, indemnité, congés pour événements familiaux.',go:'absences',note:'2,5 jours ouvrables/mois (5 semaines/an). Indemnité = la plus favorable (1/10e ou maintien).'},
-     {n:9,t:'Formation professionnelle',d:'FIMO/FCO obligatoires, plan de développement des compétences, CPF.',docs:[{k:'fco',l:'📄 Convocation à la FCO →'}],note:'Transport : FIMO (formation initiale) et FCO (tous les 5 ans) sont obligatoires et à la charge de l’employeur pour les conducteurs. Suivre les échéances (voir Tableau de bord conducteurs).'},
+     {n:9,t:'Formation professionnelle',d:'Plan de développement des compétences, entretien professionnel, CPF.',docsSec:{transport:[{k:'fco',l:'📄 Convocation à la FCO →'}]},note:'Plan de développement des compétences, entretien professionnel tous les deux ans, CPF.',sec:{transport:'FIMO (formation initiale) et FCO (tous les cinq ans) sont obligatoires et à la charge de l’employeur pour les conducteurs. Suivre les échéances : voir « Alertes d’échéances ».'}},
      {n:10,t:'Information & consultation du CSE',d:'Obligations selon l’effectif, réunions, expertises.',go:'cse',note:'CSE obligatoire à partir de 11 salariés (12 mois consécutifs). Voir aussi les élections (effectif, sièges, quorum).'},
      {n:11,t:'Harcèlement & discrimination',d:'Prévention, signalement, enquête, protection.',go:'harcele',note:'Obligation de sécurité et de prévention ; nullité des sanctions liées à un signalement de bonne foi.'},
-     {n:12,t:'Maladie & absences',d:'Arrêt, maintien de salaire, AT/MP, visite de reprise.',go:'absences',note:'Maintien de salaire selon ancienneté et CCN ; visite de reprise obligatoire après ≥ 60 jours (maladie) ou ≥ 30 jours (AT). Aptitude à la conduite à revérifier si besoin.'}
+     {n:12,t:'Maladie & absences',d:'Arrêt, maintien de salaire, AT/MP, visite de reprise.',go:'absences',note:'Maintien de salaire selon l’ancienneté et la convention ; visite de reprise obligatoire après une absence d’au moins 60 jours (maladie ou accident non professionnel) ou d’au moins 30 jours (accident du travail).',sec:{transport:'Après l’arrêt, faire revérifier l’aptitude à la conduite lorsque le titre l’exige.'}}
    ]},
    {ph:'C · DISCIPLINE & SANCTIONS',steps:[
      {n:13,t:'Avertissement / blâme',d:'Sanction mineure, sans entretien obligatoire (sauf incidence sur le poste).',go:'disciplinaire',note:'Prescription : 2 mois pour engager les poursuites à compter de la connaissance des faits (art. L.1332-4).'},
@@ -4834,18 +4842,29 @@ Exemple :<br>
      {n:17,t:'Sanction (rétrogradation, etc.)',d:'Choix et notification de la sanction proportionnée.',go:'disciplinaire',note:'Une rétrogradation modifiant le contrat suppose l’accord du salarié ; à défaut, l’employeur reprend la procédure.'}
    ]},
    {ph:'D · RUPTURE',steps:[
-     {n:18,t:'Licenciement — cause réelle et sérieuse',d:'Procédure, notification, préavis, indemnités.',go:'licenc',docs:[{k:'lic_crs',l:'📄 Notification de licenciement (CRS) →'}],note:'Notification 2 jours ouvrables min. après l’entretien ; préavis et indemnité selon la CCN transport (souvent plus favorables).'},
+     {n:18,t:'Licenciement — cause réelle et sérieuse',d:'Procédure, notification, préavis, indemnités.',go:'licenc',docs:[{k:'lic_crs',l:'📄 Notification de licenciement (CRS) →'}],note:'Notification au plus tôt 2 jours ouvrables après l’entretien ; préavis et indemnité de licenciement selon la convention collective lorsqu’elle est plus favorable que la loi.',sec:{transport:'La CCN Transports routiers fixe les durées de préavis par catégorie et par ancienneté : s’y reporter.'}},
      {n:19,t:'Licenciement — faute grave',d:'Privation de préavis et d’indemnité de licenciement.',go:'disciplinaire',note:'La faute grave rend impossible le maintien ; l’indemnité de congés payés reste due.'},
      {n:20,t:'Licenciement — faute lourde',d:'Intention de nuire ; régime le plus sévère.',go:'disciplinaire',note:'Intention de nuire à l’employeur exigée ; l’indemnité de congés payés reste due (QPC 2016).'},
      {n:21,t:'Salarié protégé (représentant du personnel)',d:'Autorisation préalable de l’inspection du travail.',docs:[{k:'protege',l:'📄 Demande d’autorisation à l’inspection du travail →'}],note:'Tout licenciement d’un élu / délégué syndical / candidat exige l’AUTORISATION préalable de l’inspection du travail (art. L.2411-1). À défaut, licenciement nul et réintégration.'},
      {n:22,t:'Rupture conventionnelle',d:'Convention, rétractation 15 j, homologation, indemnité.',go:'rupconv',docs:[{k:'rupconv_doc',l:'📄 Invitation à l’entretien + trame de convention →'}],note:'Indemnité au moins égale à l’indemnité légale (ou conventionnelle si plus favorable).'},
      {n:23,t:'Inaptitude & reclassement',d:'Avis du médecin du travail, reclassement, indemnités.',go:'inapt',note:'Inaptitude d’origine professionnelle : indemnité spéciale doublée + préavis dû (art. L.1226-14).'},
      {n:24,t:'Fin de CDD',d:'Terme, indemnité de précarité, requalification.',go:'cdd',note:'Indemnité de précarité 10% (sauf exceptions) ; requalification en CDI si irrégularité.'},
-     {n:25,t:'Départ / mise à la retraite',d:'Indemnité de départ ou de mise à la retraite.',go:'calc',note:'Mise à la retraite : indemnité ≥ indemnité légale de licenciement ; départ volontaire : barème légal selon ancienneté. Transport : penser au Congé de fin d’activité (CFA) — départ anticipé possible dès 57 ans sous conditions d’années de conduite (FONGECFA marchandises / AGECFA voyageurs) : vérifier l’éligibilité AVANT toute rupture.'},
+     {n:25,t:'Départ / mise à la retraite',d:'Indemnité de départ ou de mise à la retraite.',go:'calc',note:'Mise à la retraite : indemnité au moins égale à l’indemnité légale de licenciement ; départ volontaire : barème légal selon l’ancienneté.',sec:{transport:'Penser au congé de fin d’activité (CFA) : départ anticipé possible dès 57 ans sous conditions d’années de conduite (FONGECFA marchandises, AGECFA voyageurs). Vérifier l’éligibilité AVANT toute rupture.'}},
      {n:26,t:'Solde de tout compte & documents de fin',d:'Reçu STC, certificat de travail, attestation France Travail.',docs:[{k:'stc',l:'📄 Reçu pour solde de tout compte →'},{k:'certif',l:'📄 Certificat de travail →'}],note:'Remettre : certificat de travail, attestation France Travail (ex-Pôle emploi), reçu pour solde de tout compte (dénonçable dans les 6 mois), et le cas échéant le maintien de la mutuelle (portabilité).'}
    ]}
   ];
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  /* LE SECTEUR CHOISI, ET RIEN D'AUTRE. Ce module a longtemps ete ecrit
+     pour le seul transport : une banque y lisait qu'il fallait penser a la
+     FIMO du conducteur et au chronotachygraphe. Les reperes propres a un
+     secteur ne s'affichent plus que pour lui, sous son nom. */
+  var PC_EMO={transport:'🚚', banque:'🏦', assurances:'🛡️', syntec:'💻', batiment:'🏗️', enseignement:'🎓', ensindep:'🎓', formation:'📚'};
+  function _pcSec(){ try{ if(typeof appGetSecteur==='function'){ var v=appGetSecteur(); if(v) return v; } }catch(e){}
+    try{ if(typeof secCourant==='function') return secCourant()||''; }catch(e){} return ''; }
+  function _pcEmo(){ return PC_EMO[_pcSec()]||'📌'; }
+  function _pcLib(){ var v=_pcSec();
+    try{ var t=(typeof SEC_LISTE!=='undefined'?SEC_LISTE:[]).filter(function(x){return x.v===v;})[0]; if(t) return t.lib; }catch(e){}
+    return v; }
   window.parcoursToggle=function(h){var b=h.nextElementSibling;if(!b)return;var o=b.style.display!=='none';b.style.display=o?'none':'';var c=h.querySelector('.pc-chev');if(c)c.textContent=o?'▸':'▾';};
   window.parcoursRender=function(){
     var host=document.getElementById('parcours-list'); if(!host)return; var h='';
@@ -4859,10 +4878,10 @@ Exemple :<br>
           +'<div style="flex:0 0 auto;width:28px;height:28px;border-radius:50%;background:#c9a84c;color:#0f1f2e;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px">'+s.n+'</div>'
           +'<div style="flex:1"><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.35">'+esc(s.t)+'</div>'
           +'<div style="font-size:12.5px;color:#cfc8b8;margin:3px 0 6px;line-height:1.5">'+esc(s.d)+'</div>'
-          +(s.note?'<div style="font-size:11.5px;color:#9a9585;line-height:1.5;border-left:2px solid rgba(201,168,76,.4);padding-left:8px;margin-bottom:8px">🚚 '+esc(s.note)+'</div>':'')
+          +(s.note?'<div style="font-size:11.5px;color:#9a9585;line-height:1.5;border-left:2px solid rgba(201,168,76,.4);padding-left:8px;margin-bottom:8px">'+esc(s.note)+'</div>':'')+(function(){ var _n=s.sec&&s.sec[_pcSec()]; if(!_n) return ''; return '<div style="font-size:11.5px;color:#cfc8b8;line-height:1.5;border-left:2px solid rgba(201,168,76,.85);padding-left:8px;margin-bottom:8px">'+_pcEmo()+' <b>'+esc(_pcLib())+'</b> — '+esc(_n)+'</div>'; })()
           +(s.go?'<button class="btn-outline" style="margin-top:0" onclick="goPage(\''+s.go+'\')">'+(s.gol||'Ouvrir l’outil →')+'</button>':'')
           +(s.doc?'<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+s.doc+'\')">📄 Générer le modèle →</button>':'')
-          +(s.docs?s.docs.map(function(x){return '<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+x.k+'\')">'+x.l+'</button>';}).join(''):'')
+          +(s.docs?s.docs.map(function(x){return '<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+x.k+'\')">'+x.l+'</button>';}).join(''):'')+(function(){ var _d=s.docsSec&&s.docsSec[_pcSec()]; if(!_d) return ''; return _d.map(function(x){return '<button class="btn-outline" style="margin-top:0" onclick="parcoursDoc(\''+x.k+'\')">'+x.l+'</button>';}).join(''); })()
           +'</div></div></div>';
       });
       h+='</div>';
@@ -5209,10 +5228,10 @@ Exemple :<br>
   var Q=[
    {th:'📌 Affichages, registres & documents',items:[
     {id:'reg',q:'Le registre unique du personnel est-il tenu et à jour (toutes les entrées/sorties, dans l’ordre d’embauche) ?',ref:'L.1221-13 C. trav.',fix:'Constituez vos fiches salariés et l’historique dans l’application (Parcours → fiche salarié).',go:'parcours'},
-    {id:'duerp',q:'Le DUERP (document unique d’évaluation des risques) est-il établi et mis à jour (au moins chaque année si ≥ 11 salariés), incluant le risque routier ?',ref:'R.4121-1 s. C. trav.',fix:'Établissez/actualisez le DUERP avec votre SPST — le risque routier est LE risque majeur du transport.'},
+    {id:'duerp',q:'Le DUERP (document unique d’évaluation des risques) est-il établi et mis à jour (au moins chaque année si ≥ 11 salariés) ?',ref:'R.4121-1 s. C. trav.',fix:'Établissez/actualisez le DUERP avec votre SPST, unité de travail par unité de travail.'},
     {id:'aff',q:'Les affichages/diffusions obligatoires sont-ils en place (coordonnées inspection du travail, SPST, secours, harcèlement moral — L.1152-4, harcèlement sexuel et agissements sexistes — L.1153-5 : art. 222-33 C. pén., actions contentieuses et coordonnées des autorités compétentes, égalité, interdiction de fumer) ?',ref:'D.1151-1 s., L.1152-4, L.1153-5',fix:'Mettez à jour le panneau d’affichage ou la diffusion interne (intranet) : l’information sur le harcèlement sexuel est distincte de celle sur le harcèlement moral et doit figurer dans les lieux de travail comme dans les locaux d’embauche.'},
-    {id:'hor',q:'Les horaires collectifs / temps de service sont-ils affichés et transmis à l’inspection le cas échéant ?',ref:'D.3171-2 s. C. trav.',fix:'Affichez les horaires collectifs ; pour les roulants, tenez les relevés de temps de service.',go:'temps'},
-    {id:'ri',q:'Le règlement intérieur (obligatoire à partir de 50 salariés, au terme d’un délai de 12 mois à compter de l’atteinte du seuil) est-il en vigueur : avis CSE, dépôt greffe, transmission inspection, publicité ?',ref:'L.1311-2 C. trav. (obligation et délai de 12 mois) · L.1321-1 s. (contenu et formalités)',fix:'Générez et régularisez votre règlement intérieur transport.',go:'ri'}
+    {id:'hor',q:'Les horaires collectifs / temps de service sont-ils affichés et transmis à l’inspection le cas échéant ?',ref:'D.3171-2 s. C. trav.',fix:'Affichez les horaires collectifs et tenez le décompte de la durée du travail.'},
+    {id:'ri',q:'Le règlement intérieur (obligatoire à partir de 50 salariés, au terme d’un délai de 12 mois à compter de l’atteinte du seuil) est-il en vigueur : avis CSE, dépôt greffe, transmission inspection, publicité ?',ref:'L.1311-2 C. trav. (obligation et délai de 12 mois) · L.1321-1 s. (contenu et formalités)',fix:'Générez et régularisez votre règlement intérieur.',go:'ri'}
    ]},
    {th:'📄 Contrats & paie',items:[
     {id:'cdd2j',q:'Tous les contrats sont-ils écrits et signés — les CDD transmis au salarié dans les 2 jours ouvrables ?',ref:'L.1242-13 C. trav.',fix:'Générez des contrats conformes (mentions CDD obligatoires incluses).',go:'contrat'},
@@ -5238,9 +5257,9 @@ Exemple :<br>
    ]},
    {th:'🩺 Santé & sécurité',items:[
     {id:'spst',q:'L’adhésion au SPST est-elle à jour et les visites périodiques planifiées ?',ref:'L.4622-1 C. trav.',fix:'Régularisez l’adhésion et l’agenda des visites.'},
-    {id:'proto',q:'Les protocoles de sécurité chargement/déchargement sont-ils établis avec les entreprises d’accueil ?',ref:'R.4515-4 s. C. trav.',fix:'Formalisez un protocole écrit par site client régulier — obligation propre au transport.'},
+    {id:'proto',q:'Les protocoles de sécurité chargement/déchargement sont-ils établis avec les entreprises d’accueil ?',ref:'R.4515-4 s. C. trav.',fix:'Formalisez un protocole écrit par site d’accueil régulier. L’obligation pèse sur l’entreprise utilisatrice comme sur l’entreprise extérieure, quel que soit le secteur.'},
     {id:'dat',q:'La déclaration d’accident du travail (48 h) et le registre des accidents bénins sont-ils maîtrisés ?',ref:'L.441-2 C. séc. soc. (principe) · R.441-3 (délai de 48 h et réserves motivées)',fix:'Formalisez la procédure interne AT : qui déclare dans les 48 heures non comprises les dimanches et jours fériés, et qui émet le cas échéant des réserves motivées dans les 10 jours francs suivant la déclaration.',go:'absences'},
-    {id:'alcool',q:'Le cadre alcool/stupéfiants (contrôles, taux, sanctions) est-il fixé par le règlement intérieur ou, à défaut, par note de service ?',ref:'R.4228-20, al. 2 C. trav. (RI ou, à défaut, note de service)',fix:'Complétez le règlement intérieur transport (alcool, stupéfiants, tachygraphe) ; en l’absence de règlement intérieur (moins de 50 salariés), fixez ce cadre par note de service. Les mesures doivent être proportionnées au but de sécurité recherché.',go:'ri'}
+    {id:'alcool',q:'Le cadre alcool/stupéfiants (contrôles, taux, sanctions) est-il fixé par le règlement intérieur ou, à défaut, par note de service ?',ref:'R.4228-20, al. 2 C. trav. (RI ou, à défaut, note de service)',fix:'Complétez le règlement intérieur (alcool, stupéfiants, contrôles) ; en l’absence de règlement intérieur (moins de 50 salariés), fixez ce cadre par note de service. Les mesures doivent être proportionnées au but de sécurité recherché.',go:'ri'}
    ]},
    {th:'⚖️ Discipline & ruptures',items:[
     {id:'presc',q:'Les procédures disciplinaires sont-elles engagées dans les 2 mois de la connaissance des faits ?',ref:'L.1332-4 C. trav.',fix:'Utilisez le module Discipline : vérification automatique de la prescription.',go:'disciplinaire'},
@@ -6877,6 +6896,10 @@ function goPage(id){
   try{ setTimeout(jxRestaurerPage, 30); }catch(e){}
   try{ adminSecPrompt(id); }catch(e){}
   try{ sectorGuard(id); }catch(e){}
+  try{ jxSecteurBlocs(); }catch(e){}
+  if(id==='audit'){ try{ if(typeof auditRender==='function') auditRender(); }catch(e){} }
+  if(id==='parcours'){ try{ if(typeof parcoursRender==='function') parcoursRender(); }catch(e){} }
+  if(id==='contrat'){ try{ applyContratSector(); }catch(e){} }
   if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} }
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
@@ -6893,6 +6916,49 @@ function goPage(id){
   if(id==='home'){ try{ jxHomeAlertes(); }catch(e){} }
   try{ if(typeof jxInjectPicker==='function') jxInjectPicker(id); }catch(e){}
   try{ if(typeof window.salRefresh==='function') window.salRefresh(); }catch(e){}
+}
+/* LE MODULE CONTRAT PARLAIT TRANSPORT A TOUT LE MONDE. Les categories
+   proposees etaient « GR qualifie — coeff. 150 (longue distance :
+   decouchers) », le vehicule un semi-remorque, la duree 43 h d'equivalence.
+   Une banque n'a ni grand routier ni duree d'equivalence. On reconstruit la
+   liste des classifications a partir de la grille du secteur (JX_GRILLES) et
+   on repose les durees sur le droit commun. Le transport garde la sienne. */
+var CONTRAT_TR_OPTS=null;
+function applyContratSector(){
+  try{
+    var sec=''; try{ sec=(typeof secCourant==='function'?secCourant():'')||''; }catch(e){}
+    var cat=document.getElementById('c-cat-poste'), dur=document.getElementById('c-duree-hebdo');
+    if(cat && CONTRAT_TR_OPTS===null) CONTRAT_TR_OPTS={cat:cat.innerHTML, dur:dur?dur.innerHTML:''};
+    var note=document.getElementById('c-cat-note');
+    if(!sec || sec==='transport'){
+      if(cat && CONTRAT_TR_OPTS) cat.innerHTML=CONTRAT_TR_OPTS.cat;
+      if(dur && CONTRAT_TR_OPTS && CONTRAT_TR_OPTS.dur) dur.innerHTML=CONTRAT_TR_OPTS.dur;
+      if(note) note.textContent='Le coefficient détermine le salaire minimum, la période d’essai et le préavis conventionnel — CCN Transport IDCC 0016.';
+      return;
+    }
+    var g=(typeof jxGrille==='function')?jxGrille(sec):null;
+    if(cat){
+      if(g && g.niveaux && g.niveaux.length){
+        cat.innerHTML='<option value="">— '+(g.label||'Niveau de classification')+' —</option>'
+          + g.niveaux.map(function(n){ return '<option value="'+n.v+'">'+n.lib+'</option>'; }).join('')
+          + '<option value="autre">Autre — à préciser</option>';
+      } else {
+        cat.innerHTML='<option value="">— à renseigner d’après votre convention —</option><option value="autre">Autre — à préciser</option>';
+      }
+    }
+    if(dur){
+      dur.innerHTML='<option value="35" selected>35 h/semaine (151,67 h/mois) — durée légale</option>'
+        +'<option value="37">37 h/semaine (160,33 h/mois)</option>'
+        +'<option value="39">39 h/semaine (169 h/mois)</option>'
+        +'<option value="forfait">Forfait annuel en jours — cadre autonome</option>'
+        +'<option value="autre">Autre — à préciser</option>';
+    }
+    if(note){
+      note.textContent = g
+        ? ('Classification de la convention '+(g.label?'':'')+'IDCC '+(g.idcc||'')+(g.note?(' — '+g.note):'')+' Le niveau commande le minimum conventionnel, la période d’essai et le préavis.')
+        : 'Reportez-vous à la grille de votre convention collective : le niveau commande le minimum conventionnel, la période d’essai et le préavis.';
+    }
+  }catch(e){}
 }
 function applyRISector(){
   try{
@@ -18933,6 +18999,22 @@ function _sectorDone(sec,pageId){
   if(typeof SECTOR_DOC!=='undefined'&&SECTOR_DOC[sec]&&(pageId==='contrat'||pageId==='embauche'||pageId==='remuneration'))return true;
   return !!((DONE_SECTOR_MODULE[sec]||{})[pageId]);
 }
+/* CE QUI NE CONCERNE QU'UN SECTEUR NE S'AFFICHE QUE POUR LUI.
+   Signale : une banque, une assurance lisaient des questions sur la FIMO du
+   conducteur, le chronotachygraphe et les decouchers. Plutot que de traiter
+   chaque cas, un attribut : data-sec="transport" sur l'element, et il
+   disparait partout ailleurs. Plusieurs secteurs se separent par un espace.
+   Tant qu'aucun secteur n'est choisi, on ne cache rien : on ne suppose pas. */
+function jxSecteurBlocs(){
+  try{
+    var sec=''; try{ sec=(typeof secCourant==='function'?secCourant():'')||''; }catch(e){}
+    document.querySelectorAll('[data-sec]').forEach(function(el){
+      var l=String(el.getAttribute('data-sec')||'').split(/\s+/).filter(Boolean);
+      var ok=(!sec) || l.indexOf(sec)>=0;
+      el.style.display = ok ? '' : 'none';
+    });
+  }catch(e){}
+}
 function sectorGuard(pageId){
   try{
     var sec=''; try{ sec=(typeof secCourant==='function'?secCourant():''); }catch(e){}
@@ -19139,7 +19221,11 @@ function setDurType(t){
 function setCiv(v){civ=v==='m'?'M.':'Mme';sa(['civ-m','civ-mme'],'civ-'+v);}
 function updateCatPoste(){
   const sel=document.getElementById('c-cat-poste');
-  const opt=sel.options[sel.selectedIndex];
+  /* La liste est reconstruite selon le secteur : une valeur enregistree pour
+     un autre secteur n'y figure plus, et selectedIndex retombe a -1. Lire
+     options[-1] jetait une exception a chaque ouverture du module. */
+  if(!sel) return;
+  const opt=sel.options[sel.selectedIndex] || {dataset:{}};
   if(document.getElementById('c-coeff'))document.getElementById('c-coeff').value=opt.dataset.coeff||'';
   if(document.getElementById('c-pe'))document.getElementById('c-pe').value=opt.dataset.pe||'2';
   const seuil=opt.dataset.seuil||'169';
