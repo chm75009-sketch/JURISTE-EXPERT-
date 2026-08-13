@@ -225,11 +225,19 @@ test('registre vide mais effectif saisi par exercice : c’est lui qui fait foi'
   assert(ctx.cseEffectif() === 150, 'le dernier exercice clos fait foi, ici 150 — obtenu : ' + ctx.cseEffectif());
 });
 
-test('seuil de 300 : les commissions obligatoires', () => {
+/* Les trois commissions de trois cents salaries ne sont pas obligatoires en
+   toute hypothese : les articles L.2315-49, L.2315-56 et L.2315-50 ne jouent
+   qu'« en l'absence d'accord » conclu dans les conditions de L.2315-45. Le
+   titre de l'alerte le dit desormais ; ce test garde le seuil ET la reserve. */
+test('seuil de 300 : les commissions, a defaut d’accord', () => {
   entreprise(299, { csed: { siteRisque: 'non' } });
-  assert(!contient(ctx.csedAnalyse().alertes, /Commissions obligatoires a trois cents/), '299 : pas de commissions');
+  assert(!contient(ctx.csedAnalyse().alertes, /Commissions a trois cents/), '299 : pas de commissions');
   entreprise(300, { csed: { siteRisque: 'non' } });
-  assert(contient(ctx.csedAnalyse().alertes, /Commissions obligatoires a trois cents/), '300 : commissions obligatoires');
+  const al = ctx.csedAnalyse().alertes;
+  assert(contient(al, /Commissions a trois cents/), '300 : les commissions apparaissent');
+  assert(contient(al, /a defaut d.accord/), 'et le titre reserve le cas de l’accord');
+  const corps = al.map(x => neutre(String(x.texte || ''))).join(' ');
+  assert(/l\.2315-45/.test(corps), 'le corps renvoie a l’article qui porte la reserve');
 });
 
 test('seuil de 1000 : commission economique', () => {

@@ -78,7 +78,15 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(r.ok === false, 'sans le nombre de candidats présentés, aucun siège n’est attribué');
   ok(/nombre de candidats/.test(r.motif || ''), 'et l’écran dit pourquoi', r.motif);
 
-  /* Invariant : le total attribue egale toujours le nombre de sieges. */
+  /* L'INVARIANT, CORRIGE. Il disait : le total attribue egale toujours le
+     nombre de sieges a pourvoir. C'est faux, et le dire ainsi masquait une
+     regle : une liste ne recoit pas plus de sieges qu'elle ne presente de
+     candidats (R.2314-19, R.2314-20) — les sieges y sont attribues a SES
+     candidats. Trois listes d'un candidat ne peuvent pourvoir six sieges.
+     Le vrai invariant est donc : le total vaut le MINIMUM entre les sieges a
+     pourvoir et les candidats presentes. Et quand il est court, l'application
+     doit le DIRE : les sieges non pourvus restent vacants et ouvrent le
+     second tour. */
   console.log('\n— L’invariant —');
   const inv = await page.evaluate(() => {
     const jeux = [
@@ -87,15 +95,26 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
       [{ nom: 'A', voix: 999, cand: 9 }],
       [{ nom: 'A', voix: 500, cand: 10 }, { nom: 'B', voix: 3, cand: 1 }]
     ];
-    const rates = [];
+    const rates = [], muets = [];
     for (let n = 1; n <= 20; n++) for (const j of jeux) {
+      const cands = j.reduce((a, x) => a + x.cand, 0);
       const r = cseAttribuer(JSON.parse(JSON.stringify(j)), n, 400);
       const t = r.listes.reduce((a, x) => a + x.sieges, 0);
-      if (t !== n) rates.push(n + '→' + t);
+      const attendu = Math.min(n, cands);
+      if (t !== attendu) rates.push(n + '→' + t + ' (attendu ' + attendu + ')');
+      /* trop peu de candidats : l'application ne doit pas se taire */
+      if (attendu < n && !/vacant|ne peuvent être pourvus/i.test(r.alerte || '')) muets.push(n + '/' + cands);
+      /* et aucune liste ne depasse ses propres candidats */
+      r.listes.forEach(x => { if (x.sieges > x.cand) rates.push(n + ' : ' + x.nom + ' ' + x.sieges + '>' + x.cand); });
     }
-    return rates;
+    return { rates: rates, muets: muets };
   });
-  ok(inv.length === 0, '80 combinaisons : le total attribué égale toujours les sièges à pourvoir', inv.slice(0, 5).join(' '));
+  ok(inv.rates.length === 0,
+     '80 combinaisons : le total vaut le minimum entre sièges à pourvoir et candidats présentés',
+     inv.rates.slice(0, 5).join(' '));
+  ok(inv.muets.length === 0,
+     'et quand les candidats manquent, les sièges vacants sont annoncés — pas tus',
+     inv.muets.slice(0, 5).join(' '));
 
   /* L'écran. */
   console.log('\n— L’écran —');
