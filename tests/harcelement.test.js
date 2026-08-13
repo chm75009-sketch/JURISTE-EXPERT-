@@ -27,6 +27,9 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     return {
       titres: r.alertes.map(a => a.g + ' | ' + a.t),
       arrets: r.alertes.map(a => a.a).join(' | '),
+      /* le corps des alertes, et pas seulement leur titre : c'est la qu'une
+         reserve se cache, et c'est la qu'on la verifie */
+      corps: r.alertes.map(a => a.x || '').join(' | '),
       coherence: r.coherence
     };
   }, etat);
@@ -61,9 +64,21 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   // ── Aucun lien de subordination requis ───────────────────────────
   console.log('\n— L’auteur est un collègue —');
   r = await analyse({ repetition: 'memerep', auteur: 'collegue', preuves: [] });
-  ok(r.titres.some(t => /Aucun lien de subordination n’est requis/.test(t)),
-     'un collègue peut être auteur');
-  ok(/09-69\.616/.test(r.arrets), 'l’arrêt Pont du Gard est cité');
+  /* Le module confondait deux situations sous un seul motif. Un COLLEGUE sans
+     autorite peut etre auteur — c'est L.1152-1, les faits font le harcelement,
+     pas la qualite de leur auteur. Le TIERS EXTERIEUR est autre chose :
+     l'arret Pont du Gard (1er mars 2011) juge que l'employeur repond des
+     agissements de qui exerce, de fait ou de droit, une AUTORITE sur les
+     salaries. Le citer pour le collegue lui faisait dire ce qu'il ne dit pas.
+     Le test suit la separation : chaque reponse, son arret. */
+  ok(r.titres.some(t => /Aucun lien hiérarchique n’est requis/.test(t)),
+     'un collègue sans autorité peut être auteur');
+  ok(!/09-69\.616/.test(r.arrets),
+     'et Pont du Gard n’est plus invoqué pour lui — il porte sur l’autorité exercée');
+  r = await analyse({ repetition: 'memerep', auteur: 'externe', preuves: [] });
+  ok(r.titres.some(t => /Personne extérieure/.test(t)),
+     'le tiers extérieur relève d’un motif distinct');
+  ok(/09-69\.616/.test(r.arrets), 'et c’est là que Pont du Gard est cité');
 
   // ── Harcèlement institutionnel ───────────────────────────────────
   console.log('\n— Une politique d’entreprise —');
@@ -88,14 +103,20 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   // ── L'employeur ──────────────────────────────────────────────────
   console.log('\n— Ce que l’employeur a fait —');
   r = await analyse({ repetition: 'deux', prevention: 'non', reaction: 'immediate', preuves: ['courriers'] });
-  ok(r.titres.some(t => /^stop \| L’employeur ne pourra pas s’exonérer/.test(t)),
-     'sans prévention en amont, l’exonération est fermée');
+  ok(r.titres.some(t => /^stop \| L’employeur ne pourra pas s’exonérer de son obligation de prévention/.test(t)),
+     'sans prévention en amont, l’exonération est fermée — et le titre dit de QUELLE obligation');
   r = await analyse({ repetition: 'deux', prevention: 'oui', reaction: 'enquete', preuves: ['courriers'] });
-  ok(r.titres.some(t => /Une enquête ne suffit pas/.test(t)), 'l’enquête seule ne suffit pas');
+  ok(r.titres.some(t => /Une enquête ne suffit pas au titre de la prévention/.test(t)),
+     'l’enquête seule ne suffit pas — au titre de la prévention, qui n’est pas la qualification');
   ok(/23-13\.975/.test(r.arrets), 'l’arrêt du 12 juin 2024 est cité');
   r = await analyse({ repetition: 'deux', prevention: 'oui', reaction: 'immediate', preuves: ['courriers'] });
-  ok(r.titres.some(t => /Les deux exigences de l’employeur semblent réunies/.test(t)),
+  ok(r.titres.some(t => /Les deux exigences de la prévention semblent réunies/.test(t)),
      'les deux conditions cumulatives réunies sont reconnues');
+  /* Et elles ne mettent pas l'employeur a l'abri du harcelement lui-meme :
+     l'obligation de prevention est distincte de la prohibition. Le module le
+     disait a l'envers — il laissait croire a une exoneration generale. */
+  ok(/distincte de la prohibition|ne se confond pas/.test(r.corps),
+     'et le module dit qu’elles ne valent pas exonération du harcèlement lui-même');
 
   // ── La confrontation des réponses ────────────────────────────────
   console.log('\n— Des réponses qui ne concordent pas —');

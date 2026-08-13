@@ -116,7 +116,22 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(k.indexOf('reclamations') < 0, '50 salariés : plus de formalisme de réclamation');
   ok(k.indexOf('consultations') >= 0 && k.indexOf('budgets') >= 0,
      '50 salariés : consultations et budgets apparaissent');
-  ok(k.indexOf('commissions') < 0, '50 salariés : pas encore les commissions');
+  /* L'etape des commissions n'a pas UN seuil, elle en porte plusieurs. Trois
+     commissions se placent a trois cents salaries a defaut d'accord (L.2315-49,
+     L.2315-56, L.2315-50), la commission economique a mille (L.2315-46) — mais
+     la CSSCT est obligatoire QUELLE QUE SOIT LA TAILLE dans les etablissements
+     classes Seveso seuil haut et les installations nucleaires (L.2315-36, 2° et
+     3°), et l'inspecteur du travail peut l'imposer ailleurs (L.2315-37). La
+     masquer sous trois cents salaries cachait cette obligation-la a un site a
+     risque de cinquante salaries. L'etape s'affiche donc des le comite ; c'est
+     a l'interieur que chaque commission porte son seuil. */
+  ok(k.indexOf('commissions') >= 0,
+     '50 salariés : l’étape des commissions s’affiche — la CSSCT n’attend pas trois cents sur un site à risque');
+  const c50 = await page.evaluate(() => (dosEtapes(50).find(e => e.k === 'commissions') || {}));
+  const l50 = JSON.stringify(c50);
+  ok(/trois cents|300/.test(l50), 'et elle porte le seuil de trois cents des trois commissions', l50.slice(0, 160));
+  ok(/L\.2315-36|Seveso|risque/i.test(l50),
+     'et le cas des établissements à risque, qui n’attendent aucun seuil', l50.slice(0, 160));
   k = await cles(300);
   ok(k.indexOf('commissions') >= 0, '300 salariés : les commissions apparaissent');
   k = await cles(8);
