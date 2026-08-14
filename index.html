@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-13.180';
+var JX_BUILD = 'v2026-08-14.181';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-14.181', d:'14 aout 2026', t:[
+   'LE DELAI DE CINQ JOURS OUVRABLES N\u2019EXISTE QUE POUR LE LICENCIEMENT. Le suivi de procedure l\u2019appliquait aussi a la sanction disciplinaire simple \u2014 avertissement, mise a pied \u2014 et le rattachait a L.1332-2. Cet article, lu dans son texte, ne pose aucun delai entre la convocation et l\u2019entretien ; R.1332-1, qui regle la convocation, n\u2019en pose pas davantage. Il exige seulement que le salarie ait le temps de preparer sa defense. La sanction n\u2019affiche donc plus de date couperet avant l\u2019entretien, et le plancher de deux jours ouvrables APRES l\u2019entretien porte desormais son article : L.1332-2 pour une sanction, L.1232-6 pour un licenciement.',
+   'LA CARENCE DE SEPT JOURS DU MAINTIEN DE SALAIRE EST A D.1226-3, PAS A D.1226-1. D.1226-1 ne connait que les taux et les durees \u2014 trente jours a 90 %, trente jours aux deux tiers. C\u2019est D.1226-3 qui fait courir l\u2019indemnisation au-dela de sept jours d\u2019absence, et des le premier jour en accident du travail ou maladie professionnelle. Le tableau du maintien de salaire citait le mauvais article.',
+   'LES HUIT JOURS DE COMMUNICATION DE L\u2019ORDRE DU JOUR DU CSE CENTRAL portent desormais leur article, L.2316-17. Ils etaient annonces sous la seule reference de L.2315-30, qui n\u2019en connait que trois et ne vise que le CSE d\u2019entreprise ou d\u2019etablissement.',
+   'VINGT ET UN ECARTS RELEVES PAR LE RAPPROCHEMENT CHIFFRE-ARTICLE ONT ETE RELUS UN PAR UN. Dix-huit etaient des artefacts du rapprochement : une phrase qui cite deux articles voisins voit ses chiffres attribues au mauvais. Trois etaient reels et sont corriges ci-dessus.'
+ ]},
  {v:'v2026-08-13.180', d:'13 aout 2026', t:[
    'CENT CINQ AFFIRMATIONS CONFRONTEES AU TEXTE DE LEUR ARTICLE, sur code.travail.gouv.fr : 67 conformes, 2 fautives, le reste sans prise mecanique. Le controle ne retenait que les phrases ne citant qu\u2019UN article et qu\u2019UN chiffre — ailleurs, une phrase qui cite L.1232-2 et L.1232-6 fait croiser les cinq jours de l\u2019un avec les deux jours de l\u2019autre.',
    'LE DELAI DE HUIT JOURS D\u2019INFORMATION DE LA DREETS N\u2019EST PAS A L.1233-19. Cet article, lu dans son texte, impose d\u2019informer l\u2019administration du licenciement collectif de MOINS DE DIX salaries dans une meme periode de trente jours — il ne pose aucun delai de huit jours. Celui-ci court a compter de l\u2019envoi des lettres et releve de la partie reglementaire (R.1233-4 s.). Les deux regles sont desormais enoncees separement.',
@@ -4122,7 +4128,7 @@ Exemple :<br>
 <div style="font-size:12px;color:#cfc8b8;line-height:1.8">
 • <b>Convocation</b> par le <b>président</b> (employeur), à tous les titulaires (+ suppléants à titre informatif) et aux représentants syndicaux.<br>
 • <b>Ordre du jour établi conjointement</b> par le président ET le secrétaire (L.2315-29). Les <b>consultations obligatoires</b> y sont inscrites <b>de plein droit</b> par l'un ou l'autre en cas de désaccord.<br>
-• <b>Communication de l'OJ ≥ 3 jours</b> avant la réunion (8 jours pour le CSE central) — aussi à l'inspection du travail et à l'agent de prévention Sécu (L.2315-30).<br>
+• <b>Communication de l'OJ ≥ 3 jours</b> avant la réunion (8 jours pour le CSE central — L.2316-17) — aussi à l'inspection du travail et à l'agent de prévention Sécu (L.2315-30).<br>
 • La <b>signature conjointe</b> de l'OJ n'est pas exigée : l'accord peut se prouver par tout moyen (Cass. soc. 25/04/2007).
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
@@ -4322,7 +4328,7 @@ Exemple :<br>
 <table>
 <tr><th>Ancienneté</th><th>100 % du salaire</th><th>75 % du salaire</th></tr>
 <tr><td>Moins d'1 an</td><td colspan="2">Aucun maintien obligatoire — IJSS seules (L.1226-1 : 1 an requis)</td></tr>
-<tr><td>1 à 3 ans</td><td colspan="2">Régime LÉGAL : 30 j à 90 % puis 30 j à 66,66 % (carence 7 j — L.1226-1, D.1226-1)</td></tr>
+<tr><td>1 à 3 ans</td><td colspan="2">Régime LÉGAL : 30 j à 90 % puis 30 j à 66,66 % (D.1226-1) — carence 7 j (D.1226-3)</td></tr>
 <tr><td>3 à 5 ans</td><td>du 6e au 40e jour</td><td>du 41e au 70e jour</td></tr>
 <tr><td>5 à 10 ans</td><td>du 6e au 70e jour</td><td>du 71e au 130e jour</td></tr>
 <tr><td>10 ans et plus</td><td>du 6e au 100e jour</td><td>du 101e au 190e jour</td></tr>
@@ -18445,10 +18451,17 @@ function rxSaveVeh(){
 function rxDelVeh(id){ if(!confirm('Supprimer ce véhicule ?')) return; RX.parc=RX.parc.filter(function(v){return v.id!==id;}); rxSaveLocal(); try{ rxCloudDelVehOne(id); }catch(e){} rxCloseVeh(); rxRender(); rxTab('parc'); }
 
 /* ══════════ PROCÉDURES EN COURS (délais légaux) ══════════
-   Sources : C. trav. L.1332-4 (prescription 2 mois), L.1232-2/L.1332-2 (entretien
-   ≥ 5 jours ouvrables après présentation de la convocation), L.1232-6 (notification
-   ≥ 2 jours ouvrables après l'entretien), L.1332-2 (sanction/licenciement
-   disciplinaire notifié ≤ 1 mois après l'entretien). */
+   Sources : C. trav. L.1332-4 (prescription 2 mois), L.1232-2 (entretien préalable
+   au LICENCIEMENT ≥ 5 jours ouvrables après présentation de la convocation),
+   L.1232-6 (notification du licenciement ≥ 2 jours ouvrables après l'entretien),
+   L.1332-2 (sanction disciplinaire notifiée ≥ 2 jours ouvrables et ≤ 1 mois après
+   l'entretien).
+   LE DÉLAI DE CINQ JOURS OUVRABLES N'EXISTE QUE POUR LE LICENCIEMENT. L.1332-2 et
+   R.1332-1 n'imposent aucun délai minimum entre la convocation et l'entretien
+   préalable à une sanction qui n'est pas un licenciement : la convocation doit
+   seulement laisser au salarié le temps de préparer sa défense. Le module
+   appliquait les cinq jours à la sanction, et les rattachait à un article qui ne
+   les porte pas. */
 function rxAddDays(iso,n){ if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
 function rxAddMonths(iso,n){ if(!iso) return ''; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; var day=d.getDate(); d.setMonth(d.getMonth()+n); if(d.getDate()<day) d.setDate(0); return d.toISOString().slice(0,10); }
 /* LE PREMIER JOUR OU L'ACTE PEUT ETRE ACCOMPLI, une fois le délai de n jours
@@ -18479,9 +18492,13 @@ function rxProcSteps(pr){
     return out.filter(function(x){return x.iso;});
   }
   if(pr.dateConn && !pr.dateEntretien){ out.push({label:'Prescription des faits — engager la procédure au plus tard le', iso:rxAddMonths(pr.dateConn,2), crit:true, art:'L.1332-4'}); }
-  if(pr.dateRecep){ out.push({label:'Entretien préalable — pas avant le', iso:rxAddOuvrables(pr.dateRecep,5), crit:false, art:'L.1232-2 / L.1332-2'}); }
+  var lic = t.indexOf('licenciement')>-1;
+  if(pr.dateRecep){
+    if(lic) out.push({label:'Entretien préalable — pas avant le', iso:rxAddOuvrables(pr.dateRecep,5), crit:false, art:'L.1232-2'});
+    else out.push({label:'Entretien préalable — aucun délai minimum imposé par le texte ; laissez au salarié le temps de préparer sa défense', iso:pr.dateRecep, crit:false, art:'L.1332-2 / R.1332-1'});
+  }
   if(pr.dateEntretien){
-    out.push({label:'Notification — pas avant le', iso:rxAddOuvrables(pr.dateEntretien,2), crit:false, art:'L.1232-6'});
+    out.push({label:'Notification — pas avant le', iso:rxAddOuvrables(pr.dateEntretien,2), crit:false, art:(lic?'L.1232-6':'L.1332-2')});
     if(disc) out.push({label:'Notification — au plus tard le (1 mois)', iso:rxAddMonths(pr.dateEntretien,1), crit:true, art:'L.1332-2'});
   }
   return out.filter(function(x){return x.iso;});
@@ -26707,7 +26724,7 @@ var DOCS={
  ],a:function(x,c){var ok=[],ko=[],re=[];
    if(x.conj==='non')ko.push(['L’ordre du jour est arrêté CONJOINTEMENT par le président et le secrétaire (les consultations rendues obligatoires par un texte ou un accord y sont toutefois inscrites de plein droit par l’un ou l’autre).','C. trav. art. L.2315-29']);else if(x.conj==='oui')ok.push('Ordre du jour établi conjointement.');
    var g=(pd(x.dc)&&pd(x.dr))?Math.round((pd(x.dr)-pd(x.dc))/86400000):null;
-   if(g!==null){if(g<3)ko.push(['Communication tardive : au moins 3 jours avant la réunion (8 jours pour le CSE central).','C. trav. art. L.2315-30']);else ok.push('Communication ≥ 3 jours avant la réunion ('+g+' jours).');}
+   if(g!==null){if(g<3)ko.push(['Communication tardive : au moins 3 jours avant la réunion (8 jours pour le CSE central — L.2316-17).','C. trav. art. L.2315-30']);else ok.push('Communication ≥ 3 jours avant la réunion ('+g+' jours).');}
    else re.push('Renseignez les deux dates pour vérifier le délai de 3 jours.');
    if(x.pv==='non')re.push('Pensez à inscrire l’approbation du procès-verbal de la réunion précédente.');else if(x.pv==='oui')ok.push('Approbation du PV précédent inscrite.');
    re.push('La signature conjointe n’est pas une condition de validité : l’accord président/secrétaire peut se prouver par tout moyen (Cass. soc. 25/04/2007, n° 05-44.903).');
