@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-14.185';
+var JX_BUILD = 'v2026-08-14.186';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-14.186', d:'14 aout 2026', t:[
+   'LA GRILLE DES PRESTATIONS LOGISTIQUES EST ENTREE. Serie L, avenant n\u00b0 16 du 9 avril 2025, etendu (KALITEXT000051927426), effet au 1er mai 2025 : les sept tableaux, ouvriers, employes, techniciens et agents de maitrise, ingenieurs et cadres, taux horaires et garanties annuelles. Seule des trois series, elle NOMME LES EMPLOIS \u2014 operateur/emballeur, preparateur de commandes, cariste, chef de quai logistique, directeur de sites logistiques. L\u2019application declarait ne pas la detenir. L\u2019avenant n\u00b0 17 du 12 mars 2026 n\u2019est toujours pas etendu au 14 aout 2026 : il n\u2019oblige que les adherents des organisations signataires, et l\u2019application le dit. A 12,31 \u20ac, le SMIC depasse les coefficients 110 L, 115 L et 120 L a l\u2019embauche : comme en marchandises, le bas de la grille est inoperant.',
+   'LES GRILLES EMPLOYES, TAM ET CADRES NE SONT PAS PERIMEES \u2014 ET LA RAISON N\u2019EST PAS LE SUFFIXE. Les annexes 2, 3 et 4 ne portent aucun coefficient suffixe V, mais l\u2019article 1er de chacun des avenants n\u00b0 102, 100 et 93 du 27 novembre 2025 declare sa portee : « des entreprises de transport routier de voyageurs ». Et l\u2019accord marchandises du 11 octobre 2023 ne couvre pas que les ouvriers : ses articles 1er et 2 integrent ses tableaux « dans les CCNA 1 a 3 » et « dans la CCNA 4 ». Une serie marchandises existe donc pour ces trois annexes, et c\u2019est d\u2019elle que les garanties annuelles de l\u2019application sont tirees. Si les coefficients y sont nus, c\u2019est qu\u2019ils sont identiques dans les deux branches : seuls les montants different. C\u2019est le texte qui distingue, pas le numero.',
+   'LES DEUX ADRESSES DE LA LISTE DES CONSEILLERS NE SONT PAS A D.1232-4. Cet article traite de la preparation de la liste par le directeur regional et du caractere gratuit des fonctions ; il ne nomme ni la mairie ni l\u2019inspection du travail. C\u2019est D.1232-5 : la liste « est tenue a la disposition des salaries dans chaque section d\u2019inspection du travail et dans chaque mairie ». Les quatre endroits qui citaient D.1232-4 sont corriges.',
+   'ET L\u2019EXIGENCE EST LA MEME EN LICENCIEMENT ECONOMIQUE. L.1232-4 pour le motif personnel et L.1233-13 pour l\u2019economique emploient la meme formule et le meme pluriel, « les services », et D.1232-5 dit quels sont ces services. Il n\u2019existe pas de texte propre a l\u2019economique parce qu\u2019il n\u2019en faut pas : n\u2019indiquer qu\u2019une des deux adresses est la meme irregularite dans les deux procedures. C\u2019est une lecture des textes et non une jurisprudence, et l\u2019application le dit \u2014 les arrets sanctionnant l\u2019omission d\u2019une seule adresse restent a rechercher.'
+ ]},
  {v:'v2026-08-14.185', d:'14 aout 2026', t:[
    'LES VINGT ET UN JOURS DU CSP : LE CODE DIT LUI-MEME POURQUOI ILS N\u2019Y SONT PAS. L\u2019article L.1233-68, 2°, lu dans son texte, renvoie a l\u2019accord agree le soin de definir « les formalites afferentes a l\u2019adhesion au contrat de securisation professionnelle et les delais de reponse du salarie a la proposition de l\u2019employeur ». Le delai est donc fixe par la convention du 26 janvier 2015 relative au CSP, article 4, agreee par arrete du 16 avril 2015 et modifiee en dernier lieu par l\u2019avenant n\u00b0 5 agree par arrete du 24 septembre 2021. L\u2019application l\u2019annoncait comme une regle legale ; elle nomme desormais le texte qui le porte, et le renvoi du code qui l\u2019y envoie.',
    'DEUX PRECISIONS QUI MANQUAIENT PARTOUT. Pour un SALARIE PROTEGE, le delai est prolonge jusqu\u2019au lendemain de la notification a l\u2019employeur de la decision de l\u2019autorite administrative. L\u2019ABSENCE DE REPONSE au terme du delai VAUT REFUS, et l\u2019adhesion prend effet le lendemain de l\u2019expiration.',
@@ -3236,10 +3242,15 @@ Lorsque les conditions atmosphériques rendent le travail dangereux ou impossibl
  <div class="al warn" style="font-size:12px;margin-bottom:10px;line-height:1.7">Le simulateur ci-dessus travaille sur la <b>série M — marchandises</b> (accord du 11 octobre 2023, effet 01/12/2023), et sur elle seule. La convention en porte trois, parallèles :<br>
  • <b>M — marchandises</b> : accord du 11 octobre 2023. Aucun accord marchandises depuis — les 501 textes rattachés à la convention ont été balayés.<br>
  • <b>V — voyageurs</b> : avenant n° 120 du 27 novembre 2025 (annexe 1, ouvriers), étendu, effet au 1<sup>er</sup> janvier 2026. Grille ci-dessous.<br>
- • <b>L — prestations logistiques</b> : avenant n° 16 du 9 avril 2025, étendu. L’avenant n° 17 du 12 mars 2026 <b>n’est pas étendu</b>. Cette grille n’est pas détenue par l’application — <b>à vérifier</b> avant de s’en servir.<br>
- Si votre activité est le <b>transport de voyageurs</b>, ne retenez pas les minima du simulateur : ceux de la série V sont plus élevés, et ils restent au-dessus du SMIC là où la série M passe dessous.</div>
+ • <b>L — prestations logistiques</b> : avenant n° 16 du 9 avril 2025, étendu, effet au 1<sup>er</sup> mai 2025. Grille plus bas. L’avenant n° 17 du 12 mars 2026 <b>n’est pas étendu</b> : il n’oblige que les adhérents des organisations signataires.<br>
+ Si votre activité est le <b>transport de voyageurs</b> ou les <b>prestations logistiques</b>, ne retenez pas les minima du simulateur : les grilles V et L figurent ci-dessous, chacune avec ses propres échelons d’ancienneté.<br>
+ <b>Les annexes 2, 3 et 4 sont scindées elles aussi.</b> L’article 1<sup>er</sup> de chacun des avenants n° 102, 100 et 93 du 27 novembre 2025 déclare sa portée : « des entreprises de transport routier de voyageurs ». Et l’accord marchandises du 11 octobre 2023 ne couvre pas que les ouvriers — ses articles 1<sup>er</sup> et 2 intègrent ses tableaux « dans les CCNA 1 à 3 » et « dans la CCNA 4 ». Une série marchandises existe donc pour les employés, les TAM et les cadres : les garanties annuelles affichées plus bas en sont tirées, et aucun accord marchandises ne les a remplacées.<br>
+ Les coefficients des annexes 2 à 4 sont nus, sans suffixe, parce qu’ils sont <b>identiques dans les deux branches</b> — seuls les montants diffèrent. C’est le texte qui distingue, pas le numéro.</div>
  <div class="ct" style="font-size:14px;margin-top:4px">Série V — ouvriers (annexe 1), avenant n° 120 du 27 novembre 2025</div>
  <div id="ccn16-series"></div>
+ <div class="ct" style="font-size:14px;margin-top:16px">Série L — prestations logistiques, avenant n° 16 du 9 avril 2025</div>
+ <div style="font-size:11.5px;color:#9a9585;margin:2px 0 6px">Seule des trois séries, elle nomme les emplois.</div>
+ <div id="ccn16-serieL"></div>
 </div>
 <div class="card">
 <div class="ct">Garantie Annuelle de Rémunération (GAR)</div>
@@ -6757,9 +6768,109 @@ function ccn16Grilles(){
   el.innerHTML=h;
 }
 
+
+/* ══════════ SÉRIE L — PRESTATIONS LOGISTIQUES ══════════
+   Avenant n° 16 du 9 avril 2025, KALITEXT000051927426, VIGUEUR_ETEN, effet au
+   1er mai 2025. Il modifie le protocole d'accord du 30 juin 2004 relatif aux
+   conditions specifiques d'emploi des personnels des entreprises exercant des
+   activites de prestations logistiques, modifie en dernier lieu par l'avenant
+   n° 15 du 27 septembre 2023. Ses tableaux sont integres dans les CCNA 1 a 4.
+   L'avenant n° 17 du 12 mars 2026 (KALITEXT000054454039) est en etat
+   VIGUEUR_NON_ETEN au 14 aout 2026 : non etendu, il n'est opposable qu'aux
+   adherents des organisations signataires. La grille servie ici est donc celle
+   de l'avenant n° 16.
+   Seule des trois series, la serie L NOMME LES EMPLOIS. */
+var CCN16_L = [
+ {t:'Ouvriers — taux horaires (annexe 1)', u:'€/h',
+  anc:['À l’embauche','Après 6 mois','Après 2 ans','Après 5 ans','Après 10 ans','Après 15 ans'],
+  r:[['110 L','Opérateur/emballeur · Manutentionnaire logistique',[11.91,11.96,12.1992,12.4384,12.6776,12.9168]],
+     ['115 L','Préparateur de commandes · Agent logistique',[11.91,12.05,12.2910,12.5320,12.7730,13.0140]],
+     ['120 L','Contrôleur/flasheur · Agent de maintenance d’entrepôt logistique',[11.92,12.12,12.3624,12.6048,12.8472,13.0896]],
+     ['125 L','Cariste en prestation logistique *',[11.95,12.18,12.4236,12.6672,12.9108,13.1544]],
+     ['138 L','Opérateur de ligne',[11.98,12.26,12.5052,12.7504,12.9956,13.2408]]]},
+ {t:'Ouvriers — garanties annuelles de rémunération (151,67 h)', u:'€/an',
+  anc:['À l’embauche','Après 2 ans','Après 5 ans','Après 10 ans','Après 15 ans'],
+  r:[['110 L','Opérateur/emballeur · Manutentionnaire logistique',[22916.93,23375.27,23833.61,24291.95,24750.28]],
+     ['115 L','Préparateur de commandes · Agent logistique',[23112.45,23574.70,24036.95,24499.20,24961.45]],
+     ['120 L','Contrôleur/flasheur · Agent de maintenance d’entrepôt logistique',[23210.86,23675.08,24139.29,24603.51,25067.73]],
+     ['125 L','Cariste en prestation logistique *',[23367.84,23835.20,24302.55,24769.91,25237.27]],
+     ['138 L','Opérateur de ligne',[23463.13,23932.39,24401.66,24870.92,25340.18]]]},
+ {t:'Employés — taux horaires (annexe 2)', u:'€/h',
+  anc:['À l’embauche','Après 6 mois','Après 3 ans','Après 6 ans','Après 9 ans','Après 12 ans','Après 15 ans'],
+  r:[['110 L','Assistant inventaire',[11.98,12.18,12.5454,12.9108,13.2762,13.6416,14.0070]],
+     ['120 L','Employé d’ordonnancement · Agent administratif logistique',[12.03,12.26,12.6278,12.9956,13.3634,13.7312,14.0990]]]},
+ {t:'Employés — garanties annuelles de rémunération (151,67 h)', u:'€/an',
+  anc:['À l’embauche','Après 3 ans','Après 6 ans','Après 9 ans','Après 12 ans','Après 15 ans'],
+  r:[['110 L','Assistant inventaire',[23326.58,24026.38,24726.17,25425.97,26125.77,26825.57]],
+     ['120 L','Employé d’ordonnancement · Agent administratif logistique',[23463.48,24167.38,24871.29,25575.19,26279.10,26983.00]]]},
+ {t:'Techniciens et agents de maîtrise — taux horaires (annexe 3)', u:'€/h',
+  anc:['À l’embauche','Après 3 ans','Après 6 ans','Après 9 ans','Après 12 ans','Après 15 ans'],
+  r:[['150 L','Technicien de maintenance d’entrepôt logistique',[13.54,13.9462,14.3524,14.7586,15.1648,15.5710]],
+     ['157,5 L','Chef d’équipe logistique · Gestionnaire de stocks · Correspondant du responsable management de la qualité · Responsable ou superviseur de lignes',[13.64,14.0492,14.4584,14.8676,15.2768,15.6860]],
+     ['165 L','Chef de quai logistique',[14.15,14.5745,14.9990,15.4235,15.8480,16.2725]],
+     ['200 L','Chef d’exploitation logistique · Responsable maintenance d’entrepôt logistique · Responsable service client logistique · Responsable conditionnement à façon',[16.76,17.2628,17.7656,18.2684,18.7712,19.2740]]]},
+ {t:'Techniciens et agents de maîtrise — garanties annuelles (151,67 h)', u:'€/an',
+  anc:['À l’embauche','Après 3 ans','Après 6 ans','Après 9 ans','Après 12 ans','Après 15 ans'],
+  r:[['150 L','Technicien de maintenance d’entrepôt logistique',[26227.38,27014.20,27801.02,28587.84,29374.67,30161.49]],
+     ['157,5 L','Chef d’équipe logistique · Gestionnaire de stocks · Correspondant qualité · Responsable ou superviseur de lignes',[26391.83,27183.58,27975.34,28767.09,29558.85,30350.60]],
+     ['165 L','Chef de quai logistique',[27405.83,28228.00,29050.18,29872.35,30694.53,31516.70]],
+     ['200 L','Chef d’exploitation logistique · Responsable maintenance · Responsable service client · Responsable conditionnement à façon',[32316.30,33285.79,34255.28,35224.77,36194.26,37163.75]]]},
+ {t:'Ingénieurs et cadres — rémunérations annuelles garanties (151,67 h)', u:'€/an · mensuel minimum',
+  anc:['À l’embauche','Après 5 ans','Après 10 ans','Après 15 ans'],
+  r:[['100 L','Responsable management de la qualité',['40 547,22 · 3 041,04','42 574,58 · 3 193,09','44 601,94 · 3 345,15','46 629,30 · 3 497,20']],
+     ['106,5 L','Chef de projet · Responsable sécurité',['43 192,88 · 3 239,47','45 352,52 · 3 401,44','47 512,17 · 3 563,41','49 671,81 · 3 725,39']],
+     ['113 L','Directeur d’exploitation logistique · Directeur méthode logistique',['45 818,94 · 3 436,42','48 109,89 · 3 608,24','50 400,83 · 3 780,06','52 691,78 · 3 951,88']],
+     ['119 L','Directeur conditionnement à façon · Directeur de site logistique',['47 915,88 · 3 593,69','50 311,67 · 3 773,38','52 707,47 · 3 953,06','55 103,26 · 4 132,74']],
+     ['132 L','Directeur de sites logistiques',['53 543,94 · 4 015,80','56 221,14 · 4 216,59','58 898,33 · 4 417,37','61 575,53 · 4 618,16']]]}
+];
+/* Les coefficients de la serie L dont le taux d'embauche passe sous le SMIC. */
+function ccn16LSousSmic(){
+  var smic=(typeof SMIC_H!=='undefined'?SMIC_H:0), out=[];
+  if(!smic) return out;
+  CCN16_L.forEach(function(tb){ if(tb.u!=='€/h') return;
+    tb.r.forEach(function(x){ if(typeof x[2][0]==='number' && x[2][0]<smic && out.indexOf(x[0])<0) out.push(x[0]); }); });
+  return out;
+}
+function ccn16GrilleL(){
+  var el=document.getElementById('ccn16-serieL'); if(!el) return;
+  var h='';
+  CCN16_L.forEach(function(tb){
+    h+='<div style="font-size:12.5px;color:#e8c97a;font-weight:700;margin:10px 0 4px">'+tb.t+'</div>';
+    h+='<div class="table-wrap"><table style="font-size:11px"><tr><th>Coeff.</th><th>Emploi</th>'
+      + tb.anc.map(function(a){return '<th>'+a+'</th>';}).join('') + '</tr>';
+    tb.r.forEach(function(x){
+      h+='<tr><td><b>'+x[0]+'</b></td><td>'+x[1]+'</td>'
+        + x[2].map(function(v){ return '<td>'+(typeof v==='number'?ccn16Eur(v):v)+'</td>'; }).join('') + '</tr>';
+    });
+    h+='</table></div>';
+  });
+  var bas=ccn16LSousSmic();
+  h+='<div class="loi" style="margin-top:8px">Avenant n° 16 du 9 avril 2025, étendu (KALITEXT000051927426), effet au 1<sup>er</sup> mai 2025. '
+   + 'Il modifie le protocole d’accord du 30 juin 2004 sur les conditions spécifiques d’emploi des personnels de prestations logistiques. '
+   + '<b>Applicable quel que soit l’effectif</b> : l’avenant écarte expressément toute disposition propre aux entreprises de moins de 50 salariés. '
+   + '* Caristes 1<sup>er</sup> degré (coefficient 115) et 2<sup>e</sup> degré (coefficient 120) : se reporter aux barèmes des ouvriers du TRM et des activités auxiliaires. '
+   + '<b>L’avenant n° 17 du 12 mars 2026 n’est pas étendu</b> — il n’est opposable qu’aux adhérents des organisations signataires.</div>';
+  if(bas.length) h+='<div class="al warn" style="font-size:12px;margin-top:8px">Coefficients de la série L dont le taux à l’embauche passe sous le SMIC ('+ccn16Eur(SMIC_H)+' €) : <b>'+bas.join(', ')+'</b> — comme en marchandises, le bas de la grille est inopérant : c’est le SMIC qui s’applique (L.3231-2).</div>';
+  el.innerHTML=h;
+}
+
 // GAR indicatifs (Garantie Annuelle de Rémunération)
 // GAR / RAG OFFICIELLES — tableaux annexés à l'accord du 11 octobre 2023 (effet 01/12/2023,
 // toujours applicables : NAO 2025/2026 en échec). Source : Légifrance (captures vérifiées).
+// CES TABLEAUX NE SONT PAS PERIMES PAR LES AVENANTS DE NOVEMBRE 2025, et la raison
+// n'est pas le suffixe des coefficients — les annexes 2, 3 et 4 n'en portent pas.
+// C'est que l'accord du 11 octobre 2023 (KALITEXT000049067154, VIGUEUR_ETEN) ne
+// couvre pas que les ouvriers : ses articles 1er et 2 integrent ses tableaux
+// « dans les CCNA 1 a 3 » et « dans la CCNA 4 ». Il porte huit tableaux — ouvriers,
+// employes, TAM, cadres, taux horaires et garanties annuelles. Une serie
+// MARCHANDISES existe donc pour les annexes 2, 3 et 4, et les avenants n° 102, 100
+// et 93 du 27 novembre 2025 vivent en parallele : leur article 1er declare leur
+// portee, « des entreprises de transport routier de voyageurs ».
+// Valeurs marchandises confirmees a la source : employes 105/110/115/120 = 12,09 € ;
+// 132,5 = 12,12 € ; 148,5 = 12,43 €. TAM 150 = 12,60 € ; 200 = 16,17 € ; 225 = 18,21 €.
+// Cadres, RAG jusqu'a 5 ans : coeff. 100 = 34 957,27 € par an (2 621,80 € par mois) ;
+// coeff. 106,5 = 37 226,07 € par an (2 791,96 € par mois) — ce que portent les
+// tableaux ci-dessous.
 const GARD={
  ouv:{lab:'Ouvriers',anc:['À l’embauche','Après 2 ans'],bases:{
   '151.67':{'110M / 115M / 118M / 120M':[22664.41,23117.70],'128M':[22720.65,23175.06],'138M':[22758.14,23213.31],'150M':[23301.79,23767.83]},
@@ -7053,7 +7164,7 @@ function goPage(id){
   if(id==='audit'){ try{ if(typeof auditRender==='function') auditRender(); }catch(e){} }
   if(id==='parcours'){ try{ if(typeof parcoursRender==='function') parcoursRender(); }catch(e){} }
   if(id==='contrat'){ try{ applyContratSector(); }catch(e){} }
-  if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} try{ ccn16Grilles(); }catch(e){} }
+  if(id==='remuneration'){ try{ applyRemunerationSector(); }catch(e){} try{ ccn16Grilles(); }catch(e){} try{ ccn16GrilleL(); }catch(e){} }
   if(id==='temps'){ try{ applyTempsSector(); }catch(e){} }
   if(id==='ri'){ try{ applyRISector(); }catch(e){} }
   /* L'accueil se reconstruit a chaque visite : sans cela le bandeau
@@ -26573,7 +26684,7 @@ var DOCS={
    else re.push('Renseignez les deux dates pour vérifier le délai de 5 jours ouvrables.');
    if(x.obj==='non')ko.push(['L’objet de la convocation n’est pas indiqué : le salarié doit être informé qu’un licenciement est envisagé.','C. trav. art. L1232-2']);else if(x.obj==='oui')ok.push('Objet de l’entretien mentionné.');
    if(x.ass==='non')ko.push(['Absence de mention de la possibilité d’assistance : irrégularité de procédure.','C. trav. art. L1232-4']);else if(x.ass==='oui')ok.push('Possibilité d’assistance mentionnée.');
-   if(c.rep==='non'){if(x.cons==='non')ko.push(['En l’absence de représentants du personnel, la convocation doit préciser que le salarié peut se faire assister par un conseiller du salarié et indiquer l’adresse des lieux où la liste est consultable (mairie + inspection du travail).','C. trav. art. L1232-4, D1232-4']);else if(x.cons==='oui')ok.push('Mention du conseiller du salarié conforme (entreprise sans IRP).');}
+   if(c.rep==='non'){if(x.cons==='non')ko.push(['En l’absence de représentants du personnel, la convocation doit préciser que le salarié peut se faire assister par un conseiller du salarié et indiquer l’adresse des lieux où la liste est consultable (mairie + inspection du travail).','C. trav. art. L1232-4 et L1233-13 ; D1232-5']);else if(x.cons==='oui')ok.push('Mention du conseiller du salarié conforme (entreprise sans IRP).');}
    if(x.mpc==='oui')re.push('Mise à pied conservatoire : elle doit être immédiatement suivie de l’engagement de la procédure ; un délai injustifié lui retire son caractère conservatoire et fragilise la faute grave (C. trav. art. L1332-3).');
    re.push('Vérifiez votre convention collective : elle peut prévoir un délai plus long ou des garanties de procédure supplémentaires qui priment (art. L2251-1).');
    return {ok:ok,ko:ko,re:re};}},
@@ -26890,7 +27001,7 @@ var CHECKLIST={
   {t:'Objet : un licenciement est envisagé',a:'L.1232-2',re:/licenciement|sanction/i},
   {t:'Date, heure et lieu précis de l’entretien',a:'L.1232-2',re:/\d{1,2}\s*h(?:eures|\d{2})?|à\s+\d{1,2}\s*h|lieu|adresse|dans\s+nos\s+locaux|bureau/i},
   {t:'Mention de la faculté d’assistance du salarié',a:'L.1232-4',re:/assist(er|ance|é)/i},
-  {t:'Sans IRP : conseiller du salarié + adresses (mairie / inspection du travail) où consulter la liste',a:'L.1232-4, D.1232-4',re:/(?=[\s\S]*conseiller\s+du\s+salari)(?=[\s\S]*(mairie|h[ôo]tel\s+de\s+ville))(?=[\s\S]*(inspection\s+du\s+travail|ddets|dreets|direccte|unit[ée]\s+(territoriale|d[ée]partementale)))/i,opt:true},
+  {t:'Sans IRP : conseiller du salarié + adresses (mairie / inspection du travail) où consulter la liste',a:'L.1232-4 · L.1233-13 · D.1232-5',re:/(?=[\s\S]*conseiller\s+du\s+salari)(?=[\s\S]*(mairie|h[ôo]tel\s+de\s+ville))(?=[\s\S]*(inspection\s+du\s+travail|ddets|dreets|direccte|unit[ée]\s+(territoriale|d[ée]partementale)))/i,opt:true},
   {t:'Délai ≥ 5 jours ouvrables entre présentation de la convocation et l’entretien',a:'L.1232-2',re:null},
   {t:'Le cas échéant : mise à pied conservatoire notifiée comme telle (non disciplinaire)',a:'L.1332-3',re:/mise\s+[àa]\s+pied\s+(conservatoire|[àa]\s+titre\s+conservatoire)/i,opt:true}
  ],
@@ -27261,13 +27372,22 @@ function diagDeepFindings(t,texte){
   }
   if(t==='convocation'){
     // Sans IRP : la lettre proposant l'assistance par un conseiller du salarié doit indiquer l'adresse
-    // de la mairie ET de l'inspection du travail où la liste est consultable (D.1232-4).
+    // de la mairie ET de l'inspection du travail où la liste est consultable.
+    // L'ARTICLE EST D.1232-5, PAS D.1232-4. D.1232-4 traite de la preparation de la
+    // liste par le directeur regional et du caractere gratuit des fonctions de
+    // conseiller ; il ne nomme ni la mairie ni l'inspection du travail. C'est
+    // D.1232-5 qui dit que la liste « est tenue a la disposition des salaries dans
+    // chaque section d'inspection du travail et dans chaque mairie ».
+    // ET L'EXIGENCE EST LA MEME EN LICENCIEMENT ECONOMIQUE : L.1232-4 et L.1233-13
+    // emploient la meme formule et le meme pluriel, « les services », et D.1232-5
+    // dit quels sont ces services. Il n'existe pas de texte propre a l'economique
+    // parce qu'il n'en faut pas.
     // L'omission de l'une de ces adresses est une irrégularité (Cass. soc. 29 avril 2003, n° 01-41.364).
     if(/conseiller\s+du\s+salari[ée]/i.test(texte)){
       var _hasMairie=/mairie|h[ôo]tel\s+de\s+ville/i.test(texte);
       var _hasInsp=/inspection\s+du\s+travail|\bddets\b|\bdreets\b|direccte|unit[ée]\s+(territoriale|d[ée]partementale)/i.test(texte);
       if(!_hasMairie || !_hasInsp)
-        d.push('<b>Adresses de consultation de la liste des conseillers manquantes (art. D.1232-4)</b> — lorsque le salarié peut être assisté par un <b>conseiller du salarié</b> (entreprise sans CSE), la convocation doit préciser <b>l\'adresse de la mairie ET celle de l\'inspection du travail (DDETS)</b> où la liste départementale est tenue à sa disposition. '+((!_hasMairie&&!_hasInsp)?'<b>Aucune de ces deux adresses</b> ne figure ici':(!_hasMairie?'L\'<b>adresse de la mairie</b> ne figure pas ici':'L\'<b>adresse de l\'inspection du travail (DDETS)</b> ne figure pas ici'))+'. L\'omission de l\'une de ces adresses est une <b>irrégularité de procédure</b> ouvrant droit à indemnité (Cass. soc. 29 avril 2003, n° 01-41.364) : indiquez-les de façon <b>précise et complète</b> (et non le seul nom de la commune).');
+        d.push('<b>Adresses de consultation de la liste des conseillers manquantes (art. D.1232-5)</b> — lorsque le salarié peut être assisté par un <b>conseiller du salarié</b> (entreprise sans CSE), la convocation doit préciser <b>l\'adresse de la mairie ET celle de l\'inspection du travail (DDETS)</b> où la liste départementale est tenue à sa disposition. '+((!_hasMairie&&!_hasInsp)?'<b>Aucune de ces deux adresses</b> ne figure ici':(!_hasMairie?'L\'<b>adresse de la mairie</b> ne figure pas ici':'L\'<b>adresse de l\'inspection du travail (DDETS)</b> ne figure pas ici'))+'. L\'omission de l\'une de ces adresses est une <b>irrégularité de procédure</b> ouvrant droit à indemnité (Cass. soc. 29 avril 2003, n° 01-41.364) : indiquez-les de façon <b>précise et complète</b> (et non le seul nom de la commune).');
     }
   }
   if(t==='rupconv'){
@@ -28422,7 +28542,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     +btns('wzrEcoNext()','start'));};
   window.wzrEcoNext=function(){var eff=V('eco-eff'),nb=V('eco-nb'),mille=V('eco-mille');if(!eff||!nb||!mille){alert('Répondez aux trois questions.');return;}
     A.eff=eff;A.nb=nb;A.mille=mille;wzrGo('eco-2');};
-  S['eco-2']=function(){var pse=(A.eff==='50plus'&&A.nb==='10plus');var CONSEILLER='4️⃣ <b>Assistance du salarié à l’entretien</b> : par une personne de son choix appartenant au personnel. <b>S’il n’y a pas d’institution représentative du personnel</b> dans l’entreprise, il peut aussi se faire assister par un <b>conseiller du salarié</b> choisi sur une liste dressée par l’autorité administrative. Dans ce cas, la lettre de convocation <b>doit</b> mentionner cette possibilité et préciser l’adresse des services où la liste est tenue à la disposition des salariés (L.1233-13). Cette mention manquante rend la procédure irrégulière.<br>';
+  S['eco-2']=function(){var pse=(A.eff==='50plus'&&A.nb==='10plus');var CONSEILLER='4️⃣ <b>Assistance du salarié à l’entretien</b> : par une personne de son choix appartenant au personnel. <b>S’il n’y a pas d’institution représentative du personnel</b> dans l’entreprise, il peut aussi se faire assister par un <b>conseiller du salarié</b> choisi sur une liste dressée par l’autorité administrative. Dans ce cas, la lettre de convocation <b>doit</b> mentionner cette possibilité et préciser l’adresse des services où la liste est tenue à la disposition des salariés (L.1233-13). <b>Ces services sont deux</b> : la liste est tenue à la disposition des salariés <b>dans chaque section d’inspection du travail ET dans chaque mairie</b> (D.1232-5). L.1232-4 pour le motif personnel et L.1233-13 pour l’économique emploient la même formule et le même pluriel — il n’existe pas de texte propre à l’économique parce qu’il n’en faut pas. N’indiquer qu’une des deux adresses est la même irrégularité dans les deux procédures. <span style="color:#9a9585">Lecture des textes, non jurisprudence : les arrêts sanctionnant l’omission d’une seule adresse restent à rechercher.</span><br>';
     box(head(3,3,pse?'🛟 PSE OBLIGATOIRE':'✅ Votre feuille de route économique','')
     +(pse?'<div class="wz-stop"><b>≥ 10 licenciements sur 30 jours dans une entreprise ≥ 50 salariés : un Plan de Sauvegarde de l’Emploi est OBLIGATOIRE</b> (L.1233-61) — accord collectif majoritaire et/ou document unilatéral, validation/homologation DREETS, consultation CSE encadrée. Sans PSE : nullité des licenciements. Utilisez le module PSE complet.</div><button class="btn" style="margin-top:14px" onclick="goPage(\'pse\')">🛟 Ouvrir le module PSE →</button>'
     :'<div class="wz-ok">Procédure applicable à votre cas :</div>'

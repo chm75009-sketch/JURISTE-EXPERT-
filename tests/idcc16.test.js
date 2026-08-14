@@ -55,13 +55,41 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   const sousM = await page.evaluate(() => Object.keys(MINIMA_RAW).filter(k => MINIMA_RAW[k] < SMIC_H));
   ok(sousM.length > 0, 'la serie M, elle, compte des coefficients sous le SMIC', sousM.join(', '));
 
+  console.log('\n— La grille logistique est affichee, avec ses emplois nommes —');
+  /* Avenant n° 16 du 9 avril 2025, KALITEXT000051927426, effet 01/05/2025.
+     Seule des trois series, la serie L nomme les emplois. */
+  const tl = norm(await page.evaluate(() => (document.getElementById('ccn16-serieL') || {}).innerText || ''));
+  ok(tl.length > 400, 'les sept tableaux de la serie L sont rendus', String(tl.length) + ' caracteres');
+  [['110 L', 'Opérateur/emballeur'], ['125 L', 'Cariste'], ['157,5 L', 'Chef d’équipe logistique'],
+   ['165 L', 'Chef de quai logistique'], ['132 L', 'Directeur de sites logistiques']]
+    .forEach(([c, e]) => ok(tl.indexOf(c) >= 0 && tl.indexOf(e) >= 0, c + ' — ' + e));
+  ok(tl.indexOf('11,91') >= 0 && tl.indexOf('12,92') >= 0, 'le taux du 110 L, a l’embauche et apres 15 ans');
+  ok(tl.indexOf('61 575,53') >= 0, 'la RAG du 132 L apres 15 ans');
+  ok(/quel que soit l’effectif/i.test(tl), 'l’avenant s’applique quel que soit l’effectif');
+  ok(/n’est pas étendu/.test(tl) || /n'est pas étendu/.test(tl), 'l’avenant n° 17 est signale comme non etendu');
+  /* Le bas de la grille L passe sous le SMIC, comme en marchandises. */
+  const basL = await page.evaluate(() => ccn16LSousSmic());
+  ok(basL.length > 0, 'des coefficients L passent sous le SMIC', basL.join(', '));
+  ok(basL.indexOf('110 L') >= 0 && basL.indexOf('115 L') >= 0 && basL.indexOf('120 L') >= 0,
+     '110 L, 115 L et 120 L en font partie', basL.join(', '));
+  ok(/inopérant/i.test(tl), 'et la page le dit');
+
   console.log('\n— L’avertissement nomme les trois series —');
   const pg = norm(await page.evaluate(() => document.getElementById('pg-remuneration').innerText));
   ['marchandises', 'voyageurs', 'prestations logistiques', 'avenant n° 120', '11 octobre 2023']
     .forEach(m => ok(pg.toLowerCase().indexOf(m.toLowerCase()) >= 0, 'la page dit « ' + m + ' »'));
   ok(pg.indexOf('n’est pas étendu') >= 0 || pg.indexOf("n'est pas étendu") >= 0,
      'l’avenant n° 17 est signale comme NON etendu');
-  ok(/à vérifier/i.test(pg), 'la grille logistique manquante est marquee « a verifier »');
+  /* LES ANNEXES 2, 3 ET 4 SONT SCINDEES ELLES AUSSI, et la preuve n'est pas le
+     suffixe : c'est l'article 1er de chaque avenant, et l'existence d'un texte
+     marchandises pour les memes annexes — l'accord du 11 octobre 2023, dont les
+     articles 1er et 2 integrent les tableaux dans les CCNA 1 a 3 et dans la
+     CCNA 4. Les garanties annuelles employes, TAM et cadres de l'application en
+     sont tirees : elles ne sont pas perimees. */
+  ok(/CCNA 1 à 3/.test(pg) && /CCNA 4/.test(pg),
+     'la portee de l’accord marchandises du 11 octobre 2023 est enoncee');
+  ok(/transport routier de voyageurs/i.test(pg),
+     'et la portee declaree par l’article 1er des avenants voyageurs');
 
   console.log('\n— Aucune exception JavaScript —');
   ok(err.length === 0, 'aucune exception sur le parcours', err.join(' | '));
