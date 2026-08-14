@@ -121,8 +121,17 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      'la contribution due a defaut : deux mois, trois si adhesion sur proposition');
   ok(/douze mois/i.test(t) && t.indexOf('L.1233-67') >= 0,
      'la prescription de douze mois et sa mention obligatoire');
-  ok(/ne figure ni à L.1233-66/i.test(t) && /à vérifier/i.test(t),
-     'les 21 jours sont donnes pour ce qu’ils sont : hors du code, a verifier');
+  /* LE CODE DIT LUI-MEME POURQUOI LES VINGT ET UN JOURS N'Y SONT PAS.
+     L.1233-68, 2° renvoie a l'accord agree le soin de definir « les delais de
+     reponse du salarie a la proposition de l'employeur ». Le delai est fixe
+     par la convention du 26 janvier 2015 relative au CSP, article 4. */
+  ok(/vingt et un jours/i.test(t), 'le delai de vingt et un jours est donne');
+  ok(t.indexOf('L.1233-68') >= 0 && /accord agréé/i.test(t),
+     'et le renvoi du code a l’accord agree est enonce');
+  ok(/26 janvier 2015/.test(t) && /16 avril 2015/.test(t),
+     'la convention et son arrete d’agrement sont nommes');
+  ok(/salarié protégé/i.test(t), 'la prolongation pour le salarie protege figure');
+  ok(/vaut refus/i.test(t), 'et l’absence de reponse vaut refus');
 
   t = await route('50plus', '2-9', 'nsp');
   ok(/à trancher/i.test(t), 'sans reponse sur le seuil, le parcours ne choisit pas');
