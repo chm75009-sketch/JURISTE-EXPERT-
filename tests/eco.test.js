@@ -32,14 +32,16 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     appSetSecteur('transport'); goPage('home');
   });
 
-  /* Ouvre la feuille de route economique pour un effectif et un nombre donnes. */
-  const route = async (eff, nb) => {
-    await page.evaluate(([eff, nb]) => {
+  /* Ouvre la feuille de route economique. `mille` repond a la question du seuil
+     de L.1233-71 : elle ne se lit pas dans l'effectif de l'entreprise seule. */
+  const route = async (eff, nb, mille) => {
+    await page.evaluate(([eff, nb, mille]) => {
       goPage('rupture'); wzrGo('eco-1');
       document.getElementById('eco-eff').value = eff;
       document.getElementById('eco-nb').value = nb;
+      document.getElementById('eco-mille').value = mille || 'non';
       wzrEcoNext();
-    }, [eff, nb]);
+    }, [eff, nb, mille]);
     await page.waitForTimeout(200);
     return page.evaluate(() => document.querySelector('#pg-rupture .wz-box, #pg-rupture').innerText);
   };
@@ -96,6 +98,36 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      'la sanction disciplinaire, elle, garde la prescription de deux mois');
   ok(!/L\.1332-4/.test(await presc('Licenciement pour motif personnel')),
      'le motif personnel non disciplinaire ne la porte pas non plus');
+
+  console.log('\n— Le dispositif d’accompagnement suit le seuil de mille, pas l’effectif —');
+  /* Une entreprise de trois cents salaries dans un groupe de mille deux cents
+     releve du conge de reclassement, pas du CSP : c'est ce que le parcours
+     refusait de voir, puisqu'il ne posait jamais la question. */
+  t = await route('50plus', '2-9', 'oui');
+  ok(/congé de reclassement/i.test(t) && t.indexOf('L.1233-71') >= 0,
+     'au-dessus du seuil : conge de reclassement');
+  ok(/pas de CSP/i.test(t), 'et il est dit qu’il n’y a pas de CSP');
+  ok(/quatre et douze mois/i.test(t) && /vingt-quatre/i.test(t),
+     'sa duree : quatre a douze mois, vingt-quatre en reconversion (R.1233-31)');
+  ok(/65 ?%/.test(t) && /85 ?%/.test(t), 'sa remuneration : 65 %, plancher 85 % du SMIC (R.1233-32)');
+  ok(t.indexOf('L.1233-75') >= 0, 'et son exclusion en redressement ou liquidation');
+
+  t = await route('50plus', '2-9', 'non');
+  ok(/sécurisation professionnelle/i.test(t) && t.indexOf('L.1233-66') >= 0,
+     'en dessous du seuil : contrat de securisation professionnelle');
+  ok(/dernière réunion des représentants/i.test(t),
+     'le moment de la proposition est donne en entier');
+  ok(/deux mois de salaire brut/i.test(t) && /trois mois/i.test(t),
+     'la contribution due a defaut : deux mois, trois si adhesion sur proposition');
+  ok(/douze mois/i.test(t) && t.indexOf('L.1233-67') >= 0,
+     'la prescription de douze mois et sa mention obligatoire');
+  ok(/ne figure ni à L.1233-66/i.test(t) && /à vérifier/i.test(t),
+     'les 21 jours sont donnes pour ce qu’ils sont : hors du code, a verifier');
+
+  t = await route('50plus', '2-9', 'nsp');
+  ok(/à trancher/i.test(t), 'sans reponse sur le seuil, le parcours ne choisit pas');
+  ok(/comité de groupe/i.test(t) && /européen/i.test(t),
+     'et il rappelle que le seuil s’apprecie aussi au niveau du groupe');
 
   console.log('\n— Aucune exception JavaScript —');
   ok(err.length === 0, 'aucune exception sur le parcours', err.join(' | '));
