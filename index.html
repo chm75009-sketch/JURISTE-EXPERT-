@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-14.182';
+var JX_BUILD = 'v2026-08-14.183';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-14.183', d:'14 aout 2026', t:[
+   'LE PARCOURS ECONOMIQUE DEMANDAIT L\u2019EFFECTIF ET NE S\u2019EN SERVAIT PAS. De deux a neuf licenciements, il prescrivait la meme chose a tout le monde : « Consultation du CSE (2 a 9 licenciements : une reunion \u2014 L.1233-8) ». Or L.1233-8, lu dans son texte, ne fait reunir et consulter le comite QUE « dans les entreprises d\u2019au moins onze salaries ». Une entreprise de six salaries etait donc invitee a consulter un comite qu\u2019elle ne peut pas avoir. Sous le seuil, la procedure est desormais annoncee comme entierement individuelle.',
+   'TROIS REGLES MANQUAIENT DANS LA MEME BRANCHE. L\u2019avis du CSE se rend dans un delai qui ne peut exceder UN MOIS a compter de la premiere reunion, et a defaut le comite est repute avoir ete consulte (L.1233-8, alinea 2). L\u2019entretien prealable ne peut avoir lieu MOINS DE CINQ JOURS OUVRABLES apres la presentation de la convocation (L.1233-11) : le parcours ne le disait que pour le licenciement unique. Et sans institution representative, le salarie peut se faire assister par un CONSEILLER DU SALARIE : la lettre de convocation doit mentionner cette possibilite et preciser l\u2019adresse des services ou la liste est tenue (L.1233-13) \u2014 c\u2019est justement le cas de l\u2019entreprise de moins de onze, celle que le parcours traitait comme les autres.',
+   'LES QUINZE JOURS OUVRABLES DE L\u2019ENCADREMENT NE VALENT QUE POUR UN LICENCIEMENT INDIVIDUEL (L.1233-15). Ils ne sont pas promis a la tranche de deux a neuf, et la reserve est ecrite.',
+   'LE LICENCIEMENT ECONOMIQUE N\u2019AVAIT PAS SON TYPE DANS LE SUIVI DE PROCEDURE. Suivi sous « motif personnel », il recevait les deux jours ouvrables de L.1232-6 la ou L.1233-15 en exige sept. Le type existe, avec ses cinq jours ouvrables de convocation, ses sept jours de notification, les quinze de l\u2019encadrement en individuel, et l\u2019information de la DREETS dans les huit jours de l\u2019ENVOI des lettres \u2014 date d\u2019envoi que l\u2019application ne connait pas, et elle le dit.',
+   'LA PRESCRIPTION DE DEUX MOIS EST DISCIPLINAIRE. Le suivi l\u2019appliquait a toute procedure. L.1332-4 vise les faits fautifs : elle n\u2019a rien a faire dans un licenciement economique, ni dans un licenciement pour motif personnel non disciplinaire \u2014 insuffisance professionnelle, inaptitude.'
+ ]},
  {v:'v2026-08-14.182', d:'14 aout 2026', t:[
    'LA CONVENTION IDCC 16 PORTE TROIS GRILLES OUVRIERS, PAS UNE, ET L\u2019APPLICATION N\u2019EN AVAIT QU\u2019UNE. Serie M, marchandises : accord du 11 octobre 2023 \u2014 confirme exact, aucun accord marchandises depuis, les 501 textes rattaches a la convention ont ete balayes. Serie V, voyageurs : avenant n\u00b0 120 du 27 novembre 2025, etendu, effet au 1er janvier 2026. Serie L, prestations logistiques : avenant n\u00b0 16 du 9 avril 2025 etendu, l\u2019avenant n\u00b0 17 du 12 mars 2026 NON etendu. Le simulateur travaillait sur la seule serie M sans le dire. Un employeur de transport de VOYAGEURS qui s\u2019y fiait payait sous son minimum : la serie V est partout superieure, et elle reste au-dessus du SMIC la ou la serie M passe dessous. La grille V est desormais affichee en entier, telle qu\u2019elle figure au texte (KALITEXT000053914012), avec ses huit echelons d\u2019anciennete. La grille logistique n\u2019est pas detenue : c\u2019est ecrit.',
    'LES DELAIS DE PROCES-VERBAL DE TROIS JOURS ET D\u2019UN JOUR NE SONT PAS A R.2315-25. Cet article ne comporte qu\u2019un alinea et ne connait que les quinze jours. Les deux autres delais \u2014 trois jours dans le cadre de la consultation prevue a L.1233-30, un jour en redressement ou liquidation \u2014 sont a D.2315-26. Les six endroits qui les annoncaient sous R.2315-25 sont corriges. Et ce n\u2019est pas « en cas de PSE » : le texte vise la consultation sur le projet de licenciement collectif.',
@@ -18531,7 +18538,11 @@ function rxDelVeh(id){ if(!confirm('Supprimer ce véhicule ?')) return; RX.parc=
    au LICENCIEMENT ≥ 5 jours ouvrables après présentation de la convocation),
    L.1232-6 (notification du licenciement ≥ 2 jours ouvrables après l'entretien),
    L.1332-2 (sanction disciplinaire notifiée ≥ 2 jours ouvrables et ≤ 1 mois après
-   l'entretien).
+   l'entretien), L.1233-11 et L.1233-15 (licenciement ÉCONOMIQUE : entretien ≥ 5
+   jours ouvrables après présentation de la convocation, notification ≥ 7 jours
+   ouvrables après l'entretien — 15 pour un licenciement INDIVIDUEL d'un membre
+   du personnel d'encadrement), L.1233-19 et R.1233-4 s. (information de la
+   DREETS dans les 8 jours de l'envoi des lettres).
    LE DÉLAI DE CINQ JOURS OUVRABLES N'EXISTE QUE POUR LE LICENCIEMENT. L.1332-2 et
    R.1332-1 n'imposent aucun délai minimum entre la convocation et l'entretien
    préalable à une sanction qui n'est pas un licenciement : la convocation doit
@@ -18547,7 +18558,7 @@ function rxAddMonths(iso,n){ if(!iso) return ''; var d=new Date(iso+'T00:00:00')
    cas sur sept. Le module de diagnostic de cette même application refusait
    d'ailleurs les dates que celui-ci proposait. */
 function rxAddOuvrables(iso,n){ return jxISOApres(iso,n); }
-var RX_PROC_TYPES=['Licenciement pour motif personnel','Licenciement disciplinaire (faute)','Sanction disciplinaire (avertissement, mise à pied…)','Rupture conventionnelle'];
+var RX_PROC_TYPES=['Licenciement pour motif personnel','Licenciement disciplinaire (faute)','Licenciement économique (individuel ou moins de 10 sur 30 jours)','Sanction disciplinaire (avertissement, mise à pied…)','Rupture conventionnelle'];
 /* Renvoie les jalons calculés d'une procédure : {label, iso, crit:true si couperet}. */
 function rxProcSteps(pr){
   var out=[], t=(pr.type||'').toLowerCase();
@@ -18567,8 +18578,18 @@ function rxProcSteps(pr){
     }
     return out.filter(function(x){return x.iso;});
   }
-  if(pr.dateConn && !pr.dateEntretien){ out.push({label:'Prescription des faits — engager la procédure au plus tard le', iso:rxAddMonths(pr.dateConn,2), crit:true, art:'L.1332-4'}); }
+  if(disc && pr.dateConn && !pr.dateEntretien){ out.push({label:'Prescription des faits — engager la procédure au plus tard le', iso:rxAddMonths(pr.dateConn,2), crit:true, art:'L.1332-4'}); }
   var lic = t.indexOf('licenciement')>-1;
+  var eco = t.indexOf('économique')>-1 || t.indexOf('economique')>-1;
+  if(eco){
+    if(pr.dateRecep) out.push({label:'Entretien préalable — pas avant le', iso:rxAddOuvrables(pr.dateRecep,5), crit:false, art:'L.1233-11'});
+    if(pr.dateEntretien){
+      out.push({label:'Notification — pas avant le', iso:rxAddOuvrables(pr.dateEntretien,7), crit:false, art:'L.1233-15'});
+      out.push({label:'Notification d’un membre du personnel d’encadrement, licenciement INDIVIDUEL — pas avant le', iso:rxAddOuvrables(pr.dateEntretien,15), crit:false, art:'L.1233-15'});
+      out.push({label:'Information de la DREETS — dans les 8 jours de l’ENVOI des lettres ; si elles partent au plus tôt, au plus tard le', iso:rxAddDays(rxAddOuvrables(pr.dateEntretien,7),8), crit:true, art:'L.1233-19 · R.1233-4 s.'});
+    }
+    return out.filter(function(x){return x.iso;});
+  }
   if(pr.dateRecep){
     if(lic) out.push({label:'Entretien préalable — pas avant le', iso:rxAddOuvrables(pr.dateRecep,5), crit:false, art:'L.1232-2'});
     else out.push({label:'Entretien préalable — aucun délai minimum imposé par le texte ; laissez au salarié le temps de préparer sa défense', iso:pr.dateRecep, crit:false, art:'L.1332-2 / R.1332-1'});
@@ -28370,17 +28391,17 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     +btns('wzrEcoNext()','start'));};
   window.wzrEcoNext=function(){var eff=V('eco-eff'),nb=V('eco-nb');if(!eff||!nb){alert('Répondez aux deux questions.');return;}
     A.eff=eff;A.nb=nb;wzrGo('eco-2');};
-  S['eco-2']=function(){var pse=(A.eff==='50plus'&&A.nb==='10plus');
+  S['eco-2']=function(){var pse=(A.eff==='50plus'&&A.nb==='10plus');var CONSEILLER='4️⃣ <b>Assistance du salarié à l’entretien</b> : par une personne de son choix appartenant au personnel. <b>S’il n’y a pas d’institution représentative du personnel</b> dans l’entreprise, il peut aussi se faire assister par un <b>conseiller du salarié</b> choisi sur une liste dressée par l’autorité administrative. Dans ce cas, la lettre de convocation <b>doit</b> mentionner cette possibilité et préciser l’adresse des services où la liste est tenue à la disposition des salariés (L.1233-13). Cette mention manquante rend la procédure irrégulière.<br>';
     box(head(3,3,pse?'🛟 PSE OBLIGATOIRE':'✅ Votre feuille de route économique','')
     +(pse?'<div class="wz-stop"><b>≥ 10 licenciements sur 30 jours dans une entreprise ≥ 50 salariés : un Plan de Sauvegarde de l’Emploi est OBLIGATOIRE</b> (L.1233-61) — accord collectif majoritaire et/ou document unilatéral, validation/homologation DREETS, consultation CSE encadrée. Sans PSE : nullité des licenciements. Utilisez le module PSE complet.</div><button class="btn" style="margin-top:14px" onclick="goPage(\'pse\')">🛟 Ouvrir le module PSE →</button>'
     :'<div class="wz-ok">Procédure applicable à votre cas :</div>'
     +'<div style="font-size:12.5px;color:#e8e4d8;line-height:2.1;margin-top:8px">'
     +'1️⃣ <b>Critères d’ordre</b> des licenciements (charges de famille, ancienneté, situation sociale, qualités professionnelles — L.1233-5) appliqués par catégorie professionnelle.<br>'
     +'2️⃣ <b>Recherche de reclassement</b> interne préalable (L.1233-4) — proposition écrite et précise.<br>'
-    +(A.nb==='1'?'3️⃣ <b>Convocation à entretien préalable</b> (5 jours ouvrables), entretien, puis notification par LRAR au plus tôt <b>7 jours ouvrables</b> après l’entretien (15 pour un cadre).<br>':A.nb==='10plus'?'3️⃣ <b>Consultation du CSE en DEUX réunions</b> (10 licenciements ou plus sur 30 jours : régime du grand licenciement collectif, quel que soit l’effectif — L.1233-28), séparées d’un délai qui <b>ne peut excéder 14 jours</b> dans une entreprise de moins de 50 salariés (L.1233-29). Entretiens préalables individuels non requis s’il existe un CSE (L.1233-38).<br>':'3️⃣ <b>Consultation du CSE</b> (2 à 9 licenciements : une réunion — L.1233-8), puis entretiens préalables individuels et notifications (7 jours ouvrables après entretien).<br>')
-    +'4️⃣ <b>Entreprise de moins de 1 000 salariés — CSP obligatoire</b> (L.1233-66) : proposition remise en entretien, le salarié a <b>21 jours</b> pour accepter — défaut de proposition = vous devez sa contribution à France Travail. <b>Entreprise de 1 000 salariés et plus</b> : pas de CSP, mais un <b>congé de reclassement</b> (L.1233-71), dispositif distinct, proposé dans la lettre de licenciement et pris pendant le préavis. Le CSP redevient dû sans condition d’effectif en redressement ou liquidation judiciaire.<br>'
-    +(A.nb==='10plus'?'5️⃣ <b>Notification du PROJET de licenciement à la DREETS</b> (L.1233-46), au plus tôt le lendemain de la date prévue de la 1re réunion du CSE : les lettres de licenciement ne peuvent être adressées qu’à l’expiration d’un délai de <b>30 jours</b> courant à compter de cette notification (L.1233-39).<br>':'5️⃣ <b>Information de la DREETS</b> dans les 8 jours suivant l’envoi des lettres de licenciement (partie réglementaire du code du travail — R.1233-4 s.). L’article L.1233-19, lui, pose l’obligation d’informer l’administration du licenciement collectif de moins de dix salariés dans une même période de trente jours.<br>')
-    +'6️⃣ <b>Priorité de réembauche</b> : sa mention, avec ses conditions de mise en œuvre, est obligatoire dans la <b>lettre de licenciement</b> (L.1233-42) ; elle dure <b>1 an</b> à compter de la rupture et ne joue que si le salarié en fait la demande dans ce délai (L.1233-45).</div>'
+    +(A.nb==='1'?'3️⃣ <b>Convocation à entretien préalable</b> : l’entretien ne peut avoir lieu <b>moins de 5 jours ouvrables</b> après la présentation de la lettre (L.1233-11). Notification par LRAR au plus tôt <b>7 jours ouvrables</b> après la date prévue de l’entretien, <b>15 jours ouvrables</b> pour le licenciement individuel d’un membre du personnel d’encadrement (L.1233-15).<br>'+CONSEILLER:A.nb==='10plus'?'3️⃣ <b>Consultation du CSE en DEUX réunions</b> (10 licenciements ou plus sur 30 jours : régime du grand licenciement collectif, quel que soit l’effectif — L.1233-28), séparées d’un délai qui <b>ne peut excéder 14 jours</b> dans une entreprise de moins de 50 salariés (L.1233-29). Entretiens préalables individuels non requis s’il existe un CSE (L.1233-38).<br>'+CONSEILLER:(A.eff==='moins11'?'3️⃣ <b>Pas de consultation : vous êtes sous le seuil.</b> L’article L.1233-8 ne fait réunir et consulter le comité social et économique que <b>dans les entreprises d’au moins onze salariés</b>. En dessous, la procédure est <b>entièrement individuelle</b>.<br>':'3️⃣ <b>Consultation du CSE en UNE réunion</b> (licenciement collectif de moins de dix salariés sur 30 jours, dans les entreprises <b>d’au moins onze salariés</b> — L.1233-8). Le comité rend son avis dans un délai qui <b>ne peut excéder un mois</b> à compter de la première réunion ; à défaut d’avis rendu dans ce délai, il est <b>réputé avoir été consulté</b> (L.1233-8, alinéa 2). Si aucun CSE n’a été mis en place malgré l’effectif (procès-verbal de carence), la consultation tombe, mais la procédure individuelle ci-dessous reste due en entier.<br>')+'3️⃣ bis <b>Entretien préalable individuel</b> pour chaque salarié concerné, avant toute décision (L.1233-11) : l’entretien ne peut avoir lieu <b>moins de 5 jours ouvrables</b> après la présentation de la lettre de convocation. Notification par LRAR au plus tôt <b>7 jours ouvrables</b> après la date prévue de l’entretien (L.1233-15) — les 15 jours ouvrables de l’encadrement ne valent que pour un licenciement <b>individuel</b>.<br>'+CONSEILLER)
+    +'5️⃣ <b>Entreprise de moins de 1 000 salariés — CSP obligatoire</b> (L.1233-66) : proposition remise en entretien, le salarié a <b>21 jours</b> pour accepter — défaut de proposition = vous devez sa contribution à France Travail. <b>Entreprise de 1 000 salariés et plus</b> : pas de CSP, mais un <b>congé de reclassement</b> (L.1233-71), dispositif distinct, proposé dans la lettre de licenciement et pris pendant le préavis. Le CSP redevient dû sans condition d’effectif en redressement ou liquidation judiciaire.<br>'
+    +(A.nb==='10plus'?'6️⃣ <b>Notification du PROJET de licenciement à la DREETS</b> (L.1233-46), au plus tôt le lendemain de la date prévue de la 1re réunion du CSE : les lettres de licenciement ne peuvent être adressées qu’à l’expiration d’un délai de <b>30 jours</b> courant à compter de cette notification (L.1233-39).<br>':'6️⃣ <b>Information de la DREETS</b> dans les 8 jours suivant l’envoi des lettres de licenciement (partie réglementaire du code du travail — R.1233-4 s.). L’article L.1233-19, lui, pose l’obligation d’informer l’administration du licenciement collectif de moins de dix salariés dans une même période de trente jours.<br>')
+    +'7️⃣ <b>Priorité de réembauche</b> : sa mention, avec ses conditions de mise en œuvre, est obligatoire dans la <b>lettre de licenciement</b> (L.1233-42) ; elle dure <b>1 an</b> à compter de la rupture et ne joue que si le salarié en fait la demande dans ce délai (L.1233-45).</div>'
     +'<div class="al warn" style="font-size:12px;margin-top:10px">⚠️ Le motif économique s’apprécie au niveau du <b>secteur d’activité du groupe</b> — dossier à sécuriser avec un avocat/expert-comptable.</div>')
     +'<div style="display:flex;gap:10px;margin-top:14px"><button class="wz-back" onclick="wzrGo(\'eco-1\')">← Modifier</button><button class="wz-back" style="flex:1" onclick="wzrGo(\'start\')">🔄 Autre rupture</button></div>');};
 
