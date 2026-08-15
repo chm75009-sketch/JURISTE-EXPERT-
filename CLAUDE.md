@@ -16,6 +16,10 @@
    rallonge, pas d'articles de loi sauf si je les demande.
 7. Une question à la fois. Si j'en pose trois, tu réponds aux trois,
    séparément, en trois lignes.
+8. **Court veut dire court : dix lignes au plus.** Tu ne me cites pas mon
+   propre texte, tu ne rappelles pas ce que j'ai écrit, tu ne justifies
+   pas. Tu dis quoi changer et où. Si le détail est nécessaire, tu le
+   proposes en une ligne et tu attends que je le demande.
 
 # Règles de travail — déjà en vigueur
 
