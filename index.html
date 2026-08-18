@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-18.187';
+var JX_BUILD = 'v2026-08-18.188';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,10 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-18.188', d:'18 août 2026', t:[
+   'Élections CSE (module nominatif) — la colonne « remplacement » du fichier importé est désormais LUE : le CDD, l\'intérimaire et le mis à disposition qui remplacent un salarié absent sont exclus du décompte (L.1111-2, 2°, dernière phrase). Elle était ignorée : sur un fichier d\'essai de 3 200 salariés, soixante-dix remplaçants pesaient 65,5 unités de trop — un siège de plus au barème de R.2314-1 (24 au lieu de 23).',
+   'Élections CSE (module nominatif) — le prorata des CDD, intérimaires, intermittents et mis à disposition applique désormais la quotité du temps partiel (L.1111-2, 3° : « quelle que soit la nature de leur contrat »). Un CDD à mi-temps présent toute l\'année comptait 1 au lieu de 0,5.'
+ ]},
  {v:'v2026-08-18.187', d:'18 aout 2026', t:[
    'ELECTIONS CSE \u2014 le decompte de l\u2019effectif couvrait deux des trois categories de L.1111-2. Manquaient le TRAVAILLEUR A DOMICILE (1\u00b0, compte pour une unite), le TRAVAIL INTERMITTENT et la MISE A DISPOSITION par une entreprise exterieure (2\u00b0, au prorata), le CONTRAT INITIATIVE-EMPLOI et le CONTRAT D\u2019ACCOMPAGNEMENT DANS L\u2019EMPLOI (exclus, L.1111-3, 2\u00b0 et 4\u00b0). Sur un fichier d\u2019essai de 1 460 salaries, quatre-vingt-dix tombaient dans \u00ab type de contrat non reconnu \u00bb et pesaient zero sans que rien ne le dise.',
    'LA MISE A DISPOSITION NE COMPTE QU\u2019APRES UN AN. L.1111-2, 2\u00b0 ne retient le salarie mis a disposition que s\u2019il est present dans les locaux de l\u2019entreprise utilisatrice ET y travaille depuis au moins un an. La condition manquait dans les deux modules : un salarie arrive la veille pesait comme les autres.',
@@ -23748,6 +23752,8 @@ function calcSalarieNom(s, dateScrutinStr){
     const h = Math.min(parseFloat(s.heures) || 0, 35);
     effectif = Math.round((h/35) * 100) / 100;
     raisonEff = `${h}h ÷ 35 (L.1111-2, 3°)`;
+  } else if(s.rempl && ['cdd_act','interim','mad'].includes(s.contrat)){
+    raisonEff = 'Remplace un salarié absent — exclu (L.1111-2, 2°, dernière phrase)';
   } else if(['cdd_act','interim','saisonnier','intermittent','mad'].includes(s.contrat)){
     const debutFen = new Date(D);
     debutFen.setMonth(D.getMonth() - 12);
@@ -23768,12 +23774,14 @@ function calcSalarieNom(s, dateScrutinStr){
             effectif = 0;
             raisonEff = `Mis à disposition depuis ${ansPresence.toFixed(1)} an — moins d'un an dans les locaux : hors décompte (L.1111-2, 2°)`;
           } else {
-            effectif = Math.round((moisDansFen / 12) * 100) / 100;
-            raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12 — mis à disposition depuis plus d'un an (L.1111-2, 2°)`;
+            const _qm = Math.min(parseFloat(s.heures)||35, 35)/35;
+            effectif = Math.round((moisDansFen / 12) * _qm * 100) / 100;
+            raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12${_qm<1?` × quotité ${Math.round(_qm*100)} %`:''} — mis à disposition depuis plus d'un an (L.1111-2, 2° et 3°)`;
           }
         } else {
-          effectif = Math.round((moisDansFen / 12) * 100) / 100;
-          raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12${!s.finContrat?' (contrat supposé en cours)':''} (L.1111-2, 2°)`;
+          const _q = Math.min(parseFloat(s.heures)||35, 35)/35;
+          effectif = Math.round((moisDansFen / 12) * _q * 100) / 100;
+          raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12${_q<1?` × quotité ${Math.round(_q*100)} %`:''}${!s.finContrat?' (contrat supposé en cours)':''} (L.1111-2, 2° et 3°)`;
         }
       } else {
         raisonEff = 'Contrat hors fenêtre 12 mois';
@@ -24204,6 +24212,7 @@ function _mapperColonnes(entete){
     else if(map.temps === undefined && /temps|heures|duree|quotite/.test(c)){ map.temps = idx; reconnu++; }
     else if(map.salaire === undefined && /salaire|r[ée]mun[ée]ration|brut|paie/.test(c)){ map.salaire = idx; reconnu++; }
     else if(map.coeff === undefined && /coeff|indice|niveau|[ée]chelon|position/.test(c)){ map.coeff = idx; reconnu++; }
+    else if(map.rempl === undefined && /rempl/.test(c)){ map.rempl = idx; reconnu++; }
     else if(map.obs === undefined && /observ|remarq|note|commentaire|particul/.test(c)){ map.obs = idx; reconnu++; }
   });
   // Le statut (collège) se lit dans la colonne « Statut/Catégorie » ; à défaut seulement,
@@ -24260,10 +24269,22 @@ function _extraireSalarie(champs, map){
     if(hnum > 1 && hnum < 35){ heures = hnum; if(contratNorm === 'cdi_tp') contratFinal = 'cdi_tpartiel'; }
   }
 
+  /* La colonne « remplacement » (oui/non). L.1111-2, 2°, derniere phrase :
+     le CDD, l'interimaire et le salarie mis a disposition qui REMPLACENT un
+     salarie absent sont exclus du decompte. La colonne existait dans les
+     fichiers et le module autonome la lisait ; ici elle etait ignoree, et
+     soixante-dix remplacants pesaient 65,5 unites de trop sur un fichier
+     d'essai de 3 200 — un siege de plus au bareme de R.2314-1. */
+  let rempl = false;
+  if(map.rempl !== undefined){
+    const rv = (champs[map.rempl]||'').toString().toLowerCase().trim();
+    rempl = (rv==='oui'||rv==='o'||rv==='yes'||rv==='1'||rv==='true'||rv==='x');
+  }
   return {
     nom,
     nomBase,
     prenom: prenomBase,
+    rempl,
     dateNaissance: normaliseDate(map.naissance !== undefined ? (champs[map.naissance]||'') : ''),
     dateEntree,
     dateSortie,
