@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-18.188';
+var JX_BUILD = 'v2026-08-18.190';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,17 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-18.190', d:'18 août 2026', t:[
+   'Élections CSE — les codes de paie « appr » et « pro » sont reconnus : apprenti et contrat de professionnalisation étaient exclus par accident sous l\'étiquette « type de contrat non reconnu ». Un contrat exclu par L.1111-3 le dit désormais expressément.',
+   'Élections CSE — la condition d\'un an du salarié mis à disposition se compare de date à date : entré exactement un an avant le scrutin, il compte. Le quotient par 365,25 affichait « depuis 1,0 an — moins d\'un an ». Corrigé aussi dans le module autonome.',
+   'Élections CSE — le collège n\'est plus forcé à 1 quand la catégorie manque : il s\'affiche « à renseigner » partout (badges, justificatif, synthèse).',
+   'Élections CSE — les listes d\'électeurs et d\'éligibles éditées alors que des dates de naissance manquent portent en tête « LISTE PROVISOIRE — NON VALIDABLE », en CSV comme en Word.',
+   'Élections CSE — l\'intérimaire est dit « non électeur dans l\'entreprise utilisatrice, électorat dans l\'entreprise de travail temporaire », sans étendre L.2314-23 au-delà de la mise à disposition.',
+   'Élections CSE — l\'en-tête du calcul précise « Date du 1er tour — date d\'appréciation de l\'effectif », et les CSV partent avec leur BOM UTF-8 (fini les « PrÃ©nom » dans Excel).'
+ ]},
+ {v:'v2026-08-18.189', d:'18 août 2026', t:[
+   'Élections CSE (module nominatif) — sans catégorie professionnelle renseignée, l\'application ne conclut plus « moins de 25 cadres, deux collèges » : elle affiche « nombre de cadres non déterminable » et présente la répartition par collège comme une affectation technique provisoire. Avec 25 cadres établis, le 3e collège reste annoncé, quels que soient les inconnus (L.2314-11).'
+ ]},
  {v:'v2026-08-18.188', d:'18 août 2026', t:[
    'Élections CSE (module nominatif) — la colonne « remplacement » du fichier importé est désormais LUE : le CDD, l\'intérimaire et le mis à disposition qui remplacent un salarié absent sont exclus du décompte (L.1111-2, 2°, dernière phrase). Elle était ignorée : sur un fichier d\'essai de 3 200 salariés, soixante-dix remplaçants pesaient 65,5 unités de trop — un siège de plus au barème de R.2314-1 (24 au lieu de 23).',
    'Élections CSE (module nominatif) — le prorata des CDD, intérimaires, intermittents et mis à disposition applique désormais la quotité du temps partiel (L.1111-2, 3° : « quelle que soit la nature de leur contrat »). Un CDD à mi-temps présent toute l\'année comptait 1 au lieu de 0,5.'
@@ -23769,10 +23780,14 @@ function calcSalarieNom(s, dateScrutinStr){
         /* La mise a disposition ne compte qu'a partir d'un an de presence
            dans les locaux de l'entreprise utilisatrice (L.1111-2, 2°). */
         if(s.contrat === 'mad'){
-          const ansPresence = (D - dDeb) / (1000*60*60*24*365.25);
-          if(ansPresence < 1){
+          /* La condition d'un an se compare de date a date : entre au plus
+             tard le meme jour de l'annee precedente, il compte ; entre le
+             lendemain, non. Le quotient par 365,25 declarait « moins d'un
+             an » un salarie present exactement un an. */
+          const _unAn = new Date(D); _unAn.setFullYear(_unAn.getFullYear()-1);
+          if(dDeb > _unAn){
             effectif = 0;
-            raisonEff = `Mis à disposition depuis ${ansPresence.toFixed(1)} an — moins d'un an dans les locaux : hors décompte (L.1111-2, 2°)`;
+            raisonEff = `Mis à disposition entré le ${dDeb.toLocaleDateString('fr-FR')} — un an dans les locaux non atteint au ${D.toLocaleDateString('fr-FR')} : hors décompte (L.1111-2, 2°)`;
           } else {
             const _qm = Math.min(parseFloat(s.heures)||35, 35)/35;
             effectif = Math.round((moisDansFen / 12) * _qm * 100) / 100;
@@ -23799,7 +23814,7 @@ function calcSalarieNom(s, dateScrutinStr){
   const dFinC = s.finContrat ? new Date(s.finContrat) : null;
   if(dSor && dSor < D){ electeur = false; electeurRaison = 'Sorti avant le scrutin'; }
   else if(s.contrat === 'stagiaire'){ electeur = false; electeurRaison = 'Stagiaire — pas un contrat de travail (ni électeur ni éligible)'; }
-  else if(s.contrat === 'interim'){ electeur = false; electeurRaison = 'Intérimaire — électeur dans son entreprise de travail temporaire, JAMAIS dans l\'entreprise utilisatrice (L.2314-23 ne vise que les salariés mis à disposition ; l\'inscrire ici est une cause d\'annulation du scrutin)'; }
+  else if(s.contrat === 'interim'){ electeur = false; electeurRaison = 'Intérimaire — non électeur dans l\'entreprise utilisatrice : son électorat s\'exerce dans l\'entreprise de travail temporaire qui l\'emploie. L.2314-23 ne vise que les salariés mis à disposition ; l\'inscrire ici exposerait le scrutin à l\'annulation'; }
   else if(contratsDD.includes(s.contrat) && dFinC && dFinC < D){ electeur = false; electeurRaison = 'Contrat terminé avant le scrutin'; }
   else if(!dN){ electeur = false; electeurRaison = 'Date de naissance manquante'; }
   else if(!dE){ electeur = false; electeurRaison = 'Date d\'entrée manquante'; }
@@ -23825,7 +23840,8 @@ function calcSalarieNom(s, dateScrutinStr){
 
   // 4. COLLÈGE / catégorie : 1 = ouvriers-employés · 2 = techniciens-agents de maîtrise · 3 = cadres-ingénieurs
   // (les 2e et 3e collèges ne sont distincts que s'il y a ≥ 25 cadres — L.2314-11 ; sinon réunis dans le 2e)
-  const college = (s.statut === 'cadre') ? 3 : (s.statut === 'tam') ? 2 : 1;
+  const _statutInconnu = (s.statutManquant || !s.statut);
+  const college = (s.statut === 'cadre') ? 3 : (s.statut === 'tam') ? 2 : (_statutInconnu ? 'à renseigner' : 1);
 
   // 5. EXCLUSIONS MANUELLES JURIDIQUES (depuis le tableau s.exclusions)
   // Compatibilité ascendante : convertir les anciens champs en exclusions[]
@@ -24021,7 +24037,7 @@ function _cseVigilance(list, dateScrutin){
   const nStag = list.filter(s => s.contrat==='stagiaire').length;
   if(nStag) w.push('<b>'+nStag+' stagiaire(s)</b> — <i>déjà tranché : exclus de l\'effectif et non électeurs</i> (pas un contrat de travail).');
   const nInt = list.filter(s => s.contrat==='interim').length;
-  if(nInt) w.push('<b>'+nInt+' intérimaire(s)</b> — <i>déjà tranché : comptés dans l\'effectif au prorata (L.1111-2, 2°), JAMAIS électeurs ici</i>. Le salarié temporaire vote dans son entreprise de travail temporaire. L\'article L.2314-23 ne vise que les salariés MIS À DISPOSITION : les inscrire sur la liste de l\'entreprise utilisatrice est une cause d\'annulation du scrutin. Ne les ajoutez pas.');
+  if(nInt) w.push('<b>'+nInt+' intérimaire(s)</b> — <i>déjà tranché : comptés dans l\'effectif au prorata (L.1111-2, 2°), non électeurs dans l\'entreprise utilisatrice</i> : leur électorat s\'exerce dans l\'entreprise de travail temporaire qui les emploie. L\'article L.2314-23 ne vise que les salariés MIS À DISPOSITION : les inscrire ici exposerait le scrutin à l\'annulation. Ne les ajoutez pas.');
   const nMad = list.filter(s => s.contrat==='mad').length;
   if(nMad) w.push('<b>'+nMad+' salarié(s) mis à disposition</b> — <i>par défaut : comptés au prorata s\'ils sont dans les locaux depuis au moins un an, NON électeurs</i>. Ils ne deviennent électeurs qu\'après DOUZE MOIS CONTINUS de présence, et seulement s\'ils choisissent de voter ici plutôt que dans l\'entreprise qui les emploie ; ils ne sont en aucun cas éligibles ici (L.2314-23).');
   const nIntm = list.filter(s => s.contrat==='intermittent').length;
@@ -24038,7 +24054,7 @@ function refreshNomTable(){
     if(synth) synth.innerHTML = '';
     return;
   }
-  let html = '', totalEff = 0, nbElect = 0, nbElig = 0, nbCadres = 0;
+  let html = '', totalEff = 0, nbElect = 0, nbElig = 0, nbCadres = 0, nbSansStatut = 0;
   const _electeurs = [];   // {cat:1(ouvriers/employés) | 2(TAM) | 3(cadres), sexe}
   salariesNom.forEach((s, i) => {
     const r = calcSalarieNom(s, dateScrutin);
@@ -24048,6 +24064,7 @@ function refreshNomTable(){
       if(r.electeur) nbElect++;
       if(r.eligible) nbElig++;
       if(s.statut === 'cadre' && r.effectif > 0) nbCadres++;
+      if((s.statutManquant || !s.statut) && r.effectif > 0) nbSansStatut++;
       if(r.electeur){
         _electeurs.push({cat:(s.statut === 'cadre') ? 3 : (s.statut === 'tam') ? 2 : 1, sexe:s.sexe});
       }
@@ -24093,14 +24110,14 @@ function refreshNomTable(){
 <div style="font-size:14px;font-weight:700;margin-bottom:6px">⛔ Pas d'élections CSE obligatoires</div>
 <div style="font-size:12px;color:#e8e4d8;line-height:1.6">L'obligation d'organiser des élections CSE ne s'applique qu'à partir de <strong>11 salariés atteints pendant 12 mois consécutifs</strong> (art. L.2311-2 C. trav.). Avec un effectif retenu de <strong>${effArr}</strong>, l'entreprise n'a pas cette obligation. Les exports d'élections sont désactivés.</div>
 </div>` : ''}<div class="item">
-<div style="font-size:13px;color:#e8c97a;font-weight:700;margin-bottom:8px">Date de calcul : ${new Date(dateScrutin).toLocaleDateString('fr-FR')}</div>
+<div style="font-size:13px;color:#e8c97a;font-weight:700;margin-bottom:8px">Date du 1er tour — date d'appréciation de l'effectif : ${new Date(dateScrutin).toLocaleDateString('fr-FR')}</div>
 <div style="font-size:13px;color:#e8e4d8;line-height:2">
 Effectif décompté : <strong>${totalEff.toFixed(2)}</strong> → retenu <strong style="color:#e8c97a;font-size:15px"><u>${effArr}</u></strong><br>
 ${!sousSeuil ? `Nombre de sièges à pourvoir : <strong style="color:#e8c97a;font-size:15px"><u>${sg[0]}</u> titulaire(s)</strong> + <strong>${sg[0]} suppléant(s)</strong> · ${sg[1]} h de délégation/mois (art. R.2314-1)<br>` : ''}
 Nombre d'électeurs : <strong>${nbElect}</strong><br>
 Nombre d'éligibles : <strong>${nbElig}</strong><br>
-Répartition des électeurs par collège : ${_repElec}${fhLigne}
-${_trois ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → <strong>3 collèges</strong> (3e collège cadres obligatoire, art. L.2314-11 ; non supprimable même par accord unanime, L.2314-12)</span>' : (_collegeUnique ? '<br><span style="font-size:12px;color:#8fe3bd">✔ <strong>Collège unique</strong> : le 2e collège (TAM/cadres) ne comporte aucun électeur — les <strong>'+nbElect+' électeurs</strong> et les <strong>'+sg[0]+' sièges</strong> relèvent du 1er collège. Configuration à acter dans le <strong>protocole d\'accord préélectoral</strong> (PAP — L.2314-13). Le cadre légal reste à 2 collèges (L.2314-11) ; le collège unique se constate faute de salarié en 2e catégorie.</span>' : '<br><span style="font-size:11px;color:#9a9585">2 collèges (moins de 25 cadres : techniciens/maîtrise et cadres réunis dans le 2e collège — L.2314-11)</span>')}
+Répartition des électeurs par collège${nbSansStatut>0?' (affectation technique provisoire — catégories incomplètes)':''} : ${_repElec}${fhLigne}
+${_trois ? '<br><span style="color:#d4a017">⚠ '+nbCadres+' cadres ≥ 25 → <strong>3 collèges</strong> (3e collège cadres obligatoire, art. L.2314-11 ; non supprimable même par accord unanime, L.2314-12)</span>' : (nbSansStatut > 0 ? '<br><span style="color:#d4a017">⚠ Nombre de cadres NON DÉTERMINABLE : '+nbSansStatut+' salarié(s) sans catégorie professionnelle renseignée. La répartition affichée par collège est une affectation technique provisoire, pas une répartition juridique : renseignez les catégories pour établir s\'il faut deux ou trois collèges (25 cadres au moins imposent le 3e — L.2314-11).</span>' : (_collegeUnique ? '<br><span style="font-size:12px;color:#8fe3bd">✔ <strong>Collège unique</strong> : le 2e collège (TAM/cadres) ne comporte aucun électeur — les <strong>'+nbElect+' électeurs</strong> et les <strong>'+sg[0]+' sièges</strong> relèvent du 1er collège. Configuration à acter dans le <strong>protocole d\'accord préélectoral</strong> (PAP — L.2314-13). Le cadre légal reste à 2 collèges (L.2314-11) ; le collège unique se constate faute de salarié en 2e catégorie.</span>' : '<br><span style="font-size:11px;color:#9a9585">2 collèges (moins de 25 cadres : techniciens/maîtrise et cadres réunis dans le 2e collège — L.2314-11)</span>'))}
 </div></div>`;
   // Points à vérifier (cas que l'app ne peut pas trancher seule)
   try {
@@ -24152,8 +24169,8 @@ function normaliseContrat(s){
   const t = (s||'').toLowerCase().trim().replace(/\./g,'');   /* « C.D.I. » */
   if(!t) return '';                       /* cellule vide : on ne devine pas */
   if(/stagiaire|\bstage\b|convention\s+de\s+stage/.test(t)) return 'stagiaire';
-  if(/apprenti/.test(t)) return 'apprenti';
-  if(/professionnalisation|contrat\s+de\s+pro\b/.test(t)) return 'contrat_pro';
+  if(/apprenti|apprentissage|\bappr\b/.test(t)) return 'apprenti';
+  if(/professionnalisation|contrat\s+de\s+pro\b|\bpro\b/.test(t)) return 'contrat_pro';
   /* « CDI interimaire » est un contrat de travail temporaire : le salarie
      appartient a l'entreprise de travail temporaire et il est MIS A
      DISPOSITION. Cherchee apres « cdi », la mention etait perdue et le
@@ -24736,7 +24753,9 @@ function exportListeNom(type, format){
         csv += [s.nom, s.dateNaissance, s.dateEntree, s.dateSortie, CONTRAT_LABELS[s.contrat]||s.contrat, STATUT_LABELS[s.statut]||s.statut, s.heures||'', s.debutContrat||'', s.finContrat||'', r.effectif.toFixed(2), r.raisonEff, r.electeur?'Oui':'Non', r.electeurRaison, r.eligible?'Oui':'Non', r.eligibleRaison, r.college].map(x => `"${(x===null||x===undefined?'':x).toString().replace(/"/g,'""')}"`).join(sep) + '\n';
       });
     } else {
-      csv = ['N°','Nom Prénom','Date entrée','Statut','Collège','Téléphone'].join(sep) + '\n';
+      const _sansN = salariesNom.filter(x => x.nom && !x.dateNaissance).length;
+      if(_sansN) csv = '"⚠ LISTE PROVISOIRE — NON VALIDABLE : ' + _sansN + ' salarié(s) sans date de naissance (âge indéterminable — non comptés par prudence, L.2314-18 et L.2314-19). Complétez les dates puis rééditez."\n';
+      csv += ['N°','Nom Prénom','Date entrée','Statut','Collège','Téléphone'].join(sep) + '\n';
       let i = 0;
       salariesNom.forEach(s => {
         const r = calcSalarieNom(s, dateScrutin);
@@ -24744,7 +24763,7 @@ function exportListeNom(type, format){
         if(type === 'electeurs' && !r.electeur) return;
         if(type === 'eligibles' && !r.eligible) return;
         i++;
-        csv += [i, s.nom, s.dateEntree, STATUT_LABELS[s.statut]||s.statut, r.college+'e', s.telephone||''].map(x => `"${(x===null||x===undefined?'':x).toString().replace(/"/g,'""')}"`).join(sep) + '\n';
+        csv += [i, s.nom, s.dateEntree, STATUT_LABELS[s.statut]||s.statut, (typeof r.college==='number'? r.college+'e' : r.college), s.telephone||''].map(x => `"${(x===null||x===undefined?'':x).toString().replace(/"/g,'""')}"`).join(sep) + '\n';
       });
     }
     const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
@@ -24773,7 +24792,7 @@ Document établi le ${new Date().toLocaleDateString('fr-FR')}</p>
       const eligCouleur = '#000';
       blocs += `<div style="border:1px solid #000;padding:10px;margin:10px 0;${S}page-break-inside:avoid">
 <div style="background:#fff;padding:6px 10px;margin:-10px -10px 10px -10px;border-bottom:1px solid #000;${S}">
-<strong style="color:#000;font-size:12pt">${idx+1}. ${s.nom||'(sans nom)'}</strong> — ${CONTRAT_LABELS[s.contrat]||s.contrat} · ${STATUT_LABELS[s.statut]||s.statut} (Collège ${r.college}${r.college===1?'er':'e'})
+<strong style="color:#000;font-size:12pt">${idx+1}. ${s.nom||'(sans nom)'}</strong> — ${CONTRAT_LABELS[s.contrat]||s.contrat} · ${STATUT_LABELS[s.statut]||s.statut} (Collège ${typeof r.college==='number' ? r.college+(r.college===1?'er':'e') : r.college})
 </div>
 <table style="width:100%;border-collapse:collapse;${S}font-size:10pt">
 <tr><td style="padding:3px 6px;width:30%;color:#000"><strong>Date de naissance</strong></td><td style="padding:3px 6px;color:#000">${fmtFR(s.dateNaissance)}</td></tr>
@@ -24811,9 +24830,11 @@ ${blocs}
 <tr style="background:#fff"><th style="border:1px solid #000;padding:5px">N°</th><th style="border:1px solid #000;padding:5px">Nom Prénom</th><th style="border:1px solid #000;padding:5px">Entrée</th><th style="border:1px solid #000;padding:5px">Contrat</th><th style="border:1px solid #000;padding:5px">Statut</th><th style="border:1px solid #000;padding:5px">Effectif</th><th style="border:1px solid #000;padding:5px">Détail</th><th style="border:1px solid #000;padding:5px">Élect.</th><th style="border:1px solid #000;padding:5px">Élig.</th><th style="border:1px solid #000;padding:5px">Col.</th></tr>${rows}
 <tr style="background:#fff;font-weight:bold;color:#000"><td colspan="5" style="border:1px solid #000;padding:5px;text-align:right;color:#000">EFFECTIF TOTAL DÉCOMPTÉ</td><td style="border:1px solid #000;padding:5px;text-align:right;color:#000">${total.toFixed(2)}</td><td colspan="4" style="border:1px solid #000;padding:5px;color:#000">→ Retenu (arrondi inférieur) : <strong>${Math.floor(total)}</strong></td></tr>
 </table>
-<p style="${S}font-size:10pt;margin-top:14px"><strong>Base légale</strong> : art. L.1111-2 C. trav. — Les CDI sont comptés intégralement à la date du scrutin. Les CDD pour accroissement d'activité, intérimaires et saisonniers sont décomptés au prorata de leur temps de présence sur les 12 mois précédents. Sont exclus : CDD de remplacement, apprentis, contrats de professionnalisation (art. L.1111-3).</p>`;
+<p style="${S}font-size:10pt;margin-top:14px"><strong>Base légale</strong> : art. L.1111-2 C. trav. — Les CDI sont comptés intégralement à la date du scrutin. Les travailleurs à domicile sont comptés intégralement (1°). Les CDD, intérimaires, saisonniers, salariés en travail intermittent et salariés mis à disposition depuis au moins un an sont décomptés au prorata de leur temps de présence sur les 12 mois précédents, quotité du temps partiel comprise (2° et 3°). Sont exclus : remplaçants d'un salarié absent (2°, dernière phrase), apprentis, contrats de professionnalisation, contrats initiative-emploi et d'accompagnement (art. L.1111-3).</p>`;
   } else {
     let rows = '', n = 0;
+    const _sansN = salariesNom.filter(x => x.nom && !x.dateNaissance).length;
+    if(_sansN) html += `<p style="${S}border:2px solid #000;padding:8px;font-weight:bold">⚠ LISTE PROVISOIRE — NON VALIDABLE : ${_sansN} salarié(s) sans date de naissance (âge indéterminable — non comptés par prudence, art. L.2314-18 et L.2314-19). Complétez les dates de naissance puis rééditez la liste.</p>`;
     salariesNom.forEach(s => {
       const r = calcSalarieNom(s, dateScrutin);
       if(!r) return;
@@ -24851,7 +24872,7 @@ function genererModeleCSV(){
   if(nom === null) return; // annulé
   nom = (String(nom).trim() || defaut).replace(/[\\/:*?"<>|]+/g, '-');
   if(!/\.csv$/i.test(nom)) nom += '.csv';
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const blob = new Blob(['\ufeff', csv], {type:'text/csv;charset=utf-8;'});
   _telechargerCSVModele(blob, nom);
 }
 

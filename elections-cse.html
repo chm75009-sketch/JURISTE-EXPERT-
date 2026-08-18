@@ -198,8 +198,11 @@ function effectifAt(iso){
     if(_remplPossible && s.rempl===true){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — remplacement',exclu:true}); return; }
     if(_remplPossible && s.rempl===undefined) manque.push({nom:nom,quoi:'remplace-t-il un salarié absent ?'});
     if(s.fam==='mad'){
-      var _ans=(Dt-deb)/(86400000*365.25);
-      if(_ans<1){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — moins d’un an dans les locaux',exclu:true}); return; }
+      /* La condition d'un an se compare de date a date : entre au plus tard
+         le meme jour de l'annee precedente, il compte. Le quotient par
+         365,25 excluait un salarie present exactement un an. */
+      var _unAn=new Date(Dt.getTime()); _unAn.setFullYear(_unAn.getFullYear()-1);
+      if(deb>_unAn){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — un an dans les locaux non atteint',exclu:true}); return; }
     }
     var a=deb>D0?deb:D0, b=(fin&&fin<Dt)?fin:Dt;
     var nj=Math.max(0, Math.round((b-a)/86400000));
