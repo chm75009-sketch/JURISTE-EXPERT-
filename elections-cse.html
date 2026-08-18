@@ -194,8 +194,13 @@ function effectifAt(iso){
       tot+=q; lignes.push({nom:nom,val:q,art:R.art,det:(q<1?('quotité '+Math.round(q*100)+' %'):'temps plein')});
       return;
     }
-    if(s.rempl===true){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — remplacement',exclu:true}); return; }
-    if(s.rempl===undefined) manque.push({nom:nom,quoi:'remplace-t-il un salarié absent ?'});
+    var _remplPossible = (s.fam==='cdd' || s.fam==='interim' || s.fam==='mad');
+    if(_remplPossible && s.rempl===true){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — remplacement',exclu:true}); return; }
+    if(_remplPossible && s.rempl===undefined) manque.push({nom:nom,quoi:'remplace-t-il un salarié absent ?'});
+    if(s.fam==='mad'){
+      var _ans=(Dt-deb)/(86400000*365.25);
+      if(_ans<1){ lignes.push({nom:nom,val:0,art:'L.1111-2, 2° — moins d’un an dans les locaux',exclu:true}); return; }
+    }
     var a=deb>D0?deb:D0, b=(fin&&fin<Dt)?fin:Dt;
     var nj=Math.max(0, Math.round((b-a)/86400000));
     var v=q*nj/fen; tot+=v;
@@ -496,7 +501,9 @@ function csvModele(){
    +'DURAND Sophie;cdd;2026-02-05;2026-09-30;35;non\n'
    +'PETIT Karim;appr;2025-09-01;;35;\n'
    +'\n# contrat : '+Object.keys(FAM).join(', ')
-   +'\n# remplacement : oui / non — uniquement pour CDD, interim, mise a disposition, intermittent\n';
+   +'\n# remplacement : oui / non — uniquement pour CDD, interim et mise a disposition.'
+   +'\n# L.1111-2, 2° n exclut le remplacant que pour ces trois familles : le travail'
+   +'\n# intermittent, quoique compte au prorata, n est pas vise par cette exclusion.\n';
   var b=new Blob([t],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='modele-salaries.csv'; a.click();
 }

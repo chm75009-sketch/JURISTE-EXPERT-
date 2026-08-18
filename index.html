@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-14.186';
+var JX_BUILD = 'v2026-08-18.187';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-18.187', d:'18 aout 2026', t:[
+   'ELECTIONS CSE \u2014 le decompte de l\u2019effectif couvrait deux des trois categories de L.1111-2. Manquaient le TRAVAILLEUR A DOMICILE (1\u00b0, compte pour une unite), le TRAVAIL INTERMITTENT et la MISE A DISPOSITION par une entreprise exterieure (2\u00b0, au prorata), le CONTRAT INITIATIVE-EMPLOI et le CONTRAT D\u2019ACCOMPAGNEMENT DANS L\u2019EMPLOI (exclus, L.1111-3, 2\u00b0 et 4\u00b0). Sur un fichier d\u2019essai de 1 460 salaries, quatre-vingt-dix tombaient dans \u00ab type de contrat non reconnu \u00bb et pesaient zero sans que rien ne le dise.',
+   'LA MISE A DISPOSITION NE COMPTE QU\u2019APRES UN AN. L.1111-2, 2\u00b0 ne retient le salarie mis a disposition que s\u2019il est present dans les locaux de l\u2019entreprise utilisatrice ET y travaille depuis au moins un an. La condition manquait dans les deux modules : un salarie arrive la veille pesait comme les autres.',
+   'L\u2019APPLICATION SE CONTREDISAIT SUR LES INTERIMAIRES. Le panneau \u00ab Points a verifier \u00bb invitait a les ajouter aux electeurs \u00ab s\u2019ils sont la depuis 12 mois et le demandent \u00bb ; le moteur de calcul ecrivait, lui, que les inscrire est une cause d\u2019annulation du scrutin. C\u2019est le moteur qui dit le droit : L.2314-23 ne vise que les salaries MIS A DISPOSITION, exige douze mois CONTINUS, et les declare non eligibles. Le message trompeur est remplace.',
+   'ZERO ELECTEUR SANS DIRE POURQUOI. Sans date de naissance, l\u2019application ne peut pas etablir les seize ans de L.2314-18 ni les dix-huit ans de L.2314-19 : elle ne comptait donc personne, et ne le signalait pas. Le panneau alertait sur le sexe et sur le college, jamais sur la naissance. La ligne manquante est ajoutee.',
+   'LA QUESTION DU REMPLACEMENT NE SE POSE PLUS POUR L\u2019INTERMITTENT. L.1111-2, 2\u00b0 nomme le contrat de travail intermittent parmi les proratas, mais l\u2019exclusion du remplacant ne vise que les CDD, l\u2019interim et la mise a disposition. Le module autonome bloquait sur une question sans objet, et son modele de CSV enoncait la meme erreur.'
+ ]},
  {v:'v2026-08-14.186', d:'14 aout 2026', t:[
    'LA GRILLE DES PRESTATIONS LOGISTIQUES EST ENTREE. Serie L, avenant n\u00b0 16 du 9 avril 2025, etendu (KALITEXT000051927426), effet au 1er mai 2025 : les sept tableaux, ouvriers, employes, techniciens et agents de maitrise, ingenieurs et cadres, taux horaires et garanties annuelles. Seule des trois series, elle NOMME LES EMPLOIS \u2014 operateur/emballeur, preparateur de commandes, cariste, chef de quai logistique, directeur de sites logistiques. L\u2019application declarait ne pas la detenir. L\u2019avenant n\u00b0 17 du 12 mars 2026 n\u2019est toujours pas etendu au 14 aout 2026 : il n\u2019oblige que les adherents des organisations signataires, et l\u2019application le dit. A 12,31 \u20ac, le SMIC depasse les coefficients 110 L, 115 L et 120 L a l\u2019embauche : comme en marchandises, le bas de la grille est inoperant.',
    'LES GRILLES EMPLOYES, TAM ET CADRES NE SONT PAS PERIMEES \u2014 ET LA RAISON N\u2019EST PAS LE SUFFIXE. Les annexes 2, 3 et 4 ne portent aucun coefficient suffixe V, mais l\u2019article 1er de chacun des avenants n\u00b0 102, 100 et 93 du 27 novembre 2025 declare sa portee : « des entreprises de transport routier de voyageurs ». Et l\u2019accord marchandises du 11 octobre 2023 ne couvre pas que les ouvriers : ses articles 1er et 2 integrent ses tableaux « dans les CCNA 1 a 3 » et « dans la CCNA 4 ». Une serie marchandises existe donc pour ces trois annexes, et c\u2019est d\u2019elle que les garanties annuelles de l\u2019application sont tirees. Si les coefficients y sont nus, c\u2019est qu\u2019ils sont identiques dans les deux branches : seuls les montants different. C\u2019est le texte qui distingue, pas le numero.',
@@ -23727,16 +23734,21 @@ function calcSalarieNom(s, dateScrutinStr){
     raisonEff = 'Entrée postérieure au scrutin — pas encore dans l\'effectif';
   } else if(s.contrat === 'stagiaire'){
     raisonEff = 'Stagiaire — pas un contrat de travail (hors effectif)';
-  } else if(['apprenti','cdd_rempl','contrat_pro'].includes(s.contrat)){
+  } else if(s.contrat === 'cdd_rempl'){
+    raisonEff = 'Remplaçant d\'un salarié absent — exclu (art. L.1111-2, 2°, dernière phrase)';
+  } else if(['apprenti','contrat_pro','cie','cae'].includes(s.contrat)){
     raisonEff = 'Exclu du décompte (art. L.1111-3)';
   } else if(s.contrat === 'cdi_tp'){
     effectif = 1;
-    raisonEff = 'CDI temps plein';
+    raisonEff = 'CDI temps plein (L.1111-2, 1°)';
+  } else if(s.contrat === 'domicile'){
+    effectif = 1;
+    raisonEff = 'Travailleur à domicile — pris intégralement en compte (L.1111-2, 1°)';
   } else if(s.contrat === 'cdi_tpartiel'){
     const h = Math.min(parseFloat(s.heures) || 0, 35);
     effectif = Math.round((h/35) * 100) / 100;
-    raisonEff = `${h}h ÷ 35`;
-  } else if(['cdd_act','interim','saisonnier'].includes(s.contrat)){
+    raisonEff = `${h}h ÷ 35 (L.1111-2, 3°)`;
+  } else if(['cdd_act','interim','saisonnier','intermittent','mad'].includes(s.contrat)){
     const debutFen = new Date(D);
     debutFen.setMonth(D.getMonth() - 12);
     const dDeb = s.debutContrat ? new Date(s.debutContrat) : (s.dateEntree ? new Date(s.dateEntree) : null);
@@ -23748,8 +23760,21 @@ function calcSalarieNom(s, dateScrutinStr){
       if(eff_fin > eff_debut){
         const jours = (eff_fin - eff_debut) / (1000*60*60*24);
         const moisDansFen = jours / 30.44;
-        effectif = Math.round((moisDansFen / 12) * 100) / 100;
-        raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12${!s.finContrat?' (CDD supposé en cours)':''}`;
+        /* La mise a disposition ne compte qu'a partir d'un an de presence
+           dans les locaux de l'entreprise utilisatrice (L.1111-2, 2°). */
+        if(s.contrat === 'mad'){
+          const ansPresence = (D - dDeb) / (1000*60*60*24*365.25);
+          if(ansPresence < 1){
+            effectif = 0;
+            raisonEff = `Mis à disposition depuis ${ansPresence.toFixed(1)} an — moins d'un an dans les locaux : hors décompte (L.1111-2, 2°)`;
+          } else {
+            effectif = Math.round((moisDansFen / 12) * 100) / 100;
+            raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12 — mis à disposition depuis plus d'un an (L.1111-2, 2°)`;
+          }
+        } else {
+          effectif = Math.round((moisDansFen / 12) * 100) / 100;
+          raisonEff = `${moisDansFen.toFixed(1)} mois ÷ 12${!s.finContrat?' (contrat supposé en cours)':''} (L.1111-2, 2°)`;
+        }
       } else {
         raisonEff = 'Contrat hors fenêtre 12 mois';
       }
@@ -23841,9 +23866,12 @@ function calcSalarieNom(s, dateScrutinStr){
 const CONTRAT_LABELS = {
   '':'⚠ Nature du contrat à préciser',
   'cdi_tp':'CDI temps plein','cdi_tpartiel':'CDI temps partiel',
+  'domicile':'Travailleur à domicile',
   'cdd_act':'CDD accroissement','cdd_rempl':'CDD remplacement (exclu)',
-  'interim':'Intérimaire','saisonnier':'Saisonnier',
+  'interim':'Intérimaire','mad':'Mis à disposition (entreprise extérieure)',
+  'intermittent':'Travail intermittent','saisonnier':'Saisonnier',
   'apprenti':'Apprenti (exclu)','contrat_pro':'Contrat de pro (exclu)',
+  'cie':'Contrat initiative-emploi (exclu)','cae':'Contrat d\'accompagnement (exclu)',
   'stagiaire':'Stagiaire (exclu)'
 };
 const STATUT_LABELS = {'':'⚠ Collège à renseigner','ouvrier':'Ouvrier','employe':'Employé','tam':'TAM / Technicien','cadre':'Cadre'};
@@ -23881,7 +23909,7 @@ ${badges}
 
 function renderFormDetail(s, i){
   const needsHours = s.contrat === 'cdi_tpartiel';
-  const needsCDDDates = ['cdd_act','cdd_rempl','interim','saisonnier'].includes(s.contrat);
+  const needsCDDDates = ['cdd_act','cdd_rempl','interim','saisonnier','intermittent','mad'].includes(s.contrat);
   let extra = '';
   if(needsHours){
     extra += `<div><label class="fl">Heures/sem</label><input type="number" inputmode="decimal" min="1" max="35" value="${s.heures||20}" onchange="updateSalarieNom(${i},'heures',this.value)"/></div>`;
@@ -23977,13 +24005,19 @@ function _cseVigilance(list, dateScrutin){
   // Données incomplètes qui pèsent sur le scrutin
   const sansSexe2 = list.filter(s => s.nom && !s.sexe).length;
   if(sansSexe2) w.push('<b>'+sansSexe2+' salarié(s) sans SEXE renseigné</b> — comptés dans les électeurs mais exclus du calcul de la <b>parité F/H</b> des listes (L.2314-30). Complétez la colonne Sexe.');
+  const sansNaiss = list.filter(s => s.nom && !s.dateNaissance).length;
+  if(sansNaiss) w.push('<b>'+sansNaiss+' salarié(s) sans DATE DE NAISSANCE</b> — <i>par défaut : NON comptés comme électeurs ni comme éligibles</i>. L\'électorat suppose seize ans révolus (L.2314-18) et l\'éligibilité dix-huit ans (L.2314-19) : sans la date, l\'application ne peut pas l\'établir et ne le suppose pas. Complétez la colonne Naissance.');
   const sansCol = list.filter(s => s.statutManquant || !s.statut).length;
   if(sansCol) w.push('<b>'+sansCol+' salarié(s) sans COLLÈGE / catégorie renseigné(e)</b> — <i>placé(s) par défaut dans le 1er collège</i> (ouvriers/employés) ; vérifiez leur catégorie, sinon la répartition des sièges par collège est faussée.');
   // Stagiaires / intérimaires : décision déjà tranchée
   const nStag = list.filter(s => s.contrat==='stagiaire').length;
   if(nStag) w.push('<b>'+nStag+' stagiaire(s)</b> — <i>déjà tranché : exclus de l\'effectif et non électeurs</i> (pas un contrat de travail).');
   const nInt = list.filter(s => s.contrat==='interim').length;
-  if(nInt) w.push('<b>'+nInt+' intérimaire(s)</b> — <i>déjà tranché : comptés dans l\'effectif au prorata, NON électeurs par défaut</i>. Ils votent dans l\'entreprise seulement s\'ils y sont depuis 12 mois ET le demandent (L.2314-23) : ajoutez-les alors aux électeurs.');
+  if(nInt) w.push('<b>'+nInt+' intérimaire(s)</b> — <i>déjà tranché : comptés dans l\'effectif au prorata (L.1111-2, 2°), JAMAIS électeurs ici</i>. Le salarié temporaire vote dans son entreprise de travail temporaire. L\'article L.2314-23 ne vise que les salariés MIS À DISPOSITION : les inscrire sur la liste de l\'entreprise utilisatrice est une cause d\'annulation du scrutin. Ne les ajoutez pas.');
+  const nMad = list.filter(s => s.contrat==='mad').length;
+  if(nMad) w.push('<b>'+nMad+' salarié(s) mis à disposition</b> — <i>par défaut : comptés au prorata s\'ils sont dans les locaux depuis au moins un an, NON électeurs</i>. Ils ne deviennent électeurs qu\'après DOUZE MOIS CONTINUS de présence, et seulement s\'ils choisissent de voter ici plutôt que dans l\'entreprise qui les emploie ; ils ne sont en aucun cas éligibles ici (L.2314-23).');
+  const nIntm = list.filter(s => s.contrat==='intermittent').length;
+  if(nIntm) w.push('<b>'+nIntm+' salarié(s) en travail intermittent</b> — <i>déjà tranché : comptés au prorata du temps de présence</i>. L\'article L.1111-2, 2° les nomme expressément ; l\'exclusion du remplaçant, elle, ne les vise pas.');
   return w;
 }
 function refreshNomTable(){
@@ -24116,7 +24150,12 @@ function normaliseContrat(s){
      appartient a l'entreprise de travail temporaire et il est MIS A
      DISPOSITION. Cherchee apres « cdi », la mention etait perdue et le
      salarie devenait un CDI ordinaire de l'entreprise utilisatrice. */
-  if(/int[ée]rim|travail\s+temporaire|mis[e]?\s+a\s+disposition/.test(t)) return 'interim';
+  if(/initiative[\s-]?emploi|\bcui[\s-]?cie\b|\bcie\b/.test(t)) return 'cie';
+  if(/accompagnement\s+dans\s+l.emploi|\bcui[\s-]?cae\b|\bcae\b/.test(t)) return 'cae';
+  if(/mis[e]?\s*a\s*disposition|\bmad\b|entreprise\s+ext[ée]rieure/.test(t)) return 'mad';
+  if(/int[ée]rim|travail\s+temporaire|\bett\b/.test(t)) return 'interim';
+  if(/intermittent/.test(t)) return 'intermittent';
+  if(/domicile/.test(t)) return 'domicile';
   if(/cdi.*partiel|temps.*partiel|mi-?temps/.test(t)) return 'cdi_tpartiel';
   if(/\bcdi\b|duree\s+ind[ée]termin|dur[ée]e\s+ind[ée]termin/.test(t)) return 'cdi_tp';
   if(/rempl/.test(t)) return 'cdd_rempl';
