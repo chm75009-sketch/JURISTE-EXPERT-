@@ -24004,7 +24004,7 @@ function _cseVigilance(list, dateScrutin){
   });
   // Données incomplètes qui pèsent sur le scrutin
   const sansSexe2 = list.filter(s => s.nom && !s.sexe).length;
-  if(sansSexe2) w.push('<b>'+sansSexe2+' salarié(s) sans SEXE renseigné</b> — comptés dans les électeurs mais exclus du calcul de la <b>parité F/H</b> des listes (L.2314-30). Complétez la colonne Sexe.');
+  if(sansSexe2) w.push('<b>'+sansSexe2+' salarié(s) sans SEXE renseigné</b> — la <b>parité F/H</b> des listes (L.2314-30) ne peut pas être calculée pour eux. Complétez la colonne Sexe.');
   const sansNaiss = list.filter(s => s.nom && !s.dateNaissance).length;
   if(sansNaiss) w.push('<b>'+sansNaiss+' salarié(s) sans DATE DE NAISSANCE</b> — <i>par défaut : NON comptés comme électeurs ni comme éligibles</i>. L\'électorat suppose seize ans révolus (L.2314-18) et l\'éligibilité dix-huit ans (L.2314-19) : sans la date, l\'application ne peut pas l\'établir et ne le suppose pas. Complétez la colonne Naissance.');
   const sansCol = list.filter(s => s.statutManquant || !s.statut).length;
