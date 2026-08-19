@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-19.194';
+var JX_BUILD = 'v2026-08-19.195';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-19.195', d:'19 août 2026', t:[
+   'L\'assistant « J\'embauche un salarié » parlait transport aux dossiers banque : il lisait le seul secteur des codes d\'accès client (jte_sector), vide sur un compte administrateur, et retombait sur les catégories de conducteurs. Il lit désormais la même source que le reste de l\'application — le verrou du code d\'abord, le secteur du dossier ensuite. Sans aucun secteur, il l\'écrit en tête au lieu de parler transport en silence.',
+   'Mode vérification : dans la fenêtre du secteur (bouton 🏢), l\'administrateur change aussi la tranche d\'effectif — secteur et taille se testent en deux gestes, cartes et menus suivent aussitôt.',
+   'La date d\'embauche de l\'assistant CDI n\'était JAMAIS lue : le champ portait le même id que le conteneur de l\'assistant (wz-emb), et le code lisait le conteneur — « la date d\'embauche est obligatoire » tombait quoi qu\'on saisisse. Champ renommé ; balayage : aucun autre id en double dans la page.',
+   'L\'en-tête pouvait perdre la raison sociale selon l\'ordre d\'initialisation, la fiche étant pourtant sur le disque : il se répare désormais lui-même en relisant le dossier du compte, avec quelques reprises espacées après le chargement.'
+ ]},
  {v:'v2026-08-19.194', d:'19 août 2026', t:[
    'Nouveau module « Installer le comité après l\'élection » (Pilotage, et dans « Que voulez-vous faire ? ») : première réunion, désignation du secrétaire et du trésorier (L.2315-23), référent harcèlement sexuel (L.2314-1), règlement intérieur du comité (L.2315-24), calendrier des réunions (L.2315-28), documentation économique et financière datée un mois après la proclamation (L.2312-57). Le parcours suit la taille : sous 50, réception mensuelle (L.2315-21) et référent seulement ; à 300, réunions mensuelles et CSSCT. Aucun « trente jours » : ce délai ne figure dans aucun texte, et le module le dit. Cinq modèles Word. Carence : le module s\'arrête et renvoie au PV.'
  ]},
@@ -6674,6 +6680,16 @@ function jxConventionClient(){
   return { idcc:idcc, nom:nom, libelle: idcc? ('CCN IDCC '+((idcc.length<4)?('0000'+idcc).slice(-4):idcc)) : '' };
 }
 function updateHeroTop(){
+  /* Vu en essai : la fiche etait bien sur le disque, le compte etait bon,
+     mais E restait vide — l'en-tete perdait la raison sociale selon l'ordre
+     d'initialisation. S'il voit E vide alors que le dossier du compte
+     existe, il le recharge : l'affichage suit toujours le disque. */
+  try{
+    if(typeof E==='undefined' || !E || !E.nom){
+      var _s=localStorage.getItem(jxEntKey());
+      if(_s){ var _p=JSON.parse(_s); if(_p && _p.nom){ E=_p; } }
+    }
+  }catch(e){}
   var c=jxConventionClient();
   /* Le compte du cabinet n'a ni raison sociale ni convention a afficher :
      il donne acces a tous les secteurs. L'annoncer evite de faire croire
@@ -6741,6 +6757,21 @@ function _appSetSecteur(id){
   if(document.getElementById('jur-list'))jurRender();
   if(document.getElementById('faq-list'))faqRender();
   updateHeroTop();
+})();
+
+/* Reprises du chargement de la fiche : apres un rechargement, la premiere
+   lecture du stockage peut encore rendre vide ; on reessaie brievement. */
+(function(){
+  var _n=0;
+  function _tick(){
+    try{
+      if(typeof E!=='undefined' && E && E.nom) return;
+      var _s=localStorage.getItem(jxEntKey());
+      if(_s){ try{ updateHeroTop(); }catch(e){} if(typeof E!=='undefined'&&E&&E.nom) return; }
+    }catch(e){}
+    if(++_n<9) setTimeout(_tick,700);
+  }
+  try{ setTimeout(_tick,700); }catch(e){}
 })();
 </script>
 
@@ -9391,6 +9422,19 @@ function secOuvrir(){
       +'border:1px dashed rgba(255,255,255,.22);background:transparent;color:#9fb0c4;font-family:inherit;font-size:12.5px;cursor:pointer">'
       +'Aucun secteur — raisonner sur le seul code du travail</button>';
   }
+  try{
+    if(sessionStorage.getItem('jte_admin')==='1'){
+      var _cur=(typeof E!=='undefined'&&E&&E.effectif)?String(E.effectif):'';
+      h+='<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.14)">'
+        +'<div style="font-size:11.5px;color:#9fb0c4;font-weight:700;margin-bottom:6px">MODE VÉRIFICATION (administrateur) — tranche d’effectif</div>'
+        +'<select onchange="try{famPorteTranche(this.value)}catch(e){}; try{secFermer()}catch(e){}" '
+        +'style="width:100%;min-height:46px;border-radius:10px;padding:10px 12px;font-size:13.5px;background:#16263c;color:#e8e4d8;border:1px solid rgba(255,255,255,.18)">'
+        +'<option value="">— tranche actuelle : '+(_cur||'non renseignée')+' —</option>'
+        +((typeof jxTranches==='function')?jxTranches():[]).map(function(t){ return '<option value="'+t.v+'">'+t.lib+'</option>'; }).join('')
+        +'</select>'
+        +'<div style="font-size:11px;color:#9fb0c4;margin-top:5px">Change l’effectif du dossier courant : cartes, gestes et modules suivent aussitôt.</div></div>';
+    }
+  }catch(e){}
   if(L) L.innerHTML=h;
   ov.style.display='block';
   try{ document.body.style.overflow='hidden'; }catch(e){}
@@ -28168,7 +28212,11 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 (function(){
   var A={};                       // réponses du parcours en cours
   window.WZA=A;
-  function curSec(){try{return (typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):'');}catch(e){return '';}}
+  function curSec(){
+    try{ if(typeof secCourant==='function'){ return secCourant()||''; } }catch(e){}
+    try{ var v=(typeof sessionStorage!=='undefined'?(sessionStorage.getItem('jte_sector')||''):''); if(v) return v; }catch(e){}
+    try{ return (typeof appGetSecteur==='function')?(appGetSecteur()||''):''; }catch(e){ return ''; }
+  }
   function isBat(){return curSec()==='batiment';}
   function secDoc(){return (typeof SECTOR_DOC!=='undefined'?SECTOR_DOC[curSec()]:null)||null;}
   function isTert(){return !!secDoc();}
@@ -28337,6 +28385,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
         +fg(esc(doc.classifLabel)+' *',jxSelect('wz-classif-bat',gr.niveaux||[],A.coeff,'wzCoh()'))
         +loi(esc(doc.conv)+'. Minimum applicable : '+esc(doc.minima)+' — à vérifier sur la grille conventionnelle en vigueur.'+(gr.note?('<br>'+esc(gr.note)):''));
     } else {
+      if(!curSec()){ h+='<div class="al warn" style="font-size:12.5px">Aucun secteur n’est choisi : les catégories ci-dessous sont celles du TRANSPORT, par défaut historique. Choisissez votre secteur (bouton 🏢 en haut) pour avoir les vôtres.</div>'; }
       h+=fg('Catégorie du poste (CCN transport) *','<select id="wz-cat" onchange="wzCoh()">'+cats+'</select>')
         +loi('Le coefficient détermine automatiquement le <b>salaire minimum</b>, la <b>période d’essai</b> et le <b>préavis</b> conventionnels.')
         +fg('Le salarié conduira-t-il des véhicules ? *','<select id="wz-conducteur"><option value="">— choisir —</option><option value="oui"'+(A.conducteur==='oui'?' selected':'')+'>Oui — conducteur</option><option value="non"'+(A.conducteur==='non'?' selected':'')+'>Non — sédentaire</option></select>');
@@ -28345,7 +28394,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     h+=fg('Minimum conventionnel de ce niveau (€/mois) — relevé sur la grille en vigueur','<input id="wz-minconv" type="number" inputmode="decimal" placeholder="Laisser vide si non vérifié" value="'+esc(A.minConv||'')+'" oninput="wzCoh()">');
     h+=fg('Durée hebdomadaire (heures)','<input id="wz-heures" type="number" inputmode="decimal" step="0.5" placeholder="35" value="'+esc(A.heures||'')+'" oninput="wzCoh()">');
     h+='<div id="wz-coh"></div>';
-    if(!cdd)h+=fg('Date d’embauche *',inp('wz-emb','','date',A.debut));
+    if(!cdd)h+=fg('Date d’embauche *',inp('wz-date-emb','','date',A.debut));
     box(h+btns('wzSalarieNext()',cdd?'cdd-dates':'start'));
     if(!bat&&A.cat){var c=document.getElementById('wz-cat');if(c)c.value=A.cat;}
     try{ wzCoh(); }catch(e){}};
@@ -28386,7 +28435,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
     var m={'wz-nom':f.nom,'wz-adr':f.adr,'wz-sal':f.sal};Object.keys(m).forEach(function(k){var e=document.getElementById(k);if(e&&m[k])e.value=m[k];});};
   window.wzSalarieNext=function(){A.civ=V('wz-civ');A.nom=V('wz-nom');A.naissance=V('wz-naissance');A.lieuNaiss=V('wz-lieu');A.nationalite=V('wz-nat');A.ss=V('wz-ss');A.adr=V('wz-adr');A.salaire=V('wz-sal');
     var bat=isBat(), tert=isTert();
-    if(A.type!=='cdd')A.debut=V('wz-emb');
+    if(A.type!=='cdd')A.debut=V('wz-date-emb');
     if(!A.nom){alert('Le nom du salarié est obligatoire.');return;}
     A.minConv=V('wz-minconv');A.heures=V('wz-heures');
     if(bat){

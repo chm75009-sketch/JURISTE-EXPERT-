@@ -33,6 +33,13 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     validerInscription();                        // l'application enregistre elle-même
     appSetSecteur('formation');
   });
+  /* Chromium en headless peut perdre une ecriture localStorage faite juste
+     avant un rechargement : la fiche TEC semblait creee (l'en-tete la
+     montrait, depuis la memoire) mais n'etait pas encore sur le disque, et
+     le retour final la trouvait absente — echec une fois sur deux, sans
+     rapport avec l'application. On attend la persistance, pas l'horloge. */
+  await page.waitForFunction(() =>
+    /TEC/.test(localStorage.getItem('juris_transport::c_tec2026') || ''), { timeout: 5000 });
   await page.waitForTimeout(500);
   console.log('\n— Dossier client TEC —');
   const h1 = await page.evaluate(() => document.getElementById('top-nom').textContent);
@@ -175,7 +182,28 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   await page.reload({ waitUntil: 'load' });
   await page.waitForTimeout(1100);
   await page.evaluate(() => { try { initApp(); } catch (e) {} });
-  await page.waitForTimeout(700);
+  /* L'en-tete se remplit apres coup : une attente fixe echouait une fois
+     sur trois quand la machine etait chargee. On attend le contenu, pas
+     l'horloge — et cinq secondes sans nom restent un echec franc. */
+  try {
+    /* L'en-tete se repare lui-meme en relisant le disque : le sondage
+       l'appelle, au lieu d'attendre que le hasard le fasse. */
+    await page.waitForFunction(() => {
+      try { updateHeroTop(); } catch (e) {}
+      return /TEC/.test(document.getElementById('top-nom').textContent);
+    }, { timeout: 8000 });
+  } catch (e) {
+    /* Echec : on dit tout de l'etat, pour juger si c'est l'application
+       ou l'environnement d'essai qui a perdu le dossier. */
+    console.log('  ETAT A L\'ECHEC : ' + JSON.stringify(await page.evaluate(() => ({
+      cle: localStorage.getItem('juris_transport::c_tec2026') ? 'PRESENTE' : 'ABSENTE',
+      compte: (typeof jxCompte === 'function') ? jxCompte() : '?',
+      inscription: (document.getElementById('pg-inscription') || {}).style ? document.getElementById('pg-inscription').style.display : '?',
+      Enom: (typeof E !== 'undefined' && E) ? (E.nom || '(vide)') : '(indefini)',
+      code: sessionStorage.getItem('jte_code'),
+      cles: Object.keys(localStorage).filter(k => k.indexOf('juris_transport') === 0)
+    }))));
+  }
   console.log('\n— Retour dans le dossier TEC —');
   const h3 = await page.evaluate(() => document.getElementById('top-nom').textContent);
   console.log('  en-tête : ' + JSON.stringify(h3));
