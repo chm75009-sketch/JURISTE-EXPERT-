@@ -56,7 +56,7 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
     [...document.querySelectorAll('#accueil-screen .cov .cr .cp')].map(e => e.textContent.trim()));
   phases.forEach(b => console.log('    · ' + b));
   ok(phases.length === 4, 'il y a exactement quatre phases', phases.length);
-  ['Embauche', 'Vie du contrat', 'Sortie', 'Pilotage']
+  ['Embauche', 'Vie du contrat', 'Fin de contrat', 'Pilotage']
     .forEach(m => ok(phases.some(b => b.indexOf(m) >= 0), 'la phase « ' + m + ' » est présente'));
 
   // ── Les six raisons ──────────────────────────────────────────────

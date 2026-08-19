@@ -812,7 +812,7 @@ th{background:linear-gradient(180deg,rgba(212,175,85,.20),rgba(212,175,85,.12))!
         <span class="cd">Absences, salaire, temps de travail · procédures disciplinaires guidées · alertes d’échéances (visites médicales, habilitations) · prévention du harcèlement.</span>
         <span class="ck">🔒</span></a>
       <a class="cr" onclick="accueilShowAbo();return false">
-        <span class="cp">🚪 Sortie</span>
+        <span class="cp">🚪 Fin de contrat</span>
         <span class="cd">Ruptures conventionnelles · licenciements et inaptitude · calculateur d’indemnités de fin de contrat.</span>
         <span class="ck">🔒</span></a>
       <a class="cr" onclick="accueilShowAbo();return false">
@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-18.190';
+var JX_BUILD = 'v2026-08-19.191';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-19.191', d:'19 août 2026', t:[
+   'La famille « Sortie » devient « Fin de contrat », sur les tuiles comme sur la vitrine.',
+   'Chaque famille ouvre désormais sur « Que voulez-vous faire ? » : les gestes du quotidien en menu déroulant — rédiger un CDD, un avertissement, une lettre de licenciement, préparer une réunion du CSE, alimenter la BDESE… — chacun menant droit au module qui le traite, avec « Autre » vers la liste complète.',
+   'La fiche d\'ouverture porte les mêmes tranches d\'effectif fines que l\'accueil — les quatre anciennes tranches ne filtraient rien, jxEffectifMax ne sachant pas les lire (les anciennes fiches restent lues) — et une nouvelle question : appartenance à un groupe d\'au moins 1 000 salariés (non / oui / à vérifier), qui pré-remplit l\'assistant du licenciement économique.'
+ ]},
  {v:'v2026-08-18.190', d:'18 août 2026', t:[
    'Élections CSE — les codes de paie « appr » et « pro » sont reconnus : apprenti et contrat de professionnalisation étaient exclus par accident sous l\'étiquette « type de contrat non reconnu ». Un contrat exclu par L.1111-3 le dit désormais expressément.',
    'Élections CSE — la condition d\'un an du salarié mis à disposition se compare de date à date : entré exactement un an avant le scrutin, il compte. Le quotient par 365,25 affichait « depuis 1,0 an — moins d\'un an ». Corrigé aussi dans le module autonome.',
@@ -2310,14 +2315,32 @@ try{
   <input class="ins-input" type="email" id="ins-email" placeholder="contact@entreprise.fr"/>
   <label class="ins-label">Téléphone</label>
   <input class="ins-input" id="ins-tel" placeholder="Ex : 01 23 45 67 89"/>
-  <label class="ins-label">Effectif approximatif</label>
+  <label class="ins-label">Effectif (tranche)</label>
   <select class="ins-input" id="ins-effectif" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
     <option value="">— À préciser —</option>
-    <option value="moins11">Moins de 11 salariés</option>
-    <option value="11a49">11 à 49 salariés</option>
-    <option value="50a249">50 à 249 salariés</option>
-    <option value="250plus">250 salariés et plus</option>
+    <option value="1">1 à 10 salariés</option>
+    <option value="11">11 à 19 salariés</option>
+    <option value="20">20 à 49 salariés</option>
+    <option value="50">50 à 199 salariés</option>
+    <option value="200">200 à 249 salariés</option>
+    <option value="250">250 à 299 salariés</option>
+    <option value="300">300 à 499 salariés</option>
+    <option value="500">500 à 749 salariés</option>
+    <option value="750">750 à 999 salariés</option>
+    <option value="1000">1 000 à 1 999 salariés</option>
+    <option value="2000">2 000 à 4 999 salariés</option>
+    <option value="5000">5 000 à 9 999 salariés</option>
+    <option value="10000">10 000 salariés et plus</option>
   </select>
+  <div style="font-size:11px;color:#888;margin:-8px 0 12px">Une tranche pour commencer — dès que le registre du personnel est tenu, l'effectif exact calculé selon L.1111-2 la remplace.</div>
+  <label class="ins-label">Groupe d'au moins 1 000 salariés ?</label>
+  <select class="ins-input" id="ins-groupe" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option>
+    <option value="non">Non</option>
+    <option value="oui">Oui — entreprise ou groupe d'au moins 1 000 salariés</option>
+    <option value="nsp">Je ne sais pas — à vérifier</option>
+  </select>
+  <div style="font-size:11px;color:#888;margin:-8px 0 12px">Ce seuil commande notamment le congé de reclassement en cas de licenciement économique.</div>
   <label class="ins-label">Organisation patronale</label>
   <select class="ins-input" id="ins-org" onchange="try{jxAutreMaj('ins-org','ins-org-autre')}catch(e){}" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
     <option value="">— À préciser —</option><option value="autre">Autre — préciser</option>
@@ -8744,6 +8767,10 @@ function jxEffectifMax(){
     if(n!==null && isFinite(n)) return n;                 // calcule : on le connait
     var d=(typeof E!=='undefined' && E && E.effectif)?String(E.effectif):'';
     if(!d) return null;
+    /* Les fiches d'avant cette version rangeaient quatre tranches propres
+       ('moins11'...). On les lit encore, on n'ecrit plus que les fines. */
+    var _anciennes={moins11:10, '11a49':49, '50a249':249, '250plus':Infinity};
+    if(_anciennes[d]!==undefined) return _anciennes[d];
     var t=null; jxTranches().forEach(function(x){ if(x.v===d) t=x; });
     if(!t) return null;
     return (t.max===null) ? Infinity : t.max;             // borne haute de la tranche
@@ -9436,7 +9463,7 @@ var FAM=[
    ]}
   ]},
 
- {k:'sortie', emo:'🚪', lib:'Sortie',
+ {k:'sortie', emo:'🚪', lib:'Fin de contrat',
   det:'Le contrat prend fin : choisir la voie juste, la conduire sans faute de procédure, chiffrer les indemnités.',
   c1:'#d4762e', c2:'#a8531b', pastille:'#e0a35c',
   groupes:[
@@ -9606,6 +9633,56 @@ var FAM_PAL=[
 ];
 function famCoul(i){ return FAM_PAL[i % FAM_PAL.length]; }
 
+/* ── QUE VOULEZ-VOUS FAIRE ? — les gestes du quotidien, par famille ──
+   Le client ne cherche pas un « module », il a un geste a accomplir :
+   rediger, convoquer, repondre, organiser. Chaque geste pointe vers la
+   carte qui le traite ; « Autre » laisse la liste complete ci-dessous. */
+var FAM_ACTIONS={
+ embauche:[
+  {t:'Rédiger un contrat CDI', go:"goPage('contrat')"},
+  {t:'Rédiger un CDD', go:"goPage('cdd')"},
+  {t:'Faire les formalités d’embauche (DPAE, visite, registre)', go:"goPage('embauche')"},
+  {t:'Classer le salarié dans la convention (coefficient, statut)', go:"goPage('statut')"},
+  {t:'Chiffrer le coût de l’embauche', go:"goPage('calc')"},
+  {t:'Tenir le registre du personnel', go:"goPage('personnel')"}
+ ],
+ viecontrat:[
+  {t:'Rédiger un avertissement ou une sanction', go:"goPage('disciplinaire')"},
+  {t:'Convoquer à un entretien préalable (sanction)', go:"goPage('disciplinaire')"},
+  {t:'Traiter un arrêt maladie / accident du travail', go:"goPage('absences')"},
+  {t:'Poser ou refuser des congés payés', go:"goPage('absences')"},
+  {t:'Vérifier un salaire contre les minima', go:"goPage('remuneration')"},
+  {t:'Compter heures supplémentaires et durées maximales', go:"goPage('temps2')"},
+  {t:'Rédiger ou mettre à jour le règlement intérieur', go:"goPage('ri')"},
+  {t:'Traiter un signalement de harcèlement', go:"goPage('harcele')"}
+ ],
+ sortie:[
+  {t:'Rédiger une lettre de licenciement (motif personnel)', go:"goPage('licenc')"},
+  {t:'Conduire une rupture conventionnelle', go:"goPage('rupconv')"},
+  {t:'Licencier pour motif économique / préparer un PSE', go:"goPage('pse')"},
+  {t:'Gérer une inaptitude et le reclassement', go:"goPage('inapt')"},
+  {t:'Choisir la voie de rupture — l’assistant décide avec vous', go:"rxOpen()"},
+  {t:'Chiffrer les indemnités de rupture', go:"goPage('calc')"}
+ ],
+ pilotage:[
+  {t:'Organiser les élections du CSE', go:"goPage('cse')"},
+  {t:'Préparer une réunion du CSE (ordre du jour, convocation)', go:"goPage('csereu')"},
+  {t:'Répondre aux réclamations du CSE', go:"goPage('csercl')"},
+  {t:'Alimenter la BDESE', go:"goPage('csehub')"},
+  {t:'Les commissions du CSE (CSSCT…)', go:"goPage('csefonc')"},
+  {t:'Préparer les consultations récurrentes', go:"goPage('csecns')"},
+  {t:'Calculer budgets et effectifs', go:"goPage('csebud')"},
+  {t:'Faire le point — où en suis-je ?', go:"goPage('csediag')"}
+ ]
+};
+function famAction(sel){
+  var v=sel.value; if(!v) return;
+  sel.value='';
+  if(v==='__autre') return; /* la liste complete est deja dessous */
+  try{ eval(v); }catch(e){}
+}
+
+
 function famRender(){
   var z=document.getElementById('fam-zone'); if(!z) return;
   /* Ne JAMAIS reconstruire la zone pendant que le doigt est dessus. Sur
@@ -9728,6 +9805,16 @@ function famRender(){
     h+='<div class="fam-bandeau" style="background:linear-gradient(120deg,'+f.c1+'26,'+f.c2+'14);border-color:'+f.c1+'55">'
       +'<span class="be">'+f.emo+'</span><div><div class="bt">'+famEsc(f.lib)+'</div>'
       +'<div class="bd">'+famEsc(f.det)+'</div></div></div>';
+    var _acts=(typeof FAM_ACTIONS!=='undefined')?(FAM_ACTIONS[f.k]||[]):[];
+    if(_acts.length){
+      h+='<div class="fam-q" style="margin:10px 2px 14px">'
+        +'<label style="display:block;font-weight:700;margin-bottom:7px">Que voulez-vous faire ?</label>'
+        +'<select onchange="famAction(this)" style="width:100%;min-height:48px;border-radius:11px;padding:11px 13px;font-size:14.5px;background:rgba(255,255,255,.05);color:inherit;border:1px solid '+f.c1+'66">'
+        +'<option value="">— choisissez votre geste —</option>'
+        +_acts.map(function(a){ return '<option value="'+famEsc(a.go)+'">'+famEsc(a.t)+'</option>'; }).join('')
+        +'<option value="__autre">Autre — voir toute la liste ci-dessous</option>'
+        +'</select></div>';
+    }
     var _famI=0;
     (f.groupes||[]).forEach(function(g){
       var _L=famCartes(g);
@@ -19521,6 +19608,7 @@ function validerInscription(){
   /* La tranche d'effectif commande ce qui est affiche : elle est relue par
      famHorsTaille() a chaque rendu de l'accueil. */
   E.effectif=gv('ins-effectif')||'';
+  E.groupe1000=gv('ins-groupe')||'';
   E.org=gv('ins-org')||'';
   E.orgAutre=gv('ins-org-autre')||'';
   try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
@@ -28620,7 +28708,7 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
        qu'elles emploient AU TOTAL au moins mille salaries. */
     +fg('Mille salariés au total ? *','<select id="eco-mille"><option value="">— choisir —</option><option value="non">Non — moins de mille, groupe compris</option><option value="oui">Oui — mille salariés ou plus dans l’entreprise, l’établissement, ou au total du groupe</option><option value="nsp">Je ne sais pas / autre situation</option></select>'
       +'<div class="loi" style="margin-top:4px">Cette question commande le dispositif d’accompagnement, et elle ne se lit pas dans le seul effectif de l’entreprise : l’article L.1233-71 vise les entreprises et établissements <b>d’au moins mille salariés</b>, <b>ainsi que</b> celles qui appartiennent à un groupe soumis à comité de groupe (L.2331-1) ou à comité d’entreprise européen (L.2341-1, L.2341-2), <b>dès lors qu’elles emploient au total au moins mille salariés</b>. Une entreprise de trois cents salariés dans un groupe de mille deux cents relève donc du congé de reclassement, pas du contrat de sécurisation professionnelle.</div>')
-    +btns('wzrEcoNext()','start'));};
+    +btns('wzrEcoNext()','start'));try{ var _g=(typeof E!=='undefined'&&E&&E.groupe1000)?E.groupe1000:''; var _sel=document.getElementById('eco-mille'); if(_sel&&!_sel.value&&_g){ _sel.value=_g; } }catch(e){} };
   window.wzrEcoNext=function(){var eff=V('eco-eff'),nb=V('eco-nb'),mille=V('eco-mille');if(!eff||!nb||!mille){alert('Répondez aux trois questions.');return;}
     A.eff=eff;A.nb=nb;A.mille=mille;wzrGo('eco-2');};
   S['eco-2']=function(){var pse=(A.eff==='50plus'&&A.nb==='10plus');var CONSEILLER='4️⃣ <b>Assistance du salarié à l’entretien</b> : par une personne de son choix appartenant au personnel. <b>S’il n’y a pas d’institution représentative du personnel</b> dans l’entreprise, il peut aussi se faire assister par un <b>conseiller du salarié</b> choisi sur une liste dressée par l’autorité administrative. Dans ce cas, la lettre de convocation <b>doit</b> mentionner cette possibilité et préciser l’adresse des services où la liste est tenue à la disposition des salariés (L.1233-13). <b>Ces services sont deux</b> : la liste est tenue à la disposition des salariés <b>dans chaque section d’inspection du travail ET dans chaque mairie</b> (D.1232-5). L.1232-4 pour le motif personnel et L.1233-13 pour l’économique emploient la même formule et le même pluriel — il n’existe pas de texte propre à l’économique parce qu’il n’en faut pas. N’indiquer qu’une des deux adresses est la même irrégularité dans les deux procédures. <span style="color:#9a9585">Lecture des textes, non jurisprudence : les arrêts sanctionnant l’omission d’une seule adresse restent à rechercher.</span><br>';
