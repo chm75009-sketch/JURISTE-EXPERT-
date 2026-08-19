@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-19.195';
+var JX_BUILD = 'v2026-08-20.196';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.196', d:'20 août 2026', t:[
+   'Nouveau module « Audit social » (Pilotage, et dans « Que voulez-vous faire ? ») : 23 obligations, chacune avec son texte relu à la source, son seuil et son risque. La liste suit la taille — pas de BDESE à 30 salariés, la CSSCT à 300 — et ce qui est écarté reste visible avec le seuil qui le déclenchera. Trois réponses par ligne : je l\'ai / je ne l\'ai pas / je ne sais pas — le doute part au plan d\'action comme un manque.',
+   'Le plan d\'action classe par gravité (pénal, prud\'homal, administratif) et outille chaque ligne : modèle complet ou module, jamais un renvoi vide. Le contrôle de l\'existant ne prononce CONFORME que pièce à l\'appui — le silence laisse INDÉTERMINÉ, l\'écart repart au plan. Trois rapports Word : plan d\'action, conformité, rapport général, tous avec leurs réserves.',
+   'Quatre modèles nouveaux, chacun en deux parties — structure à remplir PUIS exemplaire fictif entièrement chiffré (SARL EXEMPLE) : DUERP, pack des informations obligatoires, entretien de parcours professionnel (L.6315-1 version en vigueur : première année puis tous les quatre ans), désignation du référent harcèlement de l\'employeur (250+). Et les treize modèles des Négociations et de l\'Installation du CSE portent désormais eux aussi leur exemplaire fictif rempli.'
+ ]},
  {v:'v2026-08-19.195', d:'19 août 2026', t:[
    'L\'assistant « J\'embauche un salarié » parlait transport aux dossiers banque : il lisait le seul secteur des codes d\'accès client (jte_sector), vide sur un compte administrateur, et retombait sur les catégories de conducteurs. Il lit désormais la même source que le reste de l\'application — le verrou du code d\'abord, le secteur du dossier ensuite. Sans aucun secteur, il l\'écrit en tête au lieu de parler transport en silence.',
    'Mode vérification : dans la fenêtre du secteur (bouton 🏢), l\'administrateur change aussi la tranche d\'effectif — secteur et taille se testent en deux gestes, cartes et menus suivent aussitôt.',
@@ -4804,6 +4809,12 @@ Exemple :<br>
 </div>
 
 <!-- ═══ CHARTE RGPD / CONFIDENTIALITÉ ═══ -->
+<div id="pg-auditsoc" class="page">
+  <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+  <div style="flex:1"><div class="page-titre">Audit social</div>
+  <div style="font-size:12px;color:#9fb0c4">Tout ce que vous devez avoir — ce qui manque, ce qui est à contrôler, le plan d’action</div></div></div>
+  <div id="auditsoc-zone" style="padding:4px 2px">Chargement…</div>
+</div>
 <div id="pg-cseinst" class="page">
   <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
   <div style="flex:1"><div class="page-titre">Installer le comité</div>
@@ -7125,7 +7136,7 @@ var JX_ONENTER={
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
   harcmoral:'hmOnEnter', csedos:'dosOnEnter', csebud:'budOnEnter',
-  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter',
+  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter', auditsoc:'auditsocOnEnter',
   contrat:'jxSousTitreContrat'
 };
 function jxEntrer(id){
@@ -9553,6 +9564,7 @@ var FAM=[
   groupes:[
    {t:'PAR OÙ COMMENCER', s:'le guide répond pour vous', pastille:'#46b885', cartes:[
      {emo:'🏛️', lib:'Mon espace CSE — tout le comité', page:'csehub', tag:'Guidé', chip:'Questions → plan'},
+     {emo:'🩺', lib:'Audit social — tout ce que vous devez avoir', page:'auditsoc', tag:'Audit'},
      {emo:'🧭', lib:'Où en suis-je ?', page:'csediag', tag:'Diagnostic'},
      {emo:'📐', lib:'Mon effectif et mes seuils', page:'socle', tag:'Effectif'}
    ]},
@@ -9743,6 +9755,7 @@ var FAM_ACTIONS={
   {t:'Préparer les consultations récurrentes', go:"goPage('csecns')", seuil:[50,'L.2312-17']},
   {t:'Préparer la NAO — négociations obligatoires', go:"goPage('nego')"},
   {t:'Calculer budgets et effectifs', go:"goPage('csebud')", seuil:[50,'L.2315-61']},
+  {t:'Passer l’audit social — ce qui manque, ce qui est à contrôler', go:"goPage('auditsoc')"},
   {t:'Faire le point — où en suis-je ?', go:"goPage('csediag')"}
  ]
 };
@@ -29007,6 +29020,343 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 
 
 
+
+<!-- ══════════ AUDIT SOCIAL — obligations, plan d'action, conformité ══════════ -->
+<script>
+/* Textes relus a la source (code.travail.gouv.fr, 19-20/08/2026) :
+   L.1221-10 (DPAE), L.1221-13 (registre unique), R.4121-1 (DUERP),
+   L.1152-4 et L.1153-5 (information harcelement), L.4644-1 (salarie
+   competent en prevention), L.6315-1 (entretien de parcours professionnel,
+   version 31/12/2025 : premiere annee puis tous les QUATRE ans),
+   L.2311-2 (CSE des 11), L.2314-1 (referent harcelement du CSE),
+   L.5212-1 et L.5212-2 (OETH 6 % des 20), L.1311-2 (reglement interieur
+   des 50), L.2312-18 (BDESE), L.2312-17 (consultations), L.2315-61
+   (budgets), L.1142-8 (index egalite, publication annuelle des 50),
+   L.3322-2 (participation des 50), L.2242-1 (negociations si DS),
+   L.2312-57 (documentation post-election), L.1153-5-1 (referent
+   harcelement employeur des 250), L.2242-2 (GEPP), L.2315-36 (CSSCT des
+   300, ou par etablissement de 300), L.2315-28 (reunions). La mutuelle
+   collective releve du code de la securite sociale (L.911-7) : reference
+   hors depot, marquee a verifier. Jurisprudence : corpus verifie seulement. */
+function ausKey(){ try{ return 'juris_auditsoc::'+jxCompte(); }catch(e){ return 'juris_auditsoc::defaut'; } }
+function ausEtat(){ try{ var v=JSON.parse(localStorage.getItem(ausKey())||'null'); if(v&&typeof v==='object') return v; }catch(e){} return {rep:{},verif:{}}; }
+function ausSave(N){ if(!jxEcrire(ausKey(), JSON.stringify(N))){ try{ jxEchecStockage(); }catch(e){} } }
+function ausSet(k,v){ var N=ausEtat(); N[k]=v; ausSave(N); ausRender(); }
+function ausRep(id,v){ var N=ausEtat(); N.rep=N.rep||{}; N.rep[id]=v; ausSave(N); ausRender(); }
+function ausVerif(id,q,v){ var N=ausEtat(); N.verif=N.verif||{}; (N.verif[id]=N.verif[id]||{})[q]=v; ausSave(N); ausRender(); }
+
+/* r : 1 penal · 2 prud'homal · 3 administratif/financier.
+   s : [seuil, article du seuil] — 0 : toute taille. ds : suppose un
+   delegue syndical. verif : les questions de conformite de l'existant. */
+var AUS_OBLIG=[
+ {id:'registre', lib:'Registre unique du personnel', s:0, src:'L.1221-13', r:1,
+  sanc:'amende pénale par salarié concerné', act:'Constituer le registre — le module Personnel le tient et l’imprime',
+  page:'personnel', verif:['Chaque salarié présent y figure, dans l’ordre des embauches','Les mentions (dates, contrats, nationalités) sont à jour']},
+ {id:'dpae', lib:'DPAE avant chaque embauche', s:0, src:'L.1221-10', r:1,
+  sanc:'travail dissimulé en cas d’omission', act:'Vérifier que chaque salarié du registre a sa DPAE archivée',
+  page:'embauche', verif:['Une DPAE archivée existe pour chaque salarié','Les accusés URSSAF sont conservés']},
+ {id:'duerp', lib:'Document unique d’évaluation des risques (DUERP)', s:0, src:'R.4121-1', r:1,
+  sanc:'amende ; engage la faute inexcusable en cas d’accident', act:'Établir le DUERP par unité de travail',
+  doc:'duerp', verif:['Il couvre chaque unité de travail','Il a été mis à jour depuis moins d’un an ou après tout aménagement important']},
+ {id:'affich', lib:'Informations obligatoires affichées ou diffusées', s:0, src:'L.1152-4 · L.1153-5', r:1,
+  sanc:'amende ; pèse en contentieux de harcèlement', act:'Poser le pack d’affichage : harcèlements, inspection, SPST, égalité',
+  doc:'affichages', verif:['Les textes pénaux du harcèlement (222-33 et 222-33-2) sont diffusés','Les coordonnées inspection / SPST / secours sont visibles']},
+ {id:'spst', lib:'Adhésion à un service de prévention et de santé au travail', s:0, src:'L.4621 s. — à relire avant tout acte', r:1,
+  sanc:'amende ; visites impossibles', act:'Adhérer au SPST et planifier les visites',
+  page:'embauche', verif:['Chaque salarié a eu sa visite d’information et de prévention','Les suivis renforcés sont à jour']},
+ {id:'mutuelle', lib:'Complémentaire santé collective', s:0, src:'L.911-7 code de la sécurité sociale — à vérifier', r:2,
+  sanc:'rappels de cotisations et dommages-intérêts', act:'Mettre en place la couverture et la décision unilatérale ou l’accord',
+  verif:['Tous les salariés sont couverts ou dispensés par écrit','La participation employeur atteint au moins la moitié']},
+ {id:'entretien', lib:'Entretiens de parcours professionnel', s:0, src:'L.6315-1 (version en vigueur : 1re année puis tous les 4 ans)', r:2,
+  sanc:'abondement CPF et contentieux', act:'Planifier les entretiens — trame fournie',
+  doc:'entretien', verif:['Chaque salarié de plus d’un an a eu le sien','Les comptes rendus sont signés et conservés']},
+ {id:'prevent', lib:'Salarié compétent en prévention des risques', s:0, src:'L.4644-1', r:3,
+  sanc:'manquement à l’obligation de sécurité', act:'Désigner et former le salarié compétent (ou IPRP après avis du CSE)',
+  verif:['La désignation est écrite','Il a reçu la formation santé au travail']},
+ {id:'rgpd', lib:'Registre RGPD des traitements', s:0, src:'RGPD, art. 30 — hors code du travail', r:3,
+  sanc:'sanctions CNIL', act:'Tenir le registre — le module RGPD de l’application le prépare',
+  page:'rgpd', verif:['Les traitements RH y figurent (paie, registre, vidéosurveillance…)','Les durées de conservation sont écrites']},
+ {id:'cse', lib:'CSE élu (ou PV de carence)', s:[11,'L.2311-2'], r:1,
+  sanc:'délit d’entrave', act:'Organiser les élections — module complet, documents prêts',
+  page:'cse', verif:['Le PV (élus ou carence) est transmis et archivé','Les mandats de 4 ans ne sont pas expirés']},
+ {id:'refcse', lib:'Référent harcèlement sexuel du CSE', s:[11,'L.2314-1 — dès qu’un CSE existe'], r:2,
+  sanc:'pèse en contentieux', act:'Faire désigner le référent par résolution du comité',
+  doc:'pvbureau_ex', verif:['La résolution de désignation est au PV','Le nom est porté à la connaissance des salariés']},
+ {id:'oeth', lib:'Obligation d’emploi de travailleurs handicapés (6 %)', s:[20,'L.5212-1'], r:3,
+  sanc:'contribution AGEFIPH majorée', act:'Déclarer via la DSN et mesurer l’écart aux 6 % (L.5212-2)',
+  verif:['La déclaration annuelle est faite','Le taux atteint 6 % ou la contribution est réglée']},
+ {id:'ri', lib:'Règlement intérieur', s:[50,'L.1311-2'], r:2,
+  sanc:'sanctions disciplinaires fragilisées', act:'Rédiger, consulter le CSE, déposer — le module le guide',
+  page:'ri', verif:['Le CSE a été consulté','Il est déposé (greffe, inspection) et affiché','Il couvre harcèlements et agissements sexistes']},
+ {id:'bdese', lib:'BDESE constituée et accessible', s:[50,'L.2312-18'], r:2,
+  sanc:'délit d’entrave aux consultations', act:'Constituer la base — rubriques et années au module BDESE',
+  page:'csehub', verif:['Les élus et délégués syndicaux y accèdent en permanence','Les années N-2 à N+3 sont renseignées']},
+ {id:'consult', lib:'Trois consultations récurrentes du CSE', s:[50,'L.2312-17'], r:2,
+  sanc:'délit d’entrave', act:'Caler le calendrier annuel — module Consultations',
+  page:'csecns', verif:['Les trois consultations de l’année écoulée ont eu lieu','Les avis sont au PV']},
+ {id:'budgets', lib:'Budgets du CSE versés', s:[50,'L.2315-61'], r:2,
+  sanc:'rappels sur cinq ans', act:'Calculer et verser fonctionnement et ASC — module Budgets',
+  page:'csebud', verif:['Le 0,20 % de fonctionnement est versé','La subvention ASC suit l’usage ou l’accord']},
+ {id:'index', lib:'Index égalité femmes-hommes publié', s:[50,'L.1142-8'], r:3,
+  sanc:'pénalité financière', act:'Calculer et publier chaque année — module Index',
+  page:'csehub', verif:['L’index de l’année est calculé et publié','Les mesures de correction sont prises sous 75 points']},
+ {id:'participation', lib:'Accord de participation', s:[50,'L.3322-2'], r:2,
+  sanc:'régime d’autorité moins favorable', act:'Négocier l’accord de participation',
+  verif:['Un accord est déposé','La réserve est calculée et versée chaque exercice']},
+ {id:'nao', lib:'Négociations obligatoires engagées', s:[50,'L.2242-1 — si délégué syndical'], ds:true, r:1,
+  sanc:'délit (1 an, 3 750 €) et pénalité égalité', act:'Engager les blocs annuels — module Négociations, huit modèles',
+  page:'nego', verif:['La NAO rémunération de l’année est engagée','Égalité : accord ou plan d’action en vigueur']},
+ {id:'docelec', lib:'Documentation économique remise au CSE (un mois après l’élection)', s:[50,'L.2312-57'], r:3,
+  sanc:'entrave aux attributions', act:'Remettre le quatre-points — module Installer le comité',
+  doc:'documentation_ex', verif:['Le bordereau de remise est signé du secrétaire']},
+ {id:'ref250', lib:'Référent harcèlement sexuel de l’employeur', s:[250,'L.1153-5-1'], r:2,
+  sanc:'pèse en contentieux', act:'Désigner le référent employeur — lettre fournie',
+  doc:'ref250', verif:['La désignation est écrite et diffusée','Le référent est formé']},
+ {id:'gepp', lib:'GEPP négociée (gestion des emplois et des parcours)', s:[300,'L.2242-2'], ds:true, r:2,
+  sanc:'délit de refus d’engager', act:'Engager la triennale — module Négociations',
+  page:'nego', verif:['Une négociation a été engagée dans les trois ans']},
+ {id:'cssct', lib:'CSSCT créée', s:[300,'L.2315-36 — aussi par établissement de 300'], r:2,
+  sanc:'entrave', act:'Créer la commission au règlement du comité — module Installation',
+  page:'cseinst', verif:['La commission existe et ses membres sont désignés','Elle tient ses réunions']}
+];
+function ausCtx(){
+  var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
+  var N=ausEtat();
+  return {eff:eff, ds:(N.ds||''), etabs:(N.etabs||''), g300:(N.g300||'')};
+}
+function ausApplicable(o,ctx){
+  if(o.s && ctx.eff!==null && ctx.eff!==Infinity && ctx.eff<o.s[0]) return false;
+  if(o.ds && ctx.ds==='non') return false;
+  return true;
+}
+function ausOnEnter(){ ausRender(); }
+function auditsocOnEnter(){ ausRender(); }
+function ausRender(){
+  var z=document.getElementById('auditsoc-zone'); if(!z) return;
+  try{ var _a=document.activeElement;
+    if(_a && z.contains(_a) && /^(SELECT|INPUT|TEXTAREA)$/.test(_a.tagName)) return; }catch(e){}
+  var N=ausEtat(), ctx=ausCtx();
+  var effTxt=(ctx.eff===null)?'effectif non renseigné — TOUT est affiché, rien n’est écarté sur une supposition':(ctx.eff===Infinity?'grande tranche':'effectif ≤ '+ctx.eff);
+  var h='<div class="al info" style="font-size:12.5px;line-height:1.65;margin-bottom:12px">Trois réponses possibles pour chaque obligation : <b>je l’ai</b> (elle passera au contrôle de conformité), <b>je ne l’ai pas</b> et <b>je ne sais pas</b> (toutes deux vont au plan d’action — le doute se traite comme un manque). Ce qui ne s’applique pas à votre taille est mis de côté avec son seuil, jamais supprimé.</div>';
+
+  h+='<div class="item"><div style="font-weight:700;margin-bottom:8px">1 · Votre périmètre — '+negoEsc(effTxt)+'</div>';
+  function selq(id,lib,opts){
+    var v=N[id]||'';
+    return '<label class="fl" style="margin-top:6px">'+lib+'</label>'
+      +'<select onchange="ausSet(\''+id+'\', this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)">'
+      +'<option value="">— choisir —</option>'
+      +opts.map(function(o){ return '<option value="'+o[0]+'"'+(v===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
+      +'</select>';
+  }
+  h+=selq('etabs','Établissements distincts ?',[['un','Un seul'],['plusieurs','Plusieurs — certains contrôles s’apprécient par établissement'],['nsp','À vérifier']]);
+  h+=selq('ds','Délégué syndical ?',[['oui','Oui'],['elu','Oui — élu du CSE désigné (moins de 50)'],['non','Non'],['nsp','À vérifier']]);
+  h+='</div>';
+
+  var apply=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx); });
+  var hors=AUS_OBLIG.filter(function(o){ return !ausApplicable(o,ctx); });
+  var manq=[], averif=[], faits=0, sans=0;
+  apply.forEach(function(o){
+    var r=(N.rep||{})[o.id]||'';
+    if(r==='ai'){ averif.push(o); faits++; }
+    else if(r==='pas'||r==='nsp'){ manq.push(o); }
+    else sans++;
+  });
+
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:4px">2 · Vos obligations — '+apply.length+' à votre périmètre</div>'
+    +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:8px">Chaque ligne porte son texte, relu à la source. La jurisprudence attachée viendra du corpus vérifié.</div>';
+  apply.forEach(function(o){
+    var r=(N.rep||{})[o.id]||'';
+    h+='<div style="margin:8px 0;padding:9px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px">'
+      +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><b>'+negoEsc(o.lib)+'</b>'
+      +'<div style="font-size:11px;color:#9fb0c4">'+negoEsc(o.src)+(o.s?(' · s’applique dès '+o.s[0]+' ('+negoEsc(o.s[1])+')'):' · toute taille')+' · risque : '+(o.r===1?'pénal':o.r===2?'prud’homal':'administratif')+' — '+negoEsc(o.sanc)+'</div></div>'
+      +'<select onchange="ausRep(\''+o.id+'\', this.value)" style="min-height:42px;border-radius:9px;padding:8px 10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid '+(r==='ai'?'#46b885':(r?'#d4a017':'rgba(255,255,255,.2)'))+'">'
+      +'<option value="">— répondre —</option>'
+      +'<option value="ai"'+(r==='ai'?' selected':'')+'>Je l’ai</option>'
+      +'<option value="pas"'+(r==='pas'?' selected':'')+'>Je ne l’ai pas</option>'
+      +'<option value="nsp"'+(r==='nsp'?' selected':'')+'>Je ne sais pas</option>'
+      +'</select></div></div>';
+  });
+  if(hors.length){
+    h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:#9fb0c4">'+hors.length+' obligation(s) hors de votre taille — avec le seuil qui les déclenchera</summary><div style="font-size:12px;color:#9fb0c4;padding:8px 4px">'
+      +hors.map(function(o){ return '· '+negoEsc(o.lib)+' — dès '+(o.s?o.s[0]:'?')+' salariés ('+negoEsc(o.s?o.s[1]:'')+')'; }).join('<br>')+'</div></details>';
+  }
+  h+='</div>';
+
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">3 · Où vous en êtes</div>'
+    +'<div style="font-size:13px;line-height:1.8">✅ Déclaré en place : <b>'+faits+'</b> — à contrôler à l’étape 5<br>'
+    +'⚠ Manquant ou incertain : <b>'+manq.length+'</b> — plan d’action ci-dessous<br>'
+    +'◻ Sans réponse : <b>'+sans+'</b></div>'
+    +(sans===0&&apply.length? '<div style="margin-top:8px"><button class="btn-outline" onclick="ausDocRapport()">📄 Rapport général — Word</button></div>':'<div style="font-size:11.5px;color:#9fb0c4;margin-top:6px">Répondez à chaque ligne pour ouvrir le rapport général.</div>')
+    +'</div>';
+
+  if(manq.length){
+    var tri=manq.slice().sort(function(a,b){ return a.r-b.r; });
+    h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">4 · Le plan d’action — par gravité, outillé</div>';
+    var pr=0;
+    tri.forEach(function(o,i){
+      if(o.r!==pr){ pr=o.r; h+='<div style="font-size:11.5px;font-weight:700;color:'+(pr===1?'#e05c5c':pr===2?'#d4a017':'#9fb0c4')+';margin:10px 0 4px">'+(pr===1?'RISQUE PÉNAL — sans délai':pr===2?'RISQUE PRUD’HOMAL — sous 30 jours':'ADMINISTRATIF — sous 90 jours')+'</div>'; }
+      var rep=(N.rep||{})[o.id];
+      h+='<div style="margin:6px 0;padding:9px 10px;border-left:3px solid '+(o.r===1?'#e05c5c':o.r===2?'#d4a017':'#5b9bd5')+';background:rgba(255,255,255,.03);border-radius:0 9px 9px 0">'
+        +'<b>'+(i+1)+'. '+negoEsc(o.lib)+'</b>'+(rep==='nsp'?' <span style="font-size:11px;color:#d4a017">(à vérifier d’abord : le doute se lève, puis on agit)</span>':'')
+        +'<div style="font-size:12.5px;margin-top:3px">'+negoEsc(o.act)+'</div>'
+        +'<div style="margin-top:5px">'
+        +(o.doc?('<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="ausDoc(\''+o.doc+'\')">📄 Modèle complet + exemple chiffré</button> '):'')
+        +(o.page?('<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="goPage(\''+o.page+'\')">▶ Ouvrir le module</button>'):'')
+        +'</div></div>';
+    });
+    h+='<div style="margin-top:8px"><button class="btn-outline" onclick="ausDocPlan()">📄 Rapport d’étape — plan d’action (Word)</button></div></div>';
+  }
+
+  if(averif.length){
+    h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">5 · Contrôle de l’existant — '+averif.length+' déclaré(s) en place</div>'
+      +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:6px">Une déclaration sans pièce n’est pas une conformité : chaque « oui » ci-dessous suppose la pièce datée dans votre classeur. Un « non » repart au plan d’action ; un « à vérifier » laisse le verdict INDÉTERMINÉ.</div>';
+    averif.forEach(function(o){
+      var V=(N.verif||{})[o.id]||{};
+      var verdict='conforme';
+      (o.verif||[]).forEach(function(q,qi){ var v=V['q'+qi]||''; if(v==='non') verdict='écart'; else if(!v||v==='nsp'){ if(verdict!=='écart') verdict='indéterminé'; } });
+      h+='<div style="margin:8px 0;padding:9px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px"><b>'+negoEsc(o.lib)+'</b> — verdict : <b style="color:'+(verdict==='conforme'?'#46b885':verdict==='écart'?'#e05c5c':'#d4a017')+'">'+verdict.toUpperCase()+'</b>';
+      (o.verif||[]).forEach(function(q,qi){
+        var v=V['q'+qi]||'';
+        h+='<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:6px;font-size:12.5px"><span style="flex:1">'+negoEsc(q)+'</span>'
+          +'<select onchange="ausVerif(\''+o.id+'\',\'q'+qi+'\', this.value)" style="min-height:38px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.2)">'
+          +'<option value="">—</option><option value="oui"'+(v==='oui'?' selected':'')+'>Oui, pièce à l’appui</option>'
+          +'<option value="non"'+(v==='non'?' selected':'')+'>Non</option>'
+          +'<option value="nsp"'+(v==='nsp'?' selected':'')+'>À vérifier</option></select></div>';
+      });
+      if(verdict==='écart') h+='<div style="font-size:11.5px;color:#e05c5c;margin-top:5px">Écart constaté → à reporter au plan d’action : '+negoEsc(o.act)+'</div>';
+      h+='</div>';
+    });
+    h+='<div style="margin-top:8px"><button class="btn-outline" onclick="ausDocConf()">📄 Rapport d’étape — conformité de l’existant (Word)</button></div></div>';
+  }
+  z.innerHTML=h;
+}
+</script>
+
+
+<!-- ══════════ AUDIT SOCIAL — modèles et rapports ══════════ -->
+<script>
+/* Chaque modele livre DEUX choses : la structure complete a remplir, puis
+   un exemplaire fictif entierement chiffre (SARL EXEMPLE, 72 salaries,
+   transport IDCC 16) — un renvoi vers un module sans document serait une
+   coquille vide. */
+function ausTete(){
+  var ent=(typeof E!=='undefined'&&E)?E:{};
+  return '<p><b>'+negoEsc(ent.nom||'[RAISON SOCIALE]')+'</b><br>'+negoEsc(ent.adresse||'[ADRESSE]')+'<br>SIRET '+negoEsc(ent.siret||'[SIRET]')+'</p>';
+}
+var AUS_RES='<p style="border:2px solid #000;padding:8px"><b>⚠ Modèle vérifié contre la loi en vigueur — À VÉRIFIER ET COMPLÉTER PAR VOTRE ACCORD D’ENTREPRISE, À JOINDRE.</b> La première partie est votre structure à remplir ; la seconde, un exemplaire fictif chiffré (SARL EXEMPLE) à adapter, jamais à recopier tel quel.</p>';
+function ausDoc(type){
+  if(type==='pvbureau_ex'){ cseinstDoc('pvbureau'); return; }
+  if(type==='documentation_ex'){ cseinstDoc('documentation'); return; }
+  var T='',H='';
+  if(type==='duerp'){
+    T='Document unique d’évaluation des risques (DUERP)';
+    H=ausTete()
+     +'<p><b>DOCUMENT UNIQUE D’ÉVALUATION DES RISQUES PROFESSIONNELS</b> (article R.4121-1 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — VOTRE STRUCTURE À REMPLIR</b></p>'
+     +'<p>Établi le [DATE] · Mise à jour précédente : [DATE] · Unités de travail : [LISTE]</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Unité de travail</th><th>Risque identifié</th><th>Gravité (1-4)</th><th>Fréquence (1-4)</th><th>Priorité</th><th>Mesures existantes</th><th>Actions à mener, responsable, échéance</th></tr>'
+     +'<tr><td>[unité]</td><td>[risque]</td><td>[ ]</td><td>[ ]</td><td>[G×F]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p>Annexes : évaluation des risques chimiques [le cas échéant] · proportion de salariés exposés aux facteurs de risques professionnels · consultation du CSE du [DATE].</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, transport routier, 72 salariés, 3 unités de travail</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Unité</th><th>Risque</th><th>G</th><th>F</th><th>Prio</th><th>Mesures existantes</th><th>Actions 2026</th></tr>'
+     +'<tr><td>Conduite longue distance (38 salariés)</td><td>Accident routier — fatigue</td><td>4</td><td>2</td><td>8</td><td>Chronotachygraphe, plannings à J-7, véhicules révisés</td><td>Formation éco-conduite T4 2026 — resp. exploitation — 1 800 €</td></tr>'
+     +'<tr><td>Quai et manutention (22)</td><td>Troubles musculo-squelettiques, chute de plain-pied</td><td>3</td><td>3</td><td>9</td><td>Transpalettes électriques, EPI fournis</td><td>Étude de poste quai n°2 avec le SPST — 15/10/2026</td></tr>'
+     +'<tr><td>Bureau exploitation (12)</td><td>Travail sur écran, tensions téléphoniques</td><td>2</td><td>3</td><td>6</td><td>Sièges réglés en 2025</td><td>Écrans doubles + pauses affichées — 30/09/2026 — 2 400 €</td></tr></table>'
+     +'<p>Consultation du CSE : réunion du 12/09/2026 (point 4 de l’ordre du jour). Prochaine mise à jour : 12/09/2027 au plus tard, ou après tout aménagement important.</p>';
+  } else if(type==='affichages'){
+    T='Pack — informations obligatoires à afficher ou diffuser';
+    H=ausTete()
+     +'<p><b>INFORMATIONS OBLIGATOIRES — AFFICHAGE OU DIFFUSION PAR TOUT MOYEN</b></p>'
+     +'<p><b>PARTIE 1 — LA LISTE À TENIR</b> (chaque ligne : où, comment, depuis quand)</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Information</th><th>Texte</th><th>Support choisi</th><th>Posée le</th></tr>'
+     +'<tr><td>Harcèlement moral — texte de l’article 222-33-2 du code pénal</td><td>L.1152-4</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Harcèlement sexuel — article 222-33 du code pénal, actions ouvertes, coordonnées des autorités (médecin du travail, inspection, Défenseur des droits, référents)</td><td>L.1153-5</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Coordonnées de l’inspection du travail, du SPST, des secours</td><td>D.4711-1 — à relire</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Égalité de rémunération (articles L.3221-1 s.)</td><td>R.3221-2 — à relire</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Horaires collectifs · repos hebdomadaire · congés</td><td>D.3171-2 s. — à relire</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Consignes incendie · DUERP : modalités d’accès</td><td>R.4227-37 · R.4121-4 — à relire</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Convention collective applicable (avis)</td><td>R.2262-1 — à relire</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF — SARL EXEMPLE, dépôt d’Argenteuil</b></p>'
+     +'<p>Panneau du réfectoire : textes pénaux 222-33 et 222-33-2 (fiches ministère, posées le 02/09/2026) · inspection du travail UD 95, 01 XX XX XX XX · SPST AMETIF, Dr [T.], 01 XX XX XX XX · référent CSE : M. K. LEROY · référent employeur : sans objet (72 < 250). Intranet exploitation : horaires collectifs (roulement J-7), avis IDCC 16 avec lieu de consultation (bureau RH), modalités d’accès au DUERP (classeur RH + PDF signé). Vérification suivante : 01/03/2027.</p>';
+  } else if(type==='entretien'){
+    T='Entretien de parcours professionnel — trame et exemple';
+    H=ausTete()
+     +'<p><b>ENTRETIEN DE PARCOURS PROFESSIONNEL</b> (article L.6315-1, version en vigueur : information à l’embauche, entretien au cours de la première année, puis tous les QUATRE ans — distinct de l’entretien d’évaluation)</p>'
+     +'<p><b>PARTIE 1 — TRAME</b></p>'
+     +'<p>Salarié : [NOM] · Poste : [ ] · Ancienneté : [ ] · Entretien précédent : [DATE]<br>'
+     +'1. Compétences mobilisées et leur évolution possible au regard des transformations de l’entreprise : [ ]<br>'
+     +'2. Situation et parcours : [ ]<br>3. Souhaits d’évolution, mobilité : [ ]<br>'
+     +'4. Formations suivies depuis le dernier entretien · certifications · progression : [ ]<br>'
+     +'5. Compte personnel de formation — projets, abondements envisagés : [ ]<br>'
+     +'6. Conclusions partagées et engagements : [ ] — Signatures.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF — Mme N. SARR, conductrice SPL, 6 ans d’ancienneté, SARL EXEMPLE, 14/09/2026</b></p>'
+     +'<p>1. Maîtrise ADR citernes ; l’entreprise ouvre une activité benne TP en 2027 — la CACES grue auxiliaire devient utile. 2. Groupe 6, 128M, longue distance depuis 2022 ; souhaite passer à la courte distance en 2028 (enfants). 3. Souhait : formatrice interne éco-conduite. 4. Depuis 2022 : recyclage FCO (05/2025), ADR étendu (11/2024). 5. CPF : 2 340 € — projet titre « formateur routier », abondement employeur proposé : 1 500 €. 6. Engagements : CACES grue T2 2027 payé employeur ; point mobilité courte distance à l’entretien 2028. Signé le 14/09/2026 — la salariée, le gérant.</p>';
+  } else if(type==='ref250'){
+    T='Désignation du référent harcèlement sexuel de l’employeur';
+    H=ausTete()
+     +'<p><b>DÉSIGNATION DU RÉFÉRENT HARCÈLEMENT SEXUEL ET AGISSEMENTS SEXISTES</b> (article L.1153-5-1 — entreprises d’au moins 250 salariés ; distinct du référent désigné par le CSE, L.2314-1)</p>'
+     +'<p><b>PARTIE 1 — LETTRE DE DÉSIGNATION</b></p>'
+     +'<p>À [NOM], [fonction]. — Nous vous désignons référent(e) chargé(e) d’orienter, d’informer et d’accompagner les salariés en matière de lutte contre le harcèlement sexuel et les agissements sexistes, à compter du [DATE]. Missions : accueil des signalements, orientation (médecin du travail, inspection, Défenseur des droits), information des équipes, lien avec le référent du CSE. Moyens : [heures, formation, ligne dédiée]. Votre identité et vos coordonnées seront diffusées à l’ensemble du personnel. — [Signature du représentant légal]</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF — SA EXEMPLE LOGISTIQUE, 310 salariés</b></p>'
+     +'<p>À Mme A. COSTA, responsable RH adjointe — désignée à compter du 01/10/2026. Formation : « prévenir et traiter les signalements », AFTRAL, 2 jours, 05-06/10/2026. Moyens : 4 heures par mois, ligne 01 XX XX XX XX, adresse referent-hs@exemple.fr. Diffusion : note de service n° 2026-14 du 01/10/2026 affichée sur les trois sites et remise aux nouveaux embauchés ; coordonnées ajoutées au panneau harcèlement à côté de celles du référent CSE (M. B. DIAS) et du texte de l’article 222-33 du code pénal. — Le directeur général.</p>';
+  } else { alert('Modèle inconnu.'); return; }
+  window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
+  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+}
+/* ── Les rapports ── */
+function ausLigne(o,rep){
+  return '<tr><td style="border:1px solid #000;padding:4px">'+negoEsc(o.lib)+'</td><td style="border:1px solid #000;padding:4px">'+negoEsc(o.src)+'</td><td style="border:1px solid #000;padding:4px">'+(o.r===1?'pénal':o.r===2?'prud’homal':'administratif')+'</td><td style="border:1px solid #000;padding:4px">'+rep+'</td></tr>';
+}
+function ausRapportBase(titre, corps){
+  var ent=(typeof E!=='undefined'&&E)?E:{};
+  var ctx=ausCtx();
+  var effTxt=(ctx.eff===null)?'non renseigné':(ctx.eff===Infinity?'grande tranche':'≤ '+ctx.eff);
+  window._docCurrent={ titre:titre, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'
+    +ausTete()
+    +'<p><b>'+negoEsc(titre.toUpperCase())+'</b><br>Établi le '+new Date().toLocaleDateString('fr-FR')+' · effectif retenu : '+negoEsc(effTxt)+' · '+(typeof JX_BUILD!=='undefined'?('Juris Expert '+JX_BUILD):'')+'</p>'
+    +corps
+    +'<p style="border:1px solid #000;padding:7px;font-size:10pt"><b>Réserves.</b> Rapport établi sur les déclarations du client à la date ci-dessus ; textes relus à leur source dans leur version en vigueur ; il ne vaut pas audit contradictoire ni conseil juridique individualisé (loi n° 71-1130 du 31 décembre 1971). Les points « à vérifier » restent à lever pièce en main.</p></div>' };
+  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+}
+function ausDocPlan(){
+  var N=ausEtat(), ctx=ausCtx();
+  var manq=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx) && ((N.rep||{})[o.id]==='pas'||(N.rep||{})[o.id]==='nsp'); }).sort(function(a,b){ return a.r-b.r; });
+  var c='<p>'+manq.length+' obligation(s) manquante(s) ou incertaine(s), classées par gravité. Échéances proposées : risque pénal — sans délai ; prud’homal — 30 jours ; administratif — 90 jours.</p>'
+    +'<table style="border-collapse:collapse;width:100%"><tr><th style="border:1px solid #000;padding:4px">Obligation</th><th style="border:1px solid #000;padding:4px">Texte</th><th style="border:1px solid #000;padding:4px">Risque</th><th style="border:1px solid #000;padding:4px">Action et outil</th></tr>'
+    +manq.map(function(o){ return ausLigne(o, negoEsc(o.act)+((N.rep||{})[o.id]==='nsp'?' — VÉRIFIER D’ABORD':'')); }).join('')+'</table>';
+  ausRapportBase('Audit social — rapport d’étape : plan d’action', c);
+}
+function ausDocConf(){
+  var N=ausEtat(), ctx=ausCtx();
+  var av=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx) && (N.rep||{})[o.id]==='ai'; });
+  var c='<table style="border-collapse:collapse;width:100%"><tr><th style="border:1px solid #000;padding:4px">Déclaré en place</th><th style="border:1px solid #000;padding:4px">Texte</th><th style="border:1px solid #000;padding:4px">Risque</th><th style="border:1px solid #000;padding:4px">Verdict</th></tr>'
+    +av.map(function(o){
+      var V=(N.verif||{})[o.id]||{}, verdict='CONFORME';
+      (o.verif||[]).forEach(function(q,qi){ var v=V['q'+qi]||''; if(v==='non') verdict='ÉCART'; else if(!v||v==='nsp'){ if(verdict!=='ÉCART') verdict='INDÉTERMINÉ'; } });
+      return ausLigne(o, verdict+(verdict==='ÉCART'?(' — '+negoEsc(o.act)):''));
+    }).join('')+'</table>'
+    +'<p>Un verdict CONFORME n’est prononcé que lorsque chaque point de contrôle est déclaré « oui, pièce à l’appui » ; le silence laisse INDÉTERMINÉ.</p>';
+  ausRapportBase('Audit social — rapport d’étape : conformité de l’existant', c);
+}
+function ausDocRapport(){
+  var N=ausEtat(), ctx=ausCtx();
+  var apply=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx); });
+  var lig=apply.map(function(o){
+    var r=(N.rep||{})[o.id]||'';
+    var txt = r==='ai' ? 'Déclaré en place' : r==='pas' ? 'MANQUANT — '+negoEsc(o.act) : r==='nsp' ? 'À VÉRIFIER' : 'Sans réponse';
+    if(r==='ai'){ var V=(N.verif||{})[o.id]||{}, verdict='conforme';
+      (o.verif||[]).forEach(function(q,qi){ var v=V['q'+qi]||''; if(v==='non') verdict='écart'; else if(!v||v==='nsp'){ if(verdict!=='écart') verdict='indéterminé'; } });
+      txt+=' — contrôle : '+verdict.toUpperCase(); }
+    return ausLigne(o, txt);
+  }).join('');
+  var manq=apply.filter(function(o){ var r=(N.rep||{})[o.id]; return r==='pas'||r==='nsp'; }).length;
+  var ok=apply.filter(function(o){ return (N.rep||{})[o.id]==='ai'; }).length;
+  var c='<p><b>Synthèse.</b> '+apply.length+' obligations à votre périmètre : '+ok+' déclarées en place, '+manq+' manquantes ou à vérifier.</p>'
+    +'<table style="border-collapse:collapse;width:100%"><tr><th style="border:1px solid #000;padding:4px">Obligation</th><th style="border:1px solid #000;padding:4px">Texte</th><th style="border:1px solid #000;padding:4px">Risque</th><th style="border:1px solid #000;padding:4px">État</th></tr>'+lig+'</table>';
+  ausRapportBase('Audit social — rapport général', c);
+}
+</script>
+
 <!-- ══════════ INSTALLER LE COMITÉ — APRÈS L'ÉLECTION ══════════ -->
 <script>
 /* Textes relus a la source (19/08/2026) : L.2314-1 (referent harcelement
@@ -29087,6 +29437,17 @@ function cseinstRender(){
     +'</div>';
   z.innerHTML=h;
 }
+
+/* Exemplaires fictifs chiffres des modeles d'installation — meme cas
+   d'ecole : SARL EXEMPLE, 72 salaries, elections proclamees le 01/09/2026. */
+var CSEINST_EX={
+ convocation:'<p><b>EXEMPLE FICTIF REMPLI — SARL EXEMPLE.</b><br>Aux quatre titulaires élus le 1er septembre 2026 (copie aux quatre suppléants) : première réunion du comité le <b>jeudi 17 septembre 2026 à 10 h</b>, salle du dépôt. Ordre du jour joint. Présidence : P. MOREL, gérant. Fait à Argenteuil le 3 septembre 2026.</p>',
+ odj:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>1° Installation, tour de table des 4 titulaires et 4 suppléants. 2° Secrétaire : Mme R. BEN SAID (titulaire, 5 voix). 3° Trésorier : M. T. NGUYEN (titulaire, 4 voix). 4° Référent harcèlement sexuel : Mme R. BEN SAID, résolution adoptée 5 voix contre 0. 5° Règlement intérieur du comité : projet remis, adoption prévue à la réunion de novembre. 6° Calendrier : un jeudi sur huit semaines, 10 h (72 &lt; 300 : au moins tous les deux mois). 7° Documentation économique et financière : remise séance tenante contre signature. 8° CSSCT : sans objet à 72 salariés. 9° Questions diverses : néant.</p>',
+ documentation:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>① SARL au capital de 50 000 €, gérance P. MOREL, un établissement unique à Argenteuil, 72 salariés (organigramme joint, 2 pages). ② Perspectives : chiffre d’affaires 2025 : 6,1 M€ ; carnet 2026 en retrait de 4 % ; ouverture d’une activité benne TP à l’étude pour 2027. ③ Groupe : néant. ④ Capital : M. P. MOREL 60 %, Mme S. MOREL 40 % ; position : PME régionale du transport de marchandises, IDCC 16, en concurrence sur le lot DHL Roissy. Remis au secrétaire le 17/09/2026 — signature : R. BEN SAID.</p>',
+ pvbureau:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>Réunion du 17/09/2026, présidée par P. MOREL. Présents : 4 titulaires, 2 suppléants. Secrétaire : candidats R. BEN SAID et J. FavRE — 5 voix / 3 voix : Mme R. BEN SAID est désignée. Trésorier : M. T. NGUYEN, seul candidat, 4 voix pour, 1 abstention. Référent harcèlement sexuel et agissements sexistes (L.2314-1, résolution L.2315-32) : Mme R. BEN SAID, 5 voix contre 0, pour la durée du mandat (4 ans). Fait à Argenteuil le 17/09/2026 — le président, la secrétaire.</p>',
+ ricse:'<p><b>EXEMPLE FICTIF REMPLI (extraits).</b><br>Art. 2 : la secrétaire arrête l’ordre du jour avec le président au moins 8 jours avant la réunion, diffuse le PV sous 15 jours après adoption. Le trésorier présente les comptes chaque année en février. Art. 3 : réunion ordinaire un jeudi sur huit semaines à 10 h ; visioconférence admise deux fois par an au plus ; documents envoyés 5 jours avant. Art. 4 : PV adopté à la réunion suivante, affiché par la secrétaire au panneau du réfectoire (L.2315-35). Art. 6 : budget de fonctionnement (0,20 %) : compte dédié, deux signatures au-delà de 500 € ; ASC : arbre de Noël, chèques vacances — comptes annuels approuvés en février. Adopté à la réunion du 12/11/2026, 5 voix pour.</p>'
+};
+
 function cseinstDoc(type){
   var ent=(typeof E!=='undefined'&&E)?E:{};
   var nom=ent.nom||'[RAISON SOCIALE]', siret=ent.siret||'[SIRET]', adr=ent.adresse||'[ADRESSE]';
@@ -29145,6 +29506,7 @@ function cseinstDoc(type){
      +'<p><b>Article 8 — Révision.</b> [Modalités].</p>'
      +'<p><i>Rappel (L.2315-24) : sauf accord de l’employeur, le règlement ne peut lui imposer aucune obligation ne résultant pas de dispositions légales — et cet accord vaut engagement unilatéral, dénonçable après un délai raisonnable et information du comité.</i></p>';
   } else { alert('Modèle inconnu.'); return; }
+  H+=(typeof CSEINST_EX!=='undefined'?(CSEINST_EX[type]||''):'');
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+RES+'</div>' };
   try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
@@ -29303,6 +29665,21 @@ function negoRender(){
   z.innerHTML=h;
 }
 /* ── Les modeles Word ── */
+
+/* Chaque modele porte aussi son exemplaire fictif entierement chiffre :
+   une structure seule serait une coquille vide. Cas d'ecole commun :
+   SARL EXEMPLE, transport IDCC 16, 72 salaries, DS CFDT M. K. LEROY. */
+var NEGO_EX={
+ invitation:'<p><b>EXEMPLE FICTIF REMPLI — SARL EXEMPLE, 72 salariés.</b><br>À M. Karim LEROY, délégué syndical CFDT — Objet : négociation annuelle rémunération, temps de travail et partage de la valeur. Première réunion le <b>mardi 15 septembre 2026 à 14 h</b>, salle de réunion du dépôt, 12 rue des Docks, Argenteuil. Elle fixera le calendrier et la liste des informations remises (L.2242-14). Fait à Argenteuil, le 1er septembre 2026 — P. MOREL, gérant.</p>',
+ odj:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>Réunion du 15/09/2026 : 1° Calendrier arrêté : 6 et 20 octobre, 14 h-16 h, même salle. 2° Informations remises le 22/09 : salaires effectifs par coefficient et par sexe (61 bulletins anonymisés), grille IDCC 16 au 01/01/2026, heures supplémentaires payées 2025 (4 812 h, 96 400 €), accord d’intéressement du 12/05/2024. 3° Méthode : propositions écrites 5 jours avant chaque réunion. 4° Attentes : CFDT — +3 % général et 13e mois ; direction — enveloppe 2,2 % dans un marché en baisse de 4 %.</p>',
+ bordereau:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>Remis le 22/09/2026 contre signature à M. LEROY : ① salaires effectifs par coefficient (110M à 150M) et par sexe, moyenne 2 412 € ; écart F/H –1,8 % ; ② grille IDCC 16 en vigueur ; ③ 4 812 heures supplémentaires payées en 2025, majorées 25 % ; ④ rubrique égalité de la BDESE (index 2025 : 87/100) ; ⑤ intéressement : accord du 12/05/2024, enveloppe 2025 distribuée 41 300 €. Reçu le 22/09/2026 — signature du délégué.</p>',
+ accord1:'<p><b>EXEMPLE FICTIF REMPLI — les chiffres sont d’école.</b><br>Préambule : négociation engagée le 15/09/2026, réunions des 6 et 20 octobre. Art. 2 : augmentation générale de 2,4 % au 01/01/2027 ; talon de 55 € pour les coefficients 110M à 118M ; les minima IDCC 16 restent dépassés après application (vérification grille jointe). Art. 3 : plannings communiqués à J-7 au lieu de J-4 à compter du 01/12/2026. Art. 4 : sans objet, accord d’intéressement du 12/05/2024 en vigueur. Art. 5 : un an. Art. 6 : commission de suivi (gérant, DS, un élu) en mars 2027. Signé le 20/10/2026 en 4 exemplaires — dépôt TéléAccords le 27/10/2026.</p>',
+ accord2:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>Diagnostic (BDESE, rubrique 2°) : 18 % de femmes dans l’effectif, écart de rémunération –1,8 %, index 87/100. Art. 2 : entretien de retour de congé parental systématique ; pas de réunion après 17 h. Art. 3 : enveloppe de rattrapage de 6 000 € ciblée sur 4 situations d’écart injustifié, au 01/01/2027 ; objectif : écart sous 1 % en 2028. Art. 4 : objectif de 3 conductrices recrutées sur 10 embauches 2027 ; 2 promotions internes féminines vers l’exploitation ; indicateurs suivis au bilan annuel. Art. 5 : commission de suivi en juin. Durée : un an. Signé le 20/10/2026.</p>',
+ accordg:'<p><b>EXEMPLE FICTIF REMPLI — SA EXEMPLE LOGISTIQUE, 340 salariés.</b><br>Art. 1 : cartographie jointe — métiers en tension : conducteurs SPL (12 départs en retraite d’ici 2029) ; métiers en transformation : exploitation (planification assistée), atelier (flotte électrique 2028). Art. 2 : 15 parcours CACES/an financés ; abondement CPF de 1 500 € pour tout titre professionnel transport ; VAE : 5 accompagnements/an ; mobilité géographique : prime de 2 000 € et 3 jours de déménagement. Art. 3 : orientations formation 2027-2029 — sécurité 40 %, transition énergétique 25 %, management de proximité 20 %, bureautique 15 % ; plan de développement : 220 000 €/an. Art. 4 : intérim plafonné à 8 % des heures ; CDD saisonniers cantonnés à la pointe de fin d’année. Art. 5 : entretien annuel garanti aux 6 porteurs de mandats, évolution salariale comparée à la moyenne de leur catégorie. Durée : trois ans. Signé le 10/11/2026.</p>',
+ pv:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>Négociation rémunération engagée le 15/09/2026, réunions des 6 et 20 octobre et du 3 novembre 2026. Dernières propositions de l’employeur : +1,9 % général au 01/01/2027, talon de 40 €, plannings à J-6. Dernières propositions de la CFDT : +3 %, 13e mois sur trois ans, plannings à J-8. Mesures que l’employeur entend appliquer unilatéralement : +1,9 % au 01/01/2027 et plannings à J-6, après l’expiration du délai de la négociation. Dépôt du présent PV à l’initiative de la partie la plus diligente. Fait à Argenteuil le 3 novembre 2026 — signatures des deux parties.</p>',
+ plan:'<p><b>EXEMPLE FICTIF REMPLI.</b><br>Bilan 2026 : index 87/100 ; 2 embauches féminines sur 9 ; aucun rattrapage opéré. Objectifs 2027 : ① écart de rémunération ramené sous 1 % — enveloppe 6 000 €, 4 situations, échéance 01/01/2027, indicateur : écart moyen par coefficient ; ② 3 candidatures féminines reçues par poste de conduite ouvert — partenariat AFTRAL et mission locale, coût 1 200 € ; ③ 100 % des retours de congé parental reçus en entretien sous 15 jours — indicateur : registre RH. Déposé auprès de la DREETS le 15/11/2026 ; porté à la connaissance du personnel par affichage du 16/11/2026.</p>'
+};
+
 function negoDoc(type){
   var ent=(typeof E!=='undefined'&&E)?E:{};
   var nom=ent.nom||'[RAISON SOCIALE]', siret=ent.siret||'[SIRET]', adr=ent.adresse||'[ADRESSE]';
@@ -29387,6 +29764,7 @@ function negoDoc(type){
      +'<p><b>3. Actions qualitatives et quantitatives permettant de les atteindre, et leur coût :</b> [ … ]</p>'
      +'<p><b>4. Dépôt.</b> Le présent plan est déposé auprès de l’autorité administrative ; ses objectifs et mesures sont portés à la connaissance des salariés.</p>';
   } else { alert('Modèle inconnu.'); return; }
+  H+=(typeof NEGO_EX!=='undefined'?(NEGO_EX[type]||''):'');
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+RES+'</div>' };
   try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
