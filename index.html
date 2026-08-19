@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-19.193';
+var JX_BUILD = 'v2026-08-19.194';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-19.194', d:'19 août 2026', t:[
+   'Nouveau module « Installer le comité après l\'élection » (Pilotage, et dans « Que voulez-vous faire ? ») : première réunion, désignation du secrétaire et du trésorier (L.2315-23), référent harcèlement sexuel (L.2314-1), règlement intérieur du comité (L.2315-24), calendrier des réunions (L.2315-28), documentation économique et financière datée un mois après la proclamation (L.2312-57). Le parcours suit la taille : sous 50, réception mensuelle (L.2315-21) et référent seulement ; à 300, réunions mensuelles et CSSCT. Aucun « trente jours » : ce délai ne figure dans aucun texte, et le module le dit. Cinq modèles Word. Carence : le module s\'arrête et renvoie au PV.'
+ ]},
  {v:'v2026-08-19.193', d:'19 août 2026', t:[
    'Les menus « Que voulez-vous faire ? » suivent l\'effectif déclaré comme les cartes : à moins de 50 salariés, ni PSE, ni BDESE, ni consultations récurrentes, ni règlement intérieur, ni budgets n\'y figurent — et « Licencier pour motif économique » perd la mention du PSE. À moins de 11 : plus d\'élections ni de réclamations. Chaque retrait porte son seuil et son article ; effectif inconnu, rien n\'est retiré.'
  ]},
@@ -4795,6 +4798,12 @@ Exemple :<br>
 </div>
 
 <!-- ═══ CHARTE RGPD / CONFIDENTIALITÉ ═══ -->
+<div id="pg-cseinst" class="page">
+  <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+  <div style="flex:1"><div class="page-titre">Installer le comité</div>
+  <div style="font-size:12px;color:#9fb0c4">Après l’élection : première réunion, bureau, référent, règlement du comité, documentation</div></div></div>
+  <div id="cseinst-zone" style="padding:4px 2px">Chargement…</div>
+</div>
 <div id="pg-nego" class="page">
   <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
   <div style="flex:1"><div class="page-titre">Négociations obligatoires</div>
@@ -7085,7 +7094,7 @@ var JX_ONENTER={
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
   harcmoral:'hmOnEnter', csedos:'dosOnEnter', csebud:'budOnEnter',
-  harcprev:'hpOnEnter', nego:'negoOnEnter',
+  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter',
   contrat:'jxSousTitreContrat'
 };
 function jxEntrer(id){
@@ -9506,7 +9515,8 @@ var FAM=[
    {t:'METTRE EN PLACE', s:'avant d’avoir un comité', pastille:'#4a86c8', cartes:[
      {emo:'🗳️', lib:'Organiser les élections', page:'cse', tag:'Élections', chip:'J−90 → J+15'},
      {emo:'🗂️', lib:'Quelles pièces à quelle étape', page:'csedos', tag:'Dossier'},
-     {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'}
+     {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'},
+     {emo:'🏁', lib:'Installer le comité après l’élection', page:'cseinst', tag:'Installation'}
    ]},
    {t:'INFORMER LE COMITÉ', s:'la base de données et l’index', pastille:'#3f9b7a', cartes:[
      {emo:'🗃️', lib:'BDESE — la base de données', page:'csehub', act:'goBdese()', tag:'BDESE', chip:'Six années', seuil:[50,'L.2312-18']},
@@ -9600,6 +9610,7 @@ var FAM_SEUIL={
   csecal:  [11,'L.2315-27'],   // calendrier des reunions
   csereu:  [50,'L.2315-23'],   // preparer une reunion — section 3 : entreprises d'au moins cinquante salaries
   csercl:  [11,'L.2312-5'],    // reclamations
+  cseinst: [11,'L.2311-2'],    // installer le comite apres l'election
   csecns:  [50,'L.2312-17'],   // consultations recurrentes
   csebud:  [50,'L.2315-61'],   // budgets
   ri:      [50,'L.1311-2']     // reglement interieur
@@ -9680,6 +9691,7 @@ var FAM_ACTIONS={
  ],
  pilotage:[
   {t:'Organiser les élections du CSE', go:"goPage('cse')", seuil:[11,'L.2311-2']},
+  {t:'Installer le comité qui vient d’être élu', go:"goPage('cseinst')", seuil:[11,'L.2311-2']},
   {t:'Préparer une réunion du CSE (ordre du jour, convocation)', go:"goPage('csereu')", seuil:[50,'L.2315-23']},
   {t:'Répondre aux réclamations du CSE', go:"goPage('csercl')", seuil:[11,'L.2312-5']},
   {t:'Alimenter la BDESE', go:"goPage('csehub')", seuil:[50,'L.2312-18']},
@@ -28944,6 +28956,150 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 </script>
 
 
+
+
+<!-- ══════════ INSTALLER LE COMITÉ — APRÈS L'ÉLECTION ══════════ -->
+<script>
+/* Textes relus a la source (19/08/2026) : L.2314-1 (referent harcelement
+   sexuel designe par le comite parmi ses membres, resolution L.2315-32),
+   L.2315-21 (moins de 50 : reception mensuelle par l'employeur),
+   L.2315-23 (50 et plus : personnalite civile, presidence, secretaire et
+   tresorier parmi les titulaires), L.2315-24 (reglement interieur du
+   comite), L.2315-28 (reunions : au moins une fois par mois a 300 et
+   plus, tous les deux mois en dessous, a defaut d'accord), L.2312-57
+   (a defaut d'accord, documentation economique et financiere UN MOIS
+   apres chaque election). AUCUN texte n'impose de « premiere reunion
+   dans les trente jours » : l'application ne l'affirme pas. */
+function cseinstKey(){ try{ return 'juris_cseinst::'+jxCompte(); }catch(e){ return 'juris_cseinst::defaut'; } }
+function cseinstEtat(){
+  try{ var v=JSON.parse(localStorage.getItem(cseinstKey())||'null'); if(v&&typeof v==='object') return v; }catch(e){}
+  return {};
+}
+function cseinstSet(k,v){ var N=cseinstEtat(); N[k]=v; if(!jxEcrire(cseinstKey(), JSON.stringify(N))){ try{ jxEchecStockage(); }catch(e){} } cseinstRender(); }
+function cseinstOnEnter(){ cseinstRender(); }
+function cseinstRender(){
+  var z=document.getElementById('cseinst-zone'); if(!z) return;
+  try{ var _a=document.activeElement;
+    if(_a && z.contains(_a) && /^(SELECT|INPUT|TEXTAREA)$/.test(_a.tagName)) return;
+  }catch(e){}
+  var N=cseinstEtat();
+  var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
+  var grand=(eff===null)||(eff===Infinity)||(eff>=50);   /* dans le doute : montrer */
+  var tresGrand=(eff===null)||(eff===Infinity)||(eff>=300);
+  var h='<div class="al info" style="font-size:12.5px;line-height:1.65;margin-bottom:12px">'
+    +'Le comité est élu : il reste à l’installer. Aucun texte n’impose une première réunion « dans les trente jours » — '
+    +'mais la documentation économique et financière se remet <b>un mois après l’élection</b> (L.2312-57, à défaut d’accord, entreprises d’au moins 50 salariés), et c’est elle qui date le calendrier.</div>';
+
+  h+='<div class="item"><div style="font-weight:700;margin-bottom:8px">1 · Votre situation</div>'
+    +'<label class="fl">Issue du scrutin</label>'
+    +'<select id="ci-issue" onchange="cseinstSet(\'issue\', this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)">'
+    +'<option value="">— choisir —</option>'
+    +'<option value="elus"'+(N.issue==='elus'?' selected':'')+'>Des élus sont proclamés</option>'
+    +'<option value="carence"'+(N.issue==='carence'?' selected':'')+'>Carence totale — aucun candidat</option>'
+    +'</select>';
+  if(N.issue==='carence'){
+    h+='<div class="al warn" style="margin-top:8px;font-size:12.5px">Pas de comité à installer. Le PV de carence est porté à la connaissance des salariés et transmis dans les quinze jours (module Élections, L.2314-9). De nouvelles élections s’organisent à la demande d’un salarié ou d’un syndicat, ou au renouvellement.</div></div>';
+    z.innerHTML=h; return;
+  }
+  if(N.issue!=='elus'){ h+='</div>'; z.innerHTML=h; return; }
+  h+='<label class="fl" style="margin-top:8px">Date de proclamation des résultats</label>'
+    +'<input type="date" id="ci-date" value="'+(N.dProc||'')+'" onchange="cseinstSet(\'dProc\', this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)"/>'
+    +'</div>';
+
+  var d=N.dProc||'';
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:8px">2 · Le parcours d’installation'+(eff!==null&&eff!==Infinity?(' — à votre effectif (≤ '+eff+')'):'')+'</div>'
+    +'<div style="font-size:12.5px;line-height:1.75">';
+  if(grand){
+    h+='① <b>Convoquer la première réunion</b> — l’employeur préside (L.2315-23). Proposez une date proche : la documentation du ② donne la butée réelle. '
+      +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'convocation\')">📄 Convocation</button> '
+      +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'odj\')">📄 Ordre du jour d’installation</button><br>'
+      +'② <b>Remettre la documentation économique et financière</b> — au plus tard '
+      +(d?('le '+negoEch(negoAddMois(d,1))):'un mois après l’élection (renseignez la date de proclamation)')
+      +' (L.2312-57) : forme juridique et organisation, perspectives économiques, position dans le groupe, répartition du capital au-delà de 10 %, position dans la branche. '
+      +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'documentation\')">📄 Bordereau de remise</button><br>'
+      +'③ <b>À l’ordre du jour de la première réunion</b> :<br>'
+      +'&nbsp;&nbsp;— désignation du <b>secrétaire</b> et du <b>trésorier</b>, parmi les titulaires (L.2315-23) ;<br>'
+      +'&nbsp;&nbsp;— désignation du <b>référent harcèlement sexuel et agissements sexistes</b>, parmi les membres, par résolution (L.2314-1) ;<br>'
+      +'&nbsp;&nbsp;— mise en chantier du <b>règlement intérieur du comité</b> (L.2315-24 — il ne peut imposer à l’employeur, sauf son accord, aucune obligation hors la loi) ;<br>'
+      +'&nbsp;&nbsp;— calendrier des réunions : au moins '+(tresGrand?'<b>une par mois</b> (300 salariés et plus)':'<b>une tous les deux mois</b> (moins de 300)')+' à défaut d’accord (L.2315-28)'
+      +(tresGrand?' ;<br>&nbsp;&nbsp;— mise en place de la <b>CSSCT</b>, obligatoire à 300 (L.2315-36)':'')
+      +'. <button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'pvbureau\')">📄 PV de désignation</button> '
+      +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'ricse\')">📄 Trame de règlement intérieur du comité</button><br>'
+      +'④ <b>Ouvrir l’accès à la BDESE</b> aux élus et aux délégués syndicaux — elle est accessible en permanence (module BDESE).';
+  } else {
+    h+='① <b>Recevoir la délégation</b> au moins une fois par mois (L.2315-21) ; en cas d’urgence, sur leur demande. '
+      +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'convocation\')">📄 Première convocation</button><br>'
+      +'② <b>Faire désigner le référent harcèlement sexuel</b> parmi les membres, par résolution (L.2314-1). '
+      +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="cseinstDoc(\'pvbureau\')">📄 PV de désignation</button><br>'
+      +'③ À votre effectif, la loi n’impose ni secrétaire, ni trésorier, ni règlement intérieur du comité, ni documentation de l’article L.2312-57 — ces règles ouvrent à 50 salariés. L’application ne les réclame pas.';
+  }
+  h+='</div>'
+    +'<div style="font-size:11px;color:#9fb0c4;margin-top:8px">Chaque modèle reprend la fiche société et porte « à vérifier et compléter par votre accord d’entreprise, à joindre ». Un accord (L.2312-19, L.2315-27…) peut aménager périodicité et contenus : s’il existe, joignez-le — non vérifié, le régime affiché reste le supplétif à titre indicatif.</div>'
+    +'</div>';
+  z.innerHTML=h;
+}
+function cseinstDoc(type){
+  var ent=(typeof E!=='undefined'&&E)?E:{};
+  var nom=ent.nom||'[RAISON SOCIALE]', siret=ent.siret||'[SIRET]', adr=ent.adresse||'[ADRESSE]';
+  var dir=(ent.dirigeant||'[REPRÉSENTANT LÉGAL]')+(ent.qualite?(', '+ent.qualite):'');
+  var auj=new Date().toLocaleDateString('fr-FR');
+  var RES='<p style="border:2px solid #000;padding:8px"><b>⚠ Modèle vérifié contre la loi en vigueur — À VÉRIFIER ET COMPLÉTER PAR VOTRE ACCORD D’ENTREPRISE, À JOINDRE.</b> Les mentions entre crochets sont à remplir : visibles, pas inventées.</p>';
+  var tete='<p><b>'+negoEsc(nom)+'</b><br>'+negoEsc(adr)+'<br>SIRET '+negoEsc(siret)+'</p>';
+  var T='',H='';
+  if(type==='convocation'){
+    T='Convocation à la première réunion du comité social et économique';
+    H=tete+'<p>Aux membres titulaires de la délégation du personnel du CSE<br>(copie : membres suppléants — le suppléant assiste aux réunions en l’absence du titulaire, L.2314-1)</p>'
+     +'<p>Madame, Monsieur,</p>'
+     +'<p>À la suite de la proclamation des résultats des élections du [DATE DE PROCLAMATION], je vous convie à la première réunion du comité social et économique :</p>'
+     +'<p><b>Le [DATE] à [HEURE] — [LIEU]</b></p>'
+     +'<p>L’ordre du jour est joint. La réunion est présidée par l’employeur ou son représentant (L.2315-23).</p>'
+     +'<p>Fait à [VILLE], le '+auj+'<br>'+negoEsc(dir)+'</p>';
+  } else if(type==='odj'){
+    T='Ordre du jour — réunion d’installation du CSE';
+    H=tete+'<p><b>Réunion d’installation du comité social et économique — [DATE]</b></p>'
+     +'<ol><li>Installation du comité, tour de table des élus</li>'
+     +'<li>Désignation du secrétaire, parmi les membres titulaires (L.2315-23)</li>'
+     +'<li>Désignation du trésorier, parmi les membres titulaires (L.2315-23)</li>'
+     +'<li>Désignation du référent en matière de lutte contre le harcèlement sexuel et les agissements sexistes, parmi les membres, par résolution (L.2314-1)</li>'
+     +'<li>Règlement intérieur du comité : mise en chantier (L.2315-24)</li>'
+     +'<li>Calendrier des réunions (L.2315-28) et modalités pratiques</li>'
+     +'<li>Remise de la documentation économique et financière (L.2312-57) — ou date de sa remise</li>'
+     +'<li>[Le cas échéant, 300 salariés et plus : mise en place de la CSSCT (L.2315-36)]</li>'
+     +'<li>Questions diverses</li></ol>';
+  } else if(type==='documentation'){
+    T='Bordereau de remise — documentation économique et financière';
+    H=tete+'<p><b>DOCUMENTATION ÉCONOMIQUE ET FINANCIÈRE</b> remise au comité social et économique en application de l’article L.2312-57 du code du travail — au plus tard un mois après l’élection, à défaut d’accord.</p>'
+     +'<ul><li>1° Forme juridique de l’entreprise et son organisation : [pièce jointe n° …]</li>'
+     +'<li>2° Perspectives économiques telles qu’elles peuvent être envisagées : [ … ]</li>'
+     +'<li>3° Le cas échéant, position de l’entreprise au sein du groupe : [ … ]</li>'
+     +'<li>4° Répartition du capital entre les actionnaires détenant plus de 10 % et position de l’entreprise dans la branche : [ … ]</li></ul>'
+     +'<p>Remis le [DATE] — reçu par le secrétaire du comité : [NOM], signature :</p>';
+  } else if(type==='pvbureau'){
+    T='Procès-verbal de désignation — bureau et référent du CSE';
+    H=tete+'<p><b>PROCÈS-VERBAL DE DÉSIGNATION</b> — réunion du [DATE], présidée par '+negoEsc(dir)+'</p>'
+     +'<p>Membres présents : [LISTE]</p>'
+     +'<p><b>Secrétaire</b> (L.2315-23, parmi les titulaires) : candidats [ … ] — voix [ … ] — est désigné(e) : <b>[NOM]</b></p>'
+     +'<p><b>Trésorier</b> (L.2315-23, parmi les titulaires) : candidats [ … ] — voix [ … ] — est désigné(e) : <b>[NOM]</b></p>'
+     +'<p><b>Référent harcèlement sexuel et agissements sexistes</b> (L.2314-1, parmi les membres, résolution adoptée selon L.2315-32) : est désigné(e) : <b>[NOM]</b>, pour la durée du mandat.</p>'
+     +'<p>[Moins de 50 salariés : seule la désignation du référent est requise ; secrétaire et trésorier ne s’imposent qu’à partir de 50.]</p>'
+     +'<p>Fait à [VILLE], le [DATE] — signatures :</p>';
+  } else if(type==='ricse'){
+    T='Trame — règlement intérieur du comité social et économique';
+    H=tete+'<p><b>RÈGLEMENT INTÉRIEUR DU COMITÉ SOCIAL ET ÉCONOMIQUE</b> (article L.2315-24 du code du travail)</p>'
+     +'<p><b>Article 1 — Objet.</b> Le présent règlement fixe les modalités de fonctionnement du comité et de ses rapports avec les salariés, pour l’exercice de ses missions.</p>'
+     +'<p><b>Article 2 — Bureau.</b> Secrétaire : rôle (ordre du jour conjoint, procès-verbaux), suppléance. Trésorier : rôle (comptes, budgets), suppléance.</p>'
+     +'<p><b>Article 3 — Réunions.</b> Périodicité [au moins une par mois à 300 et plus, une tous les deux mois en dessous — L.2315-28, à défaut d’accord], convocations, visioconférence [conditions], délais d’envoi des documents.</p>'
+     +'<p><b>Article 4 — Procès-verbaux.</b> Établissement, adoption, diffusion (affichage par le secrétaire — L.2315-35).</p>'
+     +'<p><b>Article 5 — Commissions.</b> [Le cas échéant : CSSCT et autres commissions, composition, missions].</p>'
+     +'<p><b>Article 6 — Budgets.</b> Fonctionnement et activités sociales et culturelles : gestion, signatures, comptes annuels.</p>'
+     +'<p><b>Article 7 — Rapports avec les salariés.</b> Permanences, communications, adresse de contact.</p>'
+     +'<p><b>Article 8 — Révision.</b> [Modalités].</p>'
+     +'<p><i>Rappel (L.2315-24) : sauf accord de l’employeur, le règlement ne peut lui imposer aucune obligation ne résultant pas de dispositions légales — et cet accord vaut engagement unilatéral, dénonçable après un délai raisonnable et information du comité.</i></p>';
+  } else { alert('Modèle inconnu.'); return; }
+  window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+RES+'</div>' };
+  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+}
+</script>
 
 <!-- ══════════ NÉGOCIATIONS OBLIGATOIRES — NAO · ÉGALITÉ · GEPP ══════════ -->
 <script>
