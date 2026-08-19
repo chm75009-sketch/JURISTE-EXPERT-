@@ -97,7 +97,7 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     ausRender();
     const t = document.getElementById('auditsoc-zone').innerText;
     return { lu: /3 déclarés/.test(t), max: /Agence Roubaix, 310/.test(t),
-             cssct: t.indexOf('CSSCT créée') >= 0, redemande: /Établissements distincts \?/.test(t) };
+             cssct: /CSSCT — commission santé/.test(t), redemande: /Établissements distincts \?/.test(t) };
   });
   ok(flux.lu && flux.max, 'les établissements viennent de la fiche, avec le plus grand', JSON.stringify(flux));
   ok(!flux.redemande, 'et l\'audit ne les redemande pas');
@@ -106,9 +106,32 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     E.etabsListe = 'Siège Lille, 120\nAgence Douai, 40';
     try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
     ausRender();
-    return document.getElementById('auditsoc-zone').innerText.indexOf('CSSCT créée') >= 0;
+    return /CSSCT — commission santé/.test(document.getElementById('auditsoc-zone').innerText);
   });
   ok(!sansEtab, 'sans établissement de 300, la CSSCT sort de la liste à 250-299');
+
+  console.log('\n— Les commissions du comite : cinq, pas une —');
+  const comm = await page.evaluate(() => {
+    const lire = v => { E.effectif = v; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+      const ctx = ausCtx(); return AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id); };
+    return { p20: lire('20'), p300: lire('300'), p1000: lire('1000') };
+  });
+  ['cssct', 'cformation', 'clogement', 'cegalite'].forEach(k =>
+    ok(comm.p300.indexOf(k) >= 0, 'a 300 salaries : « ' + k +' » est due'));
+  ok(comm.p300.indexOf('ceco') < 0, 'la commission economique n\'est pas due a 300');
+  ok(comm.p1000.indexOf('ceco') >= 0, 'elle l\'est a 1 000 (L.2315-46)');
+  ok(comm.p20.filter(k => /^c(ssct|formation|logement|egalite|eco)$/.test(k)).length === 0,
+     'aucune commission a 20-49 salaries');
+  ok(comm.p20.indexOf('formelus') >= 0, 'mais la formation sante-securite des elus est due des 11 (L.2315-18)');
+  ok(comm.p300.indexOf('cmarches') >= 0, 'la commission des marches figure, jugee sur les comptes DU COMITE');
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  for (const m of ['commissions', 'formelus']) {
+    const r = await page.evaluate(k => { ausDoc(k); const d = window._docCurrent;
+      return { t: d.titre, ok: d.html.indexOf('PARTIE 1') >= 0 && d.html.indexOf('PARTIE 2') >= 0 }; }, m);
+    ok(r.ok, 'modele « ' + r.t.slice(0, 42) + ' » : structure + exemplaire chiffre');
+  }
+  const acc45 = await page.evaluate(() => { ausDoc('commissions'); return /L\.2315-45/.test(window._docCurrent.html); });
+  ok(acc45, 'le modele rappelle qu\'un accord (L.2315-45) peut tout reorganiser');
 
   console.log('\n— La convention et les accords, lus de la fiche —');
   const conv = await page.evaluate(() => {

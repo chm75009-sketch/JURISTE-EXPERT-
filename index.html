@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.200';
+var JX_BUILD = 'v2026-08-20.201';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.201', d:'20 août 2026', t:[
+   'L\'audit ne connaissait qu\'UNE commission du comité, la CSSCT. Il en manquait quatre : à 300 salariés le comité constitue aussi la commission de la FORMATION (L.2315-49), celle d\'INFORMATION ET D\'AIDE AU LOGEMENT (L.2315-50, missions L.2315-51) et celle de l\'ÉGALITÉ PROFESSIONNELLE (L.2315-56) ; à 1 000, la commission ÉCONOMIQUE (L.2315-46). Toutes ne jouent qu\'à défaut d\'accord de l\'article L.2315-45, et l\'audit le dit.',
+   'Trois autres obligations entrent aussi : la COMMISSION DES MARCHÉS du comité, qui ne se juge pas sur l\'effectif de l\'entreprise mais sur les comptes DU COMITÉ — deux des trois seuils de D.2315-29, et tout marché au-delà de 30 000 € lui est soumis ; la FORMATION santé-sécurité des élus et du référent, cinq jours au premier mandat, trois au renouvellement, payée comme du travail et hors heures de délégation (L.2315-18 et L.2315-16) ; et les QUATRE RÉUNIONS annuelles au moins portant sur la santé-sécurité (L.2315-27).',
+   'L\'audit d\'une entreprise de 1 000 salariés passe ainsi de 22 à 30 obligations. Deux modèles nouveaux, structure et exemplaire chiffré : délibération de constitution des six commissions, et programmation de la formation des élus.'
+ ]},
  {v:'v2026-08-20.200', d:'20 août 2026', t:[
    'La fiche d\'ouverture recueille désormais la CONVENTION COLLECTIVE — celle du secteur confirmée sur bulletin, une autre, aucune, ou à vérifier — et les ACCORDS D\'ENTREPRISE : oui avec la liste (objet et date), absence vérifiée, ou non vérifiés. Ils n\'étaient demandés nulle part, alors qu\'un accord déplace la périodicité des négociations, le contenu de la BDESE et les délais de consultation.',
    'L\'audit les lit et en tire les conséquences : convention nommée dès la première ligne, accords comptés. Si l\'un des deux n\'est pas établi, il l\'écrit en tête — « deux inconnues pèsent sur cet audit » — et les rapports Word portent une RÉSERVE DIRIMANTE au lieu de conclure. Quand des accords sont déclarés, le rapport les liste et précise que l\'application ne les a pas lus.',
@@ -29233,9 +29238,30 @@ var AUS_OBLIG=[
  {id:'gepp', lib:'GEPP négociée (gestion des emplois et des parcours)', s:[300,'L.2242-2'], ds:true, r:2,
   sanc:'délit de refus d’engager', act:'Engager la triennale — module Négociations',
   page:'nego', verif:['Une négociation a été engagée dans les trois ans']},
- {id:'cssct', lib:'CSSCT créée', s:[300,'L.2315-36 — aussi par établissement de 300'], r:2,
+ {id:'cssct', lib:'CSSCT — commission santé, sécurité et conditions de travail', s:[300,'L.2315-36 — aussi par établissement de 300'], r:2,
   sanc:'entrave', act:'Créer la commission au règlement du comité — module Installation',
-  page:'cseinst', verif:['La commission existe et ses membres sont désignés','Elle tient ses réunions']}
+  page:'cseinst', verif:['La commission existe et ses membres sont désignés','Elle tient ses réunions']},
+ {id:'cformation', lib:'Commission de la formation', s:[300,'L.2315-49 — à défaut d’accord L.2315-45'], r:2, acc:true,
+  sanc:'entrave aux consultations qu’elle prépare', act:'Constituer la commission de la formation au sein du comité',
+  doc:'commissions', verif:['La commission est constituée et ses membres désignés','Elle prépare les délibérations des 1° et 3° de L.2312-17']},
+ {id:'clogement', lib:'Commission d’information et d’aide au logement', s:[300,'L.2315-50 — à défaut d’accord L.2315-45'], r:3, acc:true,
+  sanc:'entrave', act:'Constituer la commission logement (les entreprises de moins de 300 peuvent se grouper)',
+  doc:'commissions', verif:['La commission est constituée','Elle informe les salariés sur l’accès au logement (L.2315-51)']},
+ {id:'cegalite', lib:'Commission de l’égalité professionnelle', s:[300,'L.2315-56 — à défaut d’accord L.2315-45'], r:2, acc:true,
+  sanc:'entrave à la consultation politique sociale', act:'Constituer la commission de l’égalité professionnelle',
+  doc:'commissions', verif:['La commission est constituée','Elle prépare la délibération du 3° de L.2312-17']},
+ {id:'ceco', lib:'Commission économique', s:[1000,'L.2315-46 — à défaut d’accord L.2315-45'], r:2, acc:true,
+  sanc:'entrave', act:'Constituer la commission économique au sein du comité (ou du comité central)',
+  doc:'commissions', verif:['La commission est constituée','Elle étudie les documents économiques et financiers recueillis par le comité']},
+ {id:'cmarches', lib:'Commission des marchés du CSE', s:[50,'L.2315-44-1 · D.2315-29 — selon les comptes du COMITÉ'], r:3, acc:true,
+  sanc:'irrégularité des marchés du comité', act:'Vérifier les comptes du comité : la commission s’impose s’il dépasse deux des trois seuils (50 salariés, ressources, total du bilan) — et tout marché au-delà de 30 000 € lui est soumis',
+  doc:'commissions', verif:['Les comptes du comité ont été confrontés aux trois critères de D.2315-29','Si la commission est due, elle est constituée et ses règles écrites au règlement intérieur du comité']},
+ {id:'formelus', lib:'Formation santé-sécurité des élus et du référent', s:[11,'L.2315-18 — dès qu’un CSE existe'], r:2,
+  sanc:'manquement à l’obligation de sécurité ; formation due sur le temps de travail (L.2315-16)', act:'Programmer la formation : 5 jours au premier mandat, 3 jours par élu au renouvellement',
+  doc:'formelus', verif:['Chaque élu a suivi sa formation santé-sécurité','Le référent harcèlement l’a suivie aussi','Le temps a été payé comme du travail, hors heures de délégation']},
+ {id:'reunionsst', lib:'Quatre réunions annuelles au moins portant sur la santé-sécurité', s:[50,'L.2315-27'], r:2,
+  sanc:'entrave', act:'Inscrire quatre points santé-sécurité au calendrier annuel du comité',
+  page:'csecal', verif:['Quatre réunions au moins y ont porté cette année','Le comité a été réuni après tout accident grave']}
 ];
 /* Lit les etablissements de la fiche societe : « Nom, effectif » par ligne.
    Une ligne illisible est ignoree, jamais devinee. */
@@ -29484,6 +29510,43 @@ function ausDoc(type){
      +'<p>À [NOM], [fonction]. — Nous vous désignons référent(e) chargé(e) d’orienter, d’informer et d’accompagner les salariés en matière de lutte contre le harcèlement sexuel et les agissements sexistes, à compter du [DATE]. Missions : accueil des signalements, orientation (médecin du travail, inspection, Défenseur des droits), information des équipes, lien avec le référent du CSE. Moyens : [heures, formation, ligne dédiée]. Votre identité et vos coordonnées seront diffusées à l’ensemble du personnel. — [Signature du représentant légal]</p>'
      +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF — SA EXEMPLE LOGISTIQUE, 310 salariés</b></p>'
      +'<p>À Mme A. COSTA, responsable RH adjointe — désignée à compter du 01/10/2026. Formation : « prévenir et traiter les signalements », AFTRAL, 2 jours, 05-06/10/2026. Moyens : 4 heures par mois, ligne 01 XX XX XX XX, adresse referent-hs@exemple.fr. Diffusion : note de service n° 2026-14 du 01/10/2026 affichée sur les trois sites et remise aux nouveaux embauchés ; coordonnées ajoutées au panneau harcèlement à côté de celles du référent CSE (M. B. DIAS) et du texte de l’article 222-33 du code pénal. — Le directeur général.</p>';
+  } else if(type==='commissions'){
+    T='Commissions du CSE — délibération de constitution';
+    H=ausTete()
+     +'<p><b>CONSTITUTION DES COMMISSIONS DU COMITÉ SOCIAL ET ÉCONOMIQUE</b></p>'
+     +'<p><i>Toutes les commissions ci-dessous ne s’imposent qu’<b>à défaut d’accord d’entreprise</b> (L.2315-45) : un tel accord peut créer d’autres commissions, en modifier la composition ou les regrouper. Si vous en avez un, c’est lui qui s’applique.</i></p>'
+     +'<p><b>PARTIE 1 — VOTRE DÉLIBÉRATION À REMPLIR</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Commission</th><th>Seuil et texte</th><th>Membres désignés</th><th>Président / rapporteur</th><th>Réunions prévues</th></tr>'
+     +'<tr><td>Santé, sécurité et conditions de travail (CSSCT)</td><td>300 salariés — ou établissement de 300 (L.2315-36)</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Formation</td><td>300 salariés (L.2315-49)</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Information et aide au logement</td><td>300 salariés (L.2315-50 · missions L.2315-51)</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Égalité professionnelle</td><td>300 salariés (L.2315-56)</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Économique</td><td>1 000 salariés (L.2315-46)</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>Marchés</td><td>selon les comptes DU COMITÉ : deux des trois seuils de D.2315-29 (50 salariés, ressources, total du bilan) ; tout marché au-delà de 30 000 € lui est soumis</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p>Résolution adoptée le [DATE], à [ ] voix pour, [ ] contre, [ ] abstentions. Les règles de fonctionnement de chaque commission sont portées au règlement intérieur du comité (L.2315-24).</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SA EXEMPLE LOGISTIQUE, 1 240 salariés, quatre établissements</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Commission</th><th>Membres</th><th>Rapporteur</th><th>Réunions 2027</th></tr>'
+     +'<tr><td>CSSCT centrale + 2 CSSCT d’établissement (Roissy 410, Lyon 320)</td><td>5 élus chacune, dont 1 du 3e collège</td><td>M. B. DIAS</td><td>4 par an, alignées sur les réunions santé-sécurité</td></tr>'
+     +'<tr><td>Formation</td><td>4 élus</td><td>Mme L. PEREIRA</td><td>2 (mars, septembre) — prépare les consultations orientations et politique sociale</td></tr>'
+     +'<tr><td>Logement</td><td>3 élus</td><td>M. A. TRAORÉ</td><td>2 — permanences Action Logement en avril et octobre</td></tr>'
+     +'<tr><td>Égalité professionnelle</td><td>4 élus, 2 femmes 2 hommes</td><td>Mme S. GARCIA</td><td>2 — dont une avant la consultation politique sociale, index 2026 : 84/100</td></tr>'
+     +'<tr><td>Économique</td><td>5 élus + expert-comptable du comité</td><td>M. P. LEFEVRE</td><td>2 par an minimum, sur les documents économiques et financiers</td></tr>'
+     +'<tr><td>Marchés (comité : 62 salariés d’ASC, ressources 431 000 €, bilan 288 000 € → deux seuils dépassés)</td><td>3 élus</td><td>Mme C. MOREAU</td><td>à chaque marché > 30 000 € : arbre de Noël 2027 (48 000 €), voyage (72 000 €)</td></tr></table>'
+     +'<p>Résolution adoptée le 12/11/2026 : 11 voix pour, 0 contre, 1 abstention. Règles portées aux articles 5 à 9 du règlement intérieur du comité.</p>';
+  } else if(type==='formelus'){
+    T='Formation santé, sécurité et conditions de travail des élus';
+    H=ausTete()
+     +'<p><b>FORMATION DES MEMBRES DU CSE ET DU RÉFÉRENT HARCÈLEMENT</b> (L.2315-18 ; temps payé comme du travail et non déduit des heures de délégation — L.2315-16)</p>'
+     +'<p><b>PARTIE 1 — VOTRE PROGRAMMATION</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Bénéficiaire</th><th>Mandat</th><th>Durée due</th><th>Organisme</th><th>Dates</th><th>Coût</th></tr>'
+     +'<tr><td>[élu]</td><td>[premier / renouvellement]</td><td>[5 jours au premier mandat · 3 jours par élu au renouvellement]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p>Le référent harcèlement désigné par le comité (L.2314-1) en bénéficie au même titre.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, 72 salariés, comité élu le 01/09/2026</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Bénéficiaire</th><th>Mandat</th><th>Durée</th><th>Organisme</th><th>Dates</th><th>Coût</th></tr>'
+     +'<tr><td>Mme R. BEN SAID (secrétaire, aussi référente harcèlement)</td><td>premier</td><td>5 jours</td><td>AFTRAL</td><td>12-16/10/2026</td><td>1 450 €</td></tr>'
+     +'<tr><td>M. T. NGUYEN (trésorier)</td><td>premier</td><td>5 jours</td><td>AFTRAL</td><td>12-16/10/2026</td><td>1 450 €</td></tr>'
+     +'<tr><td>2 autres titulaires</td><td>premier</td><td>5 jours</td><td>AFTRAL</td><td>09-13/11/2026</td><td>2 900 €</td></tr></table>'
+     +'<p>Total 5 800 €. Journées payées au taux habituel, hors crédit d’heures. Prochaine échéance : renouvellement de 2030 — 3 jours par élu reconduit.</p>';
   } else { alert('Modèle inconnu.'); return; }
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
   try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
