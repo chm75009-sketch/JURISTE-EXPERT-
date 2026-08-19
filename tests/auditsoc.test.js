@@ -32,9 +32,15 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(t.indexOf('Registre unique du personnel') >= 0, 'le registre y est (toute taille)');
   ok(t.indexOf('CSE élu') >= 0, 'le CSE y est (des 11)');
   ok(t.indexOf('travailleurs handicapés') >= 0, 'l\'OETH y est (des 20)');
-  const sec2 = t.split('obligation(s) hors de votre taille')[0];
-  ok(sec2.indexOf('BDESE') < 0, 'pas de BDESE dans la liste active a 20-49');
-  ok(sec2.indexOf('CSSCT') < 0, 'pas de CSSCT non plus');
+  /* On interroge la liste elle-meme, pas le texte de la page : l'avertissement
+     sur les accords non verifies cite la BDESE, et le mot suffisait a faire
+     croire que l'obligation etait affichee. */
+  const actives = await page.evaluate(() => {
+    const ctx = ausCtx();
+    return AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id);
+  });
+  ok(actives.indexOf('bdese') < 0, 'pas de BDESE dans la liste active a 20-49', actives.join(','));
+  ok(actives.indexOf('cssct') < 0, 'pas de CSSCT non plus');
   ok(t.indexOf('hors de votre taille') >= 0, 'les obligations ecartees restent visibles avec leur seuil');
 
   console.log('\n— Le « je ne sais pas » part au plan d\'action —');
@@ -103,6 +109,33 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     return document.getElementById('auditsoc-zone').innerText.indexOf('CSSCT créée') >= 0;
   });
   ok(!sansEtab, 'sans établissement de 300, la CSSCT sort de la liste à 250-299');
+
+  console.log('\n— La convention et les accords, lus de la fiche —');
+  const conv = await page.evaluate(() => {
+    E.ccn = 'secteur'; E.accords = 'oui';
+    E.accordsListe = 'Aménagement du temps de travail, 12/03/2021\nIntéressement, 12/05/2024';
+    try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausRender();
+    const t = document.getElementById('auditsoc-zone').innerText;
+    window.partagerDocActuel = function () {}; ausDocRapport();
+    return { conv: /Convention collective : CCN/.test(t), acc: /2 déclarés/.test(t),
+             alerte: /Deux inconnues/.test(t), rap: /Accords déclarés/.test(window._docCurrent.html),
+             dirimante: /Réserve dirimante/.test(window._docCurrent.html) };
+  });
+  ok(conv.conv, 'la convention est nommée, pas déduite en silence');
+  ok(conv.acc, 'les accords déclarés sont comptés');
+  ok(!conv.alerte && !conv.dirimante, 'tout étant établi, aucune réserve dirimante');
+  ok(conv.rap, 'le rapport liste les accords et dit qu\'il ne les a pas lus');
+  const doute = await page.evaluate(() => {
+    E.ccn = 'nsp'; E.accords = 'nsp';
+    try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausRender(); ausDocRapport();
+    return { alerte: /Deux inconnues/.test(document.getElementById('auditsoc-zone').innerText),
+             dirimante: /Réserve dirimante/.test(window._docCurrent.html) };
+  });
+  ok(doute.alerte, 'convention et accords non vérifiés : l\'audit le dit en tête');
+  ok(doute.dirimante, 'et le rapport porte une réserve dirimante au lieu de conclure');
+  await page.evaluate(() => { E.ccn = 'secteur'; E.accords = 'non'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {} ausRender(); });
 
   console.log('\n— L\'audit commande l\'existence des modules —');
   const petit = await page.evaluate(() => {

@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.199';
+var JX_BUILD = 'v2026-08-20.200';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.200', d:'20 août 2026', t:[
+   'La fiche d\'ouverture recueille désormais la CONVENTION COLLECTIVE — celle du secteur confirmée sur bulletin, une autre, aucune, ou à vérifier — et les ACCORDS D\'ENTREPRISE : oui avec la liste (objet et date), absence vérifiée, ou non vérifiés. Ils n\'étaient demandés nulle part, alors qu\'un accord déplace la périodicité des négociations, le contenu de la BDESE et les délais de consultation.',
+   'L\'audit les lit et en tire les conséquences : convention nommée dès la première ligne, accords comptés. Si l\'un des deux n\'est pas établi, il l\'écrit en tête — « deux inconnues pèsent sur cet audit » — et les rapports Word portent une RÉSERVE DIRIMANTE au lieu de conclure. Quand des accords sont déclarés, le rapport les liste et précise que l\'application ne les a pas lus.',
+   'Le secteur est désormais appliqué AVANT l\'ouverture de l\'audit : il affichait « celle du secteur » au lieu de nommer la convention, jxConventionClient() ne la connaissant pas encore.'
+ ]},
  {v:'v2026-08-20.199', d:'20 août 2026', t:[
    'L\'inscription bascule désormais sur l\'AUDIT, plus sur le menu des modules : une fiche qui vient d\'être remplie ouvre sur ce que l\'entreprise doit avoir.',
    'La fiche d\'ouverture recueille les établissements — un seul, plusieurs, ou à vérifier — et, s\'il y en a plusieurs, un par ligne avec son effectif. L\'audit les lit au lieu de les redemander.',
@@ -2378,6 +2383,27 @@ try{
     <label class="ins-label">Un établissement par ligne : nom, effectif</label>
     <textarea class="ins-input" id="ins-etabs-liste" rows="4" placeholder="Ex :&#10;Siège Argenteuil, 180&#10;Dépôt Roissy, 320&#10;Agence Lyon, 45"></textarea>
     <div style="font-size:11px;color:#888;margin:-8px 0 12px">Un établissement d'au moins 300 salariés impose sa propre commission santé, sécurité et conditions de travail (L.2315-36, 2°), même si l'entreprise est plus petite ailleurs.</div>
+  </div>
+  <label class="ins-label">Convention collective</label>
+  <select class="ins-input" id="ins-ccn" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option>
+    <option value="secteur">Celle du secteur choisi ci-dessus — confirmée par mes bulletins de paie</option>
+    <option value="autre">Une autre convention — je la précise ci-dessous</option>
+    <option value="aucune">Aucune convention applicable</option>
+    <option value="nsp">Je ne sais pas — à vérifier sur un bulletin de paie</option>
+  </select>
+  <input class="ins-input" id="ins-ccn-autre" placeholder="Intitulé et IDCC, tels qu'ils figurent sur le bulletin"/>
+  <label class="ins-label">Accords d'entreprise ou d'établissement</label>
+  <select class="ins-input" id="ins-accords" onchange="try{insAccMaj()}catch(e){}" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option>
+    <option value="oui">Oui — j'en ai, je les liste ci-dessous</option>
+    <option value="non">Non — vérifié, il n'y en a aucun</option>
+    <option value="nsp">Je ne sais pas — à vérifier</option>
+  </select>
+  <div id="ins-acc-bloc" style="display:none">
+    <label class="ins-label">Un accord par ligne : objet, date de signature</label>
+    <textarea class="ins-input" id="ins-accords-liste" rows="4" placeholder="Ex :&#10;Aménagement du temps de travail, 12/03/2021&#10;Intéressement, 12/05/2024&#10;NAO rémunération, 20/10/2025"></textarea>
+    <div style="font-size:11px;color:#888;margin:-8px 0 12px">Un accord peut déplacer la périodicité des négociations, le contenu de la BDESE ou les délais de consultation : l'application le dira au lieu d'appliquer le régime légal sans le savoir.</div>
   </div>
   <label class="ins-label">Groupe d'au moins 1 000 salariés ?</label>
   <select class="ins-input" id="ins-groupe" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
@@ -19761,6 +19787,10 @@ function insEtabsMaj(){
   var v=gv('ins-etabs'), b=document.getElementById('ins-etabs-bloc');
   if(b) b.style.display=(v==='plusieurs')?'block':'none';
 }
+function insAccMaj(){
+  var v=gv('ins-accords'), b=document.getElementById('ins-acc-bloc');
+  if(b) b.style.display=(v==='oui')?'block':'none';
+}
 function validerInscription(){
   /* Une raison sociale absente reste absente : « [ENTREPRISE] » est le
      texte de remplacement des documents, pas une valeur de fiche. */
@@ -19784,6 +19814,10 @@ function validerInscription(){
   E.groupe1000=gv('ins-groupe')||'';
   E.etabs=gv('ins-etabs')||'';
   E.etabsListe=(function(){ var e=document.getElementById('ins-etabs-liste'); return e?String(e.value||'').trim():''; })();
+  E.ccn=gv('ins-ccn')||'';
+  E.ccnAutre=gv('ins-ccn-autre')||'';
+  E.accords=gv('ins-accords')||'';
+  E.accordsListe=(function(){ var e=document.getElementById('ins-accords-liste'); return e?String(e.value||'').trim():''; })();
   E.org=gv('ins-org')||'';
   E.orgAutre=gv('ins-org-autre')||'';
   try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
@@ -19793,10 +19827,13 @@ function validerInscription(){
   chargerConducteurs();
   chargerParc();
   initFicheJours();
+  /* Le secteur d'abord : l'audit nomme la convention des sa premiere
+     ligne, et jxConventionClient() ne la connait qu'une fois le secteur
+     applique. Ouvrir l'audit avant laissait « celle du secteur ». */
+  applyClientSector();
   /* L'audit est le point de depart : une fiche qui vient d'etre remplie
      ouvre sur ce que l'entreprise doit avoir, pas sur un menu de modules. */
   goPage('auditsoc');
-  applyClientSector();
 }
 
 /* Avant cette version, la fiche entreprise etait rangee sous une cle unique,
@@ -29181,10 +29218,10 @@ var AUS_OBLIG=[
  {id:'index', lib:'Index égalité femmes-hommes publié', s:[50,'L.1142-8'], r:3,
   sanc:'pénalité financière', act:'Calculer et publier chaque année — module Index',
   page:'csehub', verif:['L’index de l’année est calculé et publié','Les mesures de correction sont prises sous 75 points']},
- {id:'participation', lib:'Accord de participation', s:[50,'L.3322-2'], r:2,
+ {id:'participation', lib:'Accord de participation', s:[50,'L.3322-2'], r:2, acc:true,
   sanc:'régime d’autorité moins favorable', act:'Négocier l’accord de participation',
   verif:['Un accord est déposé','La réserve est calculée et versée chaque exercice']},
- {id:'nao', lib:'Négociations obligatoires engagées', s:[50,'L.2242-1 — si délégué syndical'], ds:true, r:1,
+ {id:'nao', lib:'Négociations obligatoires engagées', s:[50,'L.2242-1 — si délégué syndical'], ds:true, acc:true, r:1,
   sanc:'délit (1 an, 3 750 €) et pénalité égalité', act:'Engager les blocs annuels — module Négociations, huit modèles',
   page:'nego', verif:['La NAO rémunération de l’année est engagée','Égalité : accord ou plan d’action en vigueur']},
  {id:'docelec', lib:'Documentation économique remise au CSE (un mois après l’élection)', s:[50,'L.2312-57'], r:3,
@@ -29218,6 +29255,15 @@ function ausEtabs(){
     });
   }
   return {mode:mode, n:n, max:max, maxNom:maxNom};
+}
+/* La convention et les accords, lus de la fiche. « Non verifie » n'est pas
+   « aucun » : le doute est porte a l'ecran et dans les rapports. */
+function ausConv(){
+  var E2=(typeof E!=='undefined'&&E)?E:{};
+  var lib=''; try{ lib=(jxConventionClient()||{}).libelle||''; }catch(e){}
+  var liste=String(E2.accordsListe||'').trim();
+  var n=liste? liste.split(/\r?\n/).filter(function(l){ return l.trim(); }).length : 0;
+  return {etat:E2.ccn||'', lib:lib, autre:E2.ccnAutre||'', acc:E2.accords||'', accN:n, accListe:liste};
 }
 function ausCtx(){
   var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
@@ -29259,6 +29305,19 @@ function ausRender(){
   /* Les etablissements viennent de la fiche : ce qui est saisi une fois
      n'est plus redemande. On en tire le plus gros etablissement, qui
      commande la CSSCT d'etablissement (L.2315-36, 2°). */
+  var _cv=ausConv();
+  h+='<div style="font-size:12.5px;margin:6px 0 4px">Convention collective : '
+    +(_cv.etat==='secteur'?('<b>'+negoEsc(_cv.lib||'celle du secteur')+'</b> — confirmée sur bulletin')
+     :_cv.etat==='autre'?('<b>'+negoEsc(_cv.autre||'autre convention')+'</b>')
+     :_cv.etat==='aucune'?'<b>aucune</b> — seul le code du travail s’applique'
+     :_cv.etat==='nsp'?'<b style="color:#d4a017">à vérifier</b> — les minima, préavis et essais conventionnels restent indéterminés'
+     :'<b style="color:#d4a017">non renseignée</b>')
+    +' · Accords d’entreprise : '
+    +(_cv.acc==='oui'?('<b>'+_cv.accN+' déclaré'+(_cv.accN>1?'s':'')+'</b>')
+     :_cv.acc==='non'?'<b>absence vérifiée</b> — le régime supplétif s’applique'
+     :_cv.acc==='nsp'?'<b style="color:#d4a017">non vérifiés</b> — un accord peut déplacer périodicités et contenus : rien n’est affirmé d’ici là'
+     :'<b style="color:#d4a017">non renseignés</b>')
+    +' <button class="btn-outline" style="font-size:11.5px;padding:3px 7px" onclick="goPage(\'parametrage\')">modifier</button></div>';
   var _et=ausEtabs();
   if(_et.mode){
     h+='<div style="font-size:12.5px;margin:6px 0 4px">Établissements (fiche société) : <b>'
@@ -29282,6 +29341,12 @@ function ausRender(){
     else sans++;
   });
 
+  if(_cv.acc==='nsp' || _cv.etat==='nsp' || !_cv.etat || !_cv.acc){
+    h+='<div class="al warn" style="font-size:12.5px;margin-top:10px"><b>Deux inconnues pèsent sur cet audit.</b> '
+      +((!_cv.etat||_cv.etat==='nsp')?'La convention collective n’est pas établie : minima, préavis, période d’essai et clauses disciplinaires restent indéterminés. ':'')
+      +((!_cv.acc||_cv.acc==='nsp')?'Les accords d’entreprise ne sont pas vérifiés : un accord peut déplacer la périodicité des négociations, le contenu de la BDESE ou les délais de consultation — le régime affiché ci-dessous est le régime légal, à titre de référence provisoire.':'')
+      +'</div>';
+  }
   h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:4px">2 · Vos obligations — '+apply.length+' à votre périmètre</div>'
     +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:8px">Chaque ligne porte son texte, relu à la source. La jurisprudence attachée viendra du corpus vérifié.</div>';
   apply.forEach(function(o){
@@ -29435,6 +29500,16 @@ function ausRapportBase(titre, corps){
     +ausTete()
     +'<p><b>'+negoEsc(titre.toUpperCase())+'</b><br>Établi le '+new Date().toLocaleDateString('fr-FR')+' · effectif retenu : '+negoEsc(effTxt)+' · '+(typeof JX_BUILD!=='undefined'?('Juris Expert '+JX_BUILD):'')+'</p>'
     +corps
+    +(function(){ var c=ausConv();
+        if(c.etat==='nsp'||!c.etat||c.acc==='nsp'||!c.acc){
+          return '<p style="border:1px solid #000;padding:7px;font-size:10pt"><b>Réserve dirimante.</b> '
+            +((!c.etat||c.etat==='nsp')?'La convention collective applicable n’est pas établie. ':'')
+            +((!c.acc||c.acc==='nsp')?'L’existence d’accords d’entreprise n’a pas été vérifiée. ':'')
+            +'Le présent rapport applique le régime légal à titre de référence provisoire : il devra être repris une fois ces points levés.</p>';
+        }
+        if(c.acc==='oui'){ return '<p style="font-size:10pt"><b>Accords déclarés</b> ('+c.accN+') : '+negoEsc(c.accListe.replace(/\n/g,' · '))+'. Leurs stipulations n’ont pas été lues par l’application : vérifiez ce qu’elles déplacent.</p>'; }
+        return '';
+      })()
     +'<p style="border:1px solid #000;padding:7px;font-size:10pt"><b>Réserves.</b> Rapport établi sur les déclarations du client à la date ci-dessus ; textes relus à leur source dans leur version en vigueur ; il ne vaut pas audit contradictoire ni conseil juridique individualisé (loi n° 71-1130 du 31 décembre 1971). Les points « à vérifier » restent à lever pièce en main.</p></div>' };
   try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
