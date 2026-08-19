@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-19.192';
+var JX_BUILD = 'v2026-08-19.193';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-19.193', d:'19 août 2026', t:[
+   'Les menus « Que voulez-vous faire ? » suivent l\'effectif déclaré comme les cartes : à moins de 50 salariés, ni PSE, ni BDESE, ni consultations récurrentes, ni règlement intérieur, ni budgets n\'y figurent — et « Licencier pour motif économique » perd la mention du PSE. À moins de 11 : plus d\'élections ni de réclamations. Chaque retrait porte son seuil et son article ; effectif inconnu, rien n\'est retiré.'
+ ]},
  {v:'v2026-08-19.192', d:'19 août 2026', t:[
    'Nouveau module « Négociations obligatoires » (famille Pilotage) : NAO rémunération-temps-partage, égalité-QVCT, GEPP. Les questions suivent la taille — l\'élu du CSE désigné délégué syndical n\'est proposé qu\'en dessous de 50, la GEPP ne se pose qu\'à partir de 300 ou en groupe. Sans délégué : pas d\'obligation, et le module le dit. Accord de méthode non vérifié : régime indéterminé, aucune date affirmée. Échéances calculées, verrou des décisions unilatérales (L.2242-4), pénalité égalité signalée dès 50 salariés, délit de refus rappelé (L.2243-1).',
    'Huit modèles Word au module : invitation du délégué, ordre du jour de première réunion, bordereau daté des informations, accords des trois blocs, PV de désaccord, plan d\'action égalité — pré-remplis de la fiche société, chacun portant « à vérifier et compléter par votre accord d\'entreprise, à joindre ». Textes relus à la source ; la jurisprudence viendra du seul corpus vérifié.'
@@ -9664,26 +9667,26 @@ var FAM_ACTIONS={
   {t:'Poser ou refuser des congés payés', go:"goPage('absences')"},
   {t:'Vérifier un salaire contre les minima', go:"goPage('remuneration')"},
   {t:'Compter heures supplémentaires et durées maximales', go:"goPage('temps2')"},
-  {t:'Rédiger ou mettre à jour le règlement intérieur', go:"goPage('ri')"},
+  {t:'Rédiger ou mettre à jour le règlement intérieur', go:"goPage('ri')", seuil:[50,'L.1311-2']},
   {t:'Traiter un signalement de harcèlement', go:"goPage('harcele')"}
  ],
  sortie:[
   {t:'Rédiger une lettre de licenciement (motif personnel)', go:"goPage('licenc')"},
   {t:'Conduire une rupture conventionnelle', go:"goPage('rupconv')"},
-  {t:'Licencier pour motif économique / préparer un PSE', go:"goPage('pse')"},
+  {t:'Licencier pour motif économique / préparer un PSE', go:"goPage('pse')", seuil:[50,'L.1233-61'], t2:'Licencier pour motif économique'},
   {t:'Gérer une inaptitude et le reclassement', go:"goPage('inapt')"},
   {t:'Choisir la voie de rupture — l’assistant décide avec vous', go:"rxOpen()"},
   {t:'Chiffrer les indemnités de rupture', go:"goPage('calc')"}
  ],
  pilotage:[
-  {t:'Organiser les élections du CSE', go:"goPage('cse')"},
-  {t:'Préparer une réunion du CSE (ordre du jour, convocation)', go:"goPage('csereu')"},
-  {t:'Répondre aux réclamations du CSE', go:"goPage('csercl')"},
-  {t:'Alimenter la BDESE', go:"goPage('csehub')"},
-  {t:'Les commissions du CSE (CSSCT…)', go:"goPage('csefonc')"},
-  {t:'Préparer les consultations récurrentes', go:"goPage('csecns')"},
+  {t:'Organiser les élections du CSE', go:"goPage('cse')", seuil:[11,'L.2311-2']},
+  {t:'Préparer une réunion du CSE (ordre du jour, convocation)', go:"goPage('csereu')", seuil:[50,'L.2315-23']},
+  {t:'Répondre aux réclamations du CSE', go:"goPage('csercl')", seuil:[11,'L.2312-5']},
+  {t:'Alimenter la BDESE', go:"goPage('csehub')", seuil:[50,'L.2312-18']},
+  {t:'Les commissions du CSE (CSSCT…)', go:"goPage('csefonc')", seuil:[300,'L.2315-36']},
+  {t:'Préparer les consultations récurrentes', go:"goPage('csecns')", seuil:[50,'L.2312-17']},
   {t:'Préparer la NAO — négociations obligatoires', go:"goPage('nego')"},
-  {t:'Calculer budgets et effectifs', go:"goPage('csebud')"},
+  {t:'Calculer budgets et effectifs', go:"goPage('csebud')", seuil:[50,'L.2315-61']},
   {t:'Faire le point — où en suis-je ?', go:"goPage('csediag')"}
  ]
 };
@@ -9818,6 +9821,18 @@ function famRender(){
       +'<span class="be">'+f.emo+'</span><div><div class="bt">'+famEsc(f.lib)+'</div>'
       +'<div class="bd">'+famEsc(f.det)+'</div></div></div>';
     var _acts=(typeof FAM_ACTIONS!=='undefined')?(FAM_ACTIONS[f.k]||[]):[];
+    /* Les gestes suivent la taille declaree : une entreprise de moins de
+       cinquante ne se voit proposer ni PSE, ni BDESE, ni consultations —
+       questions sur mesure, comme les cartes. Effectif inconnu : tout. */
+    try{
+      var _mx=jxEffectifMax();
+      if(_mx!==null){
+        _acts=_acts.map(function(a){
+          if(a.seuil && _mx<a.seuil[0]) return a.t2 ? {t:a.t2, go:a.go} : null;
+          return a;
+        }).filter(Boolean);
+      }
+    }catch(e){}
     if(_acts.length){
       h+='<div class="fam-q" style="margin:10px 2px 14px">'
         +'<label style="display:block;font-weight:700;margin-bottom:7px">Que voulez-vous faire ?</label>'
