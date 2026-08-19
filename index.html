@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.197';
+var JX_BUILD = 'v2026-08-20.198';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.198', d:'20 août 2026', t:[
+   'L\'audit commande désormais l\'existence des modules, et pas seulement le sien. La table des seuils était trouée : mesuré sur un dossier de 10 salariés, l\'accueil proposait encore « Mon espace CSE », « Fonctionnement — la référence » et « Négociations obligatoires » — sans comité, aucun des trois n\'a d\'objet, et aucun délégué syndical n\'est désignable (L.2143-6 le choisit parmi les élus). Pilotage passe de 11 à 8 cartes sous onze salariés.',
+   'Une carte peut changer de nom sous un seuil au lieu de disparaître : sous 50 salariés, « Licenciement économique et PSE » devient « Licenciement économique » — le licenciement économique n\'a pas de seuil, le plan de sauvegarde en a un (L.1233-61).',
+   'Les réponses du questionnaire de l\'audit filtrent l\'accueil : « aucun délégué syndical » fait disparaître le module Négociations, cartes et gestes, quelle que soit la taille. Une réponse absente ou « à vérifier » ne masque rien — on ne cache jamais sur une supposition.'
+ ]},
  {v:'v2026-08-20.197', d:'20 août 2026', t:[
    'L\'audit social passe en tête d\'accueil, juste sous l\'effectif : il était rangé dans Pilotage avec vingt-deux autres cartes, et personne ne le voyait en entrant — c\'est pourtant le point de départ. Le bandeau dit où en est le client : « Commencez par l\'audit social », « X % répondu — reprenez où vous en étiez », ou le nombre de points à traiter une fois l\'audit complet.'
  ]},
@@ -9553,7 +9558,7 @@ var FAM=[
    {t:'LES RUPTURES', s:'chaque voie a sa procédure', pastille:'#e05c5c', cartes:[
      {emo:'🤝', lib:'Rupture conventionnelle', page:'rupconv', tag:'Rupture'},
      {emo:'📑', lib:'Licenciement pour motif personnel', page:'licenc', tag:'Rupture'},
-     {emo:'📉', lib:'Licenciement économique et PSE', page:'pse', tag:'Rupture'},
+     {emo:'📉', lib:'Licenciement économique et PSE', page:'pse', tag:'Rupture', libSous:[50,'Licenciement économique','L.1233-61']},
      {emo:'🏥', lib:'Inaptitude et reclassement', page:'inapt', tag:'Rupture'}
    ]},
    {t:'LES COMPTES', s:'ce que la sortie coûte', pastille:'#4a86c8', cartes:[
@@ -9586,7 +9591,7 @@ var FAM=[
      {emo:'🗣️', lib:'Préparer une réunion', page:'csereu', tag:'Réunion'},
      {emo:'📝', lib:'Réclamations', page:'csercl', tag:'Réclamations'},
      {emo:'📈', lib:'Consultations récurrentes', page:'csecns', tag:'Consultations'},
-     {emo:'🤝', lib:'Négociations obligatoires — NAO, égalité, GEPP', page:'nego', tag:'Négociation'},
+     {emo:'🤝', lib:'Négociations obligatoires — NAO, égalité, GEPP', page:'nego', tag:'Négociation', audit:['ds','non']},
      {emo:'💶', lib:'Budgets et comptes', page:'csebud', tag:'Budgets'},
      {emo:'🦺', lib:'CSSCT — commission santé, sécurité et conditions de travail', page:'csefonc', tag:'Commission', seuil:[300,'L.2315-36']},
      {emo:'⚙️', lib:'Fonctionnement — la référence', page:'csefonc', tag:'Référence'}
@@ -9670,6 +9675,11 @@ var FAM_SEUIL={
   csereu:  [50,'L.2315-23'],   // preparer une reunion — section 3 : entreprises d'au moins cinquante salaries
   csercl:  [11,'L.2312-5'],    // reclamations
   cseinst: [11,'L.2311-2'],    // installer le comite apres l'election
+  csehub:  [11,'L.2311-2'],    // « Mon espace CSE » — la carte BDESE et la carte Index
+                               //   portent leur propre seuil de cinquante
+  csefonc: [11,'L.2311-2'],    // fonctionnement du comite — la CSSCT porte le sien (300)
+  nego:    [11,'L.2143-6'],    // sans comite, aucun delegue syndical designable :
+                               //   pas de negociation obligatoire
   csecns:  [50,'L.2312-17'],   // consultations recurrentes
   csebud:  [50,'L.2315-61'],   // budgets
   ri:      [50,'L.1311-2']     // reglement interieur
@@ -9692,13 +9702,34 @@ function famHorsTaille(c){
     return m < sl[0];
   }catch(e){ return false; }
 }
+/* Ce que l'audit a etabli et qui commande l'affichage. Une reponse absente
+   ou « a verifier » ne masque rien : on ne cache pas sur une supposition. */
+function famAuditMasque(c){
+  try{
+    if(!c || !c.audit) return false;
+    var A=(typeof ausEtat==='function')?ausEtat():{};
+    return A[c.audit[0]]===c.audit[1];
+  }catch(e){ return false; }
+}
 function famConcerne(c){
+  if(famAuditMasque(c)) return false;
   if(!c || !c.secteurs || !c.secteurs.length) return true;
   var s=''; try{ s=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
   if(!s){ try{ s=(typeof secCourant==='function'?secCourant():''); }catch(e){} }
   return !s || c.secteurs.indexOf(s)>=0;
 }
 function famCartes(g){ return (g.cartes||[]).filter(famConcerne).filter(function(c){ return !famHorsTaille(c); }); }
+/* Le libelle d'une carte peut dependre de la taille : sous le seuil, la
+   partie qui ne s'applique pas sort du titre au lieu d'etre promise. */
+function famLib(c){
+  try{
+    if(c.libSous){
+      var m=jxEffectifMax();
+      if(m!==null && m<c.libSous[0]) return c.libSous[1];
+    }
+  }catch(e){}
+  return c.lib;
+}
 /* Les modules mis de cote pour cette taille d'entreprise — pas perdus. */
 function famCartesHors(f){
   var L=[]; (f.groupes||[]).forEach(function(g){
@@ -9756,7 +9787,7 @@ var FAM_ACTIONS={
   {t:'Alimenter la BDESE', go:"goPage('csehub')", seuil:[50,'L.2312-18']},
   {t:'Les commissions du CSE (CSSCT…)', go:"goPage('csefonc')", seuil:[300,'L.2315-36']},
   {t:'Préparer les consultations récurrentes', go:"goPage('csecns')", seuil:[50,'L.2312-17']},
-  {t:'Préparer la NAO — négociations obligatoires', go:"goPage('nego')"},
+  {t:'Préparer la NAO — négociations obligatoires', go:"goPage('nego')", seuil:[11,'L.2143-6'], audit:['ds','non']},
   {t:'Calculer budgets et effectifs', go:"goPage('csebud')", seuil:[50,'L.2315-61']},
   {t:'Passer l’audit social — ce qui manque, ce qui est à contrôler', go:"goPage('auditsoc')"},
   {t:'Faire le point — où en suis-je ?', go:"goPage('csediag')"}
@@ -9916,6 +9947,9 @@ function famRender(){
        cinquante ne se voit proposer ni PSE, ni BDESE, ni consultations —
        questions sur mesure, comme les cartes. Effectif inconnu : tout. */
     try{
+      /* Ce que l'audit a etabli commande aussi les gestes : sans delegue
+         syndical declare, la negociation obligatoire sort du menu. */
+      _acts=_acts.filter(function(a){ return !(a.audit && famAuditMasque({audit:a.audit})); });
       var _mx=jxEffectifMax();
       if(_mx!==null){
         _acts=_acts.map(function(a){
@@ -9946,7 +9980,7 @@ function famRender(){
           +'style="background:linear-gradient(150deg,'+p[0]+','+p[1]+')">'
           +(c.chip?('<span class="cq">'+famEsc(c.chip)+'</span>'):'')
           +'<span class="ce">'+c.emo+'</span>'
-          +'<span class="ct2">'+famEsc(c.lib)+'</span>'
+          +'<span class="ct2">'+famEsc(famLib(c))+'</span>'
           +'<span class="cb">'+famEsc(c.tag||'')+'</span>'
           +'</button>';
       });

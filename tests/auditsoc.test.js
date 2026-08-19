@@ -83,6 +83,36 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   });
   ok(va.indexOf('pg-auditsoc') >= 0, 'et il ouvre l\'audit', va.join(','));
 
+  console.log('\n— L\'audit commande l\'existence des modules —');
+  const petit = await page.evaluate(() => {
+    E.effectif = '1'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    famRender();
+    const out = [];
+    FAM.forEach(f => (f.groupes || []).forEach(g => famCartes(g).forEach(c => out.push(famLib(c)))));
+    return out;
+  });
+  ok(!petit.some(x => /Mon espace CSE/.test(x)), 'a 10 salaries : pas d\'espace CSE', petit.join(' · '));
+  ok(!petit.some(x => /Fonctionnement — la référence/.test(x)), 'ni la reference du fonctionnement du comite');
+  ok(!petit.some(x => /Négociations obligatoires/.test(x)), 'ni les negociations obligatoires (aucun DS designable sans comite)');
+  ok(petit.some(x => x === 'Licenciement économique'), 'le licenciement economique reste, SANS la mention du PSE', petit.filter(x => /conomique/.test(x)).join(','));
+  const grand = await page.evaluate(() => {
+    E.effectif = '2000'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    famRender();
+    const out = [];
+    FAM.forEach(f => (f.groupes || []).forEach(g => famCartes(g).forEach(c => out.push(famLib(c)))));
+    return out;
+  });
+  ok(grand.some(x => /Licenciement économique et PSE/.test(x)), 'a 2 000 : la carte reprend le PSE');
+  const sansDS = await page.evaluate(() => {
+    ausSet('ds', 'non'); famRender();
+    const out = [];
+    FAM.forEach(f => (f.groupes || []).forEach(g => famCartes(g).forEach(c => out.push(famLib(c)))));
+    return out;
+  });
+  ok(!sansDS.some(x => /Négociations obligatoires/.test(x)),
+     'l\'audit repond « aucun delegue syndical » : le module de negociation disparait, meme a 2 000 salaries');
+  await page.evaluate(() => { ausSet('ds', 'oui'); famRender(); });
+
   console.log('\n— Les rapports —');
   const rp = await page.evaluate(() => { ausDocPlan(); const d = window._docCurrent; return d.html.indexOf('Réserves') >= 0 && d.html.indexOf('classées par gravité') >= 0 && d.html.indexOf('VÉRIFIER D’ABORD') >= 0; });
   ok(rp, 'rapport plan d\'action : manquants et reserves');
