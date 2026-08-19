@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-19.191';
+var JX_BUILD = 'v2026-08-19.192';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,10 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-19.192', d:'19 août 2026', t:[
+   'Nouveau module « Négociations obligatoires » (famille Pilotage) : NAO rémunération-temps-partage, égalité-QVCT, GEPP. Les questions suivent la taille — l\'élu du CSE désigné délégué syndical n\'est proposé qu\'en dessous de 50, la GEPP ne se pose qu\'à partir de 300 ou en groupe. Sans délégué : pas d\'obligation, et le module le dit. Accord de méthode non vérifié : régime indéterminé, aucune date affirmée. Échéances calculées, verrou des décisions unilatérales (L.2242-4), pénalité égalité signalée dès 50 salariés, délit de refus rappelé (L.2243-1).',
+   'Huit modèles Word au module : invitation du délégué, ordre du jour de première réunion, bordereau daté des informations, accords des trois blocs, PV de désaccord, plan d\'action égalité — pré-remplis de la fiche société, chacun portant « à vérifier et compléter par votre accord d\'entreprise, à joindre ». Textes relus à la source ; la jurisprudence viendra du seul corpus vérifié.'
+ ]},
  {v:'v2026-08-19.191', d:'19 août 2026', t:[
    'La famille « Sortie » devient « Fin de contrat », sur les tuiles comme sur la vitrine.',
    'Chaque famille ouvre désormais sur « Que voulez-vous faire ? » : les gestes du quotidien en menu déroulant — rédiger un CDD, un avertissement, une lettre de licenciement, préparer une réunion du CSE, alimenter la BDESE… — chacun menant droit au module qui le traite, avec « Autre » vers la liste complète.',
@@ -4788,6 +4792,12 @@ Exemple :<br>
 </div>
 
 <!-- ═══ CHARTE RGPD / CONFIDENTIALITÉ ═══ -->
+<div id="pg-nego" class="page">
+  <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
+  <div style="flex:1"><div class="page-titre">Négociations obligatoires</div>
+  <div class="page-sous" style="font-size:12px;color:#9fb0c4">NAO · égalité professionnelle · GEPP — qui doit négocier, quand, comment, avec quels documents</div></div></div>
+  <div id="nego-zone" style="padding:4px 2px">Chargement…</div>
+</div>
 <div id="pg-rgpd" class="page">
 <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
 <div style="flex:1"><div class="tt">Charte de confidentialité (RGPD)</div><div class="ts">Protection des données · Règlement (UE) 2016/679</div></div>
@@ -7072,7 +7082,7 @@ var JX_ONENTER={
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
   harcmoral:'hmOnEnter', csedos:'dosOnEnter', csebud:'budOnEnter',
-  harcprev:'hpOnEnter',
+  harcprev:'hpOnEnter', nego:'negoOnEnter',
   contrat:'jxSousTitreContrat'
 };
 function jxEntrer(id){
@@ -9504,6 +9514,7 @@ var FAM=[
      {emo:'🗣️', lib:'Préparer une réunion', page:'csereu', tag:'Réunion'},
      {emo:'📝', lib:'Réclamations', page:'csercl', tag:'Réclamations'},
      {emo:'📈', lib:'Consultations récurrentes', page:'csecns', tag:'Consultations'},
+     {emo:'🤝', lib:'Négociations obligatoires — NAO, égalité, GEPP', page:'nego', tag:'Négociation'},
      {emo:'💶', lib:'Budgets et comptes', page:'csebud', tag:'Budgets'},
      {emo:'🦺', lib:'CSSCT — commission santé, sécurité et conditions de travail', page:'csefonc', tag:'Commission', seuil:[300,'L.2315-36']},
      {emo:'⚙️', lib:'Fonctionnement — la référence', page:'csefonc', tag:'Référence'}
@@ -9671,6 +9682,7 @@ var FAM_ACTIONS={
   {t:'Alimenter la BDESE', go:"goPage('csehub')"},
   {t:'Les commissions du CSE (CSSCT…)', go:"goPage('csefonc')"},
   {t:'Préparer les consultations récurrentes', go:"goPage('csecns')"},
+  {t:'Préparer la NAO — négociations obligatoires', go:"goPage('nego')"},
   {t:'Calculer budgets et effectifs', go:"goPage('csebud')"},
   {t:'Faire le point — où en suis-je ?', go:"goPage('csediag')"}
  ]
@@ -28916,6 +28928,249 @@ if(document.readyState!=='loading')diagInit();else document.addEventListener('DO
 })();
 </script>
 
+
+
+<!-- ══════════ NÉGOCIATIONS OBLIGATOIRES — NAO · ÉGALITÉ · GEPP ══════════ -->
+<script>
+/* Textes relus a la source (code.travail.gouv.fr, 19/08/2026) :
+   L.2242-1 (champ : sections syndicales representatives, themes, 4 ans),
+   L.2242-2 (GEPP : 300 salaries entreprise ou groupe), L.2242-3 (plan
+   d'action egalite a defaut d'accord), L.2242-4 (pas de decision
+   unilaterale pendant la negociation, sauf urgence), L.2242-5 (PV de
+   desaccord : dernieres propositions + mesures unilaterales, depot),
+   L.2242-8 (penalite egalite, >=50 ; a 300+, desaccord atteste par PV),
+   L.2242-11 (accord de methode, duree max 4 ans), L.2242-13 (suppletif :
+   annuel blocs 1 et 2, triennal GEPP), L.2242-14 (1re reunion : lieu,
+   calendrier, liste et date des informations), L.2242-15 (contenu bloc 1),
+   L.2242-17 (contenu bloc 2, appuye sur la BDESE, L.2312-36 2°),
+   L.2242-20 (contenu GEPP), L.2143-6 (DS designe parmi les elus CSE dans
+   les moins de 50), L.2243-1 (refus d'engager : 1 an, 3 750 euros).
+   La jurisprudence n'est PAS citee ici : elle viendra du corpus verifie. */
+function negoKey(){ try{ return 'juris_nego::'+jxCompte(); }catch(e){ return 'juris_nego::defaut'; } }
+function negoEtat(){
+  try{ var v=JSON.parse(localStorage.getItem(negoKey())||'null'); if(v&&typeof v==='object') return v; }catch(e){}
+  return {};
+}
+function negoSet(k,v){ var N=negoEtat(); N[k]=v; if(!jxEcrire(negoKey(), JSON.stringify(N))){ try{ jxEchecStockage(); }catch(e){} } negoRender(); }
+function negoVal(id){ var e=document.getElementById(id); return e?e.value:''; }
+function negoDate(k,id){ negoSet(k, negoVal(id)); }
+function negoEsc(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function negoAddMois(iso,m){
+  if(!iso) return null;
+  var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return null;
+  d.setMonth(d.getMonth()+m);
+  return d.toISOString().slice(0,10);
+}
+function negoFr(iso){ if(!iso) return '—'; var d=new Date(iso+'T00:00:00'); return isNaN(d)?'—':d.toLocaleDateString('fr-FR'); }
+function negoJours(iso){ if(!iso) return null; var d=new Date(iso+'T00:00:00'); if(isNaN(d)) return null; return Math.ceil((d-new Date())/86400000); }
+function negoEch(iso, lib){
+  var j=negoJours(iso);
+  var coul=(j===null)?'#9fb0c4':(j<0?'#e05c5c':(j<60?'#d4a017':'#46b885'));
+  var txt=(j===null)?'':(j<0?(' — dépassée de '+(-j)+' jour'+((-j)>1?'s':'')):(' — dans '+j+' jour'+(j>1?'s':'')));
+  return '<strong style="color:'+coul+'">'+negoFr(iso)+txt+'</strong>';
+}
+function negoOnEnter(){ negoRender(); }
+function negoRender(){
+  var z=document.getElementById('nego-zone'); if(!z) return;
+  try{ var _a=document.activeElement;
+    if(_a && z.contains(_a) && /^(SELECT|INPUT|TEXTAREA)$/.test(_a.tagName)) return;
+  }catch(e){}
+  var N=negoEtat();
+  var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
+  var effTxt=(eff===null)?'effectif non renseigné':(eff===Infinity?'effectif : tranche haute':('effectif ≤ '+eff));
+  var pet=(eff!==null && eff<50);
+  var sec=''; try{ sec=(typeof appGetSecteur==='function')?appGetSecteur():''; }catch(e){}
+  var h='';
+  var CADRE='<div class="al info" style="font-size:12.5px;line-height:1.65;margin-bottom:12px">'
+    +'L’obligation de négocier vise les entreprises où existe une <b>section syndicale d’une organisation représentative</b> — en pratique, celles qui ont un délégué syndical. '
+    +'Elle ne dépend pas directement de l’effectif : sous 50 salariés, un élu du CSE peut être désigné délégué syndical (L.2143-6).</div>';
+  h+=CADRE;
+
+  /* ── Q1 : le delegue syndical, pose selon la taille ── */
+  h+='<div class="item"><div style="font-weight:700;margin-bottom:8px">1 · Votre situation — '+negoEsc(effTxt)+'</div>';
+  h+='<label class="fl">Un délégué syndical est-il désigné dans l’entreprise ?</label>'
+    +'<select id="nego-ds" onchange="negoSet(\'ds\', this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)">'
+    +'<option value="">— choisir —</option>'
+    +'<option value="oui"'+(N.ds==='oui'?' selected':'')+'>Oui — délégué syndical désigné</option>'
+    +(pet?('<option value="elu"'+(N.ds==='elu'?' selected':'')+'>Oui — un élu du CSE désigné délégué syndical (L.2143-6)</option>'):'')
+    +'<option value="non"'+(N.ds==='non'?' selected':'')+'>Non — aucun délégué syndical</option>'
+    +'<option value="nsp"'+(N.ds==='nsp'?' selected':'')+'>Je ne sais pas — à vérifier</option>'
+    +'</select>';
+  if(N.ds==='non'){
+    h+='<div class="al ok" style="margin-top:8px;font-size:12.5px">Sans délégué syndical, <b>aucune négociation obligatoire</b>. '
+      +(pet?'Restez attentif : si un syndicat représentatif désigne un élu du CSE comme délégué (L.2143-6), l’obligation naît ce jour-là.':'Si un syndicat en désigne un, l’obligation naît ce jour-là.')
+      +'</div></div>';
+    z.innerHTML=h; return;
+  }
+  if(N.ds==='nsp'){
+    h+='<div class="al warn" style="margin-top:8px;font-size:12.5px"><b>Régime indéterminé.</b> Vérifiez auprès des organisations syndicales et de vos courriers de désignation : tant que ce point n’est pas établi, aucune échéance n’est affirmée.</div></div>';
+    z.innerHTML=h; return;
+  }
+  if(!N.ds){ h+='</div>'; z.innerHTML=h; return; }
+
+  /* ── Q2 : accord de methode ── */
+  h+='<label class="fl" style="margin-top:10px">Un accord de méthode (L.2242-11) existe-t-il ?</label>'
+    +'<select id="nego-meth" onchange="negoSet(\'methode\', this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)">'
+    +'<option value="">— choisir —</option>'
+    +'<option value="joint"'+(N.methode==='joint'?' selected':'')+'>Oui — accord joint au dossier</option>'
+    +'<option value="absent"'+(N.methode==='absent'?' selected':'')+'>Absence vérifiée — régime légal</option>'
+    +'<option value="nsp"'+(N.methode==='nsp'?' selected':'')+'>Non vérifié</option>'
+    +'</select>';
+  if(N.methode==='nsp'){
+    h+='<div class="al warn" style="margin-top:8px;font-size:12.5px"><b>Régime indéterminé</b> : un accord de méthode peut déplacer thèmes et périodicité (jusqu’à quatre ans par thème). Vérifiez son existence — rien n’est affirmé d’ici là.</div></div>';
+    z.innerHTML=h; return;
+  }
+  if(N.methode==='joint'){
+    h+='<div class="al info" style="margin-top:8px;font-size:12.5px">Régime conventionnel : les thèmes, la périodicité (au plus quatre ans par thème), le calendrier et les informations remises sont ceux de votre accord — l’application ne le lit pas et ne les devine pas. Les modèles ci-dessous restent utilisables ; les échéances légales supplétives ne s’appliquent pas.</div>';
+  }
+  if(!N.methode){ h+='</div>'; z.innerHTML=h; return; }
+
+  /* ── Q3 : GEPP — pose seulement quand la taille peut y conduire ── */
+  var geppPossible=(eff===null)||(eff===Infinity)||(eff>=300)||(typeof E!=='undefined'&&E&&E.groupe1000==='oui');
+  var gepp=false;
+  if(geppPossible){
+    h+='<label class="fl" style="margin-top:10px">L’entreprise OU son groupe atteint-il 300 salariés ?</label>'
+      +'<select id="nego-g300" onchange="negoSet(\'g300\', this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)">'
+      +'<option value="">— choisir —</option>'
+      +'<option value="oui"'+(N.g300==='oui'?' selected':'')+'>Oui — GEPP due</option>'
+      +'<option value="non"'+(N.g300==='non'?' selected':'')+'>Non</option>'
+      +'<option value="nsp"'+(N.g300==='nsp'?' selected':'')+'>Je ne sais pas — à vérifier</option>'
+      +'</select>';
+    gepp=(N.g300==='oui');
+  }
+  h+='</div>';
+
+  var supp=(N.methode==='absent');
+  /* ── Les dates d'engagement, et le tableau des obligations ── */
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:8px">2 · Vos obligations'+(supp?' — régime légal':' — selon votre accord de méthode')+'</div>';
+  var lignes=[
+    {k:'dRem', lib:'Rémunération, temps de travail, partage de la valeur', mois:12, art:'annuelle (L.2242-13, 1°)'},
+    {k:'dEga', lib:'Égalité professionnelle & QVCT', mois:12, art:'annuelle (L.2242-13, 2°)'}
+  ];
+  if(gepp) lignes.push({k:'dGepp', lib:'GEPP — gestion des emplois et des parcours professionnels', mois:36, art:'triennale (L.2242-13, 3°)'});
+  lignes.forEach(function(L){
+    var d=N[L.k]||'';
+    h+='<div style="margin:10px 0;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:10px">'
+      +'<div style="font-weight:600">'+negoEsc(L.lib)+' <span style="font-size:11px;color:#9fb0c4">— '+L.art+'</span></div>'
+      +'<label class="fl" style="margin-top:6px">Dernière négociation ENGAGÉE le</label>'
+      +'<input type="date" id="nego-'+L.k+'" value="'+negoEsc(d)+'" onchange="negoDate(\''+L.k+'\', \'nego-'+L.k+'\')" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)"/>';
+    if(supp){
+      if(d){ h+='<div style="font-size:12.5px;margin-top:4px">Prochaine à engager au plus tard le '+negoEch(negoAddMois(d,L.mois))+'</div>'; }
+      else if(L.k==='dEga'){ h+='<div class="al warn" style="font-size:12px;margin-top:4px"><b>Jamais engagée ?</b> Dès 50 salariés, sans accord d’égalité professionnelle ni plan d’action, l’entreprise s’expose à une pénalité (L.2242-8). Engagez sans attendre.</div>'; }
+      else { h+='<div style="font-size:12px;color:#9fb0c4;margin-top:4px">Renseignez la date — ou engagez maintenant si elle n’a jamais eu lieu.</div>'; }
+    }
+    h+='</div>';
+  });
+  h+='<div class="al warn" style="font-size:12px">🔒 Pendant toute négociation en cours : aucune décision unilatérale dans les matières traitées, sauf urgence (L.2242-4). Refuser d’engager est un délit — un an d’emprisonnement et 3 750 € (L.2243-1).</div></div>';
+
+  /* ── La procedure et les documents ── */
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:8px">3 · Conduire une négociation — pas à pas, documents à l’appui</div>'
+    +'<div style="font-size:12.5px;line-height:1.7">'
+    +'① <b>Inviter</b> chaque délégué syndical par écrit — <button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'invitation\')">📄 Invitation</button><br>'
+    +'② <b>Première réunion</b> — y fixer obligatoirement (L.2242-14) : lieu et calendrier des réunions, LISTE des informations remises et DATE de remise — '
+    +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'odj\')">📄 Ordre du jour</button> '
+    +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'bordereau\')">📄 Bordereau des informations</button><br>'
+    +'③ <b>Négocier loyalement</b> — les informations partent AVANT la discussion ; pour l’égalité, elles s’appuient sur la rubrique 2° de la BDESE (L.2242-17)<br>'
+    +'④ <b>Issue</b> — accord : <button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'accord1\')">📄 Accord rémunération-temps-partage</button> '
+    +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'accord2\')">📄 Accord égalité-QVCT</button>'
+    +(gepp?' <button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'accordg\')">📄 Accord GEPP</button>':'')
+    +'<br>&nbsp;&nbsp;&nbsp;— pas d’accord : <button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'pv\')">📄 PV de désaccord</button> '
+    +'<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="negoDoc(\'plan\')">📄 Plan d’action égalité</button>'
+    +'<br>⑤ <b>Déposer</b> l’accord ou le PV (L.2242-5 — plateforme TéléAccords ; référence réglementaire à vérifier avant l’envoi)'
+    +'</div>'
+    +'<div style="font-size:11px;color:#9fb0c4;margin-top:8px">Chaque modèle reprend la fiche société'+(sec?' et votre secteur ('+negoEsc(sec)+')':'')+' ; tous portent la mention « à vérifier et compléter par votre accord d’entreprise, à joindre ». La jurisprudence attachée viendra du corpus vérifié — aucun arrêt n’est cité sans contrôle.</div>'
+    +'</div>';
+  z.innerHTML=h;
+}
+/* ── Les modeles Word ── */
+function negoDoc(type){
+  var ent=(typeof E!=='undefined'&&E)?E:{};
+  var nom=ent.nom||'[RAISON SOCIALE]', siret=ent.siret||'[SIRET]', adr=ent.adresse||'[ADRESSE]';
+  var dir=(ent.dirigeant||'[REPRÉSENTANT LÉGAL]')+(ent.qualite?(', '+ent.qualite):'');
+  var auj=new Date().toLocaleDateString('fr-FR');
+  var RES='<p style="border:2px solid #000;padding:8px"><b>⚠ Modèle vérifié contre la loi en vigueur — À VÉRIFIER ET COMPLÉTER PAR VOTRE ACCORD D’ENTREPRISE, À JOINDRE.</b> Les mentions entre crochets sont à remplir : elles sont visibles, pas inventées.</p>';
+  var T={}, H='';
+  var tete='<p><b>'+negoEsc(nom)+'</b><br>'+negoEsc(adr)+'<br>SIRET '+negoEsc(siret)+'</p>';
+  if(type==='invitation'){
+    T='Invitation du délégué syndical à la négociation obligatoire';
+    H=tete+'<p>À [NOM DU DÉLÉGUÉ SYNDICAL], délégué syndical [ORGANISATION]</p>'
+     +'<p>Objet : invitation à la négociation obligatoire — [rémunération, temps de travail et partage de la valeur / égalité professionnelle et QVCT / GEPP]</p>'
+     +'<p>Madame, Monsieur,</p>'
+     +'<p>Conformément aux articles L.2242-1 et suivants du code du travail, nous vous invitons à une première réunion de négociation le <b>[DATE]</b> à <b>[HEURE]</b>, à <b>[LIEU]</b>.</p>'
+     +'<p>Conformément à l’article L.2242-14, cette première réunion fixera le lieu et le calendrier des réunions suivantes, ainsi que la liste des informations que nous remettrons à la délégation et la date de cette remise.</p>'
+     +'<p>Vous pouvez être accompagné des salariés composant votre délégation dans les conditions légales.</p>'
+     +'<p>Fait à [VILLE], le '+auj+'<br>'+negoEsc(dir)+'</p>';
+  } else if(type==='odj'){
+    T='Ordre du jour — première réunion de négociation';
+    H=tete+'<p><b>Première réunion de négociation — [THÈME] — [DATE]</b></p>'
+     +'<ol><li>Fixation du lieu et du calendrier des réunions (L.2242-14, 1°)</li>'
+     +'<li>Liste des informations remises à la délégation et date de leur remise (L.2242-14, 2°)</li>'
+     +'<li>Méthode : durée des réunions, participants, règles d’échange des propositions</li>'
+     +'<li>Premier échange sur les attentes des parties</li></ol>';
+  } else if(type==='bordereau'){
+    H='<p><b>Bordereau des informations remises à la délégation</b> — remis le [DATE DE REMISE], avant toute discussion.</p>'
+     +'<ul><li>Salaires effectifs par catégorie et par sexe (source : registre du personnel / paie)</li>'
+     +'<li>Grille des minima de la convention collective applicable, en vigueur</li>'
+     +'<li>Durée effective et organisation du temps de travail, heures supplémentaires payées</li>'
+     +'<li>Pour l’égalité : les données de la rubrique 2° de la BDESE (L.2242-17), dont l’index égalité</li>'
+     +'<li>Épargne salariale : dispositifs existants ou absence constatée</li></ul>'
+     +'<p>Reçu par : [NOM DU DÉLÉGUÉ], le [DATE] — signature :</p>';
+    T='Bordereau des informations remises — négociation obligatoire';
+    H=tete+H;
+  } else if(type==='accord1'){
+    T='Accord — rémunération, temps de travail et partage de la valeur';
+    H=tete+'<p><b>ACCORD D’ENTREPRISE — RÉMUNÉRATION, TEMPS DE TRAVAIL ET PARTAGE DE LA VALEUR</b> (L.2242-15)</p>'
+     +'<p>Entre '+negoEsc(nom)+', représentée par '+negoEsc(dir)+', et l’organisation syndicale [ORGANISATION], représentée par [NOM], délégué syndical,</p>'
+     +'<p><b>Préambule.</b> [Contexte économique, date d’engagement de la négociation, réunions tenues les …]</p>'
+     +'<p><b>Article 1 — Champ.</b> Le présent accord s’applique à l’ensemble des salariés de l’entreprise.</p>'
+     +'<p><b>Article 2 — Salaires effectifs.</b> Augmentation générale de [__] % au [DATE D’EFFET]. [Mesures catégorielles : …] Les minima conventionnels en vigueur sont respectés — vérification faite grille en main.</p>'
+     +'<p><b>Article 3 — Durée et organisation du temps de travail.</b> [Stipulations : …]</p>'
+     +'<p><b>Article 4 — Épargne salariale.</b> [Sans objet si un accord d’intéressement ou de participation existe déjà — le viser ; sinon, stipulations].</p>'
+     +'<p><b>Article 5 — Durée.</b> Le présent accord est conclu pour une durée de [un an].</p>'
+     +'<p><b>Article 6 — Suivi.</b> [Commission de suivi, indicateurs, rendez-vous].</p>'
+     +'<p><b>Article 7 — Révision, dénonciation.</b> [Renvoi aux articles du code].</p>'
+     +'<p><b>Article 8 — Dépôt et publicité.</b> Dépôt sur la plateforme TéléAccords et remise aux signataires ; un exemplaire au greffe du conseil de prud’hommes [référence à vérifier].</p>'
+     +'<p>Fait à [VILLE], le [DATE], en [N] exemplaires.</p>';
+  } else if(type==='accord2'){
+    T='Accord — égalité professionnelle et QVCT';
+    H=tete+'<p><b>ACCORD D’ENTREPRISE — ÉGALITÉ PROFESSIONNELLE ENTRE LES FEMMES ET LES HOMMES ET QUALITÉ DE VIE ET DES CONDITIONS DE TRAVAIL</b> (L.2242-17)</p>'
+     +'<p>[Parties — comme ci-dessus]</p>'
+     +'<p><b>Article 1 — Diagnostic.</b> Établi sur les données de la rubrique 2° de la BDESE (L.2312-36), jointes.</p>'
+     +'<p><b>Article 2 — Articulation vie personnelle / vie professionnelle.</b> [Mesures : …]</p>'
+     +'<p><b>Article 3 — Écarts de rémunération.</b> Objectifs chiffrés : [ … ] ; calendrier ; budget.</p>'
+     +'<p><b>Article 4 — Accès à l’emploi, formation, promotion, conditions de travail, mixité.</b> [Objectifs et mesures par thème, avec indicateurs].</p>'
+     +'<p><b>Article 5 — Suivi annuel.</b> [Indicateurs, commission].</p>'
+     +'<p><b>Durée, révision, dépôt</b> — [comme à l’accord précédent].</p>';
+  } else if(type==='accordg'){
+    T='Accord — gestion des emplois et des parcours professionnels (GEPP)';
+    H=tete+'<p><b>ACCORD GEPP</b> (L.2242-20) — pour les entreprises ou groupes d’au moins 300 salariés.</p>'
+     +'<p><b>Article 1 — Dispositif de gestion prévisionnelle</b> des emplois et des compétences, transition écologique comprise : [cartographie des métiers, métiers sensibles / en tension …]</p>'
+     +'<p><b>Article 2 — Accompagnements.</b> Formation, abondement du compte personnel de formation, validation des acquis de l’expérience, bilans de compétences, mobilité professionnelle et géographique : [mesures].</p>'
+     +'<p><b>Article 3 — Grandes orientations à trois ans de la formation</b> et objectifs du plan de développement des compétences : [ … ]</p>'
+     +'<p><b>Article 4 — Recours aux différents contrats de travail</b> [CDD, intérim, temps partiel, stages] : [orientations].</p>'
+     +'<p><b>Article 5 — Déroulement de carrière des salariés exerçant des responsabilités syndicales</b> : [mesures].</p>'
+     +'<p><b>Durée (trois ans), suivi, révision, dépôt</b> : [ … ]</p>';
+  } else if(type==='pv'){
+    T='Procès-verbal de désaccord — négociation obligatoire';
+    H=tete+'<p><b>PROCÈS-VERBAL DE DÉSACCORD</b> (article L.2242-5 du code du travail)</p>'
+     +'<p>Négociation sur [THÈME], engagée le [DATE], réunions tenues les [DATES].</p>'
+     +'<p><b>Dernières propositions de l’employeur :</b><br>[ … ]</p>'
+     +'<p><b>Dernières propositions de chaque organisation syndicale :</b><br>[ORGANISATION] : [ … ]</p>'
+     +'<p><b>Mesures que l’employeur entend appliquer unilatéralement :</b><br>[ … ]</p>'
+     +'<p>Le présent procès-verbal sera déposé dans les conditions réglementaires, à l’initiative de la partie la plus diligente.</p>'
+     +'<p>Fait à [VILLE], le '+auj+' — signatures :</p>';
+  } else if(type==='plan'){
+    T='Plan d’action — égalité professionnelle (à défaut d’accord)';
+    H=tete+'<p><b>PLAN D’ACTION ANNUEL — ÉGALITÉ PROFESSIONNELLE</b> (article L.2242-3 du code du travail, à défaut d’accord)</p>'
+     +'<p><b>1. Bilan des objectifs et mesures de l’année écoulée :</b> [ … ]</p>'
+     +'<p><b>2. Objectifs de progression pour l’année à venir</b> — critères clairs, précis et opérationnels : [ … ]</p>'
+     +'<p><b>3. Actions qualitatives et quantitatives permettant de les atteindre, et leur coût :</b> [ … ]</p>'
+     +'<p><b>4. Dépôt.</b> Le présent plan est déposé auprès de l’autorité administrative ; ses objectifs et mesures sont portés à la connaissance des salariés.</p>';
+  } else { alert('Modèle inconnu.'); return; }
+  window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+RES+'</div>' };
+  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+}
+</script>
 
 <!-- [OUTIL OFFRES] logique d'affichage -->
 <script>
