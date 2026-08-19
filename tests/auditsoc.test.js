@@ -70,6 +70,19 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   const rc = await page.evaluate(() => { cseinstDoc('pvbureau'); const d = window._docCurrent; return d.html.indexOf('EXEMPLE FICTIF REMPLI') >= 0 && d.html.indexOf('BEN SAID') >= 0; });
   ok(rc, 'le PV de designation porte son exemplaire rempli');
 
+  console.log('\n— L\'audit est propose des l\'accueil —');
+  await page.evaluate(() => goPage('home'));
+  await page.waitForTimeout(700);
+  const acc = await page.evaluate(() => document.getElementById('fam-zone').innerText);
+  ok(/Audit social/.test(acc), 'un bandeau d\'audit figure en tete d\'accueil');
+  ok(/répondu|à traiter|rien à signaler/.test(acc), 'et il dit ou en est le client', acc.slice(0, 160));
+  const va = await page.evaluate(() => {
+    const b = [...document.querySelectorAll('#fam-zone button')].find(x => /[Aa]udit social/.test(x.innerText));
+    b.click();
+    return [...document.querySelectorAll('.page')].filter(p => getComputedStyle(p).display !== 'none').map(p => p.id);
+  });
+  ok(va.indexOf('pg-auditsoc') >= 0, 'et il ouvre l\'audit', va.join(','));
+
   console.log('\n— Les rapports —');
   const rp = await page.evaluate(() => { ausDocPlan(); const d = window._docCurrent; return d.html.indexOf('Réserves') >= 0 && d.html.indexOf('classées par gravité') >= 0 && d.html.indexOf('VÉRIFIER D’ABORD') >= 0; });
   ok(rp, 'rapport plan d\'action : manquants et reserves');

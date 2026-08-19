@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.196';
+var JX_BUILD = 'v2026-08-20.197';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,9 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.197', d:'20 août 2026', t:[
+   'L\'audit social passe en tête d\'accueil, juste sous l\'effectif : il était rangé dans Pilotage avec vingt-deux autres cartes, et personne ne le voyait en entrant — c\'est pourtant le point de départ. Le bandeau dit où en est le client : « Commencez par l\'audit social », « X % répondu — reprenez où vous en étiez », ou le nombre de points à traiter une fois l\'audit complet.'
+ ]},
  {v:'v2026-08-20.196', d:'20 août 2026', t:[
    'Nouveau module « Audit social » (Pilotage, et dans « Que voulez-vous faire ? ») : 23 obligations, chacune avec son texte relu à la source, son seuil et son risque. La liste suit la taille — pas de BDESE à 30 salariés, la CSSCT à 300 — et ce qui est écarté reste visible avec le seuil qui le déclenchera. Trois réponses par ligne : je l\'ai / je ne l\'ai pas / je ne sais pas — le doute part au plan d\'action comme un manque.',
    'Le plan d\'action classe par gravité (pénal, prud\'homal, administratif) et outille chaque ligne : modèle complet ou module, jamais un renvoi vide. Le contrôle de l\'existant ne prononce CONFORME que pièce à l\'appui — le silence laisse INDÉTERMINÉ, l\'écart repart au plan. Trois rapports Word : plan d\'action, conformité, rapport général, tous avec leurs réserves.',
@@ -9867,6 +9870,25 @@ function famRender(){
     return;
   }
 
+  /* ── L'AUDIT EN TETE ── */
+  try{
+    var _A=(typeof ausEtat==='function')?ausEtat():{rep:{}};
+    var _ctx=(typeof ausCtx==='function')?ausCtx():{eff:null,ds:''};
+    var _app=(typeof AUS_OBLIG!=='undefined')?AUS_OBLIG.filter(function(o){ return ausApplicable(o,_ctx); }):[];
+    var _rep=_A.rep||{}, _n=0, _manq=0;
+    _app.forEach(function(o){ var r=_rep[o.id]; if(r){ _n++; if(r==='pas'||r==='nsp') _manq++; } });
+    var _pct=_app.length? Math.round(_n*100/_app.length) : 0;
+    var _lib, _det, _c1, _c2;
+    if(_n===0){ _lib='Commencez par l’audit social'; _det=_app.length+' obligations à votre taille — ce que vous devez avoir, ce qui manque, le plan d’action daté.'; _c1='#b8611f'; _c2='#8e4514'; }
+    else if(_n<_app.length){ _lib='Audit social — '+_pct+' % répondu'; _det=_n+' sur '+_app.length+' obligations passées en revue'+(_manq?(' · '+_manq+' à traiter'):'')+'. Reprenez où vous en étiez.'; _c1='#96721f'; _c2='#6f5416'; }
+    else { _lib=_manq? ('Audit social — '+_manq+' point'+(_manq>1?'s':'')+' à traiter') : 'Audit social — rien à signaler'; _det=_manq? 'Plan d’action prêt, classé par gravité, modèles à l’appui.' : 'Toutes vos obligations sont déclarées en place. Le contrôle de conformité vous attend.'; _c1=_manq?'#b03f5c':'#357f5c'; _c2=_manq?'#883047':'#245a41'; }
+    h+='<button class="eff-bandeau" onclick="goPage(\'auditsoc\')" '
+      +'style="background:linear-gradient(135deg,'+_c1+'2e,'+_c2+'1a);border-color:'+_c1+'88;margin-bottom:10px">'
+      +'<span class="en" style="font-size:22px">🩺</span>'
+      +'<span><span class="et">'+famEsc(_lib)+'</span>'
+      +'<span class="ed">'+famEsc(_det)+'</span></span>'
+      +'<span class="ec">›</span></button>';
+  }catch(e){}
   h+='<div class="fam-tuiles">';
   FAM.forEach(function(f){
     var on=(sel===f.k);
