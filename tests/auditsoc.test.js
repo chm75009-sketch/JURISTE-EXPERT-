@@ -83,6 +83,27 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   });
   ok(va.indexOf('pg-auditsoc') >= 0, 'et il ouvre l\'audit', va.join(','));
 
+  console.log('\n— L\'inscription bascule sur l\'audit, et il lit la fiche —');
+  const flux = await page.evaluate(() => {
+    E.effectif = '250'; E.etabs = 'plusieurs';
+    E.etabsListe = 'Siège Lille, 120\nAgence Roubaix, 310\nAgence Douai, 40';
+    try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausRender();
+    const t = document.getElementById('auditsoc-zone').innerText;
+    return { lu: /3 déclarés/.test(t), max: /Agence Roubaix, 310/.test(t),
+             cssct: t.indexOf('CSSCT créée') >= 0, redemande: /Établissements distincts \?/.test(t) };
+  });
+  ok(flux.lu && flux.max, 'les établissements viennent de la fiche, avec le plus grand', JSON.stringify(flux));
+  ok(!flux.redemande, 'et l\'audit ne les redemande pas');
+  ok(flux.cssct, 'un établissement de 310 impose la CSSCT alors que l\'entreprise est à 250-299 (L.2315-36, 2°)');
+  const sansEtab = await page.evaluate(() => {
+    E.etabsListe = 'Siège Lille, 120\nAgence Douai, 40';
+    try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausRender();
+    return document.getElementById('auditsoc-zone').innerText.indexOf('CSSCT créée') >= 0;
+  });
+  ok(!sansEtab, 'sans établissement de 300, la CSSCT sort de la liste à 250-299');
+
   console.log('\n— L\'audit commande l\'existence des modules —');
   const petit = await page.evaluate(() => {
     E.effectif = '1'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}

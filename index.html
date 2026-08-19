@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.198';
+var JX_BUILD = 'v2026-08-20.199';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.199', d:'20 août 2026', t:[
+   'L\'inscription bascule désormais sur l\'AUDIT, plus sur le menu des modules : une fiche qui vient d\'être remplie ouvre sur ce que l\'entreprise doit avoir.',
+   'La fiche d\'ouverture recueille les établissements — un seul, plusieurs, ou à vérifier — et, s\'il y en a plusieurs, un par ligne avec son effectif. L\'audit les lit au lieu de les redemander.',
+   'Conséquence de droit, mesurée : un établissement d\'au moins 300 salariés impose sa propre commission santé, sécurité et conditions de travail (L.2315-36, 2°), même si l\'entreprise est plus petite ailleurs. Une entreprise de 250 avec une agence de 310 voit désormais la CSSCT dans son audit — le seuil global seul l\'écartait.'
+ ]},
  {v:'v2026-08-20.198', d:'20 août 2026', t:[
    'L\'audit commande désormais l\'existence des modules, et pas seulement le sien. La table des seuils était trouée : mesuré sur un dossier de 10 salariés, l\'accueil proposait encore « Mon espace CSE », « Fonctionnement — la référence » et « Négociations obligatoires » — sans comité, aucun des trois n\'a d\'objet, et aucun délégué syndical n\'est désignable (L.2143-6 le choisit parmi les élus). Pilotage passe de 11 à 8 cartes sous onze salariés.',
    'Une carte peut changer de nom sous un seuil au lieu de disparaître : sous 50 salariés, « Licenciement économique et PSE » devient « Licenciement économique » — le licenciement économique n\'a pas de seuil, le plan de sauvegarde en a un (L.1233-61).',
@@ -2362,6 +2367,18 @@ try{
     <option value="10000">10 000 salariés et plus</option>
   </select>
   <div style="font-size:11px;color:#888;margin:-8px 0 12px">Une tranche pour commencer — dès que le registre du personnel est tenu, l'effectif exact calculé selon L.1111-2 la remplace.</div>
+  <label class="ins-label">Établissements</label>
+  <select class="ins-input" id="ins-etabs" onchange="try{insEtabsMaj()}catch(e){}" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
+    <option value="">— À préciser —</option>
+    <option value="un">Un seul établissement</option>
+    <option value="plusieurs">Plusieurs établissements</option>
+    <option value="nsp">Je ne sais pas — à vérifier</option>
+  </select>
+  <div id="ins-etabs-bloc" style="display:none">
+    <label class="ins-label">Un établissement par ligne : nom, effectif</label>
+    <textarea class="ins-input" id="ins-etabs-liste" rows="4" placeholder="Ex :&#10;Siège Argenteuil, 180&#10;Dépôt Roissy, 320&#10;Agence Lyon, 45"></textarea>
+    <div style="font-size:11px;color:#888;margin:-8px 0 12px">Un établissement d'au moins 300 salariés impose sa propre commission santé, sécurité et conditions de travail (L.2315-36, 2°), même si l'entreprise est plus petite ailleurs.</div>
+  </div>
   <label class="ins-label">Groupe d'au moins 1 000 salariés ?</label>
   <select class="ins-input" id="ins-groupe" style="background:#f8f8f8;border:1.5px solid #e8e8e8;color:#1a1a1a">
     <option value="">— À préciser —</option>
@@ -19740,6 +19757,10 @@ function insCheck(){
   if(btn){btn.disabled=false;btn.style.opacity='1';}
 }
 
+function insEtabsMaj(){
+  var v=gv('ins-etabs'), b=document.getElementById('ins-etabs-bloc');
+  if(b) b.style.display=(v==='plusieurs')?'block':'none';
+}
 function validerInscription(){
   /* Une raison sociale absente reste absente : « [ENTREPRISE] » est le
      texte de remplacement des documents, pas une valeur de fiche. */
@@ -19761,6 +19782,8 @@ function validerInscription(){
      famHorsTaille() a chaque rendu de l'accueil. */
   E.effectif=gv('ins-effectif')||'';
   E.groupe1000=gv('ins-groupe')||'';
+  E.etabs=gv('ins-etabs')||'';
+  E.etabsListe=(function(){ var e=document.getElementById('ins-etabs-liste'); return e?String(e.value||'').trim():''; })();
   E.org=gv('ins-org')||'';
   E.orgAutre=gv('ins-org-autre')||'';
   try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
@@ -19770,7 +19793,9 @@ function validerInscription(){
   chargerConducteurs();
   chargerParc();
   initFicheJours();
-  goPage('home');
+  /* L'audit est le point de depart : une fiche qui vient d'etre remplie
+     ouvre sur ce que l'entreprise doit avoir, pas sur un menu de modules. */
+  goPage('auditsoc');
   applyClientSector();
 }
 
@@ -29175,12 +29200,39 @@ var AUS_OBLIG=[
   sanc:'entrave', act:'Créer la commission au règlement du comité — module Installation',
   page:'cseinst', verif:['La commission existe et ses membres sont désignés','Elle tient ses réunions']}
 ];
+/* Lit les etablissements de la fiche societe : « Nom, effectif » par ligne.
+   Une ligne illisible est ignoree, jamais devinee. */
+function ausEtabs(){
+  var E2=(typeof E!=='undefined'&&E)?E:{};
+  var mode=E2.etabs||'', liste=String(E2.etabsListe||'').trim();
+  var n=0, max=0, maxNom='';
+  if(liste){
+    liste.split(/\r?\n/).forEach(function(l){
+      l=l.trim(); if(!l) return;
+      n++;
+      var m=l.match(/^(.*?)[,;:\t]\s*(\d[\d\s\u00a0\u202f]*)$/);
+      if(m){
+        var v=parseInt(m[2].replace(/[\s\u00a0\u202f]/g,''),10);
+        if(isFinite(v) && v>max){ max=v; maxNom=m[1].trim(); }
+      }
+    });
+  }
+  return {mode:mode, n:n, max:max, maxNom:maxNom};
+}
 function ausCtx(){
   var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
   var N=ausEtat();
-  return {eff:eff, ds:(N.ds||''), etabs:(N.etabs||''), g300:(N.g300||'')};
+  var _e=ausEtabs();
+  return {eff:eff, ds:(N.ds||''), etabs:_e.mode, etabMax:_e.max, g300:(N.g300||'')};
 }
 function ausApplicable(o,ctx){
+  /* La CSSCT s'impose aussi par ETABLISSEMENT d'au moins trois cents
+     salaries (L.2315-36, 2°) : une entreprise de 260 avec un site de 310
+     la doit. Le seuil global seul l'aurait ecartee. */
+  if(o.id==='cssct'){
+    var _e=ausEtabs();
+    if(_e.max>=300) return true;
+  }
   if(o.s && ctx.eff!==null && ctx.eff!==Infinity && ctx.eff<o.s[0]) return false;
   if(o.ds && ctx.ds==='non') return false;
   return true;
@@ -29204,7 +29256,19 @@ function ausRender(){
       +opts.map(function(o){ return '<option value="'+o[0]+'"'+(v===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
       +'</select>';
   }
-  h+=selq('etabs','Établissements distincts ?',[['un','Un seul'],['plusieurs','Plusieurs — certains contrôles s’apprécient par établissement'],['nsp','À vérifier']]);
+  /* Les etablissements viennent de la fiche : ce qui est saisi une fois
+     n'est plus redemande. On en tire le plus gros etablissement, qui
+     commande la CSSCT d'etablissement (L.2315-36, 2°). */
+  var _et=ausEtabs();
+  if(_et.mode){
+    h+='<div style="font-size:12.5px;margin:6px 0 4px">Établissements (fiche société) : <b>'
+      +(_et.mode==='un'?'un seul':(_et.mode==='plusieurs'?(_et.n?(_et.n+' déclarés'):'plusieurs'):'à vérifier'))+'</b>'
+      +(_et.max?(' · le plus grand : '+negoEsc(_et.maxNom)+', '+_et.max+' salariés'):'')
+      +(_et.max>=300?' <span style="color:#d4a017">— cet établissement impose sa propre CSSCT (L.2315-36, 2°)</span>':'')
+      +' <button class="btn-outline" style="font-size:11.5px;padding:3px 7px" onclick="goPage(\'parametrage\')">modifier</button></div>';
+  } else {
+    h+='<div class="al warn" style="font-size:12.5px;margin:6px 0">Les établissements ne sont pas renseignés dans votre fiche : certains contrôles s’apprécient par établissement. Complétez-la.</div>';
+  }
   h+=selq('ds','Délégué syndical ?',[['oui','Oui'],['elu','Oui — élu du CSE désigné (moins de 50)'],['non','Non'],['nsp','À vérifier']]);
   h+='</div>';
 
