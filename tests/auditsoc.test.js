@@ -110,6 +110,44 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   });
   ok(!sansEtab, 'sans établissement de 300, la CSSCT sort de la liste à 250-299');
 
+  console.log('\n— Le socle sante-securite —');
+  const sst = await page.evaluate(() => {
+    E.effectif = '1'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    const ctx = ausCtx();
+    return AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id);
+  });
+  ['secugen', 'duerp', 'duerpannexe', 'duerpaffich', 'infosecu', 'formsecu', 'formrenf',
+   'secours', 'affichcoord', 'incendie', 'verifs', 'atmortel', 'atcourt', 'vip', 'sir',
+   'reprise', 'micarriere', 'avismed', 'docspst', 'ficheent', 'coactivite', 'protocole',
+   'epi', 'ecran', 'chimique', 'nuit', 'mineurs'].forEach(k =>
+    ok(sst.indexOf(k) >= 0, 'des le premier salarie : « ' + k + ' »'));
+  ok(sst.indexOf('papripact') < 0, 'le programme annuel de prevention n\'est du qu\'a 50 (L.4121-3-1)');
+  ok(sst.indexOf('duerpcse') < 0, 'la consultation du CSE sur le DUERP suppose un CSE, donc 11');
+  ok(sst.indexOf('dgi') < 0, 'le registre des dangers graves suppose un CSE lui aussi');
+  const sst50 = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    const ctx = ausCtx();
+    return AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id);
+  });
+  ok(sst50.indexOf('papripact') >= 0 && sst50.indexOf('rapportsst') >= 0,
+     'a 50 : programme annuel de prevention et rapport annuel sante-securite');
+
+  console.log('\n— Aucun modele n\'est une coquille vide —');
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  const modeles = await page.evaluate(() => [...new Set(AUS_OBLIG.filter(o => o.doc).map(o => o.doc))]);
+  ok(modeles.length >= 15, 'au moins quinze modeles sont references', modeles.length);
+  let creux = [];
+  for (const d of modeles) {
+    const r = await page.evaluate(k => {
+      window._docCurrent = null;
+      try { ausDoc(k); } catch (e) { return { err: e.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && (/PARTIE 2/.test(c.html) || /EXEMPLE FICTIF|EXEMPLAIRE FICTIF/.test(c.html)) };
+    }, d);
+    if (!r || r.err || !r.ok) creux.push(d);
+  }
+  ok(creux.length === 0, 'chacun livre sa structure ET son exemplaire fictif chiffre', creux.join(','));
+
   console.log('\n— Les commissions du comite : cinq, pas une —');
   const comm = await page.evaluate(() => {
     const lire = v => { E.effectif = v; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}

@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.201';
+var JX_BUILD = 'v2026-08-20.202';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,6 +1094,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-20.202', d:'20 août 2026', t:[
+   'Le socle SANTÉ-SÉCURITÉ entre dans l\'audit : 32 obligations nouvelles, chaque article relu à la source. L\'audit passe de 23 à 63 obligations — 38 dès le premier salarié, contre 13 auparavant.',
+   'Parmi elles, celles qu\'on oublie le plus : l\'annexe du DUERP avec la proportion de salariés exposés (R.4121-1-1) · sa conservation 40 ans et l\'affichage des modalités d\'accès (R.4121-4) · l\'organisation ÉCRITE des secours après avis du médecin du travail (R.4224-16) · le registre des exercices d\'évacuation, deux par an (R.4227-39) · la LISTE des personnes qualifiées pour les vérifications périodiques (R.4323-24) · l\'information de l\'inspection sous DOUZE HEURES en cas d\'accident mortel (R.4121-5) · l\'information du médecin du travail des arrêts d\'accident de moins de 30 jours (R.4624-33) · la visite de mi-carrière à 45 ans (L.4624-2-2) · le refus MOTIVÉ PAR ÉCRIT d\'un avis du médecin (L.4624-6) · le document annuel adressé au service de santé (D.4622-22) · l\'information écrite de l\'inspection à l\'ouverture de travaux d\'entreprises extérieures (R.4512-12) · l\'examen des yeux AVANT toute affectation sur écran (R.4542-17) · la déclaration préalable pour prendre les repas dans un local de travail (R.4228-23).',
+   'Une erreur courante n\'a PAS été reprise : L.4741-1 n\'englobe pas le titre II du livre Ier. Le défaut de DUERP relève de la contravention de 5e classe de R.4741-1, non de l\'amende de 10 000 euros.',
+   'Sept modèles nouveaux, tous en deux parties — structure à remplir puis exemplaire fictif entièrement chiffré : programme annuel de prévention, accueil sécurité, consigne incendie et registre des exercices, registre des dangers graves et imminents, information de l\'inspection en cas d\'accident mortel, suivi des visites de reprise et de préreprise, plan de prévention et protocole de sécurité. Les quinze modèles de l\'audit s\'ouvrent, aucun ne renvoie dans le vide.'
+ ]},
  {v:'v2026-08-20.201', d:'20 août 2026', t:[
    'L\'audit ne connaissait qu\'UNE commission du comité, la CSSCT. Il en manquait quatre : à 300 salariés le comité constitue aussi la commission de la FORMATION (L.2315-49), celle d\'INFORMATION ET D\'AIDE AU LOGEMENT (L.2315-50, missions L.2315-51) et celle de l\'ÉGALITÉ PROFESSIONNELLE (L.2315-56) ; à 1 000, la commission ÉCONOMIQUE (L.2315-46). Toutes ne jouent qu\'à défaut d\'accord de l\'article L.2315-45, et l\'audit le dit.',
    'Trois autres obligations entrent aussi : la COMMISSION DES MARCHÉS du comité, qui ne se juge pas sur l\'effectif de l\'entreprise mais sur les comptes DU COMITÉ — deux des trois seuils de D.2315-29, et tout marché au-delà de 30 000 € lui est soumis ; la FORMATION santé-sécurité des élus et du référent, cinq jours au premier mandat, trois au renouvellement, payée comme du travail et hors heures de délégation (L.2315-18 et L.2315-16) ; et les QUATRE RÉUNIONS annuelles au moins portant sur la santé-sécurité (L.2315-27).',
@@ -29178,15 +29184,145 @@ var AUS_OBLIG=[
  {id:'dpae', lib:'DPAE avant chaque embauche', s:0, src:'L.1221-10', r:1,
   sanc:'travail dissimulé en cas d’omission', act:'Vérifier que chaque salarié du registre a sa DPAE archivée',
   page:'embauche', verif:['Une DPAE archivée existe pour chaque salarié','Les accusés URSSAF sont conservés']},
- {id:'duerp', lib:'Document unique d’évaluation des risques (DUERP)', s:0, src:'R.4121-1', r:1,
-  sanc:'amende ; engage la faute inexcusable en cas d’accident', act:'Établir le DUERP par unité de travail',
-  doc:'duerp', verif:['Il couvre chaque unité de travail','Il a été mis à jour depuis moins d’un an ou après tout aménagement important']},
+ {id:'secugen', lib:'Organisation écrite de la prévention — les neuf principes', s:0, src:'L.4121-1 · L.4121-2', r:2,
+  sanc:'obligation de sécurité : dommages-intérêts, faute inexcusable en cas d’accident ; mise en demeure DREETS (L.4721-1)',
+  act:'Écrire qui fait quoi en prévention, et justifier pour chaque risque pourquoi il n’a pas pu être évité ni traité collectivement',
+  verif:['Un document décrit l’organisation de la prévention et les rôles','Le harcèlement et les agissements sexistes sont traités au titre du 7° de L.4121-2','La protection collective a été privilégiée avant l’équipement individuel']},
+ {id:'duerp', lib:'Document unique d’évaluation des risques (DUERP)', s:0, src:'R.4121-1 · mise à jour R.4121-2', r:1,
+  sanc:'contravention de 5e classe (R.4741-1) ; engage la faute inexcusable en cas d’accident', act:'Établir le DUERP par unité de travail, ambiances thermiques comprises',
+  doc:'duerp', verif:['Il couvre chaque unité de travail','Les ambiances thermiques (chaleur, froid) y figurent — R.4121-1 les nomme','Mise à jour : au moins annuelle dès 11 salariés, et après tout aménagement important']},
+ {id:'duerpcse', lib:'Consultation du CSE sur le DUERP et ses mises à jour', s:[11,'L.4121-3'], r:1,
+  sanc:'délit d’entrave', act:'Porter le DUERP à l’ordre du jour du comité à chaque version',
+  verif:['Un PV de consultation existe pour la dernière version','La contribution du salarié compétent et du service de santé au travail est tracée','L’impact différencié de l’exposition selon le sexe est traité']},
+ {id:'duerpannexe', lib:'Annexe du DUERP : facteurs de risques et proportion de salariés exposés', s:0, src:'R.4121-1-1 · facteurs L.4161-1', r:3,
+  sanc:'redressement au titre du compte professionnel de prévention', act:'Consigner en annexe les données collectives d’exposition et la proportion de salariés au-delà des seuils',
+  verif:['L’annexe existe physiquement','La proportion de salariés exposés y est chiffrée','Elle concorde avec les déclarations sociales']},
+ {id:'duerpaffich', lib:'Conservation 40 ans du DUERP et affichage des modalités d’accès', s:0, src:'R.4121-4', r:3,
+  sanc:'contravention de 4e classe par salarié (R.4741-3) ; prive l’employeur de l’argument « le salarié pouvait le consulter »',
+  act:'Afficher l’avis d’accès au DUERP au même emplacement que le règlement intérieur, et archiver toutes les versions',
+  verif:['L’avis d’accès est affiché','Les versions antérieures sont conservées et datées','Un ancien salarié obtiendrait la version couvrant sa période']},
+ {id:'papripact', lib:'Programme annuel de prévention (PAPRIPACT)', s:[50,'L.4121-3-1, III, 1°'], r:2,
+  sanc:'entrave ; irrecevabilité des demandes de subventions et de marchés publics (L.2312-27)',
+  act:'Établir le programme annuel : chaque mesure avec ses conditions d’exécution, un indicateur de résultat, son coût estimé et son calendrier',
+  doc:'papripact', verif:['Chaque mesure porte un COÛT estimé','Chaque mesure porte un INDICATEUR de résultat','Le calendrier de mise en œuvre est daté','Les ressources mobilisables sont identifiées']},
+ {id:'rapportsst', lib:'Rapport annuel écrit santé-sécurité présenté au CSE', s:[50,'L.2312-27'], r:2,
+  sanc:'entrave ; le PV est exigé à l’appui de toute demande de marché public ou de subvention',
+  act:'Établir le bilan annuel santé-sécurité et le présenter avec le programme de prévention',
+  verif:['Le travail de nuit et les facteurs de pénibilité y sont traités SPÉCIFIQUEMENT','Les mesures non réalisées sont motivées en annexe','Le PV de la réunion est joint aux dossiers de subvention']},
+ {id:'infosecu', lib:'Information des salariés sur les risques — les cinq points', s:0, src:'L.4141-1 · R.4141-3-1', r:1,
+  sanc:'amende, appliquée autant de fois qu’il y a de salariés concernés (L.4741-1)',
+  act:'Bâtir un support d’accueil couvrant les cinq rubriques et le faire émarger',
+  doc:'accueilsecu', verif:['Le support couvre les modalités d’accès au DUERP, les mesures de prévention, le rôle du service de santé, le règlement intérieur et les consignes incendie','Chaque salarié a émargé, à une date établie','Le nom des personnes chargées de l’évacuation y figure']},
+ {id:'formsecu', lib:'Formation pratique à la sécurité — embauche, changement de poste, reprise', s:0, src:'L.4141-2 · R.4141-3', r:1,
+  sanc:'amende par salarié ; faute inexcusable quasi acquise en cas d’accident d’un nouvel embauché non formé',
+  act:'Former à la circulation dans l’entreprise, à l’exécution du travail et à la conduite à tenir en cas d’accident, à l’embauche puis à chaque changement',
+  doc:'accueilsecu', verif:['Un registre d’accueil sécurité existe, daté par salarié','La formation a été refaite à chaque changement de poste ou de technique','Elle a été refaite après un arrêt d’au moins 21 jours quand le médecin du travail l’a demandé']},
+ {id:'formrenf', lib:'Formation renforcée des CDD, intérimaires et stagiaires — et LISTE des postes à risques', s:0, src:'L.4154-2', r:1,
+  sanc:'faute inexcusable présumée en cas d’accident sur un poste de la liste',
+  act:'Établir la liste des postes à risques particuliers, après avis du médecin du travail et du CSE, et former de façon renforcée qui y est affecté',
+  verif:['La liste existe, écrite et datée','L’avis du médecin du travail et celui du CSE ont été recueillis','Elle est tenue à disposition de l’inspection du travail']},
+ {id:'secours', lib:'Matériel de premiers secours et organisation écrite des secours', s:0, src:'R.4224-14 · R.4224-15 · R.4224-16', r:1,
+  sanc:'contravention ; responsabilité aggravée si le retard de secours a aggravé le dommage',
+  act:'Équiper en matériel accessible, former un secouriste par atelier à travaux dangereux, et consigner l’organisation des secours dans un document après avis du médecin du travail',
+  verif:['La trousse est présente et accessible sans clé','Le document d’organisation des secours existe et porte l’avis du médecin du travail','Un secouriste est formé dans chaque atelier à travaux dangereux, y compris la nuit et pendant les congés']},
+ {id:'affichcoord', lib:'Affichage des coordonnées : médecine du travail, secours, inspection', s:0, src:'D.4711-1', r:3,
+  sanc:'contravention de 4e classe, appliquée autant de fois qu’il y a de personnes employées (R.4741-3)',
+  act:'Afficher l’adresse et le numéro du service de santé au travail, des secours d’urgence et de l’inspection du travail, avec le NOM de l’inspecteur',
+  doc:'affichages', verif:['Le NOM de l’inspecteur figure, et pas seulement le numéro de l’unité de contrôle','L’affichage est dans un local accessible à tous','Les coordonnées du service de santé au travail sont à jour']},
+ {id:'incendie', lib:'Consigne de sécurité incendie, exercices semestriels et registre', s:0, src:'R.4227-37 · R.4227-38 · R.4227-39', r:1,
+  sanc:'contravention ; pièce à charge décisive en cas de sinistre',
+  act:'Établir la consigne en huit points, l’afficher, et tenir deux exercices par an consignés au registre',
+  doc:'incendie', verif:['Les huit mentions y sont, dont les espaces d’attente sécurisés pour les personnes handicapées','Le registre porte DEUX dates par an, avec les observations','Les actions correctives issues des observations sont tracées']},
+ {id:'extincteurs', lib:'Moyens de lutte contre l’incendie et dégagements libres', s:0, src:'R.4227-29 · R.4227-4', r:1,
+  sanc:'contravention ; responsabilité pénale en cas de sinistre',
+  act:'Au moins un extincteur à eau pulvérisée de 6 litres par 200 m² et un appareil par niveau ; dégagements toujours libres',
+  verif:['Le calcul surface ÷ 200 m² est fait et couvert','Un appareil au moins par niveau','La vignette de vérification annuelle est à jour','Aucune issue de secours n’est encombrée ou condamnée']},
+ {id:'verifs', lib:'Vérifications périodiques des équipements et installations — registre de sécurité', s:0, src:'R.4323-23 · R.4323-24 · R.4323-25 · R.4226-16 · R.4224-17', r:1,
+  sanc:'amende ; faute inexcusable si l’équipement défaillant cause l’accident',
+  act:'Faire vérifier périodiquement équipements, installations électriques et dispositifs de sécurité, et consigner au registre de sécurité',
+  verif:['Le registre de sécurité existe et porte les derniers rapports','La LISTE des personnes qualifiées est tenue à disposition de l’inspection — obligation distincte, souvent absente','Les réserves du dernier rapport ont été levées, preuve à l’appui','Le dossier d’entretien des installations de R.4224-17 existe']},
+ {id:'conserv', lib:'Conservation cinq ans des vérifications, mises en demeure et copies de déclarations d’accident', s:0, src:'D.4711-3 · L.4711-2 · L.4711-4', r:3,
+  sanc:'contravention de 4e classe par salarié (R.4741-3)',
+  act:'Archiver cinq ans les rapports de vérification, les observations de l’inspection et les copies des déclarations d’accident du travail',
+  verif:['Le classeur des cinq dernières années existe','Les copies des déclarations d’accident y sont','Les rapports sont effectivement COMMUNIQUÉS au CSE et au médecin du travail, pas seulement archivés']},
+ {id:'dgi', lib:'Registre des dangers graves et imminents et procédure d’alerte', s:[11,'D.4132-1 · D.4132-2'], r:1,
+  sanc:'entrave ; pièce à charge en cas d’accident survenu après une alerte non consignée',
+  act:'Tenir le registre spécial et, à chaque alerte, enquêter immédiatement avec l’élu ; en cas de désaccord, réunir le comité sous 24 heures et saisir l’inspection',
+  doc:'dgi', verif:['Le registre existe, PAGES NUMÉROTÉES et authentifiées par le tampon du comité','Il est accessible aux élus sans demander de clé','Chaque avis a donné lieu à un rapport d’enquête daté du jour']},
+ {id:'atmortel', lib:'Information de l’inspection du travail sous DOUZE HEURES en cas d’accident mortel', s:0, src:'R.4121-5', r:1,
+  sanc:'contravention de 5e classe (R.4741-2)',
+  act:'Informer l’agent de contrôle par un moyen conférant date certaine, dans les douze heures, avec les cinq mentions exigées',
+  doc:'atmortel', verif:['La procédure interne prévoit ce délai de douze heures','Un modèle de courrier avec les cinq mentions existe','L’envoi se fait par un moyen conférant date certaine']},
+ {id:'atcourt', lib:'Information du médecin du travail de tout arrêt d’accident du travail de moins de 30 jours', s:0, src:'R.4624-33', r:2,
+  sanc:'manquement à l’obligation de sécurité ; prive le service de santé de son pouvoir d’appréciation',
+  act:'Signaler au service de prévention et de santé au travail chaque accident du travail avec arrêt court',
+  verif:['Une trace d’envoi existe pour chaque accident avec arrêt court','Le signalement est intégré à la procédure accident du travail']},
  {id:'affich', lib:'Informations obligatoires affichées ou diffusées', s:0, src:'L.1152-4 · L.1153-5', r:1,
   sanc:'amende ; pèse en contentieux de harcèlement', act:'Poser le pack d’affichage : harcèlements, inspection, SPST, égalité',
   doc:'affichages', verif:['Les textes pénaux du harcèlement (222-33 et 222-33-2) sont diffusés','Les coordonnées inspection / SPST / secours sont visibles']},
  {id:'spst', lib:'Adhésion à un service de prévention et de santé au travail', s:0, src:'L.4621 s. — à relire avant tout acte', r:1,
-  sanc:'amende ; visites impossibles', act:'Adhérer au SPST et planifier les visites',
+  sanc:'amende ; visites impossibles', act:'Adhérer au service de prévention et de santé au travail et planifier les visites',
   page:'embauche', verif:['Chaque salarié a eu sa visite d’information et de prévention','Les suivis renforcés sont à jour']},
+ {id:'vip', lib:'Visite d’information et de prévention dans les trois mois, renouvelée au plus tard tous les cinq ans', s:0, src:'R.4624-10 · R.4624-11 · R.4624-16 · R.4624-18', r:2,
+  sanc:'manquement à l’obligation de sécurité',
+  act:'Saisir le service de santé au travail à chaque embauche ; la visite est PRÉALABLE pour un travailleur de nuit ou un mineur',
+  verif:['L’attestation de suivi a été remise au salarié','Le délai réel entre prise de poste et visite est tenu','Pour les travailleurs de nuit et les mineurs, la visite a bien eu lieu AVANT l’affectation','Le renouvellement ne dépasse pas cinq ans']},
+ {id:'sir', lib:'Suivi individuel renforcé : liste des postes à risques, motivée et mise à jour chaque année', s:0, src:'R.4624-23 · R.4624-24 · R.4624-28', r:1,
+  sanc:'affectation sans avis d’aptitude préalable : manquement caractérisé, faute inexcusable en cas d’accident',
+  act:'Tenir la liste des postes exposant à l’amiante, au plomb, aux agents cancérogènes, aux agents biologiques 3 et 4, aux rayonnements ionisants, à l’hyperbare et au montage d’échafaudages ; examen d’aptitude par le MÉDECIN avant affectation',
+  verif:['La liste a moins d’un an','L’inscription de chaque poste est motivée PAR ÉCRIT','La liste a été transmise au service de santé au travail','La visite intermédiaire à deux ans est réellement faite']},
+ {id:'reprise', lib:'Visite de reprise, et information sur la préreprise', s:0, src:'R.4624-31 · R.4624-32 · L.4624-2-4 · R.4624-29', r:2,
+  sanc:'la suspension du contrat se prolonge ; sanction prud’homale directe',
+  act:'Saisir le service de santé dès que la date de fin d’arrêt est connue ; la visite a lieu le jour de la reprise et au plus tard dans les huit jours',
+  doc:'reprise', verif:['Reprise organisée après maternité, maladie professionnelle, accident du travail d’au moins 30 jours, maladie non professionnelle d’au moins 60 jours','Le délai de huit jours après la reprise est tenu','Le salarié en arrêt de plus de 30 jours a été INFORMÉ de la possibilité d’une préreprise — obligation autonome']},
+ {id:'micarriere', lib:'Visite médicale de mi-carrière', s:0, src:'L.4624-2-2', r:2,
+  sanc:'manquement à l’obligation de sécurité ; désinsertion professionnelle non prévenue',
+  act:'Demander la visite l’année du quarante-cinquième anniversaire, sauf échéance fixée par accord de branche',
+  verif:['La liste des salariés atteignant 45 ans dans l’année est tenue','La demande au service de santé est tracée','Un éventuel accord de branche fixant une autre échéance a été vérifié']},
+ {id:'avismed', lib:'Suite donnée aux avis du médecin du travail — refus motivé PAR ÉCRIT', s:0, src:'L.4624-6', r:2,
+  sanc:'refus non motivé par écrit : manquement caractérisé, dommages-intérêts',
+  act:'Répondre par écrit à chaque préconisation d’aménagement, au salarié ET au médecin',
+  verif:['Chaque préconisation a une réponse écrite','La réponse est adressée au salarié ET au médecin du travail','Le délai de mise en œuvre est tracé']},
+ {id:'docspst', lib:'Document annuel adressé au service de santé au travail', s:0, src:'D.4622-22', r:3,
+  sanc:'contravention ; suivi médical mal calibré',
+  act:'Adresser chaque année le nombre et la catégorie des travailleurs à suivre et les risques auxquels ils sont exposés, après avis du médecin et du CSE',
+  verif:['Le document existe, daté de moins d’un an','L’avis du médecin du travail et celui du CSE ont été recueillis','Il concorde avec la liste des postes à risques']},
+ {id:'ficheent', lib:'Fiche d’entreprise établie par le service de santé au travail', s:0, src:'R.4624-46 · R.4624-47', r:3,
+  sanc:'pièce exigée par l’inspection ; conditionne la régularité de l’avis d’inaptitude',
+  act:'Réclamer la fiche au service de santé au travail — établie dans l’année suivant l’adhésion — et la conserver au dossier',
+  verif:['La fiche est au dossier','Sa date de dernière actualisation est connue','Elle concorde avec le DUERP']},
+ {id:'coactivite', lib:'Entreprises extérieures : inspection commune et plan de prévention', s:0, src:'R.4511-1 · R.4512-2 · R.4512-6 · R.4512-7 · R.4512-12', r:1,
+  sanc:'pénal en cas d’accident d’un salarié extérieur',
+  act:'Inspection commune AVANT toute intervention, quelle qu’en soit la nature ; plan écrit dès 400 heures sur douze mois, sous-traitants compris, ou pour tout travail dangereux',
+  doc:'planprev', verif:['Un compte rendu d’inspection commune, signé, est daté d’avant le début des travaux','Les heures des sous-traitants sont additionnées, et le cumul suivi en cours d’exécution','L’inspection du travail a été informée PAR ÉCRIT de l’ouverture des travaux — point presque toujours omis']},
+ {id:'protocole', lib:'Protocole de sécurité pour les chargements et déchargements', s:0, src:'R.4515-4 · R.4515-5', r:1,
+  sanc:'pénal en cas d’accident de quai',
+  act:'Établir un protocole écrit avec chaque transporteur — il remplace le plan de prévention',
+  doc:'planprev', verif:['Un protocole existe pour chaque transporteur habituel','Il est écrit et signé','Il a été mis à jour au changement de quai ou d’engin']},
+ {id:'epi', lib:'Équipements de protection individuelle : fournis, entretenus, expliqués', s:0, src:'R.4323-91 · R.4323-95 · R.4323-104', r:2,
+  sanc:'toute retenue sur salaire au titre d’un équipement obligatoire est illicite',
+  act:'Fournir gratuitement, entretenir, remplacer, et informer sur les risques couverts et les conditions d’utilisation',
+  verif:['Aucune facturation au salarié, y compris pour le nettoyage','Un registre de remise émargé existe','Un budget d’entretien et de remplacement est identifiable']},
+ {id:'locaux', lib:'Sanitaires, restauration et propreté des locaux', s:0, src:'R.4228-10 · R.4228-19 · R.4228-22 · R.4228-23', r:3,
+  sanc:'contravention ; mise en demeure de l’inspection',
+  act:'Un cabinet et un urinoir pour vingt hommes, deux cabinets pour vingt femmes, séparés ; local de restauration dès 50 salariés PAR ÉTABLISSEMENT, emplacement en deçà',
+  verif:['Le comptage est fait sur l’effectif présent SIMULTANÉMENT','Manger dans un local de travail suppose une DÉCLARATION préalable à l’inspection et au médecin du travail — presque jamais faite','Dès 50 : local dédié, avis du CSE recueilli, eau chaude et froide pour dix usagers, réfrigérateur et moyen de réchauffage']},
+ {id:'ecran', lib:'Travail sur écran : formation et examen des yeux avant affectation', s:0, src:'R.4542-16 · R.4542-17', r:2,
+  sanc:'manquement à l’obligation de sécurité — s’applique à tout poste tertiaire',
+  act:'Former avant la première affectation à un écran, et n’affecter qu’après un examen approprié des yeux et de la vue',
+  verif:['Un support de formation « travail sur écran » a été remis avant la première affectation','L’examen des yeux figure à l’attestation de visite','La formation a été refaite après toute modification substantielle du poste']},
+ {id:'chimique', lib:'Agents chimiques : fiches de données de sécurité et notice de poste', s:0, src:'R.4412-38 · R.4412-39', r:1,
+  sanc:'amende ; faute inexcusable en cas d’exposition',
+  act:'Rendre les fiches de données de sécurité accessibles aux salariés et établir une notice PAR POSTE exposé',
+  verif:['Le classeur des fiches est accessible aux salariés, pas rangé chez le responsable qualité','Il existe une notice de poste par poste exposé, et non une notice générale','Le CSE a reçu l’information']},
+ {id:'nuit', lib:'Travail de nuit : recours justifié et suivi individuel régulier', s:0, src:'L.3122-1 · L.3122-2 · L.3122-11 · L.3122-12 · R.4624-18', r:2,
+  sanc:'recours non justifié : rappels de salaire et dommages-intérêts',
+  act:'Justifier par écrit la continuité de l’activité économique ou l’utilité sociale, et faire suivre médicalement chaque travailleur de nuit',
+  verif:['La justification du recours est écrite','La visite a eu lieu AVANT la première nuit travaillée','Le refus pour obligations familiales impérieuses n’a jamais été sanctionné']},
+ {id:'mineurs', lib:'Jeunes de moins de 18 ans : dérogation déclarée et avis médical annuel', s:0, src:'L.4153-8 · R.4153-40 · R.4153-41 · R.4153-45', r:1,
+  sanc:'pénal ; responsabilité aggravée',
+  act:'Avant toute affectation à un travail interdit susceptible de dérogation : évaluation des risques propre aux jeunes, formation, encadrement désigné, avis médical, et déclaration à l’inspection valable trois ans',
+  verif:['Le DUERP comporte un volet « jeunes »','Un avis médical d’aptitude ANNUEL existe pour chaque jeune','La déclaration de dérogation a été envoyée par un moyen conférant date certaine, et sa date d’expiration à trois ans est suivie']},
  {id:'mutuelle', lib:'Complémentaire santé collective', s:0, src:'L.911-7 code de la sécurité sociale — à vérifier', r:2,
   sanc:'rappels de cotisations et dommages-intérêts', act:'Mettre en place la couverture et la décision unilatérale ou l’accord',
   verif:['Tous les salariés sont couverts ou dispensés par écrit','La participation employeur atteint au moins la moitié']},
@@ -29547,6 +29683,99 @@ function ausDoc(type){
      +'<tr><td>M. T. NGUYEN (trésorier)</td><td>premier</td><td>5 jours</td><td>AFTRAL</td><td>12-16/10/2026</td><td>1 450 €</td></tr>'
      +'<tr><td>2 autres titulaires</td><td>premier</td><td>5 jours</td><td>AFTRAL</td><td>09-13/11/2026</td><td>2 900 €</td></tr></table>'
      +'<p>Total 5 800 €. Journées payées au taux habituel, hors crédit d’heures. Prochaine échéance : renouvellement de 2030 — 3 jours par élu reconduit.</p>';
+  } else if(type==='papripact'){
+    T='Programme annuel de prévention (PAPRIPACT)';
+    H=ausTete()
+     +'<p><b>PROGRAMME ANNUEL DE PRÉVENTION DES RISQUES PROFESSIONNELS ET D’AMÉLIORATION DES CONDITIONS DE TRAVAIL</b> (L.4121-3-1, III, 1° — entreprises d’au moins 50 salariés ; en deçà, la liste des actions se consigne dans le DUERP lui-même, 2°)</p>'
+     +'<p><b>PARTIE 1 — VOTRE STRUCTURE À REMPLIR</b> — chaque mesure porte obligatoirement ses conditions d’exécution, un indicateur de résultat et son coût estimé.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Risque (DUERP)</th><th>Mesure</th><th>Conditions d’exécution</th><th>Indicateur de résultat</th><th>Coût estimé</th><th>Responsable</th><th>Échéance</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p>Ressources de l’entreprise mobilisables : [budget, temps, compétences internes, aides Carsat…]. Calendrier de mise en œuvre : [ ]. Présenté au CSE le [DATE] avec le rapport annuel (L.2312-27).</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, transport, 72 salariés, programme 2027</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Risque</th><th>Mesure</th><th>Conditions</th><th>Indicateur</th><th>Coût</th><th>Resp.</th><th>Échéance</th></tr>'
+     +'<tr><td>Accident routier — fatigue (priorité 8)</td><td>Formation éco-conduite et gestion de la fatigue, 38 conducteurs</td><td>2 sessions de 19, sur temps de travail</td><td>Nombre d’accrochages déclarés : 11 en 2026 → cible 7</td><td>1 800 €</td><td>Resp. exploitation</td><td>31/03/2027</td></tr>'
+     +'<tr><td>TMS quai (priorité 9)</td><td>Étude de poste du quai n°2 avec le service de santé, puis achat de 2 transpalettes électriques</td><td>Étude préalable, achat après restitution</td><td>Jours d’arrêt liés au dos : 42 en 2026 → cible 25</td><td>1 200 € étude + 9 600 € matériel</td><td>Gérant</td><td>30/06/2027</td></tr>'
+     +'<tr><td>Travail sur écran (priorité 6)</td><td>Écrans doubles et pauses affichées, 12 postes</td><td>Après examen des yeux (R.4542-17)</td><td>Plaintes visuelles au questionnaire annuel : 5 → cible 1</td><td>2 400 €</td><td>RH</td><td>30/09/2027</td></tr>'
+     +'<tr><td>Ambiances thermiques — cabines l’été</td><td>Climatisation vérifiée avant juin, eau embarquée</td><td>Contrôle des 24 véhicules</td><td>100 % des véhicules contrôlés avant le 01/06</td><td>3 100 €</td><td>Atelier</td><td>31/05/2027</td></tr></table>'
+     +'<p>Ressources mobilisables : budget prévention 18 000 €, subvention Carsat « TMS Pros » sollicitée le 12/01/2027, 8 jours de temps interne. Présenté au CSE le 09/02/2027, avis favorable, 5 voix pour. Mesures 2026 non réalisées et motifs : remplacement du quai n°1 reporté faute de disponibilité du bailleur — motivation portée en annexe du rapport annuel.</p>';
+  } else if(type==='accueilsecu'){
+    T='Accueil sécurité — information et formation à l’embauche';
+    H=ausTete()
+     +'<p><b>ACCUEIL SÉCURITÉ</b> — information sur les risques (R.4141-3-1) et formation pratique à la sécurité (L.4141-2, contenu R.4141-3). À refaire à chaque changement de poste ou de technique, et après un arrêt d’au moins 21 jours si le médecin du travail le demande.</p>'
+     +'<p><b>PARTIE 1 — VOTRE SUPPORT ET SON ÉMARGEMENT</b></p>'
+     +'<p><b>A. Information (R.4141-3-1) — les cinq points :</b><br>1° Modalités d’accès au DUERP : [où, comment] ;<br>2° Mesures de prévention des risques identifiés au DUERP pour ce poste : [ ] ;<br>3° Rôle du service de prévention et de santé au travail et des représentants du personnel : [ ] ;<br>4° Dispositions du règlement intérieur, le cas échéant : [ ] ;<br>5° Consignes de sécurité incendie et identité des personnes chargées de l’évacuation (R.4227-38) : [ ].</p>'
+     +'<p><b>B. Formation pratique (R.4141-3) — les trois volets :</b><br>1° Conditions de circulation dans l’entreprise : [ ] ;<br>2° Conditions d’exécution du travail : [ ] ;<br>3° Conduite à tenir en cas d’accident ou de sinistre : [ ].</p>'
+     +'<p>Salarié : [NOM] — poste : [ ] — date d’embauche : [ ] — accueil réalisé le [ ] par [ ]. Signatures.</p>'
+     +'<p><i>Poste figurant sur la liste des postes à risques particuliers (L.4154-2) ? [oui / non]. Si oui, formation RENFORCÉE et accueil adapté, pour les CDD, intérimaires et stagiaires.</i></p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — M. J. FONTAINE, conducteur SPL, embauché le 02/03/2027</b></p>'
+     +'<p>A. 1° DUERP consultable au bureau RH et sur l’intranet, avis affiché au réfectoire à côté du règlement intérieur. 2° Risques du poste : accident routier, manutention au chargement, ambiances thermiques ; mesures : plannings à J-7, transpalette électrique, climatisation vérifiée, eau embarquée. 3° Service de santé AMETIF, Dr T., 01 XX XX XX XX ; élus du CSE : Mme BEN SAID (secrétaire, référente harcèlement), M. NGUYEN. 4° Règlement intérieur remis contre décharge, articles 8 à 14 sur la sécurité. 5° Consigne incendie affichée au quai et au réfectoire ; chargés d’évacuation : M. DIAS (quai), Mme MOREAU (bureaux).<br>'
+     +'B. 1° Circulation : sens unique de la cour, vitesse 10 km/h, zone piétons matérialisée en jaune. 2° Exécution : arrimage, contrôle avant départ, remise hebdomadaire des disques (article 13 du contrat). 3° Accident : alerter le 15 ou le 18, prévenir l’exploitation au 01 XX XX XX XX, trousse au vestiaire, secouriste M. DIAS ; ne pas déplacer la victime.<br>'
+     +'Accueil réalisé le 02/03/2027 par M. R. MOREL, gérant — durée 2 h — émargé par le salarié. Poste NON inscrit sur la liste des postes à risques particuliers.</p>';
+  } else if(type==='incendie'){
+    T='Consigne de sécurité incendie et registre des exercices';
+    H=ausTete()
+     +'<p><b>CONSIGNE DE SÉCURITÉ INCENDIE</b> (R.4227-37, contenu R.4227-38, exercices R.4227-39). Dans les établissements non visés par R.4227-34, des instructions d’évacuation restent obligatoires.</p>'
+     +'<p><b>PARTIE 1 — LES HUIT MENTIONS À REMPLIR</b></p>'
+     +'<p>1° Matériel d’extinction et de secours, et son emplacement : [ ]<br>2° Personnes chargées de le mettre en action : [ ]<br>3° Personnes chargées de diriger l’évacuation : [ ]<br>4° Mesures liées à la présence de personnes handicapées et localisation des ESPACES D’ATTENTE SÉCURISÉS : [ ]<br>5° Moyens d’alerte : [ ]<br>6° Personnes chargées d’aviser les sapeurs-pompiers : [ ]<br>7° Adresse et numéro d’appel du service de secours de premier appel, EN CARACTÈRES APPARENTS : [ ]<br>8° Devoir, pour toute personne apercevant un début d’incendie, de donner l’alarme.</p>'
+     +'<p><b>Registre des exercices et essais</b> — au moins tous les six mois :</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Date</th><th>Nature (exercice d’évacuation, essai d’alarme, visite du matériel)</th><th>Participants</th><th>Durée d’évacuation</th><th>Observations</th><th>Actions correctives et échéance</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE, dépôt d’Argenteuil</b></p>'
+     +'<p>1° 6 extincteurs eau pulvérisée 6 l (940 m² de plancher, soit 5 requis) + 2 CO2 au tableau électrique, 1 par niveau. 2° M. DIAS, Mme MOREAU, M. NGUYEN, formés le 14/04/2026. 3° M. DIAS (quai), Mme MOREAU (bureaux). 4° Un salarié en fauteuil au bureau 2 : espace d’attente sécurisé au palier du 1er étage, signalé ; M. NGUYEN chargé de l’accompagner. 5° Déclencheurs manuels aux deux issues, sirène autonome 5 minutes. 6° Mme MOREAU, ligne directe. 7° POMPIERS 18 — SAMU 15 — 112, affichés en rouge, caractères 3 cm. 8° Mention portée en pied de consigne.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Date</th><th>Nature</th><th>Participants</th><th>Durée</th><th>Observations</th><th>Correctif</th></tr>'
+     +'<tr><td>17/03/2026</td><td>Exercice d’évacuation, alarme réelle</td><td>64 sur 72</td><td>3 min 40 s</td><td>Issue arrière encombrée de palettes ; point de rassemblement mal identifié</td><td>Marquage au sol et interdiction de stockage — fait le 24/03 ; panneau posé le 02/04</td></tr>'
+     +'<tr><td>22/09/2026</td><td>Exercice d’évacuation + essai d’alarme</td><td>68 sur 72</td><td>2 min 55 s</td><td>Issue dégagée ; deux conducteurs absents en tournée, informés au retour</td><td>Exercice de rattrapage individuel le 29/09</td></tr></table>';
+  } else if(type==='dgi'){
+    T='Registre des dangers graves et imminents — modèle et procédure';
+    H=ausTete()
+     +'<p><b>REGISTRE SPÉCIAL DES DANGERS GRAVES ET IMMINENTS</b> (D.4132-1 et D.4132-2). <b>Pages numérotées et authentifiées par le tampon du comité</b> ; tenu sous la responsabilité de l’employeur, à la disposition des élus.</p>'
+     +'<p><b>PARTIE 1 — LA PAGE TYPE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>N° de page</th><th>Date et signature de l’élu</th><th>Postes concernés</th><th>Nature et cause du danger</th><th>Noms des travailleurs exposés</th><th>Enquête (date, participants)</th><th>Mesures prises</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>La procédure, dans l’ordre (L.4131-1 à L.4132-4)</b> : le salarié alerte et peut se retirer — l’avis de l’élu est consigné au registre — l’employeur enquête IMMÉDIATEMENT avec l’élu et prend les dispositions nécessaires — en cas de divergence, le comité est réuni d’urgence dans les 24 HEURES, l’inspection du travail et l’agent de prévention de la caisse en sont informés immédiatement — à défaut d’accord avec la majorité du comité, l’inspecteur du travail est saisi. Aucune sanction ni retenue ne peut frapper un retrait légitime.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI</b></p>'
+     +'<p>Page 14 — 06/10/2026, 9 h 15, signé Mme R. BEN SAID, élue titulaire. Postes : quai n°2, caristes. Nature et cause : nacelle du transpalette élévateur dont le garde-corps s’est descellé, chute possible de 2,40 m. Travailleurs exposés : MM. DIAS, TRAORÉ, Mme SARR. — Enquête le jour même à 9 h 40, gérant et élue : descellement confirmé, engin immobilisé et consigné à 10 h 05. Mesures : location d’un engin de remplacement le 06/10 à 14 h, réparation par le loueur le 09/10, vérification générale périodique avancée au 12/10, consignée au registre de sécurité. Aucune divergence : le comité n’a pas eu à être réuni sous 24 heures. Information portée au point 3 de la réunion du 14/10/2026.</p>';
+  } else if(type==='atmortel'){
+    T='Accident du travail mortel — information de l’inspection sous 12 heures';
+    H=ausTete()
+     +'<p><b>INFORMATION DE L’AGENT DE CONTRÔLE DE L’INSPECTION DU TRAVAIL</b> (R.4121-5) — <b>immédiatement et au plus tard dans les douze heures</b> suivant le décès, par tout moyen conférant date certaine. Obligation distincte de la déclaration à la caisse d’assurance maladie.</p>'
+     +'<p><b>PARTIE 1 — LES CINQ MENTIONS À REMPLIR</b></p>'
+     +'<p>1° Nom ou raison sociale et adresse de l’entreprise : [ ]<br>2° [coordonnées de l’établissement et de la personne à joindre] : [ ]<br>3° Noms, prénoms, date de naissance de la victime : [ ]<br>4° Date, heure, lieu et circonstances de l’accident : [ ]<br>5° Identité et coordonnées des témoins : [ ]</p>'
+     +'<p>Envoyé le [DATE, HEURE] par [courriel avec accusé / lettre recommandée / dépôt contre récépissé] à l’unité de contrôle de [lieu de survenance de l’accident].</p>'
+     +'<p><i>À conserver cinq ans avec la copie de la déclaration d’accident (D.4711-3). Le manquement est puni de l’amende des contraventions de cinquième classe (R.4741-2).</i></p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI</b></p>'
+     +'<p>1° SARL EXEMPLE, 12 rue des Docks, 95100 Argenteuil, SIRET 000 000 000 00000. 2° Dépôt d’Argenteuil ; à joindre : M. R. MOREL, gérant, 06 XX XX XX XX. 3° M. Karim TRAORÉ, né le 14/02/1988. 4° Le 06/10/2026 à 9 h 12, quai n°2 du dépôt : chute d’une hauteur de 2,40 m depuis la nacelle d’un transpalette élévateur dont le garde-corps s’est descellé ; décès constaté sur place à 9 h 48 par le SAMU. 5° M. B. DIAS, cariste, 06 XX XX XX XX ; Mme N. SARR, conductrice, 06 XX XX XX XX. — Adressé le 06/10/2026 à 11 h 30 par courriel avec accusé de réception à l’unité de contrôle du Val-d’Oise, soit 2 h 18 après le décès.</p>';
+  } else if(type==='reprise'){
+    T='Visites médicales — reprise et information sur la préreprise';
+    H=ausTete()
+     +'<p><b>SUIVI DES ARRÊTS DE TRAVAIL</b> — visite de reprise (R.4624-31 et R.4624-32) et information sur la préreprise (L.4624-2-4, R.4624-29).</p>'
+     +'<p><b>PARTIE 1 — VOTRE TABLEAU DE BORD ET LE COURRIER TYPE</b></p>'
+     +'<p><b>Quand la visite de reprise est due :</b> après un congé de maternité · après une absence pour maladie professionnelle · après une absence d’au moins <b>30 jours</b> pour accident du travail · après une absence d’au moins <b>60 jours</b> pour maladie ou accident non professionnel. L’employeur saisit le service de santé dès qu’il connaît la date de fin d’arrêt ; la visite a lieu le jour de la reprise, au plus tard dans les <b>huit jours</b>.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Salarié</th><th>Motif de l’arrêt</th><th>Début</th><th>Fin</th><th>Durée</th><th>Préreprise : information envoyée le</th><th>Service de santé saisi le</th><th>Visite de reprise</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>Courrier type — information sur la préreprise</b> (à envoyer dès le 31e jour d’arrêt) : « Madame, Monsieur, votre arrêt de travail dépasse trente jours. Nous vous informons que vous pouvez solliciter, si vous le souhaitez, une visite de préreprise auprès du médecin du travail, en vue de préparer votre retour et d’envisager, le cas échéant, un aménagement de votre poste. Cette démarche vous appartient : elle peut aussi être engagée par votre médecin traitant ou par les services médicaux de l’assurance maladie. Coordonnées du service : [ ]. »</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Salarié</th><th>Motif</th><th>Début</th><th>Fin</th><th>Durée</th><th>Info préreprise</th><th>Saisine</th><th>Reprise</th></tr>'
+     +'<tr><td>Mme N. SARR</td><td>Accident du travail</td><td>02/06/2026</td><td>28/07/2026</td><td>57 j</td><td>03/07/2026 (J+31)</td><td>24/07/2026</td><td>29/07/2026 — le lendemain de la reprise</td></tr>'
+     +'<tr><td>M. B. DIAS</td><td>Maladie non professionnelle</td><td>10/03/2026</td><td>25/04/2026</td><td>46 j</td><td>10/04/2026</td><td>sans objet</td><td>NON DUE — moins de 60 jours</td></tr>'
+     +'<tr><td>Mme L. PEREIRA</td><td>Congé de maternité</td><td>04/01/2026</td><td>26/04/2026</td><td>—</td><td>sans objet</td><td>21/04/2026</td><td>27/04/2026 — jour de la reprise</td></tr></table>'
+     +'<p>Vigilance : l’arrêt de M. DIAS n’ouvrait pas de visite de reprise (46 jours &lt; 60 pour une maladie non professionnelle) mais l’information sur la préreprise restait due dès le 31e jour — elle a été envoyée.</p>';
+  } else if(type==='planprev'){
+    T='Entreprises extérieures — inspection commune, plan de prévention, protocole de sécurité';
+    H=ausTete()
+     +'<p><b>INTERVENTION D’UNE ENTREPRISE EXTÉRIEURE</b> (R.4511-1 à R.4513-1) — l’inspection commune préalable est due <b>quelle que soit la nature de l’opération</b>. Le plan écrit s’impose dès <b>400 heures sur douze mois, sous-traitants compris</b>, ou pour tout travail dangereux quelle qu’en soit la durée. Le chargement et le déchargement relèvent, eux, du <b>protocole de sécurité</b> (R.4515-4).</p>'
+     +'<p><b>PARTIE 1 — VOTRE STRUCTURE</b></p>'
+     +'<p><b>A. Inspection commune préalable</b> — date : [ ] · participants (entreprise utilisatrice et chaque entreprise extérieure) : [ ] · lieux, installations et matériels visités : [ ] · signatures.</p>'
+     +'<p><b>B. Analyse commune des risques d’interférence</b> : [activités simultanées, circulation, énergies, produits, coactivité] — puis, pour chaque risque, la mesure et l’entreprise qui la prend.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Risque d’interférence</th><th>Mesure</th><th>À la charge de</th><th>Moyens</th></tr><tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>C. Décompte des heures</b> (sous-traitants inclus, suivi en cours d’exécution) : [ ] h prévues · [ ] h réalisées au [date]. <b>D. Information écrite de l’inspection du travail de l’ouverture des travaux</b> (R.4512-12, 2°) : envoyée le [ ]. <b>E. Suivi en cours d’exécution</b> (R.4513-1) : visites des [ ].</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — remplacement de la toiture du dépôt, SARL EXEMPLE</b></p>'
+     +'<p>A. Inspection commune le 03/09/2026, 8 h 30 : M. MOREL (utilisatrice), M. LEROUX (COUVERTURE 95, extérieure), M. AZIZ (ÉCHAFAUDAGES PLUS, sous-traitante). Visite du quai, de la cour, du tableau électrique et des accès toiture. Signée des trois.<br>'
+     +'B. Risques d’interférence retenus : circulation des poids lourds sous la zone de travaux → cour fermée de 7 h à 17 h, itinéraire de contournement fléché, à la charge de l’utilisatrice ; chute d’objets → filets et périmètre balisé, à la charge de COUVERTURE 95 ; montage d’échafaudage (travail dangereux) → habilitations vérifiées, personnel en suivi individuel renforcé, à la charge d’ÉCHAFAUDAGES PLUS ; coupure électrique → consignation par l’utilisatrice le 07/09 à 7 h.<br>'
+     +'C. Heures : 520 h prévues (COUVERTURE 95 : 400 h ; ÉCHAFAUDAGES PLUS : 120 h) — <b>le cumul dépasse 400 h, et il y a des travaux dangereux : le plan écrit est doublement obligatoire</b>. Au 20/09 : 310 h réalisées.<br>'
+     +'D. Ouverture des travaux notifiée par courriel avec accusé à l’unité de contrôle du Val-d’Oise le 04/09/2026.<br>'
+     +'E. Visites de suivi les 10/09 et 18/09 ; avenant du 18/09 après ajout d’une nacelle non prévue.<br>'
+     +'<b>Protocole de sécurité distinct</b> pour les livraisons quotidiennes du transporteur TRANSNORD : signé le 12/01/2026, quai n°2, calage obligatoire, remise des clés au bureau, mis à jour le 05/09 pendant la fermeture de la cour.</p>';
   } else { alert('Modèle inconnu.'); return; }
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
   try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
