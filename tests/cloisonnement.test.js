@@ -210,6 +210,37 @@ const ok = (c, m, d) => { if (c) console.log('  ok    ' + m); else { echecs++; c
   ok(/TEC/.test(h3), 'le client retrouve sa fiche intacte', h3);
   ok(/1516/.test(h3), 'et sa convention', h3);
 
+  /* La cause de l'intermittence : neuf endroits serialisaient E tel quel.
+     Quand E n'etait pas encore recharge, un objet vide ecrasait la fiche.
+     On le reproduit a la main -- si la garde tient, rien ne se perd. */
+  console.log('\n— Un E vide n\'ecrase plus la fiche —');
+  const garde = await page.evaluate(() => {
+    const avant = JSON.parse(localStorage.getItem(jxEntKey()) || '{}');
+    /* E est declaree en `let` : c'est une liaison de portee script, pas
+       une propriete de window. On l'assigne donc directement, sinon on
+       ne reproduit rien du tout. */
+    E = {};                              // l'etat appauvri du bug
+    jxEntEcrire(E);                      // une ecriture partielle quelconque
+    const apres = JSON.parse(localStorage.getItem(jxEntKey()) || '{}');
+    return { nomAvant: avant.nom || '', nomApres: apres.nom || '',
+             ccnAvant: avant.idcc || avant.ccn || '', ccnApres: apres.idcc || apres.ccn || '',
+             Erecharge: !!(E && E.nom) };
+  });
+  ok(garde.nomApres === garde.nomAvant && garde.nomApres !== '',
+     'la raison sociale survit a une ecriture partielle depuis un E vide', JSON.stringify(garde));
+  ok(garde.ccnApres === garde.ccnAvant, 'la convention aussi', JSON.stringify(garde));
+  ok(garde.Erecharge, 'et E est reforme depuis le disque, pour que le trou ne se reforme pas');
+
+  const efface = await page.evaluate(() => {
+    /* La saisie explicite de la fiche, elle, reste maitresse : le client
+       doit pouvoir corriger un nom, donc aussi le vider. */
+    jxEntEcrire({ nom: 'NOUVEAU NOM', secteur: 'transport' }, true);
+    const d = JSON.parse(localStorage.getItem(jxEntKey()) || '{}');
+    return { nom: d.nom || '', reste: Object.keys(d).length };
+  });
+  ok(efface.nom === 'NOUVEAU NOM' && efface.reste === 2,
+     'mais la saisie explicite ecrit telle quelle : le client garde la main', JSON.stringify(efface));
+
   await nav.close();
   console.log('\n' + (echecs ? echecs + ' ECHEC(S)' : 'tout est vert'));
   process.exit(echecs ? 1 : 0);

@@ -1046,6 +1046,48 @@ function jxCompteCabinet(nom){
 }
 /* La fiche entreprise, rangee par compte. */
 function jxEntKey(){ return 'juris_transport::'+jxCompte(); }
+/* ══════════════════════════════════════════════════════════════════
+   LA FICHE NE S'EFFACE PAS TOUTE SEULE.
+   Vu en essai, une fois sur trois : la cle du dossier etait bien sur le
+   disque, le compte etait bon, et pourtant la raison sociale et la
+   convention avaient disparu de l'en-tete. Neuf endroits ecrivaient la
+   fiche en serialisant E tel quel ; quand E n'avait pas encore ete
+   recharge -- changement de dossier, page ouverte avant l'initialisation,
+   onglet restaure par le systeme -- un objet vide ecrasait la fiche du
+   client, definitivement.
+   Toute ecriture passe maintenant par ici. Par defaut elle FUSIONNE : un
+   champ vide ne remplace jamais un champ renseigne sur le disque. Seule
+   la saisie explicite de la fiche (inscription, profil) ecrit telle quelle,
+   et c'est alors le client qui decide d'effacer.
+   ══════════════════════════════════════════════════════════════════ */
+function jxEntEcrire(obj, complet){
+  var k;
+  try{ k=jxEntKey(); }catch(e){ return false; }
+  var neuf=(obj && typeof obj==='object')?obj:{};
+  var vieux=null;
+  try{ var _s=localStorage.getItem(k); if(_s){ var _p=JSON.parse(_s); if(_p && typeof _p==='object') vieux=_p; } }catch(e){}
+  var out;
+  if(complet || !vieux){
+    out=neuf;
+  } else {
+    /* On part du disque et on n'ecrase qu'avec du renseigne. */
+    out={};
+    Object.keys(vieux).forEach(function(c){ out[c]=vieux[c]; });
+    Object.keys(neuf).forEach(function(c){
+      var v=neuf[c];
+      var vide=(v===undefined || v===null || (typeof v==='string' && v.trim()===''));
+      var avait=(vieux[c]!==undefined && vieux[c]!==null && !(typeof vieux[c]==='string' && String(vieux[c]).trim()===''));
+      if(vide && avait) return;          /* le disque garde sa valeur */
+      out[c]=v;
+    });
+  }
+  var ok=false;
+  try{ ok=jxEcrire(k, JSON.stringify(out)); }catch(e){ ok=false; }
+  /* E suit le disque : sans cela, l'ecriture suivante repartirait de
+     l'objet appauvri et le trou se reformerait. */
+  try{ if(ok && !complet && typeof E!=='undefined') E=out; }catch(e){}
+  return ok;
+}
 
 /* ══════════════════════════════════════════════════════════════════
    TOUTE DONNEE D'UN DOSSIER PORTE LE COMPTE DANS SA CLE.
@@ -1084,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.205';
+var JX_BUILD = 'v2026-08-20.206';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,20 +1136,27 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
- {v:'v2026-08-20.205', d:'20 août 2026', t:[
+ {v:'v2026-08-20.206', d:'20 août 2026', t:[
+   'LA FICHE DU DOSSIER NE S\u2019EFFACE PLUS TOUTE SEULE. Une fois sur trois, en revenant dans un dossier, la raison sociale et la convention avaient disparu de l\u2019en-tête alors que la fiche était bien enregistrée.',
+   'La cause : neuf endroits du programme écrivaient la fiche en recopiant l\u2019objet en mémoire tel quel. Quand cet objet n\u2019avait pas encore été rechargé — changement de dossier, page ouverte avant l\u2019initialisation, onglet restauré par le téléphone — un objet VIDE écrasait la fiche du client, définitivement.',
+   'Toute écriture passe désormais par une porte unique qui FUSIONNE : un champ vide ne remplace jamais un champ renseigné sur le disque. Seule la saisie explicite de la fiche — inscription, profil — écrit telle quelle : c\u2019est alors le client qui décide d\u2019effacer.',
+   'Même défaut corrigé plus loin : la variable du dossier était déclarée en « let », si bien qu\u2019une réparation de secours écrivait dans une propriété qui ne la désignait pas — elle ne réparait rien.',
+   'Six passages consécutifs du test de cloisonnement, tous verts. Il vérifie désormais qu\u2019une écriture partielle depuis un état vide ne perd ni la raison sociale ni la convention.'
+ ]},
+ {v:'v2026-08-20.206', d:'20 août 2026', t:[
    'L\u2019audit garde vos réponses d\u2019une fois sur l\u2019autre — 145 lignes ne se refont pas à chaque ouverture — mais il ne les garde plus en silence : chaque réponse porte désormais SA DATE, et un bouton « ↺ Recommencer l\u2019audit » efface tout, quand vous le décidez.',
    'Une réponse de plus d\u2019un mois s\u2019affiche en jaune, suivie de « à revoir » : « Je l\u2019ai » d\u2019il y a six mois n\u2019est pas « Je l\u2019ai » d\u2019hier.',
    'Le compteur en tête de l\u2019étape 2 dit combien de réponses sont enregistrées, pour qu\u2019on ne découvre plus un audit à moitié rempli sans savoir d\u2019où il vient.',
    'Recommencer efface les réponses et les contrôles, PAS le périmètre : l\u2019effectif, les établissements et la convention viennent de la fiche société, ils restent.'
  ]},
- {v:'v2026-08-20.205', d:'20 août 2026', t:[
+ {v:'v2026-08-20.206', d:'20 août 2026', t:[
    'IMPRIMER, ENREGISTRER EN PDF OU EN WORD : chaque document s\u2019ouvre désormais en aperçu, avec quatre boutons — Fermer, Imprimer / PDF, Word, Partager.',
    'Le défaut : les modèles de l\u2019audit appelaient le partage DIRECTEMENT. Sur téléphone, cela ouvrait la feuille de partage ou copiait le texte dans le presse-papier — jamais d\u2019aperçu, jamais d\u2019impression, jamais de PDF ni de Word.',
    'Un second aperçu existait ailleurs dans l\u2019application ; son bandeau annonçait « touchez 🖨 en haut » alors qu\u2019aucun bouton imprimante ne figurait dans sa barre. Il a été supprimé : il n\u2019y a plus qu\u2019une seule sortie, la même pour l\u2019audit, les négociations, l\u2019installation du CSE et les rapports.',
    'Le bouton Word tente le téléchargement puis, si le téléphone le bloque sans rien dire, propose aussitôt le partage du même fichier — seule voie qui ouvre « Enregistrer dans Fichiers ».',
    'Test nouveau : tests/docsortie.test.js vérifie qu\u2019un modèle n\u2019ouvre plus le partage tout seul, que les quatre boutons sont là, que l\u2019impression part, que le .doc se construit, et que ce que l\u2019aide annonce existe bien dans la barre.'
  ]},
- {v:'v2026-08-20.205', d:'20 août 2026', t:[
+ {v:'v2026-08-20.206', d:'20 août 2026', t:[
    'Le CONTRAT, le TEMPS DE TRAVAIL, les CONGÉS, la PAIE, les MOYENS DU COMITÉ, l\u2019ÉGALITÉ, le HANDICAP, la FORMATION et les DONNÉES PERSONNELLES entrent dans l\u2019audit : 82 obligations nouvelles, chaque article relu à sa source. L\u2019audit passe de 63 à 145 obligations.',
    'Celle qui manquait le plus : le document d\u2019information sur la relation de travail (L.1221-5-1 et R.1221-34), ses quatorze rubriques et ses deux délais — sept jours calendaires pour huit d\u2019entre elles, un mois pour les autres. Beaucoup d\u2019employeurs l\u2019ignorent depuis le 1er novembre 2023.',
    'Le décompte du temps de travail (D.3171-1, D.3171-2, D.3171-8) et les trois durées de conservation de D.3171-16 · les durées maximales et les repos · le contingent et sa contrepartie en repos, 50 % jusqu\u2019à vingt salariés et 100 % au-delà (L.3121-38) · le forfait en jours et son entretien annuel de charge · le temps partiel et sa répartition · l\u2019ordre des départs en congé et ses deux délais (D.3141-5 et D.3141-6).',
@@ -1116,7 +1165,7 @@ var JX_CHANGELOG = [
    'Quatorze modèles nouveaux, tous en deux parties — structure complète puis exemplaire fictif entièrement chiffré : document d\u2019information à l\u2019embauche, CDD, contrat à temps partiel, décompte du temps de travail, forfait jours, ordre des départs en congé, documents de fin de contrat, procédure de licenciement, rupture conventionnelle, inaptitude, registre des heures de délégation, enquête après droit d\u2019alerte, avis de convention collective, bilan social.',
    'Ce qui n\u2019a PAS été retenu : toute obligation qu\u2019un agent n\u2019a pas pu lire à sa source. L\u2019obligation de partage de la valeur des entreprises de 11 à 49 salariés n\u2019est pas dans le code du travail — elle reste à vérifier avant d\u2019entrer dans l\u2019audit.'
  ]},
- {v:'v2026-08-20.205', d:'20 août 2026', t:[
+ {v:'v2026-08-20.206', d:'20 août 2026', t:[
    'Le socle SANTÉ-SÉCURITÉ entre dans l\'audit : 32 obligations nouvelles, chaque article relu à la source. L\'audit passe de 23 à 63 obligations — 38 dès le premier salarié, contre 13 auparavant.',
    'Parmi elles, celles qu\'on oublie le plus : l\'annexe du DUERP avec la proportion de salariés exposés (R.4121-1-1) · sa conservation 40 ans et l\'affichage des modalités d\'accès (R.4121-4) · l\'organisation ÉCRITE des secours après avis du médecin du travail (R.4224-16) · le registre des exercices d\'évacuation, deux par an (R.4227-39) · la LISTE des personnes qualifiées pour les vérifications périodiques (R.4323-24) · l\'information de l\'inspection sous DOUZE HEURES en cas d\'accident mortel (R.4121-5) · l\'information du médecin du travail des arrêts d\'accident de moins de 30 jours (R.4624-33) · la visite de mi-carrière à 45 ans (L.4624-2-2) · le refus MOTIVÉ PAR ÉCRIT d\'un avis du médecin (L.4624-6) · le document annuel adressé au service de santé (D.4622-22) · l\'information écrite de l\'inspection à l\'ouverture de travaux d\'entreprises extérieures (R.4512-12) · l\'examen des yeux AVANT toute affectation sur écran (R.4542-17) · la déclaration préalable pour prendre les repas dans un local de travail (R.4228-23).',
    'Une erreur courante n\'a PAS été reprise : L.4741-1 n\'englobe pas le titre II du livre Ier. Le défaut de DUERP relève de la contravention de 5e classe de R.4741-1, non de l\'amende de 10 000 euros.',
@@ -9713,9 +9762,12 @@ function famPorteSecteur(v){
 function famPorteTranche(v){
   if(!v) return;
   try{
-    if(typeof E==='undefined'||!E) window.E={};
+    /* E est declaree en `let` : window.E ne la designe pas. L'ecriture
+       precedente creait donc une propriete inutile pendant que E restait
+       nulle. On assigne la variable elle-meme. */
+    if(typeof E==='undefined'||!E) E={};
     E.effectif=v;
-    jxEcrire(jxEntKey(), JSON.stringify(E));
+    jxEntEcrire(E);
   }catch(e){}
   famPorteApres('fp-eff', function(){
     try{ famRender(); }catch(e){}
@@ -17797,7 +17849,7 @@ async function rhSaveEnt(){
   var gvv=function(id){ var el=document.getElementById('ent-'+id); return el?el.value.trim():''; };
   RH.ent={ nom:gvv('nom'), siret:gvv('siret'), naf:gvv('naf'), codeClient:gvv('codeClient'), adresse:gvv('adresse'), dirigeant:gvv('dirigeant'), email:gvv('email'), tel:gvv('tel'), idcc:gvv('idcc')||'16' };
   // synchronise l'objet entreprise global (documents) sans écraser si vide
-  try{ if(typeof E!=='undefined'){ if(RH.ent.nom)E.nom=RH.ent.nom; if(RH.ent.siret)E.siret=RH.ent.siret; if(RH.ent.adresse)E.adresse=RH.ent.adresse; if(RH.ent.dirigeant)E.dirigeant=RH.ent.dirigeant; if(RH.ent.email)E.email=RH.ent.email; if(RH.ent.tel)E.tel=RH.ent.tel; try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){} } }catch(e){}
+  try{ if(typeof E!=='undefined'){ if(RH.ent.nom)E.nom=RH.ent.nom; if(RH.ent.siret)E.siret=RH.ent.siret; if(RH.ent.adresse)E.adresse=RH.ent.adresse; if(RH.ent.dirigeant)E.dirigeant=RH.ent.dirigeant; if(RH.ent.email)E.email=RH.ent.email; if(RH.ent.tel)E.tel=RH.ent.tel; try{jxEntEcrire(E);}catch(e){} } }catch(e){}
   await rhSave(); try{ if(typeof sbPushEntreprise==='function') sbPushEntreprise(); }catch(e){} alert('Entreprise enregistrée.'); rhRender();
 }
 
@@ -18252,7 +18304,7 @@ async function sbPull(silent){
   if(!e.error && e.data && e.data.length){
     var row=e.data[0];
     try{ if(typeof E!=='undefined'){ E.nom=row.nom||E.nom; E.siret=row.siret||E.siret; E.adresse=row.adresse||E.adresse; E.dirigeant=row.dirigeant||E.dirigeant; E.email=row.email||E.email; E.tel=row.tel||E.tel;
-      localStorage.setItem(jxEntKey(), JSON.stringify(E)); if(typeof updateHeroTop==='function') updateHeroTop(); } }catch(x){}
+      jxEntEcrire(E); if(typeof updateHeroTop==='function') updateHeroTop(); } }catch(x){}
     RH.ent={ nom:row.nom||'', siret:row.siret||'', naf:row.naf||'', codeClient:row.code_client||'', adresse:row.adresse||'', dirigeant:row.dirigeant||'', email:row.email||'', tel:row.tel||'', idcc:row.idcc||'16' };
   }
   // personnel
@@ -18396,7 +18448,7 @@ function rxRecover(){
   if(st.data.settings && !(RX.settings&&RX.settings.alertDays)) RX.settings=st.data.settings;
   rxSaveLocal();
   /* propage aussi les coordonnées vers la fiche entreprise globale (documents) */
-  try{ if(typeof E!=='undefined' && E && RX.ent){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+  try{ if(typeof E!=='undefined' && E && RX.ent){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; jxEntEcrire(E); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
   rxRender();
 }
 /* Ancien registre unique (avant la séparation par compte) : proposé une fois au
@@ -18453,7 +18505,7 @@ function rxPrefillEntFromRegistry(){
         if(RX.ent.gerant) E.dirigeant=RX.ent.gerant;
         if(RX.ent.email) E.email=RX.ent.email;
         if(RX.ent.tel) E.tel=RX.ent.tel;
-        localStorage.setItem(jxEntKey(),JSON.stringify(E));
+        jxEntEcrire(E);
         if(typeof updateHeroTop==='function') updateHeroTop();
       }
     }catch(e){}
@@ -19200,7 +19252,7 @@ function rxSaveEnt(){
      absent, il n'est pas remplace par celui d'un autre secteur. */
     idcc:g('idcc')||((typeof jxInfos==='function')?(jxInfos().idcc||''):'') };
   rxSaveLocal();
-  try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+  try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; jxEntEcrire(E); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
   try{ rxCloudPushEnt(); }catch(e){}
   alert('Entreprise enregistrée.'); rxRender();
 }
@@ -19364,7 +19416,7 @@ function rxPullEnt(){ if(!rxSess()) return;
     .then(function(r){return r.json();}).then(function(d){
       if(!Array.isArray(d)) return;
       if(d.length){ var r=d[0]; RX.ent={ nom:r.nom||'', gerant:r.dirigeant||'', siret:r.siret||'', naf:r.naf||'', adresse:r.adresse||'', email:r.email||'', tel:r.tel||'', idcc:r.idcc||'16' }; rxSaveLocal();
-        try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; localStorage.setItem(jxEntKey(),JSON.stringify(E)); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
+        try{ if(typeof E!=='undefined'&&E){ if(RX.ent.nom)E.nom=RX.ent.nom; if(RX.ent.siret)E.siret=RX.ent.siret; if(RX.ent.adresse)E.adresse=RX.ent.adresse; if(RX.ent.gerant)E.dirigeant=RX.ent.gerant; if(RX.ent.email)E.email=RX.ent.email; if(RX.ent.tel)E.tel=RX.ent.tel; jxEntEcrire(E); if(typeof updateHeroTop==='function')updateHeroTop(); } }catch(e){}
         try{ rxRender(); }catch(e){}
       } else if(RX.ent&&RX.ent.nom){ rxCloudPushEnt(); }  // cloud vide, on envoie la fiche locale
     }).catch(function(){});
@@ -19779,7 +19831,7 @@ function applyClientSector(retry){
     var sec = codeSec || (function(){ try{ return secCourant()||''; }catch(e){ return ''; } })()
               || ((typeof E!=='undefined' && E && E.secteur) ? E.secteur : '');
     window.CLIENT_SECTEUR = sec;
-    if(!admin && codeSec && typeof E!=='undefined' && E && E.secteur!==codeSec){ E.secteur=codeSec; try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){} }
+    if(!admin && codeSec && typeof E!=='undefined' && E && E.secteur!==codeSec){ E.secteur=codeSec; jxEntEcrire(E); }
     if(!retry) setTimeout(function(){ try{ applyClientSector(true); }catch(e){} }, 500);
     // Badge + sélecteur admin
     var badge=document.getElementById('client-secteur-badge');
@@ -19853,7 +19905,7 @@ function validerInscription(){
   E.accordsListe=(function(){ var e=document.getElementById('ins-accords-liste'); return e?String(e.value||'').trim():''; })();
   E.org=gv('ins-org')||'';
   E.orgAutre=gv('ins-org-autre')||'';
-  try{localStorage.setItem(jxEntKey(),JSON.stringify(E));}catch(e){}
+  jxEntEcrire(E, true);
   updateHeroTop();
   document.getElementById('pg-inscription').style.display='none';
   document.getElementById('pg-app').style.display='block';
@@ -26488,7 +26540,7 @@ function sauvegarderParametres(){
   E.activite=gv('p-activite')||'';
   E.org=gv('p-org')||'';
   E.effectif=gv('p-effectif')||'';
-  if(!jxEcrire(jxEntKey(), JSON.stringify(E))){ jxEchecStockage(); return; }
+  if(!jxEntEcrire(E, true)){ jxEchecStockage(); return; }
   updateHeroTop();
   show('p-saved');
   setTimeout(()=>hide('p-saved'),2500);
