@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.203';
+var JX_BUILD = 'v2026-08-20.204';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,7 +1094,14 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
- {v:'v2026-08-20.203', d:'20 août 2026', t:[
+ {v:'v2026-08-20.204', d:'20 août 2026', t:[
+   'IMPRIMER, ENREGISTRER EN PDF OU EN WORD : chaque document s\u2019ouvre désormais en aperçu, avec quatre boutons — Fermer, Imprimer / PDF, Word, Partager.',
+   'Le défaut : les modèles de l\u2019audit appelaient le partage DIRECTEMENT. Sur téléphone, cela ouvrait la feuille de partage ou copiait le texte dans le presse-papier — jamais d\u2019aperçu, jamais d\u2019impression, jamais de PDF ni de Word.',
+   'Un second aperçu existait ailleurs dans l\u2019application ; son bandeau annonçait « touchez 🖨 en haut » alors qu\u2019aucun bouton imprimante ne figurait dans sa barre. Il a été supprimé : il n\u2019y a plus qu\u2019une seule sortie, la même pour l\u2019audit, les négociations, l\u2019installation du CSE et les rapports.',
+   'Le bouton Word tente le téléchargement puis, si le téléphone le bloque sans rien dire, propose aussitôt le partage du même fichier — seule voie qui ouvre « Enregistrer dans Fichiers ».',
+   'Test nouveau : tests/docsortie.test.js vérifie qu\u2019un modèle n\u2019ouvre plus le partage tout seul, que les quatre boutons sont là, que l\u2019impression part, que le .doc se construit, et que ce que l\u2019aide annonce existe bien dans la barre.'
+ ]},
+ {v:'v2026-08-20.204', d:'20 août 2026', t:[
    'Le CONTRAT, le TEMPS DE TRAVAIL, les CONGÉS, la PAIE, les MOYENS DU COMITÉ, l\u2019ÉGALITÉ, le HANDICAP, la FORMATION et les DONNÉES PERSONNELLES entrent dans l\u2019audit : 82 obligations nouvelles, chaque article relu à sa source. L\u2019audit passe de 63 à 145 obligations.',
    'Celle qui manquait le plus : le document d\u2019information sur la relation de travail (L.1221-5-1 et R.1221-34), ses quatorze rubriques et ses deux délais — sept jours calendaires pour huit d\u2019entre elles, un mois pour les autres. Beaucoup d\u2019employeurs l\u2019ignorent depuis le 1er novembre 2023.',
    'Le décompte du temps de travail (D.3171-1, D.3171-2, D.3171-8) et les trois durées de conservation de D.3171-16 · les durées maximales et les repos · le contingent et sa contrepartie en repos, 50 % jusqu\u2019à vingt salariés et 100 % au-delà (L.3121-38) · le forfait en jours et son entretien annuel de charge · le temps partiel et sa répartition · l\u2019ordre des départs en congé et ses deux délais (D.3141-5 et D.3141-6).',
@@ -1103,7 +1110,7 @@ var JX_CHANGELOG = [
    'Quatorze modèles nouveaux, tous en deux parties — structure complète puis exemplaire fictif entièrement chiffré : document d\u2019information à l\u2019embauche, CDD, contrat à temps partiel, décompte du temps de travail, forfait jours, ordre des départs en congé, documents de fin de contrat, procédure de licenciement, rupture conventionnelle, inaptitude, registre des heures de délégation, enquête après droit d\u2019alerte, avis de convention collective, bilan social.',
    'Ce qui n\u2019a PAS été retenu : toute obligation qu\u2019un agent n\u2019a pas pu lire à sa source. L\u2019obligation de partage de la valeur des entreprises de 11 à 49 salariés n\u2019est pas dans le code du travail — elle reste à vérifier avant d\u2019entrer dans l\u2019audit.'
  ]},
- {v:'v2026-08-20.203', d:'20 août 2026', t:[
+ {v:'v2026-08-20.204', d:'20 août 2026', t:[
    'Le socle SANTÉ-SÉCURITÉ entre dans l\'audit : 32 obligations nouvelles, chaque article relu à la source. L\'audit passe de 23 à 63 obligations — 38 dès le premier salarié, contre 13 auparavant.',
    'Parmi elles, celles qu\'on oublie le plus : l\'annexe du DUERP avec la proportion de salariés exposés (R.4121-1-1) · sa conservation 40 ans et l\'affichage des modalités d\'accès (R.4121-4) · l\'organisation ÉCRITE des secours après avis du médecin du travail (R.4224-16) · le registre des exercices d\'évacuation, deux par an (R.4227-39) · la LISTE des personnes qualifiées pour les vérifications périodiques (R.4323-24) · l\'information de l\'inspection sous DOUZE HEURES en cas d\'accident mortel (R.4121-5) · l\'information du médecin du travail des arrêts d\'accident de moins de 30 jours (R.4624-33) · la visite de mi-carrière à 45 ans (L.4624-2-2) · le refus MOTIVÉ PAR ÉCRIT d\'un avis du médecin (L.4624-6) · le document annuel adressé au service de santé (D.4622-22) · l\'information écrite de l\'inspection à l\'ouverture de travaux d\'entreprises extérieures (R.4512-12) · l\'examen des yeux AVANT toute affectation sur écran (R.4542-17) · la déclaration préalable pour prendre les repas dans un local de travail (R.4228-23).',
    'Une erreur courante n\'a PAS été reprise : L.4741-1 n\'englobe pas le titre II du livre Ier. Le défaut de DUERP relève de la contravention de 5e classe de R.4741-1, non de l\'amende de 10 000 euros.',
@@ -26637,6 +26644,107 @@ ${html}
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   LA SORTIE D'UN DOCUMENT — une seule porte, quatre boutons.
+   Signale : « Il faut option imprimer ou enregistrer en word ou pdf ».
+   Les modeles de l'audit appelaient le partage directement : sur iPhone,
+   cela ouvrait la feuille de partage ou copiait le texte, sans jamais
+   proposer d'imprimer ni d'enregistrer. Et l'apercu, quand il s'ouvrait,
+   annoncait un bouton imprimante absent de sa propre barre.
+   Tout document passe maintenant par jxDocSortie() : on le VOIT d'abord,
+   on choisit ensuite — Imprimer/PDF, Word, Partager.
+   ══════════════════════════════════════════════════════════════════ */
+function jxDocSortie(){
+  if(!window._docCurrent){ alert('Aucun document à ouvrir.'); return; }
+  var d=window._docCurrent, titre=d.titre||'Document', html=d.html||'';
+  var ancien=document.getElementById('doc-fullscreen-overlay');
+  if(ancien) ancien.remove();
+  var ov=document.createElement('div');
+  ov.id='doc-fullscreen-overlay';
+  ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:99999;overflow:auto;font-family:\'Times New Roman\',serif';
+  ov.innerHTML=''
+   +'<style>'
+   +'#doc-fullscreen-overlay{color:#000 !important}'
+   +'#doc-fullscreen-overlay *{color:#000 !important;background-color:transparent !important}'
+   +'#doc-fullscreen-overlay table{border-collapse:collapse;margin:10pt auto;background:#fff !important;width:100%}'
+   +'#doc-fullscreen-overlay th,#doc-fullscreen-overlay td{padding:5pt 7pt;border:1px solid #000;vertical-align:top;background:#fff !important;font-size:10pt}'
+   +'#doc-fullscreen-overlay th{background:#e6e6e6 !important;font-weight:bold;text-align:center}'
+   +'#doc-fullscreen-overlay h1,#doc-fullscreen-overlay h2,#doc-fullscreen-overlay h3{color:#000 !important}'
+   +'#doc-fullscreen-overlay .doc-bar{background:#1a2f44 !important;border-bottom:2px solid #c9a84c}'
+   +'#doc-fullscreen-overlay .doc-bar *{color:#e8e4d8 !important}'
+   +'#doc-fullscreen-overlay .doc-bar button{border:none;border-radius:8px;padding:11px 10px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}'
+   +'#doc-fullscreen-overlay .doc-bar .b-or{background:#c9a84c !important;color:#111 !important}'
+   +'#doc-fullscreen-overlay .doc-bar .b-bl{background:#2b579a !important;color:#fff !important}'
+   +'#doc-fullscreen-overlay .doc-bar .b-gr{background:#3a5a40 !important;color:#fff !important}'
+   +'#doc-fullscreen-overlay .doc-tampon{overflow-x:auto}'
+   +'@media print{'
+   +'body > *:not(#doc-fullscreen-overlay){display:none !important}'
+   +'html,body{height:auto !important;overflow:visible !important;margin:0 !important;padding:0 !important;background:#fff !important}'
+   +'#doc-fullscreen-overlay{position:static !important;overflow:visible !important;height:auto !important;max-height:none !important}'
+   +'#doc-fullscreen-overlay .doc-bar,#doc-fullscreen-overlay .doc-aide{display:none !important}'
+   +'#doc-fullscreen-overlay table{page-break-inside:auto}'
+   +'#doc-fullscreen-overlay tr{page-break-inside:avoid}'
+   +'@page{margin:1.5cm;size:A4}}'
+   +'</style>'
+   +'<div class="doc-bar" style="position:sticky;top:0;padding:10px;display:flex;gap:6px;align-items:center;z-index:10;flex-wrap:wrap">'
+   +'<button class="b-or" onclick="jxDocFermer()">← Fermer</button>'
+   +'<div style="flex:1;font-size:12px;font-weight:600;text-align:center;padding:0 4px;min-width:90px">'+negoEsc(titre)+'</div>'
+   +'<button class="b-gr" onclick="jxDocImprimer()">🖨 Imprimer / PDF</button>'
+   +'<button class="b-bl" onclick="jxDocWord()">📄 Word</button>'
+   +'<button class="b-bl" onclick="partagerDocActuel()">📤 Partager</button>'
+   +'</div>'
+   +'<div class="doc-tampon" style="padding:18px;line-height:1.6;max-width:820px;margin:auto;font-size:11pt">'
+   +html
+   +'<hr style="margin-top:26px;border:none;border-top:1px solid #000">'
+   +'<p style="text-align:center;font-size:10pt;font-style:italic">Document généré par Juris Expert MCH · '+new Date().toLocaleString('fr-FR')+'</p>'
+   +'<p class="doc-aide" style="text-align:center;font-size:10pt;margin-top:12px;padding:10px;border:1px solid #999">'
+   +'<b>Imprimer / PDF</b> : ouvre le menu d’impression — sur iPhone, choisissez « Enregistrer dans Fichiers » ou pincez l’aperçu pour l’enregistrer en PDF.<br>'
+   +'<b>Word</b> : télécharge un fichier .doc qui s’ouvre dans Word, Pages ou Google Docs.</p>'
+   +'</div>';
+  document.body.appendChild(ov);
+  try{ ov.scrollTop=0; }catch(e){}
+}
+function jxDocFermer(){ var o=document.getElementById('doc-fullscreen-overlay'); if(o) o.remove(); }
+/* L'impression depuis la page elle-meme : la feuille @media print ci-dessus
+   masque tout le reste de l'application. Si le navigateur refuse (WebView
+   sans boite d'impression), on retombe sur l'onglet autonome. */
+function jxDocImprimer(){
+  try{ window.print(); }
+  catch(e){ try{ genererPDFDoc(); }catch(e2){ alert('Impression indisponible ici : utilisez le bouton Word.'); } }
+}
+/* Le .doc : un HTML que Word, Pages et Google Docs ouvrent sans broncher.
+   Sur iPhone, le telechargement direct est souvent bloque : on bascule
+   alors sur la feuille de partage du fichier, qui, elle, propose
+   « Enregistrer dans Fichiers ». */
+function jxDocWord(){
+  if(!window._docCurrent){ alert('Aucun document.'); return; }
+  var d=window._docCurrent;
+  var contenu=(typeof _genererWordHTML==='function')
+    ? _genererWordHTML(d.titre, d.html)
+    : ('<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>'+d.titre+'</title>'
+      +'<style>body{font-family:\'Times New Roman\',serif;font-size:11pt;line-height:1.6}table{border-collapse:collapse}th,td{border:1px solid #000;padding:6pt}@page{size:A4;margin:2cm}</style>'
+      +'</head><body>'+d.html+'</body></html>');
+  var bom=new Uint8Array([0xEF,0xBB,0xBF]);
+  var blob=new Blob([bom, contenu], { type:'application/msword;charset=utf-8' });
+  var nom=String(d.titre||'document').replace(/[^a-zA-ZÀ-ÿ0-9\s-]/g,'').trim().replace(/\s+/g,'-').toLowerCase()+'.doc';
+  var url=null;
+  try{
+    url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url; a.download=nom; a.rel='noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ if(a.parentNode) a.parentNode.removeChild(a); if(url) URL.revokeObjectURL(url); }, 1500);
+  }catch(e){}
+  /* Sur iPhone, le clic sur un lien de telechargement peut ne rien produire
+     sans que rien ne soit signale. On propose donc aussitot le partage du
+     MEME fichier, seule voie qui offre « Enregistrer dans Fichiers ». */
+  try{
+    var f=new File([blob], nom, { type:'application/msword' });
+    if(navigator.canShare && navigator.canShare({ files:[f] })){
+      navigator.share({ files:[f], title:d.titre }).catch(function(){});
+    }
+  }catch(e3){}
+}
 async function partagerDocActuel(){
   if(!window._docCurrent){ alert('Aucun document à partager.'); return; }
   const {titre, html} = window._docCurrent;
@@ -26683,69 +26791,11 @@ th{background:#fff;font-weight:bold}
   alert('Le partage direct du fichier n\'est pas disponible ici.\n\nUtilisez le bouton 🖨 puis "Enregistrer en PDF" iOS pour récupérer le document.');
 }
 
-function telechargerWord(){
-  if(!window._docCurrent){alert('Aucun document à télécharger.');return;}
-  const {titre, html} = window._docCurrent;
-  const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-  // Sur iPhone (et WebView Claude) : afficher en plein écran dans l'app
-  if(isiOS){
-    // Supprimer un éventuel overlay précédent
-    const ancien = document.getElementById('doc-fullscreen-overlay');
-    if(ancien) ancien.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'doc-fullscreen-overlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:99999;overflow:auto;font-family:\'Times New Roman\',serif';
-    overlay.innerHTML = `
-<style>
-#doc-fullscreen-overlay{color:#000 !important}
-#doc-fullscreen-overlay *{color:#000 !important;background-color:transparent !important}
-#doc-fullscreen-overlay table{border-collapse:collapse;margin:10pt auto;background:#fff !important}
-#doc-fullscreen-overlay th,#doc-fullscreen-overlay td{padding:5pt 7pt;border:1px solid #000;vertical-align:top;background:#fff !important}
-#doc-fullscreen-overlay th{background:#e6e6e6 !important;font-weight:bold;text-align:center}
-#doc-fullscreen-overlay tr.zebra td{background:#f3f3f3 !important}
-#doc-fullscreen-overlay h1,#doc-fullscreen-overlay h2,#doc-fullscreen-overlay h3{color:#000 !important}
-#doc-fullscreen-overlay strong{font-weight:bold}
-#doc-fullscreen-overlay em{font-style:italic}
-#doc-fullscreen-overlay .doc-bar{background:#1a2f44 !important;border-bottom:2px solid #c9a84c}
-#doc-fullscreen-overlay .doc-bar *{color:#e8e4d8 !important}
-#doc-fullscreen-overlay .doc-bar button.btn-or{background:#c9a84c !important;color:#000 !important}
-#doc-fullscreen-overlay .doc-bar button.btn-bl{background:#2b579a !important;color:#fff !important}
-@media print {
-  body > *:not(#doc-fullscreen-overlay) { display: none !important; }
-  html, body { height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
-  #doc-fullscreen-overlay { position: static !important; overflow: visible !important; height: auto !important; max-height: none !important; background: #fff !important; }
-  #doc-fullscreen-overlay > div { overflow: visible !important; height: auto !important; max-height: none !important; }
-  #doc-fullscreen-overlay .doc-bar { display: none !important; }
-  #doc-fullscreen-overlay table { page-break-inside: auto; }
-  #doc-fullscreen-overlay tr { page-break-inside: avoid; page-break-after: auto; }
-  @page { margin: 1.5cm; size: A4; }
-}
-</style>
-<div class="doc-bar" style="position:sticky;top:0;padding:12px;display:flex;gap:6px;align-items:center;z-index:10;flex-wrap:wrap">
-<button class="btn-or" onclick="document.getElementById('doc-fullscreen-overlay').remove()" style="border:none;border-radius:8px;padding:10px 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">← Fermer</button>
-<div style="flex:1;font-size:12px;font-weight:600;text-align:center;padding:0 4px;min-width:0">${titre}</div>
-<button class="btn-bl" onclick="partagerDocActuel()" style="border:none;border-radius:8px;padding:10px 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">📤</button>
-<button class="btn-bl" onclick="genererPDFDoc()" style="border:none;border-radius:8px;padding:10px 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit">📥 PDF</button>
-</div>
-<div style="padding:20px;line-height:1.6;max-width:800px;margin:auto;font-size:11pt">
-${html}
-<hr style="margin-top:30px;border:none;border-top:1px solid #000">
-<p style="text-align:center;font-size:10pt;font-style:italic;color:#444 !important">Document généré par Juris Expert MCH · ${new Date().toLocaleString('fr-FR')}</p>
-<p style="text-align:center;font-size:11pt;margin-top:14px;padding:10px;background:#fff !important">📌 Pour sauvegarder : touchez <strong>🖨</strong> en haut → <strong>Enregistrer en PDF</strong> dans le menu iOS, puis Partager.</p>
-</div>`;
-    document.body.appendChild(overlay);
-    return;
-  }
-
-  // Desktop : génération .doc classique avec mise en forme améliorée
-  const wordContent = _genererWordHTML(titre, html);
-  const bom = new Uint8Array([0xEF,0xBB,0xBF]);
-  const blob = new Blob([bom, wordContent], { type: 'application/msword;charset=utf-8' });
-  const nomFichier = titre.replace(/[^a-zA-ZÀ-ÿ0-9\s-]/g,'').trim().replace(/\s+/g,'-').toLowerCase() + '.doc';
-  _telecharger(blob, 'application/msword', nomFichier);
-}
+/* Le bouton « Word » de la barre generale ouvre la meme porte que les
+   modeles : l'apercu, ou l'on choisit Imprimer/PDF, Word ou Partager.
+   Il ouvrait auparavant un apercu concurrent dont le bandeau renvoyait a
+   un bouton imprimante absent de sa propre barre. */
+function telechargerWord(){ jxDocSortie(); }
 
 // ═══════════════════════════════════════
 // DÉMARRAGE
@@ -30492,7 +30542,7 @@ function ausDoc(type){
      +'<p><b>Procédure suivie</b> : données mises à disposition dans la base de données économiques, sociales et environnementales le 12/03/2027, notification aux élus le jour même — c’est cette date qui fait courir le délai de consultation (R.2312-5). Consultation du CSE central le 09/04/2027 dans le cadre de la politique sociale ; consultations des CSE des établissements de Roissy (412 salariés) et de Lyon (338 salariés) les 14 et 16/04/2027, l’établissement de Rouen (167 salariés) n’atteignant pas le seuil de trois cents.</p>';
   } else { alert('Modèle inconnu.'); return; }
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
-  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+  try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
 /* ── Les rapports ── */
 function ausLigne(o,rep){
@@ -30517,7 +30567,7 @@ function ausRapportBase(titre, corps){
         return '';
       })()
     +'<p style="border:1px solid #000;padding:7px;font-size:10pt"><b>Réserves.</b> Rapport établi sur les déclarations du client à la date ci-dessus ; textes relus à leur source dans leur version en vigueur ; il ne vaut pas audit contradictoire ni conseil juridique individualisé (loi n° 71-1130 du 31 décembre 1971). Les points « à vérifier » restent à lever pièce en main.</p></div>' };
-  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+  try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
 function ausDocPlan(){
   var N=ausEtat(), ctx=ausCtx();
@@ -30709,7 +30759,7 @@ function cseinstDoc(type){
   } else { alert('Modèle inconnu.'); return; }
   H+=(typeof CSEINST_EX!=='undefined'?(CSEINST_EX[type]||''):'');
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+RES+'</div>' };
-  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+  try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
 </script>
 
@@ -30967,7 +31017,7 @@ function negoDoc(type){
   } else { alert('Modèle inconnu.'); return; }
   H+=(typeof NEGO_EX!=='undefined'?(NEGO_EX[type]||''):'');
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+RES+'</div>' };
-  try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }
+  try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
 }
 </script>
 
