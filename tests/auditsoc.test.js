@@ -301,6 +301,71 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(/R\.1221-34/.test(infoemb) && /septième jour/.test(infoemb) && /14°/.test(infoemb),
      'le document d\'information porte les quatorze rubriques et les deux delais');
 
+  console.log('\n— Les reponses restent, datees, et s\'effacent quand le client le decide —');
+  const garde = await page.evaluate(() => {
+    ausRecommencer.__c = window.confirm; window.confirm = () => true;
+    ausRecommencer();
+    ausRep('registre', 'ai'); ausRep('duerp', 'pas');
+    const t = document.getElementById('auditsoc-zone').innerText;
+    const N = ausEtat();
+    return { horodate: !!(N.repD && N.repD.registre), lisible: /répondu le \d\d\/\d\d\/\d{4}/.test(t),
+             aujourdhui: /aujourd’hui/.test(t), bouton: /Recommencer l’audit/.test(t),
+             compteur: /2 réponses enregistrées/.test(t) };
+  });
+  ok(garde.horodate, 'la reponse est horodatee dans l\'etat');
+  ok(garde.lisible && garde.aujourdhui, 'et la date s\'affiche en clair sous la reponse', JSON.stringify(garde));
+  ok(garde.bouton, 'le bouton « Recommencer l\'audit » apparait des la premiere reponse');
+  ok(garde.compteur, 'le compteur annonce le nombre de reponses enregistrees');
+  const vieux = await page.evaluate(() => {
+    const N = ausEtat(); N.repD = N.repD || {};
+    const d = new Date(); d.setMonth(d.getMonth() - 7);
+    N.repD.registre = d.toISOString(); ausSave(N); ausRender();
+    return document.getElementById('auditsoc-zone').innerText;
+  });
+  ok(/à revoir/.test(vieux), 'une reponse de plus d\'un mois est signalee « a revoir »');
+  const remis = await page.evaluate(() => {
+    window.confirm = () => true;
+    const avant = ausEtat();
+    ausRecommencer();
+    const N = ausEtat();
+    return { vide: Object.keys(N.rep || {}).length === 0,
+             datesParties: Object.keys(N.repD || {}).length === 0,
+             perimetreGarde: N.ds === avant.ds,
+             boutonParti: !/Recommencer l’audit/.test(document.getElementById('auditsoc-zone').innerText) };
+  });
+  ok(remis.vide && remis.datesParties, 'recommencer efface les reponses ET leurs dates', JSON.stringify(remis));
+  ok(remis.perimetreGarde, 'mais le perimetre declare (delegue syndical) survit — il vient de la fiche');
+  ok(remis.boutonParti, 'et le bouton disparait, l\'audit etant redevenu vierge');
+  const refus = await page.evaluate(() => {
+    ausRep('registre', 'ai');
+    window.confirm = () => false;
+    ausRecommencer();
+    return Object.keys(ausEtat().rep || {}).length;
+  });
+  ok(refus === 1, 'un refus de confirmation n\'efface rien', refus);
+  await page.evaluate(() => { window.confirm = () => true; ausRecommencer();
+    E.effectif = '250'; ausSet('ds', 'oui'); });
+
+  console.log('\n— Un document s\'ouvre d\'abord, on choisit ensuite —');
+  for (const f of ['ausDocRapport', 'ausDocConf', 'ausDocPlan']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window[k]();
+      const o = document.getElementById('doc-fullscreen-overlay');
+      if (!o) return { ouvert: false };
+      return { ouvert: true, b: [...o.querySelectorAll('button')].map(x => x.innerText.trim()).join('|') };
+    }, f);
+    ok(r.ouvert, f + ' ouvre l\'apercu au lieu de partager d\'emblee');
+    ok(/Imprimer/.test(r.b) && /Word/.test(r.b) && /Partager/.test(r.b),
+       f + ' : imprimer, Word et partager sont tous trois offerts', r.b);
+  }
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+  /* On remet l'audit dans l'etat ou le debut du test l'avait laisse :
+     un manquant, un incertain, un declare en place — sans quoi les rapports
+     qui suivent n'auraient plus rien a dire. */
+  await page.evaluate(() => { ausRep('duerp', 'pas'); ausRep('registre', 'nsp'); ausRep('cse', 'ai');
+    ausVerif('cse', 'q0', 'oui'); ausVerif('cse', 'q1', 'non'); });
+
   console.log('\n— Les rapports —');
   const rp = await page.evaluate(() => { ausDocPlan(); const d = window._docCurrent; return d.html.indexOf('Réserves') >= 0 && d.html.indexOf('classées par gravité') >= 0 && d.html.indexOf('VÉRIFIER D’ABORD') >= 0; });
   ok(rp, 'rapport plan d\'action : manquants et reserves');
