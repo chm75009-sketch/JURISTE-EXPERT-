@@ -1084,7 +1084,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.202';
+var JX_BUILD = 'v2026-08-20.203';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1094,7 +1094,16 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
- {v:'v2026-08-20.202', d:'20 août 2026', t:[
+ {v:'v2026-08-20.203', d:'20 août 2026', t:[
+   'Le CONTRAT, le TEMPS DE TRAVAIL, les CONGÉS, la PAIE, les MOYENS DU COMITÉ, l\u2019ÉGALITÉ, le HANDICAP, la FORMATION et les DONNÉES PERSONNELLES entrent dans l\u2019audit : 82 obligations nouvelles, chaque article relu à sa source. L\u2019audit passe de 63 à 145 obligations.',
+   'Celle qui manquait le plus : le document d\u2019information sur la relation de travail (L.1221-5-1 et R.1221-34), ses quatorze rubriques et ses deux délais — sept jours calendaires pour huit d\u2019entre elles, un mois pour les autres. Beaucoup d\u2019employeurs l\u2019ignorent depuis le 1er novembre 2023.',
+   'Le décompte du temps de travail (D.3171-1, D.3171-2, D.3171-8) et les trois durées de conservation de D.3171-16 · les durées maximales et les repos · le contingent et sa contrepartie en repos, 50 % jusqu\u2019à vingt salariés et 100 % au-delà (L.3121-38) · le forfait en jours et son entretien annuel de charge · le temps partiel et sa répartition · l\u2019ordre des départs en congé et ses deux délais (D.3141-5 et D.3141-6).',
+   'Côté comité : le local et le matériel (L.2315-25), la libre circulation (L.2315-14), le report et la mutualisation des heures dans la limite d\u2019une fois et demie le crédit (R.2315-5 et R.2315-6), l\u2019ordre du jour à trois jours avec copie à l\u2019inspection et à la CARSAT (L.2315-30), le droit d\u2019alerte pour atteinte aux droits des personnes (L.2312-59).',
+   'Un point vérifié contre l\u2019idée reçue : la consultation sur la marche générale de l\u2019entreprise (L.2312-8, II) vaut dès ONZE salariés — c\u2019est le IV du même article qui réserve la section 2 aux entreprises d\u2019au moins cinquante.',
+   'Quatorze modèles nouveaux, tous en deux parties — structure complète puis exemplaire fictif entièrement chiffré : document d\u2019information à l\u2019embauche, CDD, contrat à temps partiel, décompte du temps de travail, forfait jours, ordre des départs en congé, documents de fin de contrat, procédure de licenciement, rupture conventionnelle, inaptitude, registre des heures de délégation, enquête après droit d\u2019alerte, avis de convention collective, bilan social.',
+   'Ce qui n\u2019a PAS été retenu : toute obligation qu\u2019un agent n\u2019a pas pu lire à sa source. L\u2019obligation de partage de la valeur des entreprises de 11 à 49 salariés n\u2019est pas dans le code du travail — elle reste à vérifier avant d\u2019entrer dans l\u2019audit.'
+ ]},
+ {v:'v2026-08-20.203', d:'20 août 2026', t:[
    'Le socle SANTÉ-SÉCURITÉ entre dans l\'audit : 32 obligations nouvelles, chaque article relu à la source. L\'audit passe de 23 à 63 obligations — 38 dès le premier salarié, contre 13 auparavant.',
    'Parmi elles, celles qu\'on oublie le plus : l\'annexe du DUERP avec la proportion de salariés exposés (R.4121-1-1) · sa conservation 40 ans et l\'affichage des modalités d\'accès (R.4121-4) · l\'organisation ÉCRITE des secours après avis du médecin du travail (R.4224-16) · le registre des exercices d\'évacuation, deux par an (R.4227-39) · la LISTE des personnes qualifiées pour les vérifications périodiques (R.4323-24) · l\'information de l\'inspection sous DOUZE HEURES en cas d\'accident mortel (R.4121-5) · l\'information du médecin du travail des arrêts d\'accident de moins de 30 jours (R.4624-33) · la visite de mi-carrière à 45 ans (L.4624-2-2) · le refus MOTIVÉ PAR ÉCRIT d\'un avis du médecin (L.4624-6) · le document annuel adressé au service de santé (D.4622-22) · l\'information écrite de l\'inspection à l\'ouverture de travaux d\'entreprises extérieures (R.4512-12) · l\'examen des yeux AVANT toute affectation sur écran (R.4542-17) · la déclaration préalable pour prendre les repas dans un local de travail (R.4228-23).',
    'Une erreur courante n\'a PAS été reprise : L.4741-1 n\'englobe pas le titre II du livre Ier. Le défaut de DUERP relève de la contravention de 5e classe de R.4741-1, non de l\'amende de 10 000 euros.',
@@ -29397,7 +29406,339 @@ var AUS_OBLIG=[
   doc:'formelus', verif:['Chaque élu a suivi sa formation santé-sécurité','Le référent harcèlement l’a suivie aussi','Le temps a été payé comme du travail, hors heures de délégation']},
  {id:'reunionsst', lib:'Quatre réunions annuelles au moins portant sur la santé-sécurité', s:[50,'L.2315-27'], r:2,
   sanc:'entrave', act:'Inscrire quatre points santé-sécurité au calendrier annuel du comité',
-  page:'csecal', verif:['Quatre réunions au moins y ont porté cette année','Le comité a été réuni après tout accident grave']}
+  page:'csecal', verif:['Quatre réunions au moins y ont porté cette année','Le comité a été réuni après tout accident grave']},
+ /* ── Temps de travail, congés, paie — D.3171-x, L.3121-x, L.3123-x, L.3141-x ── */
+ {id:'horaires', lib:'Affichage de l’horaire collectif, daté et signé', s:0, src:'D.3171-1 · D.3171-2', r:3,
+  sanc:'contravention ; l’horaire non affiché prive l’employeur de la preuve de l’horaire opposable',
+  act:'Afficher l’horaire dans chaque lieu de travail — et, pour les salariés en extérieur, dans l’établissement de rattachement',
+  doc:'decompte', verif:['L’horaire est daté et signé par l’employeur ou son délégataire','Il est apposé dans CHACUN des lieux de travail concernés','Un double a été adressé à l’inspection du travail']},
+ {id:'decompte', lib:'Décompte quotidien et récapitulatif hebdomadaire hors horaire collectif', s:0, src:'D.3171-8 — exceptions D.3171-9', r:1,
+  sanc:'contravention ; en prud’hommes, le doute sur les heures profite au salarié (L.3171-4)',
+  act:'Tenir, pour chaque salarié hors horaire collectif, l’enregistrement quotidien des débuts et fins de période et la récapitulation hebdomadaire',
+  doc:'decompte', verif:['Un relevé quotidien existe, salarié par salarié','La récapitulation hebdomadaire est faite et conservée','Elle alimente réellement le bulletin de paie']},
+ {id:'docduree', lib:'Documents de décompte tenus à disposition de l’inspection — 1 an, 1 an, 3 ans', s:0, src:'L.3171-3 · D.3171-16', r:3,
+  sanc:'contravention ; impossibilité de justifier les heures lors d’un contrôle',
+  act:'Conserver les décomptes d’heures un an, le récapitulatif mensuel des astreintes un an, les décomptes de jours des forfaits trois ans',
+  doc:'decompte', verif:['Les trois durées de conservation sont distinctes et paramétrées','Le récapitulatif mensuel des astreintes existe, avec la compensation en face','Le CSE a pu consulter ces documents (L.3171-2)']},
+ {id:'maxjour', lib:'Durée quotidienne : dix heures au plus', s:0, src:'L.3121-18', r:1,
+  sanc:'contravention par salarié et par jour ; dommages-intérêts sans preuve de préjudice',
+  act:'Poser une alerte au-delà de dix heures et conserver la pièce justifiant toute dérogation',
+  verif:['La liste des jours dépassant dix heures a été sortie sur douze mois','Chaque dépassement est couvert par une autorisation de l’inspecteur, une urgence ou l’accord de L.3121-19']},
+ {id:'maxsem', lib:'Durée hebdomadaire : quarante-huit heures au plus', s:0, src:'L.3121-20', r:1,
+  sanc:'contravention ; le dépassement du plafond absolu ouvre droit à réparation automatique',
+  act:'Bloquer toute semaine au-delà de quarante-huit heures et suivre la moyenne sur douze semaines',
+  verif:['Aucune semaine ne dépasse quarante-huit heures sur les douze derniers mois','Une autorisation administrative existe si un dépassement est invoqué']},
+ {id:'pause', lib:'Vingt minutes de pause dès six heures de travail', s:0, src:'L.3121-16', r:2,
+  sanc:'contravention ; rappel de salaire si la pause n’a pas été prise',
+  act:'Faire figurer la pause au planning et au relevé, en une seule séquence de vingt minutes',
+  verif:['La pause apparaît dans le relevé quotidien','Elle est consécutive et non fractionnée']},
+ {id:'reposquot', lib:'Onze heures de repos quotidien', s:0, src:'L.3131-1', r:1,
+  sanc:'contravention ; réparation due du seul fait du dépassement',
+  act:'Contrôler l’écart entre la fin d’un poste et la reprise du suivant, astreintes et déplacements compris',
+  verif:['Une requête sort les écarts inférieurs à onze heures','Toute dérogation repose sur un écrit conventionnel ou une urgence caractérisée']},
+ {id:'reposhebdo', lib:'Repos hebdomadaire : six jours au plus, trente-cinq heures consécutives', s:0, src:'L.3132-1 · L.3132-2', r:1,
+  sanc:'contravention par salarié concerné',
+  act:'Vérifier chaque semaine les vingt-quatre heures de repos hebdomadaire s’ajoutant aux onze heures quotidiennes',
+  verif:['Aucun salarié n’a travaillé sept jours dans la même semaine','Le repos hebdomadaire le plus court du trimestre atteint trente-cinq heures']},
+ {id:'contingent', lib:'Contingent annuel d’heures supplémentaires', s:0, src:'L.3121-30 · L.3121-33 — à défaut d’accord, 220 heures (D.3121-24)', r:2, acc:true,
+  sanc:'contravention ; contentieux sur les heures accomplies au-delà du contingent',
+  act:'Identifier le contingent applicable — accord d’entreprise, à défaut de branche, à défaut 220 heures — et tenir un compteur par salarié',
+  verif:['Le contingent retenu est écrit et sa source citée','Un compteur individuel d’heures imputées existe','Le CSE a été consulté sur le dépassement du contingent']},
+ {id:'cor', lib:'Contrepartie obligatoire en repos au-delà du contingent — 50 % ou 100 %', s:0, src:'L.3121-30 · L.3121-38 — bascule à plus de vingt salariés', r:2,
+  sanc:'rappel de repos et dommages-intérêts ; l’effectif se calcule selon L.130-1 du code de la sécurité sociale',
+  act:'Ouvrir la contrepartie en repos dès la première heure au-delà du contingent — 50 % jusqu’à vingt salariés, 100 % au-delà',
+  verif:['Le taux appliqué correspond à l’effectif calculé selon L.130-1 CSS','Un compteur de contrepartie existe pour chaque salarié ayant dépassé le contingent','Le salarié est informé de ses droits acquis']},
+ {id:'forfaitjours', lib:'Forfait annuel en jours : accord, document de contrôle, entretien annuel de charge', s:0, src:'L.3121-64 · L.3121-65 · L.3121-60', r:1,
+  sanc:'le forfait sans suivi de la charge est privé d’effet : rappel d’heures supplémentaires sur trois ans',
+  act:'Vérifier que l’accord porte l’évaluation de la charge, la communication périodique et la déconnexion — sinon appliquer intégralement le régime supplétif',
+  doc:'forfaitjours', verif:['L’accord collectif contient les trois clauses du II de L.3121-64','Un document de contrôle mensuel des journées travaillées existe, renseigné et daté','L’entretien annuel sur la charge de travail s’est tenu dans les douze derniers mois']},
+ {id:'tpartiel', lib:'Contrat écrit à temps partiel et ses mentions', s:0, src:'L.3123-6', r:1,
+  sanc:'requalification en temps plein et rappel de salaire sur la différence',
+  act:'Vérifier sur chaque contrat à temps partiel la durée, la répartition, les cas de modification et les modalités de communication des horaires',
+  doc:'tpartiel', verif:['La répartition entre jours ou semaines figure au contrat','Les cas et la nature d’une modification y sont écrits','La communication écrite des horaires est tracée']},
+ {id:'hcompl', lib:'Majoration de toutes les heures complémentaires', s:0, src:'L.3123-8', r:2,
+  sanc:'rappel de salaire, congés payés et intérêts',
+  act:'Vérifier qu’aucune heure complémentaire n’est payée au taux normal, dès la première',
+  verif:['Une ligne de majoration figure au bulletin des temps partiels','Le taux appliqué correspond à l’accord, à défaut au minimum légal']},
+ {id:'dureemin', lib:'Durée minimale de travail à temps partiel', s:0, src:'L.3123-7 — à défaut d’accord, 24 heures par semaine (L.3123-27)', r:2, acc:true,
+  sanc:'rappel de salaire sur la durée minimale non respectée',
+  act:'Comparer chaque contrat à la durée minimale de branche, à défaut vingt-quatre heures, sauf dérogation écrite du salarié ou cas légal',
+  verif:['La liste des contrats sous le seuil a été sortie','La demande écrite et motivée du salarié figure au dossier pour chaque dérogation']},
+ {id:'prioritetp', lib:'Priorité d’accès aux emplois à temps plein ou à temps partiel', s:0, src:'L.3123-3', r:3,
+  sanc:'dommages-intérêts pour perte de chance',
+  act:'Porter à la connaissance des salariés concernés la liste des emplois disponibles de leur catégorie',
+  verif:['La preuve de diffusion de la liste existe','Les demandes reçues et les réponses apportées sont consignées']},
+ {id:'cpacq', lib:'Acquisition des congés payés — deux jours et demi par mois', s:0, src:'L.3141-3', r:2,
+  sanc:'rappel d’indemnité de congés payés sur trois ans',
+  act:'Contrôler le compteur d’acquisition, y compris pendant les absences assimilées à du travail effectif',
+  verif:['Le compteur d’un salarié a été recalculé sur la période de référence','Le traitement des arrêts maladie dans l’acquisition a été vérifié']},
+ {id:'cpperiode', lib:'Période de prise couvrant le 1er mai – 31 octobre', s:0, src:'L.3141-13', r:3, acc:true,
+  sanc:'contravention ; dommages-intérêts si le salarié n’a pu prendre ses congés',
+  act:'Vérifier que la période fixée par accord ou par l’employeur englobe bien ces six mois',
+  doc:'ordrecp', verif:['La période retenue couvre le 1er mai au 31 octobre','Aucun salarié n’est resté sans congé sur cette fenêtre']},
+ {id:'cpdelais', lib:'Période annoncée deux mois avant, ordre des départs un mois avant', s:0, src:'D.3141-5 · D.3141-6', r:2,
+  sanc:'contravention ; le départ imposé sans délai ouvre droit à réparation',
+  act:'Caler deux échéances distinctes et conserver la preuve de la communication individuelle',
+  doc:'ordrecp', verif:['La période a été portée à la connaissance des salariés au moins deux mois avant son ouverture','L’ordre des départs a été communiqué à chaque salarié un mois avant son départ']},
+ {id:'cpordre', lib:'Critères de l’ordre des départs, non modifiable à moins d’un mois', s:0, src:'L.3141-15 · L.3141-16', r:2, acc:true,
+  sanc:'dommages-intérêts ; annulation de la modification tardive',
+  act:'Fixer l’ordre sur la situation de famille, l’ancienneté et l’activité chez un autre employeur, après avis du CSE le cas échéant',
+  doc:'ordrecp', verif:['Les trois critères légaux sont tracés dans la décision','Aucune date n’a été modifiée à moins d’un mois, sauf circonstance exceptionnelle écrite']},
+ {id:'solidarite', lib:'Journée de solidarité fixée et tracée', s:0, src:'L.3133-7 · L.3133-8 — sept heures', r:3, acc:true,
+  sanc:'redressement URSSAF ; rappel de salaire si les sept heures sont dépassées',
+  act:'Fixer la journée par accord, à défaut par décision après consultation du CSE, et la tracer salarié par salarié',
+  verif:['L’acte fixant la modalité retenue existe et est daté','Le décompte des sept heures figure aux compteurs, au prorata pour les temps partiels']},
+ {id:'paiemens', lib:'Paiement mensuel et acompte de quinzaine sur demande', s:0, src:'L.3242-1', r:2,
+  sanc:'contravention ; rappel et intérêts de retard',
+  act:'Garantir une paie par mois et une procédure d’acompte accessible, égale à la moitié de la rémunération pour une quinzaine',
+  verif:['Les dates de virement des douze derniers mois ne présentent pas d’écart anormal','Une demande d’acompte a été honorée, avec sa trace']},
+ {id:'deconnexion', lib:'Droit à la déconnexion : accord, à défaut charte après avis du CSE', s:[50,'L.2242-17, 7°'], r:2, ds:1,
+  sanc:'délit d’entrave si le CSE n’a pas été consulté sur la charte',
+  act:'Négocier la déconnexion ; à défaut d’accord, établir la charte après avis du comité, avec des actions de formation',
+  verif:['La charte est datée et le procès-verbal d’avis du CSE lui est antérieur','Au moins une action de sensibilisation à l’usage des outils numériques est prouvée']},
+ {id:'partagevaleur', lib:'Négociation sur l’augmentation exceptionnelle du bénéfice', s:[50,'L.3346-1'], r:3, ds:1,
+  sanc:'contentieux collectif ; manquement à l’obligation de négocier',
+  act:'Porter ce point à l’ordre du jour de toute négociation ouverte sur l’intéressement ou la participation',
+  verif:['L’ordre du jour et le procès-verbal de la négociation le mentionnent','La définition écrite de l’augmentation exceptionnelle tient compte de la taille, du secteur et des rachats d’actions']},
+ /* ── Contrat, embauche, rupture ── */
+ {id:'infoemb', lib:'Documents d’information sur la relation de travail — quatorze rubriques', s:0, src:'L.1221-5-1 · R.1221-34 · R.1221-35', r:1,
+  sanc:'le salarié met en demeure puis saisit le juge ; défaut de preuve opposable à l’employeur',
+  act:'Remettre à chaque embauche le document d’information, distinct du contrat : les rubriques 1° à 5°, 7°, 11° et 12° au plus tard le septième jour calendaire, les autres dans le mois',
+  doc:'infoemb', verif:['Le document existe pour chaque salarié embauché depuis le 1er novembre 2023','Les quatorze rubriques de R.1221-34 y figurent','Les renvois aux textes ne portent que sur les 7° à 12° et le 14°, seuls autorisés','La remise est datée et l’accusé conservé']},
+ {id:'infoetranger', lib:'Volet expatriation du document d’information — mission de plus de quatre semaines', s:0, src:'R.1221-36', r:3,
+  sanc:'litige sur les conditions de la mobilité et le rapatriement',
+  act:'Ajouter au document, pour toute mission à l’étranger dépassant quatre semaines consécutives, le pays, la durée, la devise, les avantages et les conditions de rapatriement',
+  doc:'infoemb', verif:['La liste des missions de plus de quatre semaines à l’étranger a été sortie','Les quatre mentions y figurent pour chacune']},
+ {id:'cddecrit', lib:'CDD : écrit, motif précis et mentions obligatoires', s:0, src:'L.1242-12 · cas de recours L.1242-2', r:1,
+  sanc:'requalification en contrat à durée indéterminée : indemnité au moins égale à un mois de salaire',
+  act:'Rédiger le motif en fait, nommer le salarié remplacé, désigner le poste et signaler s’il figure sur la liste des postes à risques particuliers',
+  doc:'cdd', verif:['Chaque CDD porte un motif précis, rattaché à un cas de L.1242-2','Le nom et la qualification du remplacé sont indiqués','Le terme ou la durée minimale figure au contrat','Le poste n’est pas lié à l’activité normale et permanente de l’entreprise']},
+ {id:'cddtransmis', lib:'CDD transmis dans les deux jours ouvrables', s:0, src:'L.1242-13', r:2,
+  sanc:'indemnité ; à défaut de signature, requalification',
+  act:'Horodater l’envoi ou faire signer une décharge de remise dans les deux jours ouvrables suivant l’embauche',
+  doc:'cdd', verif:['La date de signature du salarié a été comparée à la date d’embauche','La preuve de transmission est conservée']},
+ {id:'cddcarence', lib:'Délai de carence entre deux contrats sur le même poste', s:0, src:'L.1244-3 · à défaut d’accord de branche L.1244-3-1', r:2, acc:true,
+  sanc:'requalification en contrat à durée indéterminée',
+  act:'Calculer la carence par POSTE et non par salarié : un tiers de la durée du contrat expiré s’il a duré quatorze jours ou plus, la moitié s’il a duré moins',
+  doc:'cdd', verif:['L’historique des contrats par poste a été sorti sur douze mois','Les jours retenus sont les jours d’ouverture de l’entreprise','L’accord de branche a été vérifié avant d’appliquer le calcul supplétif']},
+ {id:'precarite', lib:'Indemnité de fin de contrat — 10 %', s:0, src:'L.1243-8', r:2,
+  sanc:'rappel de salaire, congés payés et intérêts',
+  act:'Verser l’indemnité à l’issue du contrat, en même temps que le dernier salaire, et la faire figurer au bulletin',
+  verif:['La ligne figure au dernier bulletin de chaque CDD','L’assiette retenue est la rémunération brute totale, primes comprises']},
+ {id:'essai', lib:'Période d’essai : durée et conditions du renouvellement', s:0, src:'L.1221-19 · L.1221-21', r:2, acc:true,
+  sanc:'rupture requalifiée en licenciement sans cause réelle et sérieuse',
+  act:'Borner la durée selon la catégorie — deux, trois ou quatre mois — et ne renouveler que si un accord de branche étendu le prévoit, avec l’accord écrit du salarié',
+  verif:['La durée au contrat correspond à la catégorie professionnelle','L’accord de branche autorisant le renouvellement a été lu','L’accord écrit du salarié au renouvellement figure au dossier']},
+ {id:'prevenance', lib:'Délai de prévenance de rupture de la période d’essai', s:0, src:'L.1221-25 · L.1221-26', r:2,
+  sanc:'indemnité compensatrice égale au délai non respecté',
+  act:'Calculer le délai sur la présence au jour de la notification — 24 h, 48 h, deux semaines, un mois — sans prolonger l’essai',
+  verif:['La date de notification a été comparée à la date de fin effective','L’indemnité a été versée si le délai a débordé le terme de l’essai']},
+ {id:'certif', lib:'Certificat de travail à l’expiration du contrat', s:0, src:'L.1234-19 · D.1234-6', r:2,
+  sanc:'dommages-intérêts ; le certificat est quérable et portable',
+  act:'Délivrer le certificat à chaque sortie, ne portant QUE les dates d’entrée et de sortie et la nature des emplois successifs',
+  doc:'sortie', verif:['Un certificat existe pour 100 % des sorties, CDD compris','Aucune mention étrangère aux deux rubriques de D.1234-6 n’y figure']},
+ {id:'stc', lib:'Reçu pour solde de tout compte', s:0, src:'L.1234-20', r:2,
+  sanc:'aucun effet libératoire : les sommes non mentionnées restent réclamables',
+  act:'Faire l’inventaire, ligne par ligne, des sommes versées, et faire dater et signer le reçu par le salarié',
+  doc:'sortie', verif:['Le reçu est signé et daté de la main du salarié','Chaque somme est nommée : une somme absente reste due','Le délai de dénonciation de six mois est mentionné']},
+ {id:'attestft', lib:'Attestation France Travail délivrée et transmise', s:0, src:'R.1234-9 — voie électronique dès onze salariés', r:2,
+  sanc:'dommages-intérêts pour le préjudice causé au salarié privé d’indemnisation',
+  act:'Délivrer l’attestation le jour de la fin du contrat et la transmettre sans délai, par voie électronique dès onze salariés',
+  doc:'sortie', verif:['La date d’émission correspond à la date de fin de contrat','L’accusé de transmission est archivé','La voie électronique est utilisée si l’effectif atteint onze salariés']},
+ {id:'convoclic', lib:'Convocation à l’entretien préalable — cinq jours ouvrables, assistance', s:0, src:'L.1232-2 · L.1232-4', r:1,
+  sanc:'irrégularité de procédure : indemnité pouvant atteindre un mois de salaire',
+  act:'Convoquer par lettre recommandée ou remise contre décharge, l’entretien ne pouvant se tenir moins de cinq jours ouvrables après la PRÉSENTATION',
+  doc:'licproc', verif:['L’avis de présentation de La Poste est conservé','Cinq jours ouvrables pleins séparent la présentation de l’entretien','La lettre mentionne le conseiller du salarié et l’adresse où la liste est tenue, s’il n’y a pas d’institution représentative']},
+ {id:'notiflic', lib:'Notification du licenciement — deux jours ouvrables, motifs énoncés', s:0, src:'L.1232-6', r:1,
+  sanc:'licenciement sans cause réelle et sérieuse si la lettre est imprécise ou prématurée',
+  act:'Notifier par lettre recommandée avec avis de réception, jamais avant deux jours ouvrables après l’entretien, avec des motifs matériellement vérifiables',
+  doc:'licproc', verif:['La date d’expédition figure au cachet et respecte le délai','Les motifs sont énoncés en fait, pas seulement qualifiés']},
+ {id:'precmotifs', lib:'Précision des motifs dans les quinze jours', s:0, src:'L.1235-2 · R.1232-13', r:2,
+  sanc:'les motifs deviennent définitifs : la lettre fixe les limites du litige',
+  act:'Répondre dans les quinze jours à toute demande de précision, par lettre recommandée ou remise contre récépissé',
+  doc:'licproc', verif:['La demande du salarié est datée et intervenue dans les quinze jours de la notification','La réponse est partie dans les quinze jours de sa réception, dans les formes']},
+ {id:'rupconv', lib:'Rupture conventionnelle : consentement, indemnité, rétractation de quinze jours', s:0, src:'L.1237-11 · L.1237-13', r:1,
+  sanc:'nullité de la rupture, requalifiée en licenciement sans cause',
+  act:'Remettre un exemplaire au salarié, garantir l’indemnité au moins égale à l’indemnité légale de licenciement, laisser courir quinze jours calendaires depuis la signature',
+  doc:'rupconv', verif:['Un exemplaire de la convention a été remis au salarié, la remise étant tracée','Le montant a été comparé au calcul légal de l’indemnité de licenciement','Les quinze jours calendaires sont comptés depuis la signature']},
+ {id:'rupconvhomo', lib:'Homologation de la rupture conventionnelle', s:0, src:'L.1237-14', r:1,
+  sanc:'rupture privée d’effet si la date précède l’homologation',
+  act:'Déposer la demande après la rétractation et attendre les quinze jours ouvrables d’instruction — le silence vaut homologation',
+  doc:'rupconv', verif:['L’accusé de dépôt est archivé','La date de rupture est postérieure à l’homologation, expresse ou tacite']},
+ {id:'inaptreclas', lib:'Inaptitude : recherche écrite de reclassement', s:0, src:'L.1226-2', r:1,
+  sanc:'licenciement sans cause réelle et sérieuse',
+  act:'Proposer par écrit un autre emploi approprié dans l’entreprise et dans les entreprises du groupe permettant la permutation du personnel, sauf dispense expresse du médecin',
+  doc:'inapt', verif:['Les courriers de recherche de postes sont datés et conservés','Le périmètre de groupe retenu est justifié','La dispense expresse du médecin du travail figure à l’avis, si elle est invoquée']},
+ {id:'inaptsalaire', lib:'Inaptitude : reprise du salaire au bout d’un mois', s:0, src:'L.1226-4', r:1,
+  sanc:'rappel de salaire, sans plafond, jusqu’au reclassement ou au licenciement',
+  act:'Poser une alerte à trente jours de l’examen de reprise : le salaire de l’emploi antérieur redevient dû',
+  doc:'inapt', verif:['La date de l’avis a été comparée à la date de reprise du salaire sur bulletin','Le montant correspond au salaire de l’emploi occupé avant la suspension, pas à un minimum']},
+ {id:'protegeds', lib:'Délégué syndical : autorisation de l’inspecteur du travail avant toute rupture', s:0, src:'L.2411-3', r:1, ds:1,
+  sanc:'nullité, réintégration et indemnisation de l’éviction',
+  act:'Vérifier les mandats en cours et échus depuis moins de douze mois avant d’engager toute procédure',
+  verif:['Le registre des mandats a été consulté, mandats échus compris','La décision d’autorisation est obtenue AVANT la notification']},
+ {id:'proteges', lib:'Élus et représentants syndicaux au CSE : autorisation préalable', s:[11,'L.2411-1 · L.2411-5'], r:1,
+  sanc:'nullité, réintégration et indemnisation',
+  act:'Croiser tout projet de rupture — licenciement, rupture conventionnelle, fin de période d’essai — avec la liste nominative des mandats',
+  verif:['Les suppléants sont inclus dans le contrôle','La protection de six mois après l’expiration du mandat a été vérifiée','L’autorisation est notifiée avant l’envoi de la lettre']},
+ /* ── Moyens et attributions du comité ── */
+ {id:'cselocal', lib:'Local aménagé et matériel du comité', s:[11,'L.2315-25 · réunions L.2315-26'], r:2,
+  sanc:'délit d’entrave au fonctionnement — 7 500 € (L.2317-1)',
+  act:'Affecter un local identifié et le doter : table, armoire fermant à clé, téléphone, poste informatique',
+  verif:['Le local est désigné sur le plan des locaux','L’inventaire du matériel est signé par le secrétaire','Les réunions d’information du personnel s’y tiennent sans autorisation préalable']},
+ {id:'csecircul', lib:'Libre circulation et déplacement des élus', s:[11,'L.2315-14'], r:2,
+  sanc:'délit d’entrave ; discrimination syndicale',
+  act:'Supprimer toute autorisation préalable de sortie et tout badge restreignant l’accès aux sites pendant les heures de délégation',
+  verif:['Aucune note de service n’impose d’autorisation de déplacement','Les droits d’accès des élus sont identiques à ceux des autres salariés']},
+ {id:'cseaffich', lib:'Panneaux d’affichage du comité', s:[11,'L.2315-15'], r:3,
+  sanc:'délit d’entrave',
+  act:'Installer des emplacements réservés au comité, y compris aux portes d’entrée des lieux de travail',
+  verif:['Une photo datée des panneaux existe','Aucune procédure de visa préalable de l’employeur ne s’applique aux communications']},
+ {id:'cseheures', lib:'Heures de délégation : report sur douze mois et mutualisation', s:[11,'L.2315-9 · R.2315-5 · R.2315-6'], r:2,
+  sanc:'rappel de salaire ; délit d’entrave en cas de refus',
+  act:'Accepter le report et la mutualisation sur simple écrit nominatif reçu huit jours avant, dans la limite d’une fois et demie le crédit mensuel',
+  doc:'heuresdeleg', verif:['Un compteur annuel de report existe par élu','Les écrits d’information à huit jours sont archivés','Le plafond d’une fois et demie est contrôlé par élu et par mois']},
+ {id:'csetemps', lib:'Temps de réunion et d’enquête payé, non déduit du crédit', s:[11,'L.2315-11 — plafond annuel R.2315-7'], r:2,
+  sanc:'rappel de salaire',
+  act:'Payer comme temps de travail les réunions, les enquêtes après accident grave et la recherche de mesures en situation d’urgence, sans les imputer sur les heures de délégation',
+  verif:['Le bulletin du mois d’une réunion a été vérifié','Le compteur annuel distingue réunions du comité et réunions de la commission santé-sécurité','Le plafond de trente heures (300 à 1 000 salariés) ou soixante heures (au-delà) est suivi']},
+ {id:'cseodj', lib:'Ordre du jour communiqué trois jours avant, inspection et CARSAT comprises', s:[11,'L.2315-30'], r:1,
+  sanc:'délit d’entrave ; nullité des délibérations',
+  act:'Envoyer l’ordre du jour au plus tard trois jours avant, aux élus, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention',
+  verif:['Les accusés d’envoi sont horodatés','L’inspection du travail et la CARSAT figurent parmi les destinataires']},
+ {id:'csealerte', lib:'Droit d’alerte pour atteinte aux droits des personnes', s:[11,'L.2312-59'], r:1,
+  sanc:'manquement à l’obligation de sécurité ; nullité des mesures prises',
+  act:'Ouvrir sans délai une enquête conjointe avec l’élu qui saisit, y compris pour harcèlement ou discrimination',
+  doc:'alerte', verif:['Un registre des alertes porte la date de saisine et la date d’ouverture d’enquête','Le rapport d’enquête est cosigné par l’élu','Les mesures prises sont écrites et notifiées']},
+ {id:'csemarche', lib:'Consultation sur l’organisation, la gestion et la marche générale', s:[11,'L.2312-8, II'], r:1,
+  sanc:'délit d’entrave ; suspension du projet en référé',
+  act:'Déclencher une consultation sur tout projet touchant le volume ou la structure des effectifs, l’organisation économique ou juridique, les conditions d’emploi et de travail, ou l’introduction de nouvelles technologies',
+  verif:['Les projets de l’année ont été confrontés aux procès-verbaux de consultation','La date de l’avis précède la date de décision','Les conséquences environnementales ont été traitées (L.2312-8, III)']},
+ {id:'cseprealable', lib:'Consultation préalable à toute décision', s:[11,'L.2312-14'], r:1,
+  sanc:'délit d’entrave ; suspension de la mise en œuvre',
+  act:'Interdire toute mise en œuvre avant que l’avis soit rendu, sauf offre publique d’acquisition, projet d’accord collectif et gestion des emplois couverte par un accord',
+  verif:['La chronologie note de projet / avis / mise en œuvre est reconstituable','La preuve de l’accord est produite si l’exception est invoquée']},
+ {id:'csedelai', lib:'Délai d’examen, informations écrites, réponse motivée', s:[11,'L.2312-15 · R.2312-5 · R.2312-6'], r:1, acc:true,
+  sanc:'délit d’entrave ; avis réputé négatif opposable',
+  act:'Remettre un dossier écrit daté, répondre par écrit aux observations, et faire courir le délai depuis la mise à disposition — un mois, deux avec expertise, trois si expertises au central et en établissements',
+  verif:['Le dossier remis est daté, avec bordereau de pièces','La mise à disposition dans la base de données est horodatée et notifiée','La réponse motivée de l’employeur figure au procès-verbal suivant']},
+ {id:'synaffich', lib:'Panneaux syndicaux distincts et diffusion des tracts', s:0, src:'L.2142-3 · L.2142-4', r:2, ds:1,
+  sanc:'délit d’entrave à l’exercice du droit syndical',
+  act:'Poser des panneaux syndicaux distincts de ceux du comité et laisser diffuser les tracts aux heures d’entrée et de sortie, sans contrôle préalable du contenu',
+  verif:['Une photo montre deux séries de panneaux distinctes','Un exemplaire des communications est transmis à l’employeur simultanément à l’affichage, sans visa préalable']},
+ {id:'cseponct', lib:'Consultations ponctuelles : les six cas listés', s:[50,'L.2312-37'], r:1,
+  sanc:'délit d’entrave ; nullité de la procédure de licenciement économique',
+  act:'Créer six déclencheurs : moyens de contrôle de l’activité, restructuration, licenciement collectif économique, concentration, offre publique, procédure collective',
+  verif:['L’inventaire des dispositifs de contrôle est rapproché des procès-verbaux','Le procès-verbal est daté avant la première notification de licenciement économique']},
+ {id:'cseexpert', lib:'Recours à l’expert et prise en charge des frais', s:[50,'L.2315-78 · L.2315-80'], r:2,
+  sanc:'contestation des frais ; entrave si le recours est empêché',
+  act:'Appliquer la clé 80 % employeur / 20 % comité aux expertises ponctuelles, la prise en charge intégrale dans les cas listés, et la totalité si le budget de fonctionnement est insuffisant',
+  verif:['La délibération du comité désignant l’expert existe','La facture et la ventilation 80/20 sont conservées','L’insuffisance du budget de fonctionnement est établie si la prise en charge intégrale est demandée']},
+ {id:'csecomptes', lib:'Comptes annuels du comité, séance dédiée et rapport de gestion', s:[50,'L.2315-64 · L.2315-68 · L.2315-69'], r:2,
+  sanc:'irrégularité de gestion ; responsabilité des élus',
+  act:'Arrêter les comptes, les approuver en séance plénière portant sur ce SEUL sujet, avec procès-verbal spécifique et rapport de gestion qualitatif',
+  verif:['Le procès-verbal ne porte que l’approbation des comptes','Le rapport présentant les activités et la gestion financière est annexé','Les comptes sont portés à la connaissance des salariés']},
+ {id:'csealerteco', lib:'Droit d’alerte économique du comité', s:[50,'L.2312-63'], r:2,
+  sanc:'délit d’entrave',
+  act:'Inscrire de droit la demande d’explications à l’ordre du jour de la séance suivante, sans filtrage, et répondre par écrit',
+  verif:['L’ordre du jour de la séance suivant la demande porte le point','La réponse de l’employeur figure au procès-verbal','Le rapport, à défaut de réponse suffisante, est transmis au commissaire aux comptes']},
+ {id:'csecentral', lib:'CSE central d’entreprise si au moins deux établissements distincts', s:[50,'L.2313-1 · L.2316-1'], r:1,
+  sanc:'délit d’entrave ; consultation faite au mauvais niveau, donc irrégulière',
+  act:'Constituer un comité central et des comités d’établissement, et consulter au bon niveau selon que le projet comporte ou non des mesures d’adaptation spécifiques',
+  verif:['L’accord ou la décision fixant les établissements distincts existe','L’avis du comité central est transmis aux comités d’établissement','Les consultations récurrentes sont conduites au niveau central']},
+ {id:'synlocal200', lib:'Local commun des sections syndicales', s:[200,'L.2142-8, alinéa 1'], r:2, ds:1,
+  sanc:'délit d’entrave à l’exercice du droit syndical',
+  act:'Affecter un local commun convenant à l’exercice de la mission des délégués dès le franchissement du seuil',
+  verif:['L’attestation d’effectif au franchissement du seuil existe','L’accord fixant l’aménagement et l’utilisation est signé']},
+ {id:'synlocal1000', lib:'Local propre à chaque section syndicale représentative', s:[1000,'L.2142-8, alinéa 2'], r:2, ds:1,
+  sanc:'délit d’entrave',
+  act:'Attribuer, en plus du local commun, un local convenable, aménagé et doté du matériel nécessaire à chaque organisation représentative',
+  verif:['La liste des organisations représentatives et le local affecté à chacune existent','L’inventaire du matériel est tenu par local']},
+ /* ── Égalité, handicap, formation, données personnelles ── */
+ {id:'affdiscrim', lib:'Information sur les articles 225-1 à 225-4 du code pénal', s:0, src:'L.1142-6', r:3,
+  sanc:'contravention ; élément à charge dans un contentieux de discrimination',
+  act:'Porter le texte pénal à la connaissance des salariés sur les lieux de travail ET des candidats à la porte des locaux d’embauche',
+  doc:'affichages', verif:['Une photo datée de l’affichage existe','Les candidats y ont accès, la preuve en étant conservée']},
+ {id:'affegarem', lib:'Information sur l’égalité de rémunération entre les femmes et les hommes', s:0, src:'R.3221-2', r:3,
+  sanc:'contravention',
+  act:'Porter les articles L.3221-1 à L.3221-7 à la connaissance des personnes ayant accès aux lieux de travail et des candidats',
+  doc:'affichages', verif:['Le support cite nommément L.3221-1 à L.3221-7','Les candidats à l’embauche y ont accès']},
+ {id:'egarem', lib:'Égalité de rémunération pour un travail de valeur égale', s:0, src:'L.3221-2', r:1,
+  sanc:'rappel de salaire sur trois ans, sans plafond, et dommages-intérêts',
+  act:'Comparer les rémunérations à poste et à valeur égale, et justifier par écrit chaque écart par des raisons objectives',
+  verif:['Un tableau de comparaison par emploi existe','Les écarts constatés font l’objet d’une justification écrite']},
+ {id:'nondiscrim', lib:'Décisions RH fondées sur des critères objectifs', s:0, src:'L.1132-1 · nullité L.1132-4', r:1,
+  sanc:'nullité de l’acte, réintégration possible, sanction pénale',
+  act:'Tracer les critères objectifs de chaque embauche, augmentation, promotion, affectation et sanction',
+  verif:['Les grilles d’évaluation des candidatures sont conservées','Les refus d’augmentation ou de promotion sont motivés par écrit']},
+ {id:'sexisme', lib:'Interdiction de l’agissement sexiste', s:0, src:'L.1142-2-1', r:1,
+  sanc:'manquement à l’obligation de sécurité ; dommages-intérêts',
+  act:'Inscrire l’interdiction au règlement intérieur et au dispositif de prévention, et traiter chaque signalement',
+  verif:['La clause figure au règlement intérieur','Le registre des signalements porte les suites données']},
+ {id:'handamenag', lib:'Aménagement raisonnable du poste du travailleur handicapé', s:0, src:'L.5213-6', r:1,
+  sanc:'discrimination : nullité et dommages-intérêts',
+  act:'Instruire chaque demande d’aménagement, logiciels et poste en télétravail compris, et répondre par écrit',
+  verif:['Une fiche d’aménagement existe par salarié bénéficiaire : demande, décision, date','L’accessibilité des logiciels métier est attestée','Le refus éventuel est motivé par une charge disproportionnée, chiffrée']},
+ {id:'adaptation', lib:'Adaptation au poste et maintien de l’employabilité', s:0, src:'L.6321-1', r:1,
+  sanc:'dommages-intérêts pour manquement à l’obligation de formation, même sans licenciement',
+  act:'Déclencher une action de formation à chaque changement de poste ou d’outil, et suivre le parcours de chaque salarié dans la durée',
+  verif:['L’historique de formation par salarié couvre six ans','Le lien entre un changement d’outil et l’action de formation est documenté']},
+ {id:'contribform', lib:'Contribution unique à la formation et à l’alternance', s:0, src:'L.6131-1', r:3,
+  sanc:'redressement URSSAF',
+  act:'Vérifier l’assiette et le versement de la contribution unique et de la contribution dédiée au compte personnel de formation des salariés en CDD',
+  verif:['Les codes de contribution formation figurent en DSN','La masse salariale déclarée a été rapprochée de la contribution appelée']},
+ {id:'ccnaffich', lib:'Convention collective : avis, exemplaire à jour, intranet', s:0, src:'R.2262-1 · R.2262-3 · exemplaire au comité R.2262-2', r:2, acc:true,
+  sanc:'contravention ; inopposabilité au salarié qui n’a pu consulter le texte',
+  act:'Diffuser l’avis portant les intitulés, le lieu et les modalités de consultation, tenir un exemplaire à jour sur le lieu de travail et sur l’intranet',
+  doc:'aviscc', verif:['L’avis porte l’intitulé exact des conventions et accords applicables','L’exemplaire du lieu de travail est à jour de ses avenants','L’intranet, s’il existe, porte un exemplaire à jour et daté','Un exemplaire a été fourni au CSE et aux délégués syndicaux']},
+ {id:'recrutinfo', lib:'Information du candidat sur les méthodes de recrutement', s:0, src:'L.1221-8 · L.1221-9', r:2,
+  sanc:'sanction CNIL ; nullité de la décision fondée sur un procédé non porté à connaissance',
+  act:'Informer expressément le candidat avant tout test, questionnaire, scoring ou tri automatisé, et garder les résultats confidentiels',
+  verif:['La mention d’information est horodatée sur le formulaire de candidature','La finalité de l’outil de tri est décrite par écrit et sa pertinence justifiée']},
+ {id:'collectinfo', lib:'Information préalable du salarié sur tout dispositif de collecte', s:0, src:'L.1222-4', r:1,
+  sanc:'preuve écartée des débats ; sanction CNIL',
+  act:'Informer individuellement avant toute vidéosurveillance, géolocalisation, badgeuse, journalisation ou mesure d’activité',
+  verif:['Une note d’information par dispositif porte une date antérieure à sa mise en service','L’inventaire des dispositifs a été rapproché du registre des traitements']},
+ {id:'alerteur', lib:'Protection du salarié lanceur d’alerte', s:0, src:'L.1132-3-3', r:1,
+  sanc:'nullité de la mesure ; la charge de la preuve pèse sur l’employeur',
+  act:'Écarter toute mesure défavorable postérieure à un signalement, et documenter la décision par des motifs antérieurs et étrangers à l’alerte',
+  verif:['Le registre des signalements porte la date de chaque alerte','Le dossier justifiant une sanction postérieure est étranger à l’alerte']},
+ {id:'oethdecl', lib:'Déclaration de l’obligation d’emploi en DSN', s:[20,'L.5212-5'], r:2,
+  sanc:'à défaut de toute déclaration, l’employeur est réputé ne pas satisfaire à l’obligation',
+  act:'Porter chaque mois les statuts de bénéficiaire en DSN et souscrire la déclaration annuelle, les informations restant confidentielles',
+  verif:['La déclaration annuelle est accusée de réception','Les habilitations au champ « bénéficiaire » du logiciel de paie sont restreintes']},
+ {id:'oethcontrib', lib:'Contribution annuelle et dépenses déductibles', s:[20,'L.5212-9 · L.5212-11'], r:3,
+  sanc:'redressement URSSAF sur la contribution éludée',
+  act:'Calculer la contribution pour chaque bénéficiaire manquant et n’imputer que les dépenses qui ne sont pas déjà imposées par un texte',
+  verif:['Le calcul a été rapproché de la déclaration','Les factures des dépenses déduites établissent leur caractère non obligatoire — un aménagement dû au titre de L.5213-6 n’est pas déductible']},
+ {id:'bdeseeg', lib:'BDESE : indicateurs d’égalité et bilan des formations issues des entretiens', s:[50,'L.2312-18 · L.2312-36'], r:2, acc:true,
+  sanc:'délit d’entrave ; point de départ des délais de consultation non acquis',
+  act:'Porter dans la base les écarts de rémunération, la répartition parmi les cadres dirigeants, la méthodologie de l’index et le bilan des formations faisant suite aux entretiens de parcours',
+  verif:['L’accès permanent a été testé pour un élu et pour un délégué syndical','La rubrique « bilan des formations issues de L.6315-1 » existe et est datée','La méthodologie des indicateurs de L.1142-8 y figure']},
+ {id:'consultform', lib:'Plan de développement des compétences soumis au comité', s:[50,'L.2312-24 · programme pluriannuel L.2312-26'], r:2,
+  sanc:'délit d’entrave',
+  act:'Porter le plan de développement des compétences dans la consultation sur les orientations stratégiques, et le programme pluriannuel de formation dans la consultation sur la politique sociale',
+  verif:['L’ordre du jour mentionne nommément le plan de développement des compétences','L’avis du comité sur la politique sociale est rendu et daté']},
+ {id:'abondcpf', lib:'Abondement correctif du compte personnel de formation', s:[50,'L.6323-13'], r:2,
+  sanc:'mise en demeure puis versement au Trésor, majoré de 100 %',
+  act:'Contrôler tous les six ans, salarié par salarié, la double condition — entretiens tenus ET au moins une formation autre qu’obligatoire — et verser à défaut',
+  doc:'entretien', verif:['L’état par salarié des entretiens sur six ans existe, avec comptes rendus signés','Le versement et l’information du salarié sont prouvés pour chaque cas déficitaire']},
+ {id:'csergpd', lib:'Comité informé sur les traitements, consulté sur le contrôle de l’activité', s:[50,'L.2312-38'], r:1,
+  sanc:'délit d’entrave ; preuve tirée du dispositif écartée des débats',
+  act:'Informer le comité avant tout nouvel outil de recrutement ou de gestion du personnel, et le CONSULTER avant tout moyen de contrôle de l’activité',
+  verif:['Le procès-verbal d’information précède la mise en production de l’outil','Un avis existe pour chaque dispositif de contrôle, rapproché du registre des traitements']},
+ {id:'refhandicap', lib:'Référent handicap désigné', s:[250,'L.5213-6-1'], r:2,
+  sanc:'manquement opposable en contentieux de discrimination',
+  act:'Désigner nommément un référent chargé d’orienter, d’informer et d’accompagner, et publier ses coordonnées',
+  verif:['La lettre de désignation nominative existe et les coordonnées sont diffusées','L’engagement de discrétion est signé','Le référent participe aux rendez-vous de liaison à la demande du salarié']},
+ {id:'formrecrut', lib:'Formation des recruteurs à la non-discrimination', s:[300,'L.1131-2'], r:2,
+  sanc:'élément à charge en contentieux de discrimination à l’embauche',
+  act:'Recenser toutes les personnes intervenant dans le recrutement et les former au moins une fois tous les cinq ans',
+  verif:['La liste nominative des personnes intervenant dans le recrutement existe','Chaque attestation de formation date de moins de cinq ans']},
+ {id:'bilansocial', lib:'Bilan social', s:[300,'L.2312-28 · contenu L.2312-30'], r:2,
+  sanc:'délit d’entrave',
+  act:'Établir le bilan social sur l’année écoulée et les deux précédentes, et le soumettre au comité — et à chaque comité d’établissement d’au moins 300 salariés',
+  doc:'bilansocial', verif:['Chaque indicateur porte trois exercices','Les huit domaines de L.2312-30 sont couverts','Le procès-verbal de consultation existe au niveau central et pour chaque établissement de 300 salariés ou plus']}
 ];
 /* Lit les etablissements de la fiche societe : « Nom, effectif » par ligne.
    Une ligne illisible est ignoree, jamais devinee. */
@@ -29776,6 +30117,379 @@ function ausDoc(type){
      +'D. Ouverture des travaux notifiée par courriel avec accusé à l’unité de contrôle du Val-d’Oise le 04/09/2026.<br>'
      +'E. Visites de suivi les 10/09 et 18/09 ; avenant du 18/09 après ajout d’une nacelle non prévue.<br>'
      +'<b>Protocole de sécurité distinct</b> pour les livraisons quotidiennes du transporteur TRANSNORD : signé le 12/01/2026, quai n°2, calage obligatoire, remise des clés au bureau, mis à jour le 05/09 pendant la fermeture de la cour.</p>';
+  } else if(type==='infoemb'){
+    T='Information sur la relation de travail — document à remettre à l’embauche';
+    H=ausTete()
+     +'<p><b>INFORMATIONS PRINCIPALES RELATIVES À LA RELATION DE TRAVAIL</b> (articles L.1221-5-1, R.1221-34 et R.1221-35 du code du travail — document DISTINCT du contrat, à remettre même lorsque le contrat les reprend)</p>'
+     +'<p><b>PARTIE 1 — LES QUATORZE RUBRIQUES À REMPLIR</b>. Colonne « délai » : J+7 = au plus tard le septième jour calendaire depuis l’embauche ; M+1 = au plus tard un mois après. Colonne « renvoi » : oui = la rubrique peut renvoyer au texte légal ou conventionnel au lieu d’être détaillée.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>N°</th><th>Rubrique</th><th>Délai</th><th>Renvoi</th><th>À renseigner</th></tr>'
+     +'<tr><td>1°</td><td>Identité des parties</td><td>J+7</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>2°</td><td>Lieu(x) de travail et, si distincte, adresse de l’employeur</td><td>J+7</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>3°</td><td>Intitulé du poste, fonctions, catégorie socioprofessionnelle ou d’emploi</td><td>J+7</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>4°</td><td>Date d’embauche</td><td>J+7</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>5°</td><td>Pour un CDD : date de fin ou durée prévue</td><td>J+7</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>6°</td><td>Salarié temporaire : identité de l’entreprise utilisatrice, dès qu’elle est connue</td><td>M+1</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>7°</td><td>Durée et conditions de la période d’essai</td><td>J+7</td><td>oui</td><td>[ ]</td></tr>'
+     +'<tr><td>8°</td><td>Droit à la formation assuré par l’employeur (L.6321-1)</td><td>M+1</td><td>oui</td><td>[ ]</td></tr>'
+     +'<tr><td>9°</td><td>Durée du congé payé, ou ses modalités de calcul</td><td>M+1</td><td>oui</td><td>[ ]</td></tr>'
+     +'<tr><td>10°</td><td>Procédure à observer par chacun en cas de cessation de la relation</td><td>M+1</td><td>oui</td><td>[ ]</td></tr>'
+     +'<tr><td>11°</td><td>Éléments de la rémunération, INDIQUÉS SÉPARÉMENT, majorations d’heures supplémentaires comprises, périodicité et modalités de paiement</td><td>J+7</td><td>oui</td><td>[ ]</td></tr>'
+     +'<tr><td>12°</td><td>Durée quotidienne, hebdomadaire ou mensuelle ou son aménagement ; conditions des heures supplémentaires ou complémentaires ; changements d’équipe</td><td>J+7</td><td>oui</td><td>[ ]</td></tr>'
+     +'<tr><td>13°</td><td>Conventions et accords collectifs applicables</td><td>M+1</td><td>non</td><td>[ ]</td></tr>'
+     +'<tr><td>14°</td><td>Régimes obligatoires d’affiliation et protection sociale complémentaire</td><td>M+1</td><td>oui</td><td>[ ]</td></tr></table>'
+     +'<p>Mission à l’étranger de plus de quatre semaines consécutives — à ajouter (R.1221-36) : pays et durée · devise de paiement · avantages en espèces et en nature · conditions de rapatriement.</p>'
+     +'<p>Remis le [DATE] · reçu par le salarié le [DATE] · signature : ______________</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — M. T. BENALI, conducteur SPL, SARL EXEMPLE (transport routier de marchandises, IDCC 16), embauche du 02/03/2026</b></p>'
+     +'<p><b>Remis en deux temps : volet A le 06/03/2026 (J+4), volet B le 27/03/2026 (J+25).</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>N°</th><th>Contenu remis</th><th>Volet</th></tr>'
+     +'<tr><td>1°</td><td>SARL EXEMPLE, 12 rue des Peupliers, 95100 Argenteuil, SIRET 000 000 000 00012, représentée par M. P. MOREL, gérant — et M. Tarek BENALI, né le 14/06/1989, demeurant 4 allée des Tilleuls, 95870 Bezons</td><td>A</td></tr>'
+     +'<tr><td>2°</td><td>Dépôt d’Argenteuil, 12 rue des Peupliers — déplacements sur le territoire national ; adresse de l’employeur identique</td><td>A</td></tr>'
+     +'<tr><td>3°</td><td>Conducteur routier SPL longue distance — groupe 6, coefficient 138M — ouvrier</td><td>A</td></tr>'
+     +'<tr><td>4°</td><td>2 mars 2026</td><td>A</td></tr>'
+     +'<tr><td>5°</td><td>Sans objet — contrat à durée indéterminée</td><td>A</td></tr>'
+     +'<tr><td>6°</td><td>Sans objet — le salarié n’est pas temporaire</td><td>B</td></tr>'
+     +'<tr><td>7°</td><td>Essai de deux mois (ouvrier, L.1221-19), renouvelable une fois deux mois, l’accord de branche étendu le prévoyant, sous réserve de l’accord écrit du salarié</td><td>A</td></tr>'
+     +'<tr><td>8°</td><td>L’employeur assure l’adaptation au poste et veille au maintien de la capacité à occuper un emploi (L.6321-1) : FCO tous les cinq ans à sa charge, prochaine échéance mai 2029</td><td>B</td></tr>'
+     +'<tr><td>9°</td><td>2,5 jours ouvrables par mois de travail effectif, 30 jours ouvrables au plus par an ; période de prise du 1er mai au 31 octobre</td><td>B</td></tr>'
+     +'<tr><td>10°</td><td>Démission : préavis conventionnel d’un mois. Licenciement : convocation à entretien préalable, entretien cinq jours ouvrables après présentation, notification par lettre recommandée deux jours ouvrables après l’entretien au plus tôt (L.1232-2 et L.1232-6)</td><td>B</td></tr>'
+     +'<tr><td>11°</td><td>Taux horaire 12,84 € · 169 h mensuelles dont 17,33 h supplémentaires structurelles majorées à 25 % (16,05 €) · prime d’ancienneté 0 % à ce jour · indemnités de repas selon barème conventionnel · TOTAL brut mensuel de référence 2 448,90 € · versé le 5 du mois suivant, par virement</td><td>A</td></tr>'
+     +'<tr><td>12°</td><td>Durée de service hebdomadaire de 39 h, décomptée à la semaine ; heures supplémentaires au-delà à la demande de l’exploitation, contingent de 195 h par an (accord de branche transport) ; pas de travail en équipes alternantes</td><td>A</td></tr>'
+     +'<tr><td>13°</td><td>Convention collective nationale des transports routiers et activités auxiliaires du transport, IDCC 16 · accord d’entreprise du 14/01/2025 sur les temps de service (exemplaire consultable au bureau RH et sur l’intranet)</td><td>B</td></tr>'
+     +'<tr><td>14°</td><td>URSSAF Île-de-France · retraite complémentaire AGIRC-ARRCO, institution [X] · CARCEPT prévoyance (contrat n° 000000, cotisation 1,50 % TA à la charge de l’employeur) · mutuelle frais de santé [Y], contrat n° 000000, participation employeur 50 %</td><td>B</td></tr></table>'
+     +'<p>Volet A remis en main propre contre décharge le 06/03/2026 — dans le délai de sept jours calendaires. Volet B adressé par courriel avec accusé de lecture le 27/03/2026 — dans le délai d’un mois. Les deux décharges sont classées au dossier individuel.</p>';
+  } else if(type==='cdd'){
+    T='Contrat à durée déterminée — structure et exemplaire';
+    H=ausTete()
+     +'<p><b>CONTRAT DE TRAVAIL À DURÉE DÉTERMINÉE</b> (articles L.1242-2, L.1242-12 et L.1242-13 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — STRUCTURE COMPLÈTE</b>. Le contrat non écrit, ou dont le motif n’est pas défini avec précision, est réputé à durée indéterminée.</p>'
+     +'<p><b>Article 1 — Motif du recours.</b> Cocher UN cas de L.1242-2, et le décrire en fait :<br>'
+     +'☐ Remplacement d’un salarié absent · ☐ passé provisoirement à temps partiel · ☐ dont le contrat est suspendu · ☐ parti définitivement avant suppression du poste (après consultation du CSE) · ☐ en attente de l’entrée en service d’un salarié en CDI<br>'
+     +'☐ Accroissement temporaire d’activité · ☐ Emploi saisonnier · ☐ Emploi d’usage constant dans le secteur<br>'
+     +'Description en fait : [QUI est remplacé, POURQUOI, à QUELLES dates / QUEL surcroît, chiffré]</p>'
+     +'<p><b>Article 2 — Personne remplacée</b> (obligatoire pour les cas 1°, 4° et 5°) : nom [ ], qualification [ ].</p>'
+     +'<p><b>Article 3 — Terme.</b> ☐ Terme précis : du [ ] au [ ], clause de renouvellement : [oui/non, une ou deux fois, durée totale maximale]. ☐ Terme imprécis : durée MINIMALE de [ ], le contrat prenant fin au retour de [ ] / à la réalisation de [ ].</p>'
+     +'<p><b>Article 4 — Poste.</b> Désignation : [ ]. Ce poste figure-t-il sur la liste des postes présentant des risques particuliers (L.4154-2) ? ☐ oui — formation renforcée à la sécurité due ☐ non.</p>'
+     +'<p><b>Article 5 — Lieu · Article 6 — Durée du travail et horaires · Article 7 — Rémunération</b> (au moins celle d’un salarié de qualification équivalente occupant le même poste) <b>· Article 8 — Période d’essai · Article 9 — Convention collective · Article 10 — Caisse de retraite et prévoyance.</b></p>'
+     +'<p><b>Article 11 — Indemnité de fin de contrat</b> : 10 % de la rémunération brute totale, versée avec le dernier salaire (L.1243-8).</p>'
+     +'<p>Établi en deux exemplaires · transmis au salarié le [DATE] — au plus tard deux jours ouvrables après l’embauche.</p>'
+     +'<p><b>Délai de carence avant de réutiliser le poste</b> (L.1244-3 et L.1244-3-1, à défaut d’accord de branche) : contrat de 14 jours ou plus → carence = 1/3 de sa durée ; contrat de moins de 14 jours → carence = 1/2. Jours comptés : jours d’ouverture de l’entreprise.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, remplacement d’un conducteur en arrêt</b></p>'
+     +'<p><b>Art. 1</b> — Remplacement d’un salarié absent (1° de L.1242-2). En fait : M. J. RIVIÈRE, conducteur SPL, est en arrêt de travail depuis le 09/03/2026 à la suite d’un accident de trajet ; son remplacement est nécessaire pour tenir la tournée Argenteuil–Rennes du lundi au vendredi.<br>'
+     +'<b>Art. 2</b> — Personne remplacée : M. Jean RIVIÈRE, conducteur routier SPL, groupe 6 coefficient 138M.<br>'
+     +'<b>Art. 3</b> — Terme imprécis : durée minimale de six semaines à compter du 23/03/2026 ; le contrat prend fin au retour de M. RIVIÈRE.<br>'
+     +'<b>Art. 4</b> — Poste : conducteur routier SPL longue distance, dépôt d’Argenteuil. Ne figure pas sur la liste des postes à risques particuliers de l’entreprise (liste arrêtée après avis du CSE le 12/09/2025).<br>'
+     +'<b>Art. 6</b> — 169 h par mois (39 h hebdomadaires), heures supplémentaires structurelles majorées à 25 %.<br>'
+     +'<b>Art. 7</b> — 12,84 € de l’heure, soit 2 448,90 € brut mensuel — identique à la rémunération de M. RIVIÈRE à qualification égale.<br>'
+     +'<b>Art. 8</b> — Essai d’une journée par semaine de durée prévue, dans la limite de deux semaines (durée minimale de six semaines → essai de six jours).<br>'
+     +'<b>Art. 11</b> — Indemnité de fin de contrat : 10 % de la rémunération brute totale. Simulation sur huit semaines effectives : 4 897,80 € brut → indemnité 489,78 €, versée avec le dernier salaire et portée au bulletin.</p>'
+     +'<p>Signé le 23/03/2026, remis en main propre contre décharge le 24/03/2026 — soit un jour ouvrable après l’embauche, le délai de deux jours ouvrables de L.1242-13 étant respecté.</p>'
+     +'<p><b>Carence appliquée après ce contrat</b> : le contrat a duré 57 jours calendaires, soit plus de quatorze jours → carence d’un tiers, soit 19 jours d’ouverture de l’entreprise avant de pourvoir de nouveau ce poste en CDD ou en intérim. La convention collective des transports n’a pas été trouvée porteuse d’une stipulation différente — <i>à vérifier au texte avant application</i>.</p>';
+  } else if(type==='tpartiel'){
+    T='Contrat à temps partiel — structure et exemplaire';
+    H=ausTete()
+     +'<p><b>CONTRAT DE TRAVAIL À TEMPS PARTIEL</b> (article L.3123-6 du code du travail). L’absence d’écrit, ou l’absence de la répartition de la durée du travail, fait présumer un emploi à temps complet ; l’employeur doit alors prouver la durée exacte convenue ET que le salarié n’était pas tenu de se tenir à sa disposition.</p>'
+     +'<p><b>PARTIE 1 — LES CINQ MENTIONS À NE PAS OMETTRE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Mention</th><th>Texte</th><th>À renseigner</th></tr>'
+     +'<tr><td>Qualification du salarié</td><td>L.3123-6, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Éléments de la rémunération</td><td>L.3123-6, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Durée hebdomadaire OU mensuelle prévue</td><td>L.3123-6, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Répartition entre les jours de la semaine ou les semaines du mois</td><td>L.3123-6, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Cas et nature d’une modification éventuelle de cette répartition</td><td>L.3123-6, 2°</td><td>[ ]</td></tr>'
+     +'<tr><td>Modalités de communication écrite des horaires de chaque journée</td><td>L.3123-6, 3°</td><td>[ ]</td></tr>'
+     +'<tr><td>Limites d’heures complémentaires et leur majoration</td><td>L.3123-6 · L.3123-8</td><td>[ ]</td></tr></table>'
+     +'<p><b>Durée minimale</b> : celle fixée par l’accord de branche étendu (L.3123-19) ; à défaut, vingt-quatre heures par semaine ou son équivalent (L.3123-27). Dérogation possible sur demande ÉCRITE ET MOTIVÉE du salarié, ou dans les cas prévus par la loi.</p>'
+     +'<p><b>Priorité</b> (L.3123-3) : le salarié à temps partiel est prioritaire pour un emploi à temps complet de sa catégorie ; la liste des emplois disponibles lui est portée à connaissance.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — Mme L. FONTAINE, assistante d’exploitation, SARL EXEMPLE</b></p>'
+     +'<p><b>Qualification</b> : employée administrative, groupe 4 coefficient 120M, convention IDCC 16.<br>'
+     +'<b>Rémunération</b> : 12,10 € de l’heure · durée mensuelle 108,33 h · brut mensuel 1 310,79 € · prime de treizième mois conventionnelle au prorata · versement le 5 du mois suivant.<br>'
+     +'<b>Durée</b> : 25 heures par semaine — supérieure au plancher de vingt-quatre heures, aucune dérogation n’est donc nécessaire.<br>'
+     +'<b>Répartition</b> : lundi 8 h 30–12 h 30 et 13 h 30–16 h 30 (7 h) · mardi 8 h 30–12 h 30 (4 h) · mercredi 8 h 30–12 h 30 et 13 h 30–16 h 30 (7 h) · jeudi 8 h 30–12 h 30 (4 h) · vendredi 8 h 30–11 h 30 (3 h). Total 25 h.<br>'
+     +'<b>Cas de modification</b> : la répartition peut être modifiée en cas d’absence simultanée de deux salariés du service exploitation, de pic saisonnier des expéditions (septembre à novembre) ou d’inventaire annuel. Nature de la modification : report d’heures d’un jour de la semaine sur un autre, dans les mêmes plages 8 h 30–16 h 30, sans dépasser 8 h par jour. Délai de prévenance : sept jours ouvrés, réduit à trois jours en cas d’absence imprévue, avec contrepartie d’une demi-journée de repos par modification à moins de sept jours.<br>'
+     +'<b>Communication des horaires</b> : planning écrit remis en main propre et affiché au bureau d’exploitation le jeudi pour la semaine suivante, doublé d’un courriel.<br>'
+     +'<b>Heures complémentaires</b> : dans la limite du dixième de la durée contractuelle, soit 2,5 h par semaine ; majoration de 10 % pour les heures dans cette limite. Simulation : 2 h complémentaires une semaine → 2 × 12,10 € × 1,10 = 26,62 €, ligne distincte au bulletin.<br>'
+     +'<b>Priorité</b> : Mme FONTAINE a demandé un temps complet le 04/02/2026 ; la liste des emplois disponibles lui est adressée chaque trimestre (dernier envoi le 01/04/2026, deux postes signalés).</p>';
+  } else if(type==='decompte'){
+    T='Décompte du temps de travail — horaire collectif et relevés individuels';
+    H=ausTete()
+     +'<p><b>DÉCOMPTE DE LA DURÉE DU TRAVAIL</b> (articles D.3171-1, D.3171-2, D.3171-8, L.3171-2, L.3171-3 et D.3171-16 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES DEUX RÉGIMES, ET CE QUE CHACUN IMPOSE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Situation</th><th>Ce qu’il faut tenir</th><th>Texte</th></tr>'
+     +'<tr><td>Tous les salariés d’un atelier, service ou équipe suivent le MÊME horaire</td><td>Un horaire collectif daté et signé par l’employeur ou son délégataire, affiché en caractères lisibles et de façon apparente dans chacun des lieux de travail ; pour les salariés employés à l’extérieur, affiché dans l’établissement de rattachement. Un double est adressé à l’inspection du travail.</td><td>D.3171-1 · D.3171-2</td></tr>'
+     +'<tr><td>Les horaires ne sont PAS collectifs</td><td>1° Enregistrement quotidien, par tout moyen, des heures de début et de fin de chaque période de travail, ou relevé du nombre d’heures accomplies. 2° Récapitulation hebdomadaire par salarié.</td><td>D.3171-8</td></tr>'
+     +'<tr><td>Forfait en heures prévu par accord fixant ses propres modalités de contrôle</td><td>Le décompte de D.3171-8 ne s’applique pas — les modalités de l’accord s’appliquent.</td><td>D.3171-9</td></tr></table>'
+     +'<p><b>Documents à établir dans tous les cas</b> (L.3171-2) : un état par salarié du temps de travail, des repos compensateurs ACQUIS et de leur prise EFFECTIVE. Le CSE peut les consulter.</p>'
+     +'<p><b>Durées de conservation</b> (L.3171-3 et D.3171-16) : un an pour les documents de comptabilisation des heures (ou la période de référence si l’aménagement dépasse l’année) · un an pour le récapitulatif mensuel des astreintes et de leur compensation · trois ans pour les documents de décompte des jours des conventions de forfait.</p>'
+     +'<p><b>Modèle de relevé hebdomadaire individuel</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Jour</th><th>Début</th><th>Fin</th><th>Pause</th><th>Heures</th><th>Observations</th></tr>'
+     +'<tr><td>Lundi … Dimanche</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td><b>Total semaine</b></td><td colspan="3"></td><td>[ ]</td><td>dont [ ] h supplémentaires</td></tr></table>'
+     +'<p>Établi par [ ] · visé par le salarié le [ ] · reporté en paie le [ ].</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, semaine 12 de 2026</b></p>'
+     +'<p><b>Bureau d’exploitation (12 salariés) — horaire collectif.</b> Affiché au bureau et au réfectoire : du lundi au jeudi 8 h 30–12 h 30 et 13 h 30–17 h 00, vendredi 8 h 30–12 h 30 et 13 h 30–16 h 00, soit 37 h. Daté et signé par M. P. MOREL, gérant, le 05/01/2026. Double adressé à l’unité de contrôle du Val-d’Oise le 07/01/2026. Aucun relevé individuel n’est dû pour ces douze salariés.</p>'
+     +'<p><b>Conduite (38 salariés) et quai (22 salariés) — horaires non collectifs : relevé individuel obligatoire.</b> Exemple, M. T. BENALI, semaine du 16 au 22 mars 2026 :</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Jour</th><th>Début</th><th>Fin</th><th>Pause</th><th>Heures</th><th>Observations</th></tr>'
+     +'<tr><td>Lundi 16</td><td>05 h 00</td><td>14 h 30</td><td>45 min</td><td>8,75</td><td>Argenteuil–Rennes</td></tr>'
+     +'<tr><td>Mardi 17</td><td>05 h 30</td><td>14 h 00</td><td>45 min</td><td>7,75</td><td>Retour à vide</td></tr>'
+     +'<tr><td>Mercredi 18</td><td>06 h 00</td><td>16 h 00</td><td>60 min</td><td>9,00</td><td>Double chargement</td></tr>'
+     +'<tr><td>Jeudi 19</td><td>05 h 00</td><td>15 h 15</td><td>45 min</td><td>9,50</td><td>Détour Le Mans</td></tr>'
+     +'<tr><td>Vendredi 20</td><td>06 h 00</td><td>13 h 00</td><td>45 min</td><td>6,25</td><td>Livraison locale</td></tr>'
+     +'<tr><td>Samedi 21 / Dimanche 22</td><td>—</td><td>—</td><td>—</td><td>0</td><td>Repos hebdomadaire du vendredi 13 h au lundi 5 h</td></tr>'
+     +'<tr><td><b>Total</b></td><td colspan="3"></td><td><b>41,25</b></td><td>dont 6,25 h supplémentaires au-delà de 35 h</td></tr></table>'
+     +'<p><b>Contrôles automatiques passés sur cette semaine :</b> aucun jour au-delà de 10 h (maximum atteint : 9,50 h le jeudi — L.3121-18 respecté) · total hebdomadaire 41,25 h, en deçà de 48 h (L.3121-20) · pause d’au moins 20 minutes consécutives chaque jour dépassant 6 h (L.3121-16) · repos quotidien le plus court : 14 h 30 entre jeudi 15 h 15 et vendredi 6 h — supérieur à 11 h (L.3131-1) · repos hebdomadaire de 64 h consécutives, supérieur aux 35 h de L.3132-1 et L.3132-2 · cinq jours travaillés, moins de six.</p>'
+     +'<p><b>Compteur annuel au 22/03/2026</b> : 61,50 h supplémentaires imputées sur un contingent de 195 h (accord de branche transport) ; aucune heure au-delà du contingent, donc aucune contrepartie obligatoire en repos due à ce jour. Relevé visé par le salarié le 23/03/2026, reporté en paie le 25/03/2026.</p>'
+     +'<p><b>Conservation</b> : relevés hebdomadaires jusqu’au 22/03/2027 · récapitulatif mensuel des astreintes de l’exploitation jusqu’au 31/03/2027 · décomptes de jours des trois forfaits jours cadres jusqu’au 31/12/2029.</p>';
+  } else if(type==='forfaitjours'){
+    T='Forfait annuel en jours — convention, contrôle et entretien de charge';
+    H=ausTete()
+     +'<p><b>FORFAIT ANNUEL EN JOURS</b> (articles L.3121-58 et suivants, L.3121-60, L.3121-64 et L.3121-65 du code du travail). Sans accord collectif valable OU sans suivi effectif de la charge, la convention de forfait est privée d’effet : le salarié réclame le paiement de ses heures supplémentaires sur trois ans.</p>'
+     +'<p><b>PARTIE 1 — LES TROIS ÉTAGES À VÉRIFIER</b></p>'
+     +'<p><b>Étage 1 — L’accord collectif</b> doit déterminer (L.3121-64, I) : les catégories de salariés susceptibles de conclure une convention · la période de référence · le nombre de jours compris dans le forfait, dans la limite de 218 · les conditions de prise en compte des absences, arrivées et départs en cours de période · les caractéristiques principales des conventions individuelles. Et (II) : les modalités d’évaluation et de suivi régulier de la charge de travail · les modalités de communication périodique entre le salarié et son supérieur sur la charge, l’articulation des temps et la rémunération · les modalités d’exercice du droit à la déconnexion.</p>'
+     +'<p><b>Étage 2 — Le régime supplétif</b> (L.3121-65, I) s’applique à défaut des clauses du II : l’employeur ÉTABLIT un document de contrôle faisant apparaître le nombre et la date des journées ou demi-journées travaillées — il peut être renseigné par le salarié, sous la responsabilité de l’employeur · l’employeur S’ASSURE que la charge est compatible avec les repos quotidien et hebdomadaire · l’employeur ORGANISE une fois par an un entretien sur la charge, l’organisation du travail, l’articulation vie professionnelle / vie personnelle et la rémunération.</p>'
+     +'<p><b>Étage 3 — La convention individuelle écrite</b>, signée du salarié : nombre de jours, période de référence, rémunération, renonciation éventuelle à des jours de repos.</p>'
+     +'<p><b>Document de contrôle mensuel — structure</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Jour</th><th>Travaillé (J / ½J)</th><th>Repos hebdo</th><th>Congé</th><th>Jour de repos forfait</th><th>Repos de 11 h respecté ?</th><th>Alerte charge</th></tr>'
+     +'<tr><td>1 … 31</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[oui/non]</td><td>[ ]</td></tr></table>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — Mme C. VASSEUR, responsable d’exploitation, SA EXEMPLE LOGISTIQUE (1 240 salariés)</b></p>'
+     +'<p><b>Convention individuelle</b> : 216 jours travaillés par an, journée de solidarité incluse · période du 1er janvier au 31 décembre · rémunération annuelle 58 200 € brut sur douze mois, soit 4 850 € par mois · 11 jours de repos forfait pour 2026 (365 jours − 104 de repos hebdomadaire − 25 ouvrés de congés − 9 fériés chômés tombant un jour ouvré − 216 travaillés = 11).</p>'
+     +'<p><b>Document de contrôle — mars 2026</b> : 21 jours travaillés (dont 2 demi-journées le 6 et le 20 mars) · 9 jours de repos hebdomadaire · 1 jour de repos forfait pris le 13/03 · aucun jour de congé. Deux alertes de charge saisies par la salariée : le 10/03 (« inventaire, amplitude 12 h ») et le 11/03 (« repos quotidien de 10 h 15 »). Le repos de onze heures n’a donc PAS été respecté le 11 mars — la ligne est signalée en rouge et déclenche l’entretien de charge sans attendre l’échéance annuelle.</p>'
+     +'<p><b>Suite donnée à l’alerte</b> : entretien tenu le 17/03/2026 entre Mme VASSEUR et M. D. FAURE, directeur des opérations. Constat : cumul de l’inventaire annuel et du remplacement d’un chef d’équipe absent. Mesures : recrutement d’un chef d’équipe en CDD de trois mois à compter du 06/04/2026 · inventaire 2027 déplacé hors de la période de clôture · plafond d’amplitude fixé à 11 h avec alerte automatique. Compte rendu signé des deux parties.</p>'
+     +'<p><b>Entretien annuel de charge du 14/12/2026</b> — les quatre points de L.3121-65 : 1. Charge de travail : 216 jours prévus, 214 réalisés ; deux dépassements d’amplitude en mars, aucun depuis avril. 2. Organisation du travail : périmètre porté de deux à trois quais en septembre, compensé par un adjoint. 3. Articulation vie professionnelle / vie personnelle : demande de ne pas fixer de réunion après 17 h 30 — acceptée, inscrite au calendrier du service. 4. Rémunération : 58 200 € brut, revalorisation de 2,1 % au 01/01/2027 portant le forfait à 59 422 €. Signatures du 14/12/2026.</p>'
+     +'<p><b>Droit à la déconnexion appliqué</b> : messagerie professionnelle inaccessible de 20 h à 7 h et le dimanche, sauf astreinte déclarée ; deux dérogations enregistrées en 2026, motivées et tracées.</p>';
+  } else if(type==='ordrecp'){
+    T='Congés payés — période de prise et ordre des départs';
+    H=ausTete()
+     +'<p><b>CONGÉS PAYÉS : PÉRIODE DE PRISE ET ORDRE DES DÉPARTS</b> (articles L.3141-13, L.3141-15, L.3141-16, D.3141-5 et D.3141-6 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LE CALENDRIER À TENIR, ET LES DEUX DÉLAIS À NE PAS MANQUER</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Étape</th><th>Délai</th><th>Texte</th><th>Fait le</th></tr>'
+     +'<tr><td>Fixer la période de prise — elle doit dans TOUS les cas comprendre le 1er mai au 31 octobre</td><td>par accord, à défaut par l’employeur après avis du CSE</td><td>L.3141-13 · L.3141-15</td><td>[ ]</td></tr>'
+     +'<tr><td>Porter la période à la connaissance des salariés</td><td>au moins DEUX MOIS avant son ouverture</td><td>D.3141-5</td><td>[ ]</td></tr>'
+     +'<tr><td>Recueillir les souhaits et arrêter l’ordre des départs</td><td>—</td><td>L.3141-16</td><td>[ ]</td></tr>'
+     +'<tr><td>Communiquer l’ordre des départs à CHAQUE salarié, par tout moyen</td><td>UN MOIS avant son départ</td><td>D.3141-6</td><td>[ ]</td></tr>'
+     +'<tr><td>Gel des modifications</td><td>plus aucune modification à moins d’un mois du départ, sauf circonstances exceptionnelles écrites</td><td>L.3141-16</td><td>[ ]</td></tr></table>'
+     +'<p><b>Critères de l’ordre des départs</b>, à défaut d’accord (L.3141-16) : la situation de famille des bénéficiaires — notamment les possibilités de congé du conjoint ou partenaire, et la présence d’un enfant ou d’un adulte handicapé ou âgé en perte d’autonomie au foyer · la durée des services chez l’employeur · leur activité chez un ou plusieurs autres employeurs.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, campagne 2026</b></p>'
+     +'<p><b>Période de prise</b> : du 1er mai 2026 au 30 avril 2027 — elle englobe bien le 1er mai au 31 octobre. Fixée par décision de l’employeur après avis du CSE rendu le 18/02/2026, aucun accord d’entreprise ne traitant du sujet.<br>'
+     +'<b>Information des salariés</b> : note affichée au réfectoire et adressée par courriel le 26/02/2026 — soit plus de deux mois avant le 1er mai, D.3141-5 respecté.<br>'
+     +'<b>Recueil des souhaits</b> : formulaire diffusé le 02/03/2026, retour attendu le 20/03/2026 ; 68 réponses sur 72.<br>'
+     +'<b>Ordre des départs arrêté le 27/03/2026</b>, communiqué individuellement par courriel avec accusé le 30/03/2026 — plus d’un mois avant le premier départ du 04/05/2026, D.3141-6 respecté.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Salarié</th><th>Service</th><th>Congé accordé</th><th>Critère décisif</th></tr>'
+     +'<tr><td>M. T. BENALI</td><td>Conduite</td><td>13/07 au 02/08 (3 semaines)</td><td>Deux enfants scolarisés ; conjoint enseignant, congé imposé en juillet</td></tr>'
+     +'<tr><td>Mme N. SARR</td><td>Conduite</td><td>03/08 au 23/08 (3 semaines)</td><td>Ancienneté 6 ans ; demande initiale en juillet arbitrée au profit de M. BENALI (situation de famille), compensée par le premier choix en 2027</td></tr>'
+     +'<tr><td>Mme L. FONTAINE</td><td>Exploitation</td><td>04/05 au 15/05 puis 17/08 au 28/08</td><td>Activité complémentaire déclarée chez un second employeur, calée sur mai</td></tr>'
+     +'<tr><td>M. K. LEROY</td><td>Quai</td><td>10/08 au 30/08 (3 semaines)</td><td>Ancienneté 14 ans — plus longue du service quai</td></tr></table>'
+     +'<p><b>Continuité de service</b> : au plus deux conducteurs simultanément absents sur quatre pendant la période estivale ; le quai conserve au moins quatre agents sur six.<br>'
+     +'<b>Modification intervenue</b> : le 19/06/2026, le départ de M. K. LEROY a été avancé d’une semaine à sa demande écrite — la modification étant demandée PAR LE SALARIÉ et acceptée, le gel d’un mois de L.3141-16, qui vise l’employeur, n’est pas en cause. Aucune modification à l’initiative de l’employeur n’est intervenue à moins d’un mois d’un départ.<br>'
+     +'<b>Contrôle de fin de campagne</b> (30/04/2027) : 3 salariés présentent un solde supérieur à 10 jours ouvrables — relance écrite le 15/03/2027 avec proposition de dates, l’employeur devant justifier avoir mis le salarié en mesure de prendre ses congés.</p>';
+  } else if(type==='sortie'){
+    T='Fin de contrat — certificat de travail, solde de tout compte, attestation';
+    H=ausTete()
+     +'<p><b>DOCUMENTS DE FIN DE CONTRAT</b> (articles L.1234-19, D.1234-6, L.1234-20 et R.1234-9 du code du travail). Trois documents distincts, dus pour TOUTE fin de contrat — démission, licenciement, rupture conventionnelle, fin de CDD, départ à la retraite.</p>'
+     +'<p><b>PARTIE 1 — LES TROIS DOCUMENTS</b></p>'
+     +'<p><b>1. Certificat de travail</b> (L.1234-19). D.1234-6 dit qu’il contient EXCLUSIVEMENT : la date d’entrée et celle de sortie · la nature du ou des emplois successivement occupés et les périodes correspondantes. Aucune appréciation, aucun motif de rupture, aucune mention de comportement.</p>'
+     +'<p>« Je soussigné(e) [NOM, qualité], agissant pour [RAISON SOCIALE, adresse, SIRET], certifie que [M./Mme NOM, Prénom], demeurant [ADRESSE], a été employé(e) dans notre entreprise du [DATE D’ENTRÉE] au [DATE DE SORTIE], en qualité de : [emploi 1] du [ ] au [ ] ; [emploi 2] du [ ] au [ ]. Certificat délivré pour servir et valoir ce que de droit. Fait à [ ], le [ ]. Signature. »</p>'
+     +'<p><b>2. Reçu pour solde de tout compte</b> (L.1234-20). Il fait l’INVENTAIRE des sommes versées. Il peut être dénoncé dans les six mois suivant sa signature ; passé ce délai il devient libératoire, mais SEULEMENT pour les sommes qui y sont mentionnées — une somme absente reste réclamable. Établi en double exemplaire, dont un remis au salarié.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Nature de la somme</th><th>Base de calcul</th><th>Brut</th><th>Net</th></tr>'
+     +'<tr><td>Salaire du mois de sortie / Indemnité compensatrice de préavis / Indemnité compensatrice de congés payés / Indemnité de licenciement ou de rupture / Indemnité de fin de contrat / Prime au prorata / Contrepartie de non-concurrence / Solde de repos compensateur</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td><b>TOTAL</b></td><td></td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p>« Reçu pour solde de tout compte la somme de [MONTANT] € net, dont le détail figure ci-dessus. Le présent reçu peut être dénoncé dans les six mois de sa signature ; passé ce délai il devient libératoire pour l’employeur pour les seules sommes qui y sont mentionnées. Établi en deux exemplaires, dont un remis au salarié. Fait à [ ], le [ ]. Signature du salarié : » </p>'
+     +'<p><b>3. Attestation destinée à France Travail</b> (R.1234-9). Délivrée au salarié au moment de l’expiration ou de la rupture du contrat, et transmise SANS DÉLAI à l’opérateur — par voie électronique dès onze salariés, sauf impossibilité pour une cause étrangère à l’employeur.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — Mme N. SARR, conductrice SPL, SARL EXEMPLE, rupture conventionnelle au 30/09/2026</b></p>'
+     +'<p><b>Certificat de travail</b> : « Je soussigné M. Pierre MOREL, gérant, agissant pour la SARL EXEMPLE, 12 rue des Peupliers, 95100 Argenteuil, SIRET 000 000 000 00012, certifie que Mme Nadia SARR, demeurant 8 rue Victor-Hugo, 95100 Argenteuil, a été employée dans notre entreprise du 12 septembre 2020 au 30 septembre 2026, en qualité de : conductrice PL, groupe 5 coefficient 128M, du 12/09/2020 au 31/08/2023 ; conductrice SPL longue distance, groupe 6 coefficient 138M, du 01/09/2023 au 30/09/2026. Fait à Argenteuil, le 30 septembre 2026. » — Aucune autre mention : ni le motif de la rupture, ni l’appréciation du travail.</p>'
+     +'<p><b>Reçu pour solde de tout compte</b>, salaire de référence 2 512,40 € brut, ancienneté 6 ans et 19 jours :</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Nature</th><th>Base</th><th>Brut</th></tr>'
+     +'<tr><td>Salaire de septembre 2026</td><td>mois complet</td><td>2 512,40 €</td></tr>'
+     +'<tr><td>Indemnité compensatrice de congés payés</td><td>18,5 jours ouvrables restants</td><td>1 935,05 €</td></tr>'
+     +'<tr><td>Indemnité spécifique de rupture conventionnelle</td><td>1/4 de mois × 6 ans = 1,5 mois, + 19/365 × 1/4 = 0,013 mois → 1,513 mois</td><td>3 801,26 €</td></tr>'
+     +'<tr><td>Prime de treizième mois au prorata</td><td>9/12</td><td>1 884,30 €</td></tr>'
+     +'<tr><td>Solde de repos compensateur</td><td>0 h — contingent non dépassé</td><td>0,00 €</td></tr>'
+     +'<tr><td><b>TOTAL BRUT</b></td><td></td><td><b>10 133,01 €</b></td></tr></table>'
+     +'<p>L’indemnité spécifique de rupture conventionnelle a été comparée au calcul légal de l’indemnité de licenciement : 1/4 de mois par année pour les dix premières années, soit 3 801,26 € — le montant conventionnel n’étant pas supérieur, c’est ce plancher qui est retenu, conformément à L.1237-13. Reçu signé et daté de la main de la salariée le 30/09/2026, dénonçable jusqu’au 30/03/2027.</p>'
+     +'<p><b>Attestation France Travail</b> : établie et remise le 30/09/2026, transmise le jour même par voie électronique via la déclaration sociale nominative — l’effectif de 72 salariés dépassant onze, la voie papier n’est pas ouverte. Accusé de réception archivé au dossier.</p>'
+     +'<p><b>Contrôle de cohérence effectué</b> : les trois documents portent la même date de sortie (30/09/2026), le même dernier emploi et la même ancienneté. Un écart entre certificat et attestation est le premier point relevé en contentieux.</p>';
+  } else if(type==='licproc'){
+    T='Licenciement pour motif personnel — procédure et courriers';
+    H=ausTete()
+     +'<p><b>LICENCIEMENT POUR MOTIF PERSONNEL</b> (articles L.1232-2, L.1232-4, L.1232-6, L.1235-2 et R.1232-13 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LE CALENDRIER, PUIS LES DEUX COURRIERS</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Étape</th><th>Règle de délai</th><th>Texte</th></tr>'
+     +'<tr><td>Convocation à l’entretien préalable, par lettre recommandée ou remise en main propre contre décharge</td><td>—</td><td>L.1232-2</td></tr>'
+     +'<tr><td>Entretien préalable</td><td>pas moins de CINQ JOURS OUVRABLES après la PRÉSENTATION de la lettre (ou la remise), et non après son envoi</td><td>L.1232-2</td></tr>'
+     +'<tr><td>Notification par lettre recommandée avec avis de réception, motifs énoncés</td><td>pas expédiée moins de DEUX JOURS OUVRABLES après la date prévue de l’entretien</td><td>L.1232-6</td></tr>'
+     +'<tr><td>Demande de précision des motifs par le salarié</td><td>dans les QUINZE JOURS de la notification, par recommandé ou remise contre récépissé</td><td>R.1232-13</td></tr>'
+     +'<tr><td>Réponse de l’employeur, ou précision de sa propre initiative</td><td>QUINZE JOURS après réception de la demande — ou quinze jours après la notification s’il agit de lui-même</td><td>R.1232-13</td></tr></table>'
+     +'<p>Un manquement disciplinaire ne peut plus être poursuivi au-delà de deux mois de sa connaissance (L.1332-4). La lettre, précisée le cas échéant, FIXE LES LIMITES DU LITIGE (L.1235-2) : ce qui n’y est pas écrit ne pourra pas être invoqué devant le juge.</p>'
+     +'<p><b>Lettre de convocation — structure.</b> Objet : convocation à un entretien préalable à une éventuelle mesure de licenciement. Date, heure et lieu de l’entretien. Mention de l’assistance : « Vous pouvez vous faire assister par une personne de votre choix appartenant au personnel de l’entreprise. » S’il n’existe AUCUNE institution représentative, ajouter : « … ou, à défaut, par un conseiller du salarié choisi sur une liste dressée par l’autorité administrative. Cette liste est tenue à votre disposition à [adresse de la DDETS] et à la mairie de [commune]. » Mise à pied conservatoire, le cas échéant.</p>'
+     +'<p><b>Lettre de notification — structure.</b> Rappel de la convocation et de l’entretien (date, présence ou absence du salarié, nom de l’assistant). Énoncé des motifs EN FAIT : chaque grief daté, situé, décrit matériellement, avec ses conséquences. Date de rupture, préavis exécuté ou non et sa durée, dispense éventuelle. Documents de fin de contrat tenus à disposition. Portabilité de la prévoyance et de la mutuelle. Droit de demander des précisions dans les quinze jours.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, M. R. GAUTIER, agent de quai, insuffisance professionnelle</b></p>'
+     +'<p><b>Calendrier réellement suivi.</b> Lettre de convocation expédiée le mardi 5 mai 2026, présentée par La Poste le jeudi 7 mai 2026 (avis de passage conservé). Entretien fixé au vendredi 15 mai 2026 à 10 h : les cinq jours ouvrables courent du vendredi 8 mai — jour férié, donc non ouvrable — au jeudi 14 mai, soit vendredi 8 exclu, samedi 9, lundi 11, mardi 12, mercredi 13, jeudi 14 : cinq jours ouvrables pleins. Le délai est respecté. Notification expédiée le mardi 19 mai 2026 : deux jours ouvrables pleins (samedi 16 et lundi 18) séparent l’entretien de l’expédition. Délai respecté.</p>'
+     +'<p><b>Extrait de la lettre de notification — les motifs énoncés en fait :</b><br>'
+     +'« … Au cours de l’entretien du 15 mai 2026, auquel vous vous êtes présenté assisté de M. K. LEROY, membre élu du comité social et économique, les faits suivants vous ont été exposés.<br>'
+     +'1. Le 12 mars 2026, vous avez chargé le camion immatriculé XX-000-XX pour la tournée de Rennes en inversant deux palettes : 8 palettes de produits frais destinées au client ALPHA ont été livrées au client BÊTA. Coût de la réexpédition : 1 240 € facturés par notre sous-traitant, avoir de 860 € consenti au client ALPHA.<br>'
+     +'2. Le 3 avril 2026, le contrôle des bordereaux a révélé 14 écarts entre les quantités saisies et les quantités physiques sur 62 lignes traitées par vous, soit un taux d’erreur de 22,6 %, quand la moyenne du quai s’établit à 2,1 %.<br>'
+     +'3. Le 21 avril 2026, malgré la formation individuelle de trois heures dispensée le 8 avril par M. MOREL sur l’usage du terminal de saisie, vous avez de nouveau validé une expédition sans scanner les colis, ce qui a immobilisé le quai n° 2 pendant 1 h 45.<br>'
+     +'Les explications que vous avez apportées — surcharge du quai en mars — ne peuvent être retenues : le volume traité en mars 2026 est inférieur de 6 % à celui de mars 2025, et vos collègues affectés au même quai n’ont pas connu d’écart comparable. … »</p>'
+     +'<p><b>Suite.</b> Préavis conventionnel d’un mois, exécuté du 20 mai au 19 juin 2026. Le salarié a demandé des précisions par recommandé présenté le 2 juin 2026 — soit dans les quinze jours de la notification. Réponse adressée par recommandé le 10 juin 2026, dans les quinze jours de la réception : les trois griefs ont été complétés des références des bordereaux et de la facture du sous-traitant. Ces précisions s’incorporent à la lettre et fixent avec elle les limites du litige.</p>'
+     +'<p><i>Point à ne pas manquer</i> : le règlement intérieur de l’entreprise peut imposer une procédure PLUS protectrice que la loi — par exemple une convocation écrite avant tout avertissement, ou la saisine d’un conseil de discipline. La convention collective peut faire de même. Les deux doivent être lus avant d’engager la procédure.</p>';
+  } else if(type==='rupconv'){
+    T='Rupture conventionnelle — convention, calendrier, homologation';
+    H=ausTete()
+     +'<p><b>RUPTURE CONVENTIONNELLE INDIVIDUELLE</b> (articles L.1237-11, L.1237-13 et L.1237-14 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LE CALENDRIER, ET CE QUI LE FAIT TOMBER</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Étape</th><th>Règle</th><th>Texte</th><th>Date</th></tr>'
+     +'<tr><td>Un ou plusieurs entretiens — le salarié peut se faire assister</td><td>la rupture ne peut être IMPOSÉE par l’une ou l’autre des parties</td><td>L.1237-11</td><td>[ ]</td></tr>'
+     +'<tr><td>Signature de la convention, un exemplaire REMIS au salarié</td><td>la remise conditionne la validité</td><td>L.1237-13</td><td>[ ]</td></tr>'
+     +'<tr><td>Délai de rétractation</td><td>QUINZE JOURS CALENDAIRES à compter de la signature, pour chacune des parties, par lettre attestant sa date de réception</td><td>L.1237-13</td><td>[ ]</td></tr>'
+     +'<tr><td>Demande d’homologation par la partie la plus diligente</td><td>à l’issue du délai de rétractation, avec un exemplaire de la convention</td><td>L.1237-14</td><td>[ ]</td></tr>'
+     +'<tr><td>Instruction administrative</td><td>QUINZE JOURS OUVRABLES ; à défaut de notification dans ce délai, l’homologation est réputée acquise</td><td>L.1237-14</td><td>[ ]</td></tr>'
+     +'<tr><td>Date de rupture</td><td>au plus tôt le LENDEMAIN de l’homologation</td><td>L.1237-13</td><td>[ ]</td></tr></table>'
+     +'<p><b>Indemnité spécifique</b> : au moins égale à l’indemnité légale de licenciement (L.1234-9), à comparer avec l’indemnité conventionnelle si celle-ci est plus favorable et applicable.</p>'
+     +'<p><b>Contenu de la convention</b> : identité des parties · date d’entrée, emploi, qualification, ancienneté · rémunération mensuelle brute des douze derniers mois · montant de l’indemnité spécifique et son mode de calcul · date envisagée de la rupture · mention de l’assistance lors des entretiens · mention du délai de rétractation et de son point de départ · mention de la remise d’un exemplaire au salarié.</p>'
+     +'<p><b>Salarié protégé</b> : l’homologation est remplacée par une AUTORISATION de l’inspecteur du travail. <i>À vérifier au texte avant application.</i></p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — Mme N. SARR, SARL EXEMPLE</b></p>'
+     +'<p><b>Éléments.</b> Entrée le 12/09/2020 · conductrice SPL, groupe 6 coefficient 138M · ancienneté au 30/09/2026 : 6 ans et 19 jours · rémunération brute des douze derniers mois : 30 148,80 €, soit une moyenne de 2 512,40 € ; moyenne des trois derniers mois : 2 498,10 € — c’est la moyenne la plus favorable, 2 512,40 €, qui est retenue.</p>'
+     +'<p><b>Indemnité spécifique</b> : 1/4 de mois par année pour les dix premières années → 6 × 0,25 = 1,5 mois, plus 19/365 × 0,25 = 0,013 mois, soit 1,513 mois × 2 512,40 € = <b>3 801,26 €</b>. Aucune indemnité conventionnelle plus favorable n’a été trouvée applicable — <i>à vérifier au texte de l’IDCC 16 avant versement</i>. Le montant retenu n’est donc pas inférieur au plancher légal, comme l’exige L.1237-13.</p>'
+     +'<p><b>Calendrier réellement suivi.</b> Deux entretiens, les 24/08 et 28/08/2026 ; la salariée s’est présentée seule au premier, assistée de M. K. LEROY, élu du CSE, au second. Convention signée le 1er septembre 2026, un exemplaire remis en main propre le jour même contre décharge. Délai de rétractation : du 2 au 16 septembre 2026 inclus — quinze jours CALENDAIRES, samedis, dimanches et fériés compris. Aucune rétractation reçue. Demande d’homologation déposée le 17 septembre 2026, accusé de dépôt conservé. Instruction de quinze jours ouvrables : du 18 septembre au 6 octobre 2026. Aucune notification de refus n’étant intervenue, l’homologation est réputée acquise le 6 octobre 2026.</p>'
+     +'<p><b>Erreur évitée.</b> La date de rupture avait d’abord été fixée au 30 septembre 2026 dans le projet de convention — soit AVANT l’acquisition de l’homologation. Elle a été reportée au 7 octobre 2026, lendemain de l’homologation tacite. Une rupture prononcée le 30 septembre aurait été privée d’effet.</p>';
+  } else if(type==='inapt'){
+    T='Inaptitude — reclassement, délai d’un mois, traçabilité';
+    H=ausTete()
+     +'<p><b>INAPTITUDE CONSTATÉE PAR LE MÉDECIN DU TRAVAIL</b> (articles L.1226-2 et L.1226-4 du code du travail — origine non professionnelle ; l’inaptitude d’origine professionnelle relève de L.1226-10 et suivants, <i>à vérifier au texte</i>)</p>'
+     +'<p><b>PARTIE 1 — LES TROIS OBLIGATIONS, ET L’HORLOGE QUI TOURNE</b></p>'
+     +'<p><b>1. Rechercher un reclassement</b> (L.1226-2) : proposer un autre emploi APPROPRIÉ AUX CAPACITÉS du salarié, au sein de l’entreprise ou des entreprises du groupe situées sur le territoire national dont l’organisation, les activités ou le lieu d’exploitation assurent la permutation de tout ou partie du personnel. La recherche se prouve par écrit : lettres adressées, réponses reçues, postes examinés et écartés avec leur motif.</p>'
+     +'<p><b>2. Reprendre le paiement du salaire au bout d’un mois</b> (L.1226-4) : si, à l’issue d’un délai d’UN MOIS à compter de la date de l’examen médical de reprise, le salarié n’est ni reclassé ni licencié, l’employeur lui verse le salaire correspondant à l’emploi qu’il occupait avant la suspension — pas un minimum, pas une indemnité : le salaire antérieur.</p>'
+     +'<p><b>3. Consulter le CSE</b> sur les postes de reclassement envisagés, quand il en existe un.</p>'
+     +'<p><b>Tableau de recherche à tenir</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Poste examiné</th><th>Entité</th><th>Compatible avec l’avis ?</th><th>Suite</th><th>Date</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[oui/non + motif]</td><td>[proposé / écarté]</td><td>[ ]</td></tr></table>'
+     +'<p><b>Dispense de recherche</b> : seulement si l’avis du médecin porte expressément que tout maintien dans un emploi serait gravement préjudiciable à la santé du salarié, ou que l’état de santé fait obstacle à tout reclassement. La mention doit figurer littéralement sur l’avis.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — M. J. RIVIÈRE, conducteur SPL, SARL EXEMPLE</b></p>'
+     +'<p><b>Avis du 4 juin 2026</b>, Dr [T.], service de prévention et de santé au travail AMETIF : « Inapte au poste de conducteur routier. Serait apte à un poste sédentaire sans port de charges supérieures à 5 kg, sans station assise prolongée au-delà de 2 heures consécutives. » L’avis ne porte AUCUNE des deux mentions de dispense : la recherche de reclassement est donc obligatoire.</p>'
+     +'<p><b>Recherche conduite du 5 au 26 juin 2026</b> — périmètre : SARL EXEMPLE (72 salariés) ; aucune autre société ne permet la permutation du personnel, l’entreprise n’appartenant à aucun groupe.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Poste</th><th>Compatible ?</th><th>Suite</th><th>Date</th></tr>'
+     +'<tr><td>Agent d’exploitation sédentaire (poste vacant depuis le 01/06)</td><td>Oui — station assise fractionnée, pas de port de charges</td><td>PROPOSÉ par lettre remise en main propre</td><td>15/06/2026</td></tr>'
+     +'<tr><td>Agent de quai</td><td>Non — port de charges de 15 à 25 kg</td><td>Écarté, motif écrit</td><td>08/06/2026</td></tr>'
+     +'<tr><td>Conducteur courte distance</td><td>Non — conduite exclue par l’avis</td><td>Écarté, motif écrit</td><td>08/06/2026</td></tr>'
+     +'<tr><td>Assistant administratif à temps partiel (création envisagée)</td><td>Oui sous réserve d’une formation bureautique de 35 h</td><td>PROPOSÉ à titre subsidiaire</td><td>22/06/2026</td></tr></table>'
+     +'<p><b>Consultation du CSE</b> : réunion extraordinaire du 12 juin 2026, avis rendu sur les deux postes envisagés, procès-verbal signé du secrétaire.</p>'
+     +'<p><b>Horloge de L.1226-4</b> : examen de reprise le 4 juin 2026 → le salaire redevient dû à compter du 5 juillet 2026 si le salarié n’est ni reclassé ni licencié. Le salarié ayant accepté le poste d’agent d’exploitation par écrit le 30 juin 2026, avec effet au 1er juillet, la reprise du salaire au titre de L.1226-4 n’a pas eu à jouer.</p>'
+     +'<p><b>Simulation si le reclassement avait échoué</b> : salaire de l’emploi antérieur, 2 448,90 € brut par mois, dû à compter du 5 juillet 2026 et jusqu’à la notification du licenciement — soit, pour un licenciement notifié le 25 août 2026, 51 jours à 80,54 € par jour, environ 4 107 € brut. C’est ce montant qui est réclamé en prud’hommes lorsque l’alerte à trente jours n’a pas été posée.</p>'
+     +'<p><b>Avenant signé</b> : agent d’exploitation, 35 h, 2 015,50 € brut mensuel. L’écart de rémunération avec l’emploi précédent a été porté à la connaissance du salarié avant signature, et son acceptation écrite recueillie.</p>';
+  } else if(type==='heuresdeleg'){
+    T='Heures de délégation — registre, report et mutualisation';
+    H=ausTete()
+     +'<p><b>HEURES DE DÉLÉGATION : REPORT ET MUTUALISATION</b> (articles L.2315-9, R.2315-5 et R.2315-6 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES DEUX MÉCANISMES ET LEUR PLAFOND COMMUN</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th></th><th>Report (R.2315-5)</th><th>Mutualisation (R.2315-6)</th></tr>'
+     +'<tr><td>Principe</td><td>Un élu cumule ses heures non utilisées</td><td>Les titulaires répartissent leurs heures entre eux et avec les suppléants</td></tr>'
+     +'<tr><td>Horizon</td><td>Douze mois</td><td>Mois par mois</td></tr>'
+     +'<tr><td>Plafond</td><td colspan="2">Ne peut conduire un élu à disposer, DANS LE MOIS, de plus d’UNE FOIS ET DEMIE son crédit d’heures mensuel</td></tr>'
+     +'<tr><td>Information de l’employeur</td><td>au plus tard HUIT JOURS avant l’utilisation</td><td>au plus tard HUIT JOURS avant, par un document écrit précisant l’IDENTITÉ des élus concernés et le NOMBRE d’heures mutualisées</td></tr>'
+     +'<tr><td>Ce que l’employeur peut faire</td><td colspan="2">Enregistrer, payer, contrôler a posteriori. Il ne peut ni autoriser, ni refuser, ni exiger un motif préalable.</td></tr></table>'
+     +'<p><b>Temps qui ne s’impute PAS sur le crédit</b> (L.2315-11), payé comme temps de travail : recherche de mesures préventives en situation d’urgence et de gravité · réunions du comité et de ses commissions · enquêtes après accident du travail grave ou incidents répétés. À défaut d’accord, le temps de réunion échappe au crédit dans la limite annuelle de trente heures (entreprises de 300 à 1 000 salariés) ou soixante heures (au moins 1 000) — R.2315-7 ; le temps passé en commission santé-sécurité est rémunéré sans plafond.</p>'
+     +'<p><b>Registre à tenir</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Élu</th><th>Mandat</th><th>Crédit mensuel</th><th>Reporté</th><th>Reçu / cédé</th><th>Plafond 1,5×</th><th>Utilisé</th><th>Solde</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE, 72 salariés, CSE de 4 titulaires et 4 suppléants, crédit de 18 h par titulaire</b></p>'
+     +'<p><b>Registre de mars 2026</b> — plafond individuel : 18 × 1,5 = <b>27 heures</b>.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Élu</th><th>Crédit</th><th>Reporté des mois antérieurs</th><th>Mutualisé</th><th>Total mobilisable</th><th>Plafond</th><th>Utilisé</th><th>Solde reporté</th></tr>'
+     +'<tr><td>M. K. LEROY, titulaire, secrétaire</td><td>18 h</td><td>+ 9 h (janvier 5 h, février 4 h)</td><td>+ 6 h reçues de Mme FONTAINE</td><td>33 h</td><td>27 h — <b>dépassement de 6 h</b></td><td>26 h</td><td>7 h</td></tr>'
+     +'<tr><td>Mme L. FONTAINE, titulaire</td><td>18 h</td><td>+ 2 h</td><td>− 6 h cédées</td><td>14 h</td><td>27 h</td><td>11 h</td><td>3 h</td></tr>'
+     +'<tr><td>M. A. DIALLO, titulaire</td><td>18 h</td><td>0</td><td>− 4 h cédées à M. PEREZ</td><td>14 h</td><td>27 h</td><td>14 h</td><td>0 h</td></tr>'
+     +'<tr><td>M. S. PEREZ, suppléant</td><td>0 h</td><td>0</td><td>+ 4 h reçues</td><td>4 h</td><td>27 h</td><td>4 h</td><td>0 h</td></tr></table>'
+     +'<p><b>Le point de contrôle qui a servi.</b> M. LEROY pouvait mobiliser 33 h par cumul du report et de la mutualisation, mais le plafond de R.2315-5 et R.2315-6 le limite à 27 h dans le mois. Il en a utilisé 26 ; les 7 h restantes demeurent reportables dans la limite des douze mois. Si les 33 h avaient été prises, les 6 h au-delà du plafond n’auraient pas été dues au titre de la délégation — sans pour autant autoriser une retenue avant vérification, l’employeur devant d’abord demander l’usage fait des heures.</p>'
+     +'<p><b>Écrits reçus</b> : information de report de M. LEROY par courriel le 20/02/2026 pour une utilisation à partir du 02/03 — huit jours francs respectés. Document de mutualisation signé de Mme FONTAINE et de M. DIALLO, reçu le 21/02/2026, portant l’identité des bénéficiaires et le nombre d’heures cédées, comme l’exige R.2315-6.</p>'
+     +'<p><b>Hors crédit d’heures, payées en sus</b> : réunion mensuelle du comité du 12/03 (2 h 30 par élu) · enquête après l’accident de M. RIVIÈRE, 4 h les 10 et 11/03 pour deux élus. Aucun plafond annuel ne s’applique, l’effectif de 72 salariés étant inférieur à 300.</p>';
+  } else if(type==='alerte'){
+    T='Droit d’alerte du CSE — atteinte aux droits des personnes';
+    H=ausTete()
+     +'<p><b>ATTEINTE AUX DROITS DES PERSONNES, À LEUR SANTÉ PHYSIQUE OU MENTALE, OU AUX LIBERTÉS INDIVIDUELLES</b> (article L.2312-59 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LA MÉCANIQUE, ÉTAPE PAR ÉTAPE</b></p>'
+     +'<p><b>1. Saisine.</b> Un membre de la délégation du personnel constate, notamment par l’intermédiaire d’un salarié, une atteinte aux droits des personnes, à leur santé physique ou mentale ou aux libertés individuelles, non justifiée par la nature de la tâche ni proportionnée au but recherché. Il en saisit l’employeur. Le harcèlement moral, le harcèlement sexuel et la discrimination entrent dans ce champ.</p>'
+     +'<p><b>2. Enquête.</b> L’employeur procède SANS DÉLAI à une enquête AVEC l’élu — conjointe, pas parallèle — et prend les dispositions nécessaires pour remédier à la situation.</p>'
+     +'<p><b>3. Carence ou divergence.</b> En cas de carence de l’employeur ou de divergence sur la réalité de l’atteinte, et à défaut de solution trouvée avec l’employeur, le salarié — ou l’élu si le salarié averti par écrit ne s’y oppose pas — saisit le conseil de prud’hommes en référé.</p>'
+     +'<p><b>Registre à tenir</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>N°</th><th>Date de saisine</th><th>Élu</th><th>Objet</th><th>Enquête ouverte le</th><th>Composition</th><th>Conclusions</th><th>Mesures et date</th></tr>'
+     +'<tr><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>Trame du rapport d’enquête</b> : objet et date de la saisine · composition de l’équipe d’enquête et sa cosignature · méthode — personnes entendues, dates, durée, écrits examinés · faits établis, faits non établis, faits contestés · analyse au regard de l’atteinte alléguée · mesures immédiates prises pendant l’enquête · conclusions et mesures arrêtées, avec échéance et responsable · information de la personne qui a signalé et de la personne mise en cause.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF — SARL EXEMPLE, alerte n° 2026-02</b></p>'
+     +'<p><b>Saisine.</b> Le 6 avril 2026 à 9 h 15, M. K. LEROY, secrétaire du CSE, saisit par écrit M. P. MOREL, gérant : une salariée du quai, Mme B. (identité couverte à sa demande dans le registre), rapporte des propos répétés à connotation sexuelle et des gestes déplacés de la part d’un chef d’équipe, entre janvier et mars 2026.</p>'
+     +'<p><b>Enquête ouverte le jour même</b>, 6 avril 2026 à 14 h. Composition : M. MOREL pour l’employeur, M. LEROY pour le comité, Mme S. GARNIER, référente harcèlement du CSE. Mesure conservatoire immédiate : les plannings sont modifiés le 6 avril au soir pour que la salariée et le chef d’équipe ne travaillent plus sur le même quai — mesure prise sans préjuger des faits et sans modifier la rémunération ni le poste de la salariée.</p>'
+     +'<p><b>Méthode.</b> Sept personnes entendues entre le 7 et le 14 avril, chacune séparément, entretiens de 45 à 90 minutes, comptes rendus relus et signés par les intéressés. Examen des plannings de janvier à mars, des messages du groupe de discussion interne du quai (32 messages retenus), et du registre des incidents.</p>'
+     +'<p><b>Faits établis</b> : quatre propos à connotation sexuelle tenus devant témoins les 14/01, 29/01, 11/02 et 03/03 ; deux d’entre eux sont repris par écrit dans le groupe de discussion. Deux salariés confirment avoir été témoins. <b>Faits non établis</b> : les gestes rapportés ne sont corroborés par aucun témoignage ni aucune pièce. <b>Faits contestés</b> : le chef d’équipe soutient qu’il s’agissait de plaisanteries et qu’il ne visait personne.</p>'
+     +'<p><b>Conclusions, 16 avril 2026.</b> Les propos établis constituent des agissements sexistes au sens de L.1142-2-1, et par leur répétition et leurs effets, des faits susceptibles de relever du harcèlement sexuel. L’atteinte est retenue.</p>'
+     +'<p><b>Mesures arrêtées</b> : mise à pied disciplinaire de trois jours notifiée le 20/04/2026 après entretien préalable du 17/04 · retrait des fonctions d’encadrement du quai n° 2 · formation « prévention du harcèlement et des agissements sexistes » de sept heures pour l’ensemble de l’encadrement, tenue le 26/05/2026, coût 1 400 € · rappel écrit du dispositif d’alerte affiché le 20/04 avec les coordonnées de la référente CSE, du SPST, de l’inspection du travail et du Défenseur des droits · point de suivi au CSE du 12/06/2026.</p>'
+     +'<p><b>Rapport cosigné</b> le 16 avril 2026 par les trois membres de l’équipe d’enquête. La salariée a été reçue le 17 avril et informée des mesures ; aucune divergence n’a été exprimée, la saisine du conseil de prud’hommes en référé n’a donc pas eu lieu d’être.</p>';
+  } else if(type==='aviscc'){
+    T='Convention collective — avis, exemplaire et information des salariés';
+    H=ausTete()
+     +'<p><b>INFORMATION SUR LES CONVENTIONS ET ACCORDS APPLICABLES</b> (articles R.2262-1, R.2262-2 et R.2262-3 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES QUATRE OBLIGATIONS DISTINCTES</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Obligation</th><th>Destinataire</th><th>Texte</th><th>Fait le</th></tr>'
+     +'<tr><td>Informer des conventions et accords applicables</td><td>chaque salarié</td><td>R.2262-1, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Tenir un exemplaire À JOUR à disposition sur le lieu de travail</td><td>tous les salariés</td><td>R.2262-1, 2°</td><td>[ ]</td></tr>'
+     +'<tr><td>Mettre un exemplaire à jour sur l’intranet, s’il en existe un</td><td>tous les salariés</td><td>R.2262-1, 3°</td><td>[ ]</td></tr>'
+     +'<tr><td>Fournir un exemplaire au CSE, aux CSE d’établissement, aux délégués syndicaux ou salariés mandatés</td><td>représentants</td><td>R.2262-2</td><td>[ ]</td></tr>'
+     +'<tr><td>Communiquer un AVIS par tout moyen</td><td>tous les salariés</td><td>R.2262-3</td><td>[ ]</td></tr></table>'
+     +'<p><b>Contenu obligatoire de l’avis</b> (R.2262-3) : l’intitulé des conventions et des accords applicables · le lieu où les textes sont tenus à la disposition des salariés · les modalités leur permettant de les consulter PENDANT LEUR TEMPS DE PRÉSENCE.</p>'
+     +'<p><i>Point souvent manqué</i> : depuis le 1er novembre 2023, la « notice d’information » remise au salarié a été remplacée par le document d’information sur la relation de travail des articles R.1221-34 et R.1221-35, dont la treizième rubrique porte les conventions et accords applicables. Les deux obligations coexistent : l’avis collectif de R.2262-3 ET l’information individuelle de R.1221-34, 13°.</p>'
+     +'<p><b>Modèle d’avis</b></p>'
+     +'<p style="border:1px solid #000;padding:8px">« <b>AVIS AUX SALARIÉS — CONVENTIONS ET ACCORDS COLLECTIFS APPLICABLES</b> (article R.2262-3 du code du travail)<br>'
+     +'Les textes suivants s’appliquent dans l’entreprise : [INTITULÉ EXACT + IDCC + date] ; [accords d’entreprise, intitulé et date de chacun] ; [usages et engagements unilatéraux, le cas échéant].<br>'
+     +'Ces textes sont tenus à votre disposition : [LIEU PRÉCIS]. Ils sont également consultables sur [INTRANET, adresse].<br>'
+     +'Vous pouvez les consulter pendant votre temps de présence dans l’entreprise, selon les modalités suivantes : [HORAIRES ET MODALITÉS].<br>'
+     +'Mis à jour le [DATE]. — [NOM, qualité] »</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p style="border:1px solid #000;padding:8px">« <b>AVIS AUX SALARIÉS — CONVENTIONS ET ACCORDS COLLECTIFS APPLICABLES</b><br>'
+     +'Les textes suivants s’appliquent dans l’entreprise :<br>'
+     +'— Convention collective nationale des transports routiers et activités auxiliaires du transport du 21 décembre 1950, IDCC 16, et ses avenants à jour au 1er mars 2026 ;<br>'
+     +'— Accord d’entreprise du 14 janvier 2025 relatif aux temps de service et à leur décompte ;<br>'
+     +'— Accord d’entreprise du 3 juin 2025 relatif à la prime de partage de la valeur ;<br>'
+     +'— Engagement unilatéral du 2 septembre 2024 sur la participation de l’employeur aux frais de repas des conducteurs.<br>'
+     +'Ces textes sont tenus à votre disposition au bureau des ressources humaines, 12 rue des Peupliers à Argenteuil, dans le classeur bleu « Textes conventionnels », rayonnage à hauteur d’homme, en libre accès. Ils sont également consultables sur l’intranet, rubrique « Vos droits » (mise à jour du 04/03/2026).<br>'
+     +'Vous pouvez les consulter pendant votre temps de présence : du lundi au vendredi de 7 h 30 à 18 h 00, sans demande préalable. Une copie de tout ou partie des textes vous est remise sur simple demande, sans frais.<br>'
+     +'Mis à jour le 4 mars 2026. — Pierre MOREL, gérant »</p>'
+     +'<p><b>Preuves conservées</b> : avis affiché au réfectoire et au bureau d’exploitation le 04/03/2026, photographie datée au dossier · courriel de diffusion du 04/03/2026 aux 72 salariés, dont 61 accusés de lecture · capture de la page intranet portant la date de mise à jour · exemplaire de l’IDCC 16 remis au secrétaire du CSE contre décharge le 05/03/2026, R.2262-2 étant ainsi satisfait — l’entreprise n’a pas de délégué syndical à ce jour.</p>'
+     +'<p><b>Point de contrôle annuel</b> : la version du classeur et celle de l’intranet ont été comparées au texte officiel le 04/03/2026 ; deux avenants de 2025 manquaient au classeur papier et y ont été ajoutés. Prochain contrôle : 04/03/2027.</p>';
+  } else if(type==='bilansocial'){
+    T='Bilan social — structure et exemplaire chiffré';
+    H=ausTete()
+     +'<p><b>BILAN SOCIAL</b> (articles L.2312-28 et L.2312-30 du code du travail) — dû dans les entreprises d’au moins trois cents salariés, et pour CHAQUE établissement d’au moins trois cents salariés.</p>'
+     +'<p><b>PARTIE 1 — STRUCTURE</b>. Le bilan récapitule les principales données chiffrées de l’année écoulée ET DES DEUX ANNÉES PRÉCÉDENTES — trois colonnes, toujours. Il porte sur huit domaines (L.2312-30).</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Domaine</th><th>Indicateurs à porter</th><th>N−2</th><th>N−1</th><th>N</th></tr>'
+     +'<tr><td>1. Emploi</td><td>Effectif total et par catégorie, par sexe, par type de contrat · embauches · départs et leurs motifs · travailleurs extérieurs · travailleurs handicapés · absentéisme</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>2. Rémunérations et charges accessoires</td><td>Masse salariale · rémunération moyenne et médiane par catégorie et par sexe · hiérarchie des rémunérations · charges accessoires · épargne salariale</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>3. Conditions de santé et de sécurité</td><td>Accidents du travail et de trajet, taux de fréquence et de gravité · maladies professionnelles · dépenses de sécurité · comité et commission santé-sécurité</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>4. Autres conditions de travail</td><td>Durée et aménagement du temps de travail · organisation · travail posté, de nuit · absentéisme par motif · travailleurs inaptes</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>5. Formation</td><td>Part de la masse salariale · stagiaires · heures de formation · apprentissage · congés de formation</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>6. Relations professionnelles</td><td>Composition des instances · heures de délégation · accords signés · conflits collectifs · procédures de recours</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>7. Salariés détachés et travailleurs détachés accueillis</td><td>Nombre de chacun</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr>'
+     +'<tr><td>8. Conditions de vie des salariés et de leurs familles</td><td>Œuvres sociales · logement · transport · restauration</td><td>[ ]</td><td>[ ]</td><td>[ ]</td></tr></table>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SA EXEMPLE LOGISTIQUE, 1 240 salariés, exercice 2026</b> (extrait : indicateurs les plus regardés)</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Indicateur</th><th>2024</th><th>2025</th><th>2026</th><th>Lecture</th></tr>'
+     +'<tr><td>Effectif au 31/12</td><td>1 186</td><td>1 209</td><td>1 240</td><td>+ 2,6 % sur l’année</td></tr>'
+     +'<tr><td>dont femmes</td><td>274 (23,1 %)</td><td>289 (23,9 %)</td><td>312 (25,2 %)</td><td>Progression lente</td></tr>'
+     +'<tr><td>CDD au 31/12</td><td>96</td><td>112</td><td>139</td><td>11,2 % de l’effectif — en hausse continue</td></tr>'
+     +'<tr><td>Embauches en CDI</td><td>84</td><td>91</td><td>103</td><td></td></tr>'
+     +'<tr><td>Démissions</td><td>62</td><td>78</td><td>94</td><td>+ 51,6 % en deux ans — à traiter en consultation</td></tr>'
+     +'<tr><td>Licenciements (tous motifs)</td><td>19</td><td>22</td><td>17</td><td></td></tr>'
+     +'<tr><td>Ruptures conventionnelles</td><td>11</td><td>14</td><td>21</td><td></td></tr>'
+     +'<tr><td>Masse salariale brute</td><td>41,2 M€</td><td>43,6 M€</td><td>46,1 M€</td><td>+ 5,7 %</td></tr>'
+     +'<tr><td>Rémunération mensuelle brute moyenne — hommes</td><td>2 684 €</td><td>2 761 €</td><td>2 852 €</td><td></td></tr>'
+     +'<tr><td>Rémunération mensuelle brute moyenne — femmes</td><td>2 471 €</td><td>2 538 €</td><td>2 634 €</td><td>Écart 7,6 % en 2026, contre 7,9 % en 2024</td></tr>'
+     +'<tr><td>Taux de fréquence des accidents du travail</td><td>28,4</td><td>26,1</td><td>22,7</td><td>En baisse — effet du plan quai 2025</td></tr>'
+     +'<tr><td>Taux de gravité</td><td>1,42</td><td>1,38</td><td>1,19</td><td></td></tr>'
+     +'<tr><td>Maladies professionnelles reconnues</td><td>7</td><td>9</td><td>6</td><td>Dont 5 TMS</td></tr>'
+     +'<tr><td>Taux d’absentéisme</td><td>6,8 %</td><td>7,4 %</td><td>7,9 %</td><td>Au-dessus de la moyenne du secteur</td></tr>'
+     +'<tr><td>Part de la masse salariale consacrée à la formation</td><td>1,9 %</td><td>2,1 %</td><td>2,4 %</td><td>1,1 M€ en 2026</td></tr>'
+     +'<tr><td>Salariés formés dans l’année</td><td>612</td><td>701</td><td>844</td><td>68,1 % de l’effectif</td></tr>'
+     +'<tr><td>Travailleurs handicapés (unités bénéficiaires)</td><td>51,2</td><td>56,8</td><td>62,4</td><td>5,03 % — sous l’obligation de 6 %, contribution due</td></tr>'
+     +'<tr><td>Contribution OETH versée</td><td>184 200 €</td><td>171 500 €</td><td>158 900 €</td><td>En baisse avec les recrutements</td></tr>'
+     +'<tr><td>Heures de délégation utilisées</td><td>7 840</td><td>8 120</td><td>8 460</td><td></td></tr>'
+     +'<tr><td>Accords collectifs signés</td><td>3</td><td>2</td><td>4</td><td>Dont NAO, GEPP, télétravail, égalité</td></tr>'
+     +'<tr><td>Travailleurs détachés accueillis</td><td>0</td><td>4</td><td>11</td><td>Prestataire de maintenance</td></tr>'
+     +'<tr><td>Budget des activités sociales et culturelles</td><td>329 600 €</td><td>348 800 €</td><td>368 800 €</td><td>0,80 % de la masse salariale</td></tr></table>'
+     +'<p><b>Ce que le comité relève</b> — la lecture sur trois ans fait apparaître trois mouvements : les démissions progressent de 51,6 % en deux ans quand l’effectif ne croît que de 4,6 % ; l’absentéisme monte de 1,1 point alors que les taux d’accident baissent, ce qui oriente vers l’absentéisme de courte durée plutôt que vers l’accident ; la part de CDD passe de 8,1 % à 11,2 %.</p>'
+     +'<p><b>Procédure suivie</b> : données mises à disposition dans la base de données économiques, sociales et environnementales le 12/03/2027, notification aux élus le jour même — c’est cette date qui fait courir le délai de consultation (R.2312-5). Consultation du CSE central le 09/04/2027 dans le cadre de la politique sociale ; consultations des CSE des établissements de Roissy (412 salariés) et de Lyon (338 salariés) les 14 et 16/04/2027, l’établissement de Rouen (167 salariés) n’atteignant pas le seuil de trois cents.</p>';
   } else { alert('Modèle inconnu.'); return; }
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
   try{ partagerDocActuel(); }catch(e){ alert('Génération impossible : '+e.message); }

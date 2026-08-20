@@ -228,6 +228,79 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      'l\'audit repond « aucun delegue syndical » : le module de negociation disparait, meme a 2 000 salaries');
   await page.evaluate(() => { ausSet('ds', 'oui'); famRender(); });
 
+  console.log('\n— Contrat, temps de travail, conge, paie : le socle du premier salarie —');
+  const socle = await page.evaluate(() => {
+    E.effectif = '1'; ausSet('ds', 'non');
+    try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    const ctx = ausCtx();
+    return AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id);
+  });
+  ['infoemb', 'infoetranger', 'cddecrit', 'cddtransmis', 'cddcarence', 'precarite',
+   'essai', 'prevenance', 'certif', 'stc', 'attestft', 'convoclic', 'notiflic',
+   'precmotifs', 'rupconv', 'rupconvhomo', 'inaptreclas', 'inaptsalaire',
+   'horaires', 'decompte', 'docduree', 'maxjour', 'maxsem', 'pause', 'reposquot',
+   'reposhebdo', 'contingent', 'cor', 'forfaitjours', 'tpartiel', 'hcompl',
+   'dureemin', 'prioritetp', 'cpacq', 'cpperiode', 'cpdelais', 'cpordre',
+   'solidarite', 'paiemens', 'affdiscrim', 'affegarem', 'egarem', 'nondiscrim',
+   'sexisme', 'handamenag', 'adaptation', 'contribform', 'ccnaffich',
+   'recrutinfo', 'collectinfo', 'alerteur'].forEach(k =>
+    ok(socle.indexOf(k) >= 0, 'des le premier salarie : « ' + k + ' »'));
+  ok(socle.indexOf('proteges') < 0, 'la protection des elus du CSE suppose un CSE, donc 11 (L.2411-5)');
+  ok(socle.indexOf('protegeds') < 0, 'et celle du delegue syndical suppose qu\'il y en ait un');
+  ok(socle.indexOf('oethdecl') < 0, 'la declaration OETH n\'est due qu\'a 20 (L.5212-5)');
+  ok(socle.indexOf('deconnexion') < 0, 'la deconnexion se negocie a 50, avec un delegue syndical');
+
+  console.log('\n— Les moyens et les consultations du comite —');
+  const paliers = await page.evaluate(() => {
+    const lire = (v, ds) => { E.effectif = v; ausSet('ds', ds || 'non');
+      try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+      const ctx = ausCtx(); return AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id); };
+    return { p10: lire('1'), p11: lire('11'), p50: lire('50'), p250: lire('250'),
+             p300: lire('300'), p200ds: lire('200', 'oui'), p1000ds: lire('1000', 'oui') };
+  });
+  ['cselocal', 'csecircul', 'cseaffich', 'cseheures', 'csetemps', 'cseodj', 'csealerte',
+   'csemarche', 'cseprealable', 'csedelai', 'proteges'].forEach(k => {
+    ok(paliers.p11.indexOf(k) >= 0, 'des 11 salaries : « ' + k + ' »');
+    ok(paliers.p10.indexOf(k) < 0, 'et rien de tel sous 11 : « ' + k + ' » absent');
+  });
+  ok(paliers.p11.indexOf('cseponct') < 0, 'les consultations ponctuelles de L.2312-37 ne valent qu\'a 50');
+  ['cseponct', 'cseexpert', 'csecomptes', 'csealerteco', 'csecentral', 'bdeseeg',
+   'consultform', 'abondcpf', 'csergpd'].forEach(k =>
+    ok(paliers.p50.indexOf(k) >= 0, 'a 50 : « ' + k + ' »'));
+  ok(paliers.p250.indexOf('refhandicap') >= 0, 'a 250 : le referent handicap (L.5213-6-1)');
+  ok(paliers.p50.indexOf('refhandicap') < 0, 'pas avant');
+  ok(paliers.p300.indexOf('formrecrut') >= 0 && paliers.p300.indexOf('bilansocial') >= 0,
+     'a 300 : formation des recruteurs et bilan social');
+  ok(paliers.p200ds.indexOf('synlocal200') >= 0, 'a 200 avec un DS : le local commun des sections (L.2142-8)');
+  ok(paliers.p200ds.indexOf('synlocal1000') < 0, 'le local par section representative attend 1 000');
+  ok(paliers.p1000ds.indexOf('synlocal1000') >= 0, 'a 1 000 : il est du');
+  ok(paliers.p1000ds.indexOf('synaffich') >= 0 && paliers.p50.indexOf('synaffich') < 0,
+     'les panneaux syndicaux ne sortent que si un delegue syndical est declare');
+  await page.evaluate(() => { E.effectif = '250'; ausSet('ds', 'oui');
+    try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {} });
+
+  console.log('\n— Les modeles neufs livrent structure ET exemplaire chiffre —');
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  for (const m of ['infoemb', 'cdd', 'tpartiel', 'decompte', 'forfaitjours', 'ordrecp',
+                   'sortie', 'licproc', 'rupconv', 'inapt', 'heuresdeleg', 'alerte',
+                   'aviscc', 'bilansocial']) {
+    const r = await page.evaluate(k => {
+      window._docCurrent = null;
+      try { ausDoc(k); } catch (e) { return { err: e.message }; }
+      const d = window._docCurrent || {};
+      const h = d.html || '';
+      return { t: d.titre || '', p1: /PARTIE 1/.test(h), p2: /PARTIE 2/.test(h),
+               chiffre: /\d[\d  ]*(€|\bh\b|%)/.test(h), taille: h.length,
+               renvoi: /module|rubrique de l’application/i.test(h) };
+    }, m);
+    ok(!r.err && r.p1 && r.p2, 'modele « ' + m + ' » : les deux parties', r.err || '');
+    ok(r.chiffre && r.taille > 2500, 'modele « ' + m + ' » : exemplaire reellement chiffre', r.taille);
+    ok(!r.renvoi, 'modele « ' + m + ' » : ne renvoie vers aucun autre module');
+  }
+  const infoemb = await page.evaluate(() => { ausDoc('infoemb'); return window._docCurrent.html; });
+  ok(/R\.1221-34/.test(infoemb) && /septième jour/.test(infoemb) && /14°/.test(infoemb),
+     'le document d\'information porte les quatorze rubriques et les deux delais');
+
   console.log('\n— Les rapports —');
   const rp = await page.evaluate(() => { ausDocPlan(); const d = window._docCurrent; return d.html.indexOf('Réserves') >= 0 && d.html.indexOf('classées par gravité') >= 0 && d.html.indexOf('VÉRIFIER D’ABORD') >= 0; });
   ok(rp, 'rapport plan d\'action : manquants et reserves');
