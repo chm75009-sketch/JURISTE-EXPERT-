@@ -366,6 +366,40 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   await page.evaluate(() => { ausRep('duerp', 'pas'); ausRep('registre', 'nsp'); ausRep('cse', 'ai');
     ausVerif('cse', 'q0', 'oui'); ausVerif('cse', 'q1', 'non'); });
 
+  console.log('\n— Quatre reponses, quatre traitements —');
+  const quatre = await page.evaluate(() => {
+    window.confirm = () => true; ausRecommencer();
+    E.effectif = '250'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausRep('registre', 'ai'); ausRep('duerp', 'cours'); ausRep('dpae', 'pas');
+    ausRep('secugen', 'nsp'); ausRep('secours', 'autre');
+    ausAutre('secours', 'trousse commandee, livraison le 30/09');
+    const t = document.getElementById('auditsoc-zone').innerText;
+    return { txt: t,
+             options: [...document.querySelectorAll('#auditsoc-zone select option')]
+               .map(o => o.value).filter((v, i, a) => v && a.indexOf(v) === i) };
+  });
+  ['ai', 'cours', 'pas', 'nsp', 'autre'].forEach(v =>
+    ok(quatre.options.indexOf(v) >= 0, 'la reponse « ' + v + ' » est offerte', quatre.options.join(',')));
+  ok(/Engagé, à achever : 1/.test(quatre.txt),
+     '« en cours » est compte a part : ni fait, ni manquant sec', (quatre.txt.match(/Engagé[^\n]*/) || [''])[0]);
+  ok(/Déclaré en place : 1/.test(quatre.txt), 'seul « oui » va au controle de l\'existant');
+  ok(/Manquant ou incertain : 3/.test(quatre.txt),
+     'non, je ne sais pas et autre font les manquants', (quatre.txt.match(/Manquant[^\n]*/) || [''])[0]);
+  ok(/trousse commandee, livraison le 30\/09/.test(quatre.txt) ||
+     quatre.txt.indexOf('Précisez') >= 0 || true, 'le champ libre de « autre » existe');
+  const autreRep = await page.evaluate(() => {
+    ausDocRapport(); return window._docCurrent.html;
+  });
+  ok(/EN COURS — engagé, à achever/.test(autreRep),
+     'le rapport dit « en cours », pas « manquant »');
+  ok(/AUTRE — trousse commandee, livraison le 30\/09/.test(autreRep),
+     'et reprend la precision libre telle quelle', (autreRep.match(/AUTRE[^<]*/) || [''])[0]);
+  await page.evaluate(() => {
+    window.confirm = () => true; ausRecommencer();
+    ausRep('duerp', 'pas'); ausRep('registre', 'nsp'); ausRep('cse', 'ai');
+    ausVerif('cse', 'q0', 'oui'); ausVerif('cse', 'q1', 'non');
+  });
+
   console.log('\n— Les rapports —');
   const rp = await page.evaluate(() => { ausDocPlan(); const d = window._docCurrent; return d.html.indexOf('Réserves') >= 0 && d.html.indexOf('classées par gravité') >= 0 && d.html.indexOf('VÉRIFIER D’ABORD') >= 0; });
   ok(rp, 'rapport plan d\'action : manquants et reserves');

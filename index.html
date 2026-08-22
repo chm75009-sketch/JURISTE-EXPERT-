@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-21.207';
+var JX_BUILD = 'v2026-08-21.208';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,7 +1136,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
- {v:'v2026-08-21.207', d:'21 août 2026', t:[
+ {v:'v2026-08-21.208', d:'21 août 2026', t:[
+   'L\u2019audit ne connaissait que trois réponses. Il en offre CINQ : <b>Oui — je l\u2019ai · En cours — engagé, pas achevé · Non — je ne l\u2019ai pas · Je ne sais pas · Autre — à préciser</b>, avec un champ libre pour ce dernier.',
+   '« En cours » n\u2019est ni un manque, ni un existant. Le confondre avec « je ne l\u2019ai pas » ferait redemander un travail déjà commencé ; le confondre avec « je l\u2019ai » ferait contrôler une pièce qui n\u2019existe pas encore. Il est donc compté à part — « engagé, à achever » — et repris au plan d\u2019action avec ce qu\u2019il reste à faire.',
+   '« Autre » n\u2019est pas une case morte : ce que vous écrivez est conservé et repris TEL QUEL dans le rapport général, à la place de la mention type.'
+ ]},
+ {v:'v2026-08-21.208', d:'21 août 2026', t:[
    'LES PARCOURS GUIDÉS entrent dans l\u2019application. L\u2019audit dit ce qui manque ; le parcours dit quoi faire, dans quel ordre, pour quand, avec quel document — et se souvient d\u2019où vous en êtes.',
    'Le premier : INSTALLER LE COMITÉ APRÈS L\u2019ÉLECTION, douze étapes. Il s\u2019ouvre sur « êtes-vous prêt ? » — huit éléments à réunir, information, document ou pièce, et ce qui reste décoché vous est repris NOMMÉMENT, pas compté.',
    'Deux dates seulement sont demandées : la proclamation des résultats et la date retenue pour la première réunion. Tout le reste s\u2019en déduit — la documentation économique et financière est due un mois après la proclamation (L.2312-57), au même quantième, et au dernier jour du mois quand ce quantième n\u2019existe pas.',
@@ -1147,27 +1152,27 @@ var JX_CHANGELOG = [
    'La transition avec le comité sortant est proposée comme point d\u2019ordre du jour utile, marquée facultative et SANS fondement affiché : aucun texte du code du travail n\u2019a été trouvé qui règle cette remise.',
    'Modèle nouveau : le bordereau des deux budgets, chiffré sur deux cas — dont le passage à 2 000 salariés qui fait passer la subvention de fonctionnement de 0,20 % à 0,22 % (14 280 € d\u2019écart sur l\u2019exemple), et le piège des activités sociales où c\u2019est le RAPPORT à la masse salariale qui est garanti, jamais le montant.'
  ]},
- {v:'v2026-08-21.207', d:'20 août 2026', t:[
+ {v:'v2026-08-21.208', d:'20 août 2026', t:[
    'LA FICHE DU DOSSIER NE S\u2019EFFACE PLUS TOUTE SEULE. Une fois sur trois, en revenant dans un dossier, la raison sociale et la convention avaient disparu de l\u2019en-tête alors que la fiche était bien enregistrée.',
    'La cause : neuf endroits du programme écrivaient la fiche en recopiant l\u2019objet en mémoire tel quel. Quand cet objet n\u2019avait pas encore été rechargé — changement de dossier, page ouverte avant l\u2019initialisation, onglet restauré par le téléphone — un objet VIDE écrasait la fiche du client, définitivement.',
    'Toute écriture passe désormais par une porte unique qui FUSIONNE : un champ vide ne remplace jamais un champ renseigné sur le disque. Seule la saisie explicite de la fiche — inscription, profil — écrit telle quelle : c\u2019est alors le client qui décide d\u2019effacer.',
    'Même défaut corrigé plus loin : la variable du dossier était déclarée en « let », si bien qu\u2019une réparation de secours écrivait dans une propriété qui ne la désignait pas — elle ne réparait rien.',
    'Six passages consécutifs du test de cloisonnement, tous verts. Il vérifie désormais qu\u2019une écriture partielle depuis un état vide ne perd ni la raison sociale ni la convention.'
  ]},
- {v:'v2026-08-21.207', d:'20 août 2026', t:[
+ {v:'v2026-08-21.208', d:'20 août 2026', t:[
    'L\u2019audit garde vos réponses d\u2019une fois sur l\u2019autre — 145 lignes ne se refont pas à chaque ouverture — mais il ne les garde plus en silence : chaque réponse porte désormais SA DATE, et un bouton « ↺ Recommencer l\u2019audit » efface tout, quand vous le décidez.',
    'Une réponse de plus d\u2019un mois s\u2019affiche en jaune, suivie de « à revoir » : « Je l\u2019ai » d\u2019il y a six mois n\u2019est pas « Je l\u2019ai » d\u2019hier.',
    'Le compteur en tête de l\u2019étape 2 dit combien de réponses sont enregistrées, pour qu\u2019on ne découvre plus un audit à moitié rempli sans savoir d\u2019où il vient.',
    'Recommencer efface les réponses et les contrôles, PAS le périmètre : l\u2019effectif, les établissements et la convention viennent de la fiche société, ils restent.'
  ]},
- {v:'v2026-08-21.207', d:'20 août 2026', t:[
+ {v:'v2026-08-21.208', d:'20 août 2026', t:[
    'IMPRIMER, ENREGISTRER EN PDF OU EN WORD : chaque document s\u2019ouvre désormais en aperçu, avec quatre boutons — Fermer, Imprimer / PDF, Word, Partager.',
    'Le défaut : les modèles de l\u2019audit appelaient le partage DIRECTEMENT. Sur téléphone, cela ouvrait la feuille de partage ou copiait le texte dans le presse-papier — jamais d\u2019aperçu, jamais d\u2019impression, jamais de PDF ni de Word.',
    'Un second aperçu existait ailleurs dans l\u2019application ; son bandeau annonçait « touchez 🖨 en haut » alors qu\u2019aucun bouton imprimante ne figurait dans sa barre. Il a été supprimé : il n\u2019y a plus qu\u2019une seule sortie, la même pour l\u2019audit, les négociations, l\u2019installation du CSE et les rapports.',
    'Le bouton Word tente le téléchargement puis, si le téléphone le bloque sans rien dire, propose aussitôt le partage du même fichier — seule voie qui ouvre « Enregistrer dans Fichiers ».',
    'Test nouveau : tests/docsortie.test.js vérifie qu\u2019un modèle n\u2019ouvre plus le partage tout seul, que les quatre boutons sont là, que l\u2019impression part, que le .doc se construit, et que ce que l\u2019aide annonce existe bien dans la barre.'
  ]},
- {v:'v2026-08-21.207', d:'20 août 2026', t:[
+ {v:'v2026-08-21.208', d:'20 août 2026', t:[
    'Le CONTRAT, le TEMPS DE TRAVAIL, les CONGÉS, la PAIE, les MOYENS DU COMITÉ, l\u2019ÉGALITÉ, le HANDICAP, la FORMATION et les DONNÉES PERSONNELLES entrent dans l\u2019audit : 82 obligations nouvelles, chaque article relu à sa source. L\u2019audit passe de 63 à 145 obligations.',
    'Celle qui manquait le plus : le document d\u2019information sur la relation de travail (L.1221-5-1 et R.1221-34), ses quatorze rubriques et ses deux délais — sept jours calendaires pour huit d\u2019entre elles, un mois pour les autres. Beaucoup d\u2019employeurs l\u2019ignorent depuis le 1er novembre 2023.',
    'Le décompte du temps de travail (D.3171-1, D.3171-2, D.3171-8) et les trois durées de conservation de D.3171-16 · les durées maximales et les repos · le contingent et sa contrepartie en repos, 50 % jusqu\u2019à vingt salariés et 100 % au-delà (L.3121-38) · le forfait en jours et son entretien annuel de charge · le temps partiel et sa répartition · l\u2019ordre des départs en congé et ses deux délais (D.3141-5 et D.3141-6).',
@@ -1176,7 +1181,7 @@ var JX_CHANGELOG = [
    'Quatorze modèles nouveaux, tous en deux parties — structure complète puis exemplaire fictif entièrement chiffré : document d\u2019information à l\u2019embauche, CDD, contrat à temps partiel, décompte du temps de travail, forfait jours, ordre des départs en congé, documents de fin de contrat, procédure de licenciement, rupture conventionnelle, inaptitude, registre des heures de délégation, enquête après droit d\u2019alerte, avis de convention collective, bilan social.',
    'Ce qui n\u2019a PAS été retenu : toute obligation qu\u2019un agent n\u2019a pas pu lire à sa source. L\u2019obligation de partage de la valeur des entreprises de 11 à 49 salariés n\u2019est pas dans le code du travail — elle reste à vérifier avant d\u2019entrer dans l\u2019audit.'
  ]},
- {v:'v2026-08-21.207', d:'20 août 2026', t:[
+ {v:'v2026-08-21.208', d:'20 août 2026', t:[
    'Le socle SANTÉ-SÉCURITÉ entre dans l\'audit : 32 obligations nouvelles, chaque article relu à la source. L\'audit passe de 23 à 63 obligations — 38 dès le premier salarié, contre 13 auparavant.',
    'Parmi elles, celles qu\'on oublie le plus : l\'annexe du DUERP avec la proportion de salariés exposés (R.4121-1-1) · sa conservation 40 ans et l\'affichage des modalités d\'accès (R.4121-4) · l\'organisation ÉCRITE des secours après avis du médecin du travail (R.4224-16) · le registre des exercices d\'évacuation, deux par an (R.4227-39) · la LISTE des personnes qualifiées pour les vérifications périodiques (R.4323-24) · l\'information de l\'inspection sous DOUZE HEURES en cas d\'accident mortel (R.4121-5) · l\'information du médecin du travail des arrêts d\'accident de moins de 30 jours (R.4624-33) · la visite de mi-carrière à 45 ans (L.4624-2-2) · le refus MOTIVÉ PAR ÉCRIT d\'un avis du médecin (L.4624-6) · le document annuel adressé au service de santé (D.4622-22) · l\'information écrite de l\'inspection à l\'ouverture de travaux d\'entreprises extérieures (R.4512-12) · l\'examen des yeux AVANT toute affectation sur écran (R.4542-17) · la déclaration préalable pour prendre les repas dans un local de travail (R.4228-23).',
    'Une erreur courante n\'a PAS été reprise : L.4741-1 n\'englobe pas le titre II du livre Ier. Le défaut de DUERP relève de la contravention de 5e classe de R.4741-1, non de l\'amende de 10 000 euros.',
@@ -9722,7 +9727,8 @@ var FAM=[
      {emo:'🗳️', lib:'Organiser les élections', page:'cse', tag:'Élections', chip:'J−90 → J+15'},
      {emo:'🗂️', lib:'Quelles pièces à quelle étape', page:'csedos', tag:'Dossier'},
      {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'},
-     {emo:'🏁', lib:'Installer le comité après l’élection', page:'cseinst', tag:'Installation'}
+     {emo:'🏁', lib:'Installer le comité après l’élection', page:'cseinst', tag:'Installation'},
+     {emo:'🧭', lib:'Parcours guidé — pas à pas, avec les dates', page:'parcguide', tag:'Installation'}
    ]},
    {t:'INFORMER LE COMITÉ', s:'la base de données et l’index', pastille:'#3f9b7a', cartes:[
      {emo:'🗃️', lib:'BDESE — la base de données', page:'csehub', act:'goBdese()', tag:'BDESE', chip:'Six années', seuil:[50,'L.2312-18']},
@@ -10052,7 +10058,7 @@ function famRender(){
     var _ctx=(typeof ausCtx==='function')?ausCtx():{eff:null,ds:''};
     var _app=(typeof AUS_OBLIG!=='undefined')?AUS_OBLIG.filter(function(o){ return ausApplicable(o,_ctx); }):[];
     var _rep=_A.rep||{}, _n=0, _manq=0;
-    _app.forEach(function(o){ var r=_rep[o.id]; if(r){ _n++; if(r==='pas'||r==='nsp') _manq++; } });
+    _app.forEach(function(o){ var r=_rep[o.id]; if(r){ _n++; if(r==='pas'||r==='nsp'||r==='autre'||r==='cours') _manq++; } });
     var _pct=_app.length? Math.round(_n*100/_app.length) : 0;
     var _lib, _det, _c1, _c2;
     if(_n===0){ _lib='Commencez par l’audit social'; _det=_app.length+' obligations à votre taille — ce que vous devez avoir, ce qui manque, le plan d’action daté.'; _c1='#b8611f'; _c2='#8e4514'; }
@@ -29330,6 +29336,11 @@ function ausRecommencer(){
   ['ds','etabs','secteur'].forEach(function(k){ if(N[k]!==undefined) G[k]=N[k]; });
   ausSave(G); ausRender();
 }
+/* « Autre » sans precision ne dit rien : le champ libre est conserve, et
+   repris tel quel dans les rapports. */
+function ausAutre(id,v){ var N=ausEtat(); N.autre=N.autre||{};
+  if(String(v||'').trim()) N.autre[id]=String(v).trim(); else delete N.autre[id];
+  ausSave(N); ausRender(); }
 function ausVerif(id,q,v){ var N=ausEtat(); N.verif=N.verif||{}; (N.verif[id]=N.verif[id]||{})[q]=v;
   N.verifD=N.verifD||{}; if(v){ N.verifD[id]=new Date().toISOString(); } else if(N.verifD[id] && !Object.keys(N.verif[id]).filter(function(k){return N.verif[id][k];}).length){ delete N.verifD[id]; }
   ausSave(N); ausRender(); }
@@ -29988,10 +29999,17 @@ function ausRender(){
   var apply=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx); });
   var hors=AUS_OBLIG.filter(function(o){ return !ausApplicable(o,ctx); });
   var manq=[], averif=[], faits=0, sans=0;
+  /* Quatre reponses, quatre traitements. « En cours » n'est pas un manquant
+     sec : le client a engage la chose, il lui reste a l'achever. Le
+     confondre avec « je ne l'ai pas » ferait redemander un travail deja
+     commence ; le confondre avec « je l'ai » ferait controler une piece
+     qui n'existe pas encore. */
+  var encours=[];
   apply.forEach(function(o){
     var r=(N.rep||{})[o.id]||'';
     if(r==='ai'){ averif.push(o); faits++; }
-    else if(r==='pas'||r==='nsp'){ manq.push(o); }
+    else if(r==='cours'){ encours.push(o); manq.push(o); }   /* engage : au plan, mais compte a part */
+    else if(r==='pas'||r==='nsp'||r==='autre'){ manq.push(o); }
     else sans++;
   });
 
@@ -30017,10 +30035,14 @@ function ausRender(){
       +'<div style="font-size:11px;color:#9fb0c4">'+negoEsc(o.src)+(o.s?(' · s’applique dès '+o.s[0]+' ('+negoEsc(o.s[1])+')'):' · toute taille')+' · risque : '+(o.r===1?'pénal':o.r===2?'prud’homal':'administratif')+' — '+negoEsc(o.sanc)+'</div></div>'
       +'<select onchange="ausRep(\''+o.id+'\', this.value)" style="min-height:42px;border-radius:9px;padding:8px 10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid '+(r==='ai'?'#46b885':(r?'#d4a017':'rgba(255,255,255,.2)'))+'">'
       +'<option value="">— répondre —</option>'
-      +'<option value="ai"'+(r==='ai'?' selected':'')+'>Je l’ai</option>'
-      +'<option value="pas"'+(r==='pas'?' selected':'')+'>Je ne l’ai pas</option>'
+      +'<option value="ai"'+(r==='ai'?' selected':'')+'>Oui — je l’ai</option>'
+      +'<option value="cours"'+(r==='cours'?' selected':'')+'>En cours — engagé, pas achevé</option>'
+      +'<option value="pas"'+(r==='pas'?' selected':'')+'>Non — je ne l’ai pas</option>'
       +'<option value="nsp"'+(r==='nsp'?' selected':'')+'>Je ne sais pas</option>'
+      +'<option value="autre"'+(r==='autre'?' selected':'')+'>Autre — à préciser</option>'
       +'</select>'
+      +(r==='autre'?('<input type="text" placeholder="Précisez votre situation" value="'+negoEsc((N.autre||{})[o.id]||'')
+         +'" onchange="ausAutre(\''+o.id+'\', this.value)" class="ins-input" style="margin-top:6px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(212,160,23,.5)">'):'')
       +(function(){ var d=ausDate((N.repD||{})[o.id]); if(!d) return '';
           var vieux=/mois|an/.test(d.split('·')[1]||'');
           return '<div style="font-size:10.5px;color:'+(vieux?'#d4a017':'#9fb0c4')+';margin-top:4px;text-align:right">répondu le '+d+(vieux?' — à revoir':'')+'</div>'; })()
@@ -30034,7 +30056,8 @@ function ausRender(){
 
   h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">3 · Où vous en êtes</div>'
     +'<div style="font-size:13px;line-height:1.8">✅ Déclaré en place : <b>'+faits+'</b> — à contrôler à l’étape 5<br>'
-    +'⚠ Manquant ou incertain : <b>'+manq.length+'</b> — plan d’action ci-dessous<br>'
+    +(encours.length?('🔧 Engagé, à achever : <b>'+encours.length+'</b> — repris au plan d’action, avec ce qu’il reste à faire<br>'):'')
+    +'⚠ Manquant ou incertain : <b>'+(manq.length-encours.length)+'</b> — plan d’action ci-dessous<br>'
     +'◻ Sans réponse : <b>'+sans+'</b></div>'
     +(sans===0&&apply.length? '<div style="margin-top:8px"><button class="btn-outline" onclick="ausDocRapport()">📄 Rapport général — Word</button></div>':'<div style="font-size:11.5px;color:#9fb0c4;margin-top:6px">Répondez à chaque ligne pour ouvrir le rapport général.</div>')
     +'</div>';
@@ -30702,7 +30725,7 @@ function ausRapportBase(titre, corps){
 }
 function ausDocPlan(){
   var N=ausEtat(), ctx=ausCtx();
-  var manq=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx) && ((N.rep||{})[o.id]==='pas'||(N.rep||{})[o.id]==='nsp'); }).sort(function(a,b){ return a.r-b.r; });
+  var manq=AUS_OBLIG.filter(function(o){ var r=(N.rep||{})[o.id]; return ausApplicable(o,ctx) && (r==='pas'||r==='nsp'||r==='autre'||r==='cours'); }).sort(function(a,b){ return a.r-b.r; });
   var c='<p>'+manq.length+' obligation(s) manquante(s) ou incertaine(s), classées par gravité. Échéances proposées : risque pénal — sans délai ; prud’homal — 30 jours ; administratif — 90 jours.</p>'
     +'<table style="border-collapse:collapse;width:100%"><tr><th style="border:1px solid #000;padding:4px">Obligation</th><th style="border:1px solid #000;padding:4px">Texte</th><th style="border:1px solid #000;padding:4px">Risque</th><th style="border:1px solid #000;padding:4px">Action et outil</th></tr>'
     +manq.map(function(o){ return ausLigne(o, negoEsc(o.act)+((N.rep||{})[o.id]==='nsp'?' — VÉRIFIER D’ABORD':'')); }).join('')+'</table>';
@@ -30725,7 +30748,12 @@ function ausDocRapport(){
   var apply=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx); });
   var lig=apply.map(function(o){
     var r=(N.rep||{})[o.id]||'';
-    var txt = r==='ai' ? 'Déclaré en place' : r==='pas' ? 'MANQUANT — '+negoEsc(o.act) : r==='nsp' ? 'À VÉRIFIER' : 'Sans réponse';
+    var txt = r==='ai' ? 'Déclaré en place'
+      : r==='cours' ? 'EN COURS — engagé, à achever : '+negoEsc(o.act)
+      : r==='pas' ? 'MANQUANT — '+negoEsc(o.act)
+      : r==='nsp' ? 'À VÉRIFIER'
+      : r==='autre' ? ('AUTRE — '+negoEsc((N.autre||{})[o.id]||'situation non précisée'))
+      : 'Sans réponse';
     if(r==='ai'){ var V=(N.verif||{})[o.id]||{}, verdict='conforme';
       (o.verif||[]).forEach(function(q,qi){ var v=V['q'+qi]||''; if(v==='non') verdict='écart'; else if(!v||v==='nsp'){ if(verdict!=='écart') verdict='indéterminé'; } });
       txt+=' — contrôle : '+verdict.toUpperCase(); }
