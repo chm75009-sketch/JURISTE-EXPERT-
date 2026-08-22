@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-20.206';
+var JX_BUILD = 'v2026-08-21.207';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,27 +1136,38 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
- {v:'v2026-08-20.206', d:'20 août 2026', t:[
+ {v:'v2026-08-21.207', d:'21 août 2026', t:[
+   'LES PARCOURS GUIDÉS entrent dans l\u2019application. L\u2019audit dit ce qui manque ; le parcours dit quoi faire, dans quel ordre, pour quand, avec quel document — et se souvient d\u2019où vous en êtes.',
+   'Le premier : INSTALLER LE COMITÉ APRÈS L\u2019ÉLECTION, douze étapes. Il s\u2019ouvre sur « êtes-vous prêt ? » — huit éléments à réunir, information, document ou pièce, et ce qui reste décoché vous est repris NOMMÉMENT, pas compté.',
+   'Deux dates seulement sont demandées : la proclamation des résultats et la date retenue pour la première réunion. Tout le reste s\u2019en déduit — la documentation économique et financière est due un mois après la proclamation (L.2312-57), au même quantième, et au dernier jour du mois quand ce quantième n\u2019existe pas.',
+   'Chaque étape porte son article relu à la source : bureau (L.2315-23), référent harcèlement (L.2314-1), CSSCT et son régime d\u2019ordre public (L.2315-36 à L.2315-39), commissions à défaut d\u2019accord (L.2315-45 s.), règlement intérieur du comité (L.2315-24), les deux budgets (L.2315-61 et L.2312-81), les formations (L.2315-18, L.2315-16, L.2315-63), le calendrier (L.2315-27, L.2315-28, L.2315-30).',
+   'Ce qui est hors de votre effectif SORT de la liste, mais reste visible avec le seuil qui le déclenchera. Effectif non renseigné : tout est affiché, rien n\u2019est écarté sur une supposition.',
+   'Une étape en retard passe en rouge et est reprise en tête. L\u2019avancement est horodaté, il vous attend d\u2019une session à l\u2019autre, et un bouton le remet à zéro quand vous le décidez. Le récapitulatif s\u2019imprime, s\u2019enregistre en Word ou en PDF.',
+   'La portée exacte de l\u2019arrêt du 10 juillet 1991 (n° 88-20.411, publié) est dite : il juge que le président participe à la désignation DU SECRÉTAIRE, ce vote ne valant pas consultation des élus. L\u2019étendre au trésorier est admis en pratique — l\u2019arrêt ne le dit pas, l\u2019application non plus.',
+   'La transition avec le comité sortant est proposée comme point d\u2019ordre du jour utile, marquée facultative et SANS fondement affiché : aucun texte du code du travail n\u2019a été trouvé qui règle cette remise.',
+   'Modèle nouveau : le bordereau des deux budgets, chiffré sur deux cas — dont le passage à 2 000 salariés qui fait passer la subvention de fonctionnement de 0,20 % à 0,22 % (14 280 € d\u2019écart sur l\u2019exemple), et le piège des activités sociales où c\u2019est le RAPPORT à la masse salariale qui est garanti, jamais le montant.'
+ ]},
+ {v:'v2026-08-21.207', d:'20 août 2026', t:[
    'LA FICHE DU DOSSIER NE S\u2019EFFACE PLUS TOUTE SEULE. Une fois sur trois, en revenant dans un dossier, la raison sociale et la convention avaient disparu de l\u2019en-tête alors que la fiche était bien enregistrée.',
    'La cause : neuf endroits du programme écrivaient la fiche en recopiant l\u2019objet en mémoire tel quel. Quand cet objet n\u2019avait pas encore été rechargé — changement de dossier, page ouverte avant l\u2019initialisation, onglet restauré par le téléphone — un objet VIDE écrasait la fiche du client, définitivement.',
    'Toute écriture passe désormais par une porte unique qui FUSIONNE : un champ vide ne remplace jamais un champ renseigné sur le disque. Seule la saisie explicite de la fiche — inscription, profil — écrit telle quelle : c\u2019est alors le client qui décide d\u2019effacer.',
    'Même défaut corrigé plus loin : la variable du dossier était déclarée en « let », si bien qu\u2019une réparation de secours écrivait dans une propriété qui ne la désignait pas — elle ne réparait rien.',
    'Six passages consécutifs du test de cloisonnement, tous verts. Il vérifie désormais qu\u2019une écriture partielle depuis un état vide ne perd ni la raison sociale ni la convention.'
  ]},
- {v:'v2026-08-20.206', d:'20 août 2026', t:[
+ {v:'v2026-08-21.207', d:'20 août 2026', t:[
    'L\u2019audit garde vos réponses d\u2019une fois sur l\u2019autre — 145 lignes ne se refont pas à chaque ouverture — mais il ne les garde plus en silence : chaque réponse porte désormais SA DATE, et un bouton « ↺ Recommencer l\u2019audit » efface tout, quand vous le décidez.',
    'Une réponse de plus d\u2019un mois s\u2019affiche en jaune, suivie de « à revoir » : « Je l\u2019ai » d\u2019il y a six mois n\u2019est pas « Je l\u2019ai » d\u2019hier.',
    'Le compteur en tête de l\u2019étape 2 dit combien de réponses sont enregistrées, pour qu\u2019on ne découvre plus un audit à moitié rempli sans savoir d\u2019où il vient.',
    'Recommencer efface les réponses et les contrôles, PAS le périmètre : l\u2019effectif, les établissements et la convention viennent de la fiche société, ils restent.'
  ]},
- {v:'v2026-08-20.206', d:'20 août 2026', t:[
+ {v:'v2026-08-21.207', d:'20 août 2026', t:[
    'IMPRIMER, ENREGISTRER EN PDF OU EN WORD : chaque document s\u2019ouvre désormais en aperçu, avec quatre boutons — Fermer, Imprimer / PDF, Word, Partager.',
    'Le défaut : les modèles de l\u2019audit appelaient le partage DIRECTEMENT. Sur téléphone, cela ouvrait la feuille de partage ou copiait le texte dans le presse-papier — jamais d\u2019aperçu, jamais d\u2019impression, jamais de PDF ni de Word.',
    'Un second aperçu existait ailleurs dans l\u2019application ; son bandeau annonçait « touchez 🖨 en haut » alors qu\u2019aucun bouton imprimante ne figurait dans sa barre. Il a été supprimé : il n\u2019y a plus qu\u2019une seule sortie, la même pour l\u2019audit, les négociations, l\u2019installation du CSE et les rapports.',
    'Le bouton Word tente le téléchargement puis, si le téléphone le bloque sans rien dire, propose aussitôt le partage du même fichier — seule voie qui ouvre « Enregistrer dans Fichiers ».',
    'Test nouveau : tests/docsortie.test.js vérifie qu\u2019un modèle n\u2019ouvre plus le partage tout seul, que les quatre boutons sont là, que l\u2019impression part, que le .doc se construit, et que ce que l\u2019aide annonce existe bien dans la barre.'
  ]},
- {v:'v2026-08-20.206', d:'20 août 2026', t:[
+ {v:'v2026-08-21.207', d:'20 août 2026', t:[
    'Le CONTRAT, le TEMPS DE TRAVAIL, les CONGÉS, la PAIE, les MOYENS DU COMITÉ, l\u2019ÉGALITÉ, le HANDICAP, la FORMATION et les DONNÉES PERSONNELLES entrent dans l\u2019audit : 82 obligations nouvelles, chaque article relu à sa source. L\u2019audit passe de 63 à 145 obligations.',
    'Celle qui manquait le plus : le document d\u2019information sur la relation de travail (L.1221-5-1 et R.1221-34), ses quatorze rubriques et ses deux délais — sept jours calendaires pour huit d\u2019entre elles, un mois pour les autres. Beaucoup d\u2019employeurs l\u2019ignorent depuis le 1er novembre 2023.',
    'Le décompte du temps de travail (D.3171-1, D.3171-2, D.3171-8) et les trois durées de conservation de D.3171-16 · les durées maximales et les repos · le contingent et sa contrepartie en repos, 50 % jusqu\u2019à vingt salariés et 100 % au-delà (L.3121-38) · le forfait en jours et son entretien annuel de charge · le temps partiel et sa répartition · l\u2019ordre des départs en congé et ses deux délais (D.3141-5 et D.3141-6).',
@@ -1165,7 +1176,7 @@ var JX_CHANGELOG = [
    'Quatorze modèles nouveaux, tous en deux parties — structure complète puis exemplaire fictif entièrement chiffré : document d\u2019information à l\u2019embauche, CDD, contrat à temps partiel, décompte du temps de travail, forfait jours, ordre des départs en congé, documents de fin de contrat, procédure de licenciement, rupture conventionnelle, inaptitude, registre des heures de délégation, enquête après droit d\u2019alerte, avis de convention collective, bilan social.',
    'Ce qui n\u2019a PAS été retenu : toute obligation qu\u2019un agent n\u2019a pas pu lire à sa source. L\u2019obligation de partage de la valeur des entreprises de 11 à 49 salariés n\u2019est pas dans le code du travail — elle reste à vérifier avant d\u2019entrer dans l\u2019audit.'
  ]},
- {v:'v2026-08-20.206', d:'20 août 2026', t:[
+ {v:'v2026-08-21.207', d:'20 août 2026', t:[
    'Le socle SANTÉ-SÉCURITÉ entre dans l\'audit : 32 obligations nouvelles, chaque article relu à la source. L\'audit passe de 23 à 63 obligations — 38 dès le premier salarié, contre 13 auparavant.',
    'Parmi elles, celles qu\'on oublie le plus : l\'annexe du DUERP avec la proportion de salariés exposés (R.4121-1-1) · sa conservation 40 ans et l\'affichage des modalités d\'accès (R.4121-4) · l\'organisation ÉCRITE des secours après avis du médecin du travail (R.4224-16) · le registre des exercices d\'évacuation, deux par an (R.4227-39) · la LISTE des personnes qualifiées pour les vérifications périodiques (R.4323-24) · l\'information de l\'inspection sous DOUZE HEURES en cas d\'accident mortel (R.4121-5) · l\'information du médecin du travail des arrêts d\'accident de moins de 30 jours (R.4624-33) · la visite de mi-carrière à 45 ans (L.4624-2-2) · le refus MOTIVÉ PAR ÉCRIT d\'un avis du médecin (L.4624-6) · le document annuel adressé au service de santé (D.4622-22) · l\'information écrite de l\'inspection à l\'ouverture de travaux d\'entreprises extérieures (R.4512-12) · l\'examen des yeux AVANT toute affectation sur écran (R.4542-17) · la déclaration préalable pour prendre les repas dans un local de travail (R.4228-23).',
    'Une erreur courante n\'a PAS été reprise : L.4741-1 n\'englobe pas le titre II du livre Ier. Le défaut de DUERP relève de la contravention de 5e classe de R.4741-1, non de l\'amende de 10 000 euros.',
@@ -4948,6 +4959,12 @@ Exemple :<br>
   <div style="font-size:12px;color:#9fb0c4">Tout ce que vous devez avoir — ce qui manque, ce qui est à contrôler, le plan d’action</div></div></div>
   <div id="auditsoc-zone" style="padding:4px 2px">Chargement…</div>
 </div>
+<div id="pg-parcguide" class="page">
+  <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:800">←</button>
+  <div style="flex:1"><div class="page-titre">Parcours guidé</div>
+  <div class="page-sous" style="font-size:12px;color:#9fb0c4">Êtes-vous prêt ? · les étapes datées · le document de chacune · où vous en êtes</div></div></div>
+  <div id="parcguide-zone" style="padding:4px 2px">Chargement…</div>
+</div>
 <div id="pg-cseinst" class="page">
   <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
   <div style="flex:1"><div class="page-titre">Installer le comité</div>
@@ -7269,7 +7286,7 @@ var JX_ONENTER={
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
   harcmoral:'hmOnEnter', csedos:'dosOnEnter', csebud:'budOnEnter',
-  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter', auditsoc:'auditsocOnEnter',
+  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter', parcguide:'parcoursOnEnter', auditsoc:'auditsocOnEnter',
   contrat:'jxSousTitreContrat'
 };
 function jxEntrer(id){
@@ -30635,6 +30652,25 @@ function ausDoc(type){
      +'<tr><td>Budget des activités sociales et culturelles</td><td>329 600 €</td><td>348 800 €</td><td>368 800 €</td><td>0,80 % de la masse salariale</td></tr></table>'
      +'<p><b>Ce que le comité relève</b> — la lecture sur trois ans fait apparaître trois mouvements : les démissions progressent de 51,6 % en deux ans quand l’effectif ne croît que de 4,6 % ; l’absentéisme monte de 1,1 point alors que les taux d’accident baissent, ce qui oriente vers l’absentéisme de courte durée plutôt que vers l’accident ; la part de CDD passe de 8,1 % à 11,2 %.</p>'
      +'<p><b>Procédure suivie</b> : données mises à disposition dans la base de données économiques, sociales et environnementales le 12/03/2027, notification aux élus le jour même — c’est cette date qui fait courir le délai de consultation (R.2312-5). Consultation du CSE central le 09/04/2027 dans le cadre de la politique sociale ; consultations des CSE des établissements de Roissy (412 salariés) et de Lyon (338 salariés) les 14 et 16/04/2027, l’établissement de Rouen (167 salariés) n’atteignant pas le seuil de trois cents.</p>';
+  } else if(type==='budgets'){
+    T='Les deux budgets du comité — bordereau et calcul';
+    H=ausTete()
+     +'<p><b>LES DEUX BUDGETS DU COMITÉ SOCIAL ET ÉCONOMIQUE</b> (articles L.2315-61 et L.2312-81 du code du travail). Deux budgets DISTINCTS, deux comptes de suivi : les confondre expose au redressement et engage la responsabilité des élus.</p>'
+     +'<p><b>PARTIE 1 — LE CALCUL, LIGNE À LIGNE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Budget</th><th>Règle</th><th>Texte</th><th>Votre calcul</th></tr>'
+     +'<tr><td><b>Fonctionnement</b></td><td>0,20 % de la masse salariale brute de 50 à moins de 2 000 salariés · <b>0,22 %</b> à partir de 2 000</td><td>L.2315-61</td><td>[MSB] × [taux] = [ ] €</td></tr>'
+     +'<tr><td><b>Activités sociales et culturelles</b></td><td>Fixée par accord d’entreprise. À défaut, le rapport contribution / masse salariale brute ne peut être INFÉRIEUR à celui de l’année précédente</td><td>L.2312-81</td><td>rapport N−1 : [ ] % → [MSB] × [ ] % = [ ] €</td></tr></table>'
+     +'<p>La subvention de fonctionnement <b>s’ajoute</b> à celle des activités sociales, sauf si l’employeur fait déjà bénéficier le comité d’une somme ou de moyens équivalents (L.2315-61). Le comité est doté de la personnalité civile et gère son patrimoine (L.2315-23) : compte bancaire propre, habilitations du trésorier, et comptes annuels approuvés en séance dédiée avec procès-verbal spécifique (L.2315-68).</p>'
+     +'<p><b>À arrêter en séance :</b> l’assiette retenue et sa source (déclaration sociale nominative de l’exercice) · la périodicité de versement · le compte bancaire et les deux signatures · le suivi séparé des deux budgets · le sort d’un éventuel transfert d’excédent d’un budget à l’autre, dans la limite et selon les modalités fixées par décret — <i>à vérifier au texte avant de le pratiquer</i>.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ</b></p>'
+     +'<p><b>a) SARL EXEMPLE — transport routier IDCC 16, 72 salariés.</b> Masse salariale brute de l’exercice 2026 : <b>2 480 000 €</b> (source : DSN cumulée, arrêtée le 31/01/2027).<br>'
+     +'— Fonctionnement : 72 salariés, donc 0,20 % → 2 480 000 × 0,20 % = <b>4 960 €</b>, versés par quart le 5 de chaque trimestre (1 240 € par versement).<br>'
+     +'— Activités sociales : aucun accord d’entreprise sur ce point. Rapport constaté en 2025 : 19 200 € pour une masse de 2 400 000 €, soit <b>0,80 %</b>. Le rapport 2026 ne peut être inférieur : 2 480 000 × 0,80 % = <b>19 840 €</b>. Une contribution de 19 200 € reconduite à l’identique serait IRRÉGULIÈRE — c’est le rapport qui est garanti, pas le montant.<br>'
+     +'— Total versé au comité : 24 800 €, sur deux comptes distincts (Crédit [X], comptes n° …001 « fonctionnement » et …002 « ASC »), signature conjointe du secrétaire et du trésorier au-delà de 500 €.</p>'
+     +'<p><b>b) SA EXEMPLE LOGISTIQUE — 2 100 salariés.</b> Masse salariale brute : <b>71 400 000 €</b>.<br>'
+     +'— Fonctionnement : l’effectif atteint 2 000, donc <b>0,22 %</b> → 71 400 000 × 0,22 % = <b>157 080 €</b>. Au taux de 0,20 %, l’entreprise aurait versé 142 800 € : le franchissement du seuil coûte 14 280 € de plus, et l’oublier est l’erreur la plus fréquente au passage de 2 000 salariés.<br>'
+     +'— Activités sociales : accord d’entreprise du 12/03/2024 fixant la contribution à 1,10 % → 785 400 €. L’accord existant, le plancher de L.2312-81 ne s’applique pas : c’est l’accord qui commande. <i>À vérifier au texte de l’accord avant application.</i></p>'
+     +'<p><b>Contrôles, pièce en main :</b> ① l’assiette est-elle la masse salariale brute de l’exercice, et sa source est-elle citée ? ② le taux correspond-il à l’effectif calculé selon L.130-1 du code de la sécurité sociale ? ③ le rapport ASC de l’année précédente a-t-il été calculé, et non le montant repris tel quel ? ④ les deux budgets sont-ils suivis sur des comptes séparés ?</p>';
   } else { alert('Modèle inconnu.'); return; }
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
   try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
@@ -30721,6 +30757,283 @@ function cseinstEtat(){
   return {};
 }
 function cseinstSet(k,v){ var N=cseinstEtat(); N[k]=v; if(!jxEcrire(cseinstKey(), JSON.stringify(N))){ try{ jxEchecStockage(); }catch(e){} } cseinstRender(); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LES PARCOURS GUIDÉS.
+   L'audit dit ce qui manque. Le parcours dit quoi faire, dans quel ordre,
+   pour quand, avec quel document — et se souvient d'où on en est.
+   Quatre choses et rien d'autre :
+     — un PRÉALABLE cochable : « êtes-vous prêt ? ». Ce qui reste décoché
+       est repris nommément, informations, documents, pièces ;
+     — les DATES du dossier, les seules dont les délais dépendent ;
+     — des ÉTAPES ordonnées, chacune fondée sur un article lu à la source,
+       datée quand la date qui la commande est connue, reliée au document
+       qui la matérialise, et écartée quand l'effectif la met hors champ ;
+     — un ÉTAT persistant, range par dossier, qui repond a « j'en suis ou ».
+   Le conventionnel n'est jamais affirmé : il est signalé.
+   ══════════════════════════════════════════════════════════════════════ */
+function parcCle(){ try{ return 'juris_parcours::'+jxCompte(); }catch(e){ return 'juris_parcours::defaut'; } }
+function parcEtat(){ try{ var v=JSON.parse(localStorage.getItem(parcCle())||'null'); if(v&&typeof v==='object') return v; }catch(e){} return {}; }
+function parcSauve(N){ try{ jxEcrire(parcCle(), JSON.stringify(N)); }catch(e){} }
+function parcP(id){ var N=parcEtat(); return N[id]||(N[id]={pre:{},dates:{},fait:{},faitD:{}}); }
+function parcMaj(id,f){ var N=parcEtat(); N[id]=N[id]||{pre:{},dates:{},fait:{},faitD:{}}; f(N[id]); parcSauve(N); parcRender(); }
+function parcPre(id,k,v){ parcMaj(id,function(p){ p.pre=p.pre||{}; if(v) p.pre[k]=1; else delete p.pre[k]; }); }
+function parcDate(id,k,v){ parcMaj(id,function(p){ p.dates=p.dates||{}; if(v) p.dates[k]=v; else delete p.dates[k]; }); }
+function parcFait(id,k,v){ parcMaj(id,function(p){ p.fait=p.fait||{}; p.faitD=p.faitD||{};
+  if(v){ p.fait[k]=1; p.faitD[k]=new Date().toISOString(); } else { delete p.fait[k]; delete p.faitD[k]; } }); }
+function parcRAZ(id){
+  var p=parcP(id), n=Object.keys(p.fait||{}).length;
+  if(n && !confirm('Effacer l’avancement de ce parcours ('+n+' étape(s) faite(s)) ?\n\nLes dates et le préalable sont effacés aussi.')) return;
+  var N=parcEtat(); delete N[id]; parcSauve(N); parcRender();
+}
+/* Quel parcours est ouvert. Une page, plusieurs parcours. */
+var PARC_OUVERT='cseinstall';
+function parcOuvrir(id){ PARC_OUVERT=id||'cseinstall'; goPage('parcguide'); }
+function parcoursOnEnter(){ parcRender(); }
+
+/* n jours calendaires apres une date ISO. */
+function parcJours(iso,n){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||''))) return '';
+  var d=new Date(iso+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+n);
+  return d.toISOString().slice(0,10);
+}
+/* Le meme quantieme, n mois plus tard ; a defaut, le dernier jour du mois. */
+function parcMois(iso,n){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||''))) return '';
+  var m=iso.split('-').map(Number),
+      an=m[0]+Math.floor((m[1]-1+n)/12), mo=((m[1]-1+n)%12)+1,
+      der=new Date(Date.UTC(an,mo,0)).getUTCDate(), j=Math.min(m[2],der);
+  return an+'-'+String(mo).padStart(2,'0')+'-'+String(j).padStart(2,'0');
+}
+function parcFr(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||''))) return '';
+  try{ var t=new Date(iso+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+    /* « 1er octobre », jamais « 1 octobre » : une echeance mal ecrite dans un
+       courrier se remarque avant son contenu. */
+    return t.replace(/^1 /, '1er ');
+  }catch(e){ return iso; }
+}
+function parcAuj(){ return new Date().toISOString().slice(0,10); }
+function parcRetard(ech){ return ech && ech < parcAuj(); }
+
+/* ── LE CATALOGUE ────────────────────────────────────────────────────────
+   Chaque etape porte : son intitule, son fondement (article lu a la
+   source), la regle de date quand il y en a une, le document qui la
+   matérialise, et la condition d'effectif qui la met en jeu ou l'ecarte. */
+var PARCOURS={
+ cseinstall:{
+  titre:'Installer le comité après l’élection',
+  sous:'Du lendemain des résultats à la première réunion tenue : bureau, référent, commissions, règlement du comité, budgets, formations, documentation.',
+  seuil:[11,'L.2311-2'],
+  pre:[
+   {k:'pv',   q:'doc',  lib:'Le procès-verbal des élections, portant la date de proclamation des résultats'},
+   {k:'liste',q:'info', lib:'La liste nominative des titulaires et des suppléants, avec leur collège'},
+   {k:'eff',  q:'info', lib:'L’effectif de l’entreprise, et celui de chaque établissement distinct'},
+   {k:'ms',   q:'info', lib:'La masse salariale brute de l’exercice — elle commande les deux budgets'},
+   {k:'asc',  q:'info', lib:'Le rapport contribution aux activités sociales / masse salariale de l’année précédente'},
+   {k:'ccn',  q:'doc',  lib:'La convention collective et les accords d’entreprise — ils peuvent tout réorganiser'},
+   {k:'anc',  q:'piece',lib:'Si un comité existait : ses comptes, ses archives, son règlement intérieur, ses contrats en cours'},
+   {k:'salle',q:'piece',lib:'Le local du comité et son matériel — ils sont dus dès la mise en place (L.2315-25)'}
+  ],
+  dates:[
+   {k:'proc', lib:'Proclamation des résultats', aide:'Elle commande la remise de la documentation économique et financière : un mois.'},
+   {k:'reu1', lib:'Première réunion — date retenue', aide:'Aucun texte n’impose de délai. La butée réelle est celle de la documentation.'}
+  ],
+  etapes:[
+   {k:'convoc', n:'1', lib:'Convoquer la première réunion et arrêter l’ordre du jour',
+    src:'L.2315-23 — le comité est présidé par l’employeur ou son représentant, assisté au plus de trois collaborateurs à voix consultative',
+    ech:function(D){ return D.reu1||''; }, echLib:'la date que vous avez retenue',
+    doc:['convocation','Convocation'], doc2:['odj','Ordre du jour d’installation']},
+   {k:'bureau', n:'2', lib:'Élire le secrétaire et le trésorier, parmi les titulaires', min:50,
+    src:'L.2315-23 · résolutions à la majorité des membres présents (L.2315-32)',
+    note:'Le président participe à ce vote : la Cour de cassation juge que la désignation du secrétaire ne constitue pas la consultation des élus en tant que délégation du personnel (Soc. 10 juillet 1991, n° 88-20.411, publié). L’arrêt vise le secrétaire ; l’étendre au trésorier est admis en pratique, mais l’arrêt ne le dit pas.',
+    doc:['pvbureau','PV de désignation']},
+   {k:'referent', n:'3', lib:'Faire désigner le référent harcèlement sexuel et agissements sexistes',
+    src:'L.2314-1, dernier alinéa — par résolution adoptée selon L.2315-32, pour une durée qui prend fin avec le mandat',
+    note:'Due dès qu’il y a un comité, quelle que soit la taille. À ne pas confondre avec le référent de l’employeur, dû à partir de 250 salariés (L.1153-5-1).',
+    doc:['pvbureau','PV de désignation']},
+   {k:'cssct', n:'4', lib:'Désigner les membres de la commission santé, sécurité et conditions de travail', min:300,
+    src:'L.2315-36 · composition L.2315-39 : au moins trois représentants du personnel, dont un du deuxième collège ou, le cas échéant, du troisième — d’ordre public',
+    note:'La commission ne peut recevoir ni les attributions consultatives du comité, ni le recours à l’expert (L.2315-38, d’ordre public). Elle est due aussi dans les établissements d’au moins 300 salariés, dans ceux des articles L.4521-1 et suivants, et sur décision de l’inspecteur du travail (L.2315-37).',
+    doc:['pvbureau','PV de désignation'], doc2:['commissions','Guide des commissions']},
+   {k:'commissions', n:'5', lib:'Constituer les autres commissions dues à votre effectif', min:300,
+    src:'à défaut d’accord (L.2315-45) : formation L.2315-49 · logement L.2315-50 et L.2315-51 · égalité professionnelle L.2315-56 · économique dès 1 000 salariés L.2315-46 à L.2315-48 · marchés selon les comptes DU COMITÉ, L.2315-44-1 et D.2315-29',
+    note:'La commission économique est présidée par l’employeur, comprend au MAXIMUM cinq membres dont au moins un cadre, et se réunit au moins deux fois par an (L.2315-47 et L.2315-48). Un accord d’entreprise peut réorganiser toutes ces commissions : le vérifier avant d’appliquer le régime supplétif.',
+    doc:['commissions','Guide des commissions']},
+   {k:'ricse', n:'6', lib:'Mettre en chantier le règlement intérieur du comité', min:50,
+    src:'L.2315-24 — le comité détermine dans un règlement intérieur les modalités de son fonctionnement et de ses rapports avec les salariés',
+    note:'Sauf accord de l’employeur, il ne peut lui imposer d’obligations ne résultant pas de la loi — et cet accord constitue un engagement unilatéral, que l’employeur peut dénoncer. Y régler : rôle du bureau, périodicité des réunions, votes, procès-verbaux, fonctionnement des commissions à défaut d’accord (L.2315-44), budgets, confidentialité.',
+    doc:['ricse','Trame de règlement intérieur du comité']},
+   {k:'budgets', n:'7', lib:'Ouvrir le compte du comité et arrêter les deux budgets', min:50,
+    src:'personnalité civile L.2315-23 · fonctionnement 0,20 % de la masse salariale brute, 0,22 % à partir de 2 000 salariés (L.2315-61) · activités sociales fixées par accord, à défaut le rapport à la masse salariale ne peut être inférieur à celui de l’année précédente (L.2312-81)',
+    note:'Deux budgets distincts, deux comptes de suivi. La subvention de fonctionnement s’ajoute à celle des activités sociales, sauf si l’employeur fait déjà bénéficier le comité d’une somme ou de moyens équivalents.',
+    doc:['budgets','Bordereau des deux budgets']},
+   {k:'formations', n:'8', lib:'Programmer les formations des élus',
+    src:'santé-sécurité : cinq jours au premier mandat, pour les élus ET le référent (L.2315-18), sur le temps de travail, payé comme tel et non déduit des heures de délégation (L.2315-16) · formation économique : cinq jours au plus pour les titulaires élus pour la première fois, dès 50 salariés, financée par le comité (L.2315-63)',
+    doc:['formelus','Programme de formation des élus']},
+   {k:'docef', n:'9', lib:'Remettre la documentation économique et financière', min:50,
+    src:'L.2312-57 — à défaut d’accord, un mois après chaque élection : forme juridique et organisation, perspectives économiques, position dans le groupe, répartition du capital au-delà de 10 %, position dans la branche',
+    ech:function(D){ return D.proc?parcMois(D.proc,1):''; }, echLib:'un mois après la proclamation',
+    note:'L’obligation est automatique : elle ne suppose aucune demande du comité. Acter en séance la date d’échéance.',
+    doc:['documentation','Bordereau de remise']},
+   {k:'calendrier', n:'10', lib:'Arrêter le calendrier annuel et les modalités de l’ordre du jour',
+    src:'réunions au moins tous les deux mois en deçà de 300 salariés, tous les mois à partir de 300 (L.2315-28) · au moins quatre réunions par an portant en tout ou partie sur la santé-sécurité (L.2315-27) · ordre du jour communiqué trois jours au moins avant, à l’inspection du travail et à l’agent des services de prévention compris (L.2315-30)',
+    note:'L’ordre du jour est arrêté conjointement par le président et le secrétaire. Les consultations rendues obligatoires par la loi ou un accord y sont inscrites de plein droit par l’un ou l’autre.',
+    doc:['odj','Ordre du jour']},
+   {k:'moyens', n:'11', lib:'Ouvrir les moyens : local, matériel, affichage, BDESE, heures',
+    src:'local aménagé et matériel L.2315-25 · panneaux d’affichage L.2315-15 · libre circulation L.2315-14 · base de données accessible en permanence aux élus et aux délégués syndicaux (L.2312-36, dès 50 salariés)',
+    doc:['heuresdeleg','Registre des heures de délégation']},
+   {k:'transition', n:'12', lib:'Organiser la transition avec le comité sortant', opt:true,
+    src:'aucun texte du code du travail ne règle cette remise — point d’ordre du jour utile, sans fondement légal affiché',
+    note:'À inscrire : remise des documents, archives et comptes par l’ancien bureau ; situation de trésorerie et engagements en cours ; contrats et prestataires ; sort du règlement intérieur du comité précédent. La reddition des comptes du comité sortant n’a pas été trouvée dans le code — à vérifier avant de l’affirmer au client.'}
+  ]
+ }
+};
+
+function parcRender(){
+  var z=document.getElementById('parcguide-zone'); if(!z) return;
+  try{ var _a=document.activeElement;
+    if(_a && z.contains(_a) && /^(SELECT|INPUT|TEXTAREA)$/.test(_a.tagName)) return; }catch(e){}
+  var id=PARC_OUVERT, P=PARCOURS[id];
+  if(!P){ z.innerHTML='<div class="al warn">Parcours inconnu.</div>'; return; }
+  var p=parcP(id), D=p.dates||{}, eff=null;
+  try{ eff=jxEffectifMax(); }catch(e){}
+  var inconnu=(eff===null||eff===Infinity);
+
+  var h='<div class="al info" style="font-size:12.5px;line-height:1.65;margin-bottom:12px"><b>'+negoEsc(P.titre)+'.</b> '+negoEsc(P.sous)
+   +' Chaque étape porte son article, relu à la source. Ce qui dépend d’un accord n’est jamais affirmé : il est signalé.</div>';
+
+  /* ① Êtes-vous prêt ? */
+  var manque=P.pre.filter(function(x){ return !(p.pre||{})[x.k]; });
+  h+='<div class="item"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">'
+   +'<div style="font-weight:700;flex:1;min-width:180px">1 · Êtes-vous prêt ?</div>'
+   +'<div style="font-size:12px;color:'+(manque.length?'#d4a017':'#46b885')+';font-weight:700">'+(P.pre.length-manque.length)+' / '+P.pre.length+'</div></div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin:2px 0 8px">Cochez ce que vous avez déjà. Ce qui reste décoché est repris ci-dessous, nommément.</div>';
+  P.pre.forEach(function(x){
+    var ok=!!(p.pre||{})[x.k];
+    h+='<label style="display:flex;gap:9px;align-items:flex-start;margin:7px 0;cursor:pointer;font-size:12.5px;line-height:1.5">'
+     +'<input type="checkbox" '+(ok?'checked':'')+' onchange="parcPre(\''+id+'\',\''+x.k+'\',this.checked)" style="margin-top:3px;width:17px;height:17px;flex:none">'
+     +'<span style="'+(ok?'opacity:.55':'')+'"><span style="font-size:10px;border:1px solid rgba(255,255,255,.25);border-radius:4px;padding:1px 5px;margin-right:6px;color:#9fb0c4">'
+     +(x.q==='doc'?'DOCUMENT':x.q==='piece'?'PIÈCE':'INFORMATION')+'</span>'+negoEsc(x.lib)+'</span></label>';
+  });
+  if(manque.length){
+    h+='<div class="al warn" style="margin-top:8px;font-size:12px;line-height:1.6"><b>Il vous manque '+manque.length+' élément(s) :</b><br>'
+     +manque.map(function(x){ return '· '+negoEsc(x.lib); }).join('<br>')
+     +'<br><span style="color:#9fb0c4">Vous pouvez commencer sans, mais les étapes qui en dépendent resteront approximatives.</span></div>';
+  } else {
+    h+='<div class="al ok" style="margin-top:8px;font-size:12px">Tout est réuni. Le parcours peut être conduit sans approximation.</div>';
+  }
+  h+='</div>';
+
+  /* ② Les dates du dossier */
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:4px">2 · Les dates dont les délais dépendent</div>'
+   +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:6px">Les seules à saisir : tout le reste s’en déduit.</div>';
+  P.dates.forEach(function(d){
+    h+='<label class="fl" style="margin-top:8px">'+negoEsc(d.lib)+'</label>'
+     +'<input type="date" value="'+((D[d.k]||''))+'" onchange="parcDate(\''+id+'\',\''+d.k+'\',this.value)" class="ins-input" style="background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.18)">'
+     +'<div style="font-size:11px;color:#9fb0c4;margin-top:3px">'+negoEsc(d.aide)+'</div>';
+  });
+  h+='</div>';
+
+  /* ③ Les étapes */
+  var dues=P.etapes.filter(function(e){ return !(e.min && !inconnu && eff<e.min); });
+  var hors=P.etapes.filter(function(e){ return e.min && !inconnu && eff<e.min; });
+  var faites=dues.filter(function(e){ return (p.fait||{})[e.k]; }).length;
+  var retards=[];
+  h+='<div class="item" style="margin-top:10px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">'
+   +'<div style="font-weight:700;flex:1;min-width:170px">3 · Les étapes — '+dues.length+' à votre situation</div>'
+   +(faites?('<button onclick="parcRAZ(\''+id+'\')" style="background:none;border:1px solid rgba(212,160,23,.5);color:#d4a017;border-radius:9px;padding:6px 11px;font-size:11.5px;cursor:pointer;font-family:inherit;white-space:nowrap">↺ Recommencer</button>'):'')
+   +'</div>';
+  if(inconnu) h+='<div style="font-size:11.5px;color:#d4a017;margin-bottom:6px">Effectif non renseigné : TOUTES les étapes sont affichées, aucune n’est écartée sur une supposition.</div>';
+  dues.forEach(function(e){
+    var fait=!!(p.fait||{})[e.k];
+    var ech=e.ech?e.ech(D):'';
+    var tard=!fait && parcRetard(ech);
+    if(tard) retards.push(e);
+    h+='<div style="margin:9px 0;padding:10px;border:1px solid '+(fait?'rgba(70,184,133,.45)':(tard?'rgba(212,23,23,.5)':'rgba(255,255,255,.12)'))+';border-radius:10px;'+(fait?'opacity:.72':'')+'">'
+     +'<label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">'
+     +'<input type="checkbox" '+(fait?'checked':'')+' onchange="parcFait(\''+id+'\',\''+e.k+'\',this.checked)" style="margin-top:3px;width:18px;height:18px;flex:none">'
+     +'<span style="flex:1"><b>'+e.n+'. '+negoEsc(e.lib)+'</b>'
+     +(e.opt?' <span style="font-size:10px;color:#9fb0c4;border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:1px 5px">facultatif</span>':'')
+     +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:3px;line-height:1.55">'+negoEsc(e.src)+'</div>'
+     +(e.note?('<div style="font-size:11.5px;margin-top:5px;line-height:1.55;color:#cfd8e3">'+negoEsc(e.note)+'</div>'):'')
+     +(ech?('<div style="font-size:12px;margin-top:5px;font-weight:700;color:'+(tard?'#e06666':(fait?'#9fb0c4':'#c9a84c'))+'">Échéance : '+negoEsc(parcFr(ech))+' — '+negoEsc(e.echLib||'')+(tard?' · EN RETARD':'')+'</div>'):'')
+     +(fait&&(p.faitD||{})[e.k]?('<div style="font-size:10.5px;color:#9fb0c4;margin-top:4px">fait le '+negoEsc(ausDate((p.faitD||{})[e.k]))+'</div>'):'')
+     +'</span></label>';
+    if(e.doc||e.doc2){
+      h+='<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
+      [e.doc,e.doc2].forEach(function(d){ if(!d) return;
+        h+='<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="parcDoc(\''+d[0]+'\')">📄 '+negoEsc(d[1])+'</button>'; });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  if(hors.length){
+    h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:#9fb0c4">'+hors.length+' étape(s) hors de votre effectif — avec le seuil qui les déclenchera</summary>'
+     +'<div style="font-size:12px;color:#9fb0c4;padding:8px 2px;line-height:1.7">'
+     +hors.map(function(e){ return '· '+negoEsc(e.lib)+' — dès '+e.min+' salariés'; }).join('<br>')+'</div></details>';
+  }
+  h+='</div>';
+
+  /* ④ Où vous en êtes */
+  h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">4 · Où vous en êtes</div>'
+   +'<div style="font-size:13px;line-height:1.8">✅ Étapes faites : <b>'+faites+'</b> sur '+dues.length+'<br>'
+   +(retards.length?('⛔ <b style="color:#e06666">'+retards.length+' étape(s) en retard</b> : '+retards.map(function(e){ return negoEsc(e.lib); }).join(' · ')+'<br>'):'')
+   +(manque.length?('⚠ Préalable incomplet : '+manque.length+' élément(s) manquant(s)<br>'):'')
+   +'</div>'
+   +'<div style="height:9px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin:9px 0">'
+   +'<div style="height:100%;width:'+(dues.length?Math.round(faites*100/dues.length):0)+'%;background:'+(retards.length?'#e06666':'#46b885')+'"></div></div>'
+   +'<button class="btn" style="width:100%;margin-top:6px" onclick="parcRecap()">📄 Récapitulatif — où en est ce parcours</button>'
+   +'</div>';
+  z.innerHTML=h;
+}
+
+/* Les documents du parcours viennent des modules qui les possedent deja :
+   un modele n'est ecrit qu'une fois. */
+function parcDoc(type){
+  try{
+    if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets'].indexOf(type)>=0){ ausDoc(type); return; }
+    ausDoc(type);
+  }catch(e){ alert('Modèle indisponible : '+e.message); }
+}
+
+/* Le recapitulatif : ce qui est fait, ce qui reste, ce qui est en retard,
+   et ce qui manque au prealable — imprimable, comme les autres documents. */
+function parcRecap(){
+  var id=PARC_OUVERT, P=PARCOURS[id]; if(!P) return;
+  var p=parcP(id), D=p.dates||{}, eff=null;
+  try{ eff=jxEffectifMax(); }catch(e){}
+  var inconnu=(eff===null||eff===Infinity);
+  var dues=P.etapes.filter(function(e){ return !(e.min && !inconnu && eff<e.min); });
+  var manque=P.pre.filter(function(x){ return !(p.pre||{})[x.k]; });
+  var lig=function(e){
+    var fait=!!(p.fait||{})[e.k], ech=e.ech?e.ech(D):'', tard=!fait&&parcRetard(ech);
+    return '<tr><td style="border:1px solid #000;padding:5px">'+e.n+'</td>'
+      +'<td style="border:1px solid #000;padding:5px">'+negoEsc(e.lib)+'</td>'
+      +'<td style="border:1px solid #000;padding:5px;font-size:9pt">'+negoEsc(e.src)+'</td>'
+      +'<td style="border:1px solid #000;padding:5px">'+(ech?negoEsc(parcFr(ech)):'—')+'</td>'
+      +'<td style="border:1px solid #000;padding:5px"><b>'+(fait?'FAIT':(tard?'EN RETARD':'à faire'))+'</b></td></tr>';
+  };
+  var H=ausTete()
+   +'<p><b>'+negoEsc(P.titre.toUpperCase())+' — OÙ EN EST CE PARCOURS</b><br>Établi le '+new Date().toLocaleDateString('fr-FR')
+   +' · effectif retenu : '+(inconnu?'non renseigné — aucune étape écartée':('≤ '+eff))+'</p>'
+   +'<p><b>1 · Préalable.</b> '+(manque.length
+      ? ('Il manque '+manque.length+' élément(s) : '+manque.map(function(x){ return negoEsc(x.lib); }).join(' ; ')+'.')
+      : 'Réuni en totalité.')+'</p>'
+   +'<p><b>2 · Dates du dossier.</b> '+P.dates.map(function(d){
+        return negoEsc(d.lib)+' : '+(D[d.k]?negoEsc(parcFr(D[d.k])):'non renseignée'); }).join(' · ')+'</p>'
+   +'<p><b>3 · Étapes.</b></p>'
+   +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>N°</th><th>Étape</th><th>Fondement</th><th>Échéance</th><th>État</th></tr>'
+   +dues.map(lig).join('')+'</table>';
+  var faites=dues.filter(function(e){ return (p.fait||{})[e.k]; }).length;
+  var retards=dues.filter(function(e){ return !(p.fait||{})[e.k] && parcRetard(e.ech?e.ech(D):''); });
+  H+='<p><b>4 · Synthèse.</b> '+faites+' étape(s) faite(s) sur '+dues.length
+   +(retards.length?(' · <b>'+retards.length+' en retard</b> : '+retards.map(function(e){ return negoEsc(e.lib); }).join(', ')):' · aucun retard')+'.</p>';
+  window._docCurrent={ titre:P.titre+' — récapitulatif', html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
+  try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
+}
+
 function cseinstOnEnter(){ cseinstRender(); }
 function cseinstRender(){
   var z=document.getElementById('cseinst-zone'); if(!z) return;
@@ -30731,7 +31044,8 @@ function cseinstRender(){
   var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
   var grand=(eff===null)||(eff===Infinity)||(eff>=50);   /* dans le doute : montrer */
   var tresGrand=(eff===null)||(eff===Infinity)||(eff>=300);
-  var h='<div class="al info" style="font-size:12.5px;line-height:1.65;margin-bottom:12px">'
+  var h='<button class="btn" style="width:100%;margin-bottom:10px" onclick="parcOuvrir(\'cseinstall\')">🧭 Ouvrir le parcours guidé — êtes-vous prêt ? les douze étapes, leurs dates, leurs documents</button>'
+    +'<div class="al info" style="font-size:12.5px;line-height:1.65;margin-bottom:12px">'
     +'Le comité est élu : il reste à l’installer. Aucun texte n’impose une première réunion « dans les trente jours » — '
     +'mais la documentation économique et financière se remet <b>un mois après l’élection</b> (L.2312-57, à défaut d’accord, entreprises d’au moins 50 salariés), et c’est elle qui date le calendrier.</div>';
 
