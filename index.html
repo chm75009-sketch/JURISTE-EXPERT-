@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-22.212';
+var JX_BUILD = 'v2026-08-22.213';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-22.213', d:'22 août 2026', t:[
+   'LA VÉRIFICATION DE CE QUE VOUS DITES AVOIR FAIT. Cocher une étape n\u2019est pas l\u2019avoir faite dans les règles : chaque étape cochée ouvre désormais sa grille de contrôle.',
+   'Cent trente-sept questions, sur les soixante-deux étapes des sept parcours. Aucune ne demande « est-ce conforme ? » : elles demandent la pièce, sa date, son destinataire — l\u2019accusé de réception de l\u2019URSSAF, la preuve de remise du document d\u2019information, la signature du secrétaire sur l\u2019ordre du jour, le récépissé de dépôt.',
+   'Le verdict se déduit des réponses, jamais d\u2019une déclaration : un seul « non » fait un ÉCART ; une question sans réponse, « en cours » ou « je ne sais pas » laisse INDÉTERMINÉ. Rien n\u2019est conforme par défaut.',
+   'RAPPORT DE RÉGULARISATION en Word : ce qui a été fait, ce qui a été vérifié, ce que la vérification a trouvé — avec le détail des réponses, question par question, et sans conclure au-delà d\u2019elles. Les étapes déclarées faites sans grille y sont dites ni confirmées ni infirmées.'
+ ]},
  {v:'v2026-08-22.212', d:'22 août 2026', t:[
    'LE GUIDE DE RÉGULARISATION — l\u2019audit ne dit plus seulement ce qui manque, il dit PAR OÙ COMMENCER.',
    'Vos manques sont regroupés par parcours guidé : quatre points du document unique se traitent dans un seul pas à pas, pas en ouvrant quatre modèles l\u2019un après l\u2019autre. Les parcours sont classés par gravité, puis par nombre de points traités.',
@@ -31166,6 +31172,27 @@ function parcP(id){ var N=parcEtat(); return N[id]||(N[id]={pre:{},dates:{},fait
 function parcMaj(id,f){ var N=parcEtat(); N[id]=N[id]||{pre:{},dates:{},fait:{},faitD:{}}; f(N[id]); parcSauve(N); parcRender(); }
 function parcPre(id,k,v){ parcMaj(id,function(p){ p.pre=p.pre||{}; if(v) p.pre[k]=1; else delete p.pre[k]; }); }
 function parcDate(id,k,v){ parcMaj(id,function(p){ p.dates=p.dates||{}; if(v) p.dates[k]=v; else delete p.dates[k]; }); }
+/* CE QU'ON DIT AVOIR FAIT SE VERIFIE. Chaque reponse porte sa date :
+   un controle d'il y a huit mois n'est pas un controle d'aujourd'hui. */
+function parcCtrl(id,k,qi,v){ parcMaj(id,function(p){
+  p.ctrl=p.ctrl||{}; p.ctrl[k]=p.ctrl[k]||{}; p.ctrlD=p.ctrlD||{}; p.ctrlD[k]=p.ctrlD[k]||{};
+  if(v){ p.ctrl[k]['q'+qi]=v; p.ctrlD[k]['q'+qi]=new Date().toISOString(); }
+  else { delete p.ctrl[k]['q'+qi]; delete p.ctrlD[k]['q'+qi]; } }); }
+function parcCtrlAutre(id,k,qi,v){ parcMaj(id,function(p){
+  p.ctrlA=p.ctrlA||{}; p.ctrlA[k]=p.ctrlA[k]||{};
+  if(String(v||'').trim()) p.ctrlA[k]['q'+qi]=String(v).trim(); else delete p.ctrlA[k]['q'+qi]; }); }
+/* Le verdict d'une etape : un seul « non » fait un ecart ; une reponse
+   absente, « en cours », « je ne sais pas » ou « autre » laisse
+   indetermine. Rien n'est conforme par defaut. */
+function parcVerdict(p,e){
+  var C=((p.ctrl||{})[e.k])||{}, q=e.ctrl||[];
+  if(!q.length) return '';
+  var v='conforme';
+  q.forEach(function(x,i){ var r=C['q'+i]||'';
+    if(r==='non') v='ecart';
+    else if(r!=='oui' && v!=='ecart') v='indetermine'; });
+  return v;
+}
 function parcFait(id,k,v){ parcMaj(id,function(p){ p.fait=p.fait||{}; p.faitD=p.faitD||{};
   if(v){ p.fait[k]=1; p.faitD[k]=new Date().toISOString(); } else { delete p.fait[k]; delete p.faitD[k]; } }); }
 function parcRAZ(id){
@@ -31291,50 +31318,50 @@ var PARCOURS={
    {k:'reu1', lib:'Première réunion — date retenue', aide:'Aucun texte n’impose de délai. La butée réelle est celle de la documentation.'}
   ],
   etapes:[
-   {k:'convoc', n:'1', lib:'Convoquer la première réunion et arrêter l’ordre du jour',
+   {k:'convoc', n:'1', ctrl:['La convocation et l’ordre du jour de la première réunion sont-ils datés et conservés ?','Le président était-il assisté de trois collaborateurs au plus (L.2315-23) ?'], lib:'Convoquer la première réunion et arrêter l’ordre du jour',
     src:'L.2315-23 — le comité est présidé par l’employeur ou son représentant, assisté au plus de trois collaborateurs à voix consultative',
     ech:function(D){ return D.reu1||''; }, echLib:'la date que vous avez retenue',
     doc:['convocation','Convocation'], doc2:['odj','Ordre du jour d’installation']},
-   {k:'bureau', n:'2', lib:'Élire le secrétaire et le trésorier, parmi les titulaires', min:50,
+   {k:'bureau', n:'2', ctrl:['Le secrétaire et le trésorier ont-ils été élus parmi les TITULAIRES ?','La résolution a-t-elle été adoptée à la majorité des membres présents, et le vote figure-t-il au procès-verbal (L.2315-32) ?'], lib:'Élire le secrétaire et le trésorier, parmi les titulaires', min:50,
     src:'L.2315-23 · résolutions à la majorité des membres présents (L.2315-32)',
     note:'Le président participe à ce vote : la Cour de cassation juge que la désignation du secrétaire ne constitue pas la consultation des élus en tant que délégation du personnel (Soc. 10 juillet 1991, n° 88-20.411, publié). L’arrêt vise le secrétaire ; l’étendre au trésorier est admis en pratique, mais l’arrêt ne le dit pas.',
     doc:['pvbureau','PV de désignation']},
-   {k:'referent', n:'3', lib:'Faire désigner le référent harcèlement sexuel et agissements sexistes',
+   {k:'referent', n:'3', ctrl:['Le référent a-t-il été désigné par résolution adoptée selon L.2315-32 ?','La durée de sa mission prend-elle fin avec celle du mandat des élus ?'], lib:'Faire désigner le référent harcèlement sexuel et agissements sexistes',
     src:'L.2314-1, dernier alinéa — par résolution adoptée selon L.2315-32, pour une durée qui prend fin avec le mandat',
     note:'Due dès qu’il y a un comité, quelle que soit la taille. À ne pas confondre avec le référent de l’employeur, dû à partir de 250 salariés (L.1153-5-1).',
     doc:['pvbureau','PV de désignation']},
-   {k:'cssct', n:'4', lib:'Désigner les membres de la commission santé, sécurité et conditions de travail', min:300,
+   {k:'cssct', n:'4', ctrl:['La commission compte-t-elle au moins trois représentants du personnel (L.2315-39) ?','L’un d’eux relève-t-il du deuxième collège ou, le cas échéant, du troisième ?'], lib:'Désigner les membres de la commission santé, sécurité et conditions de travail', min:300,
     src:'L.2315-36 · composition L.2315-39 : au moins trois représentants du personnel, dont un du deuxième collège ou, le cas échéant, du troisième — d’ordre public',
     note:'La commission ne peut recevoir ni les attributions consultatives du comité, ni le recours à l’expert (L.2315-38, d’ordre public). Elle est due aussi dans les établissements d’au moins 300 salariés, dans ceux des articles L.4521-1 et suivants, et sur décision de l’inspecteur du travail (L.2315-37).',
     doc:['pvbureau','PV de désignation'], doc2:['commissions','Guide des commissions']},
-   {k:'commissions', n:'5', lib:'Constituer les autres commissions dues à votre effectif', min:300,
+   {k:'commissions', n:'5', ctrl:['Chaque commission due à votre effectif a-t-elle été constituée, ou un accord en dispose-t-il autrement (L.2315-45) ?','Leur composition figure-t-elle à un procès-verbal daté ?'], lib:'Constituer les autres commissions dues à votre effectif', min:300,
     src:'à défaut d’accord (L.2315-45) : formation L.2315-49 · logement L.2315-50 et L.2315-51 · égalité professionnelle L.2315-56 · économique dès 1 000 salariés L.2315-46 à L.2315-48 · marchés selon les comptes DU COMITÉ, L.2315-44-1 et D.2315-29',
     note:'La commission économique est présidée par l’employeur, comprend au MAXIMUM cinq membres dont au moins un cadre, et se réunit au moins deux fois par an (L.2315-47 et L.2315-48). Un accord d’entreprise peut réorganiser toutes ces commissions : le vérifier avant d’appliquer le régime supplétif.',
     doc:['commissions','Guide des commissions']},
-   {k:'ricse', n:'6', lib:'Mettre en chantier le règlement intérieur du comité', min:50,
+   {k:'ricse', n:'6', ctrl:['Le règlement intérieur du comité a-t-il été adopté par résolution (L.2315-24) ?','Fixe-t-il les modalités de fonctionnement ET les rapports du comité avec les salariés ?'], lib:'Mettre en chantier le règlement intérieur du comité', min:50,
     src:'L.2315-24 — le comité détermine dans un règlement intérieur les modalités de son fonctionnement et de ses rapports avec les salariés',
     note:'Sauf accord de l’employeur, il ne peut lui imposer d’obligations ne résultant pas de la loi — et cet accord constitue un engagement unilatéral, que l’employeur peut dénoncer. Y régler : rôle du bureau, périodicité des réunions, votes, procès-verbaux, fonctionnement des commissions à défaut d’accord (L.2315-44), budgets, confidentialité.',
     doc:['ricse','Trame de règlement intérieur du comité']},
-   {k:'budgets', n:'7', lib:'Ouvrir le compte du comité et arrêter les deux budgets', min:50,
+   {k:'budgets', n:'7', ctrl:['Le comité dispose-t-il d’un compte bancaire ouvert à son nom ?','Le budget de fonctionnement versé correspond-il à 0,20 % de la masse salariale brute — 0,22 % à partir de 2 000 salariés (L.2315-61) ?','Le versement des activités sociales et culturelles est-il établi par un écrit daté ?'], lib:'Ouvrir le compte du comité et arrêter les deux budgets', min:50,
     src:'personnalité civile L.2315-23 · fonctionnement 0,20 % de la masse salariale brute, 0,22 % à partir de 2 000 salariés (L.2315-61) · activités sociales fixées par accord, à défaut le rapport à la masse salariale ne peut être inférieur à celui de l’année précédente (L.2312-81)',
     note:'Deux budgets distincts, deux comptes de suivi. La subvention de fonctionnement s’ajoute à celle des activités sociales, sauf si l’employeur fait déjà bénéficier le comité d’une somme ou de moyens équivalents.',
     doc:['budgets','Bordereau des deux budgets']},
-   {k:'formations', n:'8', lib:'Programmer les formations des élus',
+   {k:'formations', n:'8', ctrl:['La formation santé-sécurité de cinq jours a-t-elle été programmée pour les élus ET le référent (L.2315-18) ?','Se déroule-t-elle sur le temps de travail, payée comme tel, sans déduction des heures de délégation (L.2315-16) ?'], lib:'Programmer les formations des élus',
     src:'santé-sécurité : cinq jours au premier mandat, pour les élus ET le référent (L.2315-18), sur le temps de travail, payé comme tel et non déduit des heures de délégation (L.2315-16) · formation économique : cinq jours au plus pour les titulaires élus pour la première fois, dès 50 salariés, financée par le comité (L.2315-63)',
     doc:['formelus','Programme de formation des élus']},
-   {k:'docef', n:'9', lib:'Remettre la documentation économique et financière', min:50,
+   {k:'docef', n:'9', ctrl:['La documentation économique et financière a-t-elle été remise dans le mois qui a suivi l’élection (L.2312-57) ?','Porte-t-elle les cinq rubriques : forme juridique et organisation, perspectives économiques, position dans le groupe, répartition du capital au-delà de 10 %, position dans la branche ?'], lib:'Remettre la documentation économique et financière', min:50,
     src:'L.2312-57 — à défaut d’accord, un mois après chaque élection : forme juridique et organisation, perspectives économiques, position dans le groupe, répartition du capital au-delà de 10 %, position dans la branche',
     ech:function(D){ return D.proc?parcMois(D.proc,1):''; }, echLib:'un mois après la proclamation',
     note:'L’obligation est automatique : elle ne suppose aucune demande du comité. Acter en séance la date d’échéance.',
     doc:['documentation','Bordereau de remise']},
-   {k:'calendrier', n:'10', lib:'Arrêter le calendrier annuel et les modalités de l’ordre du jour',
+   {k:'calendrier', n:'10', ctrl:['Le calendrier respecte-t-il la périodicité due à votre effectif — tous les deux mois en deçà de 300, tous les mois à partir de 300 (L.2315-28) ?','Au moins quatre réunions annuelles portent-elles, en tout ou partie, sur la santé-sécurité (L.2315-27) ?'], lib:'Arrêter le calendrier annuel et les modalités de l’ordre du jour',
     src:'réunions au moins tous les deux mois en deçà de 300 salariés, tous les mois à partir de 300 (L.2315-28) · au moins quatre réunions par an portant en tout ou partie sur la santé-sécurité (L.2315-27) · ordre du jour communiqué trois jours au moins avant, à l’inspection du travail et à l’agent des services de prévention compris (L.2315-30)',
     note:'L’ordre du jour est arrêté conjointement par le président et le secrétaire. Les consultations rendues obligatoires par la loi ou un accord y sont inscrites de plein droit par l’un ou l’autre.',
     doc:['odj','Ordre du jour']},
-   {k:'moyens', n:'11', lib:'Ouvrir les moyens : local, matériel, affichage, BDESE, heures',
+   {k:'moyens', n:'11', ctrl:['Le local est-il aménagé et le matériel nécessaire fourni (L.2315-25) ?','Les panneaux d’affichage sont-ils en place (L.2315-15) ?','La base de données est-elle accessible en permanence aux élus et aux délégués syndicaux, dès cinquante salariés (L.2312-36) ?'], lib:'Ouvrir les moyens : local, matériel, affichage, BDESE, heures',
     src:'local aménagé et matériel L.2315-25 · panneaux d’affichage L.2315-15 · libre circulation L.2315-14 · base de données accessible en permanence aux élus et aux délégués syndicaux (L.2312-36, dès 50 salariés)',
     doc:['heuresdeleg','Registre des heures de délégation']},
-   {k:'transition', n:'12', lib:'Organiser la transition avec le comité sortant', opt:true,
+   {k:'transition', n:'12', ctrl:['La remise des pièces et des comptes par le comité sortant a-t-elle été actée par écrit ? (Aucun texte ne l’impose : la question porte sur la trace, pas sur une obligation.)'], lib:'Organiser la transition avec le comité sortant', opt:true,
     src:'aucun texte du code du travail ne règle cette remise — point d’ordre du jour utile, sans fondement légal affiché',
     note:'À inscrire : remise des documents, archives et comptes par l’ancien bureau ; situation de trésorerie et engagements en cours ; contrats et prestataires ; sort du règlement intérieur du comité précédent. La reddition des comptes du comité sortant n’a pas été trouvée dans le code — à vérifier avant de l’affirmer au client.'}
   ]
@@ -31358,39 +31385,39 @@ var PARCOURS={
    {k:'pub',  lib:'Accomplissement des formalités de publicité', aide:'Affichage et dépôt. L’entrée en vigueur se calcule à partir de là.'}
   ],
   etapes:[
-   {k:'contenu', n:'1', lib:'Écrire le contenu — et rien d’autre',
+   {k:'contenu', n:'1', ctrl:['Le texte adopté porte-t-il une date et la signature de l’employeur ?','Se limite-t-il aux matières que L.1321-1 lui réserve, sans y ajouter d’autres sujets ?'], lib:'Écrire le contenu — et rien d’autre',
     src:'L.1321-1 — l’employeur y fixe EXCLUSIVEMENT : les mesures d’application de la réglementation santé-sécurité, dont les instructions de L.4122-1 ; les conditions de participation des salariés au rétablissement de conditions protectrices ; les règles générales et permanentes de discipline, la nature et l’échelle des sanctions',
     note:'« Exclusivement » se prend au mot : une clause étrangère à ces trois matières est sans portée. Le règlement n’est pas le lieu des règles de gestion, des horaires individuels ni des avantages.',
     doc:['ri','Modèle intégral de règlement intérieur']},
-   {k:'rappels', n:'2', lib:'Y faire figurer les quatre rappels obligatoires',
+   {k:'rappels', n:'2', ctrl:['Les dispositions relatives aux droits de la défense (L.1332-1 à L.1332-3) y figurent-elles ?','Le harcèlement moral, le harcèlement sexuel et les agissements sexistes y sont-ils rappelés ?','Le dispositif de protection des lanceurs d’alerte y figure-t-il ?'], lib:'Y faire figurer les quatre rappels obligatoires',
     src:'L.1321-2 — droits de la défense des articles L.1332-1 à L.1332-3 ou de la convention collective · harcèlements moral et sexuel et agissements sexistes · dispositif de protection des lanceurs d’alerte (loi du 9 décembre 2016)',
     note:'Ces rappels ne sont pas facultatifs et leur absence est le premier reproche fait au règlement lors d’un contrôle.',
     doc:['ri','Modèle intégral']},
-   {k:'interdits', n:'3', lib:'Vérifier ce qu’il ne peut PAS contenir',
+   {k:'interdits', n:'3', ctrl:['Avez-vous vérifié qu’aucune clause n’est contraire aux lois, règlements, conventions et accords applicables ?','Chaque restriction aux droits des personnes est-elle justifiée par la nature de la tâche ET proportionnée au but recherché (L.1321-3) ?'], lib:'Vérifier ce qu’il ne peut PAS contenir',
     src:'L.1321-3 — rien de contraire aux lois, règlements, conventions et accords applicables · aucune restriction aux droits des personnes et aux libertés qui ne soit justifiée par la nature de la tâche et proportionnée au but recherché · aucune disposition discriminatoire',
     note:'Le test de proportionnalité s’applique clause par clause : fouille des sacs, alcool, tenue, usage des outils numériques, vidéosurveillance. Chacune doit dire POURQUOI elle est justifiée.',
     doc:['ri','Modèle intégral']},
-   {k:'avis', n:'4', lib:'Recueillir l’avis du comité social et économique',
+   {k:'avis', n:'4', ctrl:['L’avis du comité a-t-il été recueilli AVANT l’introduction du règlement (L.1321-4) ?','Cet avis figure-t-il à un procès-verbal daté ?'], lib:'Recueillir l’avis du comité social et économique',
     src:'L.1321-4 — le règlement ne peut être introduit qu’APRÈS avoir été soumis à l’avis du comité',
     ech:function(D){ return D.avis||''; }, echLib:'la date que vous avez retenue',
     note:'Un avis, pas un accord : le comité ne dispose pas d’un droit de veto. Mais l’avis doit être recueilli avant l’introduction, et il accompagne le règlement lors de sa communication à l’inspection.',
     doc:['odj','Ordre du jour de la réunion'], doc2:['pvri','PV de consultation sur le règlement']},
-   {k:'publicite', n:'5', lib:'Accomplir les formalités de publicité',
+   {k:'publicite', n:'5', ctrl:['Le règlement est-il porté à la connaissance des personnes ayant accès aux lieux de travail OU aux locaux d’embauche (R.1321-1) ?','A-t-il été déposé au greffe du conseil de prud’hommes du ressort (R.1321-2) ?'], lib:'Accomplir les formalités de publicité',
     src:'R.1321-1 — porté par tout moyen à la connaissance des personnes ayant accès aux lieux de travail OU aux locaux où se fait l’embauche · R.1321-2 — déposé au greffe du conseil de prud’hommes du ressort',
     ech:function(D){ return D.pub||''; }, echLib:'la date que vous avez retenue',
     note:'Deux formalités distinctes, souvent confondues : l’affichage ET le dépôt au greffe. Le dépôt seul ne suffit pas, l’affichage seul non plus.',
     doc:['ridepot','Bordereau de dépôt et d’affichage']},
-   {k:'inspection', n:'6', lib:'Communiquer le règlement à l’inspecteur du travail',
+   {k:'inspection', n:'6', ctrl:['Le règlement a-t-il été communiqué à l’inspecteur du travail EN MÊME TEMPS que les mesures de publicité ?','L’avis du comité y était-il joint (L.1321-4) ?','Gardez-vous la preuve datée de cet envoi ?'], lib:'Communiquer le règlement à l’inspecteur du travail',
     src:'L.1321-4 — EN MÊME TEMPS que les mesures de publicité, accompagné de l’avis du comité',
     ech:function(D){ return D.pub||''; }, echLib:'le même jour que la publicité',
     note:'« En même temps » : ni avant, ni après. L’avis du comité doit être joint.',
     doc:['ridepot','Bordereau — volet inspection']},
-   {k:'entree', n:'7', lib:'Ne l’appliquer qu’un mois après',
+   {k:'entree', n:'7', ctrl:['La date d’entrée en vigueur est-elle inscrite dans le règlement lui-même ?','Est-elle postérieure d’un mois au moins à l’accomplissement des formalités de publicité (L.1321-4) ?'], lib:'Ne l’appliquer qu’un mois après',
     src:'L.1321-4 — le règlement indique la date de son entrée en vigueur, POSTÉRIEURE D’UN MOIS à l’accomplissement des formalités de publicité',
     ech:function(D){ return D.pub?parcMois(D.pub,1):''; }, echLib:'un mois après la publicité',
     note:'Une sanction prononcée sur le fondement d’un règlement non encore entré en vigueur est privée de base. La date doit figurer DANS le texte lui-même.',
     doc:['ri','Modèle intégral']},
-   {k:'notes', n:'8', lib:'Traiter les notes de service comme des adjonctions',
+   {k:'notes', n:'8', ctrl:['Les notes de service portant des obligations générales et permanentes ont-elles suivi les mêmes formalités (L.1321-5) ?'], lib:'Traiter les notes de service comme des adjonctions',
     src:'L.1321-5 — toute note portant des obligations générales et permanentes dans les matières de L.1321-1 et L.1321-2 est une adjonction au règlement, soumise aux mêmes formalités',
     note:'Exception : en cas d’urgence, les obligations de santé-sécurité peuvent recevoir application immédiate — les formalités sont alors accomplies simultanément.',
     doc:['ridepot','Bordereau — volet note de service']}
@@ -31415,36 +31442,36 @@ var PARCOURS={
    {k:'entr', lib:'Entretien préalable', aide:'La notification ne peut intervenir moins de deux jours ouvrables après, ni plus d’un mois.'}
   ],
   etapes:[
-   {k:'qualif', n:'1', lib:'Qualifier : est-ce bien une sanction ?',
+   {k:'qualif', n:'1', ctrl:['La mesure envisagée est-elle autre qu’une observation verbale (L.1331-1) ?','Les faits reprochés sont-ils datés et décrits par écrit au dossier ?'], lib:'Qualifier : est-ce bien une sanction ?',
     src:'L.1331-1 — constitue une sanction toute mesure, AUTRE QUE LES OBSERVATIONS VERBALES, prise à la suite d’un agissement considéré comme fautif, de nature à affecter immédiatement ou non la présence, la fonction, la carrière ou la rémunération',
     note:'Un courriel de reproche écrit est une sanction. Une remarque orale n’en est pas une. Et l’amende est interdite en toute hypothèse (L.1331-2) : aucune retenue sur salaire à titre de punition.'},
-   {k:'delai', n:'2', lib:'Vérifier le délai de deux mois',
+   {k:'delai', n:'2', ctrl:['La date à laquelle vous avez eu CONNAISSANCE des faits est-elle établie et datée ?','La convocation est-elle intervenue dans les deux mois de cette date (L.1332-4) ?'], lib:'Vérifier le délai de deux mois',
     src:'L.1332-4 — aucun fait fautif ne peut à lui seul donner lieu à poursuites au-delà de deux mois du jour où l’employeur en a eu CONNAISSANCE, sauf poursuites pénales engagées dans le même délai',
     ech:function(D){ return D.conn?parcMois(D.conn,2):''; }, echLib:'dernier jour pour engager les poursuites',
     note:'Passé ce délai, le fait est amnistié : il ne peut plus fonder à lui seul une sanction. Il peut encore éclairer un comportement persistant, à condition qu’un fait récent soit poursuivi.'},
-   {k:'mad', n:'3', lib:'Décider, ou non, une mise à pied conservatoire', opt:true,
+   {k:'mad', n:'3', ctrl:['Si une mise à pied conservatoire a été prononcée, la procédure de L.1332-2 a-t-elle été engagée sans attendre ?','Sa qualification de CONSERVATOIRE est-elle écrite dans la notification, sans durée fixée à l’avance ?'], lib:'Décider, ou non, une mise à pied conservatoire', opt:true,
     src:'L.1332-3 — lorsque les faits ont rendu indispensable une mesure conservatoire à effet immédiat, aucune sanction définitive ne peut être prise sans que la procédure de L.1332-2 ait été respectée',
     note:'Elle n’est pas une sanction : elle écarte le salarié le temps de la procédure. Elle doit être notifiée par écrit, motivée par l’indispensabilité, et suivie SANS DÉLAI de la convocation — sinon elle se requalifie en mise à pied disciplinaire, et la sanction qui suivrait sanctionnerait deux fois les mêmes faits.',
     doc:['madconserv','Notification de mise à pied conservatoire']},
-   {k:'convoc', n:'4', lib:'Convoquer à l’entretien préalable',
+   {k:'convoc', n:'4', ctrl:['La lettre indique-t-elle l’objet, la date, l’heure et le lieu de l’entretien (R.1332-1) ?','Rappelle-t-elle la faculté de se faire assister par une personne du personnel ?','A-t-elle été remise contre récépissé ou adressée par lettre recommandée, et en avez-vous la date de présentation ?'], lib:'Convoquer à l’entretien préalable',
     src:'L.1332-2 et R.1332-1 — la lettre indique l’objet, la date, l’heure et le lieu, et rappelle la faculté de se faire assister par une personne du personnel. Remise contre récépissé ou lettre recommandée, dans le délai de deux mois',
     ech:function(D){ return D.conv||''; }, echLib:'présentation au salarié',
     note:'Pas de convocation si la sanction envisagée est un AVERTISSEMENT ou une sanction de même nature sans incidence, immédiate ou non, sur la présence, la fonction, la carrière ou la rémunération. Mais le règlement intérieur ou la convention peuvent l’imposer quand même : les lire avant de s’en dispenser.',
     doc:['convdisc','Convocation à l’entretien préalable']},
-   {k:'entretien', n:'5', lib:'Tenir l’entretien — cinq jours ouvrables après la présentation',
+   {k:'entretien', n:'5', ctrl:['L’entretien s’est-il tenu au moins cinq jours ouvrables après la présentation de la lettre ?','Le motif de la sanction envisagée a-t-il été indiqué au salarié, et ses explications recueillies (L.1332-2) ?'], lib:'Tenir l’entretien — cinq jours ouvrables après la présentation',
     src:'L.1332-2 — l’employeur indique le motif de la sanction envisagée et recueille les explications du salarié',
     ech:function(D){ return D.conv?parcJoursOuvr(D.conv,5):''; }, echLib:'au plus tôt, cinq jours ouvrables après la présentation',
     note:'Le délai de cinq jours ouvrables est celui de la procédure de licenciement (L.1232-2) ; pour les autres sanctions, la loi n’en fixe pas — mais un délai suffisant pour préparer sa défense est exigé, et la convention collective en fixe souvent un. À VÉRIFIER dans votre convention avant de retenir cette date.',
     doc:['pventretien','Compte rendu d’entretien']},
-   {k:'notif', n:'6', lib:'Notifier la sanction — écrite et motivée',
+   {k:'notif', n:'6', ctrl:['La décision est-elle ÉCRITE et MOTIVÉE (R.1332-2) ?','A-t-elle été notifiée ni moins de deux jours ouvrables, ni plus d’un mois après l’entretien ?','A-t-elle été remise contre récépissé ou adressée par lettre recommandée ?'], lib:'Notifier la sanction — écrite et motivée',
     src:'R.1332-2 — décision ÉCRITE ET MOTIVÉE, notifiée par lettre remise contre récépissé ou recommandée · L.1332-2 : ni moins de deux jours ouvrables, ni plus d’un mois après l’entretien',
     ech:function(D){ return D.entr?parcMois(D.entr,1):''; }, echLib:'dernier jour pour notifier',
     note:'Deux bornes, pas une. Trop tôt : le salarié n’a pas été réellement entendu. Trop tard : la sanction est privée d’effet. La lettre énonce les faits, leurs dates, et la sanction retenue.',
     doc:['notifdisc','Notification de sanction']},
-   {k:'grade', n:'7', lib:'Vérifier la proportionnalité et l’échelle du règlement',
+   {k:'grade', n:'7', ctrl:['La sanction retenue figure-t-elle à l’échelle du règlement intérieur, lorsqu’il en existe une ?','Est-elle du même degré que celles prononcées dans votre entreprise pour des faits comparables ?'], lib:'Vérifier la proportionnalité et l’échelle du règlement',
     src:'L.1333-1 et L.1333-2 — le juge apprécie la régularité de la procédure et si les faits sont de nature à justifier une sanction ; il peut annuler une sanction irrégulière, injustifiée ou DISPROPORTIONNÉE',
     note:'La sanction doit exister dans l’échelle du règlement intérieur quand il y en a un. Une mise à pied de cinq jours dans une entreprise dont le règlement en prévoit trois au plus est annulable pour ce seul motif.'},
-   {k:'dossier', n:'8', lib:'Classer et dater au dossier',
+   {k:'dossier', n:'8', ctrl:['La sanction est-elle classée et datée au dossier du salarié ?','Avez-vous vérifié qu’aucune sanction de plus de trois ans n’a été invoquée à l’appui de celle-ci (L.1332-5) ?'], lib:'Classer et dater au dossier',
     src:'L.1332-5 — aucune sanction antérieure de plus de TROIS ANS ne peut être invoquée à l’appui d’une nouvelle sanction',
     note:'D’où l’intérêt de dater chaque pièce : au-delà de trois ans, l’antécédent est hors jeu.',
     doc:['notifdisc','Notification — pour le dossier']}
@@ -31468,36 +31495,36 @@ var PARCOURS={
    {k:'dispo', lib:'Mise à disposition des informations, si consultation', aide:'C’est de là que court le délai d’examen — un mois, deux avec expertise.'}
   ],
   etapes:[
-   {k:'odj', n:'1', lib:'Arrêter l’ordre du jour CONJOINTEMENT avec le secrétaire',
+   {k:'odj', n:'1', ctrl:['L’ordre du jour porte-t-il la signature ou l’accord écrit du secrétaire (L.2315-29) ?','Les consultations rendues obligatoires par un texte ou un accord y sont-elles inscrites ?'], lib:'Arrêter l’ordre du jour CONJOINTEMENT avec le secrétaire',
     src:'L.2315-29 — l’ordre du jour est établi par le président ET le secrétaire ; les consultations rendues obligatoires par un texte ou un accord y sont inscrites de plein droit par l’un ou l’autre',
     note:'Un ordre du jour arrêté par le seul employeur est irrégulier, et les délibérations qui en découlent sont fragiles. En revanche, une consultation obligatoire s’inscrit de plein droit : le désaccord du secrétaire ne peut pas la bloquer.',
     doc:['odjcse','Ordre du jour type']},
-   {k:'envoi', n:'2', lib:'Communiquer l’ordre du jour trois jours au moins avant',
+   {k:'envoi', n:'2', ctrl:['L’ordre du jour a-t-il été communiqué trois jours au moins avant la réunion ?','L’agent de contrôle de l’inspection du travail et l’agent des services de prévention en ont-ils été destinataires (L.2315-30) ?','Gardez-vous la preuve datée de ces envois ?'], lib:'Communiquer l’ordre du jour trois jours au moins avant',
     src:'L.2315-30 — communiqué par le président aux membres, à l’agent de contrôle de l’inspection du travail et à l’agent des services de prévention des organismes de sécurité sociale, trois jours au moins avant la réunion',
     ech:function(D){ return D.reu?parcJours(D.reu,-3):''; }, echLib:'dernier jour pour envoyer',
     note:'Trois destinataires, pas un. L’inspection et la CARSAT sont souvent oubliées — c’est le manquement le plus simple à établir.',
     doc:['odjcse','Ordre du jour type']},
-   {k:'convoc', n:'3', lib:'Convoquer les membres, suppléants compris',
+   {k:'convoc', n:'3', ctrl:['Les suppléants ont-ils reçu l’ordre du jour, comme les titulaires ?'], lib:'Convoquer les membres, suppléants compris',
     src:'les suppléants assistent aux réunions en l’absence du titulaire (L.2314-1) — ils reçoivent donc l’ordre du jour pour savoir s’ils doivent s’y rendre',
     doc:['convocation','Convocation']},
-   {k:'delai', n:'4', lib:'Laisser courir le délai d’examen, si consultation', opt:true,
+   {k:'delai', n:'4', ctrl:['Les informations remises au comité étaient-elles précises et ÉCRITES (L.2312-15) ?','La date de mise à disposition, qui fait courir le délai, est-elle établie (R.2312-5) ?','Le délai d’examen a-t-il couru en entier avant que la décision soit prise ?'], lib:'Laisser courir le délai d’examen, si consultation', opt:true,
     src:'L.2312-15 — délai d’examen suffisant, informations précises et écrites, réponse motivée de l’employeur · R.2312-5 : le délai court de la communication ou de l’information de la mise à disposition dans la base de données · R.2312-6 : un mois, deux en cas d’expertise, trois si expertises au comité central et en établissements',
     ech:function(D){ return D.dispo?parcMois(D.dispo,1):''; }, echLib:'avis réputé rendu — et négatif — à défaut',
     note:'À l’expiration du délai, l’avis est réputé RENDU et NÉGATIF. Un accord peut allonger ces délais : le vérifier avant de s’en tenir au supplétif.'},
-   {k:'seance', n:'5', lib:'Tenir la séance : présidence, votes, réclamations',
+   {k:'seance', n:'5', ctrl:['Le président était-il assisté de trois collaborateurs AU PLUS (L.2315-23) ?','Le président s’est-il abstenu de voter lorsqu’il consultait les élus en tant que délégation du personnel (L.2315-32) ?'], lib:'Tenir la séance : présidence, votes, réclamations',
     src:'L.2315-23 — présidence par l’employeur ou son représentant, assisté au plus de trois collaborateurs à voix consultative · L.2315-32 — résolutions à la majorité des membres présents, le président ne votant pas lorsqu’il consulte les élus en tant que délégation du personnel',
     note:'Seuls les titulaires votent — et le suppléant qui remplace un titulaire absent. Le représentant syndical au comité ne vote pas : il a voix consultative.',
     doc:['pvcse','Procès-verbal type']},
-   {k:'pv', n:'6', lib:'Établir le procès-verbal dans les quinze jours',
+   {k:'pv', n:'6', ctrl:['Le procès-verbal a-t-il été établi par le SECRÉTAIRE, et non par l’employeur ?','L’a-t-il été dans les quinze jours, et communiqué à l’employeur et aux membres (R.2315-25) ?'], lib:'Établir le procès-verbal dans les quinze jours',
     src:'L.2315-34 et R.2315-25 — à défaut d’accord, les délibérations sont consignées par le SECRÉTAIRE dans un délai de quinze jours, et communiquées à l’employeur et aux membres',
     ech:function(D){ return D.reu?parcJours(D.reu,15):''; }, echLib:'quinze jours après la réunion',
     note:'Le procès-verbal est l’œuvre du secrétaire, pas de l’employeur. Le délai est de trois jours lorsque l’employeur doit consulter le comité avant un délai plus court, et d’un jour en cas de procédure de sauvegarde, redressement ou liquidation — À VÉRIFIER au texte avant de s’en prévaloir.',
     doc:['pvcse','Procès-verbal type']},
-   {k:'reponse', n:'7', lib:'Répondre de façon motivée aux avis, à la réunion suivante',
+   {k:'reponse', n:'7', ctrl:['Votre décision motivée a-t-elle été donnée LORS DE LA RÉUNION SUIVANTE (L.2315-34) ?','Figure-t-elle au procès-verbal de cette réunion ?'], lib:'Répondre de façon motivée aux avis, à la réunion suivante',
     src:'L.2315-34 — à réception du procès-verbal, l’employeur fait connaître LORS DE LA RÉUNION SUIVANTE sa décision motivée sur les propositions qui lui ont été soumises',
     note:'C’est une obligation distincte de la consultation elle-même. Son absence répétée est le grief le plus souvent retenu contre l’employeur devant l’inspection.',
     doc:['pvcse','Procès-verbal — volet réponses']},
-   {k:'diffusion', n:'8', lib:'Laisser le secrétaire diffuser le procès-verbal adopté', opt:true,
+   {k:'diffusion', n:'8', ctrl:['Le procès-verbal n’a-t-il été affiché ou diffusé qu’APRÈS son adoption ?','La diffusion a-t-elle été faite par le secrétaire, selon les modalités du règlement intérieur du comité (L.2315-35) ?'], lib:'Laisser le secrétaire diffuser le procès-verbal adopté', opt:true,
     src:'L.2315-35 — le procès-verbal peut, APRÈS ADOPTION, être affiché ou diffusé par le secrétaire, selon les modalités du règlement intérieur du comité',
     note:'« Après adoption » : le projet ne se diffuse pas. Et c’est le secrétaire qui diffuse, non l’employeur.'}
   ]
@@ -31521,37 +31548,37 @@ var PARCOURS={
    {k:'maj',  lib:'Date de la mise à jour en cours', aide:'C’est de là que courent la consultation et la conservation.'}
   ],
   etapes:[
-   {k:'evaluer', n:'1', lib:'Évaluer les risques, unité de travail par unité de travail',
+   {k:'evaluer', n:'1', ctrl:['L’évaluation est-elle faite unité de travail par unité de travail, et non pour l’entreprise en bloc ?','L’impact différencié de l’exposition selon le sexe est-il constaté unité par unité (L.4121-3) ?'], lib:'Évaluer les risques, unité de travail par unité de travail',
     src:'L.4121-3 — l’employeur évalue les risques compte tenu de la nature des activités, y compris dans le choix des procédés, des équipements, des substances, dans l’aménagement des lieux et dans l’organisation du travail ; l’évaluation tient compte de l’IMPACT DIFFÉRENCIÉ de l’exposition selon le sexe',
     note:'L’impact différencié selon le sexe est dans le texte depuis 2022 et reste le plus souvent absent des documents. Il ne se traite pas par une phrase générale : il se constate unité par unité.',
     doc:['duerp','Document unique — modèle']},
-   {k:'consigner', n:'2', lib:'Consigner les résultats dans le document unique',
+   {k:'consigner', n:'2', ctrl:['Le document unique porte-t-il une date de version ?','Les risques liés aux ambiances thermiques y figurent-ils (R.4121-1) ?'], lib:'Consigner les résultats dans le document unique',
     src:'R.4121-1 — l’employeur transcrit et met à jour dans un document unique les résultats de l’évaluation, y compris les risques liés aux ambiances thermiques',
     note:'Les ambiances thermiques — chaleur, froid — sont nommées par le texte. Une évaluation qui n’en dit rien est incomplète sur un point exprès.',
     doc:['duerp','Document unique — modèle']},
-   {k:'annexe', n:'3', lib:'Établir l’annexe : facteurs de risques et proportion de salariés exposés',
+   {k:'annexe', n:'3', ctrl:['L’annexe consigne-t-elle les données collectives d’exposition aux facteurs de L.4161-1 ?','La proportion de salariés exposés au-delà des seuils y est-elle chiffrée (R.4121-1-1) ?'], lib:'Établir l’annexe : facteurs de risques et proportion de salariés exposés',
     src:'R.4121-1-1 — l’annexe consigne les données collectives d’exposition aux facteurs de L.4161-1 et la PROPORTION de salariés exposés au-delà des seuils',
     note:'Cette annexe alimente les déclarations au titre du compte professionnel de prévention. Une proportion absente, c’est un redressement possible et une exposition non tracée.',
     doc:['duerp','Document unique — annexe']},
-   {k:'papripact', n:'4', lib:'Établir le programme annuel de prévention', min:50,
+   {k:'papripact', n:'4', ctrl:['Chaque mesure du programme porte-t-elle ses conditions d’exécution, un indicateur de résultat, son coût estimé et son calendrier (L.4121-3-1, III) ?'], lib:'Établir le programme annuel de prévention', min:50,
     src:'L.4121-3-1, III, 1° — dans les entreprises d’au moins cinquante salariés, le résultat de l’évaluation débouche sur un programme annuel de prévention : chaque mesure avec ses conditions d’exécution, un indicateur de résultat, son coût estimé et son calendrier',
     note:'En deçà de cinquante, le résultat débouche sur la consignation des actions de prévention dans le document unique lui-même — mais sans les quatre colonnes obligatoires du programme.',
     doc:['papripact','Programme annuel de prévention']},
-   {k:'cse', n:'5', lib:'Consulter le comité sur le document et ses mises à jour', min:11,
+   {k:'cse', n:'5', ctrl:['Le document unique et sa mise à jour ont-ils été présentés au comité ?','Le point figure-t-il à l’ordre du jour et au procès-verbal d’une séance datée ?'], lib:'Consulter le comité sur le document et ses mises à jour', min:11,
     src:'L.4121-3 — le document unique et ses mises à jour sont présentés au comité social et économique',
     ech:function(D){ return D.maj||''; }, echLib:'à porter à l’ordre du jour de la séance qui suit',
     note:'La contribution du salarié compétent et celle du service de prévention et de santé au travail se tracent aussi : ce sont elles qui donnent au document son autorité.',
     doc:['odjcse','Ordre du jour — point document unique'], doc2:['pvcse','PV de consultation']},
-   {k:'maj', n:'6', lib:'Mettre à jour aux trois occasions prévues',
+   {k:'maj', n:'6', ctrl:['La dernière mise à jour a-t-elle moins d’un an (R.4121-2, dès onze salariés) ?','Les aménagements importants intervenus depuis ont-ils donné lieu à mise à jour ?','Les informations nouvelles reçues depuis — accident, alerte, nouveau produit — y ont-elles été portées ?'], lib:'Mettre à jour aux trois occasions prévues',
     src:'R.4121-2 — au moins CHAQUE ANNÉE dès onze salariés · lors de toute décision d’aménagement important modifiant les conditions de santé-sécurité ou de travail · lorsqu’une information supplémentaire intéressant l’évaluation d’un risque parvient à l’employeur',
     ech:function(D){ return D.prec?parcMois(D.prec,12):''; }, echLib:'échéance annuelle, dès onze salariés',
     note:'En deçà de onze salariés, l’échéance annuelle ne s’impose pas — les deux autres occasions demeurent. Un accident, une alerte, un nouveau produit : autant d’informations qui déclenchent la mise à jour.',
     doc:['duerp','Document unique — mise à jour']},
-   {k:'acces', n:'7', lib:'Afficher les modalités d’accès et tenir le document à disposition',
+   {k:'acces', n:'7', ctrl:['L’avis indiquant les modalités d’accès est-il affiché, au même emplacement que le règlement intérieur s’il en existe un (R.4121-5) ?','Les versions antérieures sont-elles conservées et restent-elles accessibles (R.4121-4) ?'], lib:'Afficher les modalités d’accès et tenir le document à disposition',
     src:'R.4121-4 — le document et ses versions antérieures sont tenus, pendant QUARANTE ANS à compter de leur élaboration, à la disposition des travailleurs et des anciens travailleurs pour les versions en vigueur pendant leur activité · R.4121-5 : un avis indique les modalités d’accès, affiché au même emplacement que le règlement intérieur lorsqu’il en existe un',
     note:'Quarante ans : la conservation survit au salarié comme à l’employeur. Un ancien travailleur peut demander les versions de sa période d’activité ; la communication peut être limitée aux éléments afférents à son activité.',
     doc:['affichages','Pack des affichages — volet document unique']},
-   {k:'suites', n:'8', lib:'Donner suite : les actions décidées se font, ou se justifient',
+   {k:'suites', n:'8', ctrl:['Les mesures décidées ont-elles été exécutées aux dates prévues ?','Celles qui ne l’ont pas été portent-elles une raison écrite ?'], lib:'Donner suite : les actions décidées se font, ou se justifient',
     src:'L.4121-1 et L.4121-2 — l’employeur prend les mesures nécessaires et applique les neuf principes généraux, dont le remplacement de ce qui est dangereux et la priorité de la protection collective sur la protection individuelle',
     note:'Un document unique parfaitement tenu, suivi d’aucune action, n’a jamais protégé personne — et n’a jamais écarté la faute inexcusable. C’est la suite donnée qui compte.',
     doc:['papripact','Programme annuel — suivi']}
@@ -31576,39 +31603,39 @@ var PARCOURS={
    {k:'ouv',  lib:'Date de la première réunion', aide:'C’est l’ouverture. Tant qu’aucun procès-verbal de désaccord n’est établi, la négociation n’est pas close.'}
   ],
   etapes:[
-   {k:'qui', n:'1', lib:'Vérifier qui doit négocier',
+   {k:'qui', n:'1', ctrl:['Une ou plusieurs sections syndicales d’organisations REPRÉSENTATIVES sont-elles constituées dans l’entreprise (L.2242-1) ?','Les délégués syndicaux désignés vous ont-ils été notifiés par écrit ?'], lib:'Vérifier qui doit négocier',
     src:'L.2242-1 — dans les entreprises où sont constituées une ou plusieurs sections syndicales d’organisations REPRÉSENTATIVES, l’employeur engage au moins une fois tous les quatre ans : 1° une négociation sur la rémunération, le temps de travail et le partage de la valeur ajoutée ; 2° une négociation sur l’égalité professionnelle ; et, dès 300 salariés, 3° une négociation sur la gestion des emplois et des parcours professionnels',
     note:'Sans délégué syndical, il n’y a pas de négociation obligatoire au sens de ces articles — d’autres voies existent (accord avec le comité, référendum), mais ce ne sont pas les NAO. Le seuil n’est pas un effectif : c’est la présence d’une section syndicale représentative.'},
-   {k:'periode', n:'2', lib:'Établir la périodicité applicable',
+   {k:'periode', n:'2', ctrl:['Un accord de méthode de L.2242-11 est-il en vigueur ?','À défaut, la dernière négociation sur la rémunération remonte-t-elle à moins de douze mois (L.2242-13) ?'], lib:'Établir la périodicité applicable',
     src:'L.2242-13 — à défaut d’accord de méthode (L.2242-11) ou en cas de non-respect de ses stipulations : CHAQUE ANNÉE la négociation sur la rémunération, le temps de travail et le partage de la valeur ajoutée ; CHAQUE ANNÉE celle sur l’égalité professionnelle et la qualité de vie au travail ; TOUS LES TROIS ANS celle sur la gestion des emplois dès 300 salariés',
     ech:function(D){ return D.prec?parcMois(D.prec,12):''; }, echLib:'échéance annuelle, à défaut d’accord de méthode',
     note:'Un accord de méthode peut porter la périodicité jusqu’à quatre ans (L.2242-1). L’échéance affichée ici est la règle supplétive : si vous avez un tel accord, c’est lui qui commande.',
     acc:true},
-   {k:'convoc', n:'3', lib:'Convoquer les organisations représentatives',
+   {k:'convoc', n:'3', ctrl:['Toutes les organisations représentatives ont-elles été convoquées ?','Gardez-vous la preuve datée de ces convocations ?'], lib:'Convoquer les organisations représentatives',
     src:'l’employeur prend l’initiative ; à défaut, une organisation représentative peut demander l’ouverture — l’employeur doit alors la convoquer',
     ech:function(D){ return D.ouv||''; }, echLib:'première réunion',
     doc:['nego:invitation','Invitation à la négociation'], doc2:['nego:odj','Ordre du jour de la première réunion']},
-   {k:'premiere', n:'4', lib:'Arrêter à la première réunion le calendrier et les informations',
+   {k:'premiere', n:'4', ctrl:['Le lieu et le calendrier des réunions ont-ils été précisés lors de la PREMIÈRE réunion (L.2242-2) ?','Les informations à remettre aux délégués syndicaux, et la date de leur remise, y ont-elles été arrêtées ?','Ces informations ont-elles effectivement été remises à la date convenue ?'], lib:'Arrêter à la première réunion le calendrier et les informations',
     src:'L.2242-2 — lors de la première réunion sont précisés le lieu et le calendrier des réunions, ainsi que les informations que l’employeur remettra aux délégués syndicaux et la date de cette remise',
     note:'C’est à ce moment, et pas après, que se fixe ce qui sera communiqué. Une négociation ouverte sans information utile est une négociation de façade — et le manquement à l’obligation de négocier loyalement se prouve d’abord là.',
     doc:['nego:odj','Ordre du jour']},
-   {k:'remun', n:'5', lib:'Négocier la rémunération, le temps de travail et le partage de la valeur',
+   {k:'remun', n:'5', ctrl:['Les salaires effectifs ont-ils été discutés, et non les seuls minima conventionnels (L.2242-15, 1°) ?','La durée effective et l’organisation du temps de travail, dont le temps partiel, ont-elles été abordées ?','Le suivi des mesures de correction de l’index d’égalité a-t-il été porté à la négociation ?'], lib:'Négocier la rémunération, le temps de travail et le partage de la valeur',
     src:'L.2242-15 — la négociation porte sur : 1° les salaires effectifs ; 2° la durée effective et l’organisation du temps de travail, dont le temps partiel ; 3° l’intéressement, la participation et l’épargne salariale à défaut d’accord d’intéressement ; 4° le suivi de la mise en œuvre des mesures de correction de l’index d’égalité',
     note:'Un seul thème de négociation, quatre sujets à l’intérieur : il n’y a pas trois négociations distinctes à mener sur ce point, mais un accord — ou un désaccord — qui les couvre.',
     doc:['nego:accord1','Accord — rémunération et temps de travail']},
-   {k:'egalite', n:'6', lib:'Négocier l’égalité professionnelle et la qualité de vie au travail',
+   {k:'egalite', n:'6', ctrl:['L’accord, ou à défaut le plan d’action, retient-il le nombre de domaines d’action dû à votre effectif (R.2242-2) ?','La rémunération effective figure-t-elle parmi les domaines retenus ?','Chaque domaine porte-t-il des objectifs de progression ET les actions pour les atteindre ?'], lib:'Négocier l’égalité professionnelle et la qualité de vie au travail',
     src:'L.2242-1, 2° · R.2242-2 — l’accord, ou à défaut le plan d’action, fixe des objectifs de progression et les actions pour les atteindre, portant sur au moins TROIS domaines d’action en deçà de 300 salariés, au moins QUATRE à partir de 300, parmi ceux de L.2312-36, 2°',
     note:'La rémunération effective est un domaine obligatoirement retenu, quel que soit le nombre de domaines choisis. À VÉRIFIER au texte de R.2242-2 pour votre effectif avant de figer la liste.',
     doc:['nego:accord2','Accord — égalité professionnelle'], doc2:['nego:plan','Plan d’action unilatéral']},
-   {k:'gepp', n:'7', lib:'Négocier la gestion des emplois et des parcours professionnels', min:300,
+   {k:'gepp', n:'7', ctrl:['La négociation sur la gestion des emplois et des parcours a-t-elle été engagée dans les trois ans (L.2242-1, 3°) ?'], lib:'Négocier la gestion des emplois et des parcours professionnels', min:300,
     src:'L.2242-1, 3° — dès 300 salariés, tous les trois ans à défaut d’accord de méthode',
     note:'GEPP : gestion des emplois et des parcours professionnels — l’ancienne GPEC, gestion prévisionnelle des emplois et des compétences.',
     doc:['nego:accordg','Accord GEPP']},
-   {k:'pv', n:'8', lib:'Conclure — accord, ou procès-verbal de désaccord',
+   {k:'pv', n:'8', ctrl:['À défaut d’accord, un procès-verbal de désaccord a-t-il été établi (L.2242-5) ?','Consigne-t-il les propositions respectives EN LEUR DERNIER ÉTAT et les mesures que vous entendez appliquer unilatéralement ?'], lib:'Conclure — accord, ou procès-verbal de désaccord',
     src:'L.2242-5 — à défaut d’accord, un procès-verbal de désaccord consigne en leur dernier état les propositions respectives des parties et les mesures que l’employeur entend appliquer unilatéralement',
     note:'La négociation n’est pas close tant que ce procès-verbal n’est pas établi : c’est lui qui la termine, et lui seul. Il n’est pas une formalité — il fixe ce que l’employeur s’engage à appliquer seul.',
     doc:['nego:pv','Procès-verbal de désaccord']},
-   {k:'depot', n:'9', lib:'Déposer l’accord et le rendre public',
+   {k:'depot', n:'9', ctrl:['L’accord a-t-il été déposé auprès de l’administration et au greffe du conseil de prud’hommes ?','Avez-vous le récépissé de dépôt, daté ?'], lib:'Déposer l’accord et le rendre public',
     src:'l’accord est déposé auprès de l’administration et au greffe du conseil de prud’hommes ; il est versé dans une base de données nationale, publique — la référence réglementaire exacte du dépôt dématérialisé reste À VÉRIFIER',
     note:'Les parties peuvent convenir qu’une partie de l’accord ne sera pas publiée. Sans accord sur ce point, il l’est intégralement.',
     doc:['nego:bordereau','Bordereau de dépôt']}
@@ -31633,43 +31660,43 @@ var PARCOURS={
    {k:'essai', lib:'Durée de l’essai — date de terme', aide:'Le délai de prévenance se calcule à partir de la présence au jour de la notification.'}
   ],
   etapes:[
-   {k:'dpae', n:'1', lib:'Déclarer avant l’embauche — la DPAE',
+   {k:'dpae', n:'1', ctrl:['La déclaration a-t-elle été adressée AVANT la date d’embauche, et pas plus de huit jours avant (R.1221-4) ?','Avez-vous l’accusé de réception de l’organisme, daté et classé au dossier du salarié ?'], lib:'Déclarer avant l’embauche — la DPAE',
     src:'L.1221-10 — l’embauche ne peut intervenir qu’APRÈS déclaration nominative auprès des organismes de protection sociale, dans tous les lieux de travail où sont employés des salariés · R.1221-4 : adressée au plus tôt dans les huit jours précédant la date prévisible',
     ech:function(D){ return D.emb?parcJours(D.emb,-8):''; }, echLib:'à partir de cette date, et jamais après l’embauche',
     note:'Une seule déclaration accomplit huit formalités (R.1221-2) : immatriculation de l’employeur et du salarié, affiliation au chômage, adhésion au service de santé au travail, demande de visite. L’omission caractérise le travail dissimulé.',
     doc:['dpae','Bordereau de déclaration préalable']},
-   {k:'contrat', n:'2', lib:'Établir le contrat écrit',
+   {k:'contrat', n:'2', ctrl:['Le contrat est-il écrit et signé des deux parties ?','Un exemplaire signé a-t-il été remis au salarié ?','La classification et le coefficient portés au contrat sont-ils ceux de la grille de votre convention collective ?'], lib:'Établir le contrat écrit',
     src:'le CDI à temps plein peut être verbal, mais la convention collective impose presque toujours l’écrit · le CDD est écrit à peine de requalification (L.1242-12) · le temps partiel est écrit avec ses cinq mentions (L.3123-6)',
     note:'Écrire, toujours. Un CDI verbal se prouve mal, et prive l’employeur de la période d’essai, de la clause de mobilité et de toute stipulation particulière.',
     doc:['cdi','Contrat à durée indéterminée — modèle'], doc2:['cdd','CDD — modèle']},
-   {k:'info7', n:'3', lib:'Remettre le document d’information — volet des sept jours',
+   {k:'info7', n:'3', ctrl:['Le document a-t-il été remis INDIVIDUELLEMENT au plus tard le septième jour calendaire suivant l’embauche ?','Les éléments de la rémunération y figurent-ils SÉPARÉMENT, et non en un montant global ?','Disposez-vous d’une preuve de remise datée — émargement, accusé, courriel ?'], lib:'Remettre le document d’information — volet des sept jours',
     src:'L.1221-5-1 et R.1221-35 — les rubriques 1° à 5°, 7°, 11° et 12° de R.1221-34 sont communiquées INDIVIDUELLEMENT au plus tard le septième jour calendaire à compter de l’embauche',
     ech:function(D){ return D.emb?parcJours(D.emb,7):''; }, echLib:'septième jour calendaire',
     note:'Identité des parties, lieux de travail, intitulé du poste, date d’embauche, terme du CDD, essai, éléments de rémunération INDIQUÉS SÉPARÉMENT, durée du travail. Le contrat ne dispense pas de ce document : il s’y ajoute.',
     doc:['infoemb','Document d’information — les 14 rubriques']},
-   {k:'infom', n:'4', lib:'Remettre le document d’information — volet du mois',
+   {k:'infom', n:'4', ctrl:['Le second volet a-t-il été remis au plus tard un mois après l’embauche ?','Pour les rubriques renvoyées à un texte, la référence exacte y est-elle indiquée ?'], lib:'Remettre le document d’information — volet du mois',
     src:'R.1221-35 — les autres informations sont communiquées au plus tard UN MOIS à compter de l’embauche',
     ech:function(D){ return D.emb?parcMois(D.emb,1):''; }, echLib:'un mois après l’embauche',
     note:'Droit à la formation, congés payés, procédure de rupture, conventions applicables, régimes de protection sociale. Les rubriques 7° à 12° et 14° peuvent renvoyer aux textes ; les autres, non.',
     doc:['infoemb','Document d’information — volet B']},
-   {k:'registre', n:'5', lib:'Inscrire au registre unique du personnel',
+   {k:'registre', n:'5', ctrl:['L’inscription a-t-elle été portée le jour même de l’embauche ?','Le registre est-il tenu dans l’établissement où le salarié travaille, et l’écriture est-elle indélébile ?','Les stagiaires et volontaires en service civique figurent-ils dans une partie spécifique ?'], lib:'Inscrire au registre unique du personnel',
     src:'L.1221-13 — registre tenu dans TOUT établissement où sont employés des salariés ; noms et prénoms inscrits dans l’ordre des embauches, AU MOMENT de l’embauche et de façon INDÉLÉBILE ; les stagiaires et volontaires en service civique y figurent dans une partie spécifique',
     ech:function(D){ return D.emb||''; }, echLib:'le jour même de l’embauche',
     note:'« Au moment de l’embauche » : pas le mois suivant. « Indélébile » : aucune radiation, la sortie s’ajoute, elle n’efface pas.',
     page:'personnel'},
-   {k:'vip', n:'6', lib:'Organiser la visite d’information et de prévention',
+   {k:'vip', n:'6', ctrl:['La demande a-t-elle été adressée au service de prévention et de santé au travail ?','La visite a-t-elle eu lieu, ou est-elle programmée, dans les trois mois de la prise effective du poste ?','L’attestation de suivi a-t-elle été remise au salarié et classée au dossier ?'], lib:'Organiser la visite d’information et de prévention',
     src:'R.4624-10 — tout travailleur en bénéficie dans un délai qui n’excède pas TROIS MOIS à compter de la prise effective du poste · R.4624-16 : renouvellement selon une périodicité qui ne peut excéder cinq ans, fixée par le médecin du travail',
     ech:function(D){ return D.emb?parcMois(D.emb,3):''; }, echLib:'trois mois après la prise de poste',
     note:'Le délai est plus court pour les travailleurs de nuit, les mineurs et les femmes enceintes ; les postes à risques relèvent du suivi individuel renforcé, avec examen AVANT l’affectation. À vérifier au texte selon le poste.',
     doc:['vip','Demande de visite au service de santé']},
-   {k:'mutuelle', n:'7', lib:'Affilier à la complémentaire santé, ou recueillir la dispense',
+   {k:'mutuelle', n:'7', ctrl:['Le salarié a-t-il été affilié au régime collectif ?','À défaut, avez-vous sa dispense ÉCRITE, datée et signée ?'], lib:'Affilier à la complémentaire santé, ou recueillir la dispense',
     src:'l’obligation de couverture collective figure à l’article L.911-7 du code de la sécurité sociale — hors code du travail, à vérifier à sa source',
     note:'Les cas de dispense sont limités et doivent être écrits, datés et signés du salarié. Une affiliation manquante sans dispense écrite se paie au moment du sinistre.',
     doc:['mutuelle','Bulletin d’affiliation ou de dispense']},
-   {k:'affich', n:'8', lib:'Remettre ou porter à connaissance ce qui est dû à l’entrée',
+   {k:'affich', n:'8', ctrl:['La convention collective applicable lui a-t-elle été indiquée, et son texte est-il accessible (R.2262-1, R.2262-3) ?','Le règlement intérieur, s’il en existe un, a-t-il été porté à sa connaissance ?','L’accueil sécurité au poste a-t-il été assuré, et en gardez-vous une trace datée (L.4141-2) ?'], lib:'Remettre ou porter à connaissance ce qui est dû à l’entrée',
     src:'convention collective (R.2262-1 et R.2262-3) · règlement intérieur s’il existe (R.1321-1) · consignes de sécurité et accueil au poste (L.4141-2) · textes pénaux sur la discrimination (L.1142-6) et l’égalité de rémunération (R.3221-2)',
     doc:['affichages','Pack des affichages'], doc2:['accueilsecu','Accueil sécurité au poste']},
-   {k:'essai', n:'9', lib:'Suivre l’essai — et le délai de prévenance', opt:true,
+   {k:'essai', n:'9', ctrl:['La durée d’essai portée au contrat est-elle celle de la convention collective lorsque celle-ci est plus courte que la loi ?','Si l’essai a été rompu, le délai de prévenance de L.1221-25 a-t-il été respecté ?','S’il a débordé le terme de l’essai, l’indemnité compensatrice a-t-elle été payée ?'], lib:'Suivre l’essai — et le délai de prévenance', opt:true,
     src:'L.1221-19 — deux mois pour les ouvriers et employés, trois pour les agents de maîtrise et techniciens, quatre pour les cadres · L.1221-21 : renouvellement une fois si un accord de branche étendu le prévoit · L.1221-25 : prévenance de 24 h, 48 h, deux semaines ou un mois selon la présence',
     ech:function(D){ return D.essai||''; }, echLib:'terme de l’essai',
     note:'Le délai de prévenance ne prolonge pas l’essai : s’il déborde le terme, il se paie en indemnité. Et la convention collective fixe souvent une durée d’essai plus courte que la loi — c’est elle qui s’applique alors.',
@@ -31800,6 +31827,40 @@ function parcRender(){
    +'<div style="height:100%;width:'+(dues.length?Math.round(faites*100/dues.length):0)+'%;background:'+(retards.length?'#e06666':'#46b885')+'"></div></div>'
    +'<button class="btn" style="width:100%;margin-top:6px" onclick="parcRecap()">📄 Récapitulatif — où en est ce parcours</button>'
    +'</div>';
+
+  /* ⑤ Verification de ce qui est declare fait */
+  var ctrlables=dues.filter(function(e){ return (p.fait||{})[e.k] && (e.ctrl||[]).length; });
+  var ecarts=[], indets=[];
+  if(ctrlables.length){
+    h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:4px">5 · Vérification de ce que vous avez fait</div>'
+     +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:8px">Cocher une étape n’est pas l’avoir faite dans les règles. Les questions ci-dessous ne demandent pas si c’est conforme : elles demandent la pièce, sa date, son destinataire. Un seul « non » fait un écart.</div>';
+    ctrlables.forEach(function(e){
+      var V=parcVerdict(p,e); if(V==='ecart') ecarts.push(e); else if(V==='indetermine') indets.push(e);
+      var C=((p.ctrl||{})[e.k])||{}, A=((p.ctrlA||{})[e.k])||{};
+      h+='<div style="margin:8px 0;padding:10px;border:1px solid '+(V==='ecart'?'rgba(224,92,92,.55)':V==='conforme'?'rgba(70,184,133,.45)':'rgba(255,255,255,.12)')+';border-radius:10px">'
+       +'<b>'+e.n+'. '+negoEsc(e.lib)+'</b> — <b style="color:'+(V==='conforme'?'#46b885':V==='ecart'?'#e05c5c':'#d4a017')+'">'
+       +(V==='conforme'?'CONFORME':V==='ecart'?'ÉCART':'INDÉTERMINÉ')+'</b>';
+      (e.ctrl||[]).forEach(function(q,qi){
+        var r=C['q'+qi]||'';
+        h+='<div style="margin-top:7px;font-size:12.5px"><div style="line-height:1.5">'+negoEsc(q)+'</div>'
+         +'<select onchange="parcCtrl(\''+id+'\',\''+e.k+'\','+qi+',this.value)" style="width:100%;margin-top:4px;min-height:38px;border-radius:8px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(255,255,255,.2)">'
+         +'<option value="">—</option>'
+         +'<option value="oui"'+(r==='oui'?' selected':'')+'>Oui — pièce à l’appui</option>'
+         +'<option value="non"'+(r==='non'?' selected':'')+'>Non</option>'
+         +'<option value="cours"'+(r==='cours'?' selected':'')+'>En cours</option>'
+         +'<option value="nsp"'+(r==='nsp'?' selected':'')+'>Je ne sais pas</option>'
+         +'<option value="autre"'+(r==='autre'?' selected':'')+'>Autre — à préciser</option></select>'
+         +(r==='autre'?('<input type="text" placeholder="Précisez" value="'+negoEsc(A['q'+qi]||'')+'" onchange="parcCtrlAutre(\''+id+'\',\''+e.k+'\','+qi+',this.value)" class="ins-input" style="margin-top:5px;background:rgba(255,255,255,.05);color:inherit;border:1px solid rgba(212,160,23,.5)">'):'')
+         +'</div>';
+      });
+      h+='</div>';
+    });
+    h+='<div style="font-size:13px;line-height:1.8;margin-top:8px">'
+     +(ecarts.length?('⛔ <b style="color:#e06666">'+ecarts.length+' écart(s)</b> : '+ecarts.map(function(e){ return negoEsc(e.lib); }).join(' · ')+'<br>'):'✅ Aucun écart constaté sur ce qui est vérifié<br>')
+     +(indets.length?('⚠ '+indets.length+' étape(s) indéterminée(s) — une question sans réponse n’est pas une conformité<br>'):'')
+     +'</div>'
+     +'<button class="btn" style="width:100%;margin-top:6px" onclick="parcRegul()">📄 Rapport de régularisation — Word</button></div>';
+  }
   z.innerHTML=h;
   if(PARC_CIBLE){
     try{ var _v=document.getElementById('parc-vise');
@@ -31827,6 +31888,45 @@ function parcDoc(type){
 
 /* Le recapitulatif : ce qui est fait, ce qui reste, ce qui est en retard,
    et ce qui manque au prealable — imprimable, comme les autres documents. */
+/* LE RAPPORT DE REGULARISATION. Il dit ce qui a ete fait, ce qui a ete
+   verifie, et ce que la verification a trouve — dans cet ordre, et sans
+   conclure au-dela des reponses donnees. */
+function parcRegul(){
+  var id=PARC_OUVERT, P=PARCOURS[id]; if(!P) return;
+  var p=parcP(id), D=p.dates||{}, eff=null;
+  try{ eff=jxEffectifMax(); }catch(e){}
+  var inconnu=(eff===null||eff===Infinity);
+  var dues=P.etapes.filter(function(e){ return !(e.min && !inconnu && eff<e.min); });
+  var faites=dues.filter(function(e){ return (p.fait||{})[e.k]; });
+  var ctrlables=faites.filter(function(e){ return (e.ctrl||[]).length; });
+  var ec=[], ind=[], conf=[];
+  ctrlables.forEach(function(e){ var v=parcVerdict(p,e);
+    (v==='ecart'?ec:v==='conforme'?conf:ind).push(e); });
+  var lig=function(e){
+    var v=parcVerdict(p,e), C=((p.ctrl||{})[e.k])||{}, A=((p.ctrlA||{})[e.k])||{};
+    var det=(e.ctrl||[]).map(function(q,i){ var r=C['q'+i]||'';
+      var mot=r==='oui'?'oui':r==='non'?'NON':r==='cours'?'en cours':r==='nsp'?'ne sait pas':r==='autre'?('autre : '+(A['q'+i]||'non précisé')):'sans réponse';
+      return negoEsc(q)+' → <b>'+negoEsc(mot)+'</b>'; }).join('<br>');
+    return '<tr><td style="border:1px solid #000;padding:5px">'+e.n+'</td>'
+      +'<td style="border:1px solid #000;padding:5px">'+negoEsc(e.lib)
+      +'<div style="font-size:9pt">'+negoEsc(e.src)+'</div></td>'
+      +'<td style="border:1px solid #000;padding:5px;font-size:9.5pt">'+det+'</td>'
+      +'<td style="border:1px solid #000;padding:5px"><b>'+(v==='conforme'?'CONFORME':v==='ecart'?'ÉCART':'INDÉTERMINÉ')+'</b></td></tr>';
+  };
+  var H=ausTete()
+   +'<p><b>'+negoEsc(P.titre.toUpperCase())+' — RAPPORT DE RÉGULARISATION</b><br>Établi le '+new Date().toLocaleDateString('fr-FR')
+   +' · effectif retenu : '+(inconnu?'non renseigné — aucune étape écartée':('≤ '+eff))+'</p>'
+   +'<p><b>1 · Ce qui a été fait.</b> '+faites.length+' étape(s) sur '+dues.length+' déclarées accomplies.</p>'
+   +'<p><b>2 · Ce qui a été vérifié.</b> '+ctrlables.length+' étape(s) portent une grille de contrôle et ont été passées en revue. '
+   +(faites.length-ctrlables.length>0?((faites.length-ctrlables.length)+' étape(s) déclarées faites n’ont pas encore de grille : elles ne sont ni confirmées ni infirmées ici.'):'')+'</p>'
+   +(ctrlables.length?('<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>N°</th><th>Étape et fondement</th><th>Réponses au contrôle</th><th>Verdict</th></tr>'+ctrlables.map(lig).join('')+'</table>'):'<p>Aucune étape vérifiée à ce jour.</p>')
+   +'<p><b>3 · Ce que le contrôle a trouvé.</b> '+conf.length+' conforme(s), <b>'+ec.length+' écart(s)</b>, '+ind.length+' indéterminée(s).'
+   +(ec.length?('<br>Écarts : '+ec.map(function(e){ return negoEsc(e.lib); }).join(' ; ')+'. Ils appellent une reprise, et la pièce qui manque ne se remplace pas par une déclaration.'):'')
+   +(ind.length?('<br>Indéterminés : '+ind.map(function(e){ return negoEsc(e.lib); }).join(' ; ')+'. Une question sans réponse n’est pas une conformité — c’est un point à lever.'):'')+'</p>';
+  window._docCurrent={ titre:P.titre+' — rapport de régularisation', html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
+  try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
+}
+
 function parcRecap(){
   var id=PARC_OUVERT, P=PARCOURS[id]; if(!P) return;
   var p=parcP(id), D=p.dates||{}, eff=null;

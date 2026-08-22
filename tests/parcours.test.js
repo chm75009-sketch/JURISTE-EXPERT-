@@ -428,6 +428,72 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(sansTB.length === 0, 'aucun modele ne laisse fuir une variable du script d\'insertion', sansTB.join(','));
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— La verification de ce qui est declare fait —');
+  const grilles = await page.evaluate(() => {
+    let n = 0; const sans = [];
+    Object.keys(PARCOURS).forEach(k => PARCOURS[k].etapes.forEach(e => {
+      if ((e.ctrl || []).length) n += e.ctrl.length; else sans.push(k + '/' + e.k);
+    }));
+    return { n: n, sans: sans };
+  });
+  ok(grilles.sans.length === 0, 'chaque etape porte sa grille de controle ('
+     + grilles.n + ' questions)', grilles.sans.join(','));
+  const factuel = await page.evaluate(() => {
+    const mauvais = [];
+    Object.keys(PARCOURS).forEach(k => PARCOURS[k].etapes.forEach(e => {
+      (e.ctrl || []).forEach(q => { if (/est-(ce|il) conforme|en règle\b/i.test(q)) mauvais.push(k + '/' + e.k); });
+    }));
+    return mauvais;
+  });
+  ok(factuel.length === 0, 'aucune question ne demande « est-ce conforme ? »', factuel.join(','));
+
+  const v = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('embauche'); parcOuvrir('embauche');
+    parcFait('embauche', 'dpae', true);
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/Vérification de ce que vous avez fait/.test(v), 'cocher une etape ouvre sa grille');
+  ok(/INDÉTERMINÉ/.test(v), 'sans reponse, rien n\'est conforme');
+  const conf = await page.evaluate(() => {
+    parcCtrl('embauche', 'dpae', 0, 'oui'); parcCtrl('embauche', 'dpae', 1, 'oui');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/CONFORME/.test(conf), 'toutes pieces declarees : CONFORME');
+  ok(/Aucun écart constaté/.test(conf), 'et la synthese le dit');
+  const ecart = await page.evaluate(() => {
+    parcCtrl('embauche', 'dpae', 1, 'non');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/ÉCART/.test(ecart), 'un seul « non » fait un ecart');
+  ok(/1 écart\(s\)/.test(ecart), 'compte a la synthese', (ecart.match(/\d+ écart\(s\)[^\n]*/) || [''])[0]);
+  const indet = await page.evaluate(() => {
+    parcCtrl('embauche', 'dpae', 1, 'cours');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/INDÉTERMINÉ/.test(indet), '« en cours » ne vaut pas conformite');
+  const revient = await page.evaluate(() => {
+    parcOuvrir('duerp'); parcOuvrir('embauche');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/INDÉTERMINÉ/.test(revient), 'le controle se retrouve d\'un passage a l\'autre');
+
+  const rap = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    parcCtrl('embauche', 'dpae', 1, 'non');
+    parcFait('embauche', 'registre', true);
+    parcRegul();
+    const d = window._docCurrent || {};
+    return { t: d.titre || '', h: d.html || '' };
+  });
+  ok(/rapport de régularisation/.test(rap.t), 'le rapport de regularisation se genere', rap.t);
+  ok(/ÉCART/.test(rap.h), 'il porte les ecarts');
+  ok(/INDÉTERMINÉ/.test(rap.h), 'et les indetermines, qui ne sont pas des conformites');
+  ok(/2 étape\(s\) sur 9/.test(rap.h), 'il compte ce qui est fait sur ce qui est dû',
+     (rap.h.match(/\d+ étape\(s\) sur \d+/) || [''])[0]);
+  ok(/sans réponse/.test(rap.h), 'et rend les questions restées sans réponse');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   console.log('\n— La table audit → parcours ne renvoie nulle part —');
   const table = await page.evaluate(() => {
     const ids = AUS_OBLIG.map(o => o.id), bad = [];
