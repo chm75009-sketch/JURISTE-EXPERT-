@@ -406,6 +406,47 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   const rg = await page.evaluate(() => { ausDocRapport(); const d = window._docCurrent; return /Synthèse/.test(d.html) && d.html.indexOf('Réserves') >= 0; });
   ok(rg, 'rapport general : synthese chiffree et reserves');
 
+  console.log('\n— Le guide de regularisation —');
+  const gr = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; ausRecommencer();
+    ['duerp', 'duerpannexe', 'papripact', 'duerpcse'].forEach(k => ausRep(k, 'pas'));
+    ausRep('registre', 'pas'); ausRep('dpae', 'pas');
+    ausRep('egarem', 'pas');   /* sans parcours : reste orphelin */
+    ausRender();
+    return document.getElementById('auditsoc-zone').innerText;
+  });
+  ok(/Le guide de régularisation/.test(gr), 'le guide de regularisation apparait sous le plan');
+  ok(/Établir ou mettre à jour le document unique/.test(gr), 'les manques se regroupent par parcours');
+  ok(/4 points à régulariser/.test(gr), 'et le parcours porte le nombre de points qu\'il traite',
+     (gr.match(/\d+ points? à régulariser/g) || []).join(' | '));
+  ok(/2 points à régulariser/.test(gr), 'l\'embauche en porte deux');
+  ok(/1 autre\(s\) point\(s\) du plan n’ont pas encore de parcours/.test(gr),
+     'ce qui n\'a pas de parcours est dit tel quel, pas rattache de force');
+  /* On lit DANS la section, pas dans toute la page : les mêmes titres
+     figurent déjà sur les boutons du plan d'action juste au-dessus. */
+  const sect = gr.slice(gr.indexOf('Le guide de régularisation'));
+  ok(sect.indexOf('Établir ou mettre à jour le document unique') < sect.indexOf('Embaucher un salarié'),
+     'le parcours qui traite le plus de points passe devant, a gravite egale');
+
+  const cible = await page.evaluate(() => {
+    parcCible('duerp', 'annexe');
+    const t = document.getElementById('parcguide-zone').innerText;
+    return { t: t, vise: (t.match(/VENU DE L’AUDIT[^\n]*\n[^\n]*/) || [''])[0] };
+  });
+  ok(/VENU DE L’AUDIT/.test(cible.t), 'venir de l\'audit ouvre le parcours a l\'etape visee');
+  ok(/annexe/i.test(cible.vise), 'et c\'est bien l\'etape demandee qui est marquee', cible.vise);
+  const deuxieme = await page.evaluate(() => {
+    parcRender(); return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(!/VENU DE L’AUDIT/.test(deuxieme), 'la marque ne colle pas a l\'ecran : un seul rendu');
+
+  const bouton = await page.evaluate(() => {
+    goPage('auditsoc'); ausRender();
+    return document.getElementById('auditsoc-zone').innerHTML.indexOf('parcCible(') >= 0;
+  });
+  ok(bouton, 'et chaque point du plan d\'action porte son bouton de pas a pas');
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');

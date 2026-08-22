@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-22.211';
+var JX_BUILD = 'v2026-08-22.212';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-22.212', d:'22 août 2026', t:[
+   'LE GUIDE DE RÉGULARISATION — l\u2019audit ne dit plus seulement ce qui manque, il dit PAR OÙ COMMENCER.',
+   'Vos manques sont regroupés par parcours guidé : quatre points du document unique se traitent dans un seul pas à pas, pas en ouvrant quatre modèles l\u2019un après l\u2019autre. Les parcours sont classés par gravité, puis par nombre de points traités.',
+   'Chaque point du plan d\u2019action porte désormais son bouton « Le pas à pas ». Il ouvre le parcours À L\u2019ÉTAPE qui traite ce point précis, marquée « venu de l\u2019audit », et non en haut d\u2019une liste de douze.',
+   'Trente-neuf obligations sont ainsi reliées à une étape exacte. Les autres gardent leur modèle et leur module : le guide dit combien n\u2019ont pas encore de pas à pas plutôt que de les y rattacher de force.'
+ ]},
  {v:'v2026-08-22.211', d:'22 août 2026', t:[
    'SEPTIÈME PARCOURS — EMBAUCHER UN SALARIÉ, neuf étapes de la déclaration préalable au terme de l\u2019essai.',
    'La déclaration préalable s\u2019adresse au plus tôt dans les HUIT JOURS qui précèdent (R.1221-4) et jamais après l\u2019embauche (L.1221-10) : le parcours calcule la fenêtre depuis votre date. Une seule déclaration accomplit huit formalités (R.1221-2) ; son omission caractérise le travail dissimulé.',
@@ -30100,14 +30106,42 @@ function ausRender(){
         +'<div style="font-size:12.5px;margin-top:3px">'+negoEsc(o.act)+'</div>'
         +'<div style="margin-top:5px">'
         +(o.doc?('<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="ausDoc(\''+o.doc+'\')">📄 Modèle complet + exemple chiffré</button> '):'')
-        +(o.page?('<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="goPage(\''+o.page+'\')">▶ Ouvrir le module</button>'):'')
+        +(o.page?('<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="goPage(\''+o.page+'\')">▶ Ouvrir le module</button> '):'')
+        +(function(){ var pc=ausParc(o.id); return pc?('<button class="btn-outline" style="font-size:12px;padding:5px 9px;border-color:rgba(201,168,76,.55)" onclick="parcCible(\''+pc.p+'\',\''+pc.e+'\')">🧭 Le pas à pas — '+negoEsc(pc.titre)+'</button>'):''; })()
         +'</div></div>';
     });
     h+='<div style="margin-top:8px"><button class="btn-outline" onclick="ausDocPlan()">📄 Rapport d’étape — plan d’action (Word)</button></div></div>';
   }
 
+  /* LE GUIDE DE REGULARISATION. Le plan dit CE QUI MANQUE ; le guide dit
+     PAR OU COMMENCER. Un parcours qui traite quatre manques a la fois vaut
+     mieux que quatre modeles ouverts un par un. */
+  if(manq.length){
+    var grp={}, orphelins=0;
+    manq.forEach(function(o){ var pc=ausParc(o.id);
+      if(!pc){ orphelins++; return; }
+      (grp[pc.p]=grp[pc.p]||{titre:pc.titre, e:pc.e, n:0, l:[]});
+      grp[pc.p].n++; grp[pc.p].l.push(o.lib);
+      if(o.r < (grp[pc.p].r||9)) { grp[pc.p].r=o.r; grp[pc.p].e=pc.e; }
+    });
+    var cles=Object.keys(grp).sort(function(a,b){ return (grp[a].r||9)-(grp[b].r||9) || grp[b].n-grp[a].n; });
+    if(cles.length){
+      h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:4px">5 · Le guide de régularisation — par où commencer</div>'
+       +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:8px">Vos manques regroupés par parcours guidé. Chacun s’ouvre à l’étape qui traite le point le plus grave. Le parcours donne les dates, les modèles et l’ordre des actes ; il n’invente rien qui ne soit dans un texte.</div>';
+      cles.forEach(function(k){ var G=grp[k];
+        h+='<div style="margin:7px 0;padding:10px;border:1px solid rgba(201,168,76,.35);border-radius:10px;background:rgba(201,168,76,.06)">'
+         +'<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap"><b>'+negoEsc(G.titre)+'</b>'
+         +'<span style="font-size:11.5px;color:'+(G.r===1?'#e05c5c':G.r===2?'#d4a017':'#9fb0c4')+';font-weight:700">'+G.n+' point'+(G.n>1?'s':'')+' à régulariser</span></div>'
+         +'<div style="font-size:12px;color:#cfd8e3;margin-top:4px;line-height:1.55">'+G.l.map(function(x){ return '· '+negoEsc(x); }).join('<br>')+'</div>'
+         +'<div style="margin-top:7px"><button class="btn-outline" style="font-size:12px;padding:6px 10px" onclick="parcCible(\''+k+'\',\''+G.e+'\')">🧭 Suivre ce parcours</button></div></div>';
+      });
+      if(orphelins) h+='<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px">'+orphelins+' autre(s) point(s) du plan n’ont pas encore de parcours pas à pas : ils gardent leur modèle et leur module, à l’étape 4 ci-dessus. Ce qui n’existe pas n’est pas annoncé.</div>';
+      h+='</div>';
+    }
+  }
+
   if(averif.length){
-    h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">5 · Contrôle de l’existant — '+averif.length+' déclaré(s) en place</div>'
+    h+='<div class="item" style="margin-top:10px"><div style="font-weight:700;margin-bottom:6px">6 · Contrôle de l’existant — '+averif.length+' déclaré(s) en place</div>'
       +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:6px">Une déclaration sans pièce n’est pas une conformité : chaque « oui » ci-dessous suppose la pièce datée dans votre classeur. Un « non » repart au plan d’action ; un « à vérifier » laisse le verdict INDÉTERMINÉ.</div>';
     averif.forEach(function(o){
       var V=(N.verif||{})[o.id]||{};
@@ -31140,8 +31174,50 @@ function parcRAZ(id){
   var N=parcEtat(); delete N[id]; parcSauve(N); parcRender();
 }
 /* Quel parcours est ouvert. Une page, plusieurs parcours. */
+
+/* CE QUI MANQUE A L'AUDIT S'OUVRE SUR LE PAS A PAS QUI LE TRAITE.
+   La table ne relie que ce qu'un parcours traite REELLEMENT, a l'etape
+   exacte. Une obligation absente d'ici garde son modele et son module :
+   elle n'a pas de parcours, et on ne le fait pas croire. */
+var AUS_PARC = {
+  /* Embaucher un salarie */
+  dpae:['embauche','dpae'], spst:['embauche','dpae'],
+  cddecrit:['embauche','contrat'], tpartiel:['embauche','contrat'],
+  infoemb:['embauche','info7'], infoetranger:['embauche','infom'],
+  registre:['embauche','registre'], vip:['embauche','vip'],
+  mutuelle:['embauche','mutuelle'],
+  affich:['embauche','affich'], ccnaffich:['embauche','affich'],
+  essai:['embauche','essai'], prevenance:['embauche','essai'],
+  /* Document unique */
+  duerp:['duerp','consigner'], duerpannexe:['duerp','annexe'],
+  papripact:['duerp','papripact'], duerpcse:['duerp','cse'],
+  duerpaffich:['duerp','acces'],
+  /* Reglement interieur */
+  ri:['ri','contenu'],
+  /* Sanctionner un salarie */
+  convoclic:['discipline','convoc'], notiflic:['discipline','notif'],
+  /* Tenir une reunion du comite */
+  cseodj:['reunioncse','envoi'], csedelai:['reunioncse','delai'],
+  /* Installer le comite apres l'election */
+  refcse:['cseinstall','referent'], cssct:['cseinstall','cssct'],
+  cformation:['cseinstall','commissions'], clogement:['cseinstall','commissions'],
+  cegalite:['cseinstall','commissions'], ceco:['cseinstall','commissions'],
+  cmarches:['cseinstall','commissions'],
+  budgets:['cseinstall','budgets'], formelus:['cseinstall','formations'],
+  docelec:['cseinstall','docef'],
+  cselocal:['cseinstall','moyens'], cseaffich:['cseinstall','moyens'],
+  cseheures:['cseinstall','moyens'], bdese:['cseinstall','moyens'],
+  /* Negociations obligatoires */
+  nao:['nao','qui'], gepp:['nao','gepp']
+};
+function ausParc(id){ var x=AUS_PARC[id]; return x?{p:x[0], e:x[1], titre:(typeof PARCOURS!=='undefined'&&PARCOURS[x[0]]?PARCOURS[x[0]].titre:'')}:null; }
+
 var PARC_OUVERT='cseinstall';
+var PARC_CIBLE='';
 function parcOuvrir(id){ PARC_OUVERT=id||'cseinstall'; goPage('parcguide'); }
+/* Venir de l'audit, c'est arriver A L'ETAPE, pas en haut d'une liste de
+   douze : sans cela le client se perd, et le guide ne guide pas. */
+function parcCible(pk, ek){ PARC_CIBLE=ek||''; parcOuvrir(pk); }
 /* Le menu des parcours : chacun dit s'il concerne l'effectif declare. */
 function parcListe(){
   var eff=null; try{ eff=jxEffectifMax(); }catch(e){}
@@ -31686,7 +31762,9 @@ function parcRender(){
     var ech=e.ech?e.ech(D):'';
     var tard=!fait && parcRetard(ech);
     if(tard) retards.push(e);
-    h+='<div style="margin:9px 0;padding:10px;border:1px solid '+(fait?'rgba(70,184,133,.45)':(tard?'rgba(212,23,23,.5)':'rgba(255,255,255,.12)'))+';border-radius:10px;'+(fait?'opacity:.72':'')+'">'
+    var vise=(PARC_CIBLE && e.k===PARC_CIBLE);
+    h+='<div'+(vise?' id="parc-vise"':'')+' style="margin:9px 0;padding:10px;border:'+(vise?'2px solid #c9a84c':'1px solid '+(fait?'rgba(70,184,133,.45)':(tard?'rgba(212,23,23,.5)':'rgba(255,255,255,.12)')))+';border-radius:10px;'+(fait?'opacity:.72':'')+(vise?';background:rgba(201,168,76,.08)':'')+'">'
+     +(vise?'<div style="font-size:10.5px;color:#c9a84c;font-weight:700;margin-bottom:4px">VENU DE L’AUDIT — c’est ici</div>':'')
      +'<label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer">'
      +'<input type="checkbox" '+(fait?'checked':'')+' onchange="parcFait(\''+id+'\',\''+e.k+'\',this.checked)" style="margin-top:3px;width:18px;height:18px;flex:none">'
      +'<span style="flex:1"><b>'+e.n+'. '+negoEsc(e.lib)+'</b>'
@@ -31723,6 +31801,11 @@ function parcRender(){
    +'<button class="btn" style="width:100%;margin-top:6px" onclick="parcRecap()">📄 Récapitulatif — où en est ce parcours</button>'
    +'</div>';
   z.innerHTML=h;
+  if(PARC_CIBLE){
+    try{ var _v=document.getElementById('parc-vise');
+      if(_v && _v.scrollIntoView) setTimeout(function(){ try{ _v.scrollIntoView({block:'center'}); }catch(e){} },60); }catch(e){}
+    PARC_CIBLE='';   /* une seule fois : la mise en avant ne colle pas a l'ecran */
+  }
 }
 
 /* Les documents du parcours viennent des modules qui les possedent deja :

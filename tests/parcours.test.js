@@ -428,6 +428,21 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(sansTB.length === 0, 'aucun modele ne laisse fuir une variable du script d\'insertion', sansTB.join(','));
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— La table audit → parcours ne renvoie nulle part —');
+  const table = await page.evaluate(() => {
+    const ids = AUS_OBLIG.map(o => o.id), bad = [];
+    Object.keys(AUS_PARC).forEach(k => {
+      const pk = AUS_PARC[k][0], ek = AUS_PARC[k][1];
+      if (ids.indexOf(k) < 0) bad.push('obligation inconnue : ' + k);
+      const P = PARCOURS[pk];
+      if (!P) { bad.push('parcours inconnu : ' + pk); return; }
+      if (!P.etapes.some(e => e.k === ek)) bad.push('étape inconnue : ' + pk + '/' + ek);
+    });
+    return { n: Object.keys(AUS_PARC).length, bad: bad };
+  });
+  ok(table.bad.length === 0, 'chaque renvoi vise une obligation et une etape qui existent ('
+     + table.n + ' renvois)', table.bad.join(' | '));
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');
