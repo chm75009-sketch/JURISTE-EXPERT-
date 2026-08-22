@@ -177,6 +177,210 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   });
   ok(acces, 'le module porte le bouton d\'ouverture');
 
+  console.log('\n— Le parcours du reglement interieur —');
+  const ri = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('ri'); parcOuvrir('ri');
+    parcDate('ri', 'pub', '2026-03-02');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/Quel parcours \?/.test(ri), 'le choix du parcours figure en tete');
+  ok(/8 à votre situation/.test(ri), 'huit etapes au reglement interieur', (ri.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 2 avril 2026/.test(ri),
+     'l\'entree en vigueur tombe un mois apres la publicite (L.1321-4)', (ri.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/EXCLUSIVEMENT/.test(ri), 'le contenu limitatif de L.1321-1 est dit');
+  ok(/lanceurs d’alerte|lanceurs d\'alerte/.test(ri), 'le rappel des lanceurs d\'alerte y est (L.1321-2)');
+  ok(/proportionnée au but recherché/.test(ri), 'et le test de proportionnalite de L.1321-3');
+  ok(/greffe du conseil de prud’hommes/.test(ri), 'le depot au greffe est distingue de l\'affichage (R.1321-2)');
+  const riPetit = await page.evaluate(() => {
+    E.effectif = '11'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    parcRender(); return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/Hors de votre effectif/.test(riPetit),
+     'a 11 salaries, le parcours est montre mais signale hors seuil (L.1311-2)');
+  ok(/dès 50 salariés/.test(riPetit), 'et le bouton porte le seuil qui le declenche');
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  let creuxRi = [];
+  for (const d of ['ri', 'ridepot', 'pvri']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window._docCurrent = null;
+      try { parcDoc(k); } catch (x) { return { err: x.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && /PARTIE 1/.test(c.html) && /PARTIE 2/.test(c.html) };
+    }, d);
+    if (!r || r.err || !r.ok) creuxRi.push(d + (r && r.err ? '(' + r.err + ')' : ''));
+  }
+  ok(creuxRi.length === 0, 'les trois modeles du reglement livrent structure et exemplaire', creuxRi.join(','));
+  const riDoc = await page.evaluate(() => { parcDoc('ri'); return window._docCurrent.html; });
+  ok(/Entrée en vigueur inscrite à l’article 21 : le 3 avril 2026/.test(riDoc),
+     'l\'exemplaire chiffre porte une entree en vigueur licite');
+  ok(/Aucune sanction pécuniaire/.test(riDoc), 'et rappelle l\'interdiction de la sanction pecuniaire (L.1331-2)');
+  const dep = await page.evaluate(() => { parcDoc('ridepot'); return window._docCurrent.html; });
+  ok(/treize jours après la publicité/.test(dep),
+     'le bordereau montre l\'erreur de date la plus frequente et sa correction');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  console.log('\n— Le parcours disciplinaire —');
+  const di = await page.evaluate(() => {
+    E.effectif = '72'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('discipline'); parcOuvrir('discipline');
+    parcDate('discipline', 'conn', '2026-04-21');
+    parcDate('discipline', 'conv', '2026-05-06');
+    parcDate('discipline', 'entr', '2026-05-12');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/8 à votre situation/.test(di), 'huit etapes au parcours disciplinaire', (di.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 21 juin 2026/.test(di),
+     'les deux mois de L.1332-4 courent de la CONNAISSANCE du fait', (di.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/Échéance : 12 juin 2026/.test(di), 'et le mois pour notifier court de l\'entretien (L.1332-2)');
+  ok(/12 mai 2026/.test(di), 'cinq jours ouvrables apres la presentation, dimanche exclu');
+  ok(/observations verbales/i.test(di), 'la definition de la sanction est donnee (L.1331-1)');
+  ok(/ne constitue pas une sanction|n’est pas une sanction/.test(di),
+     'la mise a pied conservatoire est distinguee de la sanction (L.1332-3)');
+  ok(/trois ans/.test(di), 'et l\'anteriorite de trois ans est rappelee (L.1332-5)');
+  const ouvr = await page.evaluate(() => [parcJoursOuvr('2026-05-06', 5), parcJoursOuvr('2026-05-09', 1)]);
+  ok(ouvr[0] === '2026-05-12', 'le compte des jours ouvrables saute le dimanche', ouvr.join(','));
+  ok(ouvr[1] === '2026-05-11', 'un jour ouvrable apres un samedi tombe le lundi', ouvr.join(','));
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  let creuxD = [];
+  for (const d of ['convdisc', 'madconserv', 'pventretien', 'notifdisc']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window._docCurrent = null;
+      try { parcDoc(k); } catch (x) { return { err: x.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && /PARTIE 1/.test(c.html) && /PARTIE 2/.test(c.html) };
+    }, d);
+    if (!r || r.err || !r.ok) creuxD.push(d + (r && r.err ? '(' + r.err + ')' : ''));
+  }
+  ok(creuxD.length === 0, 'les quatre modeles disciplinaires sont complets', creuxD.join(','));
+  const nd = await page.evaluate(() => { parcDoc('notifdisc'); return window._docCurrent.html; });
+  ok(/ce grief n’est pas retenu|n’est pas retenu au soutien/.test(nd),
+     'l\'exemplaire montre un grief abandonne apres verification');
+  ok(/moins d’un mois \(butée au 12\/06\)/.test(nd), 'et verifie les deux bornes de notification');
+  const mad = await page.evaluate(() => { parcDoc('madconserv'); return window._docCurrent.html; });
+  ok(/punirait alors une seconde fois les mêmes faits/.test(mad),
+     'le modele de mise a pied dit le piege de la requalification');
+  ok(/1 240 € brut non versés/.test(mad), 'et chiffre ce que la faute grave change sur le salaire');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  console.log('\n— Le parcours de la reunion du comite —');
+  const re = await page.evaluate(() => {
+    E.effectif = '72'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('reunioncse'); parcOuvrir('reunioncse');
+    parcDate('reunioncse', 'reu', '2026-06-12');
+    parcDate('reunioncse', 'dispo', '2026-05-26');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/8 à votre situation/.test(re), 'huit etapes a la reunion du comite', (re.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 9 juin 2026/.test(re),
+     'l\'ordre du jour part trois jours avant (L.2315-30)', (re.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/Échéance : 27 juin 2026/.test(re), 'et le PV est du quinze jours apres (R.2315-25)');
+  ok(/Échéance : 26 juin 2026/.test(re), 'l\'avis est repute rendu un mois apres la mise a disposition (R.2312-6)');
+  ok(/président ET le secrétaire/.test(re), 'l\'ordre du jour s\'arrete a deux (L.2315-29)');
+  ok(/de plein droit/.test(re), 'mais la consultation obligatoire s\'y inscrit de plein droit');
+  ok(/CARSAT|services de prévention/.test(re), 'l\'inspection et la CARSAT sont destinataires');
+  ok(/SECRÉTAIRE/.test(re), 'le PV est l\'oeuvre du secretaire, pas de l\'employeur');
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  for (const d of ['odjcse', 'pvcse']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window._docCurrent = null;
+      try { parcDoc(k); } catch (x) { return { err: x.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && /PARTIE 1/.test(c.html) && /PARTIE 2/.test(c.html), err: null };
+    }, d);
+    ok(r && !r.err && r.ok, 'modele « ' + d + ' » : structure et exemplaire', r && r.err);
+  }
+  const pv = await page.evaluate(() => { parcDoc('pvcse'); return window._docCurrent.html; });
+  ok(/Vote : 4 pour, 0 contre, 0 abstention/.test(pv), 'le PV exemple porte un vote chiffre');
+  ok(/n’a pas pris part au vote/.test(pv), 'et la non-participation du president (L.2315-32)');
+  ok(/douze jours après la séance/.test(pv), 'et verifie le delai de quinze jours');
+  const odj = await page.evaluate(() => { parcDoc('odjcse'); return window._docCurrent.html; });
+  ok(/Réponses motivées de l’employeur/.test(odj),
+     'l\'ordre du jour type porte les reponses motivees en point 2 (L.2315-34)');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  console.log('\n— Le parcours du document unique —');
+  const du = await page.evaluate(() => {
+    E.effectif = '72'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('duerp'); parcOuvrir('duerp');
+    parcDate('duerp', 'prec', '2025-09-12');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/8 à votre situation/.test(du), 'huit etapes au document unique', (du.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 12 septembre 2026/.test(du),
+     'l\'echeance annuelle court de la version precedente (R.4121-2)', (du.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/IMPACT DIFFÉRENCIÉ/.test(du), 'l\'impact differencie selon le sexe est exige (L.4121-3)');
+  ok(/ambiances thermiques/.test(du), 'et les ambiances thermiques nommees (R.4121-1)');
+  ok(/QUARANTE ANS/.test(du), 'la conservation quarante ans est dite (R.4121-4)');
+  ok(/PROPORTION de salariés exposés/.test(du), 'l\'annexe des expositions est exigee (R.4121-1-1)');
+  const duPetit = await page.evaluate(() => {
+    E.effectif = '1'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    parcRender(); return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(!/Établir le programme annuel de prévention/.test(duPetit),
+     'a 1 salarie : pas de programme annuel, il attend 50 (L.4121-3-1)');
+  ok(!/Consulter le comité sur le document/.test(duPetit), 'ni consultation du comite, il attend 11');
+  ok(/Établir ou mettre à jour le document unique/.test(duPetit),
+     'mais le document unique lui-meme est du des le premier salarie');
+  const du50 = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    parcRender(); return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/programme annuel de prévention/.test(du50), 'a 50 : le programme annuel entre au parcours');
+  ok(/indicateur de résultat/.test(du50), 'avec ses quatre colonnes obligatoires');
+
+  console.log('\n— Le parcours des negociations obligatoires —');
+  const na = await page.evaluate(() => {
+    E.effectif = '300'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausSet('ds', 'oui');
+    window.confirm = () => true; parcRAZ('nao'); parcOuvrir('nao');
+    parcDate('nao', 'prec', '2025-11-04');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/9 à votre situation/.test(na), 'neuf etapes aux negociations a 300 salaries', (na.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 4 novembre 2026/.test(na),
+     'l\'echeance annuelle court de la precedente (L.2242-13)', (na.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/REPRÉSENTATIVES/.test(na), 'le declencheur est la section syndicale representative, pas l\'effectif');
+  ok(/procès-verbal de désaccord/.test(na), 'et la negociation se clot par le PV de desaccord (L.2242-5)');
+  ok(/gestion des emplois et des parcours/.test(na), 'la GEPP figure a 300 salaries');
+  const na50 = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    parcRender(); return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(!/Négocier la gestion des emplois/.test(na50), 'a 50 : la GEPP sort du parcours, elle attend 300');
+  ok(/8 à votre situation/.test(na50), 'huit etapes restent', (na50.match(/étapes — [^\n]*/) || [''])[0]);
+  const naSansDs = await page.evaluate(() => {
+    ausSet('ds', 'non'); parcRender();
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/Aucun délégué syndical déclaré/.test(naSansDs),
+     'sans delegue syndical, le parcours dit que les NAO ne s\'imposent pas');
+  ok(/sans délégué syndical/.test(naSansDs), 'et le bouton le signale');
+  await page.evaluate(() => { ausSet('ds', 'oui'); });
+  await page.evaluate(() => { window.partagerDocActuel = function () {}; });
+  let creuxN = [];
+  for (const d of ['nego:invitation', 'nego:odj', 'nego:accord1', 'nego:accord2',
+                   'nego:accordg', 'nego:plan', 'nego:pv', 'nego:bordereau']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window._docCurrent = null;
+      try { parcDoc(k); } catch (x) { return { err: x.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && c.html.length > 900, t: c.titre || '' };
+    }, d);
+    if (!r || r.err || !r.ok) creuxN.push(d + (r && r.err ? '(' + r.err + ')' : ''));
+  }
+  ok(creuxN.length === 0, 'les huit modeles de negociation s\'ouvrent par leur prefixe', creuxN.join(','));
+  const odjNego = await page.evaluate(() => { parcDoc('nego:odj'); return window._docCurrent.titre; });
+  const odjInst = await page.evaluate(() => { parcDoc('odj'); return window._docCurrent.titre; });
+  ok(odjNego !== odjInst,
+     'le meme nom « odj » sert deux modeles distincts, et le prefixe les separe',
+     odjNego + ' / ' + odjInst);
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');
