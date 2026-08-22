@@ -381,6 +381,53 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      odjNego + ' / ' + odjInst);
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— Le parcours d\'embauche —');
+  const em = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('embauche'); parcOuvrir('embauche');
+    parcDate('embauche', 'emb', '2026-09-01');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/9 à votre situation/.test(em), 'neuf etapes a l\'embauche', (em.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 24 août 2026/.test(em),
+     'la DPAE s\'adresse au plus tot huit jours avant (R.1221-4)', (em.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/Échéance : 8 septembre 2026/.test(em),
+     'le volet des sept jours calendaires (R.1221-35)');
+  ok(/Échéance : 1er octobre 2026/.test(em),
+     'le volet du mois, et « 1er » et non « 1 »');
+  ok(/Échéance : 1er septembre 2026/.test(em),
+     'le registre le jour meme de l\'embauche (L.1221-13)');
+  ok(/Échéance : 1er décembre 2026/.test(em),
+     'la visite d\'information dans les trois mois (R.4624-10)');
+  ok(/INDÉLÉBILE/.test(em), 'le registre s\'ecrit de facon indelebile, la sortie n\'efface pas');
+  ok(/Ouvrir le module/.test(em), 'une etape sans modele renvoie au module qui la porte');
+  ok(/délai de prévenance/.test(em), 'et l\'essai porte son delai de prevenance (L.1221-25)');
+
+  let creuxE = [];
+  for (const d of ['cdi', 'cdd', 'dpae', 'infoemb', 'vip', 'mutuelle', 'essai',
+                   'affichages', 'accueilsecu']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window._docCurrent = null;
+      try { parcDoc(k); } catch (x) { return { err: x.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && c.html.length > 900, t: c.titre || '' };
+    }, d);
+    if (!r || r.err || !r.ok) creuxE.push(d + (r && r.err ? '(' + r.err + ')' : ''));
+  }
+  ok(creuxE.length === 0, 'les neuf modeles de l\'embauche s\'ouvrent et ne sont pas creux', creuxE.join(','));
+  const sansTB = await page.evaluate(() => {
+    let mauvais = [];
+    ['cdi', 'dpae', 'vip', 'mutuelle', 'essai'].forEach(k => {
+      window._docCurrent = null; try { parcDoc(k); } catch (x) { mauvais.push(k + '(' + x.message + ')'); return; }
+      const h = (window._docCurrent || {}).html || '';
+      if (/\bTB\b/.test(h) || /undefined/.test(h)) mauvais.push(k);
+    });
+    return mauvais;
+  });
+  ok(sansTB.length === 0, 'aucun modele ne laisse fuir une variable du script d\'insertion', sansTB.join(','));
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');

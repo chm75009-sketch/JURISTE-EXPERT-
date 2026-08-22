@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-21.210';
+var JX_BUILD = 'v2026-08-22.211';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,16 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-22.211', d:'22 août 2026', t:[
+   'SEPTIÈME PARCOURS — EMBAUCHER UN SALARIÉ, neuf étapes de la déclaration préalable au terme de l\u2019essai.',
+   'La déclaration préalable s\u2019adresse au plus tôt dans les HUIT JOURS qui précèdent (R.1221-4) et jamais après l\u2019embauche (L.1221-10) : le parcours calcule la fenêtre depuis votre date. Une seule déclaration accomplit huit formalités (R.1221-2) ; son omission caractérise le travail dissimulé.',
+   'Le document d\u2019information se remet en DEUX TEMPS (R.1221-35) : les huit premières rubriques au plus tard le septième jour calendaire, le reste au plus tard un mois après. Le contrat ne dispense pas de ce document, il s\u2019y ajoute.',
+   'Le registre unique du personnel s\u2019écrit AU MOMENT de l\u2019embauche et de façon INDÉLÉBILE (L.1221-13) : la sortie s\u2019ajoute, elle n\u2019efface pas.',
+   'La visite d\u2019information et de prévention dans un délai qui n\u2019excède pas TROIS MOIS (R.4624-10), renouvelée au plus tard tous les cinq ans (R.4624-16). Délais plus courts pour le travail de nuit, les mineurs et les femmes enceintes : à vérifier au texte selon le poste.',
+   'Cinq modèles neufs — contrat à durée indéterminée en onze articles, bordereau de déclaration préalable, demande de visite médicale, bulletin d\u2019affiliation ou de dispense de complémentaire santé, rupture de la période d\u2019essai avec le calcul chiffré de l\u2019indemnité quand le délai de prévenance déborde le terme. Chacun en deux parties : la structure intégrale, puis un exemplaire fictif chiffré.',
+   'Rappel qui vaut d\u2019être écrit : la convention collective fixe souvent une période d\u2019essai PLUS COURTE que la loi — c\u2019est elle qui s\u2019applique alors, et le modèle de contrat le montre sur un cas.',
+   'Une étape qui n\u2019appelle pas un modèle mais un module — le registre du personnel — ouvre désormais ce module directement depuis le parcours.'
+ ]},
  {v:'v2026-08-21.210', d:'21 août 2026', t:[
    'DEUX PARCOURS DE PLUS — le DOCUMENT UNIQUE et les NÉGOCIATIONS OBLIGATOIRES. Six parcours en tout, 53 étapes, toutes datées et fondées sur un article relu à la source.',
    'Le document unique : l\u2019impact différencié de l\u2019exposition selon le sexe (L.4121-3) et les ambiances thermiques (R.4121-1), que la plupart des documents omettent ; l\u2019annexe des proportions de salariés exposés (R.4121-1-1) ; la mise à jour annuelle dès ONZE salariés et aux deux autres occasions de R.4121-2 ; la conservation QUARANTE ANS (R.4121-4). Le programme annuel de prévention n\u2019apparaît qu\u2019à cinquante.',
@@ -30911,6 +30921,104 @@ function ausDoc(type){
      +'<b>7.</b> Arbre de Noël 2026 : trois devis présentés, décision reportée à la séance de septembre.<br>'
      +'Prochaine réunion : jeudi 10 septembre 2026, 14 h 00.</p>'
      +'<p><b>Établi par</b> Mme R. BEN SAID, secrétaire, le <b>24 juin 2026</b> — soit douze jours après la séance, dans le délai de quinze jours de R.2315-25. Communiqué le jour même à l’employeur et aux membres. Adopté à la séance du 10 septembre 2026, puis affiché au réfectoire par la secrétaire, conformément à l’article 9 du règlement intérieur du comité.</p>';
+  } else if(type==='cdi'){
+    T='Contrat à durée indéterminée — modèle intégral';
+    H=ausTete()
+     +'<p><b>CONTRAT DE TRAVAIL À DURÉE INDÉTERMINÉE</b></p>'
+     +'<p>Le CDI à temps plein n’est pas exigé par écrit par le code du travail, mais la convention collective l’impose presque toujours — et sans écrit, il n’y a ni période d’essai, ni clause de mobilité, ni aucune stipulation particulière opposable. On écrit, toujours.</p>'
+     +'<p><b>PARTIE 1 — LA STRUCTURE INTÉGRALE</b></p>'
+     +'<p><b>Entre</b> [RAISON SOCIALE], [forme], capital [ ] €, siège [ADRESSE], SIRET [ ], code APE [ ], URSSAF de [ ], représentée par [NOM, qualité], ci-après « l’employeur »,<br>'
+     +'<b>et</b> [M./Mme NOM Prénom], né(e) le [ ] à [ ], nationalité [ ], demeurant [ ], n° de sécurité sociale [ ], ci-après « le salarié ». [Pour un ressortissant étranger hors UE : titre de séjour n° [ ], valable jusqu’au [ ], vérifié auprès de la préfecture le [ ].]</p>'
+     +'<p><b>Art. 1 — Engagement et convention collective.</b> Le salarié est engagé à compter du [DATE] sous contrat à durée indéterminée. La relation est régie par la convention collective [INTITULÉ EXACT, IDCC], par les accords d’entreprise [ ], et par le présent contrat. La déclaration préalable à l’embauche a été effectuée auprès de [ORGANISME] le [DATE].<br>'
+     +'<b>Art. 2 — Fonctions.</b> [Intitulé du poste]. Classification : [catégorie], niveau [ ], coefficient [ ]. Le salarié exercera les missions suivantes : [liste]. Cette énumération n’est pas limitative dans la limite de sa qualification.<br>'
+     +'<b>Art. 3 — Période d’essai.</b> [Durée], conformément à [L.1221-19 / la convention collective si elle est plus courte]. [Renouvelable une fois pour [durée] si un accord de branche étendu le prévoit ET avec l’accord écrit du salarié.] Délai de prévenance de L.1221-25 et L.1221-26.<br>'
+     +'<b>Art. 4 — Lieu de travail.</b> [Adresse]. [Clause de mobilité : périmètre géographique PRÉCIS et définitivement fixé, à défaut de quoi elle est nulle.]<br>'
+     +'<b>Art. 5 — Durée du travail.</b> [Durée hebdomadaire ou mensuelle], répartie [ ]. [Heures supplémentaires : conditions.] [Ou : forfait annuel en jours, en application de l’accord du [DATE], [nombre] jours, suivi de la charge et entretien annuel — L.3121-64 et L.3121-65.]<br>'
+     +'<b>Art. 6 — Rémunération.</b> [Montant] € brut [mensuel/horaire], soit [ ] € brut annuel sur [ ] mois. Éléments INDIQUÉS SÉPARÉMENT : salaire de base [ ] · [primes, leur nature et leur périodicité] · [avantages en nature, leur évaluation]. Versement le [ ] de chaque mois, par virement.<br>'
+     +'<b>Art. 7 — Congés payés.</b> 2,5 jours ouvrables par mois de travail effectif, 30 jours ouvrables au plus (L.3141-3), période de prise fixée [ ].<br>'
+     +'<b>Art. 8 — Protection sociale.</b> Retraite complémentaire [institution]. Prévoyance [organisme, contrat]. Complémentaire santé [organisme] — affiliation obligatoire sauf dispense écrite.<br>'
+     +'<b>Art. 9 — Obligations.</b> Respect du règlement intérieur [s’il existe], des consignes de sécurité, discrétion sur les informations dont le salarié a connaissance.<br>'
+     +'<b>Art. 10 — Clauses particulières, s’il y a lieu.</b> [Non-concurrence : limitée dans le temps ET l’espace, aux activités réellement concurrentes, et assortie d’une CONTREPARTIE FINANCIÈRE, à défaut de quoi elle est nulle.] [Dédit-formation : coût réel, durée, dégressivité.] [Exclusivité : justifiée par la nature de la tâche et proportionnée.]<br>'
+     +'<b>Art. 11 — Rupture.</b> Préavis de [durée] selon la convention collective. Procédures des articles L.1232-2 et suivants.<br>'
+     +'Fait en deux exemplaires à [ ], le [ ]. — Signatures.</p>'
+     +'<p style="border:1px solid #000;padding:7px"><b>Le document d’information ne se confond pas avec le contrat.</b> Même contrat écrit et signé, les quatorze rubriques de R.1221-34 doivent être remises : huit d’entre elles dans les sept jours calendaires, les autres dans le mois (R.1221-35).</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — M. T. BENALI, conducteur SPL, SARL EXEMPLE</b></p>'
+     +'<p><b>Art. 1</b> — Engagement à compter du 2 mars 2026. Convention collective nationale des transports routiers et activités auxiliaires du transport, IDCC 16. Accord d’entreprise du 14/01/2025 sur les temps de service. DPAE effectuée auprès de l’URSSAF Île-de-France le 24 février 2026, accusé n° 2026-000000.<br>'
+     +'<b>Art. 2</b> — Conducteur routier SPL longue distance. Ouvrier, groupe 6, coefficient 138M.<br>'
+     +'<b>Art. 3</b> — Essai de deux mois. La convention IDCC 16 prévoit, pour les ouvriers, un essai d’UN MOIS : c’est elle qui s’applique, étant plus favorable. <i>À vérifier au texte conventionnel avant signature — l’application ne lit pas les conventions.</i> L’essai est donc fixé à un mois, expirant le 1er avril 2026.<br>'
+     +'<b>Art. 5</b> — 169 heures par mois, soit 39 h hebdomadaires, dont 17,33 h supplémentaires structurelles.<br>'
+     +'<b>Art. 6</b> — Salaire de base 152 h à 12,84 € = 1 951,68 € · heures supplémentaires 17,33 h à 16,05 € (majoration 25 %) = 278,15 € · <b>total brut mensuel 2 229,83 €</b>, hors indemnités de repas versées selon le barème conventionnel. Versement le 5 du mois suivant, par virement.<br>'
+     +'<b>Art. 8</b> — AGIRC-ARRCO [institution], CARCEPT prévoyance contrat n° 000000 (1,50 % TA employeur), complémentaire santé [organisme] contrat n° 000000, participation employeur 50 %.<br>'
+     +'<b>Art. 10</b> — Aucune clause de non-concurrence : le poste ne le justifie pas, et une clause sans contrepartie financière serait nulle. Aucune clause de mobilité : le lieu de travail est le dépôt d’Argenteuil, les déplacements relevant de la nature même du poste.</p>'
+     +'<p><b>Ce qui a été vérifié avant signature</b> : que le coefficient 138M correspond bien aux fonctions ; que le taux horaire dépasse le minimum conventionnel du coefficient ; que l’essai retenu est le plus favorable au salarié ; que le titre de séjour, s’il y avait lieu, était valide. Ces quatre points sont ceux que l’inspection contrôle en premier.</p>';
+  } else if(type==='dpae'){
+    T='Déclaration préalable à l’embauche — bordereau';
+    H=ausTete()
+     +'<p><b>DÉCLARATION PRÉALABLE À L’EMBAUCHE</b> (articles L.1221-10, R.1221-1 et suivants du code du travail)</p>'
+     +'<p><b>PARTIE 1 — CE QU’ELLE ACCOMPLIT, ET QUAND</b></p>'
+     +'<p><b>Quand.</b> Au plus tôt dans les HUIT JOURS précédant la date prévisible de l’embauche (R.1221-4), et en tout cas AVANT que le salarié ne prenne son poste (L.1221-10). Pas le jour même après la prise de poste : avant.</p>'
+     +'<p><b>Ce qu’une seule déclaration accomplit</b> (R.1221-2) : ① l’immatriculation de l’employeur au régime général ; ② l’immatriculation du salarié à la sécurité sociale ; ③ l’affiliation au régime d’assurance chômage ; ④ l’adhésion au service de prévention et de santé au travail ; ⑤ la demande d’examen médical d’embauche ou de visite d’information et de prévention ; et les autres formalités énumérées par le texte.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Rubrique</th><th>À renseigner</th></tr>'
+     +'<tr><td>Employeur : dénomination, SIRET, code APE, adresse, URSSAF de rattachement</td><td>[ ]</td></tr>'
+     +'<tr><td>Service de santé au travail : nom et adresse</td><td>[ ]</td></tr>'
+     +'<tr><td>Salarié : nom, nom de naissance, prénoms, sexe, date et lieu de naissance, n° de sécurité sociale</td><td>[ ]</td></tr>'
+     +'<tr><td>Emploi : date et heure d’embauche, nature du contrat, durée de la période d’essai</td><td>[ ]</td></tr>'
+     +'<tr><td>Accusé de réception de l’organisme, à conserver</td><td>[ ]</td></tr></table>'
+     +'<p style="border:1px solid #000;padding:7px"><b>Le risque.</b> L’omission caractérise le travail dissimulé par dissimulation d’emploi salarié — sanction pénale, et indemnité forfaitaire de six mois de salaire due au salarié en cas de rupture. C’est la formalité la moins coûteuse et la plus lourdement sanctionnée.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>Employeur : SARL EXEMPLE, SIRET 000 000 000 00012, APE 4941A, 12 rue des Peupliers 95100 Argenteuil, URSSAF Île-de-France. Service de santé : AMETIF, 95870 Bezons.<br>'
+     +'Salarié : BENALI Tarek, homme, né le 14/06/1989 à Argenteuil, n° 1 89 06 95 018 000 00.<br>'
+     +'Emploi : embauche le <b>lundi 2 mars 2026 à 5 h 00</b>, contrat à durée indéterminée, essai d’un mois.<br>'
+     +'<b>Déclaration adressée le mardi 24 février 2026 à 16 h 12</b> — soit six jours avant l’embauche, dans la fenêtre des huit jours de R.1221-4. Accusé de réception URSSAF n° 2026-000000 reçu le 24/02/2026 à 16 h 14, imprimé et classé au dossier individuel.</p>'
+     +'<p><b>L’erreur évitée.</b> La première tentative avait été faite le 20 février, soit dix jours avant l’embauche : hors de la fenêtre des huit jours, elle a été rejetée. Une déclaration trop tôt n’est pas valable ; une déclaration trop tard est un délit.</p>';
+  } else if(type==='vip'){
+    T='Visite d’information et de prévention — demande et suivi';
+    H=ausTete()
+     +'<p><b>VISITE D’INFORMATION ET DE PRÉVENTION</b> (articles R.4624-10 et suivants du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES DÉLAIS, ET CE QUI LES RACCOURCIT</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Situation</th><th>Délai</th><th>Texte</th></tr>'
+     +'<tr><td>Travailleur, cas général</td><td>Dans un délai qui n’excède pas TROIS MOIS à compter de la prise effective du poste</td><td>R.4624-10</td></tr>'
+     +'<tr><td>Renouvellement</td><td>Périodicité fixée par le médecin du travail, qui ne peut EXCÉDER CINQ ANS, compte tenu des conditions de travail, de l’âge, de l’état de santé et des risques</td><td>R.4624-16</td></tr>'
+     +'<tr><td>Poste à risques particuliers</td><td>Suivi individuel renforcé : examen médical d’aptitude AVANT l’affectation — à vérifier au texte</td><td>R.4624-22 s. — à relire</td></tr>'
+     +'<tr><td>Travailleur de nuit, mineur, femme enceinte ou allaitante, travailleur handicapé, titulaire d’une pension d’invalidité</td><td>Délai plus court — à vérifier au texte selon la situation</td><td>à relire</td></tr></table>'
+     +'<p><b>Modèle de demande.</b> « [SERVICE DE SANTÉ AU TRAVAIL], nous vous demandons d’organiser la visite d’information et de prévention de [M./Mme NOM], [poste], entré(e) à notre service le [DATE]. Le poste comporte les expositions suivantes : [liste]. [Il figure / ne figure pas] sur la liste des postes présentant des risques particuliers arrêtée après avis du comité social et économique le [DATE]. »</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>Demande adressée à AMETIF le 3 mars 2026 pour M. Tarek BENALI, conducteur routier SPL, entré le 2 mars 2026. Expositions déclarées : conduite prolongée, manutention occasionnelle, travail de nuit ponctuel (moins de 270 heures par an), vibrations transmises au corps entier.<br>'
+     +'<b>Échéance de la visite : au plus tard le 2 juin 2026</b> — trois mois après la prise de poste. Visite réalisée le 19 mai 2026 par l’infirmier en santé au travail. Attestation de suivi remise au salarié et classée. <b>Prochaine visite fixée par le médecin du travail à trois ans</b>, soit avant le 19 mai 2029, compte tenu de l’exposition aux vibrations — délai inférieur au maximum de cinq ans.</p>'
+     +'<p><b>Le point à ne pas manquer.</b> Le travail de nuit régulier au sens de L.3122-5 impose un suivi plus rapproché. Ici, les 270 heures annuelles de nuit ne suffisent pas à qualifier le travailleur de nuit — mais le comptage doit être tenu, faute de quoi le régime applicable ne peut pas être établi.</p>';
+  } else if(type==='mutuelle'){
+    T='Complémentaire santé — affiliation ou dispense';
+    H=ausTete()
+     +'<p><b>COMPLÉMENTAIRE SANTÉ COLLECTIVE</b> — l’obligation figure à l’article L.911-7 du code de la sécurité sociale, hors code du travail. <i>À vérifier à sa source avant application : les cas de dispense et leurs conditions relèvent de textes que la présente application n’a pas relus.</i></p>'
+     +'<p><b>PARTIE 1 — LES DEUX VOIES, ET LA PIÈCE QUI VA AVEC</b></p>'
+     +'<p><b>Voie 1 — l’affiliation.</b> Bulletin d’affiliation signé, mentionnant : l’organisme, le numéro de contrat, la date d’effet, la garantie retenue, la répartition de la cotisation entre employeur et salarié, et les ayants droit couverts. Copie remise au salarié, original au dossier.</p>'
+     +'<p><b>Voie 2 — la dispense.</b> Elle n’existe que dans les cas prévus, et elle est ÉCRITE, DATÉE ET SIGNÉE du salarié, avec la mention du motif invoqué et, s’il y a lieu, la pièce qui l’établit — attestation d’une autre couverture collective obligatoire, par exemple. Une dispense verbale n’existe pas ; une dispense sans pièce ne tient pas.</p>'
+     +'<p><b>Trame de dispense.</b> « Je soussigné(e) [NOM], [poste], embauché(e) le [DATE], déclare demander à être dispensé(e) de l’adhésion au régime de complémentaire santé collective de [RAISON SOCIALE], pour le motif suivant : [motif exact]. Je joins [pièce justificative]. Je reconnais avoir été informé(e) des conséquences de ce choix, et notamment de la perte du bénéfice de la participation de l’employeur. Fait le [DATE], signature. »</p>'
+     +'<p style="border:1px solid #000;padding:7px"><b>Où cela se paie.</b> Un salarié non affilié, sans dispense écrite au dossier, découvre l’absence de couverture au moment d’un sinistre — et c’est alors l’employeur qui répond du préjudice. La pièce vaut moins d’une minute à établir.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Cas 1, affiliation.</b> M. T. BENALI, embauché le 02/03/2026. Bulletin d’affiliation signé le 02/03/2026, organisme [X], contrat n° 000000, garantie « base + option 1 », date d’effet 02/03/2026. Cotisation mensuelle 62,40 € — part employeur 31,20 € (50 %), part salarié 31,20 €, précomptée sur le bulletin. Conjoint et deux enfants couverts sur demande, surcoût 28,80 € à la charge du salarié.<br>'
+     +'<b>Cas 2, dispense.</b> Mme L. FONTAINE, embauchée le 04/01/2026, déjà couverte à titre obligatoire par le régime collectif de l’employeur de son conjoint. Dispense écrite du 04/01/2026, attestation de l’organisme du conjoint jointe, valable jusqu’au 31/12/2026. <b>Relance calendaire posée au 01/12/2026</b> : la dispense doit être renouvelée chaque année, faute de quoi l’affiliation redevient obligatoire.</p>';
+  } else if(type==='essai'){
+    T='Rupture de la période d’essai — notification';
+    H=ausTete()
+     +'<p><b>RUPTURE DE LA PÉRIODE D’ESSAI</b> (articles L.1221-19 à L.1221-26 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES DURÉES, LE RENOUVELLEMENT, LE DÉLAI DE PRÉVENANCE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Catégorie</th><th>Durée maximale initiale (L.1221-19)</th><th>Avec renouvellement (L.1221-21)</th></tr>'
+     +'<tr><td>Ouvriers et employés</td><td>2 mois</td><td>4 mois</td></tr>'
+     +'<tr><td>Agents de maîtrise et techniciens</td><td>3 mois</td><td>6 mois</td></tr>'
+     +'<tr><td>Cadres</td><td>4 mois</td><td>8 mois</td></tr></table>'
+     +'<p>Le renouvellement n’est possible que si un ACCORD DE BRANCHE ÉTENDU le prévoit, une seule fois, et avec l’accord écrit du salarié recueilli PENDANT l’essai initial. La convention collective fixe souvent une durée plus courte : c’est elle qui s’applique alors.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Présence du salarié</th><th>Rupture par l’employeur (L.1221-25)</th><th>Rupture par le salarié (L.1221-26)</th></tr>'
+     +'<tr><td>Moins de 8 jours</td><td>24 heures</td><td>24 heures</td></tr>'
+     +'<tr><td>De 8 jours à 1 mois</td><td>48 heures</td><td>48 heures</td></tr>'
+     +'<tr><td>Après 1 mois</td><td>2 semaines</td><td>48 heures</td></tr>'
+     +'<tr><td>Après 3 mois</td><td>1 mois</td><td>48 heures</td></tr></table>'
+     +'<p style="border:1px solid #000;padding:7px"><b>La règle qui coûte.</b> Le délai de prévenance NE PROLONGE PAS l’essai (L.1221-25). S’il déborde le terme, la rupture reste acquise, mais l’employeur doit une indemnité compensatrice égale aux salaires et avantages qu’aurait perçus le salarié jusqu’au terme du délai. Le calcul se fait avant d’envoyer, pas après.</p>'
+     +'<p><b>Trame.</b> « [M./Mme], nous vous informons qu’il est mis fin à votre période d’essai, en application de l’article [ ] de votre contrat de travail. Votre contrat prendra fin le [DATE], à l’issue du délai de prévenance de [durée] prévu à l’article L.1221-25. [Ou : le délai de prévenance excédant le terme de votre période d’essai, celle-ci prend fin le [DATE] et une indemnité compensatrice de [MONTANT] € brut vous sera versée.] Vos documents de fin de contrat vous seront remis. »</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE</b></p>'
+     +'<p><b>Cas 1 — le délai tient dans l’essai.</b> M. G., agent de quai, embauché le 02/02/2026, essai de deux mois expirant le 01/04/2026. Décision de rompre prise le 05/03/2026 : présence supérieure à un mois, donc prévenance de DEUX SEMAINES. Notification remise le 05/03, fin du contrat le 19/03/2026 — avant le terme du 1er avril. Aucune indemnité.<br>'
+     +'<b>Cas 2 — le délai déborde, et il se paie.</b> Même salarié, décision prise le 25/03/2026. Prévenance de deux semaines → 8 avril, soit sept jours au-delà du terme du 1er avril. L’essai prend fin le 01/04/2026 et une indemnité compensatrice est due pour ces sept jours : 7 × 78,40 € = <b>548,80 € brut</b>. Différer la décision de vingt jours aura coûté 548,80 €.</p>'
+     +'<p><b>Ce qu’il faut vérifier avant de rompre</b> : que la durée d’essai du contrat n’excède pas celle de la convention collective ; que le renouvellement, s’il y en a eu un, était prévu par un accord de branche étendu ET accepté par écrit ; que le salarié n’est pas protégé ni en arrêt lié à un accident du travail ; et que le motif n’est pas étranger à l’appréciation des compétences — une rupture d’essai discriminatoire ou disciplinaire déguisée s’annule.</p>';
   } else { alert('Modèle inconnu.'); return; }
   window._docCurrent={ titre:T, html:'<div style="font-family:\'Times New Roman\',serif;font-size:11pt;color:#000;line-height:1.6">'+H+AUS_RES+'</div>' };
   try{ jxDocSortie(); }catch(e){ alert('Génération impossible : '+e.message); }
@@ -31429,6 +31537,68 @@ var PARCOURS={
     note:'Les parties peuvent convenir qu’une partie de l’accord ne sera pas publiée. Sans accord sur ce point, il l’est intégralement.',
     doc:['nego:bordereau','Bordereau de dépôt']}
   ]
+ },
+ embauche:{
+  titre:'Embaucher un salarié',
+  sous:'Les huit jours avant, le contrat écrit et ses mentions, le document d’information en deux temps, le registre, la visite médicale et le terme de l’essai.',
+  seuil:0,
+  pre:[
+   {k:'ident', q:'info', lib:'L’identité complète du salarié, sa date et son lieu de naissance, sa nationalité et son numéro de sécurité sociale'},
+   {k:'titre', q:'piece',lib:'Pour un ressortissant étranger hors Union européenne : le titre autorisant le travail, vérifié auprès de la préfecture'},
+   {k:'poste', q:'info', lib:'L’intitulé du poste, la classification conventionnelle, le coefficient et le lieu de travail'},
+   {k:'remun', q:'info', lib:'La rémunération, ses éléments SÉPARÉMENT, et le minimum conventionnel applicable au coefficient'},
+   {k:'horaire',q:'info',lib:'La durée du travail, sa répartition, et pour un temps partiel les cas de modification'},
+   {k:'ccn',   q:'doc',  lib:'La convention collective : essai, préavis, classification, primes — elle prime si elle est plus favorable'},
+   {k:'spst',  q:'info', lib:'Le service de prévention et de santé au travail, pour la visite d’information et de prévention'},
+   {k:'mut',   q:'doc',  lib:'Le contrat de complémentaire santé collective et le bulletin d’adhésion ou de dispense'}
+  ],
+  dates:[
+   {k:'emb', lib:'Date d’embauche prévue', aide:'La déclaration préalable s’adresse au plus tôt dans les huit jours qui la précèdent.'},
+   {k:'essai', lib:'Durée de l’essai — date de terme', aide:'Le délai de prévenance se calcule à partir de la présence au jour de la notification.'}
+  ],
+  etapes:[
+   {k:'dpae', n:'1', lib:'Déclarer avant l’embauche — la DPAE',
+    src:'L.1221-10 — l’embauche ne peut intervenir qu’APRÈS déclaration nominative auprès des organismes de protection sociale, dans tous les lieux de travail où sont employés des salariés · R.1221-4 : adressée au plus tôt dans les huit jours précédant la date prévisible',
+    ech:function(D){ return D.emb?parcJours(D.emb,-8):''; }, echLib:'à partir de cette date, et jamais après l’embauche',
+    note:'Une seule déclaration accomplit huit formalités (R.1221-2) : immatriculation de l’employeur et du salarié, affiliation au chômage, adhésion au service de santé au travail, demande de visite. L’omission caractérise le travail dissimulé.',
+    doc:['dpae','Bordereau de déclaration préalable']},
+   {k:'contrat', n:'2', lib:'Établir le contrat écrit',
+    src:'le CDI à temps plein peut être verbal, mais la convention collective impose presque toujours l’écrit · le CDD est écrit à peine de requalification (L.1242-12) · le temps partiel est écrit avec ses cinq mentions (L.3123-6)',
+    note:'Écrire, toujours. Un CDI verbal se prouve mal, et prive l’employeur de la période d’essai, de la clause de mobilité et de toute stipulation particulière.',
+    doc:['cdi','Contrat à durée indéterminée — modèle'], doc2:['cdd','CDD — modèle']},
+   {k:'info7', n:'3', lib:'Remettre le document d’information — volet des sept jours',
+    src:'L.1221-5-1 et R.1221-35 — les rubriques 1° à 5°, 7°, 11° et 12° de R.1221-34 sont communiquées INDIVIDUELLEMENT au plus tard le septième jour calendaire à compter de l’embauche',
+    ech:function(D){ return D.emb?parcJours(D.emb,7):''; }, echLib:'septième jour calendaire',
+    note:'Identité des parties, lieux de travail, intitulé du poste, date d’embauche, terme du CDD, essai, éléments de rémunération INDIQUÉS SÉPARÉMENT, durée du travail. Le contrat ne dispense pas de ce document : il s’y ajoute.',
+    doc:['infoemb','Document d’information — les 14 rubriques']},
+   {k:'infom', n:'4', lib:'Remettre le document d’information — volet du mois',
+    src:'R.1221-35 — les autres informations sont communiquées au plus tard UN MOIS à compter de l’embauche',
+    ech:function(D){ return D.emb?parcMois(D.emb,1):''; }, echLib:'un mois après l’embauche',
+    note:'Droit à la formation, congés payés, procédure de rupture, conventions applicables, régimes de protection sociale. Les rubriques 7° à 12° et 14° peuvent renvoyer aux textes ; les autres, non.',
+    doc:['infoemb','Document d’information — volet B']},
+   {k:'registre', n:'5', lib:'Inscrire au registre unique du personnel',
+    src:'L.1221-13 — registre tenu dans TOUT établissement où sont employés des salariés ; noms et prénoms inscrits dans l’ordre des embauches, AU MOMENT de l’embauche et de façon INDÉLÉBILE ; les stagiaires et volontaires en service civique y figurent dans une partie spécifique',
+    ech:function(D){ return D.emb||''; }, echLib:'le jour même de l’embauche',
+    note:'« Au moment de l’embauche » : pas le mois suivant. « Indélébile » : aucune radiation, la sortie s’ajoute, elle n’efface pas.',
+    page:'personnel'},
+   {k:'vip', n:'6', lib:'Organiser la visite d’information et de prévention',
+    src:'R.4624-10 — tout travailleur en bénéficie dans un délai qui n’excède pas TROIS MOIS à compter de la prise effective du poste · R.4624-16 : renouvellement selon une périodicité qui ne peut excéder cinq ans, fixée par le médecin du travail',
+    ech:function(D){ return D.emb?parcMois(D.emb,3):''; }, echLib:'trois mois après la prise de poste',
+    note:'Le délai est plus court pour les travailleurs de nuit, les mineurs et les femmes enceintes ; les postes à risques relèvent du suivi individuel renforcé, avec examen AVANT l’affectation. À vérifier au texte selon le poste.',
+    doc:['vip','Demande de visite au service de santé']},
+   {k:'mutuelle', n:'7', lib:'Affilier à la complémentaire santé, ou recueillir la dispense',
+    src:'l’obligation de couverture collective figure à l’article L.911-7 du code de la sécurité sociale — hors code du travail, à vérifier à sa source',
+    note:'Les cas de dispense sont limités et doivent être écrits, datés et signés du salarié. Une affiliation manquante sans dispense écrite se paie au moment du sinistre.',
+    doc:['mutuelle','Bulletin d’affiliation ou de dispense']},
+   {k:'affich', n:'8', lib:'Remettre ou porter à connaissance ce qui est dû à l’entrée',
+    src:'convention collective (R.2262-1 et R.2262-3) · règlement intérieur s’il existe (R.1321-1) · consignes de sécurité et accueil au poste (L.4141-2) · textes pénaux sur la discrimination (L.1142-6) et l’égalité de rémunération (R.3221-2)',
+    doc:['affichages','Pack des affichages'], doc2:['accueilsecu','Accueil sécurité au poste']},
+   {k:'essai', n:'9', lib:'Suivre l’essai — et le délai de prévenance', opt:true,
+    src:'L.1221-19 — deux mois pour les ouvriers et employés, trois pour les agents de maîtrise et techniciens, quatre pour les cadres · L.1221-21 : renouvellement une fois si un accord de branche étendu le prévoit · L.1221-25 : prévenance de 24 h, 48 h, deux semaines ou un mois selon la présence',
+    ech:function(D){ return D.essai||''; }, echLib:'terme de l’essai',
+    note:'Le délai de prévenance ne prolonge pas l’essai : s’il déborde le terme, il se paie en indemnité. Et la convention collective fixe souvent une durée d’essai plus courte que la loi — c’est elle qui s’applique alors.',
+    doc:['essai','Rupture de la période d’essai']}
+  ]
  }
 };
 
@@ -31526,10 +31696,11 @@ function parcRender(){
      +(ech?('<div style="font-size:12px;margin-top:5px;font-weight:700;color:'+(tard?'#e06666':(fait?'#9fb0c4':'#c9a84c'))+'">Échéance : '+negoEsc(parcFr(ech))+' — '+negoEsc(e.echLib||'')+(tard?' · EN RETARD':'')+'</div>'):'')
      +(fait&&(p.faitD||{})[e.k]?('<div style="font-size:10.5px;color:#9fb0c4;margin-top:4px">fait le '+negoEsc(ausDate((p.faitD||{})[e.k]))+'</div>'):'')
      +'</span></label>';
-    if(e.doc||e.doc2){
+    if(e.doc||e.doc2||e.page){
       h+='<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
       [e.doc,e.doc2].forEach(function(d){ if(!d) return;
         h+='<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="parcDoc(\''+d[0]+'\')">📄 '+negoEsc(d[1])+'</button>'; });
+      if(e.page) h+='<button class="btn-outline" style="font-size:12px;padding:5px 9px" onclick="goPage(\''+e.page+'\')">↗ Ouvrir le module</button>';
       h+='</div>';
     }
     h+='</div>';
@@ -31565,7 +31736,7 @@ function parcDoc(type){
     if(type.indexOf('nego:')===0){ negoDoc(type.slice(5)); return; }
     if(type.indexOf('cseinst:')===0){ cseinstDoc(type.slice(8)); return; }
     if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
-    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages'].indexOf(type)>=0){ ausDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu'].indexOf(type)>=0){ ausDoc(type); return; }
 
     ausDoc(type);
   }catch(e){ alert('Modèle indisponible : '+e.message); }
