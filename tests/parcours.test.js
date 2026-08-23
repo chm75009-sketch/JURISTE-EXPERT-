@@ -428,6 +428,57 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(sansTB.length === 0, 'aucun modele ne laisse fuir une variable du script d\'insertion', sansTB.join(','));
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— Le parcours du licenciement pour motif personnel —');
+  const lp = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('licperso'); parcOuvrir('licperso');
+    parcDate('licperso', 'conv', '2026-09-08');   /* presentation : un mardi */
+    parcDate('licperso', 'ent', '2026-09-17');    /* entretien : un jeudi */
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/9 à votre situation/.test(lp), 'neuf etapes au licenciement personnel',
+     (lp.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 14 septembre 2026/.test(lp),
+     'le cinquieme jour ouvrable, SAMEDI COMPRIS et dimanche exclu (L.1232-2)',
+     (lp.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/Échéance : 19 septembre 2026/.test(lp),
+     'et le deuxieme jour ouvrable apres l\'entretien (L.1232-6)');
+  ok(/écarte toute discussion/.test(lp),
+     'le texte ne dit pas si ce jour-la est possible : l\'app ne tranche pas');
+  ok(/fixe les termes du litige/.test(lp), 'la lettre fixe les termes du litige');
+  ok(/AUTORISATION de l’inspecteur/.test(lp), 'le salarie protege est traite avant tout');
+  ok(/EXCLUSIVEMENT/.test(lp), 'et le certificat de travail ne dit que ce que D.1234-6 permet');
+  ok(/quinze jours/i.test(lp), 'la precision des motifs porte son delai (R.1232-13)');
+
+  let creuxL = [];
+  for (const d of ['convperso', 'cranentretien', 'notifperso', 'precisperso', 'certif', 'stc']) {
+    const r = await page.evaluate(k => {
+      const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+      window._docCurrent = null;
+      try { parcDoc(k); } catch (x) { return { err: x.message }; }
+      const c = window._docCurrent || {};
+      return { ok: !!c.html && c.html.length > 1200 && /PARTIE 2/.test(c.html) };
+    }, d);
+    if (!r || r.err || !r.ok) creuxL.push(d + (r && r.err ? '(' + r.err + ')' : ''));
+  }
+  ok(creuxL.length === 0, 'les six modeles s\'ouvrent, structure ET exemplaire', creuxL.join(','));
+  const chiffres = await page.evaluate(() => {
+    window._docCurrent = null; parcDoc('stc');
+    const h = window._docCurrent.html;
+    return { total: /8 400,13/.test(h), calcul: /7,72 × 0,25/.test(h),
+             inventaire: /Un montant global n’est pas un inventaire/.test(h) };
+  });
+  ok(chiffres.total && chiffres.calcul, 'le solde de tout compte est chiffre poste par poste',
+     JSON.stringify(chiffres));
+  ok(chiffres.inventaire, 'et il dit pourquoi un montant global ne libere de rien');
+  const certif = await page.evaluate(() => {
+    window._docCurrent = null; parcDoc('certif');
+    const h = window._docCurrent.html;
+    return /bonne continuation/.test(h) && /a été retirée/.test(h) && /23 novembre 2026/.test(h);
+  });
+  ok(certif, 'le certificat montre la formule interdite et la date de fin de preavis');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   console.log('\n— La verification de ce qui est declare fait —');
   const grilles = await page.evaluate(() => {
     let n = 0; const sans = [];

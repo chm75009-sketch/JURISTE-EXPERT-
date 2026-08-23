@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.214';
+var JX_BUILD = 'v2026-08-23.215';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,16 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.215', d:'23 août 2026', t:[
+   'HUITIÈME PARCOURS — LICENCIER POUR MOTIF PERSONNEL, neuf étapes du dossier aux documents de sortie. Huit parcours, 71 étapes, 162 questions de contrôle.',
+   'Les deux délais qui perdent les dossiers sont calculés depuis vos dates : cinq jours ouvrables entre la PRÉSENTATION de la convocation et l\u2019entretien (L.1232-2), deux jours ouvrables entre l\u2019entretien et l\u2019expédition de la lettre (L.1232-6). Le SAMEDI est ouvrable, le dimanche ne l\u2019est pas.',
+   'Un point que nous ne tranchons pas, parce que le texte ne le tranche pas : « moins de cinq jours ouvrables après » ne dit pas si le cinquième jour est lui-même possible. L\u2019application affiche ce cinquième jour et vous dit que fixer l\u2019entretien APRÈS écarte la discussion. Elle n\u2019invente pas la réponse.',
+   'La lettre de notification FIXE LES TERMES DU LITIGE : ce qui n\u2019y est pas écrit ne pourra pas être invoqué, et ce qui y est écrit devra être prouvé. Le modèle montre deux griefs datés et rattachés à une pièce — et un troisième, écarté après vérification, qui n\u2019y figure pas.',
+   'La précision des motifs, ses DEUX délais de quinze jours (R.1232-13), et ce qu\u2019elle ne permet pas : préciser n\u2019est pas ajouter.',
+   'Le certificat de travail contient EXCLUSIVEMENT la date d\u2019entrée, la date de sortie et la nature des emplois avec leurs périodes (D.1234-6) — le modèle montre la formule élogieuse qu\u2019il a fallu retirer. Le reçu pour solde de tout compte fait l\u2019INVENTAIRE : un montant global ne libère de rien, et l\u2019exemple chiffre les cinq postes jusqu\u2019à 8 400,13 €.',
+   'Six modèles neufs, chacun en deux parties : convocation, compte rendu d\u2019entretien, notification, réponse à une demande de précision, certificat de travail, reçu pour solde de tout compte.',
+   'Huit obligations de l\u2019audit renvoient désormais à ce parcours, dont la convocation et la notification, qui quittent le parcours disciplinaire : elles nomment le licenciement, pas la sanction. 45 renvois en tout.'
+ ]},
  {v:'v2026-08-23.214', d:'23 août 2026', t:[
    'LES QUATRE MOTIFS DU LICENCIEMENT ÉCONOMIQUE, en Word : le texte de L.1233-3 mot pour mot, puis douze décisions de la Cour de cassation relevées dans la base JUDILIBRE — numéro, date, solution et sommaire en viennent, pas de la mémoire.',
    'Motif par motif, ce qui passe et ce qui ne passe pas. Difficultés économiques : une dégradation de l\u2019excédent brut d\u2019exploitation suffit si elle est SÉRIEUSE ET DURABLE (Soc. 1er févr. 2023, n° 20-19.661) ; des pertes sur trois exercices avec un chiffre d\u2019affaires en hausse ne suffisent pas sans recherche du caractère significatif (Soc. 18 oct. 2023, n° 22-18.852).',
@@ -31152,6 +31162,222 @@ function ausDoc(type){
      +'<p>Les décisions citées valent pour la rédaction du texte applicable À LA DATE DES FAITS de chaque espèce. Plusieurs '
      +'précèdent la loi du 8 août 2016, qui a défini les indicateurs et les durées de baisse, et l’ordonnance du 22 septembre 2017, '
      +'qui a limité l’appréciation au territoire national. À vérifier au cas par cas avant de s’en prévaloir.</p>';
+  } else if(type==='convperso'){
+    T='Convocation à l’entretien préalable — motif personnel';
+    H=ausTete()
+     +'<p><b>CONVOCATION À ENTRETIEN PRÉALABLE</b> (articles L.1232-2, L.1232-4 et R.1232-1 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LA STRUCTURE, ET LES CINQ MENTIONS QUI LA VALIDENT</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Mention</th><th>Texte</th><th>[ ]</th></tr>'
+     +'<tr><td>L’OBJET de la convocation</td><td>L.1232-2 et R.1232-1</td><td>[ ]</td></tr>'
+     +'<tr><td>La DATE de l’entretien</td><td>R.1232-1</td><td>[ ]</td></tr>'
+     +'<tr><td>L’HEURE</td><td>R.1232-1</td><td>[ ]</td></tr>'
+     +'<tr><td>Le LIEU</td><td>R.1232-1</td><td>[ ]</td></tr>'
+     +'<tr><td>Le rappel du droit d’être assisté par une personne du personnel</td><td>L.1232-4, R.1232-1</td><td>[ ]</td></tr>'
+     +'<tr><td>S’IL N’Y A PAS de représentants du personnel : la possibilité du CONSEILLER DU SALARIÉ, et l’adresse des services où la liste est tenue à disposition</td><td>L.1232-4</td><td>[ ]</td></tr></table>'
+     +'<p><b>Modèle.</b> « [Madame / Monsieur NOM], nous sommes conduits à envisager à votre égard une mesure de licenciement. '
+     +'Conformément à l’article L.1232-2 du code du travail, nous vous convoquons à un entretien préalable qui se tiendra le '
+     +'[DATE] à [HEURE], à [ADRESSE PRÉCISE, bureau ou salle]. Au cours de cet entretien, nous vous exposerons les motifs de la '
+     +'mesure envisagée et recueillerons vos explications. Vous pouvez vous faire assister par une personne de votre choix '
+     +'appartenant au personnel de l’entreprise. [S’IL N’Y A PAS DE REPRÉSENTANTS DU PERSONNEL : À défaut d’institutions '
+     +'représentatives du personnel dans l’entreprise, vous pouvez également vous faire assister par un conseiller du salarié '
+     +'choisi sur une liste dressée par l’autorité administrative, tenue à votre disposition à [ADRESSE DE L’INSPECTION DU TRAVAIL] '
+     +'et à [ADRESSE DE LA MAIRIE].] » </p>'
+     +'<p><b>Le mode d’envoi.</b> Lettre recommandée OU remise en main propre contre décharge datée et signée (L.1232-2). '
+     +'Dans les deux cas, gardez la trace de la PRÉSENTATION : c’est elle, et non l’envoi, qui fait courir les cinq jours ouvrables.</p>'
+     +'<p><b>Ce qu’il ne faut PAS y mettre.</b> Ni les motifs détaillés — ils s’exposent à l’entretien et s’écrivent dans la '
+     +'notification — ni aucune formule laissant entendre que la décision est prise.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>SARL EXEMPLE, 12 rue des Peupliers, 95100 Argenteuil — transport routier de marchandises, IDCC 16, 72 salariés.<br>'
+     +'Destinataire : Monsieur MARTIN Julien, conducteur, coefficient 138 M, entré le 3 mars 2019.<br>'
+     +'<b>Lettre recommandée avec avis de réception n° 2A 123 456 789 0, expédiée le lundi 7 septembre 2026, PRÉSENTÉE le mardi 8 septembre 2026.</b></p>'
+     +'<p><b>Le calcul des cinq jours ouvrables.</b> La présentation a lieu le mardi 8 septembre. Le jour de la présentation '
+     +'ne compte pas. Les cinq jours ouvrables suivants sont : mercredi 9, jeudi 10, vendredi 11, <b>samedi 12</b> et lundi 14 — '
+     +'le SAMEDI est ouvrable, le dimanche ne l’est pas. Le cinquième jour ouvrable tombe donc le <b>lundi 14 septembre 2026</b>.</p>'
+     +'<p><b>Un point que le texte ne tranche pas.</b> L.1232-2 dit que l’entretien « ne peut avoir lieu MOINS DE cinq jours '
+     +'ouvrables après la présentation ». Le cinquième jour lui-même est-il possible, ou faut-il attendre le lendemain ? '
+     +'Le texte ne le dit pas expressément, et nous ne l’inventons pas. Fixer l’entretien au SIXIÈME jour écarte la question '
+     +'sans rien coûter : c’est ce que fait cet exemple, qui retient le <b>jeudi 17 septembre 2026 à 10 h 00</b>, au siège.</p>'
+     +'<p><b>L’erreur évitée.</b> Un premier projet fixait l’entretien au vendredi 11 septembre : trois jours ouvrables '
+     +'seulement, le samedi ayant été compté à tort comme non ouvrable. Un entretien tenu trop tôt est une irrégularité de '
+     +'procédure, indemnisée séparément même quand le licenciement est justifié.</p>';
+  } else if(type==='cranentretien'){
+    T='Compte rendu d’entretien préalable';
+    H=ausTete()
+     +'<p><b>COMPTE RENDU D’ENTRETIEN PRÉALABLE</b> — pièce interne, à conserver au dossier</p>'
+     +'<p><b>PARTIE 1 — LA STRUCTURE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Rubrique</th><th>À renseigner</th></tr>'
+     +'<tr><td>Date, heure de début et de fin, lieu</td><td>[ ]</td></tr>'
+     +'<tr><td>Présents : employeur ou son représentant, sa qualité</td><td>[ ]</td></tr>'
+     +'<tr><td>Le salarié, et la personne qui l’assiste — nom, qualité, ou mention qu’il est venu seul, ou qu’il ne s’est pas présenté</td><td>[ ]</td></tr>'
+     +'<tr><td>Les motifs EXPOSÉS, un par un</td><td>[ ]</td></tr>'
+     +'<tr><td>Les explications du salarié, rapportées fidèlement</td><td>[ ]</td></tr>'
+     +'<tr><td>Les pièces produites de part et d’autre</td><td>[ ]</td></tr>'
+     +'<tr><td>Mention qu’AUCUNE DÉCISION n’a été prise à l’issue de l’entretien</td><td>[ ]</td></tr></table>'
+     +'<p><b>Ce que ce document n’est pas.</b> Il n’est pas obligatoire, il n’a pas à être signé du salarié, et il ne lui est '
+     +'pas remis. C’est une pièce de preuve : elle vaut par sa date, sa précision et sa cohérence avec la lettre de notification.</p>'
+     +'<p><b>Si le salarié ne vient pas.</b> L’absence ne vicie rien : la procédure se poursuit. Mentionnez-la, et notez '
+     +'qu’il avait été régulièrement convoqué. L’employeur n’a pas à reconvoquer.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>Entretien du <b>jeudi 17 septembre 2026, de 10 h 04 à 10 h 41</b>, au siège, bureau du directeur d’exploitation.<br>'
+     +'Pour l’entreprise : M. DUPONT, directeur d’exploitation. Pour le salarié : M. MARTIN Julien, assisté de M. BEN SAID, '
+     +'membre titulaire du comité social et économique.</p>'
+     +'<p><b>Motifs exposés.</b> 1) Trois dépassements du temps de conduite constatés les 12 juin, 4 juillet et 21 août 2026, '
+     +'relevés par le chronotachygraphe, malgré un avertissement notifié le 19 juin 2026. 2) Refus, le 21 août 2026, de remettre '
+     +'la carte conducteur au retour de tournée, malgré deux demandes écrites.</p>'
+     +'<p><b>Explications du salarié.</b> Il conteste le troisième dépassement, qu’il impute à une attente au chargement de '
+     +'2 h 10 à Rungis dont il produit le bon horodaté ; reconnaît les deux premiers ; explique le retard de remise de la carte '
+     +'par une panne de la borne de téléchargement, ce que M. DUPONT indique vérifier.</p>'
+     +'<p><b>Suite donnée.</b> Aucune décision n’a été prise ni annoncée. Vérification faite le 18 septembre, le bon de '
+     +'chargement de Rungis est authentique : <b>le troisième grief a été abandonné</b>, et la lettre de notification ne l’a pas repris.</p>'
+     +'<p><b>Ce que l’exemple montre.</b> L’entretien sert à quelque chose : un grief est tombé. Une lettre qui aurait repris '
+     +'les trois faits aurait été attaquable sur celui qui ne tenait pas — et aurait fragilisé les deux autres.</p>';
+  } else if(type==='notifperso'){
+    T='Notification du licenciement pour motif personnel';
+    H=ausTete()
+     +'<p><b>NOTIFICATION DU LICENCIEMENT</b> (article L.1232-6 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES TROIS RÈGLES QUI COMMANDENT CETTE LETTRE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Règle</th><th>Texte</th><th>Ce qu’elle impose</th></tr>'
+     +'<tr><td>Le délai plancher</td><td>L.1232-6</td><td>La lettre NE PEUT ÊTRE EXPÉDIÉE moins de DEUX JOURS OUVRABLES après la date prévue de l’entretien</td></tr>'
+     +'<tr><td>La forme</td><td>L.1232-6</td><td>Lettre recommandée AVEC AVIS DE RÉCEPTION — pas de remise en main propre</td></tr>'
+     +'<tr><td>Le contenu</td><td>L.1232-6</td><td>L’ÉNONCÉ du ou des motifs invoqués. Ils fixent les termes du litige</td></tr></table>'
+     +'<p><b>« Fixer les termes du litige » : ce que cela veut dire.</b> Devant le juge, l’employeur ne pourra invoquer AUCUN '
+     +'grief qui ne figure pas dans cette lettre. À l’inverse, chaque grief qui y figure devra être prouvé. Écrire trop, c’est '
+     +'multiplier ce qu’il faudra démontrer ; écrire trop peu, c’est se priver de ses arguments.</p>'
+     +'<p><b>Un motif précis et matériellement vérifiable.</b> « Insuffisance de résultats » n’est pas un motif : il faut '
+     +'l’objectif fixé, le résultat atteint, la période, et en quoi l’écart est imputable au salarié. « Perte de confiance » '
+     +'n’est pas davantage un motif : ce sont les FAITS qui l’ont provoquée qui doivent être énoncés.</p>'
+     +'<p><b>Structure du corps de la lettre.</b> 1) Rappel de la convocation et de l’entretien, avec leurs dates. '
+     +'2) Mention des explications recueillies, et de ce qu’elles n’ont pas permis de modifier l’appréciation. '
+     +'3) Les griefs, un par un, DATÉS et circonstanciés. 4) La qualification retenue — faute simple, faute grave, insuffisance '
+     +'professionnelle. 5) Le sort du préavis. 6) Les documents de fin de contrat et leurs modalités de remise. '
+     +'7) Le rappel de R.1232-13 sur la demande de précision des motifs, facultatif mais utile.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>Entretien tenu le <b>jeudi 17 septembre 2026</b>. Les deux jours ouvrables suivants sont le vendredi 18 et le '
+     +'<b>samedi 19</b> — le samedi est ouvrable. Le deuxième jour ouvrable tombe donc le samedi 19 septembre 2026. '
+     +'Ici encore, le texte dit « ne peut être expédiée moins de deux jours ouvrables après » sans préciser si le deuxième '
+     +'jour est lui-même possible : expédier le LUNDI 21 ou après écarte la question. Cet exemple retient le '
+     +'<b>mardi 22 septembre 2026</b>, recommandée n° 2A 123 456 790 1, présentée le mercredi 23 septembre.</p>'
+     +'<p>« Monsieur, à la suite de notre entretien du 17 septembre 2026, auquel vous vous êtes présenté assisté de '
+     +'M. BEN SAID, membre du comité social et économique, nous vous notifions par la présente votre licenciement pour les '
+     +'motifs suivants.<br><br>'
+     +'<b>Premier grief.</b> Le 12 juin 2026, sur la liaison Argenteuil – Le Havre, vous avez conduit 5 h 12 sans respecter '
+     +'la pause de 45 minutes exigée après 4 h 30 de conduite. Le relevé du chronotachygraphe de l’ensemble immatriculé '
+     +'[XX-000-XX] en fait foi. Ce fait vous a valu un avertissement notifié le 19 juin 2026.<br><br>'
+     +'<b>Second grief.</b> Le 4 juillet 2026, sur la liaison Argenteuil – Rouen, le même manquement s’est reproduit : '
+     +'4 h 58 de conduite continue, relevé du chronotachygraphe à l’appui, soit quinze jours après l’avertissement.<br><br>'
+     +'Vos explications, selon lesquelles la pression des délais de livraison expliquerait ces dépassements, ne peuvent être '
+     +'retenues : les tournées concernées comportaient l’une et l’autre une marge horaire supérieure à une heure, et le '
+     +'respect des temps de conduite relève de la sécurité routière, sur laquelle aucun impératif commercial ne prévaut.<br><br>'
+     +'Ces faits, qui se sont répétés après une sanction, constituent une cause réelle et sérieuse de licenciement. '
+     +'Nous ne retenons pas la faute grave : votre préavis sera exécuté.<br><br>'
+     +'Votre préavis de DEUX MOIS, votre ancienneté étant de sept ans et six mois au 3 mars 2019, débutera à la date de '
+     +'première présentation de cette lettre et s’achèvera le 23 novembre 2026. Votre certificat de travail, votre reçu pour '
+     +'solde de tout compte et votre attestation destinée à France Travail vous seront remis à cette date.<br><br>'
+     +'Nous vous rappelons qu’en application de l’article R.1232-13 du code du travail, vous disposez d’un délai de quinze '
+     +'jours à compter de la notification pour nous demander des précisions sur les motifs énoncés. »</p>'
+     +'<p><b>Ce que l’exemple montre.</b> Deux griefs seulement, chacun daté, chiffré et rattaché à une pièce ; le troisième, '
+     +'écarté après vérification, n’y figure pas. La réponse aux explications est écrite. Le préavis est calculé et sa date de '
+     +'fin donnée. Rien n’y est vague.</p>';
+  } else if(type==='precisperso'){
+    T='Précision des motifs — demande et réponse';
+    H=ausTete()
+     +'<p><b>PRÉCISION DES MOTIFS DU LICENCIEMENT</b> (article R.1232-13 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES DEUX DÉLAIS DE QUINZE JOURS</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Qui</th><th>Délai</th><th>Forme</th><th>Caractère</th></tr>'
+     +'<tr><td>Le salarié demande des précisions</td><td>QUINZE JOURS suivant la notification du licenciement</td>'
+     +'<td>Lettre recommandée avec avis de réception, ou remise contre récépissé</td><td>Faculté</td></tr>'
+     +'<tr><td>L’employeur répond</td><td>QUINZE JOURS après RÉCEPTION de la demande</td>'
+     +'<td>Lettre recommandée avec avis de réception, ou remise contre récépissé</td><td>« S’IL LE SOUHAITE » — faculté</td></tr></table>'
+     +'<p><b>Ce que dit exactement le texte.</b> R.1232-13 écrit que l’employeur « dispose d’un délai de quinze jours après la '
+     +'réception de la demande du salarié pour apporter des précisions <b>s’il le souhaite</b> ». La réponse n’est donc pas '
+     +'obligatoire. Mais l’employeur peut aussi, dans le même délai de quinze jours suivant la notification, préciser '
+     +'SPONTANÉMENT les motifs — sans attendre de demande.</p>'
+     +'<p><b>Pourquoi répondre quand même.</b> Un motif énoncé de façon imprécise et non précisé ensuite est jugé sur ce qui a '
+     +'été écrit. Répondre, c’est compléter le seul document que le juge lira. Ne pas répondre, c’est s’en tenir à la lettre '
+     +'initiale — ce qui n’est un choix raisonnable que si elle est déjà précise.</p>'
+     +'<p><b>Ce que la précision ne permet pas.</b> Elle précise ; elle n’AJOUTE PAS. Un grief absent de la lettre de '
+     +'notification ne peut pas y entrer par ce biais.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Notification présentée le mercredi 23 septembre 2026.</b> Le salarié dispose donc jusqu’au '
+     +'<b>dimanche 8 octobre 2026</b> — reporté au lundi 9 octobre, le délai expirant un dimanche. Sa demande, recommandée, '
+     +'a été reçue le <b>lundi 5 octobre 2026</b>.</p>'
+     +'<p><b>Demande du salarié.</b> « Vous m’écrivez que les tournées des 12 juin et 4 juillet comportaient une marge horaire '
+     +'supérieure à une heure. Je vous demande de préciser sur quel document vous vous fondez pour l’affirmer. »</p>'
+     +'<p><b>Réponse de l’employeur, expédiée le lundi 12 octobre 2026</b> — dans les quinze jours de la réception, qui '
+     +'courent jusqu’au mardi 20 octobre. « Nous nous fondons sur les ordres de mission n° 2026-0614 et n° 2026-0702, qui '
+     +'fixaient respectivement une livraison au Havre à 14 h 00 pour un départ à 6 h 30, et une livraison à Rouen à 12 h 00 '
+     +'pour un départ à 7 h 00. Copies jointes. »</p>'
+     +'<p><b>L’erreur évitée.</b> Une première version de la réponse ajoutait un troisième manquement, relevé après le '
+     +'licenciement. Il a été retiré : la précision ne peut pas servir à faire entrer un grief qui n’était pas dans la lettre.</p>';
+  } else if(type==='certif'){
+    T='Certificat de travail — les mentions EXCLUSIVES';
+    H=ausTete()
+     +'<p><b>CERTIFICAT DE TRAVAIL</b> (articles L.1234-19 et D.1234-6 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — CE QUE LE TEXTE AUTORISE, ET RIEN D’AUTRE</b></p>'
+     +'<p>D.1234-6 : « Le certificat de travail contient <b>EXCLUSIVEMENT</b> les mentions suivantes : 1° La date d’entrée du '
+     +'salarié et celle de sa sortie ; 2° La nature de l’emploi ou des emplois successivement occupés et les périodes pendant '
+     +'lesquelles ces emplois ont été tenus. » Les 3° et 4° de cet article ont été abrogés.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Mention</th><th>Autorisée ?</th></tr>'
+     +'<tr><td>Date d’entrée et date de sortie</td><td>OUI — 1°</td></tr>'
+     +'<tr><td>Nature des emplois successifs et leurs périodes</td><td>OUI — 2°</td></tr>'
+     +'<tr><td>Identité des parties, lieu et date d’établissement, signature</td><td>OUI — ce sont les mentions d’un écrit</td></tr>'
+     +'<tr><td>Le MOTIF de la rupture</td><td>NON</td></tr>'
+     +'<tr><td>Une appréciation, même élogieuse</td><td>NON</td></tr>'
+     +'<tr><td>Le montant du salaire</td><td>NON</td></tr>'
+     +'<tr><td>La mention d’une clause de non-concurrence</td><td>NON à ce titre — elle se rappelle par un écrit distinct</td></tr></table>'
+     +'<p><b>La date de sortie.</b> C’est le dernier jour du contrat, PRÉAVIS COMPRIS, qu’il ait été exécuté ou seulement payé. '
+     +'Une date de sortie avancée à la fin du travail effectif fausse les droits du salarié et se voit immédiatement.</p>'
+     +'<p><b>Quand le remettre.</b> À l’expiration du contrat (L.1234-19). Il est QUÉRABLE : le salarié vient le chercher. '
+     +'Mais l’employeur qui ne le tient pas à disposition, ou le remet en retard, en répond.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p style="border:1px solid #000;padding:10px">SARL EXEMPLE, 12 rue des Peupliers, 95100 Argenteuil, SIRET 000 000 000 00012.<br><br>'
+     +'<b>CERTIFICAT DE TRAVAIL</b><br><br>'
+     +'Je soussigné [NOM], gérant de la SARL EXEMPLE, certifie que Monsieur MARTIN Julien, né le 12 avril 1987, demeurant '
+     +'[ADRESSE], a été employé dans l’entreprise <b>du 3 mars 2019 au 23 novembre 2026</b> en qualité de :<br>'
+     +'— <b>conducteur routier « courte distance », coefficient 128 M</b>, du 3 mars 2019 au 31 août 2021 ;<br>'
+     +'— <b>conducteur routier « grand routier », coefficient 138 M</b>, du 1<sup>er</sup> septembre 2021 au 23 novembre 2026.<br><br>'
+     +'Certificat établi à Argenteuil, le 23 novembre 2026, pour servir et valoir ce que de droit.<br><br>[Signature]</p>'
+     +'<p><b>Ce que l’exemple montre.</b> Deux emplois successifs, chacun avec sa période : c’est ce que le 2° demande. '
+     +'La date de sortie est celle de la fin du préavis, le 23 novembre 2026, et non celle du dernier jour travaillé. '
+     +'Aucun motif, aucune appréciation, aucun salaire.</p>'
+     +'<p><b>L’erreur évitée.</b> Une première version ajoutait « nous lui souhaitons une bonne continuation ». '
+     +'« Exclusivement » veut dire exclusivement : la formule a été retirée.</p>';
+  } else if(type==='stc'){
+    T='Reçu pour solde de tout compte';
+    H=ausTete()
+     +'<p><b>REÇU POUR SOLDE DE TOUT COMPTE</b> (article L.1234-20 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — CE QUE LE TEXTE EN FAIT</b></p>'
+     +'<p>L.1234-20 : le solde de tout compte, « établi par l’employeur et dont le salarié lui donne reçu, fait l’<b>INVENTAIRE</b> '
+     +'des sommes versées au salarié lors de la rupture du contrat de travail. Le reçu pour solde de tout compte peut être '
+     +'<b>dénoncé dans les six mois</b> qui suivent sa signature, délai au-delà duquel il devient <b>libératoire</b> pour '
+     +'l’employeur <b>pour les sommes qui y sont mentionnées</b>. »</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Point</th><th>Conséquence pratique</th></tr>'
+     +'<tr><td>« Inventaire »</td><td>Chaque somme se détaille, poste par poste. Un montant global ne vaut pas inventaire — et ce qui n’est pas inventorié n’est pas couvert</td></tr>'
+     +'<tr><td>« Dénoncé dans les six mois »</td><td>Le délai court de la SIGNATURE. Sans signature du salarié, l’effet libératoire ne joue pas</td></tr>'
+     +'<tr><td>« Pour les sommes qui y sont mentionnées »</td><td>Un poste omis reste dû, et se réclame dans les délais de prescription applicables à ce poste</td></tr>'
+     +'<tr><td>Établi par l’employeur</td><td>C’est à lui de le dresser ; le salarié n’en donne que reçu</td></tr></table>'
+     +'<p><b>La signature du salarié.</b> Elle n’est pas obligatoire, et le salarié qui refuse de signer ne perd rien : il '
+     +'perçoit les mêmes sommes. Un employeur qui subordonne le paiement à la signature commet une faute.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>Monsieur MARTIN Julien, sorti le 23 novembre 2026 — sept ans, huit mois et vingt jours d’ancienneté. '
+     +'Salaire de référence retenu : <b>2 431,60 € brut</b> (moyenne des douze derniers mois, plus favorable que le tiers des '
+     +'trois derniers mois, soit 2 388,90 €).</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Poste</th><th>Base de calcul</th><th>Montant brut</th></tr>'
+     +'<tr><td>Salaire de novembre 2026, du 1<sup>er</sup> au 23</td><td>2 431,60 € × 23/30</td><td>1 864,23 €</td></tr>'
+     +'<tr><td>Indemnité compensatrice de congés payés</td><td>14,5 jours ouvrables restants</td><td>1 356,58 €</td></tr>'
+     +'<tr><td>Indemnité de licenciement</td><td>7,72 ans × 1/4 × 2 431,60 € (R.1234-2, moins de dix ans)</td><td>4 693,00 €</td></tr>'
+     +'<tr><td>Contrepartie de la clause de non-concurrence, premier versement</td><td>selon l’article 12 du contrat</td><td>486,32 €</td></tr>'
+     +'<tr><td><b>TOTAL BRUT</b></td><td></td><td><b>8 400,13 €</b></td></tr></table>'
+     +'<p>« Je soussigné MARTIN Julien reconnais avoir reçu de la SARL EXEMPLE, pour solde de tout compte, les sommes '
+     +'ci-dessus inventoriées, dont le détail m’a été remis. Je suis informé que le présent reçu peut être dénoncé dans les '
+     +'six mois de sa signature. Établi en double exemplaire à Argenteuil, le 23 novembre 2026. »</p>'
+     +'<p><b>Le calcul de l’indemnité, montré.</b> Ancienneté au terme du préavis : du 3 mars 2019 au 23 novembre 2026, soit '
+     +'7 ans et 265 jours ≈ 7,72 ans. Moins de dix ans : un quart de mois par année. 7,72 × 0,25 × 2 431,60 € = 4 693,00 €. '
+     +'La convention collective des transports routiers a été comparée : elle n’était pas plus favorable pour cette ancienneté. '
+     +'<b>À VÉRIFIER dans VOTRE convention avant de retenir le montant légal.</b></p>'
+     +'<p><b>L’erreur évitée.</b> Une première version portait « solde de tout compte : 8 400,13 € » sans détail. '
+     +'Un montant global n’est pas un inventaire : l’effet libératoire n’aurait couvert aucun poste, et l’indemnité de '
+     +'non-concurrence aurait pu être réclamée une seconde fois.</p>';
   } else if(type==='vip'){
     T='Visite d’information et de prévention — demande et suivi';
     H=ausTete()
@@ -31362,8 +31588,11 @@ var AUS_PARC = {
   duerpaffich:['duerp','acces'],
   /* Reglement interieur */
   ri:['ri','contenu'],
-  /* Sanctionner un salarie */
-  convoclic:['discipline','convoc'], notiflic:['discipline','notif'],
+  /* Licencier pour motif personnel */
+  convoclic:['licperso','convoc'], notiflic:['licperso','notif'],
+  precmotifs:['licperso','precis'],
+  certif:['licperso','docs'], stc:['licperso','docs'], attestft:['licperso','docs'],
+  protegeds:['licperso','protege'], proteges:['licperso','protege'],
   /* Tenir une reunion du comite */
   cseodj:['reunioncse','envoi'], csedelai:['reunioncse','delai'],
   /* Installer le comite apres l'election */
@@ -31843,6 +32072,89 @@ var PARCOURS={
     note:'Le délai de prévenance ne prolonge pas l’essai : s’il déborde le terme, il se paie en indemnité. Et la convention collective fixe souvent une durée d’essai plus courte que la loi — c’est elle qui s’applique alors.',
     doc:['essai','Rupture de la période d’essai']}
   ]
+ },
+ licperso:{
+  titre:'Licencier pour motif personnel',
+  sous:'Les cinq jours ouvrables avant l’entretien, les deux jours ouvrables après, la lettre qui fixe les termes du litige, le préavis, l’indemnité et les trois documents de sortie.',
+  seuil:0,
+  pre:[
+   {k:'faits',  q:'piece',lib:'Les faits reprochés, DATÉS et établis par des pièces — courriels, attestations, constats, avertissements antérieurs'},
+   {k:'dossier',q:'doc',  lib:'Le dossier du salarié : contrat, avenants, entretiens, sanctions antérieures de moins de trois ans'},
+   {k:'anc',    q:'info', lib:'La date d’entrée et l’ancienneté exacte à la date de fin du préavis — elles commandent le préavis et l’indemnité'},
+   {k:'salaire',q:'piece',lib:'Les douze derniers bulletins de paie — le salaire de référence se calcule sur eux (R.1234-4)'},
+   {k:'ccn',    q:'doc',  lib:'La convention collective : préavis, indemnité, procédure conventionnelle éventuelle — elle prime si elle est plus favorable'},
+   {k:'ri',     q:'doc',  lib:'Le règlement intérieur s’il existe, et son échelle des sanctions — pour un licenciement disciplinaire'},
+   {k:'protege',q:'info', lib:'La qualité du salarié : élu, représentant syndical, conseiller prud’homme, femme enceinte, salarié en arrêt d’accident du travail — la protection change TOUT'},
+   {k:'liste',  q:'doc',  lib:'La liste des conseillers du salarié dressée par l’autorité administrative, s’il n’y a pas de représentants du personnel'}
+  ],
+  dates:[
+   {k:'conv', lib:'Date de PRÉSENTATION de la lettre de convocation', aide:'C’est la présentation, non l’envoi, qui fait courir les cinq jours ouvrables.'},
+   {k:'ent',  lib:'Date de l’entretien préalable', aide:'La lettre ne peut être expédiée moins de deux jours ouvrables après.'}
+  ],
+  etapes:[
+   {k:'qualif', n:'1', lib:'Vérifier qu’il s’agit bien d’un motif PERSONNEL',
+    src:'un motif personnel est inhérent à la personne du salarié — insuffisance professionnelle, faute, inaptitude. À défaut, c’est L.1233-3 qui s’applique et la procédure n’est pas la même',
+    note:'Se tromper de terrain est fatal : un motif économique traité comme un motif personnel prive le salarié du contrat de sécurisation professionnelle et de l’ordre des licenciements. Le juge requalifie.',
+    ctrl:['Les faits reprochés sont-ils inhérents à la personne du salarié, et non à la situation de l’entreprise ?',
+          'Sont-ils datés et établis par des pièces au dossier ?'],
+    doc:['motifeco','Les quatre motifs économiques — pour écarter ce terrain']},
+   {k:'protege', n:'2', lib:'Vérifier si le salarié est protégé', opt:true,
+    src:'L.2411-1 et suivants — élus, représentants syndicaux, conseillers prud’hommes et conseillers du salarié ne peuvent être licenciés sans AUTORISATION de l’inspecteur du travail',
+    note:'Sans autorisation, le licenciement est NUL et la réintégration peut être ordonnée. La protection couvre aussi certains anciens élus, pendant six mois. À vérifier au texte selon le mandat.',
+    ctrl:['Le salarié détient-il, ou a-t-il détenu récemment, un mandat représentatif ?',
+          'Si oui, la consultation du comité et la demande d’autorisation à l’inspecteur du travail ont-elles été faites AVANT toute notification ?']},
+   {k:'convoc', n:'3', lib:'Convoquer à l’entretien préalable',
+    src:'L.1232-2 — convocation par lettre recommandée OU remise en main propre contre décharge, indiquant l’objet · R.1232-1 : objet, DATE, HEURE et LIEU, et rappel du droit de se faire assister par une personne du personnel ou, à défaut de représentants du personnel, par un CONSEILLER DU SALARIÉ (L.1232-4)',
+    ech:function(D){ return D.conv||''; }, echLib:'présentation de la lettre',
+    note:'Quand il n’y a pas de représentants du personnel, la lettre doit mentionner l’adresse des services où la liste des conseillers est tenue à disposition (L.1232-4). L’omission de cette mention est sanctionnée.',
+    ctrl:['La lettre indique-t-elle l’objet, la date, l’heure et le lieu (R.1232-1) ?',
+          'Rappelle-t-elle la faculté de se faire assister, et — s’il n’y a pas de représentants du personnel — la possibilité du conseiller du salarié ?',
+          'Avez-vous la date de PRÉSENTATION de la lettre, et non seulement celle de son envoi ?'],
+    doc:['convperso','Convocation à l’entretien préalable — modèle']},
+   {k:'entretien', n:'4', lib:'Tenir l’entretien — cinq jours ouvrables après la présentation',
+    src:'L.1232-2, dernier alinéa — l’entretien NE PEUT AVOIR LIEU MOINS DE CINQ JOURS OUVRABLES après la présentation de la lettre recommandée ou sa remise en main propre',
+    ech:function(D){ return D.conv?parcJoursOuvr(D.conv,5):(D.ent||''); }, echLib:'cinquième jour ouvrable après la présentation — fixer l’entretien APRÈS cette date écarte toute discussion',
+    note:'Le SAMEDI est un jour ouvrable ; le dimanche ne l’est pas. Le texte dit « moins de cinq jours ouvrables » sans dire si le cinquième jour est lui-même possible : nous ne tranchons pas, et la date affichée est celle de ce cinquième jour. À l’entretien, l’employeur EXPOSE les motifs et RECUEILLE les explications. Il ne notifie rien : une décision annoncée séance tenante vicie la procédure et prouve qu’elle était déjà prise.',
+    ctrl:['L’entretien s’est-il tenu au moins cinq jours ouvrables après la présentation de la lettre ?',
+          'Les motifs envisagés ont-ils été exposés, et les explications du salarié recueillies ?',
+          'Aucune décision n’a-t-elle été annoncée au cours de l’entretien ?'],
+    doc:['cranentretien','Compte rendu d’entretien préalable']},
+   {k:'notif', n:'5', lib:'Notifier — la lettre fixe les termes du litige',
+    src:'L.1232-6 — notification par LETTRE RECOMMANDÉE AVEC AVIS DE RÉCEPTION, comportant l’ÉNONCÉ DU OU DES MOTIFS ; elle ne peut être expédiée moins de DEUX JOURS OUVRABLES après la date prévue de l’entretien',
+    ech:function(D){ return D.ent?parcJoursOuvr(D.ent,2):''; }, echLib:'deuxième jour ouvrable après l’entretien — expédier APRÈS cette date écarte toute discussion',
+    note:'La lettre fixe les termes du litige : ce qui n’y est pas écrit ne pourra pas être invoqué devant le juge. Les motifs doivent être PRÉCIS et MATÉRIELLEMENT VÉRIFIABLES — une insuffisance « de résultats » sans chiffre ni objectif n’en est pas un.',
+    ctrl:['La lettre a-t-elle été expédiée au moins deux jours ouvrables après la date prévue de l’entretien ?',
+          'A-t-elle été adressée en recommandé avec avis de réception ?',
+          'Chaque motif y est-il énoncé de façon précise et matériellement vérifiable ?'],
+    doc:['notifperso','Notification du licenciement — modèle']},
+   {k:'precis', n:'6', lib:'Répondre à une demande de précision des motifs', opt:true,
+    src:'R.1232-13 — dans les QUINZE JOURS suivant la notification, le salarié peut demander des précisions par lettre recommandée ou remise contre récépissé ; l’employeur dispose de QUINZE JOURS après réception pour en apporter, S’IL LE SOUHAITE, par lettre recommandée ou remise contre récépissé',
+    note:'La précision est une faculté, pas une obligation. Mais l’employeur peut aussi préciser SPONTANÉMENT dans le même délai — et un motif imprécis non précisé se retourne contre lui.',
+    ctrl:['Une demande de précision a-t-elle été reçue dans les quinze jours de la notification ?',
+          'Si oui, votre réponse a-t-elle été adressée dans les quinze jours de sa réception, par un moyen conférant date certaine ?'],
+    doc:['precisperso','Réponse à une demande de précision des motifs']},
+   {k:'preavis', n:'7', lib:'Exécuter — ou dispenser — le préavis',
+    src:'L.1234-1 — sauf faute grave : moins de six mois d’ancienneté, durée fixée par la loi, la convention ou les usages ; de six mois à moins de deux ans, UN MOIS ; deux ans et plus, DEUX MOIS · L.1234-5 : la dispense d’exécution n’entraîne AUCUNE diminution des salaires et avantages, indemnité de congés payés comprise',
+    note:'La convention collective l’emporte si elle est plus longue. Et la dispense se paie : elle ne dispense que du travail, jamais du salaire.',
+    ctrl:['La durée retenue est-elle la plus favorable entre la loi et la convention collective ?',
+          'En cas de dispense, l’indemnité compensatrice a-t-elle été payée en intégralité, congés payés compris ?',
+          'La date de fin du préavis est-elle celle qui a servi à calculer l’ancienneté pour l’indemnité ?']},
+   {k:'indem', n:'8', lib:'Calculer l’indemnité de licenciement',
+    src:'L.1234-9 — due dès HUIT MOIS d’ancienneté ininterrompus, sauf faute grave · R.1234-2 : au moins un QUART de mois de salaire par année jusqu’à dix ans, puis un TIERS de mois par année au-delà · R.1234-4 : salaire de référence égal, selon la formule LA PLUS AVANTAGEUSE, à la moyenne des douze derniers mois ou au tiers des trois derniers mois',
+    note:'Le tiers des trois derniers mois n’est avantageux que si une prime y est tombée — et une prime annuelle versée sur cette période ne se compte alors qu’au prorata. La convention collective l’emporte si elle donne davantage.',
+    ctrl:['L’ancienneté a-t-elle été calculée jusqu’au TERME du préavis, exécuté ou non ?',
+          'Les deux formules de R.1234-4 ont-elles été comparées, et la plus avantageuse retenue ?',
+          'Le montant conventionnel a-t-il été comparé au montant légal, et le plus favorable versé ?'],
+    page:'calc'},
+   {k:'docs', n:'9', lib:'Remettre les trois documents de sortie',
+    src:'L.1234-19 et D.1234-6 — le certificat de travail contient EXCLUSIVEMENT la date d’entrée et celle de sortie, et la nature des emplois successivement occupés avec leurs périodes · L.1234-20 — le reçu pour solde de tout compte fait l’INVENTAIRE des sommes versées ; il peut être dénoncé dans les SIX MOIS, délai au-delà duquel il devient libératoire pour les sommes qui y sont mentionnées · l’attestation destinée à France Travail est délivrée au salarié et transmise à l’organisme',
+    note:'« Exclusivement » : une appréciation, même élogieuse, n’a rien à faire au certificat de travail. Et le solde de tout compte n’est libératoire que pour les sommes QU’IL MENTIONNE : un poste omis reste dû.',
+    ctrl:['Le certificat de travail ne contient-il que les mentions de D.1234-6 ?',
+          'Le reçu pour solde de tout compte détaille-t-il les sommes poste par poste, et non un montant global ?',
+          'L’attestation destinée à France Travail a-t-elle été remise au salarié ET transmise à l’organisme ?',
+          'Les trois documents sont-ils datés du dernier jour du contrat, préavis compris ?'],
+    doc:['certif','Certificat de travail'], doc2:['stc','Reçu pour solde de tout compte']}
+  ]
  }
 };
 
@@ -32021,7 +32333,7 @@ function parcDoc(type){
     if(type.indexOf('nego:')===0){ negoDoc(type.slice(5)); return; }
     if(type.indexOf('cseinst:')===0){ cseinstDoc(type.slice(8)); return; }
     if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
-    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco'].indexOf(type)>=0){ ausDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc'].indexOf(type)>=0){ ausDoc(type); return; }
 
     ausDoc(type);
   }catch(e){ alert('Modèle indisponible : '+e.message); }
