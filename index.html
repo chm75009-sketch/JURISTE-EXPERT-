@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.217';
+var JX_BUILD = 'v2026-08-23.218';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,17 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.218', d:'23 août 2026', t:[
+   'LA REPRÉSENTATIVITÉ SYNDICALE, CALCULÉE SUR LE PREMIER TOUR DÉJÀ SAISI. Le module ne redemande rien : il lit les collèges et les listes du module d\u2019élections. Ce qui manquait à la saisie y a été ajouté \u2014 le collège de chaque liste, l\u2019organisation qui la présente, les voix candidat par candidat, et les inscrits, suffrages exprimés et sièges de chaque collège.',
+   'LE SCORE D\u2019UNE LISTE EST UNE MOYENNE, JAMAIS UNE SOMME. Quatre candidats à 300, 250, 200 et 50 voix pèsent 200 dans leur collège, pas 800. L\u2019audience dans l\u2019entreprise rapporte la somme de ces moyennes au total des suffrages valablement exprimés de TOUS les collèges \u2014 y compris ceux où le syndicat n\u2019a pas présenté de liste. Le détail du calcul est écrit ligne à ligne, pas seulement le résultat.',
+   'LE SCORE PERSONNEL DE CHAQUE CANDIDAT, sur les suffrages de SON collège. C\u2019est lui qui décide du délégué syndical (L.2143-3, LEGIARTI000052437195) : un candidat raturé tombe sous 10 % quand sa liste, elle, y est. À défaut de candidat à 10 %, le deuxième alinéa ouvre la désignation aux autres candidats, puis aux adhérents ou anciens élus \u2014 et l\u2019application les nomme.',
+   'CHAQUE CONCLUSION PORTE SON ARTICLE ET L\u2019IDENTIFIANT DE LA VERSION LUE. Seize articles lus deux fois au relais Légifrance, à des moments différents, les deux lectures concordant sur l\u2019identifiant comme sur le texte : L.2122-1 (LEGIARTI000035652769), L.2121-1, L.2142-1, L.2142-1-1, L.2142-1-2, L.2143-3 à L.2143-6, L.2143-12, L.2143-22, L.2314-2, L.2314-11, L.2314-19, R.2143-1 à R.2143-3. Le texte intégral de chacun est affiché.',
+   'MOINS DE CINQUANTE SALARIÉS : le délégué syndical se choisit parmi les élus du comité, et ce mandat n\u2019ouvre pas droit à un crédit d\u2019heures propre (L.2143-6, LEGIARTI000035653218). SOUS TROIS CENTS : le délégué syndical est DE DROIT représentant syndical au comité (L.2143-22). À PARTIR DE TROIS CENTS : désignation distincte, SANS condition de score, parmi les salariés éligibles au sens de L.2314-19 (L.2314-2).',
+   'LA SECTION SYNDICALE ne suppose aucun effectif : plusieurs adhérents suffisent (L.2142-1). Le REPRÉSENTANT DE SECTION, lui, suppose deux choses à la fois \u2014 un syndicat NON représentatif ET une entreprise d\u2019au moins cinquante salariés (L.2142-1-1) \u2014 et il bénéficie de la protection des délégués syndicaux (L.2142-1-2).',
+   'LE NOMBRE DE DÉLÉGUÉS SYNDICAUX vient de R.2143-2 (LEGIARTI000018535800), lu à la source : un de 50 à 999, deux jusqu\u2019à 1 999, trois jusqu\u2019à 3 999, quatre jusqu\u2019à 9 999, cinq au-delà. R.2143-4 N\u2019EST PAS AFFICHÉ : interrogé deux fois, le relais rend un article du code de la commande publique en réponse élargie. Aucune version « code du travail » n\u2019a pu être lue, et c\u2019est écrit.',
+   'CE QUI MANQUE EST DIT, JAMAIS ESTIMÉ. Suffrages exprimés absents pour un collège : aucun pourcentage. Liste sans collège : elle est signalée, pas agrégée. Liste dont les candidats ne sont pas saisis nominativement : l\u2019application ne prétend pas qu\u2019aucun n\u2019atteint 10 %, elle dit la réserve. En tête de page : l\u2019outil calcule et cite les textes, il ne tranche pas un litige.',
+   'Rapport imprimable, export JSON et export CSV. Ni représentativité de branche, ni représentativité nationale : elles ne se calculent pas sur un procès-verbal d\u2019entreprise.'
+ ]},
  {v:'v2026-08-23.217', d:'23 août 2026', t:[
    'DIXIÈME PARCOURS — ORGANISER LA PRÉVENTION ET LA SÉCURITÉ AU POSTE, neuf étapes. Dix parcours, 89 étapes, 225 questions de contrôle, 70 obligations reliées à leur pas à pas.',
    'Les neuf principes de L.4121-2 sont dans leur ORDRE : distribuer des protections individuelles avant d\u2019avoir cherché à supprimer le risque, c\u2019est prendre le huitième principe à l\u2019envers.',
@@ -2956,6 +2967,11 @@ function jxCopierUrlSecours(u,fini){
         <div class="hcard-body"><div class="t">Élections CSE</div><div class="d">Effectif, nombre de sièges, électeurs et éligibles, quorum, protocole, listes, procès-verbal.</div><div class="m">Élections</div></div>
         <div class="chev">›</div>
       </div>
+      <div class="hcard" style="--accent:#c9a84c;grid-column:1/-1" onclick="event.stopPropagation();goPage('syndrep')">
+        <div class="hcard-ic">📊</div>
+        <div class="hcard-body"><div class="t">Représentativité syndicale</div><div class="d">L’audience de chaque syndicat au premier tour, le score personnel de chaque candidat, et qui peut être désigné délégué syndical, représentant syndical ou représentant de section.</div><div class="m">Représentativité</div></div>
+        <div class="chev">›</div>
+      </div>
       <div class="hcard" style="--accent:#8e79c9;grid-column:1/-1" onclick="event.stopPropagation();goPage('csefonc')">
         <div class="hcard-ic">⚙️</div>
         <div class="hcard-body"><div class="t">Fonctionnement du CSE</div><div class="d">La référence complète : attributions, moyens, expertises, comptabilité, délit d’entrave.</div><div class="m">Référence</div></div>
@@ -4127,12 +4143,29 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 </div>
 
 <div class="card">
+<div class="ct">Les collèges du premier tour — inscrits, suffrages exprimés, sièges</div>
+<div class="al info" style="font-size:12.5px">Le quotient électoral, l'audience des syndicats et le score personnel des candidats se calculent tous sur les <b>suffrages valablement exprimés du collège</b>. Renseignez ici chaque collège une fois pour toutes : l'attribution des sièges et le calcul de la représentativité y puisent, sans nouvelle saisie.</div>
+<div style="font-size:11.5px;color:#9fb0c4;line-height:1.7;margin-bottom:8px">Les catégories sont celles de l'article L.2314-11 : d'une part le collège des ouvriers et employés, d'autre part celui des ingénieurs, chefs de service, techniciens, agents de maîtrise et assimilés ; un troisième collège de cadres dès que ces catégories atteignent vingt-cinq personnes ; un collège unique lorsqu'il n'est élu qu'un titulaire et un suppléant.</div>
+<div id="cse-colleges-zone"></div>
+<div id="cse-colleges-total" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
 <div class="ct">Attribution des sièges — quotient électoral et plus forte moyenne</div>
 <div class="al info" style="font-size:12.5px">Cette opération décide qui est élu, et c’est le premier terrain de la contestation. Elle se fait <b>collège par collège</b> : renseignez les suffrages et les sièges de <b>ce collège</b>.</div>
+<div class="fg"><label class="fl">Collège sur lequel porte le calcul</label>
+<select id="cse-college-actif" onchange="csesCollegeActif()">
+<option value="">— toutes les listes saisies (collège unique)  —</option>
+<option value="1">1er collège — ouvriers et employés</option>
+<option value="2">2e collège — ingénieurs, chefs de service, techniciens, agents de maîtrise et assimilés</option>
+<option value="3">3e collège — ingénieurs, chefs de service et cadres assimilés</option>
+<option value="unique">Collège unique</option>
+</select></div>
 <div class="fg"><label class="fl">Sièges de titulaires à pourvoir dans ce collège</label><input type="number" inputmode="decimal" id="cse-sieges-pourvoir" min="0" placeholder="Ex : 4" oninput="csesCalc()"/></div>
-<div style="font-size:12px;color:#9fb0c4;margin:-4px 0 8px">Les suffrages valablement exprimés sont ceux saisis plus haut, pour la vérification du quorum.</div>
+<div style="font-size:12px;color:#9fb0c4;margin:-4px 0 8px">Les suffrages valablement exprimés sont ceux saisis plus haut, pour la vérification du quorum — ou ceux du collège choisi, s'il est renseigné dans la carte précédente.</div>
 <div id="cse-listes-zone"></div>
 <div id="cse-sieges-result" style="margin-top:10px"></div>
+<button class="btn-outline" style="margin-top:12px;width:100%" onclick="goPage('syndrep')">📊 Calculer la représentativité syndicale et les désignations possibles</button>
 </div>
 
 <div class="card">
@@ -5011,6 +5044,7 @@ Exemple :<br>
   <div class="mi" onclick="window.location.href='elections-cse.html'"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE — page séparée <span style="color:#5c8bd6;font-size:10px;font-weight:700">S’OUVRE SEULE</span></div></div></div>
   <div class="mi" onclick="goPage('cse');closeMenu()"><span style="font-size:18px">🗳️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Élections CSE</div></div></div>
   <div class="mi" onclick="goPage('csefonc');closeMenu()"><span style="font-size:18px">⚙️</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fonctionnement du CSE</div></div></div>
+  <div class="mi" onclick="goPage('syndrep');closeMenu()"><span style="font-size:18px">📊</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Représentativité syndicale</div></div></div>
   <div style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique ferroviaire</div>
   <div class="mi" onclick="window.location.href='ferroviaire.html'"><span style="font-size:18px">🚆</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Fret ferroviaire — droit social <span style="color:#5c8bd6;font-size:10px;font-weight:700">IDCC 3217</span></div></div></div>
   <div id="menu-sec-header" style="font-size:10px;font-weight:700;color:#6b6660;text-transform:uppercase;letter-spacing:.1em;margin:10px 0 4px 4px">Spécifique transport routier</div>
@@ -5053,6 +5087,13 @@ Exemple :<br>
   <div style="flex:1"><div class="page-titre">Installer le comité</div>
   <div style="font-size:12px;color:#9fb0c4">Après l’élection : première réunion, bureau, référent, règlement du comité, documentation</div></div></div>
   <div id="cseinst-zone" style="padding:4px 2px">Chargement…</div>
+</div>
+<div id="pg-syndrep" class="page">
+  <div class="topbar"><button onclick="goPage('cse')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Élections</button>
+  <div style="flex:1"><div class="page-titre">Représentativité syndicale</div>
+  <div class="page-sous" style="font-size:12px;color:#9fb0c4">Audience au premier tour · délégué syndical · représentant syndical · section syndicale</div></div>
+  <button onclick="openMenu()" aria-label="Ouvrir le menu" title="Menu" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;cursor:pointer;color:#e8e4d8;font-size:16px;flex-shrink:0">☰</button></div>
+  <div id="syndrep-zone" style="padding:4px 2px">Chargement…</div>
 </div>
 <div id="pg-nego" class="page">
   <div class="topbar"><button onclick="goPage('home')" style="background:#c9a84c;border:none;border-radius:10px;padding:12px 18px;cursor:pointer;color:#000;font-size:16px;font-weight:700;flex-shrink:0;font-family:inherit">← Retour</button>
@@ -7370,7 +7411,7 @@ var JX_ONENTER={
   moncse:'mcOnEnter',    csecal:'calOnEnter', csereu:'reuOnEnter',
   csercl:'rclOnEnter',   csecns:'cnsOnEnter', csehub:'hubOnEnter',
   harcmoral:'hmOnEnter', csedos:'dosOnEnter', csebud:'budOnEnter',
-  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter', parcguide:'parcoursOnEnter', auditsoc:'auditsocOnEnter',
+  harcprev:'hpOnEnter', nego:'negoOnEnter', cseinst:'cseinstOnEnter', syndrep:'srepOnEnter', parcguide:'parcoursOnEnter', auditsoc:'auditsocOnEnter',
   contrat:'jxSousTitreContrat'
 };
 function jxEntrer(id){
@@ -9807,6 +9848,7 @@ var FAM=[
      {emo:'🗂️', lib:'Quelles pièces à quelle étape', page:'csedos', tag:'Dossier'},
      {emo:'👥', lib:'Composition, bureau, référent', page:'moncse', tag:'Composition'},
      {emo:'🏁', lib:'Installer le comité après l’élection', page:'cseinst', tag:'Installation'},
+     {emo:'📊', lib:'Représentativité syndicale et désignations', page:'syndrep', tag:'Audience', chip:'Seuil de 10 %'},
      {emo:'🧭', lib:'Parcours guidé — pas à pas, avec les dates', page:'parcguide', tag:'Installation'}
    ]},
    {t:'INFORMER LE COMITÉ', s:'la base de données et l’index', pastille:'#3f9b7a', cartes:[
@@ -10012,6 +10054,7 @@ var FAM_ACTIONS={
  pilotage:[
   {t:'Organiser les élections du CSE', go:"goPage('cse')", seuil:[11,'L.2311-2']},
   {t:'Installer le comité qui vient d’être élu', go:"goPage('cseinst')", seuil:[11,'L.2311-2']},
+  {t:'Calculer la représentativité syndicale après le premier tour', go:"goPage('syndrep')", seuil:[11,'L.2311-2']},
   {t:'Préparer une réunion du CSE (ordre du jour, convocation)', go:"goPage('csereu')", seuil:[50,'L.2315-23']},
   {t:'Répondre aux réclamations du CSE', go:"goPage('csercl')", seuil:[11,'L.2312-5']},
   {t:'Alimenter la BDESE', go:"goPage('csehub')", seuil:[50,'L.2312-18']},
@@ -22478,13 +22521,162 @@ function csesAdd(){ csesLoad(); CSE_LISTES.push({nom:'',voix:'',cand:''}); csesS
 function csesDel(i){ csesLoad(); CSE_LISTES.splice(i,1); csesSave(); csesRender(); }
 function csesSet(i,k,v){ csesLoad(); if(CSE_LISTES[i]){ CSE_LISTES[i][k]=v; csesSave(); csesRender(); } }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CE QUE LE PREMIER TOUR LAISSAIT DEHORS
+   Le module ne gardait qu'un total de voix et un nombre de candidats, sans
+   college et sans le detail par candidat. Or la representativite se calcule
+   sur les suffrages valablement exprimes DU COLLEGE (L.2122-1), et le
+   delegue syndical se choisit parmi les candidats qui ont recueilli 10 % A
+   TITRE PERSONNEL ET DANS LEUR COLLEGE (L.2143-3). Ces deux donnees
+   manquaient : elles se saisissent ici, une seule fois, et le module de
+   representativite les lit sans rien redemander.
+   Categories des colleges : L.2314-11 (LEGIARTI000036262481).
+   ══════════════════════════════════════════════════════════════════════ */
+var CSE_COL_OPTS=[
+  {v:'1',      lib:'1er collège — ouvriers et employés'},
+  {v:'2',      lib:'2e collège — ingénieurs, chefs de service, techniciens, agents de maîtrise et assimilés'},
+  {v:'3',      lib:'3e collège — ingénieurs, chefs de service et cadres assimilés'},
+  {v:'unique', lib:'Collège unique'}
+];
+function cseColLib(v){
+  if(!v) return 'Collège non précisé';
+  for(var i=0;i<CSE_COL_OPTS.length;i++) if(CSE_COL_OPTS[i].v===v) return CSE_COL_OPTS[i].lib;
+  return v;   /* « Autre » : l'intitulé saisi par l'utilisateur */
+}
+/* Une liste deroulante avec « Autre », partout ou c'est possible. */
+function cseColSelect(id, val, onch){
+  var dedans=CSE_COL_OPTS.some(function(o){ return o.v===val; });
+  var autre=(val!=='' && val!=null && !dedans);
+  var h='<select id="'+id+'" onchange="'+onch+'">'
+    +'<option value=""'+(!val?' selected':'')+'>— à préciser —</option>';
+  CSE_COL_OPTS.forEach(function(o){
+    h+='<option value="'+o.v+'"'+(o.v===val?' selected':'')+'>'+socEsc(o.lib)+'</option>';
+  });
+  h+='<option value="__autre"'+(autre?' selected':'')+'>Autre — à préciser</option></select>';
+  h+='<input type="text" id="'+id+'-autre" placeholder="Intitulé du collège" value="'+(autre?socEsc(val):'')+'"'
+    +' style="display:'+(autre?'':'none')+';margin-top:6px" onchange="'+onch+'">';
+  return h;
+}
+/* « Autre » choisi mais rien de saisi : on ne remplace pas la reponse par du
+   vide, on ouvre le champ et on attend. Ce defaut valait pour toutes les
+   listes deroulantes a option libre du module : il est corrige une fois,
+   ici, pour toutes. */
+function cseChoixVal(id){
+  var s=document.getElementById(id), t=document.getElementById(id+'-autre');
+  if(!s) return {val:'', attendre:false};
+  if(s.value==='__autre'){
+    if(!t) return {val:'', attendre:true};
+    t.style.display='';
+    var v=t.value.trim();
+    if(!v){ try{ t.focus(); }catch(e){} return {val:'', attendre:true}; }
+    return {val:v, attendre:false};
+  }
+  if(t) t.style.display='none';
+  return {val:s.value, attendre:false};
+}
+
+var CSE_COLLEGES=[];
+function cseColLoad(){
+  try{ var v=localStorage.getItem(jxCle('cse_colleges_v1')); CSE_COLLEGES=v?(JSON.parse(v)||[]):[]; }
+  catch(e){ CSE_COLLEGES=[]; }
+  if(!Array.isArray(CSE_COLLEGES)) CSE_COLLEGES=[];
+}
+function cseColSave(){ try{ jxEcrire(jxCle('cse_colleges_v1'), JSON.stringify(CSE_COLLEGES)); }catch(e){} }
+function cseColAdd(){ cseColLoad(); CSE_COLLEGES.push({cle:'',inscrits:'',exprimes:'',sieges:''}); cseColSave(); cseColRender(); }
+function cseColDel(i){ cseColLoad(); CSE_COLLEGES.splice(i,1); cseColSave(); cseColRender(); }
+function cseColSet(i,k,v){ cseColLoad(); if(CSE_COLLEGES[i]){ CSE_COLLEGES[i][k]=v; cseColSave(); cseColRender(); } }
+function cseColSetCle(i,id){ var r=cseChoixVal(id); if(r.attendre) return; cseColSet(i,'cle',r.val); }
+/* Ce qu'un college a enregistre, retrouve par sa cle. */
+function cseColTrouve(cle){
+  cseColLoad();
+  for(var i=0;i<CSE_COLLEGES.length;i++) if((CSE_COLLEGES[i].cle||'')===cle) return CSE_COLLEGES[i];
+  return null;
+}
+function cseNum(v){
+  var n=parseFloat(String(v==null?'':v).replace(',','.'));
+  return isFinite(n)?n:null;
+}
+function cseColRender(){
+  var z=document.getElementById('cse-colleges-zone'); if(!z) return;
+  cseColLoad();
+  var out='';
+  CSE_COLLEGES.forEach(function(c,i){
+    out+='<div style="border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;margin-bottom:8px">'
+      +'<div class="fg"><label class="fl">Collège</label>'+cseColSelect('cse-col-cle-'+i, c.cle||'', 'cseColSetCle('+i+',\'cse-col-cle-'+i+'\')')+'</div>'
+      +'<div class="fg"><label class="fl">Électeurs inscrits dans ce collège</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(c.inscrits||'')+'" placeholder="Ex : 120" onchange="cseColSet('+i+',\'inscrits\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Suffrages valablement exprimés — hors bulletins blancs et nuls</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(c.exprimes||'')+'" placeholder="Ex : 80" onchange="cseColSet('+i+',\'exprimes\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Sièges de titulaires à pourvoir dans ce collège</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(c.sieges||'')+'" placeholder="Ex : 4" onchange="cseColSet('+i+',\'sieges\',this.value)"></div>'
+      +'<button onclick="cseColDel('+i+')" style="padding:8px 12px;border:1px solid #7a4a4a;border-radius:8px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:12px;cursor:pointer;font-family:inherit">Retirer ce collège</button>'
+      +'</div>';
+  });
+  out+='<button onclick="cseColAdd()" style="padding:11px 15px;border:none;border-radius:9px;background:#46b885;color:#04150e;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">＋ Ajouter un collège</button>';
+  z.innerHTML=out;
+  var t=document.getElementById('cse-colleges-total');
+  if(t){
+    var somme=0, manque=[];
+    CSE_COLLEGES.forEach(function(c){
+      var e=cseNum(c.exprimes);
+      if(e===null || e<=0) manque.push(cseColLib(c.cle||''));
+      else somme+=e;
+    });
+    if(!CSE_COLLEGES.length){ t.innerHTML='<div class="al info" style="font-size:12px">Aucun collège saisi. Le calcul de la représentativité a besoin, pour chaque collège, du nombre de suffrages valablement exprimés au premier tour.</div>'; }
+    else if(manque.length){ t.innerHTML='<div class="al warn" style="font-size:12px">Suffrages valablement exprimés manquants pour : '+socEsc(manque.join(' · '))+'. Sans eux, aucun pourcentage n’est calculé pour ce collège — il est signalé comme non renseigné, jamais estimé.</div>'; }
+    else { t.innerHTML='<div class="al ok" style="font-size:12px">Total des suffrages valablement exprimés, tous collèges confondus : <b>'+jxNb(somme)+'</b>. C’est le dénominateur de l’audience dans l’entreprise.</div>'; }
+  }
+}
+/* Choisir un college remplit les sieges a pourvoir et filtre les listes. */
+function csesCollegeActif(){
+  var s=document.getElementById('cse-college-actif'); if(!s) return;
+  var c=cseColTrouve(s.value);
+  if(c){
+    var sp=document.getElementById('cse-sieges-pourvoir');
+    if(sp && cseNum(c.sieges)!==null) sp.value=c.sieges;
+  }
+  csesRender();
+}
+/* Les candidats d'une liste, avec leurs voix personnelles. */
+function csesCandAdd(i){
+  csesLoad(); var L=CSE_LISTES[i]; if(!L) return;
+  if(!Array.isArray(L.cands)) L.cands=[];
+  L.cands.push({nom:'',voix:''});
+  csesSave(); csesRender();
+}
+function csesCandDel(i,j){
+  csesLoad(); var L=CSE_LISTES[i]; if(!L||!Array.isArray(L.cands)) return;
+  L.cands.splice(j,1); csesSave(); csesRender();
+}
+function csesCandSet(i,j,k,v){
+  csesLoad(); var L=CSE_LISTES[i]; if(!L||!Array.isArray(L.cands)||!L.cands[j]) return;
+  L.cands[j][k]=v; csesSave(); csesRender();
+}
+function csesSetCollege(i,id){ var r=cseChoixVal(id); if(r.attendre) return; csesSet(i,'college',r.val); }
+function csesSetSyndicat(i,id){ var r=cseChoixVal(id); if(r.attendre) return; csesSet(i,'syndicat',r.val); }
+/* LE SCORE D'UNE LISTE EST UNE MOYENNE, JAMAIS UNE SOMME.
+   Quand les candidats sont saisis un par un, le total des voix et le
+   nombre de candidats presentes s'en deduisent : on ne redemande pas ce
+   qu'on sait deja, et on ne peut plus se contredire. */
+function csesTotaux(x){
+  var C=Array.isArray(x.cands)?x.cands.filter(function(c){ return (c.nom||'').trim()!=='' || cseNum(c.voix)!==null; }):[];
+  if(C.length){
+    var s=0; C.forEach(function(c){ s+=(cseNum(c.voix)||0); });
+    var cand=parseInt(x.cand,10);
+    /* Une liste peut presenter plus de candidats que de lignes saisies :
+       le nombre saisi a la main prime s'il est plus grand, et on le dit. */
+    var n=(isFinite(cand) && cand>C.length) ? cand : C.length;
+    return {voix:s, cand:n, detail:C, deduit:true};
+  }
+  return {voix:(cseNum(x.voix)||0), cand:(parseInt(x.cand,10)||0), detail:[], deduit:false};
+}
+
 /* Le calcul lui-meme, isole pour etre testable. */
 function cseAttribuer(listes, sieges, exprimes){
   var n=parseInt(sieges,10)||0;
   var e=parseInt(exprimes,10)||0;
   var L=(listes||[]).map(function(x){
-    var voix=parseFloat(String(x.voix||'').replace(',','.'))||0;
-    var cand=parseInt(x.cand,10)||0;
+    /* Les voix et le nombre de candidats se deduisent de la saisie
+       nominative quand elle existe : un seul chiffre, une seule verite. */
+    var T=csesTotaux(x);
+    var voix=T.voix, cand=T.cand;
     return { nom:(x.nom||'').trim()||'[liste sans nom]', voix:voix, cand:cand,
              moyenne: cand>0 ? (voix/cand) : 0, sieges:0 };
   }).filter(function(x){ return x.voix>0 || x.cand>0; });
@@ -22552,17 +22744,34 @@ function jxNb(x){
   return (Math.round(x*100)/100).toLocaleString('fr-FR',{maximumFractionDigits:2});
 }
 function csesRender(){
+  try{ cseColRender(); }catch(e){}
   var h=document.getElementById('cse-listes-zone'); if(!h) return;
   csesLoad();
   var out='';
   out+='<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-bottom:8px">'
      +'La <b>moyenne</b> d’une liste est la somme des voix obtenues par ses candidats, divisée par le nombre de candidats qu’elle présente — les ratures jouent donc sur le résultat. '
      +'Chaque liste obtient d’abord autant de sièges que sa moyenne contient de fois le <b>quotient électoral</b> (suffrages valablement exprimés ÷ sièges à pourvoir). Les sièges restants vont à la <b>plus forte moyenne</b>, un par un (R.2314-19 à R.2314-22).</div>';
+  var actif=(document.getElementById('cse-college-actif')||{}).value||'';
+  if(actif) out+='<div style="font-size:12px;color:#e8c97a;margin-bottom:8px">Seules les listes rattachées au <b>'+socEsc(cseColLib(actif))+'</b> entrent dans le calcul ci-dessous.</div>';
   CSE_LISTES.forEach(function(x,i){
+    var T=csesTotaux(x);
     out+='<div style="border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;margin-bottom:8px">'
       +'<div class="fg"><label class="fl">Nom de la liste</label><input value="'+socEsc(x.nom||'')+'" placeholder="Ex : CGT" onchange="csesSet('+i+',\'nom\',this.value)"></div>'
-      +'<div class="fg"><label class="fl">Total des voix obtenues par ses candidats</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(x.voix||'')+'" placeholder="Ex : 240" onchange="csesSet('+i+',\'voix\',this.value)"></div>'
+      +'<div class="fg"><label class="fl">Organisation syndicale qui présente la liste</label>'+srepSyndSelect('cse-lst-synd-'+i, x.syndicat||'', 'csesSetSyndicat('+i+',\'cse-lst-synd-'+i+'\')')+'</div>'
+      +'<div class="fg"><label class="fl">Collège dans lequel cette liste se présente</label>'+cseColSelect('cse-lst-col-'+i, x.college||'', 'csesSetCollege('+i+',\'cse-lst-col-'+i+'\')')+'</div>'
+      +'<div class="fg"><label class="fl">Total des voix obtenues par ses candidats</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(T.deduit?String(T.voix):(x.voix||''))+'"'+(T.deduit?' disabled':'')+' placeholder="Ex : 240" onchange="csesSet('+i+',\'voix\',this.value)"></div>'
+      +(T.deduit?'<div style="font-size:11.5px;color:#9fb0c4;margin:-4px 0 8px">Somme des voix saisies candidat par candidat, ci-dessous : elle ne se saisit plus deux fois.</div>':'')
       +'<div class="fg"><label class="fl">Nombre de candidats présentés par cette liste</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(x.cand||'')+'" placeholder="Ex : 4" onchange="csesSet('+i+',\'cand\',this.value)"></div>'
+      +(T.deduit&&T.cand>T.detail.length?'<div style="font-size:11.5px;color:#e8c97a;margin:-4px 0 8px">'+T.cand+' candidats présentés, '+T.detail.length+' saisis nominativement : la moyenne se divise par '+T.cand+'.</div>':'')
+      +'<div style="font-size:12px;color:#9fb0c4;margin:6px 0 4px"><b>Les candidats, un par un</b> — leurs voix personnelles décident du délégué syndical (L.2143-3) : le score de 10 % s’apprécie à titre personnel et dans le collège.</div>';
+    (Array.isArray(x.cands)?x.cands:[]).forEach(function(c,j){
+      out+='<div style="display:grid;grid-template-columns:1fr 90px auto;gap:6px;align-items:end;margin-bottom:6px">'
+        +'<div><label class="fl">Nom du candidat</label><input value="'+socEsc(c.nom||'')+'" placeholder="Nom Prénom" onchange="csesCandSet('+i+','+j+',\'nom\',this.value)"></div>'
+        +'<div><label class="fl">Voix</label><input type="number" inputmode="decimal" min="0" value="'+socEsc(c.voix||'')+'" onchange="csesCandSet('+i+','+j+',\'voix\',this.value)"></div>'
+        +'<button onclick="csesCandDel('+i+','+j+')" style="padding:10px;border:1px solid #7a4a4a;border-radius:8px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:13px;cursor:pointer;font-family:inherit">✕</button>'
+        +'</div>';
+    });
+    out+='<button onclick="csesCandAdd('+i+')" class="btn-sm" style="width:100%;margin-bottom:8px">＋ Ajouter un candidat de cette liste</button>'
       +'<button onclick="csesDel('+i+')" style="padding:8px 12px;border:1px solid #7a4a4a;border-radius:8px;background:rgba(224,92,92,.10);color:#e8b0b0;font-size:12px;cursor:pointer;font-family:inherit">Retirer cette liste</button>'
       +'</div>';
   });
@@ -22570,13 +22779,30 @@ function csesRender(){
   h.innerHTML=out;
   csesCalc();
 }
+/* Les listes retenues pour le calcul d'un college : celles qui s'y
+   rattachent. Aucun college choisi : tout ce qui est saisi, comme avant. */
+function csesListesDuCollege(actif){
+  csesLoad();
+  if(!actif) return CSE_LISTES;
+  return CSE_LISTES.filter(function(x){ return (x.college||'')===actif; });
+}
 function csesCalc(){
   var out=document.getElementById('cse-sieges-result'); if(!out) return;
   csesLoad();
+  var actif=(document.getElementById('cse-college-actif')||{}).value||'';
   var n=(document.getElementById('cse-sieges-pourvoir')||{}).value;
   var e=(document.getElementById('cse-exprimes')||{}).value;
-  if(!CSE_LISTES.length){ out.innerHTML=''; return; }
-  var r=cseAttribuer(CSE_LISTES, n, e);
+  /* Les suffrages du college saisi priment sur le chiffre du quorum :
+     ce sont eux que R.2314-19 vise. */
+  if(actif){ var C=cseColTrouve(actif); if(C && cseNum(C.exprimes)!==null) e=C.exprimes; }
+  var L=csesListesDuCollege(actif);
+  if(!L.length){
+    out.innerHTML = actif
+      ? '<div class="al warn" style="font-size:12.5px">Aucune liste n’est rattachée au '+socEsc(cseColLib(actif))+'. Rattachez chaque liste à son collège, ou revenez au calcul sur toutes les listes saisies.</div>'
+      : '';
+    return;
+  }
+  var r=cseAttribuer(L, n, e);
   if(!r.ok){ out.innerHTML='<div class="al warn" style="font-size:12.5px">'+socEsc(r.motif)+'</div>'; return; }
   var h='<div class="item"><div class="badge badge-gold">ATTRIBUTION DES SIÈGES — R.2314-19 à R.2314-22</div>';
   h+='<div style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:8px">'
@@ -22627,6 +22853,700 @@ function cseQuorum(){
       :'✗ Quorum NON atteint — un 2nd tour doit être organisé dans les 15 jours (art. L.2314-29), ouvert aux candidatures libres (non syndiquées).')
     +'</div><div style="font-size:11px;color:#9a9585;margin-top:4px">Le quorum s\'apprécie collège par collège ; renseignez les inscrits/exprimés du collège concerné pour un résultat précis.</div>';
 }
+/* ══════════════════════════════════════════════════════════════════════
+   LA REPRESENTATIVITE SYNDICALE — CALCULEE SUR LE PREMIER TOUR DEJA SAISI
+
+   Le module d'election tenait les listes, les voix et les candidats ; il ne
+   savait pas dire QUI est representatif, ni QUI peut etre designe delegue
+   syndical. Ce module ne redemande rien : il lit les colleges
+   (cse_colleges_v1) et les listes (cse_listes_v1) saisis dans « Organiser
+   les elections », et n'ajoute que ce que le premier tour ne dit pas —
+   l'effectif, les adherents, la qualite du syndicat au regard de L.2142-1.
+
+   DEUX REGLES DE CALCUL, ET ELLES NE SE CONFONDENT PAS
+   1. Le score d'une liste dans un college est la MOYENNE des voix obtenues
+      par ses candidats — la somme divisee par le nombre de candidats qu'elle
+      presente — jamais la somme. Les ratures jouent donc.
+   2. L'audience dans l'entreprise rapporte la somme de ces moyennes, tous
+      colleges confondus, au total des suffrages valablement exprimes de
+      TOUS les colleges — y compris ceux ou le syndicat n'a pas presente de
+      liste.
+   Le score personnel d'un candidat, lui, est le nombre de voix qu'il a
+   recueillies rapporte aux suffrages exprimes de SON college.
+
+   CHAQUE CONCLUSION PORTE SON ARTICLE ET L'IDENTIFIANT DE LA VERSION LUE.
+   Les textes ci-dessous ont ete lus deux fois, a des moments differents, sur
+   le relais Legifrance, le 23 aout 2026 ; les deux lectures concordent, sur
+   l'identifiant comme sur le texte. Ce qui ne s'est pas confirme n'est pas
+   affiche : c'est dit, et c'est tout.
+   ══════════════════════════════════════════════════════════════════════ */
+var SREP_LU='23 août 2026';
+var SREP_ART={
+ 'L2122-1':{n:'L. 2122-1', id:'LEGIARTI000035652769', t:'Dans l’entreprise ou l’établissement, sont représentatives les organisations syndicales qui satisfont aux critères de l’article L. 2121-1 et qui ont recueilli au moins 10 % des suffrages exprimés au premier tour des dernières élections des titulaires au comité social et économique, quel que soit le nombre de votants.'},
+ 'L2121-1':{n:'L. 2121-1', id:'LEGIARTI000019353505', t:'La représentativité des organisations syndicales est déterminée d’après les critères cumulatifs suivants : 1° Le respect des valeurs républicaines ; 2° L’indépendance ; 3° La transparence financière ; 4° Une ancienneté minimale de deux ans dans le champ professionnel et géographique couvrant le niveau de négociation. Cette ancienneté s’apprécie à compter de la date de dépôt légal des statuts ; 5° L’audience établie selon les niveaux de négociation conformément aux articles L. 2122-1, L. 2122-5, L. 2122-6 et L. 2122-9 ; 6° L’influence, prioritairement caractérisée par l’activité et l’expérience ; 7° Les effectifs d’adhérents et les cotisations.'},
+ 'L2143-3':{n:'L. 2143-3', id:'LEGIARTI000052437195', t:'Chaque organisation syndicale représentative dans l’entreprise ou l’établissement d’au moins cinquante salariés, qui constitue une section syndicale, désigne parmi les candidats aux élections professionnelles qui ont recueilli à titre personnel et dans leur collège au moins 10 % des suffrages exprimés au premier tour des dernières élections au comité social et économique, quel que soit le nombre de votants, dans les limites fixées à l’article L. 2143-12, un ou plusieurs délégués syndicaux pour la représenter auprès de l’employeur. Si aucun des candidats présentés par l’organisation syndicale aux élections professionnelles ne remplit les conditions mentionnées au premier alinéa du présent article ou s’il ne reste, dans l’entreprise ou l’établissement, plus aucun candidat aux élections professionnelles qui remplit les conditions mentionnées au même premier alinéa, ou si l’ensemble des élus qui remplissent les conditions mentionnées audit premier alinéa renoncent par écrit à leur droit d’être désigné délégué syndical, une organisation syndicale représentative peut désigner un délégué syndical parmi les autres candidats, ou, à défaut, parmi ses adhérents au sein de l’entreprise ou de l’établissement ou parmi ses anciens élus. La désignation d’un délégué syndical peut intervenir lorsque l’effectif d’au moins cinquante salariés a été atteint pendant douze mois consécutifs. Elle peut intervenir au sein de l’établissement regroupant des salariés placés sous la direction d’un représentant de l’employeur et constituant une communauté de travail ayant des intérêts propres, susceptibles de générer des revendications communes et spécifiques.'},
+ 'L2143-4':{n:'L. 2143-4', id:'LEGIARTI000035652677', t:'Dans les entreprises d’au moins cinq cents salariés, tout syndicat représentatif dans l’entreprise peut désigner un délégué syndical supplémentaire s’il a obtenu un ou plusieurs élus dans le collège des ouvriers et employés lors de l’élection du comité social et économique et s’il compte au moins un élu dans l’un des deux autres collèges. Ce délégué supplémentaire est désigné parmi les candidats aux élections professionnelles qui ont recueilli au moins 10 % des suffrages exprimés au premier tour des dernières élections au comité social et économique, quel que soit le nombre de votants.'},
+ 'L2143-5':{n:'L. 2143-5', id:'LEGIARTI000035652764', t:'Dans les entreprises d’au moins deux mille salariés comportant au moins deux établissements d’au moins cinquante salariés chacun, chaque syndicat représentatif dans l’entreprise peut désigner un délégué syndical central d’entreprise, distinct des délégués syndicaux d’établissement. Ce délégué syndical central est désigné par un syndicat qui a recueilli au moins 10 % des suffrages exprimés au premier tour des dernières élections des titulaires au comité social et économique, quel que soit le nombre de votants, en additionnant les suffrages de l’ensemble des établissements compris dans ces entreprises. L’ensemble des dispositions relatives au délégué syndical d’entreprise est applicable au délégué syndical central. Dans les entreprises de moins de deux mille salariés comportant au moins deux établissements d’au moins cinquante salariés chacun, chaque syndicat représentatif peut désigner l’un de ses délégués syndicaux d’établissement en vue d’exercer également les fonctions de délégué syndical central d’entreprise.'},
+ 'L2143-6':{n:'L. 2143-6', id:'LEGIARTI000035653218', t:'Dans les établissements qui emploient moins de cinquante salariés, les syndicats représentatifs dans l’établissement peuvent désigner, pour la durée de son mandat, un membre de la délégation du personnel au comité social et économique comme délégué syndical. Sauf disposition conventionnelle, ce mandat n’ouvre pas droit à un crédit d’heures. Le temps dont dispose le membre de la délégation du personnel au comité social et économique pour l’exercice de son mandat peut être utilisé dans les mêmes conditions pour l’exercice de ses fonctions de délégué syndical.'},
+ 'L2143-12':{n:'L. 2143-12', id:'LEGIARTI000006901636', t:'Le nombre des délégués syndicaux de chaque section syndicale dans chaque entreprise ou établissement est calculé dans des conditions déterminées par décret en Conseil d’Etat compte tenu de l’effectif des salariés. Le nombre ainsi fixé peut être dépassé en application des dispositions de l’article L. 2143-4 et du premier alinéa de l’article L. 2143-5.'},
+ 'L2143-22':{n:'L. 2143-22', id:'LEGIARTI000035652997', t:'Dans les entreprises de moins de trois cents salariés et dans les établissements appartenant à ces entreprises, le délégué syndical est, de droit, représentant syndical au comité social et économique. Le délégué syndical est, à ce titre, destinataire des informations fournies au comité social et économique.'},
+ 'L2314-2':{n:'L. 2314-2', id:'LEGIARTI000035651175', t:'Sous réserve des dispositions applicables dans les entreprises de moins de trois cents salariés, prévues à l’article L. 2143-22, chaque organisation syndicale représentative dans l’entreprise ou l’établissement peut désigner un représentant syndical au comité. Il assiste aux séances avec voix consultative. Il est choisi parmi les membres du personnel de l’entreprise et doit remplir les conditions d’éligibilité au comité social et économique fixées à l’article L. 2314-19.'},
+ 'L2314-19':{n:'L. 2314-19', id:'LEGIARTI000046774664', t:'Sont éligibles les électeurs âgés de dix-huit ans révolus, et travaillant dans l’entreprise depuis un an au moins, à l’exception des conjoint, partenaire d’un pacte civil de solidarité, concubin, ascendants, descendants, frères, sœurs et alliés au même degré de l’employeur ainsi que des salariés qui disposent d’une délégation écrite particulière d’autorité leur permettant d’être assimilés au chef d’entreprise ou qui le représentent effectivement devant le comité social et économique. Les salariés travaillant à temps partiel simultanément dans plusieurs entreprises ne sont éligibles que dans l’une de ces entreprises. Ils choisissent celle dans laquelle ils font acte de candidature.'},
+ 'L2314-11':{n:'L. 2314-11', id:'LEGIARTI000036262481', t:'Les membres de la délégation du personnel du comité social et économique sont élus sur des listes établies par les organisations syndicales pour chaque catégorie de personnel : — d’une part, par le collège des ouvriers et employés ; — d’autre part, par le collège des ingénieurs, chefs de service, techniciens, agents de maîtrise et assimilés. Dans les entreprises d’au moins cinq cent un salariés, les ingénieurs, les chefs de service et cadres administratifs, commerciaux ou techniques assimilés ont au moins un délégué titulaire au sein du second collège, élu dans les mêmes conditions. En outre, dans les entreprises, quel que soit leur effectif, dont le nombre des ingénieurs, chefs de service et cadres administratifs, commerciaux ou techniques assimilés sur le plan de la classification est au moins égal à vingt-cinq au moment de la constitution ou du renouvellement de l’instance, ces catégories constituent un troisième collège. Par dérogation aux alinéas précédents, dans les établissements ou les entreprises n’élisant qu’un membre de la délégation du personnel titulaire et un membre de la délégation du personnel suppléant, il est mis en place pour chacune de ces élections, un collège électoral unique regroupant l’ensemble des catégories professionnelles.'},
+ 'L2142-1':{n:'L. 2142-1', id:'LEGIARTI000019353709', t:'Dès lors qu’ils ont plusieurs adhérents dans l’entreprise ou dans l’établissement, chaque syndicat qui y est représentatif, chaque syndicat affilié à une organisation syndicale représentative au niveau national et interprofessionnel ou chaque organisation syndicale qui satisfait aux critères de respect des valeurs républicaines et d’indépendance et est légalement constituée depuis au moins deux ans et dont le champ professionnel et géographique couvre l’entreprise concernée peut constituer au sein de l’entreprise ou de l’établissement une section syndicale qui assure la représentation des intérêts matériels et moraux de ses membres conformément à l’article L. 2131-1.'},
+ 'L2142-1-1':{n:'L. 2142-1-1', id:'LEGIARTI000025578817', t:'Chaque syndicat qui constitue, conformément à l’article L. 2142-1, une section syndicale au sein de l’entreprise ou de l’établissement d’au moins cinquante salariés peut, s’il n’est pas représentatif dans l’entreprise ou l’établissement, désigner un représentant de la section pour le représenter au sein de l’entreprise ou de l’établissement. Le représentant de la section syndicale exerce ses fonctions dans le cadre des dispositions du présent chapitre. Il bénéficie des mêmes prérogatives que le délégué syndical, à l’exception du pouvoir de négocier des accords collectifs. Le mandat du représentant de la section syndicale prend fin, à l’issue des premières élections professionnelles suivant sa désignation, dès lors que le syndicat qui l’a désigné n’est pas reconnu représentatif dans l’entreprise. Le salarié qui perd ainsi son mandat de représentant syndical ne peut pas être désigné à nouveau comme représentant syndical au titre d’une section jusqu’aux six mois précédant la date des élections professionnelles suivantes dans l’entreprise.'},
+ 'L2142-1-2':{n:'L. 2142-1-2', id:'LEGIARTI000019353692', t:'Les dispositions des articles L. 2143-1 et L. 2143-2 relatives aux conditions de désignation du délégué syndical, celles des articles L. 2143-7 à L. 2143-10 et des deuxième et troisième alinéas de l’article L. 2143-11 relatives à la publicité, à la contestation, à l’exercice et à la suppression de son mandat et celles du livre IV de la présente partie relatives à la protection des délégués syndicaux sont applicables au représentant de la section syndicale.'},
+ 'R2143-1':{n:'R. 2143-1', id:'LEGIARTI000018535802', t:'Le nombre des délégués syndicaux dont dispose chaque section syndicale au titre du premier alinéa de l’article L. 2143-3 est fixé soit par entreprise, soit par établissement distinct.'},
+ 'R2143-2':{n:'R. 2143-2', id:'LEGIARTI000018535800', t:'Dans les entreprises, le nombre des délégués syndicaux est fixé comme suit : 1° De 50 à 999 salariés : 1 délégué ; 2° De 1 000 à 1 999 salariés : 2 délégués ; 3° De 2 000 à 3 999 salariés : 3 délégués ; 4° De 4 000 à 9 999 salariés : 4 délégués ; 5° Au-delà de 9 999 salariés : 5 délégués.'},
+ 'R2143-3':{n:'R. 2143-3', id:'LEGIARTI000018535798', t:'Dans les entreprises comportant des établissements distincts de cinquante salariés ou plus, le nombre des délégués syndicaux est fixé par établissement conformément à l’article R. 2143-2. Pour apprécier le seuil de cinquante salariés, l’effectif est calculé conformément au deuxième alinéa de l’article L. 2143-3.'}
+};
+/* Le barème du nombre de délégués syndicaux, écrit une seule fois, tel qu'il
+   figure à R.2143-2 : [borne haute de la tranche, nombre de délégués]. */
+var SREP_BAREME_DS=[[999,1],[1999,2],[3999,3],[9999,4],[Infinity,5]];
+/* Ce que le relais n'a pas confirmé — donc ce qui ne s'affiche pas. */
+var SREP_NON_CONFIRME=[
+ {n:'R. 2143-4', pourquoi:'interrogé deux fois, le relais Légifrance rend un article du code de la commande publique (document unique de marché européen), en réponse élargie. Aucune version « code du travail » de ce numéro n’a pu être lue : rien n’en est affiché ici.'}
+];
+function srepArtRef(k){
+  var a=SREP_ART[k]; if(!a) return '';
+  return '<span style="color:#e8c97a;font-weight:700">'+socEsc(a.n)+'</span> <span style="font-size:10.5px;color:#9fb0c4">'+socEsc(a.id)+'</span>';
+}
+function srepArtTxt(k){ var a=SREP_ART[k]; return a?a.t:''; }
+
+/* Les organisations les plus souvent en présence, plus « Autre ». Cette
+   liste ne dit rien de leur représentativité : elle évite seulement de
+   ressaisir un sigle à chaque liste, et de l'écrire deux fois autrement. */
+var SREP_SYND_OPTS=['CFDT','CGT','FO','CFE-CGC','CFTC','UNSA','Solidaires — SUD','FSU','Syndicat non affilié'];
+function srepSyndSelect(id, val, onch){
+  var dedans=SREP_SYND_OPTS.indexOf(val)>=0;
+  var autre=(val!=='' && val!=null && !dedans);
+  var h='<select id="'+id+'" onchange="'+onch+'">'
+    +'<option value=""'+(!val?' selected':'')+'>— à préciser —</option>';
+  SREP_SYND_OPTS.forEach(function(o){
+    h+='<option value="'+socEsc(o)+'"'+(o===val?' selected':'')+'>'+socEsc(o)+'</option>';
+  });
+  h+='<option value="__autre"'+(autre?' selected':'')+'>Autre — à préciser</option></select>';
+  h+='<input type="text" id="'+id+'-autre" placeholder="Nom de l’organisation" value="'+(autre?socEsc(val):'')+'"'
+    +' style="display:'+(autre?'':'none')+';margin-top:6px" onchange="'+onch+'">';
+  return h;
+}
+
+
+/* Ce que le premier tour ne dit pas, et qu'on ne devine pas. */
+var SREP={};
+function srepLoad(){
+  try{ var v=localStorage.getItem(jxCle('syndrep_v1')); SREP=v?(JSON.parse(v)||{}):{}; }
+  catch(e){ SREP={}; }
+  if(!SREP || typeof SREP!=='object') SREP={};
+  if(!SREP.synd || typeof SREP.synd!=='object') SREP.synd={};
+}
+function srepSave(){ try{ jxEcrire(jxCle('syndrep_v1'), JSON.stringify(SREP)); }catch(e){} }
+function srepSet(k,v){ srepLoad(); SREP[k]=v; srepSave(); srepRender(); }
+function srepSetSynd(nom,k,v){ srepLoad(); if(!SREP.synd[nom]) SREP.synd[nom]={}; SREP.synd[nom][k]=v; srepSave(); srepRender(); }
+function srepGetSynd(nom,k){ srepLoad(); return (SREP.synd[nom]&&SREP.synd[nom][k])||''; }
+/* Le nom d'un syndicat ne traverse pas un attribut HTML sans risque :
+   les reponses se rangent sous son rang dans l'ordre calcule. */
+var SREP_ORDRE=[];
+function srepSetSyndI(i,k,v){ var nm=SREP_ORDRE[i]; if(nm==null) return; srepSetSynd(nm,k,v); }
+/* L'effectif : celui du dossier tant qu'aucun chiffre n'est saisi ici. */
+function srepEffectif(){
+  srepLoad();
+  var n=jxEffectifSaisi(SREP.eff);
+  if(n!==null) return {n:n, source:'saisi sur cette page'};
+  try{
+    var c=(typeof cseEffectif==='function')?cseEffectif():null;
+    if(c!==null && isFinite(c)) return {n:Math.floor(c), source:'calculé dans « Organiser les élections »'};
+  }catch(e){}
+  try{
+    var d=(typeof E!=='undefined' && E && E.effectif)?jxEffectifSaisi(E.effectif):null;
+    if(d!==null) return {n:d, source:'fiche de l’entreprise'};
+  }catch(e){}
+  return {n:null, source:''};
+}
+function srepPct(x){
+  if(x===null||!isFinite(x)) return '—';
+  return (Math.round(x*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LE CALCUL. Il ne rend que des chiffres et des faits ; les conclusions
+   juridiques sont tirees plus bas, chacune avec son article.
+   ══════════════════════════════════════════════════════════════════════ */
+function srepCalc(){
+  csesLoad(); cseColLoad(); srepLoad();
+  var listes=[], sansCollege=[], colOrdre=[], colSet={};
+  CSE_LISTES.forEach(function(x,i){
+    var T=csesTotaux(x);
+    var syndicat=((x.syndicat||'').trim())||((x.nom||'').trim())||('liste n° '+(i+1));
+    var col=(x.college||'').trim();
+    var moyenne=(T.cand>0)?(T.voix/T.cand):null;
+    var o={i:i, nom:(x.nom||'').trim()||('liste n° '+(i+1)), syndicat:syndicat, college:col,
+           voix:T.voix, cand:T.cand, moyenne:moyenne, cands:T.detail};
+    listes.push(o);
+    if(!col){ sansCollege.push(o); return; }
+    if(!colSet[col]){ colSet[col]=1; colOrdre.push(col); }
+  });
+  /* Un college declare mais ou personne ne s'est presente compte quand meme
+     dans le denominateur : ses suffrages ont bien ete exprimes. */
+  CSE_COLLEGES.forEach(function(c){
+    var k=(c.cle||'').trim(); if(!k) return;
+    if(!colSet[k]){ colSet[k]=1; colOrdre.push(k); }
+  });
+  var colleges=colOrdre.map(function(k){
+    var c=cseColTrouve(k);
+    var e=c?cseNum(c.exprimes):null;
+    if(e!==null && e<=0) e=null;
+    return {cle:k, lib:cseColLib(k), exprimes:e,
+            inscrits:c?cseNum(c.inscrits):null, sieges:c?cseNum(c.sieges):null};
+  });
+  var manqueSVE=colleges.filter(function(c){ return c.exprimes===null; });
+  var totalSVE=0, totalConnu=(colleges.length>0 && manqueSVE.length===0);
+  colleges.forEach(function(c){ if(c.exprimes!==null) totalSVE+=c.exprimes; });
+
+  /* Par syndicat : son score dans chaque college, puis son audience. */
+  var parSynd={}, ordre=[];
+  listes.forEach(function(o){
+    if(!parSynd[o.syndicat]){ parSynd[o.syndicat]={nom:o.syndicat, listes:[], somme:0, sommeConnue:true}; ordre.push(o.syndicat); }
+    parSynd[o.syndicat].listes.push(o);
+  });
+  var syndicats=ordre.map(function(nm){
+    var S=parSynd[nm];
+    var lignes=colleges.map(function(c){
+      var L=S.listes.filter(function(o){ return o.college===c.cle; });
+      if(!L.length) return {college:c, present:false, moyenne:null, pct:null};
+      var moy=0, connu=true;
+      L.forEach(function(o){ if(o.moyenne===null) connu=false; else moy+=o.moyenne; });
+      var pct=(connu && c.exprimes!==null)?(moy/c.exprimes*100):null;
+      return {college:c, present:true, listes:L, moyenne:connu?moy:null, pct:pct};
+    });
+    var somme=0, sommeConnue=true;
+    lignes.forEach(function(l){ if(l.present){ if(l.moyenne===null) sommeConnue=false; else somme+=l.moyenne; } });
+    /* Les listes sans college : leur score existe, mais aucun denominateur
+       ne peut lui etre attache. On ne l'agrege pas, on le signale. */
+    var horsCollege=S.listes.filter(function(o){ return !o.college; });
+    var audience=(sommeConnue && totalConnu && totalSVE>0)?(somme/totalSVE*100):null;
+    return {nom:nm, lignes:lignes, somme:somme, sommeConnue:sommeConnue,
+            horsCollege:horsCollege, audience:audience,
+            representatif:(audience!==null)?(audience>=10):null};
+  });
+
+  /* Par candidat : son score personnel dans SON college. */
+  var candidats=[];
+  listes.forEach(function(o){
+    var c=null;
+    for(var k=0;k<colleges.length;k++) if(colleges[k].cle===o.college) c=colleges[k];
+    o.cands.forEach(function(cd){
+      var v=cseNum(cd.voix);
+      var pct=(v!==null && c && c.exprimes!==null)?(v/c.exprimes*100):null;
+      candidats.push({nom:(cd.nom||'').trim()||'[candidat sans nom]', syndicat:o.syndicat,
+                      liste:o.nom, college:c?c.lib:'Collège non précisé',
+                      collegeCle:o.college, voix:v, exprimes:c?c.exprimes:null,
+                      pct:pct, seuil:(pct===null)?null:(pct>=10)});
+    });
+  });
+  var eff=srepEffectif();
+  SREP_ORDRE=syndicats.map(function(S){ return S.nom; });
+  return {colleges:colleges, listes:listes, sansCollege:sansCollege, syndicats:syndicats,
+          candidats:candidats, totalSVE:totalSVE, totalConnu:totalConnu,
+          manqueSVE:manqueSVE, eff:eff};
+}
+
+/* Le nombre de delegues syndicaux, d'apres R.2143-2 — et rien d'autre. */
+function srepNbDS(eff){
+  if(eff===null || !isFinite(eff)) return null;
+  if(eff<50) return 0;
+  for(var i=0;i<SREP_BAREME_DS.length;i++) if(eff<=SREP_BAREME_DS[i][0]) return SREP_BAREME_DS[i][1];
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LES CONCLUSIONS. Une par situation, chacune adossee a son article.
+   Chaque entree porte : ok (possible), non (impossible), ou null (une
+   donnee manque — et on dit laquelle).
+   ══════════════════════════════════════════════════════════════════════ */
+function srepConclusions(R){
+  var eff=R.eff.n, out=[];
+  var eff12=(typeof SREP.eff12!=='undefined')?SREP.eff12:'';
+  R.syndicats.forEach(function(S){
+    var nom=S.nom;
+    var adh=srepGetSynd(nom,'adh'), qual=srepGetSynd(nom,'qual'), sect=srepGetSynd(nom,'sect');
+    var C=[];
+    /* 1. Representativite — audience */
+    if(S.audience===null){
+      C.push({etat:'?', quoi:'Représentativité dans l’entreprise', art:'L2122-1',
+        txt:'Audience non calculable : '+(S.sommeConnue?'':'le nombre de candidats présentés manque pour une de ses listes ; ')+(R.totalConnu?'':'les suffrages valablement exprimés manquent pour '+R.manqueSVE.map(function(c){return c.lib;}).join(', ')+'.')});
+    } else if(S.representatif){
+      C.push({etat:'ok', quoi:'Représentativité dans l’entreprise', art:'L2122-1',
+        txt:'Audience de '+srepPct(S.audience)+' au premier tour des dernières élections des titulaires au comité social et économique : le seuil de 10 % est atteint. L’article L. 2121-1 pose sept critères cumulatifs, dont l’audience n’est que le cinquième — respect des valeurs républicaines, indépendance, transparence financière, ancienneté de deux ans, influence, effectifs d’adhérents et cotisations : cet outil ne calcule que l’audience et ne vérifie aucun des six autres.'});
+    } else {
+      C.push({etat:'non', quoi:'Représentativité dans l’entreprise', art:'L2122-1',
+        txt:'Audience de '+srepPct(S.audience)+' : le seuil de 10 % des suffrages exprimés n’est pas atteint. Le syndicat n’est pas représentatif dans l’entreprise, et aucune désignation de délégué syndical n’est ouverte de ce chef.'});
+    }
+    var repr=(S.representatif===true);
+    /* 2. Section syndicale */
+    var qualOK=(qual==='affilie'||qual==='criteres');
+    if(adh==='plusieurs' && (repr||qualOK)){
+      C.push({etat:'ok', quoi:'Constituer une section syndicale', art:'L2142-1',
+        txt:'Plusieurs adhérents dans l’entreprise, et la qualité exigée par le texte : la section syndicale peut être constituée. Aucune condition d’effectif n’est posée par cet article.'});
+    } else if(adh==='aucun'||adh==='un'){
+      C.push({etat:'non', quoi:'Constituer une section syndicale', art:'L2142-1',
+        txt:'Le texte exige « plusieurs adhérents dans l’entreprise ou dans l’établissement ». '+(adh==='aucun'?'Aucun adhérent n’est déclaré.':'Un seul adhérent est déclaré.')});
+    } else if(adh==='plusieurs'){
+      C.push({etat:'?', quoi:'Constituer une section syndicale', art:'L2142-1',
+        txt:'Les adhérents sont là, mais la qualité du syndicat n’est pas renseignée : représentatif dans l’entreprise, ou affilié à une organisation représentative au niveau national et interprofessionnel, ou satisfaisant aux valeurs républicaines et à l’indépendance et légalement constitué depuis au moins deux ans dans un champ couvrant l’entreprise.'});
+    } else {
+      C.push({etat:'?', quoi:'Constituer une section syndicale', art:'L2142-1',
+        txt:'Le nombre d’adhérents dans l’entreprise n’est pas renseigné : le texte exige « plusieurs adhérents ».'});
+    }
+    /* 3. Delegue syndical */
+    var candSynd=R.candidats.filter(function(c){ return c.syndicat===nom; });
+    var atteint=candSynd.filter(function(c){ return c.seuil===true; });
+    var autres=candSynd.filter(function(c){ return c.seuil!==true; });
+    /* Une liste dont les candidats n'ont pas ete saisis nominativement ne
+       permet AUCUN constat sur les 10 % personnels. Dire « aucun candidat
+       n'atteint le seuil » serait alors faux : on dit ce qui manque. */
+    var sansNoms=[];
+    R.listes.forEach(function(o){
+      if(o.syndicat!==nom) return;
+      if(!o.cands.length) sansNoms.push(o.nom);
+    });
+    var reserve=sansNoms.length
+      ? ' RÉSERVE : les candidats de la liste « '+sansNoms.join(' », « ')+' » ne sont pas saisis nominativement — leur score personnel n’a pas pu être calculé, et rien n’est affirmé à leur sujet.'
+      : '';
+    if(eff===null){
+      C.push({etat:'?', quoi:'Désigner un délégué syndical', art:'L2143-3',
+        txt:'L’effectif n’est pas renseigné : le texte réserve la désignation à l’entreprise ou l’établissement d’au moins cinquante salariés.'});
+    } else if(eff<50){
+      C.push({etat:'non', quoi:'Désigner un délégué syndical (art. L. 2143-3)', art:'L2143-3',
+        txt:'Effectif de '+eff+' salariés : l’article vise l’entreprise ou l’établissement d’au moins cinquante salariés. Voir ci-dessous le régime propre aux établissements de moins de cinquante.'});
+      if(repr){
+        C.push({etat:'ok', quoi:'Désigner un délégué syndical parmi les élus du comité', art:'L2143-6',
+          txt:'Établissement de moins de cinquante salariés : le syndicat représentatif dans l’établissement peut désigner, pour la durée de son mandat, un membre de la délégation du personnel au comité social et économique comme délégué syndical. Sauf disposition conventionnelle, ce mandat n’ouvre pas droit à un crédit d’heures propre : le temps dont l’élu dispose au titre de son mandat au comité peut être utilisé dans les mêmes conditions pour ses fonctions de délégué syndical. Le choix ne se fait donc pas parmi les candidats, mais parmi les élus.'});
+      } else {
+        C.push({etat:'non', quoi:'Désigner un délégué syndical parmi les élus du comité', art:'L2143-6',
+          txt:'L’article réserve cette désignation aux syndicats représentatifs dans l’établissement.'});
+      }
+    } else if(!repr){
+      C.push({etat:'non', quoi:'Désigner un délégué syndical', art:'L2143-3',
+        txt:'La désignation est réservée à l’organisation syndicale représentative dans l’entreprise ou l’établissement.'});
+    } else if(sect!=='oui'){
+      C.push({etat:'?', quoi:'Désigner un délégué syndical', art:'L2143-3',
+        txt:'Le texte réserve la désignation à l’organisation représentative « qui constitue une section syndicale ». La constitution de la section n’est pas confirmée pour ce syndicat.'});
+    } else if(eff12!=='oui'){
+      C.push({etat:'?', quoi:'Désigner un délégué syndical', art:'L2143-3',
+        txt:'Le troisième alinéa subordonne la désignation à un effectif d’au moins cinquante salariés atteint pendant douze mois consécutifs. '+(eff12==='non'?'Cette condition est déclarée non remplie : la désignation ne peut pas intervenir.':'Cette condition n’est pas renseignée : renseignez-la avant de conclure.')});
+    } else if(atteint.length){
+      C.push({etat:'ok', quoi:'Désigner un délégué syndical', art:'L2143-3', qui:atteint,
+        txt:'Le délégué syndical se désigne parmi les candidats qui ont recueilli, à titre personnel et dans leur collège, au moins 10 % des suffrages exprimés au premier tour. '+atteint.length+' candidat(s) de ce syndicat atteignent ce score : ils sont nommés ci-après. Le nombre de délégués reste borné par les limites de l’article L. 2143-12.'+reserve});
+    } else if(autres.length){
+      C.push({etat:'ok', quoi:'Désigner un délégué syndical — à défaut de candidat à 10 %', art:'L2143-3', qui:autres,
+        txt:'Aucun candidat de ce syndicat n’atteint 10 % à titre personnel dans son collège. Le deuxième alinéa ouvre alors la désignation aux AUTRES CANDIDATS présentés par l’organisation. Le même alinéa vise aussi le cas où il ne reste plus aucun candidat remplissant les conditions, et celui où tous les élus qui les remplissent renoncent PAR ÉCRIT à leur droit d’être désigné.'+reserve});
+    } else {
+      C.push({etat:'ok', quoi:'Désigner un délégué syndical — à défaut de tout candidat', art:'L2143-3',
+        txt:'Aucun candidat n’est saisi pour ce syndicat. À défaut de candidat, le deuxième alinéa permet de désigner le délégué syndical parmi les adhérents de l’organisation au sein de l’entreprise ou de l’établissement, ou parmi ses anciens élus. Cet outil ne connaît ni les adhérents nominativement ni les anciens élus : il ne propose donc aucun nom.'});
+    }
+    /* 4. Representant syndical au comite */
+    if(eff===null){
+      C.push({etat:'?', quoi:'Représentant syndical au comité social et économique', art:'L2143-22',
+        txt:'L’effectif n’est pas renseigné : le régime diffère selon que l’entreprise atteint ou non trois cents salariés.'});
+    } else if(eff<300){
+      C.push({etat:repr?'ok':'non', quoi:'Représentant syndical au comité social et économique', art:'L2143-22',
+        txt:'Entreprise de moins de trois cents salariés : le délégué syndical est, DE DROIT, représentant syndical au comité — aucune désignation distincte n’est à faire, et il est à ce titre destinataire des informations fournies au comité. '+(repr?'Ce syndicat étant représentatif, son délégué syndical exerce donc les deux mandats.':'Ce syndicat n’étant pas représentatif, il n’a pas de délégué syndical, et donc pas de représentant syndical de droit.')});
+    } else {
+      C.push({etat:repr?'ok':'non', quoi:'Représentant syndical au comité social et économique', art:'L2314-2',
+        txt:'Entreprise d’au moins trois cents salariés : le représentant syndical fait l’objet d’une désignation DISTINCTE de celle du délégué syndical. Le texte ne pose AUCUNE condition de score personnel : il est choisi parmi les membres du personnel de l’entreprise et doit remplir les conditions d’éligibilité au comité fixées à l’article L. 2314-19. Il assiste aux séances avec voix consultative. '+(repr?'Ce syndicat, représentatif, peut procéder à cette désignation.':'La faculté est réservée aux organisations représentatives dans l’entreprise ou l’établissement.')});
+    }
+    /* 5. Representant de section syndicale */
+    if(repr){
+      C.push({etat:'non', quoi:'Désigner un représentant de la section syndicale', art:'L2142-1-1',
+        txt:'Le représentant de section syndicale suppose un syndicat qui n’est PAS représentatif dans l’entreprise ou l’établissement. Ce syndicat étant représentatif, il désigne un délégué syndical, non un représentant de section.'});
+    } else if(eff===null){
+      C.push({etat:'?', quoi:'Désigner un représentant de la section syndicale', art:'L2142-1-1',
+        txt:'L’effectif n’est pas renseigné : le texte exige une entreprise ou un établissement d’au moins cinquante salariés.'});
+    } else if(eff<50){
+      C.push({etat:'non', quoi:'Désigner un représentant de la section syndicale', art:'L2142-1-1',
+        txt:'Effectif de '+eff+' salariés : le texte exige une entreprise ou un établissement d’AU MOINS CINQUANTE salariés. Sous ce seuil, la section syndicale peut exister (L. 2142-1, sans condition d’effectif) mais aucun représentant de section ne peut être désigné.'});
+    } else if(adh!=='plusieurs'){
+      C.push({etat:'?', quoi:'Désigner un représentant de la section syndicale', art:'L2142-1-1',
+        txt:'Le représentant de section suppose une section syndicale constituée conformément à L. 2142-1, donc plusieurs adhérents dans l’entreprise. Cette donnée n’est pas confirmée.'});
+    } else {
+      C.push({etat:'ok', quoi:'Désigner un représentant de la section syndicale', art:'L2142-1-1',
+        txt:'Syndicat non représentatif, section syndicale constituée, entreprise d’au moins cinquante salariés : le représentant de section peut être désigné. Il a les mêmes prérogatives que le délégué syndical À L’EXCEPTION du pouvoir de négocier des accords collectifs, et il bénéficie de la protection des délégués syndicaux (L. 2142-1-2). Son mandat prend fin à l’issue des premières élections suivant sa désignation si le syndicat n’y est pas reconnu représentatif.'});
+    }
+    out.push({syndicat:nom, points:C, audience:S.audience, representatif:S.representatif});
+  });
+  return out;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   L'ECRAN
+   ══════════════════════════════════════════════════════════════════════ */
+function srepOnEnter(){ srepRender(); }
+function srepTable(inner){
+  return '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">'+inner+'</div>';
+}
+var SREP_TH='padding:6px;border-bottom:1px solid rgba(255,255,255,.15);font-size:11.5px;white-space:nowrap';
+var SREP_TD='padding:6px;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px';
+function srepRender(){
+  var z=document.getElementById('syndrep-zone'); if(!z) return;
+  srepLoad();
+  var R=srepCalc();
+  var h='';
+
+  h+='<div class="card" style="border-color:#c9a84c">'
+    +'<div style="font-size:13px;color:#e8e4d8;line-height:1.75">'
+    +'<b>Cet outil calcule et cite les textes. Il ne tranche pas un litige.</b> Il applique aux chiffres du premier tour la règle écrite dans le code, et affiche à chaque conclusion l’article et l’identifiant de la version lue. Il ne remplace ni l’appréciation du tribunal judiciaire, ni la vérification des six autres critères de l’article L. 2121-1 — dont il ne sait rien.'
+    +'</div>'
+    +'<div style="font-size:11.5px;color:#9fb0c4;margin-top:8px;line-height:1.7">Textes lus au relais Légifrance le '+socEsc(SREP_LU)+', deux lectures concordantes par article. Ce qui ne s’est pas confirmé n’est pas affiché : voir « Ce qui n’a pas été confirmé », en bas de page.</div>'
+    +'</div>';
+
+  /* D'où viennent les chiffres. */
+  h+='<div class="card"><div class="ct">D’où viennent les chiffres</div>';
+  if(!R.listes.length){
+    h+='<div class="al warn" style="font-size:12.5px">Aucune liste n’est saisie. Les résultats du premier tour se saisissent dans <b>Organiser les élections du CSE</b> — collèges, listes, candidats et voix. Ce module les lit, il ne les redemande pas.</div>'
+      +'<button class="btn-outline" style="margin-top:10px;width:100%" onclick="goPage(\'cse\')">🗳️ Aller saisir le premier tour</button></div>';
+    z.innerHTML=h;
+    return;
+  }
+  h+='<div style="font-size:12.5px;color:#e8e4d8;line-height:1.9">'
+    +R.listes.length+' liste(s) · '+R.candidats.length+' candidat(s) nommé(s) · '+R.colleges.length+' collège(s), lus dans le module d’élections.</div>';
+  h+=srepTable('<table style="width:100%;border-collapse:collapse;margin-top:8px;min-width:420px">'
+    +'<thead><tr><th style="text-align:left;'+SREP_TH+'">Collège</th>'
+    +'<th style="'+SREP_TH+'">Inscrits</th><th style="'+SREP_TH+'">Suffrages exprimés</th>'
+    +'<th style="'+SREP_TH+'">Sièges</th></tr></thead><tbody>'
+    +R.colleges.map(function(c){
+      return '<tr><td style="'+SREP_TD+'">'+socEsc(c.lib)+'</td>'
+        +'<td style="text-align:center;'+SREP_TD+'">'+(c.inscrits===null?'—':jxNb(c.inscrits))+'</td>'
+        +'<td style="text-align:center;'+SREP_TD+';color:'+(c.exprimes===null?'#e05c5c':'#e8c97a')+';font-weight:700">'+(c.exprimes===null?'non renseigné':jxNb(c.exprimes))+'</td>'
+        +'<td style="text-align:center;'+SREP_TD+'">'+(c.sieges===null?'—':jxNb(c.sieges))+'</td></tr>';
+    }).join('')
+    +'</tbody></table>');
+  if(R.totalConnu) h+='<div style="font-size:12.5px;color:#e8e4d8;margin-top:8px">Total des suffrages valablement exprimés, tous collèges : <b style="color:#e8c97a">'+jxNb(R.totalSVE)+'</b></div>';
+  else h+='<div class="al err" style="font-size:12.5px;margin-top:8px">Suffrages valablement exprimés manquants pour '+socEsc(R.manqueSVE.map(function(c){return c.lib;}).join(' · '))+'. Sans eux, aucune audience n’est calculée — elle n’est pas estimée.</div>';
+  if(R.sansCollege.length) h+='<div class="al warn" style="font-size:12.5px;margin-top:8px">'+R.sansCollege.length+' liste(s) ne sont rattachées à aucun collège : '+socEsc(R.sansCollege.map(function(o){return o.nom;}).join(', '))+'. Leur score ne peut être rapporté à aucun suffrage exprimé. Rattachez-les à leur collège dans le module d’élections.</div>';
+  h+='<button class="btn-outline" style="margin-top:10px;width:100%" onclick="goPage(\'cse\')">✏️ Corriger la saisie du premier tour</button></div>';
+
+  /* Ce que le premier tour ne dit pas. */
+  var eff=R.eff;
+  h+='<div class="card"><div class="ct">Ce que le premier tour ne dit pas</div>'
+    +'<div class="fg"><label class="fl">Effectif de l’entreprise ou de l’établissement</label>'
+    +'<input type="number" inputmode="decimal" min="0" id="srep-eff" value="'+socEsc(SREP.eff||'')+'" placeholder="'+(eff.n!==null?socEsc(String(eff.n)):'Ex : 120')+'" onchange="srepSet(\'eff\',this.value)"></div>'
+    +'<div style="font-size:11.5px;color:#9fb0c4;margin:-4px 0 10px">'
+    +(eff.n!==null?('Effectif retenu : <b style="color:#e8c97a">'+eff.n+'</b> salariés — '+socEsc(eff.source)+'.'):'Aucun effectif connu : plusieurs conclusions resteront ouvertes tant qu’il manque.')+'</div>'
+    +'<div class="fg"><label class="fl">L’effectif d’au moins cinquante salariés a-t-il été atteint pendant douze mois consécutifs ? (L. 2143-3, troisième alinéa)</label>'
+    +'<select id="srep-eff12" onchange="srepSet(\'eff12\',this.value)">'
+    +'<option value=""'+(!SREP.eff12?' selected':'')+'>— à renseigner —</option>'
+    +'<option value="oui"'+(SREP.eff12==='oui'?' selected':'')+'>Oui</option>'
+    +'<option value="non"'+(SREP.eff12==='non'?' selected':'')+'>Non</option>'
+    +'<option value="verifier"'+(SREP.eff12==='verifier'?' selected':'')+'>À vérifier</option>'
+    +'</select></div>';
+  R.syndicats.forEach(function(S){
+    var nm=S.nom, id=R.syndicats.indexOf(S);
+    var adh=srepGetSynd(nm,'adh'), qual=srepGetSynd(nm,'qual'), sect=srepGetSynd(nm,'sect');
+    h+='<div style="border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;margin-bottom:8px">'
+      +'<div style="font-size:13px;font-weight:800;color:#e8c97a;margin-bottom:6px">'+socEsc(nm)+'</div>'
+      +'<div class="fg"><label class="fl">Adhérents de ce syndicat dans l’entreprise (L. 2142-1)</label>'
+      +'<select onchange="srepSetSyndI('+id+',\'adh\',this.value)">'
+      +'<option value=""'+(!adh?' selected':'')+'>— à renseigner —</option>'
+      +'<option value="aucun"'+(adh==='aucun'?' selected':'')+'>Aucun adhérent</option>'
+      +'<option value="un"'+(adh==='un'?' selected':'')+'>Un seul adhérent</option>'
+      +'<option value="plusieurs"'+(adh==='plusieurs'?' selected':'')+'>Plusieurs adhérents (au moins deux)</option>'
+      +'<option value="verifier"'+(adh==='verifier'?' selected':'')+'>À vérifier</option>'
+      +'</select></div>'
+      +'<div class="fg"><label class="fl">Qualité du syndicat au regard de L. 2142-1</label>'
+      +'<select onchange="srepSetSyndI('+id+',\'qual\',this.value)">'
+      +'<option value=""'+(!qual?' selected':'')+'>— à renseigner —</option>'
+      +'<option value="affilie"'+(qual==='affilie'?' selected':'')+'>Affilié à une organisation représentative au niveau national et interprofessionnel</option>'
+      +'<option value="criteres"'+(qual==='criteres'?' selected':'')+'>Valeurs républicaines et indépendance, constitué depuis au moins deux ans, champ couvrant l’entreprise</option>'
+      +'<option value="aucune"'+(qual==='aucune'?' selected':'')+'>Ni l’un ni l’autre</option>'
+      +'<option value="verifier"'+(qual==='verifier'?' selected':'')+'>À vérifier</option>'
+      +'</select></div>'
+      +'<div class="fg"><label class="fl">Une section syndicale est-elle constituée dans l’entreprise ?</label>'
+      +'<select onchange="srepSetSyndI('+id+',\'sect\',this.value)">'
+      +'<option value=""'+(!sect?' selected':'')+'>— à renseigner —</option>'
+      +'<option value="oui"'+(sect==='oui'?' selected':'')+'>Oui</option>'
+      +'<option value="non"'+(sect==='non'?' selected':'')+'>Non</option>'
+      +'<option value="verifier"'+(sect==='verifier'?' selected':'')+'>À vérifier</option>'
+      +'</select></div></div>';
+  });
+  h+='</div>';
+
+  /* Le tableau par syndicat, avec le detail du calcul. */
+  h+='<div class="card"><div class="ct">L’audience, syndicat par syndicat</div>'
+    +'<div class="al info" style="font-size:12.5px">Le score d’une liste dans un collège est la <b>MOYENNE</b> des voix obtenues par ses candidats — la somme divisée par le nombre de candidats qu’elle présente — <b>jamais leur somme</b>. L’audience dans l’entreprise rapporte la somme de ces moyennes au total des suffrages valablement exprimés de tous les collèges, y compris ceux où le syndicat n’a pas présenté de liste.</div>';
+  h+=srepTable('<table style="width:100%;border-collapse:collapse;margin-top:8px;min-width:520px">'
+    +'<thead><tr><th style="text-align:left;'+SREP_TH+'">Syndicat</th>'
+    +R.colleges.map(function(c){ return '<th style="'+SREP_TH+'">'+socEsc(c.lib.split('—')[0].trim())+'</th>'; }).join('')
+    +'<th style="'+SREP_TH+'">Somme des scores</th><th style="'+SREP_TH+'">Audience</th>'
+    +'<th style="'+SREP_TH+'">10 % ?</th></tr></thead><tbody>'
+    +R.syndicats.map(function(S){
+      return '<tr><td style="'+SREP_TD+'"><b>'+socEsc(S.nom)+'</b></td>'
+        +S.lignes.map(function(l){
+          if(!l.present) return '<td style="text-align:center;'+SREP_TD+';color:#9fb0c4">—</td>';
+          return '<td style="text-align:center;'+SREP_TD+'">'+(l.moyenne===null?'?':jxNb(l.moyenne))+'<br><span style="font-size:10.5px;color:#9fb0c4">'+(l.pct===null?'—':srepPct(l.pct))+'</span></td>';
+        }).join('')
+        +'<td style="text-align:center;'+SREP_TD+'">'+(S.sommeConnue?jxNb(S.somme):'?')+'</td>'
+        +'<td style="text-align:center;'+SREP_TD+';color:#e8c97a;font-weight:800">'+srepPct(S.audience)+'</td>'
+        +'<td style="text-align:center;'+SREP_TD+'">'+(S.representatif===null?'<span style="color:#9fb0c4">indéterminé</span>':(S.representatif?'<span style="color:#46b885;font-weight:800">OUI</span>':'<span style="color:#e05c5c;font-weight:800">non</span>'))+'</td></tr>';
+    }).join('')
+    +'</tbody></table>');
+  /* Le detail du calcul, ecrit. */
+  h+='<div style="margin-top:10px;border:1px dashed rgba(201,168,76,.55);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.9"><b>🔍 Le détail du calcul</b><br>';
+  R.syndicats.forEach(function(S){
+    h+='<b>'+socEsc(S.nom)+'</b><br>';
+    S.lignes.forEach(function(l){
+      if(!l.present) return;
+      l.listes.forEach(function(o){
+        h+='&nbsp;&nbsp;· '+socEsc(l.college.lib)+' — liste « '+socEsc(o.nom)+' » : '+jxNb(o.voix)+' voix ÷ '+o.cand+' candidat(s) présenté(s) = <b>'+(o.moyenne===null?'?':jxNb(o.moyenne))+'</b>'
+          +(l.college.exprimes!==null&&o.moyenne!==null?(' → '+jxNb(o.moyenne)+' ÷ '+jxNb(l.college.exprimes)+' suffrages exprimés = <b>'+srepPct(o.moyenne/l.college.exprimes*100)+'</b>'):' → suffrages exprimés du collège non renseignés')+'<br>';
+      });
+    });
+    if(S.horsCollege.length) h+='&nbsp;&nbsp;· <span style="color:#e8c97a">'+S.horsCollege.length+' liste(s) sans collège, exclues du calcul</span><br>';
+    h+='&nbsp;&nbsp;<b>Audience entreprise</b> : '+(S.sommeConnue?jxNb(S.somme):'?')+' ÷ '+(R.totalConnu?jxNb(R.totalSVE):'?')+' = <b style="color:#e8c97a">'+srepPct(S.audience)+'</b><br>';
+  });
+  h+='</div>';
+  h+='<div class="loi">'+srepArtRef('L2122-1')+' — '+socEsc(srepArtTxt('L2122-1'))+'</div>';
+  h+='<div class="loi">'+srepArtRef('L2121-1')+' — '+socEsc(srepArtTxt('L2121-1'))+'</div>';
+  h+='</div>';
+
+  /* Les candidats. */
+  h+='<div class="card"><div class="ct">Le score personnel de chaque candidat</div>'
+    +'<div class="al info" style="font-size:12.5px">Le délégué syndical se désigne d’abord parmi les candidats qui ont recueilli <b>à titre personnel et dans leur collège</b> au moins 10 % des suffrages exprimés au premier tour. Ce score est individuel : il ne se confond ni avec celui de la liste, ni avec l’audience du syndicat. Les ratures le font varier d’un candidat à l’autre d’une même liste.</div>';
+  if(!R.candidats.length){
+    h+='<div class="al warn" style="font-size:12.5px">Aucun candidat n’est saisi nominativement. Sans les voix par candidat, aucun score personnel ne peut être calculé — et l’application ne dira pas qui peut être désigné délégué syndical au titre du premier alinéa de L. 2143-3. La saisie se fait liste par liste dans le module d’élections.</div>';
+  } else {
+    h+=srepTable('<table style="width:100%;border-collapse:collapse;margin-top:8px;min-width:560px">'
+      +'<thead><tr><th style="text-align:left;'+SREP_TH+'">Candidat</th><th style="text-align:left;'+SREP_TH+'">Syndicat</th>'
+      +'<th style="text-align:left;'+SREP_TH+'">Collège</th><th style="'+SREP_TH+'">Voix</th>'
+      +'<th style="'+SREP_TH+'">Suffrages exprimés</th><th style="'+SREP_TH+'">Score personnel</th>'
+      +'<th style="'+SREP_TH+'">10 % ?</th></tr></thead><tbody>'
+      +R.candidats.map(function(c){
+        return '<tr><td style="'+SREP_TD+'">'+socEsc(c.nom)+'</td>'
+          +'<td style="'+SREP_TD+'">'+socEsc(c.syndicat)+'</td>'
+          +'<td style="'+SREP_TD+'">'+socEsc(c.college)+'</td>'
+          +'<td style="text-align:center;'+SREP_TD+'">'+(c.voix===null?'—':jxNb(c.voix))+'</td>'
+          +'<td style="text-align:center;'+SREP_TD+'">'+(c.exprimes===null?'non renseigné':jxNb(c.exprimes))+'</td>'
+          +'<td style="text-align:center;'+SREP_TD+';color:#e8c97a;font-weight:700">'+srepPct(c.pct)+'</td>'
+          +'<td style="text-align:center;'+SREP_TD+'">'+(c.seuil===null?'<span style="color:#9fb0c4">indéterminé</span>':(c.seuil?'<span style="color:#46b885;font-weight:800">OUI</span>':'<span style="color:#e05c5c">non</span>'))+'</td></tr>';
+      }).join('')
+      +'</tbody></table>');
+  }
+  h+='<div class="loi">'+srepArtRef('L2143-3')+' — '+socEsc(srepArtTxt('L2143-3'))+'</div></div>';
+
+  /* Les designations. */
+  var CC=srepConclusions(R);
+  h+='<div class="card"><div class="ct">Ce que chaque syndicat peut, et ne peut pas, désigner</div>';
+  CC.forEach(function(S){
+    h+='<div style="border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:11px;margin-bottom:10px">'
+      +'<div style="font-size:14px;font-weight:800;color:#e8c97a">'+socEsc(S.syndicat)+' <span style="font-size:11.5px;color:#9fb0c4;font-weight:600">— audience '+srepPct(S.audience)+'</span></div>';
+    S.points.forEach(function(p){
+      var col=(p.etat==='ok')?'#46b885':((p.etat==='non')?'#e05c5c':'#e0a83a');
+      var pic=(p.etat==='ok')?'✅':((p.etat==='non')?'⛔':'❓');
+      h+='<div style="border-left:3px solid '+col+';padding:6px 0 6px 10px;margin-top:9px">'
+        +'<div style="font-size:12.5px;font-weight:700;color:#e8e4d8">'+pic+' '+socEsc(p.quoi)+'</div>'
+        +'<div style="font-size:12px;color:#cdd7e2;line-height:1.8;margin-top:3px">'+socEsc(p.txt)+'</div>';
+      if(p.qui && p.qui.length){
+        h+='<div style="font-size:12px;color:#e8e4d8;margin-top:5px;line-height:1.8">'
+          +p.qui.map(function(c){ return '· <b>'+socEsc(c.nom)+'</b> — '+socEsc(c.college)+' — '+srepPct(c.pct); }).join('<br>')+'</div>';
+      }
+      h+='<div style="font-size:11px;color:#9fb0c4;margin-top:4px">'+srepArtRef(p.art)+'</div></div>';
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+
+  /* Le nombre de delegues syndicaux. */
+  var nb=srepNbDS(R.eff.n);
+  h+='<div class="card"><div class="ct">Combien de délégués syndicaux par section</div>';
+  if(R.eff.n===null){
+    h+='<div class="al warn" style="font-size:12.5px">Effectif non renseigné : aucun nombre n’est affiché. Le barème dépend du seul effectif.</div>';
+  } else if(nb===0){
+    h+='<div class="al info" style="font-size:12.5px">Effectif de '+R.eff.n+' salariés : le barème de R. 2143-2 commence à cinquante salariés. Sous ce seuil, c’est le régime de L. 2143-6 qui s’applique — un membre de la délégation du personnel au comité, désigné comme délégué syndical.</div>';
+  } else {
+    h+='<div class="item"><div class="badge badge-gold">'+R.eff.n+' SALARIÉS — R. 2143-2</div>'
+      +'<div style="font-size:14px;color:#e8e4d8;line-height:2.1;margin-top:8px">Nombre de délégués syndicaux par section syndicale : <strong style="color:#e8c97a;font-size:18px">'+nb+'</strong></div></div>';
+  }
+  h+=srepTable('<table style="width:100%;border-collapse:collapse;margin-top:8px;min-width:320px">'
+    +'<thead><tr><th style="text-align:left;'+SREP_TH+'">Effectif</th><th style="'+SREP_TH+'">Délégués</th></tr></thead><tbody>'
+    +[['De 50 à 999 salariés',1],['De 1 000 à 1 999 salariés',2],['De 2 000 à 3 999 salariés',3],['De 4 000 à 9 999 salariés',4],['Au-delà de 9 999 salariés',5]]
+      .map(function(r){ return '<tr><td style="'+SREP_TD+'">'+r[0]+'</td><td style="text-align:center;'+SREP_TD+';font-weight:700;color:'+(nb===r[1]&&R.eff.n!==null&&R.eff.n>=50?'#e8c97a':'#cdd7e2')+'">'+r[1]+'</td></tr>'; }).join('')
+    +'</tbody></table>');
+  h+='<div style="font-size:12px;color:#cdd7e2;line-height:1.85;margin-top:9px">'
+    +'Ce nombre est fixé soit par entreprise, soit par établissement distinct ('+srepArtRef('R2143-1')+'). Dans les entreprises comportant des établissements distincts de cinquante salariés ou plus, il se fixe par établissement ('+srepArtRef('R2143-3')+'). Il peut être dépassé dans les deux cas que la loi prévoit : le délégué supplémentaire des entreprises d’au moins cinq cents salariés ('+srepArtRef('L2143-4')+') et le délégué syndical central ('+srepArtRef('L2143-5')+').</div>';
+  h+='<div class="loi">'+srepArtRef('L2143-12')+' — '+socEsc(srepArtTxt('L2143-12'))+'</div>';
+  h+='<div class="loi">'+srepArtRef('R2143-2')+' — '+socEsc(srepArtTxt('R2143-2'))+'</div>';
+  if(R.eff.n!==null && R.eff.n>=500){
+    h+='<div class="al info" style="font-size:12.5px;margin-top:8px"><b>Délégué syndical supplémentaire</b> — '+socEsc(srepArtTxt('L2143-4'))+' <span style="color:#9fb0c4">'+srepArtRef('L2143-4')+'</span><br><span style="color:#9fb0c4;font-size:11.5px">Cet outil ne connaît pas la répartition des élus par collège : il n’affirme pas que la condition est remplie.</span></div>';
+  }
+  if(R.eff.n!==null && R.eff.n>=2000){
+    h+='<div class="al info" style="font-size:12.5px;margin-top:8px"><b>Délégué syndical central</b> — '+socEsc(srepArtTxt('L2143-5'))+' <span style="color:#9fb0c4">'+srepArtRef('L2143-5')+'</span><br><span style="color:#9fb0c4;font-size:11.5px">Cet outil ne connaît pas le découpage en établissements : il n’affirme pas que la condition des deux établissements d’au moins cinquante salariés est remplie.</span></div>';
+  }
+  h+='</div>';
+
+  /* Les textes, en entier. */
+  h+='<div class="card"><div class="ct">Les textes, tels qu’ils ont été lus</div>'
+    +'<div style="font-size:11.5px;color:#9fb0c4;margin-bottom:8px">Relais Légifrance, '+socEsc(SREP_LU)+'. Chaque article a été lu deux fois, à des moments différents ; les deux lectures concordent, sur l’identifiant de version comme sur le texte.</div>';
+  Object.keys(SREP_ART).forEach(function(k){
+    h+='<div style="border-top:1px solid rgba(255,255,255,.08);padding:9px 0">'
+      +'<div style="font-size:12.5px;font-weight:800;color:#e8c97a">'+socEsc(SREP_ART[k].n)+' <span style="font-size:10.5px;color:#9fb0c4;font-weight:600">'+socEsc(SREP_ART[k].id)+'</span></div>'
+      +'<div style="font-size:12px;color:#cdd7e2;line-height:1.8;margin-top:4px">'+socEsc(SREP_ART[k].t)+'</div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="card" style="border-color:#e0a83a"><div class="ct">Ce qui n’a pas été confirmé</div>'
+    +SREP_NON_CONFIRME.map(function(x){
+      return '<div class="al warn" style="font-size:12.5px"><b>'+socEsc(x.n)+'</b> — '+socEsc(x.pourquoi)+'</div>';
+    }).join('')
+    +'<div style="font-size:12px;color:#9fb0c4;line-height:1.8;margin-top:8px">Cet outil ne traite ni la représentativité de branche, ni la représentativité au niveau national et interprofessionnel : elles ne se calculent pas sur un procès-verbal d’entreprise.</div></div>';
+
+  h+='<div class="card"><div class="ct">Emporter le résultat</div>'
+    +'<button class="btn" style="width:100%;margin-bottom:8px" onclick="srepRapport()">🖨 Rapport imprimable</button>'
+    +'<button class="btn-outline" style="width:100%;margin-bottom:8px" onclick="srepExport(\'json\')">💾 Exporter les données (JSON)</button>'
+    +'<button class="btn-outline" style="width:100%" onclick="srepExport(\'csv\')">📊 Exporter le tableau (CSV)</button></div>';
+
+  z.innerHTML=h;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LE RAPPORT IMPRIMABLE — il dit ce qu'il a lu, ce qu'il a calcule, et ce
+   qu'il n'a pas pu conclure.
+   ══════════════════════════════════════════════════════════════════════ */
+function srepRapport(){
+  var R=srepCalc(), CC=srepConclusions(R);
+  var nomEnt=''; try{ nomEnt=(typeof E!=='undefined'&&E&&E.nom)?String(E.nom):''; }catch(e){}
+  var d=new Date().toLocaleDateString('fr-FR');
+  var b='';
+  b+='<h1>Représentativité syndicale — premier tour des élections du comité social et économique</h1>';
+  b+='<p><b>'+socEsc(nomEnt||'[entreprise]')+'</b> — rapport établi le '+d+'.</p>';
+  b+='<p style="border:1px solid #000;padding:8pt"><b>Cet outil calcule et cite les textes. Il ne tranche pas un litige.</b> Il applique aux chiffres du premier tour la règle écrite dans le code du travail, et indique à chaque conclusion l’article et l’identifiant de la version lue (relais Légifrance, '+socEsc(SREP_LU)+', deux lectures concordantes par article). Il ne vérifie pas les six autres critères de l’article L. 2121-1.</p>';
+  b+='<h2>1. Les chiffres lus</h2>';
+  b+='<table><tr><th>Collège</th><th>Inscrits</th><th>Suffrages valablement exprimés</th><th>Sièges</th></tr>'
+    +R.colleges.map(function(c){ return '<tr><td>'+socEsc(c.lib)+'</td><td>'+(c.inscrits===null?'—':jxNb(c.inscrits))+'</td><td>'+(c.exprimes===null?'NON RENSEIGNÉ':jxNb(c.exprimes))+'</td><td>'+(c.sieges===null?'—':jxNb(c.sieges))+'</td></tr>'; }).join('')
+    +'</table>';
+  b+='<p>Total des suffrages valablement exprimés : <b>'+(R.totalConnu?jxNb(R.totalSVE):'non calculable')+'</b>.</p>';
+  b+='<h2>2. L’audience, syndicat par syndicat</h2>';
+  b+='<p>Le score d’une liste dans un collège est la <b>moyenne</b> des voix obtenues par ses candidats — la somme divisée par le nombre de candidats qu’elle présente — jamais leur somme. L’audience dans l’entreprise rapporte la somme de ces moyennes au total des suffrages valablement exprimés de tous les collèges.</p>';
+  b+='<table><tr><th>Syndicat</th><th>Somme des scores</th><th>Audience</th><th>Représentatif (10 % — L. 2122-1)</th></tr>'
+    +R.syndicats.map(function(S){ return '<tr><td>'+socEsc(S.nom)+'</td><td>'+(S.sommeConnue?jxNb(S.somme):'?')+'</td><td>'+srepPct(S.audience)+'</td><td>'+(S.representatif===null?'indéterminé':(S.representatif?'OUI':'non'))+'</td></tr>'; }).join('')
+    +'</table>';
+  b+='<h3>Le détail du calcul</h3><ul>';
+  R.syndicats.forEach(function(S){
+    b+='<li><b>'+socEsc(S.nom)+'</b><ul>';
+    S.lignes.forEach(function(l){
+      if(!l.present) return;
+      l.listes.forEach(function(o){
+        b+='<li>'+socEsc(l.college.lib)+' — liste « '+socEsc(o.nom)+' » : '+jxNb(o.voix)+' voix ÷ '+o.cand+' candidat(s) présenté(s) = '+(o.moyenne===null?'?':jxNb(o.moyenne))
+          +(l.college.exprimes!==null&&o.moyenne!==null?(' ; rapporté à '+jxNb(l.college.exprimes)+' suffrages exprimés = '+srepPct(o.moyenne/l.college.exprimes*100)):' ; suffrages exprimés du collège non renseignés')+'</li>';
+      });
+    });
+    b+='<li>Audience entreprise : '+(S.sommeConnue?jxNb(S.somme):'?')+' ÷ '+(R.totalConnu?jxNb(R.totalSVE):'?')+' = <b>'+srepPct(S.audience)+'</b></li></ul></li>';
+  });
+  b+='</ul>';
+  b+='<h2>3. Le score personnel des candidats</h2>';
+  if(!R.candidats.length){
+    b+='<p>Aucun candidat n’a été saisi nominativement : aucun score personnel n’est calculé, et le rapport ne désigne personne au titre du premier alinéa de L. 2143-3.</p>';
+  } else {
+    b+='<table><tr><th>Candidat</th><th>Syndicat</th><th>Collège</th><th>Voix</th><th>Suffrages exprimés</th><th>Score personnel</th><th>10 %</th></tr>'
+      +R.candidats.map(function(c){ return '<tr><td>'+socEsc(c.nom)+'</td><td>'+socEsc(c.syndicat)+'</td><td>'+socEsc(c.college)+'</td><td>'+(c.voix===null?'—':jxNb(c.voix))+'</td><td>'+(c.exprimes===null?'NON RENSEIGNÉ':jxNb(c.exprimes))+'</td><td>'+srepPct(c.pct)+'</td><td>'+(c.seuil===null?'indéterminé':(c.seuil?'OUI':'non'))+'</td></tr>'; }).join('')
+      +'</table>';
+  }
+  b+='<h2>4. Les désignations possibles et impossibles</h2>';
+  CC.forEach(function(S){
+    b+='<h3>'+socEsc(S.syndicat)+' — audience '+srepPct(S.audience)+'</h3><ul>';
+    S.points.forEach(function(p){
+      var e=(p.etat==='ok')?'POSSIBLE':((p.etat==='non')?'IMPOSSIBLE':'INDÉTERMINÉ');
+      b+='<li><b>'+e+' — '+socEsc(p.quoi)+'</b> ('+socEsc(SREP_ART[p.art].n)+', '+socEsc(SREP_ART[p.art].id)+') : '+socEsc(p.txt);
+      if(p.qui && p.qui.length) b+='<br>'+p.qui.map(function(c){ return '— '+socEsc(c.nom)+' ('+socEsc(c.college)+', '+srepPct(c.pct)+')'; }).join('<br>');
+      b+='</li>';
+    });
+    b+='</ul>';
+  });
+  var nb=srepNbDS(R.eff.n);
+  b+='<h2>5. Le nombre de délégués syndicaux</h2>';
+  b+='<p>'+(R.eff.n===null?'Effectif non renseigné : aucun nombre n’est avancé.':(nb===0?('Effectif de '+R.eff.n+' salariés : le barème de R. 2143-2 commence à cinquante salariés.'):('Effectif de '+R.eff.n+' salariés : '+nb+' délégué(s) syndical(aux) par section syndicale, en application de R. 2143-2 (LEGIARTI000018535800).')))+'</p>';
+  b+='<h2>6. Les textes</h2>';
+  Object.keys(SREP_ART).forEach(function(k){
+    b+='<p><b>'+socEsc(SREP_ART[k].n)+'</b> ('+socEsc(SREP_ART[k].id)+') — '+socEsc(SREP_ART[k].t)+'</p>';
+  });
+  b+='<h2>7. Ce qui n’a pas été confirmé</h2><ul>'
+    +SREP_NON_CONFIRME.map(function(x){ return '<li><b>'+socEsc(x.n)+'</b> — '+socEsc(x.pourquoi)+'</li>'; }).join('')
+    +'<li>Ni la représentativité de branche, ni la représentativité au niveau national et interprofessionnel ne sont traitées ici.</li></ul>';
+  srepOuvrir('Représentativité syndicale', b);
+}
+function srepOuvrir(titre, corps){
+  var page='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1"><title>'+socEsc(titre)+'</title>'
+    +'<style>@page{size:A4;margin:1.5cm}'
+    +'body{font-family:\'Times New Roman\',Georgia,serif;font-size:11pt;line-height:1.5;padding:20px;max-width:820px;margin:0 auto;background:#fff;color:#000}'
+    +'h1{font-size:16pt}h2{font-size:13pt;margin:14pt 0 8pt;border-bottom:1px solid #000}h3{font-size:12pt;margin:10pt 0 5pt}'
+    +'table{border-collapse:collapse;width:100%;margin:8pt 0}th,td{border:1px solid #000;padding:5pt;font-size:9.5pt;vertical-align:top}'
+    +'th{font-weight:bold;text-align:center}ul{margin-left:18pt}li{margin-bottom:4pt}'
+    +'.no-print{background:#1a2f44;color:#fff;padding:12px;display:flex;gap:10px;justify-content:center;margin:-20px -20px 20px}'
+    +'.no-print button{background:#c9a84c;color:#000;border:none;padding:11px 16px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer}'
+    +'@media print{.no-print{display:none!important}body{padding:0;max-width:none}}</style></head><body>'
+    +'<div class="no-print"><button onclick="window.print()">🖨 Imprimer / Enregistrer en PDF</button></div>'
+    +corps
+    +'<p style="margin-top:26px;text-align:center;font-style:italic;font-size:9pt">Document généré par Juris Expert MCH · '+new Date().toLocaleDateString('fr-FR')+'</p>'
+    +'</body></html>';
+  var w=window.open('','_blank');
+  if(w){ w.document.open(); w.document.write(page); w.document.close(); }
+  else { alert('Impression bloquée par votre navigateur : autorisez les fenêtres surgissantes pour ce site, puis recommencez.'); }
+}
+/* L'export : les donnees telles qu'elles ont ete lues et calculees. */
+function srepExport(format){
+  var R=srepCalc();
+  var nom, contenu, type;
+  if(format==='csv'){
+    var L=[];
+    L.push(['Type','Nom','Syndicat','Liste','Collège','Voix','Candidats présentés','Score (moyenne)','Suffrages exprimés du collège','Pourcentage','Seuil 10 %'].join(';'));
+    R.syndicats.forEach(function(S){
+      S.lignes.forEach(function(l){
+        if(!l.present) return;
+        l.listes.forEach(function(o){
+          L.push(['liste', o.nom, S.nom, o.nom, l.college.lib, o.voix, o.cand,
+                  (o.moyenne===null?'':jxNb(o.moyenne)), (l.college.exprimes===null?'':l.college.exprimes),
+                  (l.pct===null?'':srepPct(l.college.exprimes?o.moyenne/l.college.exprimes*100:null)), ''].join(';'));
+        });
+      });
+      L.push(['audience', S.nom, S.nom, '', 'TOUS COLLÈGES', '', '', (S.sommeConnue?jxNb(S.somme):''),
+              (R.totalConnu?R.totalSVE:''), srepPct(S.audience),
+              (S.representatif===null?'indéterminé':(S.representatif?'OUI':'non'))].join(';'));
+    });
+    R.candidats.forEach(function(c){
+      L.push(['candidat', c.nom, c.syndicat, c.liste, c.college, (c.voix===null?'':c.voix), '', '',
+              (c.exprimes===null?'':c.exprimes), srepPct(c.pct),
+              (c.seuil===null?'indéterminé':(c.seuil?'OUI':'non'))].join(';'));
+    });
+    contenu='\ufeff'+L.join('\n'); type='text/csv;charset=utf-8'; nom='representativite-syndicale.csv';
+  } else {
+    contenu=JSON.stringify({
+      genere:new Date().toISOString(),
+      avertissement:'Cet outil calcule et cite les textes. Il ne tranche pas un litige.',
+      textes:SREP_ART, nonConfirme:SREP_NON_CONFIRME, lu:SREP_LU,
+      effectif:R.eff, colleges:R.colleges, totalSuffragesExprimes:(R.totalConnu?R.totalSVE:null),
+      syndicats:R.syndicats.map(function(S){
+        return {nom:S.nom, sommeDesScores:(S.sommeConnue?S.somme:null), audience:S.audience,
+                representatif:S.representatif,
+                colleges:S.lignes.filter(function(l){return l.present;}).map(function(l){
+                  return {college:l.college.lib, suffragesExprimes:l.college.exprimes,
+                          score:l.moyenne, pourcentage:l.pct,
+                          listes:l.listes.map(function(o){ return {nom:o.nom, voix:o.voix, candidatsPresentes:o.cand, moyenne:o.moyenne}; })};
+                })};
+      }),
+      candidats:R.candidats,
+      conclusions:srepConclusions(R)
+    }, null, 1);
+    type='application/json;charset=utf-8'; nom='representativite-syndicale.json';
+  }
+  try{
+    var bl=new Blob([contenu],{type:type});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(bl); a.download=nom;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{ URL.revokeObjectURL(a.href); a.remove(); }catch(e){} },400);
+  }catch(e){ alert('Export impossible : '+e.message); }
+}
+
 // ===== Fonctionnement du CSE : calculateurs =====
 function cseFoncReunions(){
   var eff=parseInt((document.getElementById('csf-eff')||{}).value,10)||0;
