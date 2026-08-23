@@ -138,6 +138,31 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(/comité de groupe/i.test(t) && /européen/i.test(t),
      'et il rappelle que le seuil s’apprecie aussi au niveau du groupe');
 
+  console.log('\n— Les quatre motifs de L.1233-3 —');
+  const m = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    ausDoc('motifeco');
+    const d = window._docCurrent || {};
+    return { t: d.titre || '', h: d.html || '' };
+  });
+  ok(/quatre motifs/.test(m.t), 'le modele s\'ouvre', m.t);
+  ok(!/\bTB\b/.test(m.h) && !/undefined/.test(m.h), 'et ne laisse rien fuir');
+  ['Difficultés économiques', 'Mutations technologiques', 'Réorganisation', 'Cessation d’activité']
+    .forEach(x => ok(m.h.indexOf(x) >= 0, 'le motif « ' + x + ' » y figure'));
+  ['20-19.661', '22-18.852', '17-17.929', '18-23.029', '22-13.485', '23-15.503', '15-11.046']
+    .forEach(n => ok(m.h.indexOf(n) >= 0, 'l\'arret n° ' + n + ' est cite'));
+  ok(/MOTIF ADMIS/.test(m.h) && /MOTIF ÉCARTÉ/.test(m.h),
+     'chaque decision dit le sort du MOTIF, non celui de l\'arret');
+  ok(/sort du MOTIF ÉCONOMIQUE dans l’affaire, non le sort de l’arrêt/.test(m.h),
+     'et l\'ambiguite est levee en toutes lettres');
+  ok(/Un trimestre/.test(m.h) && /Quatre trimestres consécutifs/.test(m.h),
+     'les quatre durees de baisse par effectif y sont');
+  ok(/Aucun arrêt récent publié isolant ce seul motif n’a été trouvé/.test(m.h),
+     'ce qui n\'a pas ete trouve est dit, pas comble');
+  ok(/ne traite ni de l’obligation de reclassement/.test(m.h),
+     'et le document dit ce qu\'il ne traite pas');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   console.log('\n— Aucune exception JavaScript —');
   ok(err.length === 0, 'aucune exception sur le parcours', err.join(' | '));
 

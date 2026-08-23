@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-22.213';
+var JX_BUILD = 'v2026-08-23.214';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,16 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.214', d:'23 août 2026', t:[
+   'LES QUATRE MOTIFS DU LICENCIEMENT ÉCONOMIQUE, en Word : le texte de L.1233-3 mot pour mot, puis douze décisions de la Cour de cassation relevées dans la base JUDILIBRE — numéro, date, solution et sommaire en viennent, pas de la mémoire.',
+   'Motif par motif, ce qui passe et ce qui ne passe pas. Difficultés économiques : une dégradation de l\u2019excédent brut d\u2019exploitation suffit si elle est SÉRIEUSE ET DURABLE (Soc. 1er févr. 2023, n° 20-19.661) ; des pertes sur trois exercices avec un chiffre d\u2019affaires en hausse ne suffisent pas sans recherche du caractère significatif (Soc. 18 oct. 2023, n° 22-18.852).',
+   'Compétitivité : le mot ne se pose pas dans une lettre, il se démontre (Soc. 5 oct. 1999, n° 98-41.384 ; Soc. 28 mai 2019, n° 17-17.929). Mais un choix de gestion malheureux n\u2019est pas une faute (Soc. 4 nov. 2020, n° 18-23.029). Cessation d\u2019activité : elle vaut en soi, et la poursuite d\u2019une activité de même nature par une autre société du groupe n\u2019y fait pas obstacle (Soc. 20 sept. 2023, n° 22-13.485).',
+   'Les mentions « motif admis » et « motif écarté » disent le sort du MOTIF dans l\u2019affaire, non le sort de l\u2019arrêt : une cassation peut rétablir le motif, un rejet peut l\u2019enterrer. Le document dit aussi ce qu\u2019il ne traite pas — reclassement, ordre des licenciements, procédure, PSE — et que les mutations technologiques n\u2019ont pas livré d\u2019arrêt récent isolant ce seul motif.',
+   'DEUX « À VÉRIFIER » LEVÉS À LA SOURCE. Le dépôt des accords : plateforme de téléprocédure (D.2231-4), dépôt par le représentant légal ET remise d\u2019un exemplaire au greffe du conseil de prud\u2019hommes DU LIEU DE CONCLUSION (D.2231-2, II et III), pièces de D.2231-7, publication sans les noms des négociateurs (L.2231-5-1). La complémentaire santé : L.911-7, L.911-7-1, D.911-2 à D.911-4, R.242-1-6 — et les sept cas de dispense, énumérés.',
+   'DEUX OBLIGATIONS DE PLUS, 147 en tout. La déclaration de l\u2019accident du travail à la CPAM ou à la MSA dans les QUARANTE-HUIT HEURES, dimanches et jours fériés non compris. La recherche d\u2019amiante AVANT toute opération pouvant exposer des travailleurs, qui pèse sur le donneur d\u2019ordre et pas seulement sur l\u2019entreprise qui intervient (L.4412-2, R.4412-97).',
+   'Précision qui manquait : la périodicité des vérifications d\u2019équipements N\u2019EST PAS DANS LE CODE. Ce sont des arrêtés du ministre chargé du travail qui la fixent, avec la nature et le contenu des vérifications (R.4323-23).',
+   'Deux points annoncés ne sont PAS entrés : le registre des accidents bénins et le dossier technique amiante. Ils relèvent du code de la sécurité sociale et du code de la santé publique, que cet environnement ne permet pas de lire. Ils ne seront pas écrits de mémoire.'
+ ]},
  {v:'v2026-08-22.213', d:'22 août 2026', t:[
    'LA VÉRIFICATION DE CE QUE VOUS DITES AVOIR FAIT. Cocher une étape n\u2019est pas l\u2019avoir faite dans les règles : chaque étape cochée ouvre désormais sa grille de contrôle.',
    'Cent trente-sept questions, sur les soixante-deux étapes des sept parcours. Aucune ne demande « est-ce conforme ? » : elles demandent la pièce, sa date, son destinataire — l\u2019accusé de réception de l\u2019URSSAF, la preuve de remise du document d\u2019information, la signature du secrétaire sur l\u2019ordre du jour, le récépissé de dépôt.',
@@ -6094,6 +6104,7 @@ Exemple :<br>
 
 <div class="card">
   <div class="ct">⚖️ Procédure guidée — du diagnostic au contentieux</div>
+  <div style="margin:8px 0"><button class="btn-outline" style="width:100%" onclick="ausDoc('motifeco')">📄 Les quatre motifs de L.1233-3 — texte, décisions validantes et censures</button></div>
   <div class="al warn" style="margin-bottom:0">Synthèse documentaire — ne constitue pas un conseil juridique. Références à vérifier sur <a href="https://www.legifrance.gouv.fr" target="_blank" rel="noopener" style="color:#e8c97a">Légifrance</a>. Base de connaissances arrêtée à janvier 2026. Le volet conventionnel et la jurisprudence s'adaptent au <b>secteur sélectionné</b> ci-dessous.</div>
 </div>
 
@@ -29446,7 +29457,7 @@ var AUS_OBLIG=[
   sanc:'contravention ; responsabilité pénale en cas de sinistre',
   act:'Au moins un extincteur à eau pulvérisée de 6 litres par 200 m² et un appareil par niveau ; dégagements toujours libres',
   verif:['Le calcul surface ÷ 200 m² est fait et couvert','Un appareil au moins par niveau','La vignette de vérification annuelle est à jour','Aucune issue de secours n’est encombrée ou condamnée']},
- {id:'verifs', lib:'Vérifications périodiques des équipements et installations — registre de sécurité', s:0, src:'R.4323-23 · R.4323-24 · R.4323-25 · R.4226-16 · R.4224-17', r:1,
+ {id:'verifs', lib:'Vérifications périodiques des équipements et installations — registre de sécurité', s:0, src:'R.4323-23 — LA PÉRIODICITÉ N’EST PAS DANS LE CODE : des arrêtés du ministre chargé du travail déterminent les équipements concernés et précisent la périodicité, la nature et le contenu des vérifications · R.4323-24 : par des personnes qualifiées dont la liste est tenue à la disposition de l’inspection du travail · R.4323-25 : résultats consignés au registre de sécurité (L.4711-5) · R.4226-14 et R.4226-16 pour les installations électriques', r:1,
   sanc:'amende ; faute inexcusable si l’équipement défaillant cause l’accident',
   act:'Faire vérifier périodiquement équipements, installations électriques et dispositifs de sécurité, et consigner au registre de sécurité',
   verif:['Le registre de sécurité existe et porte les derniers rapports','La LISTE des personnes qualifiées est tenue à disposition de l’inspection — obligation distincte, souvent absente','Les réserves du dernier rapport ont été levées, preuve à l’appui','Le dossier d’entretien des installations de R.4224-17 existe']},
@@ -29462,6 +29473,14 @@ var AUS_OBLIG=[
   sanc:'contravention de 5e classe (R.4741-2)',
   act:'Informer l’agent de contrôle par un moyen conférant date certaine, dans les douze heures, avec les cinq mentions exigées',
   doc:'atmortel', verif:['La procédure interne prévoit ce délai de douze heures','Un modèle de courrier avec les cinq mentions existe','L’envoi se fait par un moyen conférant date certaine']},
+ {id:'atcpam', lib:'Déclaration de l’accident du travail à la caisse sous QUARANTE-HUIT HEURES', s:0, src:'code de la sécurité sociale, L.441-1 et L.441-6 — hors code du travail. Délai et destinataire tels que les donne la fiche officielle Service-Public « Accident du travail : démarches à effectuer », mise à jour le 29 janvier 2025 ; le texte lui-même n’a pas pu être relu, Légifrance n’étant pas joignable', r:1,
+  sanc:'sanctions prévues par le code de la sécurité sociale, et prise en charge retardée du salarié ; la caisse peut réclamer à l’employeur le remboursement des prestations',
+  act:'Déclarer à la CPAM — ou à la MSA — dans les quarante-huit heures, DIMANCHES ET JOURS FÉRIÉS NON COMPRIS, et remettre au salarié la feuille d’accident qui lui évite d’avancer les frais',
+  verif:['La déclaration a été faite dans les 48 heures, dimanches et jours fériés non compris','La feuille d’accident a été remise au salarié','Une copie de la déclaration est conservée au dossier','Les remarques argumentées sur le caractère professionnel, si vous en avez, ont été jointes']},
+ {id:'amianterep', lib:'Recherche d’amiante AVANT toute opération pouvant exposer des travailleurs', s:0, src:'L.4412-2 · R.4412-97 — le donneur d’ordre, le maître d’ouvrage ou le propriétaire qui décide d’une opération comportant des risques d’exposition fait réaliser la recherche', r:1,
+  sanc:'arrêt de chantier, contravention, et faute inexcusable en cas d’exposition ; la responsabilité pèse sur le DONNEUR D’ORDRE, pas seulement sur l’entreprise intervenante',
+  act:'Avant tout travaux sur un immeuble, un équipement, un matériel ou un article susceptible de contenir de l’amiante : faire réaliser la recherche et remettre son résultat aux entreprises appelées à intervenir',
+  verif:['Le rapport de recherche d’amiante existe et est daté','Il a été remis aux entreprises intervenantes avant le début des travaux','Le niveau d’empoussièrement attendu a été estimé et classé (R.4412-98)']},
  {id:'atcourt', lib:'Information du médecin du travail de tout arrêt d’accident du travail de moins de 30 jours', s:0, src:'R.4624-33', r:2,
   sanc:'manquement à l’obligation de sécurité ; prive le service de santé de son pouvoir d’appréciation',
   act:'Signaler au service de prévention et de santé au travail chaque accident du travail avec arrêt court',
@@ -31011,6 +31030,128 @@ function ausDoc(type){
      +'Emploi : embauche le <b>lundi 2 mars 2026 à 5 h 00</b>, contrat à durée indéterminée, essai d’un mois.<br>'
      +'<b>Déclaration adressée le mardi 24 février 2026 à 16 h 12</b> — soit six jours avant l’embauche, dans la fenêtre des huit jours de R.1221-4. Accusé de réception URSSAF n° 2026-000000 reçu le 24/02/2026 à 16 h 14, imprimé et classé au dossier individuel.</p>'
      +'<p><b>L’erreur évitée.</b> La première tentative avait été faite le 20 février, soit dix jours avant l’embauche : hors de la fenêtre des huit jours, elle a été rejetée. Une déclaration trop tôt n’est pas valable ; une déclaration trop tard est un délit.</p>';
+  } else if(type==='motifeco'){
+    T='Les quatre motifs du licenciement économique — texte et décisions';
+    H=ausTete()
+     +'<p><b>LES QUATRE MOTIFS DE L’ARTICLE L.1233-3 DU CODE DU TRAVAIL</b><br>'
+     +'Ce qui est écrit dans la loi, puis ce que la Cour de cassation a validé et ce qu’elle a censuré, motif par motif. '
+     +'Les décisions citées ont été relevées dans la base Judilibre de la Cour de cassation : numéro, date, solution et sommaire en viennent. '
+     +'Elles sont toutes PUBLIÉES au Bulletin, sauf mention contraire.</p>'
+
+     +'<p><b>PARTIE 1 — LE TEXTE, MOT POUR MOT</b></p>'
+     +'<p>« Constitue un licenciement pour motif économique le licenciement effectué par un employeur pour un ou plusieurs motifs '
+     +'NON INHÉRENTS À LA PERSONNE DU SALARIÉ résultant d’une suppression ou transformation d’emploi ou d’une modification, '
+     +'REFUSÉE PAR LE SALARIÉ, d’un élément essentiel du contrat de travail, consécutives NOTAMMENT : »</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Motif</th><th>Ce que le texte exige</th></tr>'
+     +'<tr><td><b>1° Difficultés économiques</b></td><td>Caractérisées SOIT par l’évolution significative d’au moins un indicateur '
+     +'— baisse des commandes ou du chiffre d’affaires, pertes d’exploitation, dégradation de la trésorerie ou de l’excédent brut '
+     +'d’exploitation — SOIT par tout autre élément de nature à justifier de ces difficultés.</td></tr>'
+     +'<tr><td><b>2° Mutations technologiques</b></td><td>Le texte ne les définit pas et ne leur attache aucune condition de durée.</td></tr>'
+     +'<tr><td><b>3° Réorganisation</b></td><td>Nécessaire à la SAUVEGARDE DE LA COMPÉTITIVITÉ de l’entreprise.</td></tr>'
+     +'<tr><td><b>4° Cessation d’activité</b></td><td>Cessation d’activité DE L’ENTREPRISE.</td></tr></table>'
+     +'<p><b>La baisse des commandes ou du chiffre d’affaires est présumée significative</b> lorsqu’elle dure, en comparaison avec '
+     +'la même période de l’année précédente, au moins :</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Effectif de l’entreprise</th><th>Durée de la baisse</th></tr>'
+     +'<tr><td>Moins de 11 salariés</td><td>Un trimestre</td></tr>'
+     +'<tr><td>Au moins 11 et moins de 50</td><td>Deux trimestres consécutifs</td></tr>'
+     +'<tr><td>Au moins 50 et moins de 300</td><td>Trois trimestres consécutifs</td></tr>'
+     +'<tr><td>300 et plus</td><td>Quatre trimestres consécutifs</td></tr></table>'
+     +'<p><b>À quel niveau cela s’apprécie.</b> La MATÉRIALITÉ de la suppression, de la transformation ou de la modification '
+     +'s’apprécie AU NIVEAU DE L’ENTREPRISE. Les difficultés, les mutations technologiques et la nécessité de sauvegarder la '
+     +'compétitivité s’apprécient au niveau de l’entreprise si elle n’appartient pas à un groupe, et sinon AU NIVEAU DU SECTEUR '
+     +'D’ACTIVITÉ COMMUN à cette entreprise et aux entreprises du groupe établies SUR LE TERRITOIRE NATIONAL, sauf fraude. '
+     +'Le secteur se caractérise notamment par la nature des produits, biens ou services délivrés, la clientèle ciblée, les réseaux '
+     +'et modes de distribution, se rapportant à un même marché.</p>'
+
+     +'<p><b>PARTIE 2 — MOTIF PAR MOTIF : CE QUI PASSE, CE QUI NE PASSE PAS</b></p>'
+     +'<p style="font-size:10pt">Les mentions « motif admis » et « motif écarté » disent le sort du MOTIF ÉCONOMIQUE dans l’affaire, non le sort de l’arrêt attaqué : une cassation peut rétablir le motif, un rejet peut l’enterrer.</p>'
+
+     +'<p><b>1° Les difficultés économiques.</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Sort du motif</th><th>Décision</th><th>Ce qu’elle retient</th></tr>'
+     +'<tr><td><b>MOTIF ADMIS</b></td><td>Soc. 1<sup>er</sup> février 2023, n° 20-19.661, rejet</td>'
+     +'<td>L’employeur justifiait d’une dégradation de l’excédent brut d’exploitation. La cour d’appel a pu en déduire, '
+     +'AU REGARD DU CARACTÈRE SÉRIEUX ET DURABLE de cette dégradation, que cet indicateur avait subi une évolution significative.</td></tr>'
+     +'<tr><td><b>MOTIF ÉCARTÉ</b></td><td>Soc. 18 octobre 2023, n° 22-18.852, cassation</td>'
+     +'<td>Un tableau montrant des pertes en 2015, 2016 et 2017 — NONOBSTANT UN CHIFFRE D’AFFAIRES EN HAUSSE — ne suffit pas : '
+     +'les juges devaient rechercher si l’évolution de l’indicateur retenu était SIGNIFICATIVE, et ces motifs étaient insuffisants '
+     +'pour caractériser le caractère sérieux et durable des pertes d’exploitation dans le secteur d’activité considéré.</td></tr></table>'
+     +'<p><b>Ce que le rapprochement enseigne.</b> Un indicateur qui se dégrade ne suffit pas : il faut que la dégradation soit '
+     +'SÉRIEUSE ET DURABLE. Et un chiffre d’affaires qui monte pendant que les pertes se creusent appelle une démonstration, '
+     +'pas une affirmation.</p>'
+
+     +'<p><b>2° Les mutations technologiques.</b></p>'
+     +'<p><b>Aucun arrêt récent publié isolant ce seul motif n’a été trouvé</b> dans les recherches faites sur Judilibre. '
+     +'Ce qui est établi, c’est son ARTICULATION avec le 3° : « la réorganisation, si elle n’est pas justifiée par des difficultés '
+     +'économiques ou par des mutations technologiques, doit être indispensable à la sauvegarde de la compétitivité de l’entreprise '
+     +'ou du secteur d’activité du groupe auquel elle appartient » (Soc. 16 décembre 2008, n° 07-41.953, cassation). '
+     +'Autrement dit : invoquer une mutation technologique dispense de démontrer la menace sur la compétitivité — mais encore '
+     +'faut-il l’établir. À COMPLÉTER par une recherche sur ce point.</p>'
+
+     +'<p><b>3° La réorganisation nécessaire à la sauvegarde de la compétitivité.</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Sort du motif</th><th>Décision</th><th>Ce qu’elle retient</th></tr>'
+     +'<tr><td><b>MOTIF ÉCARTÉ</b></td><td>Soc. 5 octobre 1999, n° 98-41.384, rejet</td>'
+     +'<td>La lettre invoquait une réorganisation. Une réorganisation n’est une cause économique QUE SI elle est nécessaire à la '
+     +'sauvegarde de la compétitivité ; aucun élément n’étant produit pour justifier de cette nécessité, le licenciement était '
+     +'dépourvu de cause économique.</td></tr>'
+     +'<tr><td><b>MOTIF ÉCARTÉ</b></td><td>Soc. 17 décembre 2002, n° 00-45.621, rejet</td>'
+     +'<td>La suppression du site où étaient fabriqués les produits d’un secteur d’activité n’était PAS NÉCESSAIRE à la sauvegarde '
+     +'de la compétitivité de ce secteur : par ce seul motif, les licenciements étaient sans cause économique.</td></tr>'
+     +'<tr><td><b>MOTIF ÉCARTÉ</b></td><td>Soc. 28 mai 2019, n° 17-17.929, rejet</td>'
+     +'<td>Refus par le salarié d’une modification du taux de sa rémunération variable, que l’employeur justifiait par '
+     +'l’augmentation de la surface de vente du magasin où il venait d’être affecté — SANS ALLÉGUER NI JUSTIFIER que la '
+     +'réorganisation à l’origine de ce changement résultait de difficultés économiques ou de mutations technologiques, ni qu’elle '
+     +'fût indispensable à la sauvegarde de la compétitivité. Licenciement sans cause réelle et sérieuse.</td></tr>'
+     +'<tr><td><b>LIMITE POSÉE<br>en faveur de l’employeur</b></td><td>Soc. 4 novembre 2020, n° 18-23.029, cassation</td>'
+     +'<td>La faute de l’employeur à l’origine de la menace pesant sur la compétitivité prive de cause réelle et sérieuse les '
+     +'licenciements consécutifs à la réorganisation — MAIS l’erreur éventuellement commise dans l’appréciation du risque inhérent '
+     +'à tout choix de gestion NE CARACTÉRISE PAS À ELLE SEULE une telle faute.</td></tr>'
+     +'<tr><td><b>CADRE</b></td><td>Soc. 17 mars 2021, n° 19-12.025, rejet</td>'
+     +'<td>La règle selon laquelle un licenciement économique peut être privé de cause réelle et sérieuse lorsque l’employeur a '
+     +'commis une faute à l’origine du motif invoqué repose sur des critères suffisamment précis : SEULS CERTAINS COMPORTEMENTS '
+     +'FAUTIFS, ne constituant pas une simple erreur dans l’appréciation du risque inhérent à tout choix de gestion, peuvent y '
+     +'conduire. Elle est conforme à la directive 98/59/CE.</td></tr></table>'
+     +'<p><b>Ce que le rapprochement enseigne.</b> Le mot « compétitivité » ne se pose pas dans une lettre : il se démontre par '
+     +'une menace établie, à laquelle la réorganisation répond. À défaut, le juge n’a même pas à examiner le reste. '
+     +'En sens inverse, un choix de gestion malheureux n’est pas une faute : la frontière est là.</p>'
+
+     +'<p><b>4° La cessation d’activité.</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Sort du motif</th><th>Décision</th><th>Ce qu’elle retient</th></tr>'
+     +'<tr><td><b>MOTIF ADMIS</b></td><td>Soc. 20 septembre 2023, n° 22-13.485, cassation</td>'
+     +'<td>La cessation d’activité COMPLÈTE ET DÉFINITIVE de l’entreprise constitue EN SOI un motif économique. Est censuré l’arrêt '
+     +'qui l’avait écartée : la seule circonstance qu’une AUTRE ENTREPRISE DU GROUPE poursuive une activité de même nature ne fait '
+     +'pas obstacle à ce que la cessation soit tenue pour totale et définitive ; et le maintien d’une activité résiduelle, '
+     +'nécessaire à l’achèvement de l’exploitation de certains produits avant leur cession, ne caractérise pas une poursuite '
+     +'d’activité dès lors que la cessation était IRRÉMÉDIABLEMENT ENGAGÉE lors du licenciement.</td></tr>'
+     +'<tr><td><b>MOTIF ÉCARTÉ</b></td><td>Soc. 1<sup>er</sup> février 2011, n° 10-30.045, rejet</td>'
+     +'<td>En cas de fermeture définitive et totale, le juge ne peut déduire la faute ou la légèreté blâmable de la SEULE absence '
+     +'de difficultés économiques, ni à l’inverse déduire l’absence de faute de l’existence de telles difficultés — mais il PEUT '
+     +'prendre en compte la situation économique de l’entreprise pour apprécier le comportement de l’employeur.</td></tr></table>'
+     +'<p><b>Ce que le rapprochement enseigne.</b> La cessation d’activité se suffit à elle-même : ni difficultés à démontrer, '
+     +'ni menace à établir. Mais elle doit être COMPLÈTE, DÉFINITIVE et non fautive — et c’est par la faute que le contentieux '
+     +'revient.</p>'
+
+     +'<p><b>PARTIE 3 — LE PÉRIMÈTRE, LÀ OÙ SE PERDENT LES DOSSIERS</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Décision</th><th>Ce qu’elle retient</th></tr>'
+     +'<tr><td>Soc. 26 juin 2024, n° 23-15.503, rejet</td>'
+     +'<td>La SPÉCIALISATION d’une entreprise dans le groupe NE SUFFIT PAS à exclure son rattachement à un secteur d’activité plus '
+     +'étendu, au sein duquel doivent être appréciées les difficultés, les mutations technologiques ou la nécessité de sauvegarder '
+     +'la compétitivité. Est approuvé l’arrêt qui, par un FAISCEAU D’INDICES — nature des produits, biens ou services, clientèle '
+     +'ciblée, réseaux et modes de distribution, sans marchés différenciés — a retenu le rattachement au secteur plus étendu.</td></tr>'
+     +'<tr><td>Soc. 3 mai 2016, n° 15-11.046, cassation</td>'
+     +'<td>La lettre de licenciement qui mentionne la suppression de l’emploi consécutive à une réorganisation justifiée par des '
+     +'difficultés et (ou) la nécessité de sauvegarder la compétitivité répond aux exigences légales SANS AVOIR À PRÉCISER LE '
+     +'NIVEAU d’appréciation quand l’entreprise appartient à un groupe. C’est SEULEMENT EN CAS DE LITIGE qu’il appartient à '
+     +'l’employeur de démontrer, DANS LE PÉRIMÈTRE PERTINENT, la réalité et le sérieux du motif invoqué.</td></tr></table>'
+     +'<p><b>À retenir.</b> La lettre n’a pas à nommer le périmètre ; le dossier, si. Et le périmètre pertinent n’est pas celui '
+     +'que l’employeur choisit : c’est celui du secteur d’activité commun au sein du groupe, sur le territoire national.</p>'
+
+     +'<p><b>PARTIE 4 — CE QUE CE DOCUMENT NE DIT PAS</b></p>'
+     +'<p>Il ne traite ni de l’obligation de reclassement, ni des critères d’ordre des licenciements, ni de la procédure '
+     +'(entretien, consultation, notification), ni du plan de sauvegarde de l’emploi — autant de causes de condamnation '
+     +'INDÉPENDANTES du motif. Un motif économique parfaitement établi ne sauve pas un reclassement bâclé.</p>'
+     +'<p>Les décisions citées valent pour la rédaction du texte applicable À LA DATE DES FAITS de chaque espèce. Plusieurs '
+     +'précèdent la loi du 8 août 2016, qui a défini les indicateurs et les durées de baisse, et l’ordonnance du 22 septembre 2017, '
+     +'qui a limité l’appréciation au territoire national. À vérifier au cas par cas avant de s’en prévaloir.</p>';
   } else if(type==='vip'){
     T='Visite d’information et de prévention — demande et suivi';
     H=ausTete()
@@ -31636,7 +31777,7 @@ var PARCOURS={
     note:'La négociation n’est pas close tant que ce procès-verbal n’est pas établi : c’est lui qui la termine, et lui seul. Il n’est pas une formalité — il fixe ce que l’employeur s’engage à appliquer seul.',
     doc:['nego:pv','Procès-verbal de désaccord']},
    {k:'depot', n:'9', ctrl:['L’accord a-t-il été déposé auprès de l’administration et au greffe du conseil de prud’hommes ?','Avez-vous le récépissé de dépôt, daté ?'], lib:'Déposer l’accord et le rendre public',
-    src:'l’accord est déposé auprès de l’administration et au greffe du conseil de prud’hommes ; il est versé dans une base de données nationale, publique — la référence réglementaire exacte du dépôt dématérialisé reste À VÉRIFIER',
+    src:'D.2231-4 — les accords de groupe, d’entreprise, d’établissement et interentreprises sont déposés SUR LA PLATEFORME DE TÉLÉPROCÉDURE du ministère du travail · D.2231-2, II et III — le dépôt est fait par le représentant légal, qui remet EN OUTRE un exemplaire au greffe du conseil de prud’hommes DU LIEU DE CONCLUSION · D.2231-7 — pièces jointes : version signée des parties, copie du courrier ou récépissé de notification à toutes les organisations représentatives, et version publiable · L.2231-5-1 — l’accord est rendu public et versé dans une base de données nationale, dans une version SANS les noms et prénoms des négociateurs et des signataires',
     note:'Les parties peuvent convenir qu’une partie de l’accord ne sera pas publiée. Sans accord sur ce point, il l’est intégralement.',
     doc:['nego:bordereau','Bordereau de dépôt']}
   ]
@@ -31690,8 +31831,8 @@ var PARCOURS={
     note:'Le délai est plus court pour les travailleurs de nuit, les mineurs et les femmes enceintes ; les postes à risques relèvent du suivi individuel renforcé, avec examen AVANT l’affectation. À vérifier au texte selon le poste.',
     doc:['vip','Demande de visite au service de santé']},
    {k:'mutuelle', n:'7', ctrl:['Le salarié a-t-il été affilié au régime collectif ?','À défaut, avez-vous sa dispense ÉCRITE, datée et signée ?'], lib:'Affilier à la complémentaire santé, ou recueillir la dispense',
-    src:'l’obligation de couverture collective figure à l’article L.911-7 du code de la sécurité sociale — hors code du travail, à vérifier à sa source',
-    note:'Les cas de dispense sont limités et doivent être écrits, datés et signés du salarié. Une affiliation manquante sans dispense écrite se paie au moment du sinistre.',
+    src:'l’obligation de couverture collective relève du CODE DE LA SÉCURITÉ SOCIALE, hors code du travail : L.911-7 pour la couverture, L.911-7-1 pour le versement santé, D.911-2 à D.911-4 et R.242-1-6 pour les cas de dispense. Ces articles sont ceux que cite la fiche officielle Service-Public « Peut-on refuser la mutuelle ou la prévoyance de son entreprise ? », vérifiée le 16 mai 2024 ; leur texte n’a pas pu être relu ligne à ligne, Légifrance n’étant pas joignable — À CONFIRMER au texte avant de s’en prévaloir en contentieux',
+    note:'Les cas de dispense sont limités, et la demande doit être ÉCRITE. Sept situations sont listées par la source officielle : déjà couvert comme ayant droit par un régime collectif obligatoire ; déjà couvert à titre individuel, jusqu’à l’échéance du contrat ; présent dans l’entreprise lors d’une mise en place par DÉCISION UNILATÉRALE avec participation du salarié ; bénéficiaire de la complémentaire santé solidaire ; contrat de trois mois ou moins, ou quinze heures hebdomadaires ou moins, avec versement santé en contrepartie ; CDD de moins de douze mois, si l’acte fondateur le prévoit — l’employeur est alors TENU d’accepter ; CDD d’au moins douze mois, sur justification d’une couverture souscrite ailleurs. Une affiliation manquante sans dispense écrite se paie au moment du sinistre.',
     doc:['mutuelle','Bulletin d’affiliation ou de dispense']},
    {k:'affich', n:'8', ctrl:['La convention collective applicable lui a-t-elle été indiquée, et son texte est-il accessible (R.2262-1, R.2262-3) ?','Le règlement intérieur, s’il en existe un, a-t-il été porté à sa connaissance ?','L’accueil sécurité au poste a-t-il été assuré, et en gardez-vous une trace datée (L.4141-2) ?'], lib:'Remettre ou porter à connaissance ce qui est dû à l’entrée',
     src:'convention collective (R.2262-1 et R.2262-3) · règlement intérieur s’il existe (R.1321-1) · consignes de sécurité et accueil au poste (L.4141-2) · textes pénaux sur la discrimination (L.1142-6) et l’égalité de rémunération (R.3221-2)',
@@ -31880,7 +32021,7 @@ function parcDoc(type){
     if(type.indexOf('nego:')===0){ negoDoc(type.slice(5)); return; }
     if(type.indexOf('cseinst:')===0){ cseinstDoc(type.slice(8)); return; }
     if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
-    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu'].indexOf(type)>=0){ ausDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco'].indexOf(type)>=0){ ausDoc(type); return; }
 
     ausDoc(type);
   }catch(e){ alert('Modèle indisponible : '+e.message); }
