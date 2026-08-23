@@ -479,6 +479,47 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(certif, 'le certificat montre la formule interdite et la date de fin de preavis');
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— Le parcours du temps de travail —');
+  const tt = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('tempstravail'); parcOuvrir('tempstravail');
+    parcDate('tempstravail', 'debut', '2026-01-01');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/9 à votre situation/.test(tt), 'neuf etapes au temps de travail',
+     (tt.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/DATÉ ET SIGNÉ/.test(tt), 'l\'horaire collectif est date et signe (D.3171-2)');
+  ok(/QUOTIDIENNEMENT/.test(tt) && /CHAQUE SEMAINE/.test(tt),
+     'le decompte individuel est double : quotidien et hebdomadaire (D.3171-8)');
+  ok(/DOUZE SEMAINES CONSÉCUTIVES/.test(tt), 'la moyenne de 44 h sur douze semaines y est (L.3121-22)');
+  ok(/période QUELCONQUE/.test(tt), 'et le mot « quelconque » du texte est rendu');
+  ok(/AUXQUELLES S’AJOUTENT/.test(tt), 'le repos hebdomadaire s\'additionne au repos quotidien (L.3132-2)');
+  ok(/DEUX CENT VINGT HEURES/.test(tt), 'le contingent suppletif de 220 heures (D.3121-24)');
+  ok(/SEPT HEURES/.test(tt) && /DEUX MOIS/.test(tt),
+     'la contrepartie s\'ouvre a sept heures et se prend en deux mois (D.3171-11)');
+  ok(/Échéance : 1er janvier 2027/.test(tt), 'la periode de reference court sur douze mois',
+     (tt.match(/Échéance[^\n]*/g) || []).join(' | '));
+
+  const moyenne = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+    window._docCurrent = null; parcDoc('plafondstt');
+    const h = window._docCurrent.html;
+    return { m1: /37 h 96/.test(h), m2: /45 h 71/.test(h),
+             depasse: /PLAFOND DÉPASSÉ/.test(h),
+             sansSemaine: /AUCUNE semaine prise isolément/.test(h) };
+  });
+  ok(moyenne.m1 && moyenne.m2, 'les deux moyennes glissantes sont chiffrees', JSON.stringify(moyenne));
+  ok(moyenne.depasse && moyenne.sansSemaine,
+     'et l\'exemple montre un depassement qu\'aucune semaine ne revele');
+  const dec = await page.evaluate(() => {
+    window._docCurrent = null; parcDoc('decomptett');
+    const h = window._docCurrent.html;
+    return /44 h 30/.test(h) && /9 h 30/.test(h) && /12 h 15/.test(h);
+  });
+  ok(dec, 'le decompte hebdomadaire verifie les cinq plafonds sur des chiffres');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   console.log('\n— La verification de ce qui est declare fait —');
   const grilles = await page.evaluate(() => {
     let n = 0; const sans = [];

@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.215';
+var JX_BUILD = 'v2026-08-23.216';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,15 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.216', d:'23 août 2026', t:[
+   'NEUVIÈME PARCOURS — ORGANISER ET DÉCOMPTER LE TEMPS DE TRAVAIL, neuf étapes. Neuf parcours, 80 étapes, 192 questions de contrôle, 58 obligations reliées à leur pas à pas.',
+   'L\u2019horaire collectif tient à quatre mots du texte : DATÉ, SIGNÉ, LISIBLE, APPARENT — et affiché dans CHACUN des lieux de travail (D.3171-2). Ceux qui ne le suivent pas relèvent du décompte individuel, qui est DOUBLE : quotidien ET récapitulatif hebdomadaire (D.3171-8).',
+   'LE PIÈGE DE LA MOYENNE GLISSANTE, montré sur douze semaines chiffrées. L.3121-22 parle d\u2019une période « QUELCONQUE » de douze semaines : pas le trimestre, n\u2019importe lesquelles. L\u2019exemple donne une fenêtre à 37 h 96 — conforme — puis la suivante à 45 h 71 — DÉPASSÉE — alors qu\u2019aucune semaine n\u2019atteint 48 heures. Le dépassement vient de la sortie des congés de la fenêtre.',
+   'Le repos hebdomadaire n\u2019est pas de vingt-quatre heures : c\u2019est vingt-quatre heures AUXQUELLES S\u2019AJOUTENT les onze du repos quotidien (L.3132-2), soit trente-cinq consécutives. Finir samedi 18 h et reprendre lundi 4 h, c\u2019est une heure de trop.',
+   'Le contingent de 220 heures est SUPPLÉTIF : il ne vaut qu\u2019à défaut d\u2019accord (D.3121-24). La contrepartie en repos est de 50 % jusqu\u2019à vingt salariés, 100 % au-delà (L.3121-38) — et le crédit s\u2019informe par un document ANNEXÉ AU BULLETIN, qui notifie l\u2019ouverture du droit dès SEPT HEURES et le délai de DEUX MOIS pour le prendre (D.3171-11).',
+   'Trois modèles neufs : horaire collectif daté et signé, décompte quotidien et récapitulatif hebdomadaire avec les cinq vérifications faites sur les chiffres, grille des plafonds avec la démonstration de la moyenne glissante.',
+   'Quinze obligations de l\u2019audit trouvent leur parcours. Le contrat à temps partiel quitte le parcours d\u2019embauche pour l\u2019étape qui lui est propre : ses cinq mentions relèvent du temps de travail, pas de la formalité d\u2019entrée.'
+ ]},
  {v:'v2026-08-23.215', d:'23 août 2026', t:[
    'HUITIÈME PARCOURS — LICENCIER POUR MOTIF PERSONNEL, neuf étapes du dossier aux documents de sortie. Huit parcours, 71 étapes, 162 questions de contrôle.',
    'Les deux délais qui perdent les dossiers sont calculés depuis vos dates : cinq jours ouvrables entre la PRÉSENTATION de la convocation et l\u2019entretien (L.1232-2), deux jours ouvrables entre l\u2019entretien et l\u2019expédition de la lettre (L.1232-6). Le SAMEDI est ouvrable, le dimanche ne l\u2019est pas.',
@@ -31378,6 +31387,113 @@ function ausDoc(type){
      +'<p><b>L’erreur évitée.</b> Une première version portait « solde de tout compte : 8 400,13 € » sans détail. '
      +'Un montant global n’est pas un inventaire : l’effet libératoire n’aurait couvert aucun poste, et l’indemnité de '
      +'non-concurrence aurait pu être réclamée une seconde fois.</p>';
+  } else if(type==='horairecoll'){
+    T='Horaire collectif de travail — affichage daté et signé';
+    H=ausTete()
+     +'<p><b>HORAIRE COLLECTIF DE TRAVAIL</b> (article D.3171-2 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES QUATRE EXIGENCES DU TEXTE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Exigence</th><th>Ce qu’elle veut dire</th><th>[ ]</th></tr>'
+     +'<tr><td><b>DATÉ</b></td><td>L’horaire porte la date à laquelle il a été établi. Sans date, impossible de savoir quel horaire s’appliquait à la période litigieuse</td><td>[ ]</td></tr>'
+     +'<tr><td><b>SIGNÉ</b></td><td>Par l’employeur, ou par la personne à laquelle il a délégué ses pouvoirs À CET EFFET — la délégation doit exister</td><td>[ ]</td></tr>'
+     +'<tr><td><b>LISIBLE</b></td><td>« En caractères lisibles » : un tableau photocopié quatre fois ne l’est plus</td><td>[ ]</td></tr>'
+     +'<tr><td><b>APPARENT</b></td><td>« Apposé de façon apparente dans CHACUN des lieux de travail auxquels il s’applique » — un seul affichage au siège ne couvre pas trois agences</td><td>[ ]</td></tr>'
+     +'<tr><td>Salariés employés à l’extérieur</td><td>L’horaire est affiché dans L’ÉTABLISSEMENT AUQUEL ILS SONT ATTACHÉS</td><td>[ ]</td></tr></table>'
+     +'<p><b>Ce que l’horaire doit faire apparaître.</b> Les heures auxquelles commence et finit chaque période de travail, jour par jour. '
+     +'Un horaire qui se contente d’une durée hebdomadaire — « 35 heures » — n’est pas un horaire : c’est une durée.</p>'
+     +'<p><b>Qui n’est pas couvert par l’affichage.</b> Tout salarié qui ne suit pas cet horaire relève du décompte individuel de '
+     +'D.3171-8 : équipes décalées, horaires individualisés, itinérants, forfaits en heures. L’affichage ne les dispense de rien.</p>'
+     +'<p><b>Le double envoi.</b> Une copie de l’horaire et de ses rectifications doit être adressée à l’agent de contrôle de '
+     +'l’inspection du travail — À VÉRIFIER à D.3171-4 pour votre situation avant de vous en dispenser.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p style="border:1px solid #000;padding:10px">SARL EXEMPLE — 12 rue des Peupliers, 95100 Argenteuil<br>'
+     +'<b>HORAIRE COLLECTIF DE TRAVAIL — Service exploitation, site d’Argenteuil</b><br>'
+     +'Applicable à compter du <b>lundi 5 janvier 2026</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Jour</th><th>Matin</th><th>Pause</th><th>Après-midi</th><th>Total</th></tr>'
+     +'<tr><td>Lundi</td><td>8 h 00 – 12 h 00</td><td>12 h 00 – 13 h 00</td><td>13 h 00 – 16 h 00</td><td>7 h 00</td></tr>'
+     +'<tr><td>Mardi</td><td>8 h 00 – 12 h 00</td><td>12 h 00 – 13 h 00</td><td>13 h 00 – 16 h 00</td><td>7 h 00</td></tr>'
+     +'<tr><td>Mercredi</td><td>8 h 00 – 12 h 00</td><td>12 h 00 – 13 h 00</td><td>13 h 00 – 16 h 00</td><td>7 h 00</td></tr>'
+     +'<tr><td>Jeudi</td><td>8 h 00 – 12 h 00</td><td>12 h 00 – 13 h 00</td><td>13 h 00 – 16 h 00</td><td>7 h 00</td></tr>'
+     +'<tr><td>Vendredi</td><td>8 h 00 – 12 h 00</td><td>12 h 00 – 13 h 00</td><td>13 h 00 – 16 h 00</td><td>7 h 00</td></tr>'
+     +'<tr><td><b>Semaine</b></td><td></td><td></td><td></td><td><b>35 h 00</b></td></tr></table>'
+     +'<p style="border:1px solid #000;padding:10px">Établi à Argenteuil le <b>18 décembre 2025</b>.<br>'
+     +'[NOM], gérant — <i>signature</i><br><br>'
+     +'Affiché le 18 décembre 2025 dans les lieux suivants : atelier (panneau d’entrée), bureaux du premier étage (couloir), '
+     +'et vestiaire des conducteurs. Copie adressée à l’inspection du travail le 18 décembre 2025.</p>'
+     +'<p><b>Ce que l’exemple montre.</b> La pause de 12 h à 13 h est HORS temps de travail effectif : les sept heures ne la '
+     +'comptent pas. Et l’horaire donne les heures de début et de fin, pas seulement un total.</p>'
+     +'<p><b>Qui n’est PAS couvert ici.</b> Les 41 conducteurs de la SARL EXEMPLE ne suivent pas cet horaire : leur temps est '
+     +'décompté individuellement par le chronotachygraphe. L’affichage ci-dessus ne vaut que pour les 31 salariés sédentaires.</p>';
+  } else if(type==='decomptett'){
+    T='Décompte quotidien et récapitulatif hebdomadaire';
+    H=ausTete()
+     +'<p><b>DÉCOMPTE DU TEMPS DE TRAVAIL</b> (article D.3171-8 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — DEUX DÉCOMPTES, PAS UN</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Décompte</th><th>Périodicité</th><th>Contenu exigé</th></tr>'
+     +'<tr><td>Premier</td><td><b>QUOTIDIEN</b></td><td>Enregistrement, SELON TOUS MOYENS, des heures de DÉBUT et de FIN de chaque période de travail — ou, à défaut, relevé du NOMBRE d’heures accomplies</td></tr>'
+     +'<tr><td>Second</td><td><b>CHAQUE SEMAINE</b></td><td>Récapitulation du nombre d’heures accomplies</td></tr></table>'
+     +'<p><b>Qui est concerné.</b> Tout salarié d’un atelier, d’un service ou d’une équipe dont les membres ne travaillent pas '
+     +'selon le même horaire collectif affiché. En pratique : dès qu’un seul salarié s’écarte de l’horaire, le décompte '
+     +'individuel s’impose pour lui.</p>'
+     +'<p><b>« Selon tous moyens ».</b> Badgeuse, feuille papier signée, application, relevé d’activité, chronotachygraphe : '
+     +'le texte laisse le choix de l’outil. Il ne laisse pas le choix de n’en avoir aucun.</p>'
+     +'<p><b>Ce que l’absence de décompte coûte.</b> Devant le juge, la charge de la preuve des heures est PARTAGÉE : le salarié '
+     +'présente des éléments suffisamment précis, l’employeur y répond en produisant SES éléments. Un employeur sans décompte '
+     +'n’a rien à opposer.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>Salarié : MARTIN Julien, conducteur. <b>Semaine 38 — du lundi 14 au dimanche 20 septembre 2026.</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Jour</th><th>Début</th><th>Fin</th><th>Coupure</th><th>Travail effectif</th></tr>'
+     +'<tr><td>Lundi 14</td><td>5 h 00</td><td>14 h 30</td><td>0 h 45</td><td>8 h 45</td></tr>'
+     +'<tr><td>Mardi 15</td><td>5 h 00</td><td>15 h 15</td><td>0 h 45</td><td>9 h 30</td></tr>'
+     +'<tr><td>Mercredi 16</td><td>5 h 00</td><td>13 h 45</td><td>0 h 45</td><td>8 h 00</td></tr>'
+     +'<tr><td>Jeudi 17</td><td>6 h 00</td><td>16 h 45</td><td>0 h 45</td><td>10 h 00</td></tr>'
+     +'<tr><td>Vendredi 18</td><td>5 h 00</td><td>14 h 00</td><td>0 h 45</td><td>8 h 15</td></tr>'
+     +'<tr><td>Samedi 19</td><td>—</td><td>—</td><td>—</td><td>repos</td></tr>'
+     +'<tr><td>Dimanche 20</td><td>—</td><td>—</td><td>—</td><td>repos</td></tr>'
+     +'<tr><td colspan="4"><b>RÉCAPITULATIF HEBDOMADAIRE</b></td><td><b>44 h 30</b></td></tr></table>'
+     +'<p><b>Les vérifications que ce tableau permet, et qu’il faut faire.</b></p>'
+     +'<p>· <b>Dix heures par jour</b> (L.3121-18) : le jeudi 17 atteint exactement 10 h 00. Le plafond est tenu, mais il n’y a '
+     +'plus de marge — une minute de plus le dépasse.<br>'
+     +'· <b>Quarante-huit heures dans la semaine</b> (L.3121-20) : 44 h 30, plafond tenu.<br>'
+     +'· <b>Onze heures de repos quotidien</b> (L.3131-1) : le jeudi finit à 16 h 45, le vendredi commence à 5 h 00 — soit '
+     +'<b>12 h 15</b> de repos. Tenu. Mais le mardi finit à 15 h 15 et le mercredi commence à 5 h 00, soit 13 h 45 : tenu aussi.<br>'
+     +'· <b>Vingt minutes de pause dès six heures</b> (L.3121-16) : la coupure de 45 minutes couvre cette obligation chaque jour.<br>'
+     +'· <b>Heures supplémentaires</b> : 44 h 30 − 35 h 00 = <b>9 h 30</b> au-delà de la durée légale, imputées au contingent.</p>'
+     +'<p><b>Le contrôle qui manque à ce tableau.</b> La moyenne de 44 heures sur DOUZE SEMAINES CONSÉCUTIVES (L.3121-22) ne se '
+     +'voit pas sur une semaine. Avec 44 h 30 cette semaine-là, il suffit que onze autres semaines dépassent 44 heures pour que '
+     +'le plafond glissant soit franchi — sans qu’aucune semaine prise isolément ne pose problème.</p>';
+  } else if(type==='plafondstt'){
+    T='Les cinq plafonds du temps de travail — grille de contrôle';
+    H=ausTete()
+     +'<p><b>LES PLAFONDS DU TEMPS DE TRAVAIL</b> — ce que dit chaque texte, et comment le vérifier</p>'
+     +'<p><b>PARTIE 1 — LA GRILLE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Plafond</th><th>Texte</th><th>Ce qui est écrit</th><th>Comment le vérifier</th></tr>'
+     +'<tr><td>Durée QUOTIDIENNE</td><td>L.3121-18</td><td>Dix heures de travail effectif, sauf dérogation de l’inspecteur du travail, urgence, ou cas de L.3121-19</td><td>Ligne par ligne du décompte quotidien</td></tr>'
+     +'<tr><td>Durée HEBDOMADAIRE absolue</td><td>L.3121-20</td><td>Quarante-huit heures au cours d’une même semaine</td><td>Récapitulatif hebdomadaire</td></tr>'
+     +'<tr><td>Durée hebdomadaire MOYENNE</td><td>L.3121-22</td><td>Quarante-quatre heures sur une période QUELCONQUE de DOUZE SEMAINES CONSÉCUTIVES, sauf L.3121-23 à L.3121-25</td><td>Moyenne GLISSANTE, semaine après semaine — pas par trimestre</td></tr>'
+     +'<tr><td>PAUSE</td><td>L.3121-16</td><td>Vingt minutes consécutives DÈS QUE le temps de travail quotidien ATTEINT six heures</td><td>Coupures tracées au décompte quotidien</td></tr>'
+     +'<tr><td>Repos QUOTIDIEN</td><td>L.3131-1</td><td>Onze heures consécutives, sauf L.3131-2, L.3131-3, ou urgence</td><td>Écart entre la fin d’une journée et le début de la suivante</td></tr>'
+     +'<tr><td>Repos HEBDOMADAIRE</td><td>L.3132-1 et L.3132-2</td><td>Six jours de travail au plus ; vingt-quatre heures consécutives AUXQUELLES S’AJOUTENT les onze heures du repos quotidien</td><td>Trente-cinq heures consécutives, à vérifier sur le calendrier</td></tr></table>'
+     +'<p><b>Le piège de la moyenne glissante.</b> « Une période QUELCONQUE de douze semaines » : il ne s’agit pas des douze '
+     +'semaines du trimestre, mais de N’IMPORTE QUELLES douze semaines consécutives. Il faut donc calculer la moyenne des '
+     +'semaines 1 à 12, puis 2 à 13, puis 3 à 14, et ainsi de suite. Une seule de ces fenêtres au-dessus de 44 heures suffit.</p>'
+     +'<p><b>Le piège de l’addition du repos hebdomadaire.</b> Vingt-quatre heures PLUS onze heures : trente-cinq heures '
+     +'consécutives. Un salarié qui finit le samedi à 18 h et reprend le lundi à 4 h a trente-quatre heures de repos : '
+     +'une heure manque.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE</b></p>'
+     +'<p><b>Le cas de la moyenne glissante, montré.</b> Douze semaines du conducteur MARTIN, semaines 30 à 41 de 2026 :</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>S30</th><th>S31</th><th>S32</th><th>S33</th><th>S34</th><th>S35</th><th>S36</th><th>S37</th><th>S38</th><th>S39</th><th>S40</th><th>S41</th></tr>'
+     +'<tr><td>46 h</td><td>45 h</td><td>0 h</td><td>0 h</td><td>44 h</td><td>46 h</td><td>47 h</td><td>45 h</td><td>44 h 30</td><td>46 h</td><td>45 h</td><td>47 h</td></tr></table>'
+     +'<p><b>Fenêtre S30–S41 :</b> total 455 h 30, moyenne <b>37 h 96</b> — les deux semaines de congés (S32 et S33) tirent la '
+     +'moyenne vers le bas. Plafond tenu.</p>'
+     +'<p><b>Fenêtre S34–S45</b>, en supposant les semaines 42 à 45 à 46 h, 45 h, 46 h et 47 h : total 548 h 30, moyenne '
+     +'<b>45 h 71</b>. <b>PLAFOND DÉPASSÉ</b> — alors qu’AUCUNE semaine prise isolément n’atteint 48 heures, et que la fenêtre '
+     +'précédente était largement conforme.</p>'
+     +'<p><b>Ce que l’exemple enseigne.</b> Le dépassement ne vient pas d’une semaine excessive : il vient de la sortie des '
+     +'semaines de congés de la fenêtre glissante. Un employeur qui ne contrôle que la semaine et le trimestre ne le voit '
+     +'jamais venir. Le calcul se refait à CHAQUE semaine nouvelle.</p>'
+     +'<p><b>Ce que le dépassement coûte.</b> Contravention, et surtout : le dépassement d’une durée maximale cause au salarié '
+     +'un préjudice qui ouvre droit à réparation sans qu’il ait à démontrer autre chose que le dépassement lui-même. '
+     +'À VÉRIFIER à la jurisprudence pour le plafond concerné avant de chiffrer.</p>';
   } else if(type==='vip'){
     T='Visite d’information et de prévention — demande et suivi';
     H=ausTete()
@@ -31576,7 +31692,7 @@ function parcRAZ(id){
 var AUS_PARC = {
   /* Embaucher un salarie */
   dpae:['embauche','dpae'], spst:['embauche','dpae'],
-  cddecrit:['embauche','contrat'], tpartiel:['embauche','contrat'],
+  cddecrit:['embauche','contrat'], tpartiel:['tempstravail','partiel'],
   infoemb:['embauche','info7'], infoetranger:['embauche','infom'],
   registre:['embauche','registre'], vip:['embauche','vip'],
   mutuelle:['embauche','mutuelle'],
@@ -31605,7 +31721,16 @@ var AUS_PARC = {
   cselocal:['cseinstall','moyens'], cseaffich:['cseinstall','moyens'],
   cseheures:['cseinstall','moyens'], bdese:['cseinstall','moyens'],
   /* Negociations obligatoires */
-  nao:['nao','qui'], gepp:['nao','gepp']
+  nao:['nao','qui'], gepp:['nao','gepp'],
+  /* Temps de travail */
+  horaires:['tempstravail','afficher'],
+  decompte:['tempstravail','decompte'], docduree:['tempstravail','dispo'],
+  maxjour:['tempstravail','plafonds'], maxsem:['tempstravail','plafonds'],
+  pause:['tempstravail','plafonds'], reposquot:['tempstravail','plafonds'],
+  reposhebdo:['tempstravail','hebdo'],
+  contingent:['tempstravail','contingent'], cor:['tempstravail','contrepartie'],
+  forfaitjours:['tempstravail','forfait'],
+  hcompl:['tempstravail','partiel'], dureemin:['tempstravail','partiel']
 };
 function ausParc(id){ var x=AUS_PARC[id]; return x?{p:x[0], e:x[1], titre:(typeof PARCOURS!=='undefined'&&PARCOURS[x[0]]?PARCOURS[x[0]].titre:'')}:null; }
 
@@ -32155,6 +32280,92 @@ var PARCOURS={
           'Les trois documents sont-ils datés du dernier jour du contrat, préavis compris ?'],
     doc:['certif','Certificat de travail'], doc2:['stc','Reçu pour solde de tout compte']}
   ]
+ },
+ tempstravail:{
+  titre:'Organiser et décompter le temps de travail',
+  sous:'L’horaire affiché, le décompte de ceux qui n’y sont pas, les cinq plafonds, le contingent et sa contrepartie, le forfait en jours — et l’année pendant laquelle tout cela se tient à disposition.',
+  seuil:0,
+  pre:[
+   {k:'horaire', q:'doc',  lib:'L’horaire collectif en vigueur : heures de début et de fin de chaque période, jour par jour'},
+   {k:'ecarts',  q:'info', lib:'La liste des salariés qui NE suivent PAS cet horaire collectif — itinérants, équipes décalées, horaires individualisés'},
+   {k:'outil',   q:'info', lib:'L’outil de décompte utilisé : badgeuse, feuille signée, application, chronotachygraphe — et qui le renseigne'},
+   {k:'accord',  q:'doc',  lib:'L’accord d’entreprise ou, à défaut, de branche sur la durée du travail : contingent, majorations, aménagement'},
+   {k:'ccn',     q:'doc',  lib:'La convention collective : durées, pauses, majorations, équivalences éventuelles de votre secteur'},
+   {k:'forfaits',q:'piece',lib:'Les conventions individuelles de forfait signées, et l’accord collectif qui les autorise'},
+   {k:'eff20',   q:'info', lib:'L’effectif au regard du seuil de VINGT salariés — il commande le taux de la contrepartie en repos'},
+   {k:'archives',q:'doc',  lib:'Les documents de décompte de l’année écoulée — c’est la durée pendant laquelle ils se tiennent à disposition'}
+  ],
+  dates:[
+   {k:'debut', lib:'Début de la période de référence du contingent', aide:'Année civile, à défaut d’accord la fixant autrement.'},
+   {k:'maj',   lib:'Date du dernier affichage ou de la dernière mise à jour de l’horaire', aide:'Un horaire non daté et non signé ne vaut pas affichage.'}
+  ],
+  etapes:[
+   {k:'afficher', n:'1', lib:'Afficher l’horaire collectif — daté et signé',
+    src:'D.3171-2 — l’horaire collectif est DATÉ ET SIGNÉ par l’employeur ou son délégataire, affiché en caractères LISIBLES et apposé de façon APPARENTE dans chacun des lieux de travail auxquels il s’applique ; pour les salariés employés à l’extérieur, il est affiché dans l’établissement auquel ils sont attachés',
+    ech:function(D){ return D.maj||''; }, echLib:'date de l’affichage en cours',
+    note:'Quatre exigences, souvent trois de respectées : daté, signé, lisible, apparent. Un horaire punaisé sans date ni signature ne prouve rien — et c’est à l’employeur de prouver l’horaire applicable.',
+    ctrl:['L’horaire affiché porte-t-il une DATE et une SIGNATURE de l’employeur ou de son délégataire ?',
+          'Est-il apposé dans CHACUN des lieux de travail auxquels il s’applique ?',
+          'Pour les salariés travaillant à l’extérieur, est-il affiché dans l’établissement auquel ils sont attachés ?'],
+    doc:['horairecoll','Horaire collectif — modèle daté et signé']},
+   {k:'decompte', n:'2', lib:'Décompter individuellement ceux qui ne suivent pas l’horaire collectif',
+    src:'D.3171-8 — lorsque les salariés d’un atelier, d’un service ou d’une équipe ne travaillent pas selon le même horaire collectif affiché, la durée du travail de chacun est décomptée : 1° QUOTIDIENNEMENT, par enregistrement selon tous moyens des heures de début et de fin de chaque période de travail, ou par relevé du nombre d’heures accomplies ; 2° CHAQUE SEMAINE, par récapitulation du nombre d’heures accomplies',
+    note:'Deux décomptes, pas un : le quotidien ET le récapitulatif hebdomadaire. « Selon tous moyens » laisse le choix de l’outil, jamais celui de s’en passer. Sans décompte, le juge retient les éléments produits par le salarié.',
+    ctrl:['Un décompte QUOTIDIEN existe-t-il pour chaque salarié hors horaire collectif ?',
+          'Un récapitulatif HEBDOMADAIRE en est-il tiré ?',
+          'Le document permet-il de retrouver les heures de début et de fin, ou à défaut le nombre d’heures accomplies ?'],
+    doc:['decomptett','Décompte quotidien et récapitulatif hebdomadaire']},
+   {k:'dispo', n:'3', lib:'Tenir les documents à la disposition de l’inspection — UN AN',
+    src:'D.3171-16 — l’employeur tient à la disposition de l’inspection du travail : 1° pendant UN AN, y compris en horaires individualisés, les documents permettant de comptabiliser les heures accomplies par chaque salarié — ou une durée équivalente à la période de référence en cas d’aménagement sur une période supérieure à l’année ; 2° pendant UN AN, le document récapitulatif',
+    note:'Un an, et non trois. Mais la prescription des salaires est de trois ans : conserver au-delà du minimum réglementaire est ce qui permet de se défendre. La loi fixe un plancher de mise à disposition, pas un plafond de conservation.',
+    ctrl:['Les documents de décompte de l’année écoulée sont-ils accessibles immédiatement ?',
+          'Le document récapitulatif hebdomadaire est-il conservé lui aussi ?',
+          'En cas d’aménagement sur plus d’un an, la durée de conservation suit-elle la période de référence ?']},
+   {k:'plafonds', n:'4', lib:'Tenir les cinq plafonds — et les vérifier ensemble',
+    src:'L.3121-18 — DIX HEURES par jour, sauf dérogation de l’inspecteur, urgence, ou cas de L.3121-19 · L.3121-20 — QUARANTE-HUIT HEURES au cours d’une même semaine · L.3121-22 — QUARANTE-QUATRE HEURES en moyenne sur une période quelconque de DOUZE SEMAINES CONSÉCUTIVES · L.3121-16 — VINGT MINUTES consécutives de pause dès que le temps de travail quotidien ATTEINT six heures · L.3131-1 — ONZE HEURES consécutives de repos quotidien',
+    note:'« Une période QUELCONQUE de douze semaines » : pas les douze semaines du trimestre civil, n’importe lesquelles. C’est le plafond le plus souvent dépassé sans qu’on s’en aperçoive. Et la pause est due dès que le temps ATTEINT six heures, pas au-delà.',
+    ctrl:['La durée quotidienne de dix heures a-t-elle été respectée, ou une dérogation écrite existe-t-elle ?',
+          'La durée hebdomadaire de quarante-huit heures a-t-elle été respectée chaque semaine ?',
+          'La moyenne de quarante-quatre heures a-t-elle été vérifiée sur toutes les périodes glissantes de douze semaines, et pas seulement par trimestre ?',
+          'Les vingt minutes de pause sont-elles tracées dès six heures de travail quotidien ?',
+          'Les onze heures de repos quotidien sont-elles vérifiables entre la fin d’une journée et le début de la suivante ?'],
+    doc:['plafondstt','Grille de contrôle des cinq plafonds']},
+   {k:'hebdo', n:'5', lib:'Assurer le repos hebdomadaire',
+    src:'L.3132-1 — il est INTERDIT de faire travailler un même salarié plus de SIX JOURS par semaine · L.3132-2 — le repos hebdomadaire a une durée minimale de VINGT-QUATRE HEURES consécutives, AUXQUELLES S’AJOUTENT les heures consécutives de repos quotidien',
+    note:'Vingt-quatre PLUS onze : trente-cinq heures consécutives, et non vingt-quatre. L’addition est dans le texte, et c’est elle qu’on oublie en organisant une reprise le lendemain matin.',
+    ctrl:['Aucun salarié n’a-t-il travaillé plus de six jours dans une même semaine ?',
+          'Le repos hebdomadaire atteint-il bien trente-cinq heures consécutives — vingt-quatre plus les onze du repos quotidien ?'],
+    doc:['plafondstt','Grille de contrôle — volet repos']},
+   {k:'contingent', n:'6', lib:'Fixer le contingent et suivre son compteur',
+    src:'L.3121-30 — les heures accomplies au-delà du contingent ouvrent droit à une contrepartie obligatoire en repos ; sont prises en compte les heures accomplies au-delà de la DURÉE LÉGALE · L.3121-33, I — un accord d’entreprise ou d’établissement, à défaut de branche, fixe le taux de majoration (jamais moins de 10 %) et DÉFINIT le contingent · D.3121-24 — À DÉFAUT D’ACCORD, le contingent est de DEUX CENT VINGT HEURES par salarié',
+    ech:function(D){ return D.debut?parcMois(D.debut,12):''; }, echLib:'fin de la période de référence',
+    note:'220 heures est le chiffre SUPPLÉTIF : il ne s’applique que faute d’accord. Beaucoup d’entreprises appliquent 220 alors que leur branche dit autre chose — vérifiez avant de compter.',
+    ctrl:['Le contingent applicable est-il écrit, et sa source citée — accord d’entreprise, de branche, ou les 220 heures supplétives ?',
+          'Un compteur individuel des heures imputées au contingent existe-t-il pour chaque salarié ?',
+          'Le taux de majoration appliqué est-il celui de l’accord, et jamais inférieur à 10 % ?']},
+   {k:'contrepartie', n:'7', lib:'Ouvrir la contrepartie obligatoire en repos au-delà du contingent',
+    src:'L.3121-38 — à défaut d’accord, la contrepartie est de 50 % des heures accomplies au-delà du contingent pour les entreprises de VINGT SALARIÉS AU PLUS, et de 100 % pour celles de PLUS DE VINGT · D.3171-11 — à défaut de précision conventionnelle contraire, les salariés sont informés du nombre d’heures portées à leur crédit par un DOCUMENT ANNEXÉ AU BULLETIN DE PAIE ; dès que ce nombre atteint SEPT HEURES, ce document notifie l’ouverture du droit et l’obligation de le prendre dans un délai maximum de DEUX MOIS',
+    note:'Le seuil de sept heures et le délai de deux mois sont dans le texte et presque jamais appliqués. L’annexe au bulletin n’est pas une option : c’est elle qui fait courir le délai.',
+    ctrl:['Le taux appliqué — 50 % ou 100 % — correspond-il à votre effectif au regard du seuil de vingt salariés ?',
+          'Un document annexé au bulletin de paie informe-t-il chaque salarié de son crédit d’heures ?',
+          'Dès sept heures acquises, ce document notifie-t-il l’ouverture du droit et le délai de deux mois pour le prendre ?']},
+   {k:'forfait', n:'8', lib:'Sécuriser les forfaits annuels en jours', opt:true,
+    src:'L.3121-64 — l’accord détermine les catégories de salariés, la période de référence, le nombre de jours, les conditions de prise en compte des absences, arrivées et départs · L.3121-60 — l’employeur S’ASSURE RÉGULIÈREMENT que la charge de travail est raisonnable et permet une bonne répartition dans le temps · L.3121-65, I — à défaut de stipulations conventionnelles sur le suivi : l’employeur ÉTABLIT un document de contrôle faisant apparaître le NOMBRE et la DATE des journées ou demi-journées travaillées, document qui peut être renseigné par le salarié SOUS LA RESPONSABILITÉ DE L’EMPLOYEUR',
+    note:'« Sous la responsabilité de l’employeur » : le salarié peut remplir, l’employeur répond. Un forfait dont la charge n’est pas suivie est privé d’effet — et le salarié réclame alors ses heures supplémentaires sur trois ans, au réel.',
+    ctrl:['L’accord collectif autorisant les forfaits en jours existe-t-il, et couvre-t-il la catégorie du salarié ?',
+          'Un document de contrôle fait-il apparaître le nombre ET la date des journées ou demi-journées travaillées ?',
+          'La charge de travail est-elle vérifiée régulièrement, et cette vérification laisse-t-elle une trace écrite ?',
+          'L’entretien annuel sur la charge, l’organisation, l’articulation avec la vie personnelle et la rémunération a-t-il eu lieu ?'],
+    doc:['forfaitjours','Forfait en jours — document de contrôle et entretien']},
+   {k:'partiel', n:'9', lib:'Vérifier les contrats à temps partiel', opt:true,
+    src:'L.3123-6 — le contrat à temps partiel est ÉCRIT et mentionne notamment la qualification, les éléments de rémunération, la durée hebdomadaire ou mensuelle, la répartition entre les jours ou les semaines, les cas dans lesquels cette répartition peut être modifiée et la nature de la modification, les modalités de communication des horaires, et les limites d’accomplissement des heures complémentaires',
+    note:'Un temps partiel sans écrit, ou sans la répartition, est PRÉSUMÉ à temps plein — présomption que l’employeur ne renverse qu’en prouvant la durée exacte convenue ET que le salarié n’était pas à sa disposition permanente.',
+    ctrl:['Chaque contrat à temps partiel est-il écrit et signé ?',
+          'Porte-t-il la durée ET la répartition entre les jours de la semaine ou les semaines du mois ?',
+          'Indique-t-il les cas de modification de cette répartition et la nature de la modification ?',
+          'Toutes les heures complémentaires accomplies ont-elles été majorées ?'],
+    doc:['tpartiel','Contrat à temps partiel — mentions obligatoires']}
+  ]
  }
 };
 
@@ -32333,7 +32544,7 @@ function parcDoc(type){
     if(type.indexOf('nego:')===0){ negoDoc(type.slice(5)); return; }
     if(type.indexOf('cseinst:')===0){ cseinstDoc(type.slice(8)); return; }
     if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
-    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc'].indexOf(type)>=0){ ausDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc','horairecoll','decomptett','plafondstt','forfaitjours'].indexOf(type)>=0){ ausDoc(type); return; }
 
     ausDoc(type);
   }catch(e){ alert('Modèle indisponible : '+e.message); }
