@@ -29,8 +29,8 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
 
   console.log('\n— A 20-49 salaries, la liste est sur mesure —');
   let t = await page.evaluate(() => document.getElementById('auditsoc-zone').innerText);
-  ok(t.indexOf('Registre unique du personnel') >= 0, 'le registre y est (toute taille)');
-  ok(t.indexOf('CSE élu') >= 0, 'le CSE y est (des 11)');
+  ok(/registre unique du personnel/i.test(t), 'le registre y est (toute taille)');
+  ok(/comité social et économique est-il élu/i.test(t), 'le CSE y est (des 11)');
   ok(t.indexOf('travailleurs handicapés') >= 0, 'l\'OETH y est (des 20)');
   /* On interroge la liste elle-meme, pas le texte de la page : l'avertissement
      sur les accords non verifies cite la BDESE, et le mot suffisait a faire
@@ -97,7 +97,7 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     ausRender();
     const t = document.getElementById('auditsoc-zone').innerText;
     return { lu: /3 déclarés/.test(t), max: /Agence Roubaix, 310/.test(t),
-             cssct: /CSSCT — commission santé/.test(t), redemande: /Établissements distincts \?/.test(t) };
+             cssct: /commission santé, sécurité et conditions de travail/i.test(t), redemande: /Établissements distincts \?/.test(t) };
   });
   ok(flux.lu && flux.max, 'les établissements viennent de la fiche, avec le plus grand', JSON.stringify(flux));
   ok(!flux.redemande, 'et l\'audit ne les redemande pas');
@@ -106,7 +106,7 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     E.etabsListe = 'Siège Lille, 120\nAgence Douai, 40';
     try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
     ausRender();
-    return /CSSCT — commission santé/.test(document.getElementById('auditsoc-zone').innerText);
+    return /commission santé, sécurité et conditions de travail/i.test(document.getElementById('auditsoc-zone').innerText);
   });
   ok(!sansEtab, 'sans établissement de 300, la CSSCT sort de la liste à 250-299');
 
@@ -446,6 +446,92 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     return document.getElementById('auditsoc-zone').innerHTML.indexOf('parcCible(') >= 0;
   });
   ok(bouton, 'et chaque point du plan d\'action porte son bouton de pas a pas');
+
+  console.log('\n— Les quatre natures de question —');
+  const nat = await page.evaluate(() => {
+    const n = {}, sansQ = [], sansN = [];
+    AUS_OBLIG.forEach(o => { n[o.nat] = (n[o.nat] || 0) + 1;
+      if (!o.q) sansQ.push(o.id); if (!o.nat) sansN.push(o.id); });
+    return { n: n, sansQ: sansQ, sansN: sansN, total: AUS_OBLIG.length,
+             premier: AUS_OBLIG[0].id, pilote: !!AUS_OBLIG[0].pilote };
+  });
+  ok(nat.total === 165, '165 questions apres separation des questions doubles', nat.total);
+  ok(nat.sansQ.length === 0 && nat.sansN.length === 0,
+     'chacune porte sa question et sa nature', nat.sansQ.concat(nat.sansN).join(','));
+  ok(nat.premier === 'cse' && nat.pilote,
+     'la question du comite OUVRE le questionnaire — on ne demande pas la consultation avant',
+     nat.premier);
+  ok(nat.n.piece === 29 && nat.n.acte === 42 && nat.n.etat === 41 && nat.n.cond === 53,
+     'les quatre natures sont reparties', JSON.stringify(nat.n));
+
+  const menus = await page.evaluate(() => {
+    const mauvais = [];
+    AUS_OBLIG.forEach(o => {
+      const r = ausRepDe(o).map(x => x[0]);
+      if (o.nat === 'cond' && r.indexOf('so') < 0) mauvais.push(o.id + ' : sans objet manquant');
+      if (o.nat !== 'cond' && r.indexOf('so') >= 0) mauvais.push(o.id + ' : sans objet en trop');
+      if (r.indexOf('autre') < 0) mauvais.push(o.id + ' : « autre » manquant');
+    });
+    return mauvais;
+  });
+  ok(menus.length === 0,
+     '« sans objet » n\'est offert qu\'aux conditionnelles, et « autre » l\'est partout',
+     menus.slice(0, 4).join(' | '));
+
+  console.log('\n— Ce qui suppose un comite ne se pose pas sans comite —');
+  const cse = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; ausRecommencer();
+    const ctx = ausCtx();
+    const avant = AUS_OBLIG.filter(o => ausApplicable(o, ctx)).length;
+    ausRep('cse', 'pas');
+    const sans = AUS_OBLIG.filter(o => ausApplicable(o, ctx)).length;
+    const resteCse = AUS_OBLIG.filter(o => o.cse && ausApplicable(o, ctx)).length;
+    ausRep('cse', 'ai');
+    const avec = AUS_OBLIG.filter(o => ausApplicable(o, ctx)).length;
+    ausRep('cse', '');
+    const inconnu = AUS_OBLIG.filter(o => ausApplicable(o, ctx)).length;
+    return { avant: avant, sans: sans, avec: avec, inconnu: inconnu, resteCse: resteCse };
+  });
+  ok(cse.sans < cse.avec, 'repondre « pas de comite » retire les questions qui le supposent',
+     JSON.stringify(cse));
+  ok(cse.resteCse === 0, 'aucune question de comite ne survit a un « non »');
+  ok(cse.inconnu === cse.avec,
+     'tant que la question n\'est pas repondue, rien n\'est masque — on ne suppose pas');
+
+  console.log('\n— Sans objet n\'est ni conforme, ni manquant —');
+  const so = await page.evaluate(() => {
+    window.confirm = () => true; ausRecommencer();
+    ausRep('cse', 'ai'); ausRep('atmortel', 'so'); ausRep('duerp', 'pas');
+    ausRender();
+    return document.getElementById('auditsoc-zone').innerText;
+  });
+  ok(/Sans objet à ce jour : 1/.test(so), '« sans objet » se compte a part',
+     (so.match(/Sans objet[^\n]*/) || [''])[0]);
+  ok(/Ce n’est pas une conformité/.test(so), 'et il est dit que ce n\'est pas une conformite');
+  ok(/Ne vous concerne pas/.test(so), 'ce qui est hors seuil se compte a part aussi');
+  const rap = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+    ausDocRapport();
+    return (window._docCurrent || {}).html || '';
+  });
+  ok(/SANS OBJET à ce jour/.test(rap), 'le rapport ecrit « sans objet » sur la ligne concernee');
+  ok(/Ce qui est SANS OBJET à ce jour/.test(rap) && /Ce n’est pas une conformité/.test(rap),
+     'et il consacre un paragraphe a dire pourquoi ce n\'en est pas une');
+  ok(/NE VOUS CONCERNE PAS/.test(rap), 'le hors seuil a son paragraphe, distinct');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  const sansCse = await page.evaluate(() => {
+    window.confirm = () => true; ausRecommencer(); ausRep('cse', 'pas');
+    window.partagerDocActuel = function () {};
+    const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+    ausDocRapport();
+    return (window._docCurrent || {}).html || '';
+  });
+  ok(/absence de comité elle-même/.test(sansCse),
+     'sans comite, le rapport dit que le manquement est l\'absence de comite');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
