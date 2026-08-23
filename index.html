@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.216';
+var JX_BUILD = 'v2026-08-23.217';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,17 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.217', d:'23 août 2026', t:[
+   'DIXIÈME PARCOURS — ORGANISER LA PRÉVENTION ET LA SÉCURITÉ AU POSTE, neuf étapes. Dix parcours, 89 étapes, 225 questions de contrôle, 70 obligations reliées à leur pas à pas.',
+   'Les neuf principes de L.4121-2 sont dans leur ORDRE : distribuer des protections individuelles avant d\u2019avoir cherché à supprimer le risque, c\u2019est prendre le huitième principe à l\u2019envers.',
+   'Le salarié compétent en prévention est dû QUEL QUE SOIT L\u2019EFFECTIF (L.4644-1) : aucun seuil. Le recours à un intervenant extérieur suppose que les compétences internes manquent, ET l\u2019avis du comité.',
+   'La formation à la sécurité a QUATRE publics (L.4141-2), dont celui qu\u2019on oublie toujours : le salarié qui reprend après un arrêt d\u2019au moins vingt et un jours, À LA DEMANDE DU MÉDECIN DU TRAVAIL. Et « pratique » veut dire au poste, sur les gestes — le modèle montre une formation de 4 h 30 où le salarié FAIT chaque manœuvre.',
+   'Les premiers secours, ce sont TROIS obligations distinctes : le matériel adapté et accessible (R.4224-14), la personne formée dans chaque atelier où sont accomplis des travaux dangereux (R.4224-15), et le DOCUMENT écrit après avis du médecin du travail (R.4224-16). C\u2019est le document qui manque presque toujours.',
+   'La consigne incendie doit porter les MESURES LIÉES À LA PRÉSENCE DE PERSONNES HANDICAPÉES et la localisation des espaces d\u2019attente sécurisés (R.4227-38, 4°) — le point le plus souvent absent. Les exercices ont lieu au moins tous les SIX MOIS et apprennent trois choses que le texte nomme.',
+   'Le droit de retrait tient au MOTIF RAISONNABLE apprécié au moment des faits, non au danger avéré : le modèle de registre montre un retrait de deux heures payé, et l\u2019erreur évitée — exiger la reprise avant l\u2019enquête, ce que L.4131-1 interdit.',
+   'La conservation de D.4711-3 : cinq ans, ET EN TOUT ÉTAT DE CAUSE les deux derniers contrôles. Une vérification décennale de 2014 se conserve toujours aujourd\u2019hui.',
+   'Six modèles neufs : désignation du salarié compétent, information sur les risques avec émargement, programme et attestation de formation pratique, organisation des premiers secours, consigne incendie, registre des dangers graves et imminents.'
+ ]},
  {v:'v2026-08-23.216', d:'23 août 2026', t:[
    'NEUVIÈME PARCOURS — ORGANISER ET DÉCOMPTER LE TEMPS DE TRAVAIL, neuf étapes. Neuf parcours, 80 étapes, 192 questions de contrôle, 58 obligations reliées à leur pas à pas.',
    'L\u2019horaire collectif tient à quatre mots du texte : DATÉ, SIGNÉ, LISIBLE, APPARENT — et affiché dans CHACUN des lieux de travail (D.3171-2). Ceux qui ne le suivent pas relèvent du décompte individuel, qui est DOUBLE : quotidien ET récapitulatif hebdomadaire (D.3171-8).',
@@ -31494,6 +31505,199 @@ function ausDoc(type){
      +'<p><b>Ce que le dépassement coûte.</b> Contravention, et surtout : le dépassement d’une durée maximale cause au salarié '
      +'un préjudice qui ouvre droit à réparation sans qu’il ait à démontrer autre chose que le dépassement lui-même. '
      +'À VÉRIFIER à la jurisprudence pour le plafond concerné avant de chiffrer.</p>';
+  } else if(type==='designprev'){
+    T='Désignation du salarié compétent en prévention';
+    H=ausTete()
+     +'<p><b>DÉSIGNATION DU SALARIÉ COMPÉTENT</b> (article L.4644-1 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — CE QUE LE TEXTE IMPOSE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Point</th><th>Ce que dit L.4644-1, I</th></tr>'
+     +'<tr><td>L’obligation</td><td>L’employeur DÉSIGNE un ou plusieurs salariés compétents pour s’occuper des activités de protection et de prévention des risques professionnels</td></tr>'
+     +'<tr><td>Le seuil</td><td>AUCUN. L’obligation ne dépend pas de l’effectif</td></tr>'
+     +'<tr><td>La formation</td><td>Le ou les salariés désignés bénéficient d’une formation en santé au travail dans les conditions des articles L.2315-16 à L.2315-18</td></tr>'
+     +'<tr><td>L’extérieur</td><td>Possible SEULEMENT si les compétences dans l’entreprise ne permettent pas d’organiser ces activités — et APRÈS AVIS du comité</td></tr></table>'
+     +'<p><b>Ce que la désignation n’est pas.</b> Elle ne transfère pas la responsabilité de l’employeur : celui-ci reste tenu '
+     +'de l’obligation de sécurité. Le salarié désigné ne peut pas être sanctionné pour avoir signalé un risque.</p>'
+     +'<p><b>Ce qu’il faut lui donner.</b> Le texte parle d’activités : elles supposent du temps, l’accès au document unique, '
+     +'aux fiches de données de sécurité, aux rapports de vérification, et la possibilité de saisir l’employeur par écrit.</p>'
+     +'<p><b>Modèle.</b> « [Madame / Monsieur NOM], en application de l’article L.4644-1 du code du travail, je vous désigne '
+     +'à compter du [DATE] comme salarié compétent pour vous occuper des activités de protection et de prévention des risques '
+     +'professionnels de l’entreprise. À ce titre, vous participerez à l’élaboration et à la mise à jour du document unique, '
+     +'au suivi des vérifications périodiques, à l’analyse des accidents et à la préparation des actions de prévention. '
+     +'Vous disposerez de [X] heures par mois pour cette mission et bénéficierez de la formation en santé au travail prévue '
+     +'par ce même article. Vous aurez librement accès au document unique, aux fiches de données de sécurité, aux rapports de '
+     +'vérification et aux comptes rendus du service de prévention et de santé au travail. »</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p>SARL EXEMPLE, transport routier, IDCC 16, 72 salariés — dont 41 conducteurs et 31 sédentaires.</p>'
+     +'<p><b>Désigné :</b> Monsieur LEROY Pascal, responsable d’exploitation adjoint, entré le 14 septembre 2015.<br>'
+     +'<b>Date d’effet :</b> 1<sup>er</sup> février 2026. <b>Temps alloué :</b> 8 heures par mois, prises sur le temps de travail.<br>'
+     +'<b>Formation :</b> stage de trois jours suivi du 9 au 11 mars 2026, attestation n° 2026-0311 au dossier.</p>'
+     +'<p><b>Périmètre écrit dans la lettre.</b> Mise à jour annuelle du document unique ; suivi du calendrier des vérifications '
+     +'périodiques des hayons et des ponts élévateurs ; analyse de chaque accident du travail sous quinze jours ; préparation '
+     +'des quatre réunions annuelles du comité portant sur la santé-sécurité ; tenue du registre des dangers graves et imminents.</p>'
+     +'<p><b>Le point qui a été discuté, et tranché.</b> L’entreprise envisageait de confier ces activités à son cabinet '
+     +'extérieur. L.4644-1 ne le permet que si les compétences internes manquent, et après avis du comité : M. LEROY ayant '
+     +'suivi une formation de prévention des risques, la désignation interne s’imposait. Le cabinet reste consulté sur les '
+     +'sujets techniques, ce que le texte n’interdit pas.</p>';
+  } else if(type==='infosecu'){
+    T='Information sur les risques — support et émargement';
+    H=ausTete()
+     +'<p><b>INFORMATION DES TRAVAILLEURS SUR LES RISQUES</b> (articles L.4141-1, R.4141-2 et R.4141-3-1)</p>'
+     +'<p><b>PARTIE 1 — CE SUR QUOI L’INFORMATION DOIT PORTER</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Objet</th><th>Texte</th><th>[ ]</th></tr>'
+     +'<tr><td>Les MODALITÉS D’ACCÈS au document unique — où il est, comment le consulter</td><td>R.4141-3-1, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Les mesures de prévention des risques identifiés dans le document unique</td><td>R.4141-3-1, 2°</td><td>[ ]</td></tr>'
+     +'<tr><td>Le rôle du service de santé au travail et, le cas échéant, des représentants du personnel</td><td>R.4141-3-1, 3°</td><td>[ ]</td></tr>'
+     +'<tr><td>Les risques pour la santé et la sécurité, et les mesures prises pour y remédier</td><td>L.4141-1</td><td>[ ]</td></tr>'
+     +'<tr><td>Les risques que les produits ou procédés font peser sur la SANTÉ PUBLIQUE ou l’ENVIRONNEMENT</td><td>L.4141-1, second alinéa</td><td>[ ]</td></tr></table>'
+     +'<p><b>Quand.</b> R.4141-2 : lors de l’embauche, ET CHAQUE FOIS QUE NÉCESSAIRE — nouveau produit, nouvel équipement, '
+     +'accident, changement de procédé.</p>'
+     +'<p><b>Comment.</b> R.4141-2 : « d’une manière COMPRÉHENSIBLE POUR CHACUN ». Cela vise la langue, le niveau de lecture, '
+     +'le handicap. Un support unique en français ne remplit pas l’obligation à l’égard d’un salarié qui ne le lit pas.</p>'
+     +'<p><b>Le volet oublié.</b> Le second alinéa de L.4141-1 — santé publique et environnement — ne figure presque jamais '
+     +'dans les supports. Il est pourtant dans le même article que le reste.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Support remis à M. BENALI Tarek, conducteur, à l’embauche du 2 mars 2026.</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Point</th><th>Contenu remis</th></tr>'
+     +'<tr><td>Accès au document unique</td><td>Classeur rouge, bureau d’exploitation, consultable sans demande préalable aux heures d’ouverture ; version numérique sur l’intranet, rubrique « Sécurité ». Avis affiché au vestiaire</td></tr>'
+     +'<tr><td>Mesures de prévention</td><td>Cinq risques de l’unité « conduite » : routier, manutention au chargement, chute de hauteur depuis le hayon, chimique (gasoil, AdBlue), horaires atypiques. Pour chacun, la mesure en place et le matériel fourni</td></tr>'
+     +'<tr><td>Service de santé au travail</td><td>AMETIF, 95870 Bezons, 01 00 00 00 00 — visite d’information et de prévention, visites à la demande du salarié, rôle du médecin sur l’aptitude et l’aménagement de poste</td></tr>'
+     +'<tr><td>Représentants du personnel</td><td>Comité social et économique : 6 élus, panneau au vestiaire ; référent harcèlement M. BEN SAID ; registre des dangers graves et imminents au bureau d’exploitation</td></tr>'
+     +'<tr><td>Santé publique et environnement</td><td>AdBlue et gasoil : conduite à tenir en cas de déversement, kit d’absorption dans chaque véhicule, interdiction de rejet, numéro d’astreinte</td></tr></table>'
+     +'<p><b>Émargement.</b> « Je soussigné BENALI Tarek reconnais avoir reçu l’information ci-dessus le 2 mars 2026 et avoir '
+     +'pu poser mes questions. » Signature du salarié — signature de M. LEROY, salarié compétent.</p>'
+     +'<p><b>Le point d’attention retenu.</b> M. BENALI lit le français sans difficulté. Pour deux salariés de l’entreprise '
+     +'qui le lisent mal, le même support a été repris ORALEMENT et un document illustré leur a été remis : R.4141-2 exige que '
+     +'l’information soit compréhensible POUR CHACUN, et non qu’elle soit identique pour tous.</p>';
+  } else if(type==='formsecu'){
+    T='Formation pratique à la sécurité — programme et attestation';
+    H=ausTete()
+     +'<p><b>FORMATION PRATIQUE ET APPROPRIÉE À LA SÉCURITÉ</b> (article L.4141-2 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — LES QUATRE PUBLICS, ET CE QUE « PRATIQUE » VEUT DIRE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Public</th><th>Texte</th><th>Fait le</th></tr>'
+     +'<tr><td>1° Les travailleurs qu’il EMBAUCHE</td><td>L.4141-2, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>2° Ceux qui CHANGENT de poste de travail ou de technique</td><td>L.4141-2, 2°</td><td>[ ]</td></tr>'
+     +'<tr><td>3° Les SALARIÉS TEMPORAIRES — sauf travaux urgents nécessités par des mesures de sécurité, confiés à des personnes déjà qualifiées</td><td>L.4141-2, 3°</td><td>[ ]</td></tr>'
+     +'<tr><td>4° À LA DEMANDE DU MÉDECIN DU TRAVAIL, ceux qui reprennent après un arrêt de travail d’au moins VINGT ET UN JOURS</td><td>L.4141-2, 4°</td><td>[ ]</td></tr></table>'
+     +'<p><b>« Pratique et appropriée ».</b> Pratique : au poste, sur les gestes, avec le matériel réel. Appropriée : aux '
+     +'risques de CE poste, pas à ceux de l’entreprise en général. Un diaporama commun à tous les postes n’est ni l’un ni l’autre.</p>'
+     +'<p><b>Le public que l’on oublie.</b> Le 4° — reprise après vingt et un jours, à la demande du médecin. Il suppose que '
+     +'les demandes du médecin du travail soient tracées et suivies, ce qui n’est presque jamais organisé.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Formation de M. BENALI Tarek, conducteur, embauché le 2 mars 2026.</b> Dispensée le 2 mars 2026 de 8 h 00 à '
+     +'12 h 30 par M. LEROY, salarié compétent, sur le site et sur le véhicule affecté.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Séquence</th><th>Contenu pratique</th><th>Durée</th></tr>'
+     +'<tr><td>Circulation dans l’entreprise</td><td>Parcours à pied des zones de manœuvre, points aveugles depuis la cabine, zones piétonnes matérialisées</td><td>45 min</td></tr>'
+     +'<tr><td>Le véhicule affecté</td><td>Contrôle avant départ effectué avec le salarié : pneumatiques, éclairage, arrimage, hayon ; localisation de l’extincteur et du triangle</td><td>60 min</td></tr>'
+     +'<tr><td>Hayon élévateur</td><td>Manœuvre complète réalisée par le salarié, positionnement des pieds, interdiction de rester sous la charge, verrouillage</td><td>45 min</td></tr>'
+     +'<tr><td>Manutention et arrimage</td><td>Gestes de port de charge, sangles, calage — exercice sur palettes réelles</td><td>60 min</td></tr>'
+     +'<tr><td>Produits</td><td>Gasoil et AdBlue : fiches de données de sécurité, kit d’absorption, conduite en cas de déversement</td><td>30 min</td></tr>'
+     +'<tr><td>Conduite à tenir en cas d’accident</td><td>Alerte, numéros, trousse de secours, déclaration à l’employeur le jour même</td><td>30 min</td></tr></table>'
+     +'<p><b>Attestation.</b> « M. BENALI Tarek a suivi le 2 mars 2026, à son poste, la formation pratique à la sécurité '
+     +'prévue par l’article L.4141-2 du code du travail, d’une durée de 4 h 30, portant sur les points ci-dessus. Il a '
+     +'réalisé lui-même les manœuvres de hayon et de contrôle avant départ. » Signatures du salarié et du formateur.</p>'
+     +'<p><b>Ce que l’exemple montre.</b> Aucune séquence n’est théorique : le salarié fait, il n’écoute pas. Et l’attestation '
+     +'dit ce qu’il a FAIT, ce qui est la seule preuve utile si un accident survient sur l’un de ces gestes.</p>';
+  } else if(type==='orgsecours'){
+    T='Organisation des premiers secours — le document de R.4224-16';
+    H=ausTete()
+     +'<p><b>ORGANISATION DES PREMIERS SECOURS</b> (articles R.4224-14, R.4224-15 et R.4224-16)</p>'
+     +'<p><b>PARTIE 1 — TROIS OBLIGATIONS DISTINCTES</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Obligation</th><th>Texte</th><th>Ce qu’elle exige exactement</th></tr>'
+     +'<tr><td>Le MATÉRIEL</td><td>R.4224-14</td><td>Matériel de premiers secours ADAPTÉ À LA NATURE DES RISQUES et FACILEMENT ACCESSIBLE</td></tr>'
+     +'<tr><td>La PERSONNE FORMÉE</td><td>R.4224-15</td><td>Un membre du personnel formé aux premiers secours dans CHAQUE ATELIER où sont accomplis des travaux dangereux, et sur chaque chantier employant vingt travailleurs au moins pendant plus de quinze jours où sont réalisés de tels travaux. Ces personnes NE PEUVENT PAS remplacer les infirmiers</td></tr>'
+     +'<tr><td>Le DOCUMENT</td><td>R.4224-16</td><td>En l’absence d’infirmiers, ou si leur nombre ne permet pas une présence permanente : mesures prises APRÈS AVIS DU MÉDECIN DU TRAVAIL, en liaison avec les services de secours extérieurs, CONSIGNÉES DANS UN DOCUMENT tenu à disposition de l’agent de contrôle</td></tr></table>'
+     +'<p><b>Celle qui manque presque toujours.</b> La troisième. Une trousse et un secouriste ne valent pas organisation : '
+     +'le texte demande un ÉCRIT, établi après avis du médecin du travail, et tenu à disposition.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p style="border:1px solid #000;padding:10px"><b>ORGANISATION DES PREMIERS SECOURS — SARL EXEMPLE</b><br>'
+     +'Établie le 12 janvier 2026, après avis du docteur [NOM], médecin du travail (AMETIF), rendu le 8 janvier 2026.<br>'
+     +'L’entreprise ne dispose pas d’infirmier.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Point</th><th>Organisation retenue</th></tr>'
+     +'<tr><td>Matériel — atelier</td><td>Une armoire à pharmacie murale près du poste de soudure, contenu fixé par le médecin du travail, contrôlée chaque trimestre par M. LEROY, dernier contrôle le 6 janvier 2026</td></tr>'
+     +'<tr><td>Matériel — véhicules</td><td>Une trousse par véhicule, contenu identique, vérifiée à chaque visite d’entretien</td></tr>'
+     +'<tr><td>Personnes formées</td><td>Atelier de maintenance (travaux dangereux : soudure, fosse) : M. DUVAL, sauveteur secouriste du travail, recyclage le 14 novembre 2025. Quai de chargement : Mme RENAUD, recyclage le 14 novembre 2025</td></tr>'
+     +'<tr><td>Alerte</td><td>15 (SAMU) ou 112. Le témoin appelle, puis prévient le bureau d’exploitation qui envoie une personne au portail guider les secours</td></tr>'
+     +'<tr><td>Conducteur en déplacement</td><td>Appel au 15, puis au numéro d’astreinte de l’entreprise, 24 h sur 24. Fiche plastifiée en cabine avec l’adresse du siège et le numéro de police d’assurance</td></tr>'
+     +'<tr><td>Après l’accident</td><td>Déclaration à la CPAM sous 48 heures ; feuille d’accident remise au salarié ; information du médecin du travail pour tout arrêt ; analyse par M. LEROY sous quinze jours</td></tr></table>'
+     +'<p>Document tenu à la disposition de l’agent de contrôle de l’inspection du travail et de l’agent des services de '
+     +'prévention, au bureau d’exploitation, classeur rouge.</p>'
+     +'<p><b>Le point vérifié avant d’écrire.</b> L’atelier de maintenance accomplit des travaux dangereux : R.4224-15 y impose '
+     +'un salarié formé. Le quai de chargement n’en accomplit pas au sens du texte, mais un second secouriste y a été formé — '
+     +'ce que rien n’interdit, et qui vaut mieux que de discuter la qualification des travaux après l’accident.</p>';
+  } else if(type==='consigneinc'){
+    T='Consigne de sécurité incendie';
+    H=ausTete()
+     +'<p><b>CONSIGNE DE SÉCURITÉ INCENDIE</b> (articles R.4227-37, R.4227-38 et R.4227-39)</p>'
+     +'<p><b>PARTIE 1 — LE CONTENU EXIGÉ, POINT PAR POINT</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Mention</th><th>Texte</th><th>[ ]</th></tr>'
+     +'<tr><td>Le matériel d’extinction et de secours qui se trouve dans le local OU À SES ABORDS</td><td>R.4227-38, 1°</td><td>[ ]</td></tr>'
+     +'<tr><td>Les personnes chargées de METTRE CE MATÉRIEL EN ACTION</td><td>R.4227-38, 2°</td><td>[ ]</td></tr>'
+     +'<tr><td>Pour chaque local, les personnes chargées de DIRIGER L’ÉVACUATION des travailleurs et éventuellement du public</td><td>R.4227-38, 3°</td><td>[ ]</td></tr>'
+     +'<tr><td>Les MESURES SPÉCIFIQUES liées à la présence de personnes handicapées, dont le NOMBRE et la LOCALISATION des espaces d’attente sécurisés ou espaces équivalents</td><td>R.4227-38, 4°</td><td>[ ]</td></tr></table>'
+     +'<p><b>Où l’afficher.</b> R.4227-37 : « de manière TRÈS APPARENTE » — dans chaque local dont l’effectif dépasse cinq '
+     +'personnes et dans les locaux de R.4227-24 ; dans les autres cas, dans chaque local ou chaque dégagement desservant un '
+     +'groupe de locaux.</p>'
+     +'<p><b>Les exercices — ce qu’ils doivent apprendre.</b> R.4227-39 nomme trois apprentissages : RECONNAÎTRE les '
+     +'caractéristiques du signal sonore d’alarme générale ; LOCALISER et utiliser les espaces d’attente sécurisés ou '
+     +'équivalents ; SE SERVIR des moyens de premier secours et exécuter les manœuvres nécessaires. '
+     +'<b>Au moins tous les SIX MOIS.</b> La date de chaque exercice et les observations se consignent sur un registre tenu à '
+     +'la disposition de l’inspection du travail.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p style="border:1px solid #000;padding:10px"><b>CONSIGNE DE SÉCURITÉ INCENDIE — Atelier de maintenance</b><br>'
+     +'SARL EXEMPLE, 12 rue des Peupliers, 95100 Argenteuil — affichée le 12 janvier 2026, panneau d’entrée de l’atelier.<br><br>'
+     +'<b>1. Matériel présent.</b> Deux extincteurs à eau pulvérisée 6 L (poteaux A et C), un extincteur CO₂ 5 kg près du '
+     +'tableau électrique, une couverture anti-feu au poste de soudure, un robinet d’incendie armé dans le dégagement nord.<br>'
+     +'<b>2. Mise en action du matériel.</b> M. DUVAL, chef d’atelier, et M. LEROY, responsable d’exploitation adjoint. '
+     +'En leur absence, tout salarié formé le 14 novembre 2025.<br>'
+     +'<b>3. Direction de l’évacuation.</b> Atelier : M. DUVAL. Bureaux du premier étage : Mme RENAUD. Quai : M. LEROY. '
+     +'Point de rassemblement : parking visiteurs, face au portail.<br>'
+     +'<b>4. Personnes handicapées.</b> Un salarié en fauteuil travaille au premier étage. Espace d’attente sécurisé : '
+     +'palier du premier étage, porte coupe-feu, signalé et dégagé en permanence. Mme RENAUD s’assure de sa présence à '
+     +'l’espace d’attente et signale sa localisation aux secours dès leur arrivée.<br><br>'
+     +'<b>Alarme.</b> Sirène continue de 30 secondes. <b>Numéro : 18 ou 112.</b></p>'
+     +'<p><b>Registre des exercices.</b> Exercice du 16 septembre 2025 : évacuation en 3 min 40, 68 personnes présentes ; '
+     +'observation — deux salariés n’ont pas reconnu le signal sonore. Exercice du 10 mars 2026 : 3 min 05, 71 personnes ; '
+     +'le signal a été présenté avant l’exercice, plus aucune hésitation. <b>Prochain exercice dû avant le 10 septembre 2026.</b></p>'
+     +'<p><b>Ce que l’exemple montre.</b> Le quatrième point — les personnes handicapées et l’espace d’attente sécurisé — est '
+     +'celui qui manque dans presque toutes les consignes. Il est pourtant nommé par R.4227-38, 4°, et c’est celui dont '
+     +'l’absence se paie le plus cher.</p>';
+  } else if(type==='registredgi'){
+    T='Registre des dangers graves et imminents';
+    H=ausTete()
+     +'<p><b>DANGER GRAVE ET IMMINENT — ALERTE, RETRAIT, REGISTRE</b> (articles L.4131-1, L.4131-2, L.4132-2)</p>'
+     +'<p><b>PARTIE 1 — CE QUE LE TEXTE ÉTABLIT</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Qui</th><th>Ce qu’il peut ou doit faire</th><th>Texte</th></tr>'
+     +'<tr><td>Le travailleur</td><td>ALERTE IMMÉDIATEMENT l’employeur de toute situation dont il a un MOTIF RAISONNABLE de penser qu’elle présente un danger grave et imminent pour sa vie ou sa santé, et de toute défectuosité des systèmes de protection. IL PEUT SE RETIRER</td><td>L.4131-1</td></tr>'
+     +'<tr><td>L’employeur</td><td>NE PEUT PAS demander au travailleur ayant fait usage de son droit de retrait de reprendre son activité tant que persiste un danger grave et imminent</td><td>L.4131-1</td></tr>'
+     +'<tr><td>Le représentant du personnel au comité</td><td>Qui constate une cause de danger grave et imminent, notamment par l’intermédiaire d’un travailleur, en ALERTE IMMÉDIATEMENT l’employeur selon la procédure de L.4132-2</td><td>L.4131-2</td></tr></table>'
+     +'<p><b>Ce que déclenche l’alerte d’un élu.</b> Elle est consignée sur un registre spécial, et l’employeur procède '
+     +'IMMÉDIATEMENT à une enquête AVEC l’élu qui a signalé le danger, puis prend les dispositions nécessaires. '
+     +'En cas de DÉSACCORD sur la réalité du danger ou la façon de le faire cesser, l’inspecteur du travail est saisi. '
+     +'Le détail de cette procédure est à L.4132-2 et suivants — À RELIRE au texte avant de l’engager.</p>'
+     +'<p><b>Le motif raisonnable.</b> Le droit de retrait ne suppose pas que le danger soit avéré : il suppose un motif '
+     +'raisonnable de le penser, apprécié au moment des faits et au regard de ce que le salarié pouvait savoir. Un retrait '
+     +'exercé de bonne foi n’autorise ni retenue sur salaire, ni sanction.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Registre coté, à feuillets non détachables, tenu au bureau d’exploitation.</b></p>'
+     +'<p style="border:1px solid #000;padding:10px"><b>Avis n° 2026-02</b><br>'
+     +'<b>Date et heure du signalement :</b> mardi 17 mars 2026, 6 h 40.<br>'
+     +'<b>Auteur :</b> M. BEN SAID, membre titulaire du comité social et économique, alerté à 6 h 35 par M. DUVAL.<br>'
+     +'<b>Poste et situation :</b> pont élévateur n° 2 de l’atelier. Le bras de sécurité gauche ne se verrouille plus ; '
+     +'un véhicule de 3,5 t était en cours de levage.<br>'
+     +'<b>Nature du danger :</b> chute de charge sur une personne travaillant sous le véhicule.<br>'
+     +'<b>Travailleurs exposés :</b> M. DUVAL et l’apprenti, MM. [initiales].<br>'
+     +'<b>Mesures immédiates prises par l’employeur :</b> pont consigné à 6 h 45, véhicule redescendu et évacué, '
+     +'affichage « INTERDIT — consigné » et retrait de la commande.<br>'
+     +'<b>Enquête :</b> menée le 17 mars de 9 h 00 à 10 h 15 par M. LEROY et M. BEN SAID conjointement.<br>'
+     +'<b>Suites :</b> intervention du vérificateur le 19 mars ; ressort de verrouillage remplacé ; remise en service le '
+     +'20 mars après essai en charge, procès-verbal joint. Vérification générale périodique avancée au 25 mars.<br>'
+     +'<b>Signatures :</b> l’élu — l’employeur.</p>'
+     +'<p><b>Ce qui n’a PAS été fait, et pourquoi c’est juste.</b> Aucune retenue sur salaire n’a été opérée sur les deux '
+     +'heures pendant lesquelles M. DUVAL s’est retiré. Le danger était réel ; il l’eût-il seulement paru que le retrait '
+     +'aurait été protégé, dès lors qu’il reposait sur un motif raisonnable.</p>'
+     +'<p><b>L’erreur évitée.</b> Un premier projet de fiche mentionnait « alerte non fondée, reprise demandée à 7 h 00 ». '
+     +'L.4131-1 interdit de demander la reprise tant que le danger persiste — et c’est à l’enquête, non au chef de service '
+     +'dans l’instant, de conclure sur la réalité du danger.</p>';
   } else if(type==='vip'){
     T='Visite d’information et de prévention — demande et suivi';
     H=ausTete()
@@ -31730,7 +31934,16 @@ var AUS_PARC = {
   reposhebdo:['tempstravail','hebdo'],
   contingent:['tempstravail','contingent'], cor:['tempstravail','contrepartie'],
   forfaitjours:['tempstravail','forfait'],
-  hcompl:['tempstravail','partiel'], dureemin:['tempstravail','partiel']
+  hcompl:['tempstravail','partiel'], dureemin:['tempstravail','partiel'],
+  /* Prevention et securite au poste */
+  secugen:['prevention','principes'], prevent:['prevention','competent'],
+  infosecu:['prevention','informer'],
+  formsecu:['prevention','former'], formrenf:['prevention','former'],
+  secours:['prevention','secours'],
+  incendie:['prevention','incendie'], extincteurs:['prevention','incendie'],
+  dgi:['prevention','dgi'],
+  coactivite:['prevention','exterieures'], protocole:['prevention','exterieures'],
+  conserv:['prevention','conserver']
 };
 function ausParc(id){ var x=AUS_PARC[id]; return x?{p:x[0], e:x[1], titre:(typeof PARCOURS!=='undefined'&&PARCOURS[x[0]]?PARCOURS[x[0]].titre:'')}:null; }
 
@@ -32366,6 +32579,98 @@ var PARCOURS={
           'Toutes les heures complémentaires accomplies ont-elles été majorées ?'],
     doc:['tpartiel','Contrat à temps partiel — mentions obligatoires']}
   ]
+ },
+ prevention:{
+  titre:'Organiser la prévention et la sécurité au poste',
+  sous:'Les neuf principes, le salarié compétent, l’information et la formation à l’embauche, les secours, l’incendie et ses exercices semestriels, le danger grave et imminent, et les cinq ans de conservation.',
+  seuil:0,
+  pre:[
+   {k:'duerp',  q:'doc',  lib:'Le document unique à jour — c’est lui qui dit quels risques il faut prévenir'},
+   {k:'postes', q:'info', lib:'La liste des postes et des travaux dangereux, atelier par atelier'},
+   {k:'sal',    q:'info', lib:'Le salarié compétent en santé-sécurité désigné, ou l’intervenant extérieur, et sa formation'},
+   {k:'spst',   q:'info', lib:'Le service de prévention et de santé au travail : coordonnées, médecin référent, fiche d’entreprise'},
+   {k:'secours',q:'piece',lib:'L’inventaire du matériel de premiers secours et la liste des salariés formés'},
+   {k:'incendie',q:'doc', lib:'La consigne de sécurité incendie affichée, et le registre des exercices'},
+   {k:'verifs', q:'doc',  lib:'Les rapports de vérification des équipements et installations, avec leurs dates'},
+   {k:'ext',    q:'info', lib:'Les entreprises extérieures qui interviennent chez vous, et celles chez qui vous intervenez'}
+  ],
+  dates:[
+   {k:'exercice', lib:'Date du dernier exercice d’évacuation', aide:'Les essais et exercices ont lieu au moins tous les six mois.'},
+   {k:'embauche', lib:'Date d’embauche du salarié à former', aide:'L’information et la formation se dispensent LORS DE l’embauche.'}
+  ],
+  etapes:[
+   {k:'principes', n:'1', lib:'Appliquer les neuf principes généraux, dans leur ordre',
+    src:'L.4121-1 — l’employeur prend les mesures nécessaires : actions de prévention, actions d’information et de formation, mise en place d’une ORGANISATION et de MOYENS ADAPTÉS · L.4121-2 — les neuf principes : éviter les risques ; évaluer ceux qui ne peuvent l’être ; les COMBATTRE À LA SOURCE ; adapter le travail à l’homme ; tenir compte de l’état d’évolution de la technique ; remplacer ce qui est dangereux ; planifier la prévention ; prendre des mesures de protection COLLECTIVE en leur donnant la priorité sur les mesures individuelles ; donner les instructions appropriées',
+    note:'L’ordre n’est pas décoratif : distribuer des protections individuelles avant d’avoir cherché à supprimer le risque, c’est prendre le huitième principe à l’envers. Et l’employeur veille à ADAPTER ces mesures au changement des circonstances.',
+    ctrl:['Les mesures décidées cherchent-elles d’abord à SUPPRIMER le risque, avant de le compenser ?',
+          'La protection collective a-t-elle été privilégiée sur la protection individuelle, ou son impossibilité est-elle écrite ?',
+          'Les mesures ont-elles été revues au dernier changement d’organisation, de procédé ou d’équipement ?'],
+    doc:['duerp','Document unique — le support de tout le reste']},
+   {k:'competent', n:'2', lib:'Désigner le salarié compétent en prévention',
+    src:'L.4644-1, I — l’employeur DÉSIGNE un ou plusieurs salariés compétents pour s’occuper des activités de protection et de prévention des risques professionnels ; ils bénéficient d’une formation en santé au travail dans les conditions de L.2315-16 à L.2315-18. À défaut, si les compétences internes ne le permettent pas, l’employeur peut faire appel à un intervenant extérieur, APRÈS AVIS du comité',
+    note:'La désignation est obligatoire quel que soit l’effectif — elle ne dépend d’aucun seuil. Le recours à l’extérieur n’est pas un choix libre : il suppose que les compétences internes manquent, et l’avis du comité.',
+    ctrl:['La désignation est-elle ÉCRITE, et le salarié désigné en a-t-il été informé ?',
+          'A-t-il reçu la formation en santé au travail prévue par le texte ?',
+          'S’il s’agit d’un intervenant extérieur, l’avis du comité a-t-il été recueilli avant ?',
+          'Dispose-t-il du temps et des moyens de remplir cette mission ?'],
+    doc:['designprev','Désignation du salarié compétent — modèle']},
+   {k:'informer', n:'3', lib:'Informer sur les risques — les huit points de R.4141-3-1',
+    src:'L.4141-1 — l’employeur ORGANISE ET DISPENSE une information sur les risques et les mesures prises pour y remédier, ainsi que sur les risques que les produits ou procédés font peser sur la SANTÉ PUBLIQUE OU L’ENVIRONNEMENT · R.4141-3-1 — cette information porte notamment sur : les modalités d’accès au document unique ; les mesures de prévention des risques qu’il identifie ; le rôle du service de santé au travail et des représentants du personnel · R.4141-2 — d’une manière COMPRÉHENSIBLE POUR CHACUN, lors de l’embauche et CHAQUE FOIS QUE NÉCESSAIRE',
+    ech:function(D){ return D.embauche||''; }, echLib:'lors de l’embauche',
+    note:'« Compréhensible pour chacun » vise la langue, le niveau de lecture, le handicap. Une note affichée en français à un salarié qui ne le lit pas n’informe personne — et le juge le dit.',
+    ctrl:['L’information porte-t-elle sur les MODALITÉS D’ACCÈS au document unique, et pas seulement sur son existence ?',
+          'Le rôle du service de santé au travail et des représentants du personnel y est-il expliqué ?',
+          'A-t-elle été dispensée d’une manière compréhensible par le salarié concerné, langue comprise ?',
+          'Une trace datée en existe-t-elle, signée du salarié ?'],
+    doc:['infosecu','Information sur les risques — support et émargement']},
+   {k:'former', n:'4', lib:'Dispenser la formation pratique à la sécurité — les quatre publics',
+    src:'L.4141-2 — l’employeur organise une formation PRATIQUE ET APPROPRIÉE à la sécurité au bénéfice : 1° des travailleurs qu’il EMBAUCHE ; 2° de ceux qui CHANGENT de poste de travail ou de technique ; 3° des SALARIÉS TEMPORAIRES, sauf travaux urgents par des personnes déjà qualifiées ; 4° À LA DEMANDE DU MÉDECIN DU TRAVAIL, des travailleurs qui reprennent après un arrêt d’au moins vingt et un jours',
+    ech:function(D){ return D.embauche||''; }, echLib:'lors de l’embauche',
+    note:'« Pratique » : au poste, sur les gestes, pas un diaporama. Le quatrième public — la reprise après vingt et un jours à la demande du médecin — est celui qu’on oublie systématiquement.',
+    ctrl:['La formation est-elle dispensée AU POSTE, sur les gestes et les risques réels ?',
+          'Les salariés qui ont changé de poste ou de technique en ont-ils bénéficié à nouveau ?',
+          'Les salariés temporaires y ont-ils eu droit comme les autres ?',
+          'Les demandes du médecin du travail après un arrêt d’au moins vingt et un jours sont-elles suivies ?'],
+    doc:['formsecu','Formation à la sécurité — programme et attestation']},
+   {k:'secours', n:'5', lib:'Organiser les premiers secours — et l’écrire',
+    src:'R.4224-14 — les lieux de travail sont équipés d’un MATÉRIEL DE PREMIERS SECOURS adapté à la nature des risques et FACILEMENT ACCESSIBLE · R.4224-15 — un membre du personnel reçoit la formation de secouriste dans CHAQUE ATELIER où sont accomplis des travaux dangereux, et sur chaque chantier employant vingt travailleurs au moins pendant plus de quinze jours où sont réalisés de tels travaux · R.4224-16 — en l’absence d’infirmiers, l’employeur prend, APRÈS AVIS DU MÉDECIN DU TRAVAIL, les mesures nécessaires ; ces mesures sont CONSIGNÉES DANS UN DOCUMENT tenu à disposition',
+    note:'Trois obligations distinctes, souvent réduites à une trousse dans un placard : le matériel, la personne formée par atelier dangereux, et le DOCUMENT écrit après avis du médecin. C’est le document qui manque presque toujours.',
+    ctrl:['Le matériel de premiers secours est-il adapté aux risques ET facilement accessible ?',
+          'Chaque atelier où sont accomplis des travaux dangereux compte-t-il un salarié formé aux premiers secours ?',
+          'Le document consignant l’organisation des secours existe-t-il, et a-t-il été établi APRÈS AVIS du médecin du travail ?',
+          'Est-il tenu à la disposition de l’agent de contrôle ?'],
+    doc:['orgsecours','Organisation des premiers secours — document consigné']},
+   {k:'incendie', n:'6', lib:'Afficher la consigne incendie et tenir les exercices semestriels',
+    src:'R.4227-37 — la consigne de sécurité incendie est établie et affichée DE MANIÈRE TRÈS APPARENTE, dans chaque local dont l’effectif dépasse cinq personnes · R.4227-38 — elle indique le matériel d’extinction et de secours, les personnes chargées de le mettre en action, celles chargées de diriger l’évacuation, et les MESURES SPÉCIFIQUES liées à la présence de personnes handicapées, dont le nombre et la localisation des espaces d’attente sécurisés · R.4227-39 — elle prévoit des essais et visites périodiques et des exercices ; ces exercices et essais ont lieu AU MOINS TOUS LES SIX MOIS',
+    ech:function(D){ return D.exercice?parcMois(D.exercice,6):''; }, echLib:'six mois après le dernier exercice',
+    note:'Les exercices apprennent trois choses nommées par le texte : RECONNAÎTRE le signal sonore d’alarme générale, LOCALISER et utiliser les espaces d’attente sécurisés, et se SERVIR des moyens de premier secours. Une évacuation chronométrée sans cela n’est pas l’exercice que le texte demande.',
+    ctrl:['La consigne est-elle affichée de manière TRÈS APPARENTE dans chaque local concerné ?',
+          'Nomme-t-elle les personnes chargées du matériel et celles chargées de diriger l’évacuation ?',
+          'Porte-t-elle les mesures liées à la présence de personnes handicapées et la localisation des espaces d’attente sécurisés ?',
+          'Le dernier exercice remonte-t-il à moins de six mois, et la date est-elle consignée ?'],
+    doc:['consigneinc','Consigne de sécurité incendie — modèle']},
+   {k:'dgi', n:'7', lib:'Traiter le danger grave et imminent',
+    src:'L.4131-1 — le travailleur ALERTE IMMÉDIATEMENT l’employeur de toute situation dont il a un motif raisonnable de penser qu’elle présente un danger grave et imminent, ainsi que de toute défectuosité des systèmes de protection ; IL PEUT SE RETIRER. L’employeur NE PEUT PAS lui demander de reprendre tant que le danger persiste · L.4131-2 — le représentant du personnel au comité qui constate une telle cause en alerte immédiatement l’employeur selon la procédure de L.4132-2',
+    note:'L’alerte d’un élu s’inscrit sur un registre spécial, et déclenche une ENQUÊTE IMMÉDIATE de l’employeur avec l’élu. En cas de désaccord sur la réalité du danger, l’inspecteur du travail est saisi. Le retrait n’a pas à être justifié a posteriori : il suffit du motif raisonnable au moment des faits.',
+    ctrl:['Un registre des dangers graves et imminents existe-t-il, coté et à feuillets non détachables ?',
+          'La procédure d’alerte et d’enquête est-elle écrite et connue des élus ?',
+          'Aucune reprise n’a-t-elle été exigée d’un salarié tant que le danger persistait ?',
+          'Aucune retenue sur salaire ni sanction n’a-t-elle suivi un retrait exercé de bonne foi ?'],
+    doc:['registredgi','Registre des dangers graves et imminents']},
+   {k:'exterieures', n:'8', lib:'Encadrer les interventions d’entreprises extérieures', opt:true,
+    src:'R.4511-1 et suivants — inspection commune préalable et PLAN DE PRÉVENTION lorsque les travaux dépassent un volume d’heures ou figurent sur la liste des travaux dangereux. Les seuils exacts et la liste sont À VÉRIFIER au texte avant de conclure qu’ils ne s’appliquent pas',
+    note:'Le plan de prévention est écrit dans deux cas : au-delà d’un volume d’heures, ou pour des travaux figurant sur une liste fixée par arrêté — quel qu’en soit le volume. L’inspection commune préalable, elle, est due dans TOUS les cas.',
+    ctrl:['Une inspection commune préalable a-t-elle eu lieu avec chaque entreprise extérieure ?',
+          'Un plan de prévention écrit a-t-il été établi lorsque le volume d’heures ou la nature des travaux l’imposait ?',
+          'Les protocoles de sécurité pour les chargements et déchargements sont-ils établis ?'],
+    doc:['planprev','Plan de prévention et inspection commune']},
+   {k:'conserver', n:'9', lib:'Conserver cinq ans — et les deux derniers contrôles',
+    src:'D.4711-3 — sauf dispositions particulières, l’employeur conserve les documents concernant les OBSERVATIONS ET MISES EN DEMEURE de l’inspection du travail, ainsi que ceux concernant les VÉRIFICATIONS ET CONTRÔLES mis à sa charge au titre de la santé-sécurité, DES CINQ DERNIÈRES ANNÉES et, EN TOUT ÉTAT DE CAUSE, ceux des DEUX DERNIERS contrôles ou vérifications. Il conserve pendant la même durée les COPIES DES DÉCLARATIONS D’ACCIDENTS DU TRAVAIL',
+    note:'« En tout état de cause, les deux derniers » : si une vérification est décennale, le rapport de 2014 se conserve toujours en 2026. Les cinq ans sont un plancher, pas une date de péremption.',
+    ctrl:['Les observations et mises en demeure de l’inspection des cinq dernières années sont-elles conservées ?',
+          'Les rapports de vérification des cinq dernières années le sont-ils, ET les deux derniers même s’ils sont plus anciens ?',
+          'Les copies des déclarations d’accidents du travail sont-elles conservées pendant la même durée ?']}
+  ]
  }
 };
 
@@ -32544,7 +32849,7 @@ function parcDoc(type){
     if(type.indexOf('nego:')===0){ negoDoc(type.slice(5)); return; }
     if(type.indexOf('cseinst:')===0){ cseinstDoc(type.slice(8)); return; }
     if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
-    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc','horairecoll','decomptett','plafondstt','forfaitjours'].indexOf(type)>=0){ ausDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc','horairecoll','decomptett','plafondstt','forfaitjours','designprev','infosecu','formsecu','orgsecours','consigneinc','registredgi','planprev'].indexOf(type)>=0){ ausDoc(type); return; }
 
     ausDoc(type);
   }catch(e){ alert('Modèle indisponible : '+e.message); }

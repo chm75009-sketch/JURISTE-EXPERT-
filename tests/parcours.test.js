@@ -520,6 +520,44 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(dec, 'le decompte hebdomadaire verifie les cinq plafonds sur des chiffres');
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— Le parcours de la prevention —');
+  const prev = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('prevention'); parcOuvrir('prevention');
+    parcDate('prevention', 'exercice', '2026-03-10');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/9 à votre situation/.test(prev), 'neuf etapes a la prevention',
+     (prev.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/COMBATTRE À LA SOURCE/.test(prev), 'les neuf principes sont cites (L.4121-2)');
+  ok(/AUCUN|ne dépend pas de l’effectif|quel que soit l’effectif/.test(prev),
+     'le salarie competent est du sans condition d\'effectif (L.4644-1)');
+  ok(/vingt et un jours/i.test(prev), 'le quatrieme public de la formation y est (L.4141-2, 4°)');
+  ok(/Échéance : 10 septembre 2026/.test(prev),
+     'l\'exercice incendie revient tous les six mois (R.4227-39)',
+     (prev.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/motif raisonnable/i.test(prev), 'le droit de retrait tient au motif raisonnable (L.4131-1)');
+  ok(/DEUX DERNIERS/.test(prev), 'et la conservation garde les deux derniers controles (D.4711-3)');
+
+  const inc = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+    window._docCurrent = null; parcDoc('consigneinc');
+    const h = window._docCurrent.html;
+    return { handicap: /espace d’attente sécurisé/i.test(h),
+             registre: /3 min 05/.test(h), quatre: /R.4227-38, 4°/.test(h) };
+  });
+  ok(inc.handicap && inc.quatre,
+     'la consigne incendie porte le point sur les personnes handicapees', JSON.stringify(inc));
+  ok(inc.registre, 'et le registre des exercices est chiffre');
+  const dgi = await page.evaluate(() => {
+    window._docCurrent = null; parcDoc('registredgi');
+    const h = window._docCurrent.html;
+    return /Aucune retenue sur salaire/.test(h) && /interdit de demander la reprise/i.test(h);
+  });
+  ok(dgi, 'le registre montre qu\'on ne retient pas le salaire d\'un retrait de bonne foi');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   console.log('\n— La verification de ce qui est declare fait —');
   const grilles = await page.evaluate(() => {
     let n = 0; const sans = [];
