@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.218';
+var JX_BUILD = 'v2026-08-23.219';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,17 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.219', d:'23 août 2026', t:[
+   'ONZIÈME PARCOURS — ORGANISER LES CONGÉS PAYÉS, neuf étapes. Onze parcours, 98 étapes, 253 questions de contrôle, 75 obligations reliées à leur pas à pas.',
+   'Les deux délais qui se confondent : la PÉRIODE s\u2019annonce deux mois avant SON OUVERTURE (D.3141-5) — pour une période s\u2019ouvrant le 1er mai, l\u2019annonce est due le 1er mars. L\u2019ORDRE DES DÉPARTS se communique à CHAQUE SALARIÉ un mois avant SON départ (D.3141-6). Les deux se calculent depuis vos dates.',
+   'Aucun accord ne peut exclure le 1er mai au 31 octobre : L.3141-13 dit que la période de prise le comprend « DANS TOUS LES CAS ». Il peut l\u2019élargir, jamais le réduire.',
+   'Les douze jours ouvrables CONTINUS doivent être « compris entre deux jours de repos hebdomadaire » (L.3141-19) — c\u2019est cette précision qui interdit de compter douze jours pris n\u2019importe comment. Le compteur type le montre sur des dates réelles.',
+   'L\u2019indemnité : les DEUX calculs sont chiffrés côte à côte. Sur l\u2019exemple, le dixième donne 1 326,64 € et le maintien de salaire 1 122,28 € — 204,36 € d\u2019écart, dus aux heures supplémentaires et à la prime d\u2019ancienneté qui entrent dans la base du dixième. Payer systématiquement le maintien, c\u2019est sous-payer les congés.',
+   'L\u2019oubli le plus fréquent est chiffré aussi : l\u2019indemnité de congé de l\u2019année précédente fait partie de la base du dixième (L.3141-24, I, 1°). L\u2019omettre coûtait 295 € sur l\u2019année dans l\u2019exemple.',
+   'La journée de solidarité : sept heures est un PLAFOND, réduit PROPORTIONNELLEMENT pour un temps partiel (L.3133-8). À 50 %, la limite est de trois heures trente.',
+   'Quatre modèles neufs : compteur de congés, annonce de la période, ordre des départs avec un conflit tranché motif par motif, et l\u2019indemnité en double calcul.',
+   'DÉFAUT CORRIGÉ, ET DÉSORMAIS INTERDIT PAR UN TEST : le nom « ordrecp » désignait déjà un modèle. Le premier servi l\u2019emportait — le même défaut que « odj » il y a trois versions. Un test vérifie maintenant qu\u2019aucun nom n\u2019a deux branches dans une même fonction. La vigilance ne suffisait pas.'
+ ]},
  {v:'v2026-08-23.218', d:'23 août 2026', t:[
    'LA REPRÉSENTATIVITÉ SYNDICALE, CALCULÉE SUR LE PREMIER TOUR DÉJÀ SAISI. Le module ne redemande rien : il lit les collèges et les listes du module d\u2019élections. Ce qui manquait à la saisie y a été ajouté \u2014 le collège de chaque liste, l\u2019organisation qui la présente, les voix candidat par candidat, et les inscrits, suffrages exprimés et sièges de chaque collège.',
    'LE SCORE D\u2019UNE LISTE EST UNE MOYENNE, JAMAIS UNE SOMME. Quatre candidats à 300, 250, 200 et 50 voix pèsent 200 dans leur collège, pas 800. L\u2019audience dans l\u2019entreprise rapporte la somme de ces moyennes au total des suffrages valablement exprimés de TOUS les collèges \u2014 y compris ceux où le syndicat n\u2019a pas présenté de liste. Le détail du calcul est écrit ligne à ligne, pas seulement le résultat.',
@@ -32618,6 +32629,148 @@ function ausDoc(type){
      +'<p><b>L’erreur évitée.</b> Un premier projet de fiche mentionnait « alerte non fondée, reprise demandée à 7 h 00 ». '
      +'L.4131-1 interdit de demander la reprise tant que le danger persiste — et c’est à l’enquête, non au chef de service '
      +'dans l’instant, de conclure sur la réalité du danger.</p>';
+  } else if(type==='compteurcp'){
+    T='Compteur de congés payés — modèle et exemple chiffré';
+    H=ausTete()
+     +'<p><b>COMPTEUR INDIVIDUEL DE CONGÉS PAYÉS</b> (article L.3141-3 du code du travail)</p>'
+     +'<p><b>PARTIE 1 — CE QUE LE COMPTEUR DOIT PORTER</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Colonne</th><th>Pourquoi elle est indispensable</th></tr>'
+     +'<tr><td>Période de référence</td><td>1er juin – 31 mai, ou année civile si un accord le prévoit. Sans elle, on ne sait pas de quels congés on parle</td></tr>'
+     +'<tr><td>Jours ACQUIS</td><td>2,5 jours ouvrables par mois de travail effectif, plafond de 30 jours ouvrables (L.3141-3)</td></tr>'
+     +'<tr><td>Jours PRIS, avec leurs dates</td><td>C’est le détail des dates, pas le total, qui permet de vérifier les douze jours continus et le fractionnement</td></tr>'
+     +'<tr><td>Jours RESTANTS</td><td>Solde à une date certaine</td></tr>'
+     +'<tr><td>Report éventuel</td><td>Des reliquats de la période précédente, s’ils sont dus</td></tr>'
+     +'<tr><td>Jours conventionnels</td><td>Ancienneté, fractionnement, congés de branche : ils se comptent À PART des congés légaux</td></tr></table>'
+     +'<p><b>Ouvrables ou ouvrés.</b> La loi compte en jours OUVRABLES : du lundi au samedi, hors jours fériés chômés. '
+     +'Trente jours ouvrables font cinq semaines. Un décompte en jours ouvrés — 25 jours, du lundi au vendredi — n’est '
+     +'possible que s’il n’est JAMAIS moins favorable, ce qui se vérifie salarié par salarié et semaine par semaine, '
+     +'notamment quand un jour férié tombe dans le congé.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE</b></p>'
+     +'<p>Salarié : <b>MARTIN Julien</b>, conducteur, entré le 3 mars 2019. Période de référence : '
+     +'<b>1<sup>er</sup> juin 2025 – 31 mai 2026</b>, douze mois de travail effectif.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Ligne</th><th>Détail</th><th>Jours ouvrables</th></tr>'
+     +'<tr><td>Acquisition</td><td>12 mois × 2,5</td><td><b>30,0</b></td></tr>'
+     +'<tr><td>Plafond L.3141-3</td><td>Trente jours ouvrables — atteint, non dépassé</td><td>30,0</td></tr>'
+     +'<tr><td>Pris — été</td><td>Du lundi 3 août au samedi 15 août 2026 inclus, soit deux semaines pleines</td><td>12,0</td></tr>'
+     +'<tr><td>Pris — Toussaint</td><td>Du lundi 26 au samedi 31 octobre 2026</td><td>6,0</td></tr>'
+     +'<tr><td>Pris — fin d’année</td><td>Du lundi 21 au jeudi 24 décembre 2026 (le 25 est férié chômé, non décompté)</td><td>4,0</td></tr>'
+     +'<tr><td><b>Total pris</b></td><td></td><td><b>22,0</b></td></tr>'
+     +'<tr><td><b>Solde au 31 décembre 2026</b></td><td></td><td><b>8,0</b></td></tr></table>'
+     +'<p><b>Les trois vérifications que ce compteur permet.</b></p>'
+     +'<p>· <b>Douze jours continus</b> (L.3141-19) : la fraction du 3 au 15 août fait exactement douze jours ouvrables, '
+     +'comprise entre le dimanche 2 et le dimanche 16 — deux jours de repos hebdomadaire. Condition remplie.<br>'
+     +'· <b>Période du 1er mai au 31 octobre</b> (L.3141-23, 1°) : les douze jours continus y sont bien attribués.<br>'
+     +'· <b>Fractionnement</b> : les 4 jours de décembre sont pris HORS de la période du 1er mai au 31 octobre, au-delà du '
+     +'douzième jour. Ils ouvrent droit aux jours supplémentaires de L.3141-23, 2° — À RELIRE au texte pour le nombre exact '
+     +'avant de créditer.</p>'
+     +'<p><b>Le jour férié, montré.</b> Du 21 au 24 décembre, ce sont quatre jours ouvrables. Le vendredi 25 décembre est '
+     +'férié chômé : il n’est PAS décompté du congé. Un décompte en jours ouvrés qui l’aurait compté aurait été moins '
+     +'favorable — c’est exactement le cas où la conversion ouvrés/ouvrables se retourne contre l’employeur.</p>';
+  } else if(type==='annoncecp'){
+    T='Annonce de la période de prise des congés';
+    H=ausTete()
+     +'<p><b>ANNONCE DE LA PÉRIODE DE PRISE DES CONGÉS PAYÉS</b> (articles L.3141-13, L.3141-16 et D.3141-5)</p>'
+     +'<p><b>PARTIE 1 — LE DÉLAI ET SON POINT DE DÉPART</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Point</th><th>Ce que dit le texte</th></tr>'
+     +'<tr><td>Le délai</td><td>D.3141-5 — la période de prise est portée à la connaissance des salariés AU MOINS DEUX MOIS AVANT L’OUVERTURE de cette période</td></tr>'
+     +'<tr><td>Le point de départ</td><td>L’OUVERTURE de la période, pas les départs. Période s’ouvrant le 1er mai → annonce due au plus tard le 1er mars</td></tr>'
+     +'<tr><td>Le contenu minimal</td><td>Les dates d’ouverture et de clôture de la période de prise</td></tr>'
+     +'<tr><td>Qui la fixe</td><td>L.3141-15 : un accord d’entreprise ou, à défaut, de branche. L.3141-16 : à défaut, l’employeur, APRÈS AVIS du comité social et économique le cas échéant</td></tr>'
+     +'<tr><td>La limite infranchissable</td><td>L.3141-13 — la période comprend DANS TOUS LES CAS le 1er mai au 31 octobre</td></tr></table>'
+     +'<p><b>Modèle.</b> « Note à l’ensemble du personnel. En application des articles L.3141-13 et D.3141-5 du code du '
+     +'travail, la période de prise des congés payés acquis au titre de la période de référence [DATES] est fixée du [DATE] '
+     +'au [DATE]. [Le comité social et économique a rendu son avis le (DATE).] Les demandes de congés sont à adresser à '
+     +'[SERVICE] avant le [DATE]. L’ordre des départs vous sera communiqué individuellement, au plus tard un mois avant '
+     +'votre date de départ, conformément à l’article D.3141-6. »</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Note affichée et remise contre émargement le lundi 23 février 2026.</b></p>'
+     +'<p style="border:1px solid #000;padding:10px">« La période de prise des congés payés acquis du 1<sup>er</sup> juin 2025 '
+     +'au 31 mai 2026 est fixée <b>du 1<sup>er</sup> mai 2026 au 30 avril 2027</b>. Le comité social et économique a rendu son '
+     +'avis lors de la séance du 12 février 2026, procès-verbal n° 2026-02.<br><br>'
+     +'Vos demandes sont à déposer avant le <b>vendredi 27 mars 2026</b>. L’ordre des départs vous sera communiqué '
+     +'individuellement au plus tard un mois avant votre date de départ.<br><br>'
+     +'Rappel : une fraction continue d’au moins douze jours ouvrables doit être prise entre le 1<sup>er</sup> mai et le '
+     +'31 octobre 2026. »</p>'
+     +'<p><b>Le calcul du délai, montré.</b> La période s’ouvre le <b>1<sup>er</sup> mai 2026</b>. Deux mois avant : '
+     +'<b>1<sup>er</sup> mars 2026</b>. L’annonce du 23 février est donc dans les temps, avec six jours de marge.</p>'
+     +'<p><b>L’erreur évitée.</b> Un premier projet prévoyait l’annonce le 15 mars, « bien avant les départs d’été ». '
+     +'Le délai ne court pas depuis les départs mais depuis l’OUVERTURE de la période : le 15 mars aurait été hors délai '
+     +'de deux semaines.</p>'
+     +'<p><b>Le point vérifié.</b> La période retenue, du 1<sup>er</sup> mai au 30 avril, englobe bien le 1<sup>er</sup> mai '
+     +'au 31 octobre que L.3141-13 impose « dans tous les cas ». Une période qui aurait couru du 1<sup>er</sup> juin au '
+     +'31 mai aurait exclu le mois de mai — ce qu’aucun accord ne peut faire.</p>';
+  } else if(type==='ordredeparts'){
+    T='Ordre des départs en congé — tableau et communication';
+    H=ausTete()
+     +'<p><b>ORDRE DES DÉPARTS EN CONGÉ</b> (articles L.3141-16 et D.3141-6)</p>'
+     +'<p><b>PARTIE 1 — LES TROIS CRITÈRES, ET LE DÉLAI D’UN MOIS</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Critère</th><th>Texte</th><th>Comment il se traduit</th></tr>'
+     +'<tr><td>La SITUATION DE FAMILLE</td><td>L.3141-16, 1°, b</td><td>« Notamment les possibilités de congé, dans le secteur privé ou la fonction publique, du conjoint ou du partenaire lié par un pacte civil de solidarité » — la contrainte du conjoint compte</td></tr>'
+     +'<tr><td>La DURÉE DES SERVICES</td><td>L.3141-16, 1°, b</td><td>L’ancienneté chez l’employeur</td></tr>'
+     +'<tr><td>L’ACTIVITÉ CHEZ D’AUTRES EMPLOYEURS</td><td>L.3141-16, 1°, b</td><td>Le salarié multi-employeurs doit pouvoir accorder ses congés</td></tr>'
+     +'<tr><td>La communication</td><td>D.3141-6</td><td>« Par tout moyen, À CHAQUE SALARIÉ, UN MOIS AVANT SON DÉPART »</td></tr>'
+     +'<tr><td>La modification</td><td>L.3141-16, 2°</td><td>Pas moins d’un mois avant la date prévue, SAUF circonstances exceptionnelles</td></tr></table>'
+     +'<p><b>Ce que « tenir compte » veut dire.</b> Les trois critères ne se choisissent pas : ils se prennent en compte '
+     +'ensemble. L’employeur garde le pouvoir de trancher, mais il doit pouvoir montrer COMMENT il a arbitré — ce qui '
+     +'suppose de l’écrire au moment de la décision, pas après la contestation.</p>'
+     +'<p><b>Ce qui ne peut PAS servir de critère.</b> Rien qui relève d’un motif discriminatoire. Un ordre qui '
+     +'défavoriserait systématiquement les salariés d’un même âge, sexe ou origine se retourne, quelle que soit '
+     +'l’intention.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF REMPLI — SARL EXEMPLE</b></p>'
+     +'<p><b>Été 2026 — service exploitation, 6 conducteurs, 2 devant rester en poste chaque semaine.</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Salarié</th><th>Demandé</th><th>Accordé</th><th>Critère décisif, écrit</th></tr>'
+     +'<tr><td>MARTIN J.</td><td>3 – 15 août</td><td><b>3 – 15 août</b></td><td>Ancienneté 2019 ; conjointe enseignante, congés imposés en août</td></tr>'
+     +'<tr><td>BENALI T.</td><td>3 – 15 août</td><td><b>17 – 29 août</b></td><td>Entré en mars 2026 ; sans contrainte familiale déclarée. Demande la plus récente en ancienneté</td></tr>'
+     +'<tr><td>RENAUD C.</td><td>20 juillet – 1er août</td><td><b>20 juillet – 1er août</b></td><td>Second employeur (association) fermé sur cette période</td></tr>'
+     +'<tr><td>DUVAL P.</td><td>Août, dates ouvertes</td><td><b>17 – 29 août</b></td><td>A indiqué être flexible ; complète le binôme de la seconde quinzaine</td></tr>'
+     +'<tr><td>LEROY P.</td><td>6 – 18 juillet</td><td><b>6 – 18 juillet</b></td><td>Aucune concurrence sur ces dates</td></tr>'
+     +'<tr><td>BEN SAID M.</td><td>3 – 15 août</td><td><b>13 – 25 juillet</b></td><td>Trois demandes sur la première quinzaine d’août pour deux places ; ancienneté 2021, la plus récente des trois. Alternative proposée et acceptée le 4 avril</td></tr></table>'
+     +'<p><b>Communication.</b> Tableau remis en main propre contre émargement à chaque salarié le <b>lundi 6 avril 2026</b>. '
+     +'Premier départ : LEROY, le 6 juillet. Un mois avant : le 6 juin. Le délai de D.3141-6 est tenu pour tous, avec deux '
+     +'mois de marge.</p>'
+     +'<p><b>Le conflit, et comment il a été tranché.</b> Trois salariés demandaient la première quinzaine d’août pour deux '
+     +'places. MARTIN a été retenu sur deux critères cumulés — ancienneté et contrainte du conjoint. BENALI a été déplacé '
+     +'sur l’ancienneté seule. BEN SAID s’est vu proposer juillet, qu’il a accepté par écrit. <b>Chaque arbitrage porte son '
+     +'motif</b> : c’est ce qui distingue un ordre des départs d’une décision arbitraire.</p>'
+     +'<p><b>L’erreur évitée.</b> Le premier tableau ne portait que les dates. Sans la colonne des critères, l’employeur '
+     +'n’aurait rien eu à opposer à BENALI s’il avait contesté — alors que la décision était justifiée.</p>';
+  } else if(type==='indemcp'){
+    T='Indemnité de congés payés — les deux calculs comparés';
+    H=ausTete()
+     +'<p><b>INDEMNITÉ DE CONGÉS PAYÉS</b> (articles L.3141-24 et L.3141-28)</p>'
+     +'<p><b>PARTIE 1 — DEUX CALCULS, LE PLUS FAVORABLE L’EMPORTE</b></p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Méthode</th><th>Calcul</th><th>Texte</th></tr>'
+     +'<tr><td>La règle du DIXIÈME</td><td>Un dixième de la rémunération brute totale perçue au cours de la période de référence, rapporté aux jours pris</td><td>L.3141-24, I</td></tr>'
+     +'<tr><td>Le MAINTIEN de salaire</td><td>La rémunération que le salarié aurait perçue s’il avait travaillé</td><td>Règle de comparaison — le salarié ne peut recevoir moins que le plus favorable des deux</td></tr></table>'
+     +'<p><b>Ce qui entre dans la base du dixième</b>, selon L.3141-24, I : l’INDEMNITÉ DE CONGÉ DE L’ANNÉE PRÉCÉDENTE ; '
+     +'les indemnités afférentes à la contrepartie obligatoire en repos des articles L.3121-30, L.3121-33 et L.3121-38 ; '
+     +'les périodes assimilées à du travail effectif. La liste complète est à relire au texte : elle a été modifiée en 2024.</p>'
+     +'<p><b>À la rupture.</b> L.3141-28 — une indemnité compensatrice est due pour la fraction de congé non prise, '
+     +'<b>QUE LA RUPTURE RÉSULTE DU FAIT DU SALARIÉ OU DU FAIT DE L’EMPLOYEUR</b>. Elle est également due aux ayants droit '
+     +'du salarié décédé. Symétriquement, L.3141-29 : le salarié qui a pris plus que son dû rembourse le trop-perçu — '
+     +'sauf si la rupture est provoquée par une faute lourde de l’employeur.</p>'
+     +'<p><b>PARTIE 2 — EXEMPLAIRE FICTIF CHIFFRÉ — SARL EXEMPLE</b></p>'
+     +'<p>Salarié : <b>MARTIN Julien</b>. Période de référence 1<sup>er</sup> juin 2025 – 31 mai 2026. '
+     +'Congé pris : <b>12 jours ouvrables</b>, du 3 au 15 août 2026.</p>'
+     +'<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%">'+'<tr><th>Élément de la base du dixième</th><th>Montant brut</th></tr>'
+     +'<tr><td>Salaires de base, 12 mois</td><td>26 400,00 €</td></tr>'
+     +'<tr><td>Heures supplémentaires majorées</td><td>2 880,00 €</td></tr>'
+     +'<tr><td>Indemnité de congé de l’année précédente</td><td>2 950,00 €</td></tr>'
+     +'<tr><td>Prime d’ancienneté (12 × 78 €)</td><td>936,00 €</td></tr>'
+     +'<tr><td><b>Rémunération brute totale de la période</b></td><td><b>33 166,00 €</b></td></tr>'
+     +'<tr><td><b>Indemnité annuelle au dixième</b> (33 166 ÷ 10)</td><td><b>3 316,60 €</b> pour 30 jours ouvrables</td></tr>'
+     +'<tr><td>Pour les 12 jours pris (3 316,60 × 12 ÷ 30)</td><td><b>1 326,64 €</b></td></tr></table>'
+     +'<p><b>Le maintien de salaire, pour comparaison.</b> Salaire mensuel de base au moment du congé : 2 431,60 €. '
+     +'Douze jours ouvrables sur les 26 jours ouvrables d’août 2026 : 2 431,60 × 12 ÷ 26 = <b>1 122,28 €</b>.</p>'
+     +'<p><b>Résultat.</b> Le dixième donne 1 326,64 €, le maintien 1 122,28 €. <b>C’est le dixième qui s’applique</b>, '
+     +'soit <b>204,36 € de plus</b>. La différence vient des heures supplémentaires et de la prime d’ancienneté, qui '
+     +'entrent dans la base du dixième et pas dans le salaire de base.</p>'
+     +'<p><b>Ce que l’exemple enseigne.</b> Chez un salarié qui fait des heures supplémentaires régulières, le dixième est '
+     +'presque toujours plus favorable. Payer systématiquement le maintien de salaire, c’est sous-payer les congés — et '
+     +'l’écart se réclame sur trois ans.</p>'
+     +'<p><b>L’oubli le plus fréquent.</b> L’indemnité de congé de l’année précédente — ici 2 950 € — fait partie de la base '
+     +'du dixième (L.3141-24, I, 1°). L’omettre aurait donné 3 021,60 € au lieu de 3 316,60 €, soit <b>295 € de moins</b> '
+     +'sur l’année.</p>';
   } else if(type==='vip'){
     T='Visite d’information et de prévention — demande et suivi';
     H=ausTete()
@@ -32863,7 +33016,11 @@ var AUS_PARC = {
   incendie:['prevention','incendie'], extincteurs:['prevention','incendie'],
   dgi:['prevention','dgi'],
   coactivite:['prevention','exterieures'], protocole:['prevention','exterieures'],
-  conserv:['prevention','conserver']
+  conserv:['prevention','conserver'],
+  /* Conges payes */
+  cpacq:['congespayes','acquerir'], cpperiode:['congespayes','periode'],
+  cpdelais:['congespayes','annoncer'], cpordre:['congespayes','ordre'],
+  solidarite:['congespayes','solidarite']
 };
 function ausParc(id){ var x=AUS_PARC[id]; return x?{p:x[0], e:x[1], titre:(typeof PARCOURS!=='undefined'&&PARCOURS[x[0]]?PARCOURS[x[0]].titre:'')}:null; }
 
@@ -33591,6 +33748,88 @@ var PARCOURS={
           'Les rapports de vérification des cinq dernières années le sont-ils, ET les deux derniers même s’ils sont plus anciens ?',
           'Les copies des déclarations d’accidents du travail sont-elles conservées pendant la même durée ?']}
   ]
+ },
+ congespayes:{
+  titre:'Organiser les congés payés',
+  sous:'L’acquisition, la période annoncée deux mois avant, l’ordre communiqué un mois avant, les douze jours continus, le fractionnement et ses jours supplémentaires, l’indemnité au dixième — et la journée de solidarité.',
+  seuil:0,
+  pre:[
+   {k:'accord',  q:'doc',  lib:'L’accord d’entreprise ou, à défaut, de branche qui fixe la période de prise, l’ordre des départs et les délais de modification (L.3141-15)'},
+   {k:'periode', q:'info', lib:'La période de RÉFÉRENCE d’acquisition retenue : 1er juin – 31 mai, ou année civile si un accord le prévoit'},
+   {k:'compteurs',q:'piece',lib:'Les compteurs individuels : jours acquis, jours pris, jours restants, au jour près'},
+   {k:'famille', q:'info', lib:'Pour l’ordre des départs : situation de famille, ancienneté, et autres employeurs des salariés concernés'},
+   {k:'ferme',   q:'info', lib:'Les dates de fermeture éventuelle de l’établissement — elles changent le régime du fractionnement'},
+   {k:'salaires',q:'piece',lib:'La rémunération brute totale de la période de référence, salarié par salarié — c’est la base du dixième'},
+   {k:'solid',   q:'info', lib:'Les modalités retenues pour la journée de solidarité, et la trace de leur mise en place'},
+   {k:'ccn',     q:'doc',  lib:'La convention collective : jours conventionnels supplémentaires, ancienneté, fractionnement'}
+  ],
+  dates:[
+   {k:'ouv',   lib:'Ouverture de la période de prise des congés', aide:'Elle doit être annoncée aux salariés au moins deux mois avant.'},
+   {k:'depart',lib:'Premier départ prévu', aide:'L’ordre des départs se communique un mois avant le départ.'}
+  ],
+  etapes:[
+   {k:'acquerir', n:'1', lib:'Compter l’acquisition — deux jours et demi par mois',
+    src:'L.3141-3 — le salarié a droit à un congé de DEUX JOURS ET DEMI OUVRABLES par mois de travail effectif chez le même employeur ; la durée totale du congé exigible NE PEUT EXCÉDER TRENTE JOURS OUVRABLES',
+    note:'Jours OUVRABLES : du lundi au samedi, fériés chômés exclus. Trente jours ouvrables font cinq semaines. Un décompte en jours ouvrés — du lundi au vendredi — est possible s’il n’est jamais moins favorable, ce qui se vérifie salarié par salarié, pas en principe.',
+    ctrl:['Le compteur de chaque salarié porte-t-il les jours acquis, pris et restants, à une date certaine ?',
+          'Le décompte est-il fait en jours OUVRABLES, ou en jours ouvrés selon une règle écrite jamais moins favorable ?',
+          'Les périodes assimilées à du travail effectif sont-elles comptées dans l’acquisition ?'],
+    doc:['compteurcp','Compteur de congés payés — modèle et exemple chiffré']},
+   {k:'periode', n:'2', lib:'Fixer la période de prise — le 1er mai au 31 octobre y est TOUJOURS',
+    src:'L.3141-13 — les congés sont pris dans une période qui comprend DANS TOUS LES CAS la période du 1er mai au 31 octobre de chaque année · L.3141-15 — un accord d’entreprise ou, à défaut, de branche fixe la période de prise, l’ordre des départs et les délais de modification · L.3141-16 — à défaut d’accord, l’employeur les définit APRÈS AVIS, le cas échéant, du comité social et économique',
+    note:'« Dans tous les cas » : aucun accord ne peut exclure la période du 1er mai au 31 octobre. Il peut l’élargir, jamais la réduire.',
+    ctrl:['La période de prise retenue comprend-elle bien le 1er mai au 31 octobre ?',
+          'Est-elle fixée par accord, ou à défaut par l’employeur APRÈS AVIS du comité ?',
+          'Cet avis figure-t-il à un procès-verbal daté ?']},
+   {k:'annoncer', n:'3', lib:'Annoncer la période — DEUX MOIS avant son ouverture',
+    src:'D.3141-5 — la période de prise des congés payés est portée par l’employeur à la connaissance des salariés AU MOINS DEUX MOIS AVANT L’OUVERTURE de cette période',
+    ech:function(D){ return D.ouv?parcMois(D.ouv,-2):''; }, echLib:'au plus tard, deux mois avant l’ouverture',
+    note:'Deux mois avant l’OUVERTURE de la période, pas avant les départs. Pour une période s’ouvrant le 1er mai, l’annonce est due au plus tard le 1er mars.',
+    ctrl:['L’annonce a-t-elle été faite au moins deux mois avant l’ouverture de la période ?',
+          'A-t-elle été portée à la connaissance de TOUS les salariés, et par un moyen qui en laisse trace ?'],
+    doc:['annoncecp','Annonce de la période de prise — modèle']},
+   {k:'ordre', n:'4', lib:'Arrêter l’ordre des départs — et le communiquer UN MOIS avant',
+    src:'L.3141-16, 1°, b — à défaut d’accord, l’employeur définit l’ordre des départs en tenant compte : de la SITUATION DE FAMILLE des bénéficiaires, notamment des possibilités de congé du conjoint ou du partenaire de PACS ; de la DURÉE DES SERVICES chez l’employeur ; de leur ACTIVITÉ CHEZ UN OU PLUSIEURS AUTRES EMPLOYEURS · D.3141-6 — l’ordre des départs est communiqué, PAR TOUT MOYEN, à chaque salarié UN MOIS AVANT SON DÉPART',
+    ech:function(D){ return D.depart?parcMois(D.depart,-1):''; }, echLib:'au plus tard, un mois avant le départ',
+    note:'Les trois critères sont dans le texte : ils se prennent en compte, ils ne se choisissent pas. Et l’ordre se communique À CHAQUE SALARIÉ, pas seulement affiché.',
+    ctrl:['Les trois critères de L.3141-16 ont-ils été pris en compte, et la façon dont ils l’ont été est-elle écrite ?',
+          'L’ordre a-t-il été communiqué à chaque salarié au moins un mois avant son départ ?',
+          'La trace de cette communication existe-t-elle, salarié par salarié ?'],
+    doc:['ordredeparts','Ordre des départs — tableau et communication']},
+   {k:'modifier', n:'5', lib:'Ne modifier qu’en respectant le délai — un mois à défaut d’accord', opt:true,
+    src:'L.3141-16, 2° — à défaut de stipulation conventionnelle, l’employeur ne peut, sauf en cas de CIRCONSTANCES EXCEPTIONNELLES, modifier l’ordre et les dates de départ MOINS D’UN MOIS avant la date de départ prévue',
+    note:'« Circonstances exceptionnelles » : l’accroissement d’activité prévisible n’en est pas une, et le juge apprécie. Une modification tardive engage l’employeur sur les frais déjà engagés par le salarié.',
+    ctrl:['Toute modification est-elle intervenue au moins un mois avant la date de départ prévue ?',
+          'À défaut, les circonstances exceptionnelles invoquées sont-elles écrites et datées ?',
+          'Les frais que le salarié avait déjà engagés ont-ils été pris en charge ?']},
+   {k:'douze', n:'6', lib:'Garantir les douze jours ouvrables continus',
+    src:'L.3141-19 — lorsque le congé principal est d’une durée SUPÉRIEURE À DOUZE JOURS OUVRABLES, il peut être fractionné AVEC L’ACCORD DU SALARIÉ ; cet accord n’est pas nécessaire lorsque le congé a lieu pendant la période de FERMETURE de l’établissement. Une des fractions est AU MOINS ÉGALE À DOUZE JOURS OUVRABLES CONTINUS compris entre DEUX JOURS DE REPOS HEBDOMADAIRE · L.3141-23, 1° — à défaut d’accord, cette fraction continue est attribuée pendant la période du 1er mai au 31 octobre',
+    note:'Douze jours ouvrables continus « compris entre deux jours de repos hebdomadaire » : la fraction commence après un repos et se termine avant un autre. C’est cette précision qui interdit de compter douze jours pris n’importe comment.',
+    ctrl:['Chaque salarié dont le congé principal dépasse douze jours a-t-il bénéficié d’une fraction continue d’au moins douze jours ouvrables ?',
+          'Cette fraction est-elle comprise entre deux jours de repos hebdomadaire ?',
+          'A-t-elle été attribuée entre le 1er mai et le 31 octobre, sauf accord contraire ?',
+          'Lorsque le fractionnement a été décidé hors fermeture, l’accord du salarié a-t-il été recueilli par écrit ?']},
+   {k:'fraction', n:'7', lib:'Accorder les jours supplémentaires de fractionnement', opt:true,
+    src:'L.3141-23, 2° — à défaut d’accord : les jours restant dus au-delà du douzième peuvent être accordés en une ou plusieurs fois EN DEHORS de la période du 1er mai au 31 octobre, et ouvrent alors droit à des jours supplémentaires. Les règles exactes de leur nombre sont À RELIRE au texte de L.3141-23 avant application',
+    note:'Ces jours supplémentaires sont dus DE PLEIN DROIT quand la condition est remplie : ils ne se demandent pas. Le salarié peut y renoncer, mais la renonciation doit être écrite et éclairée.',
+    ctrl:['Les jours pris hors de la période du 1er mai au 31 octobre ont-ils été identifiés salarié par salarié ?',
+          'Les jours supplémentaires de fractionnement dus ont-ils été crédités sans que le salarié ait à les réclamer ?',
+          'Les renonciations éventuelles sont-elles écrites, datées et signées ?']},
+   {k:'indemnite', n:'8', lib:'Payer l’indemnité — le dixième, ou le maintien, selon ce qui est le plus favorable',
+    src:'L.3141-24, I — le congé annuel ouvre droit à une indemnité égale au DIXIÈME de la rémunération brute totale perçue au cours de la période de référence ; sont pris en compte, notamment, l’indemnité de congé de l’année précédente, les indemnités de contrepartie obligatoire en repos et les périodes assimilées · L.3141-28 — à la rupture, une INDEMNITÉ COMPENSATRICE est due pour la fraction non prise, QUE LA RUPTURE RÉSULTE DU FAIT DU SALARIÉ OU DE L’EMPLOYEUR, et elle est due aux ayants droit en cas de décès',
+    note:'Les deux modes de calcul — le dixième et le maintien de salaire — se comparent, et le plus favorable au salarié s’applique. Comparer une fois par an ne suffit pas : la comparaison se fait à chaque prise.',
+    ctrl:['Les deux modes de calcul ont-ils été comparés, et le plus favorable retenu ?',
+          'L’indemnité de congé de l’année précédente est-elle bien incluse dans la base du dixième ?',
+          'À chaque rupture, l’indemnité compensatrice a-t-elle été versée, quel qu’en soit le motif ?'],
+    doc:['indemcp','Indemnité de congés payés — les deux calculs comparés']},
+   {k:'solidarite', n:'9', lib:'Fixer et tracer la journée de solidarité',
+    src:'L.3133-7 — la journée de solidarité prend la forme d’une journée supplémentaire de travail NON RÉMUNÉRÉE pour les salariés, et d’une contribution pour les employeurs · L.3133-8 — le travail accompli DANS LA LIMITE DE SEPT HEURES ne donne pas lieu à rémunération pour les salariés mensualisés ; pour les salariés au forfait en jours, dans la limite de la valeur d’une journée ; pour les salariés à temps partiel, la limite de sept heures est réduite PROPORTIONNELLEMENT à la durée contractuelle',
+    note:'Sept heures est un PLAFOND : au-delà, les heures se paient. Et pour un temps partiel à 50 %, la limite est de trois heures trente, pas de sept. Le 1er mai ne peut pas être retenu comme journée de solidarité.',
+    ctrl:['Les modalités de la journée de solidarité sont-elles fixées par accord, ou à défaut par décision de l’employeur après avis du comité ?',
+          'La limite de sept heures est-elle réduite proportionnellement pour les salariés à temps partiel ?',
+          'Les heures accomplies au-delà de cette limite ont-elles été rémunérées ?',
+          'La journée retenue est-elle tracée sur les documents de décompte du temps de travail ?']}
+  ]
  }
 };
 
@@ -33769,7 +34008,7 @@ function parcDoc(type){
     if(type.indexOf('nego:')===0){ negoDoc(type.slice(5)); return; }
     if(type.indexOf('cseinst:')===0){ cseinstDoc(type.slice(8)); return; }
     if(['convocation','odj','pvbureau','ricse','documentation'].indexOf(type)>=0){ cseinstDoc(type); return; }
-    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc','horairecoll','decomptett','plafondstt','forfaitjours','designprev','infosecu','formsecu','orgsecours','consigneinc','registredgi','planprev'].indexOf(type)>=0){ ausDoc(type); return; }
+    if(['commissions','formelus','heuresdeleg','budgets','ri','ridepot','pvri','convdisc','madconserv','pventretien','notifdisc','odjcse','pvcse','duerp','papripact','affichages','cdi','cdd','dpae','vip','mutuelle','essai','infoemb','tpartiel','accueilsecu','motifeco','convperso','cranentretien','notifperso','precisperso','certif','stc','horairecoll','decomptett','plafondstt','forfaitjours','designprev','infosecu','formsecu','orgsecours','consigneinc','registredgi','planprev','compteurcp','annoncecp','ordredeparts','indemcp'].indexOf(type)>=0){ ausDoc(type); return; }
 
     ausDoc(type);
   }catch(e){ alert('Modèle indisponible : '+e.message); }

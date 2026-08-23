@@ -558,6 +558,54 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(dgi, 'le registre montre qu\'on ne retient pas le salaire d\'un retrait de bonne foi');
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
 
+  console.log('\n— Le parcours des conges payes —');
+  const cp = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; parcRAZ('congespayes'); parcOuvrir('congespayes');
+    parcDate('congespayes', 'ouv', '2026-05-01');
+    parcDate('congespayes', 'depart', '2026-07-06');
+    return document.getElementById('parcguide-zone').innerText;
+  });
+  ok(/9 à votre situation/.test(cp), 'neuf etapes aux conges payes',
+     (cp.match(/étapes — [^\n]*/) || [''])[0]);
+  ok(/Échéance : 1er mars 2026/.test(cp),
+     'la periode s\'annonce deux mois avant son OUVERTURE (D.3141-5)',
+     (cp.match(/Échéance[^\n]*/g) || []).join(' | '));
+  ok(/Échéance : 6 juin 2026/.test(cp),
+     'et l\'ordre des departs un mois avant le depart (D.3141-6)');
+  ok(/DANS TOUS LES CAS/.test(cp), 'le 1er mai au 31 octobre est toujours compris (L.3141-13)');
+  ok(/DOUZE JOURS OUVRABLES CONTINUS/.test(cp), 'les douze jours continus sont exiges (L.3141-19)');
+  ok(/deux jours de repos hebdomadaire/i.test(cp), 'et compris entre deux repos hebdomadaires');
+  ok(/DU FAIT DU SALARIÉ OU DE L’EMPLOYEUR/.test(cp),
+     'l\'indemnite compensatrice est due quel que soit le motif (L.3141-28)');
+  ok(/proportionnellement/i.test(cp),
+     'la journee de solidarite se reduit au prorata pour un temps partiel (L.3133-8)');
+
+  const ind = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+    window._docCurrent = null; parcDoc('indemcp');
+    const h = window._docCurrent.html;
+    return { dixieme: /1 326,64/.test(h), maintien: /1 122,28/.test(h),
+             ecart: /204,36/.test(h), oubli: /295 € de moins/.test(h) };
+  });
+  ok(ind.dixieme && ind.maintien && ind.ecart,
+     'les deux calculs sont chiffres et compares', JSON.stringify(ind));
+  ok(ind.oubli, 'et l\'oubli de l\'indemnite de l\'annee precedente est chiffre');
+  const comp = await page.evaluate(() => {
+    window._docCurrent = null; parcDoc('compteurcp');
+    const h = window._docCurrent.html;
+    return /le 25 est férié chômé, non décompté/.test(h) && /exactement douze jours ouvrables/.test(h);
+  });
+  ok(comp, 'le compteur montre le ferie non decompte et les douze jours continus');
+  const ord = await page.evaluate(() => {
+    window._docCurrent = null; parcDoc('ordredeparts');
+    const h = window._docCurrent.html;
+    return /Chaque arbitrage porte son motif/.test(h) && /Trois salariés demandaient/.test(h);
+  });
+  ok(ord, 'l\'ordre des departs montre un conflit tranche, motif par motif');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
   console.log('\n— La verification de ce qui est declare fait —');
   const grilles = await page.evaluate(() => {
     let n = 0; const sans = [];
@@ -623,6 +671,29 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      (rap.h.match(/\d+ étape\(s\) sur \d+/) || [''])[0]);
   ok(/sans réponse/.test(rap.h), 'et rend les questions restées sans réponse');
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  console.log('\n— Aucun nom de modele n\'est defini deux fois —');
+  /* « odj » puis « ordrecp » : deux fois le meme defaut. Un nom en double
+     dans une chaine de else-if, et le premier servi ecrase l'autre en
+     silence. On l'interdit desormais par un test, pas par la vigilance. */
+  /* Le meme nom dans DEUX fonctions distinctes est licite : parcDoc les
+     separe par prefixe (« nego: », « cseinst: »). Ce qui ne l'est pas,
+     c'est deux branches du meme nom dans la MEME fonction. */
+  const src = require('fs')
+    .readFileSync(require('path').resolve(__dirname, '..', 'index.html'), 'utf8');
+  const parFonction = {}; let fonction = '(hors fonction)';
+  src.split('\n').forEach(ligne => {
+    const f = ligne.match(/^function ([A-Za-z0-9_]+)\s*\(/);
+    if (f) fonction = f[1];
+    const m = ligne.match(/else if\(type==='([a-z0-9]+)'\)\{/);
+    if (m) {
+      const cle = fonction + '/' + m[1];
+      parFonction[cle] = (parFonction[cle] || 0) + 1;
+    }
+  });
+  const enDouble = Object.keys(parFonction).filter(k => parFonction[k] > 1);
+  ok(enDouble.length === 0,
+     'aucun nom de modele n\'a deux branches dans la meme fonction', enDouble.join(','));
 
   console.log('\n— La table audit → parcours ne renvoie nulle part —');
   const table = await page.evaluate(() => {
