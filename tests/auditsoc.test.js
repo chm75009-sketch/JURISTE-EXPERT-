@@ -41,7 +41,8 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   });
   ok(actives.indexOf('bdese') < 0, 'pas de BDESE dans la liste active a 20-49', actives.join(','));
   ok(actives.indexOf('cssct') < 0, 'pas de CSSCT non plus');
-  ok(t.indexOf('hors de votre taille') >= 0, 'les obligations ecartees restent visibles avec leur seuil');
+  ok(/ne vous sont pas posées — et pourquoi/.test(t),
+     'les obligations ecartees restent visibles, avec la raison de leur ecart');
 
   console.log('\n— Le « je ne sais pas » part au plan d\'action —');
   await page.evaluate(() => { ausRep('duerp', 'pas'); ausRep('registre', 'nsp'); ausRep('cse', 'ai'); });
@@ -455,13 +456,16 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
     return { n: n, sansQ: sansQ, sansN: sansN, total: AUS_OBLIG.length,
              premier: AUS_OBLIG[0].id, pilote: !!AUS_OBLIG[0].pilote };
   });
-  ok(nat.total === 165, '165 questions apres separation des questions doubles', nat.total);
+  /* 165 apres les dix-sept separations, plus les deux questions pilotes
+     — accord de L.2315-45 et etablissement de L.4521-1 — et la scission
+     du comite central : 168. */
+  ok(nat.total === 168, '168 questions : 165 + deux pilotes + le comite central scinde', nat.total);
   ok(nat.sansQ.length === 0 && nat.sansN.length === 0,
      'chacune porte sa question et sa nature', nat.sansQ.concat(nat.sansN).join(','));
   ok(nat.premier === 'cse' && nat.pilote,
      'la question du comite OUVRE le questionnaire — on ne demande pas la consultation avant',
      nat.premier);
-  ok(nat.n.piece === 29 && nat.n.acte === 42 && nat.n.etat === 41 && nat.n.cond === 53,
+  ok(nat.n.piece === 30 && nat.n.acte === 43 && nat.n.etat === 43 && nat.n.cond === 52,
      'les quatre natures sont reparties', JSON.stringify(nat.n));
 
   const menus = await page.evaluate(() => {
@@ -532,6 +536,105 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(/absence de comité elle-même/.test(sansCse),
      'sans comite, le rapport dit que le manquement est l\'absence de comite');
   await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  console.log('\n— Les questions pilotes, et ce qu\'elles commandent —');
+  const pil = await page.evaluate(() => {
+    E.effectif = '300'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; ausRecommencer(); ausRep('cse', 'ai');
+    const ctx = ausCtx();
+    const A = () => AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id);
+    ausRep('accordcom', 'pas'); const sans = A();
+    ausRep('accordcom', 'ai');  const avec = A();
+    return { tete: AUS_OBLIG.slice(0, 3).map(o => o.id),
+             pilotes: AUS_OBLIG.filter(o => o.pilote).map(o => o.id),
+             sans: ['cformation', 'clogement', 'cegalite'].filter(x => sans.indexOf(x) >= 0),
+             avec: ['cformation', 'clogement', 'cegalite', 'ceco'].filter(x => avec.indexOf(x) >= 0) };
+  });
+  ok(pil.tete.join(',') === 'cse,accordcom,seveso',
+     'les trois questions pilotes ouvrent le questionnaire', pil.tete.join(','));
+  ok(pil.sans.length === 3,
+     'sans accord, les commissions suppletives sont dues (L.2315-49, L.2315-50, L.2315-56)', pil.sans.join(','));
+  ok(pil.avec.length === 0,
+     'un accord de L.2315-45 les ecarte toutes — ce n\'est pas un manquement, c\'est un autre regime',
+     pil.avec.join(','));
+
+  const sev = await page.evaluate(() => {
+    E.effectif = '20'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    E.etabsListe = ''; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; ausRecommencer(); ausRep('cse', 'ai');
+    const ctx = ausCtx();
+    const avant = AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id).indexOf('cssct') >= 0;
+    ausRep('seveso', 'ai');
+    const apres = AUS_OBLIG.filter(o => ausApplicable(o, ctx)).map(o => o.id).indexOf('cssct') >= 0;
+    return { avant: avant, apres: apres };
+  });
+  ok(!sev.avant, 'a 20 salaries, la CSSCT n\'est pas due');
+  ok(sev.apres,
+     'mais un etablissement de L.4521-1 l\'impose SANS condition d\'effectif (L.2315-36, 3°)');
+
+  console.log('\n— Le comite central : un etat, puis un acte —');
+  const ctr = await page.evaluate(() => AUS_OBLIG.filter(o => o.id.indexOf('csecentral') === 0)
+    .map(o => ({ id: o.id, nat: o.nat, q: o.q })));
+  ok(ctr.length === 2, 'la question en faisait deux', ctr.length);
+  ok(ctr[0].nat === 'etat' && /deux établissements distincts/.test(ctr[0].q),
+     'deux etablissements distincts est un ETAT', ctr[0].nat);
+  ok(ctr[1].nat === 'acte' && /CENTRAL a-t-il été mis en place/.test(ctr[1].q),
+     'et le comite central un ACTE', ctr[1].nat);
+
+  console.log('\n— Pourquoi une question ne vous est pas posee —');
+  const pq = await page.evaluate(() => {
+    E.effectif = '20'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    window.confirm = () => true; ausRecommencer(); ausRep('cse', 'pas');
+    ausRender();
+    /* Le repli n'est pas deplie : son contenu n'est pas dans innerText. */
+    const t = document.getElementById('auditsoc-zone').innerHTML;
+    const parCse = AUS_OBLIG.filter(o => o.cse);
+    const parSeuil = AUS_OBLIG.filter(o => o.s && o.s[0] >= 300 && !o.cse && !o.ds);
+    return { txt: t, exCse: ausPourquoiHors(parCse[0]),
+             exSeuil: parSeuil.length ? ausPourquoiHors(parSeuil[0]) : 'aucune obligation a seuil sans comite' };
+  });
+  ok(/ne vous sont pas posées — et pourquoi/.test(pq.txt),
+     'le repli dit qu\'il explique, au lieu de dire « hors de votre taille »');
+  ok(/Aucune n’est un manquement/.test(pq.txt), 'et qu\'aucune n\'est un manquement');
+  ok(/aucun comité social et économique n’est élu/.test(pq.exCse),
+     'la raison citee est la bonne quand c\'est le comite', pq.exCse);
+  ok(/elle naît à \d+ salariés \(/.test(pq.exSeuil),
+     'et le seuil est cite avec son article quand c\'est la taille', pq.exSeuil);
+  const rapH = await page.evaluate(() => {
+    window.partagerDocActuel = function () {};
+    const a = document.getElementById('doc-fullscreen-overlay'); if (a) a.remove();
+    ausDocRapport();
+    return (window._docCurrent || {}).html || '';
+  });
+  ok(/Pourquoi elle ne vous est pas opposable/.test(rapH),
+     'le rapport donne la raison, obligation par obligation');
+  await page.evaluate(() => { const o = document.getElementById('doc-fullscreen-overlay'); if (o) o.remove(); });
+
+  console.log('\n— Les identifiants de version —');
+  const leg = await page.evaluate(() => {
+    const avec = new Set(), sans = new Set();
+    AUS_OBLIG.forEach(o => ausArticles(o.src || '').forEach(k => {
+      (AUS_LEGI[k] ? avec : sans).add(k); }));
+    return { table: Object.keys(AUS_LEGI).length, avec: avec.size, sans: [...sans],
+             duerp: ausVersions(AUS_OBLIG.filter(o => o.id === 'duerp')[0].src),
+             inconnu: ausVersions('L.9999-1') };
+  });
+  ok(leg.table === 232, 'la table porte les 232 articles relevés', leg.table);
+  ok(leg.avec === 168, '168 des articles cités portent leur identifiant de version', leg.avec);
+  ok(/LEGIARTI\d+, lu le \d\d\/\d\d\/\d{4}/.test(leg.duerp),
+     'chaque article s\'affiche avec son identifiant ET sa date de lecture', leg.duerp);
+  ok(/version non relevée/.test(leg.inconnu),
+     'et un article sans identifiant le DIT, au lieu de se taire', leg.inconnu);
+  ok(leg.sans.every(k => /^(L441|L911|L4521|L593|L515)/.test(k)),
+     'les six sans version relevent d\'un autre code — securite sociale, environnement',
+     leg.sans.join(','));
+  const affiche = await page.evaluate(() => {
+    E.effectif = '50'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    ausRender();
+    return document.getElementById('auditsoc-zone').innerHTML;
+  });
+  ok(/version des textes lue/.test(affiche) && /LEGIARTI/.test(affiche),
+     'et la version se consulte sous chaque question');
 
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();

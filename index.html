@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.220';
+var JX_BUILD = 'v2026-08-23.221';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,15 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-23.221', d:'23 août 2026', t:[
+   'DEUX QUESTIONS PILOTES DE PLUS, et une question qui en faisait deux. 168 questions.',
+   'L\u2019ACCORD DE L.2315-45. Les quatre commissions du comité — formation, logement, égalité, économique — ne sont créées QU\u2019EN L\u2019ABSENCE d\u2019un accord d\u2019entreprise : L.2315-46, L.2315-49, L.2315-50 et L.2315-56 ouvrent tous par ces mots. Aucune question ne demandait cet accord. Elle est posée, et répondre qu\u2019il existe écarte les quatre — <b>ce n\u2019est pas un manquement, c\u2019est un autre régime</b>.',
+   'L\u2019ÉTABLISSEMENT DE L.4521-1. La commission santé-sécurité y est due SANS CONDITION D\u2019EFFECTIF (L.2315-36, 3°) : installation nucléaire de base, site classé « Seveso seuil haut », installation minière. Le seuil de trois cents salariés seul l\u2019écartait. La question est posée, et un « oui » impose la commission dès le premier salarié.',
+   'LE COMITÉ CENTRAL EN DEUX QUESTIONS. « Deux établissements distincts ET un comité central » : le premier est un ÉTAT, le second un ACTE. Un « non » ne disait pas lequel des deux avait échoué.',
+   'POURQUOI UNE QUESTION NE VOUS EST PAS POSÉE — la raison est désormais écrite, et c\u2019est la vraie. « Hors de votre taille » était faux trois fois sur quatre : une question peut être écartée par l\u2019absence de comité, par un accord, par l\u2019absence de délégué syndical. Chacune porte sa condition, citée telle qu\u2019elle est. Aucune n\u2019est un manquement, et le rapport le dit obligation par obligation.'
+,
+   'LES IDENTIFIANTS DE VERSION DES ARTICLES. Un article peut être modifié SANS CHANGER DE NUMÉRO : le numéro seul ne dit pas quelle version a été lue. 232 articles relevés, dont 168 des 174 cités par les questions, chacun avec son LEGIARTI et la date de sa lecture — consultables sous chaque question. Les six qui manquent relèvent d\u2019un autre code — sécurité sociale, environnement : l\u2019application l\u2019écrit au lieu de le taire.'
+ ]},
  {v:'v2026-08-23.220', d:'23 août 2026', t:[
    'LES QUESTIONS DE L\u2019AUDIT SONT RÉÉCRITES. Une relecture des 147 en a trouvé 117 défectueuses. Elles sont désormais 165, chacune posée dans les termes de ce qu\u2019elle vérifie.',
    'QUATRE NATURES, QUATRE MENUS. On ne demande plus « l\u2019avez-vous ? » pour un acte, ni « est-ce fait ? » pour une pièce. PIÈCE : je l\u2019ai / en cours d\u2019établissement / je ne l\u2019ai pas. ACTE : cela a été fait / en cours / cela n\u2019a pas été fait. ÉTAT PERMANENT : c\u2019est respecté / en partie / ce n\u2019est pas respecté. Et « autre — à préciser » partout, avec son champ libre.',
@@ -30378,6 +30387,18 @@ var AUS_OBLIG=[
  {id:'cse', lib:'CSE élu (ou PV de carence)', s:[11,'L.2311-2'], r:1,
   sanc:'délit d’entrave', act:'Organiser les élections — module complet, documents prêts',
   page:'cse', verif:['Le PV (élus ou carence) est transmis et archivé','Les mandats de 4 ans ne sont pas expirés'], q:'Un comité social et économique est-il élu — ou avez-vous un procès-verbal de carence ?', nat:'piece', pilote:1},
+ {id:'accordcom', lib:'Accord organisant les commissions du comité', s:[300,'L.2315-45'], r:3, cse:1, pilote:1,
+  sanc:'aucune — c’est une faculté ; mais son existence écarte les commissions supplétives',
+  act:'Vérifier si un accord d’entreprise conclu dans les conditions de L.2232-12 organise les commissions',
+  src:'L.2315-45 — un accord d’entreprise peut prévoir la création de commissions ; L.2315-46, L.2315-49, L.2315-50 et L.2315-56 ne créent les commissions économique, formation, logement et égalité QU’EN L’ABSENCE d’un tel accord',
+  q:'Un accord d’entreprise organise-t-il les commissions du comité (L.2315-45) ?', nat:'piece',
+  verif:['L’accord est écrit, daté et signé dans les conditions de L.2232-12','Il précise quelles commissions il crée et leurs attributions','Il a été déposé']},
+ {id:'seveso', lib:'Établissement à risque au sens de L.4521-1', s:0, r:1, pilote:1,
+  sanc:'la CSSCT y est due quel que soit l’effectif ; son absence est un délit d’entrave',
+  act:'Établir si l’un de vos établissements relève de L.4521-1 — la commission santé-sécurité y est due sans condition d’effectif',
+  src:'L.4521-1 — établissements comprenant au moins une installation nucléaire de base (L.593-1 du code de l’environnement), une installation figurant sur la liste de L.515-36 du même code — dite « Seveso seuil haut » — ou soumise aux dispositions minières citées · L.2315-36, 3° : la CSSCT y est créée SANS condition d’effectif',
+  q:'L’un de vos établissements comprend-il une installation nucléaire de base, une installation classée « Seveso seuil haut », ou une installation minière visée par L.4521-1 ?', nat:'etat',
+  verif:['Le classement est établi par un arrêté ou un récépissé de déclaration','La liste des installations concernées est à jour','Le comité en a été informé']},
  {id:'registre', lib:'Registre unique du personnel', s:0, src:'L.1221-13', r:1,
   sanc:'amende pénale par salarié concerné', act:'Constituer le registre — le module Personnel le tient et l’imprime',
   page:'personnel', verif:['Chaque salarié présent y figure, dans l’ordre des embauches','Les mentions (dates, contrats, nationalités) sont à jour'], q:'Avez-vous un registre unique du personnel, tenu dans chaque établissement, à jour et indélébile ?', nat:'piece'},
@@ -30905,7 +30926,11 @@ var AUS_OBLIG=[
  {id:'csecentral', lib:'CSE central d’entreprise si au moins deux établissements distincts', s:[50,'L.2313-1 · L.2316-1'], r:1,
   sanc:'délit d’entrave ; consultation faite au mauvais niveau, donc irrégulière',
   act:'Constituer un comité central et des comités d’établissement, et consulter au bon niveau selon que le projet comporte ou non des mesures d’adaptation spécifiques',
-  verif:['L’accord ou la décision fixant les établissements distincts existe','L’avis du comité central est transmis aux comités d’établissement','Les consultations récurrentes sont conduites au niveau central'], q:'Votre entreprise compte-t-elle au moins deux établissements distincts, et un comité central est-il en place ?', nat:'cond', cse:1},
+  verif:['L’accord ou la décision fixant les établissements distincts existe','L’avis du comité central est transmis aux comités d’établissement','Les consultations récurrentes sont conduites au niveau central'], q:'Votre entreprise compte-t-elle au moins deux établissements distincts ?', nat:'etat', cse:1},
+ {id:'csecentral_2', lib:'CSE central d’entreprise si au moins deux établissements distincts', s:[50,'L.2313-1 · L.2316-1'], r:1,
+  sanc:'délit d’entrave ; consultation faite au mauvais niveau, donc irrégulière',
+  act:'Constituer un comité central et des comités d’établissement, et consulter au bon niveau selon que le projet comporte ou non des mesures d’adaptation spécifiques',
+  verif:['L’accord ou la décision fixant les établissements distincts existe','L’avis du comité central est transmis aux comités d’établissement','Les consultations récurrentes sont conduites au niveau central'], q:'Un comité social et économique CENTRAL a-t-il été mis en place ?', nat:'acte', cse:1, pere:'csecentral'},
  {id:'synlocal200', lib:'Local commun des sections syndicales', s:[200,'L.2142-8, alinéa 1'], r:2, ds:1,
   sanc:'délit d’entrave à l’exercice du droit syndical',
   act:'Affecter un local commun convenant à l’exercice de la mission des délégués dès le franchissement du seuil',
@@ -31066,13 +31091,300 @@ function ausAvecCse(N){
   return '';
 }
 
+/* POURQUOI CETTE QUESTION NE VOUS EST PAS POSEE. Quatre raisons, et on
+   dit laquelle — « hors de votre taille » serait faux trois fois sur
+   quatre. Aucune n'est un manquement. */
+/* LES IDENTIFIANTS DE VERSION DES ARTICLES CITES.
+   Un article peut etre modifie sans changer de numero. LEGIARTI dit
+   laquelle des versions successives a ete lue ; le numero ne le dit
+   pas. Chaque entree porte l'identifiant et la date de lecture.
+   Source : textes/legiarti-audit.json — 232 articles, releves le 2026-08-23.
+   Ce qui n'y figure pas releve d'un autre code, ou n'a pas ete relu
+   a la source : l'application le dit plutot que de le taire. */
+var AUS_LEGI = {
+ 'D1234-6':['LEGIARTI000029544357','2026-08-23'],
+ 'D2315-29':['LEGIARTI000037538198','2026-08-22'],
+ 'D3121-24':['LEGIARTI000033509251','2026-08-23'],
+ 'D3141-5':['LEGIARTI000033515945','2026-08-23'],
+ 'D3141-6':['LEGIARTI000033515942','2026-08-23'],
+ 'D3171-1':['LEGIARTI000033516016','2026-08-23'],
+ 'D3171-16':['LEGIARTI000033515983','2026-08-23'],
+ 'D3171-2':['LEGIARTI000018533984','2026-08-23'],
+ 'D3171-8':['LEGIARTI000018533970','2026-08-23'],
+ 'D3171-9':['LEGIARTI000018533968','2026-08-23'],
+ 'D4132-1':['LEGIARTI000036484010','2026-08-21'],
+ 'D4132-2':['LEGIARTI000036484007','2026-08-23'],
+ 'D4622-22':['LEGIARTI000045676988','2026-08-23'],
+ 'D4711-1':['LEGIARTI000018527636','2026-08-22'],
+ 'D4711-3':['LEGIARTI000020398142','2026-08-23'],
+ 'L1131-2':['LEGIARTI000033957410','2026-08-23'],
+ 'L1132-1':['LEGIARTI000045391841','2026-08-23'],
+ 'L1132-3-3':['LEGIARTI000045391816','2026-08-23'],
+ 'L1132-4':['LEGIARTI000045391813','2026-08-23'],
+ 'L1142-2-1':['LEGIARTI000031072447','2026-08-23'],
+ 'L1142-6':['LEGIARTI000029144893','2026-08-22'],
+ 'L1142-8':['LEGIARTI000044605453','2026-08-21'],
+ 'L1152-4':['LEGIARTI000029144897','2026-08-22'],
+ 'L1153-5':['LEGIARTI000037389712','2026-08-22'],
+ 'L1153-5-1':['LEGIARTI000037380160','2026-08-19'],
+ 'L1221-10':['LEGIARTI000006900849','2026-08-23'],
+ 'L1221-13':['LEGIARTI000033971569','2026-08-22'],
+ 'L1221-19':['LEGIARTI000019071113','2026-08-23'],
+ 'L1221-21':['LEGIARTI000019071109','2026-08-23'],
+ 'L1221-25':['LEGIARTI000029144958','2026-08-23'],
+ 'L1221-26':['LEGIARTI000019071093','2026-08-23'],
+ 'L1221-5-1':['LEGIARTI000047285930','2026-08-23'],
+ 'L1221-8':['LEGIARTI000006900847','2026-08-23'],
+ 'L1221-9':['LEGIARTI000006900848','2026-08-23'],
+ 'L1222-4':['LEGIARTI000006900861','2026-08-23'],
+ 'L1226-2':['LEGIARTI000035653236','2026-08-23'],
+ 'L1226-4':['LEGIARTI000025560071','2026-08-23'],
+ 'L1232-2':['LEGIARTI000006901000','2026-08-23'],
+ 'L1232-4':['LEGIARTI000006901002','2026-08-23'],
+ 'L1232-6':['LEGIARTI000036762096','2026-08-23'],
+ 'L1234-19':['LEGIARTI000006901138','2026-08-23'],
+ 'L1234-20':['LEGIARTI000019071122','2026-08-23'],
+ 'L1235-2':['LEGIARTI000036261950','2026-08-23'],
+ 'L1237-11':['LEGIARTI000019071187','2026-08-23'],
+ 'L1237-13':['LEGIARTI000019071182','2026-08-23'],
+ 'L1237-14':['LEGIARTI000019071180','2026-08-23'],
+ 'L1242-12':['LEGIARTI000006901206','2026-08-23'],
+ 'L1242-13':['LEGIARTI000006901207','2026-08-23'],
+ 'L1242-2':['LEGIARTI000037312980','2026-08-23'],
+ 'L1243-8':['LEGIARTI000006901219','2026-08-23'],
+ 'L1244-3':['LEGIARTI000035644007','2026-08-23'],
+ 'L1244-3-1':['LEGIARTI000035639421','2026-08-23'],
+ 'L1311-2':['LEGIARTI000038610176','2026-08-19'],
+ 'L2142-3':['LEGIARTI000035652705','2026-08-22'],
+ 'L2142-4':['LEGIARTI000006901617','2026-08-23'],
+ 'L2142-8':['LEGIARTI000025578958','2026-08-23'],
+ 'L2242-1':['LEGIARTI000043893962','2026-08-21'],
+ 'L2242-17':['LEGIARTI000043893940','2026-08-21'],
+ 'L2242-2':['LEGIARTI000036262221','2026-08-21'],
+ 'L2311-2':['LEGIARTI000035609353','2026-08-19'],
+ 'L2312-14':['LEGIARTI000036262404','None'],
+ 'L2312-15':['LEGIARTI000038791194','None'],
+ 'L2312-17':['LEGIARTI000051559706','None'],
+ 'L2312-18':['LEGIARTI000052437125','None'],
+ 'L2312-24':['LEGIARTI000037385809','2026-08-23'],
+ 'L2312-26':['LEGIARTI000052437222','None'],
+ 'L2312-27':['LEGIARTI000043893927','2026-08-21'],
+ 'L2312-28':['LEGIARTI000035609818','2026-08-23'],
+ 'L2312-30':['LEGIARTI000035609822','2026-08-23'],
+ 'L2312-36':['LEGIARTI000048533625','None'],
+ 'L2312-37':['LEGIARTI000036761985','2026-08-23'],
+ 'L2312-38':['LEGIARTI000035610275','2026-08-23'],
+ 'L2312-57':['LEGIARTI000035610702','2026-08-22'],
+ 'L2312-59':['LEGIARTI000038791189','2026-08-21'],
+ 'L2312-63':['LEGIARTI000035610999','2026-08-21'],
+ 'L2312-8':['LEGIARTI000043975196','None'],
+ 'L2313-1':['LEGIARTI000036761964','2026-08-19'],
+ 'L2314-1':['LEGIARTI000037389707','2026-08-22'],
+ 'L2315-11':['LEGIARTI000036262458','2026-08-22'],
+ 'L2315-14':['LEGIARTI000035621169','2026-08-22'],
+ 'L2315-15':['LEGIARTI000035621173','2026-08-22'],
+ 'L2315-18':['LEGIARTI000043894249','2026-08-22'],
+ 'L2315-25':['LEGIARTI000035624843','2026-08-22'],
+ 'L2315-26':['LEGIARTI000035624845','2026-08-22'],
+ 'L2315-27':['LEGIARTI000036761943','2026-08-22'],
+ 'L2315-30':['LEGIARTI000035624863','2026-08-22'],
+ 'L2315-36':['LEGIARTI000035626455','2026-08-22'],
+ 'L2315-44-1':['LEGIARTI000036760263','2026-08-22'],
+ 'L2315-45':['LEGIARTI000036262551','2026-08-22'],
+ 'L2315-46':['LEGIARTI000035626485','2026-08-22'],
+ 'L2315-49':['LEGIARTI000035626493','2026-08-22'],
+ 'L2315-50':['LEGIARTI000035626497','2026-08-22'],
+ 'L2315-56':['LEGIARTI000036262545','2026-08-22'],
+ 'L2315-61':['LEGIARTI000036761916','2026-08-22'],
+ 'L2315-64':['LEGIARTI000035627352','2026-08-22'],
+ 'L2315-68':['LEGIARTI000035627360','2026-08-22'],
+ 'L2315-69':['LEGIARTI000036262535','2026-08-22'],
+ 'L2315-78':['LEGIARTI000036262525','2026-08-21'],
+ 'L2315-80':['LEGIARTI000036761908','2026-08-21'],
+ 'L2315-9':['LEGIARTI000035651237','2026-08-22'],
+ 'L2316-1':['LEGIARTI000043975179','None'],
+ 'L2411-1':['LEGIARTI000035652370','2026-08-23'],
+ 'L2411-3':['LEGIARTI000006902294','2026-08-23'],
+ 'L2411-5':['LEGIARTI000035652360','2026-08-23'],
+ 'L3121-16':['LEGIARTI000033020444','2026-08-23'],
+ 'L3121-18':['LEGIARTI000033020428','2026-08-23'],
+ 'L3121-20':['LEGIARTI000033020414','2026-08-23'],
+ 'L3121-30':['LEGIARTI000033020367','2026-08-23'],
+ 'L3121-33':['LEGIARTI000038610166','2026-08-23'],
+ 'L3121-38':['LEGIARTI000038610163','2026-08-23'],
+ 'L3121-60':['LEGIARTI000033003246','2026-08-23'],
+ 'L3121-64':['LEGIARTI000036262805','2026-08-23'],
+ 'L3121-65':['LEGIARTI000036262800','2026-08-23'],
+ 'L3122-1':['LEGIARTI000033020190','2026-08-23'],
+ 'L3122-11':['LEGIARTI000033020153','2026-08-23'],
+ 'L3122-12':['LEGIARTI000033020150','2026-08-23'],
+ 'L3122-2':['LEGIARTI000033020186','2026-08-23'],
+ 'L3123-27':['LEGIARTI000033019953','2026-08-23'],
+ 'L3123-3':['LEGIARTI000036262948','2026-08-23'],
+ 'L3123-6':['LEGIARTI000033020080','2026-08-23'],
+ 'L3123-7':['LEGIARTI000047453545','2026-08-23'],
+ 'L3123-8':['LEGIARTI000033020061','2026-08-23'],
+ 'L3131-1':['LEGIARTI000033020918','2026-08-23'],
+ 'L3132-1':['LEGIARTI000006902580','2026-08-23'],
+ 'L3132-2':['LEGIARTI000006902581','2026-08-23'],
+ 'L3133-7':['LEGIARTI000033020869','2026-08-23'],
+ 'L3133-8':['LEGIARTI000033020862','2026-08-23'],
+ 'L3141-13':['LEGIARTI000033020772','2026-08-23'],
+ 'L3141-15':['LEGIARTI000033020765','2026-08-23'],
+ 'L3141-16':['LEGIARTI000035652687','2026-08-23'],
+ 'L3141-3':['LEGIARTI000033020826','2026-08-23'],
+ 'L3171-3':['LEGIARTI000033025188','2026-08-19'],
+ 'L3221-2':['LEGIARTI000006902818','2026-08-23'],
+ 'L3242-1':['LEGIARTI000006902858','2026-08-23'],
+ 'L3322-2':['LEGIARTI000038613208','2026-08-19'],
+ 'L3346-1':['LEGIARTI000048488858','2026-08-23'],
+ 'L4121-1':['LEGIARTI000035640828','2026-08-21'],
+ 'L4121-2':['LEGIARTI000033019913','2026-08-21'],
+ 'L4121-3':['LEGIARTI000043893923','2026-08-21'],
+ 'L4121-3-1':['LEGIARTI000043893919','2026-08-21'],
+ 'L4141-1':['LEGIARTI000027326445','2026-08-23'],
+ 'L4141-2':['LEGIARTI000006903166','2026-08-19'],
+ 'L4153-8':['LEGIARTI000006903187','2026-08-23'],
+ 'L4154-2':['LEGIARTI000035653199','2026-08-23'],
+ 'L4161-1':['LEGIARTI000035640694','2026-08-23'],
+ 'L4412-2':['LEGIARTI000033013763','2026-08-23'],
+ 'L4624-2-2':['LEGIARTI000054527125','2026-08-23'],
+ 'L4624-2-4':['LEGIARTI000043891306','2026-08-23'],
+ 'L4624-6':['LEGIARTI000033014760','2026-08-23'],
+ 'L4644-1':['LEGIARTI000043893856','2026-08-23'],
+ 'L4711-2':['LEGIARTI000006903384','2026-08-19'],
+ 'L4711-4':['LEGIARTI000035653253','2026-08-23'],
+ 'L4711-5':['LEGIARTI000006903389','2026-08-22'],
+ 'L5212-1':['LEGIARTI000044982351','2026-08-19'],
+ 'L5212-11':['LEGIARTI000037388667','2026-08-23'],
+ 'L5212-5':['LEGIARTI000037388702','2026-08-19'],
+ 'L5212-9':['LEGIARTI000048849245','2026-08-23'],
+ 'L5213-6':['LEGIARTI000048589854','2026-08-23'],
+ 'L5213-6-1':['LEGIARTI000043894133','2026-08-23'],
+ 'L6131-1':['LEGIARTI000043709709','2026-08-23'],
+ 'L6315-1':['LEGIARTI000053279288','2026-08-22'],
+ 'L6321-1':['LEGIARTI000052437104','2026-08-22'],
+ 'L6323-13':['LEGIARTI000052437094','2026-08-23'],
+ 'R1221-34':['LEGIARTI000048288642','2026-08-23'],
+ 'R1221-35':['LEGIARTI000048288640','2026-08-23'],
+ 'R1221-36':['LEGIARTI000048286381','2026-08-23'],
+ 'R1232-13':['LEGIARTI000036212577','2026-08-23'],
+ 'R1234-9':['LEGIARTI000049816309','2026-08-23'],
+ 'R2262-1':['LEGIARTI000048288541','2026-08-22'],
+ 'R2262-2':['LEGIARTI000036483258','2026-08-23'],
+ 'R2262-3':['LEGIARTI000033292505','2026-08-23'],
+ 'R2312-5':['LEGIARTI000045680873','None'],
+ 'R2312-6':['LEGIARTI000036411558','None'],
+ 'R2315-5':['LEGIARTI000036417721','2026-08-23'],
+ 'R2315-6':['LEGIARTI000036417723','2026-08-23'],
+ 'R2315-7':['LEGIARTI000036417725','2026-08-23'],
+ 'R3221-2':['LEGIARTI000033292519','2026-08-22'],
+ 'R4121-1':['LEGIARTI000023795562','2026-08-21'],
+ 'R4121-1-1':['LEGIARTI000031818152','2026-08-23'],
+ 'R4121-2':['LEGIARTI000045386446','2026-08-21'],
+ 'R4121-4':['LEGIARTI000045386451','2026-08-21'],
+ 'R4121-5':['LEGIARTI000047665981','2026-08-23'],
+ 'R4141-3':['LEGIARTI000018532878','2026-08-23'],
+ 'R4141-3-1':['LEGIARTI000021723595','2026-08-23'],
+ 'R4153-40':['LEGIARTI000033769318','2026-08-23'],
+ 'R4153-41':['LEGIARTI000043128597','2026-08-23'],
+ 'R4153-45':['LEGIARTI000043128589','2026-08-23'],
+ 'R4224-14':['LEGIARTI000018532205','2026-08-23'],
+ 'R4224-15':['LEGIARTI000018532203','2026-08-23'],
+ 'R4224-16':['LEGIARTI000043128580','2026-08-23'],
+ 'R4226-14':['LEGIARTI000022765072','2026-08-23'],
+ 'R4226-16':['LEGIARTI000022765070','2026-08-23'],
+ 'R4227-29':['LEGIARTI000018532079','2026-08-23'],
+ 'R4227-37':['LEGIARTI000024769379','2026-08-22'],
+ 'R4227-38':['LEGIARTI000024769384','2026-08-23'],
+ 'R4227-39':['LEGIARTI000024769386','2026-08-23'],
+ 'R4227-4':['LEGIARTI000018532137','2026-08-23'],
+ 'R4228-10':['LEGIARTI000018531982','2026-08-23'],
+ 'R4228-19':['LEGIARTI000018531960','2026-08-23'],
+ 'R4228-22':['LEGIARTI000041455665','2026-08-23'],
+ 'R4228-23':['LEGIARTI000041455662','2026-08-23'],
+ 'R4323-104':['LEGIARTI000018531284','2026-08-23'],
+ 'R4323-23':['LEGIARTI000018531479','2026-08-23'],
+ 'R4323-24':['LEGIARTI000018531477','2026-08-23'],
+ 'R4323-25':['LEGIARTI000018531475','2026-08-23'],
+ 'R4323-91':['LEGIARTI000018531314','2026-08-23'],
+ 'R4323-95':['LEGIARTI000018531306','2026-08-23'],
+ 'R4412-38':['LEGIARTI000036483735','2026-08-23'],
+ 'R4412-39':['LEGIARTI000018530861','2026-08-23'],
+ 'R4412-97':['LEGIARTI000038322515','2026-08-23'],
+ 'R4511-1':['LEGIARTI000018529829','2026-08-23'],
+ 'R4512-12':['LEGIARTI000018529773','2026-08-23'],
+ 'R4512-2':['LEGIARTI000018529795','2026-08-23'],
+ 'R4512-6':['LEGIARTI000018529785','2026-08-23'],
+ 'R4512-7':['LEGIARTI000018529783','2026-08-23'],
+ 'R4515-4':['LEGIARTI000018529684','2026-08-23'],
+ 'R4515-5':['LEGIARTI000018529682','2026-08-23'],
+ 'R4542-16':['LEGIARTI000018528838','2026-08-23'],
+ 'R4542-17':['LEGIARTI000033769529','2026-08-23'],
+ 'R4624-10':['LEGIARTI000033769085','2026-08-19'],
+ 'R4624-11':['LEGIARTI000033769083','2026-08-23'],
+ 'R4624-16':['LEGIARTI000033769063','2026-08-19'],
+ 'R4624-18':['LEGIARTI000033769047','2026-08-23'],
+ 'R4624-23':['LEGIARTI000053786012','2026-08-19'],
+ 'R4624-24':['LEGIARTI000033769104','2026-08-23'],
+ 'R4624-28':['LEGIARTI000033769094','2026-08-23'],
+ 'R4624-29':['LEGIARTI000045371016','2026-08-23'],
+ 'R4624-31':['LEGIARTI000054250639','2026-08-23'],
+ 'R4624-32':['LEGIARTI000045371021','2026-08-23'],
+ 'R4624-33':['LEGIARTI000045371018','2026-08-23'],
+ 'R4624-46':['LEGIARTI000045677119','2026-08-23'],
+ 'R4624-47':['LEGIARTI000045676758','2026-08-23']
+};
+/* Les articles d'un texte de fondement, dans l'ordre ou ils sont cites. */
+function ausArticles(src){
+  var out=[], vus={};
+  String(src||'').replace(/\b([LRD])\.?\s?(\d{3,4}-[\d\-]+)/g, function(_,a,b){
+    var k=a+b; if(!vus[k]){ vus[k]=1; out.push(k); } return _; });
+  return out;
+}
+/* Rendu court : « L.4121-1 (LEGIARTI000006903146, lu le 23/08/2026) ».
+   Un article sans identifiant est signale, non passe sous silence. */
+function ausVersions(src){
+  var a=ausArticles(src); if(!a.length) return '';
+  return a.map(function(k){
+    var e=AUS_LEGI[k];
+    var num=k.charAt(0)+'.'+k.slice(1);
+    if(!e) return num+' — version non relevée';
+    var dt=e[1].split('-'); dt=dt[2]+'/'+dt[1]+'/'+dt[0];
+    return num+' ('+e[0]+', lu le '+dt+')';
+  }).join(' · ');
+}
+
+function ausPourquoiHors(o){
+  var N=ausEtat(), R=N.rep||{};
+  if(o.cse && ausAvecCse()==='non')
+    return 'vous avez répondu qu’aucun comité social et économique n’est élu — cette question suppose un comité';
+  if(['cformation','clogement','cegalite','ceco'].indexOf(o.id)>=0 && R['accordcom']==='ai')
+    return 'un accord d’entreprise organise vos commissions (L.2315-45) : la commission supplétive n’est pas due';
+  if(o.ds && (ausEtat().ds==='non'))
+    return 'aucun délégué syndical n’est désigné — cette obligation suppose une section syndicale représentative';
+  if(o.s) return 'elle naît à ' + o.s[0] + ' salariés (' + o.s[1] + ')';
+  return 'la condition qui la déclenche n’est pas remplie';
+}
+
 function ausApplicable(o,ctx){
   /* La CSSCT s'impose aussi par ETABLISSEMENT d'au moins trois cents
      salaries (L.2315-36, 2°) : une entreprise de 260 avec un site de 310
      la doit. Le seuil global seul l'aurait ecartee. */
   if(o.id==='cssct'){
+    /* L.2315-36, 3° — les etablissements de L.4521-1 (nucleaire, Seveso
+       seuil haut, minier) la doivent SANS condition d'effectif. */
+    var _rs=(ausEtat().rep||{})['seveso']||'';
+    if(_rs==='ai') return true;
     var _e=ausEtabs();
     if(_e.max>=300) return true;
+  }
+  /* Les quatre commissions suppletives ne sont dues QU'EN L'ABSENCE de
+     l'accord de L.2315-45. Repondre que l'accord existe les ecarte : ce
+     n'est pas un manquement, c'est un autre regime. */
+  if(['cformation','clogement','cegalite','ceco'].indexOf(o.id)>=0){
+    var _ra=(ausEtat().rep||{})['accordcom']||'';
+    if(_ra==='ai') return false;
   }
   if(o.s && ctx.eff!==null && ctx.eff!==Infinity && ctx.eff<o.s[0]) return false;
   if(o.ds && ctx.ds==='non') return false;
@@ -31169,6 +31481,7 @@ function ausRender(){
     h+='<div style="margin:8px 0;padding:9px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px">'
       +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><b>'+negoEsc(ausQ(o))+'</b>'
       +'<div style="font-size:11px;color:#9fb0c4">'+negoEsc(o.src)+(o.s?(' · s’applique dès '+o.s[0]+' ('+negoEsc(o.s[1])+')'):' · toute taille')+' · risque : '+(o.r===1?'pénal':o.r===2?'prud’homal':'administratif')+' — '+negoEsc(o.sanc)+'</div></div>'
+      +(function(){ var v=ausVersions(o.src); return v?('<details style="margin-top:3px"><summary style="cursor:pointer;font-size:10.5px;color:#7f8ba0">version des textes lue</summary><div style="font-size:10.5px;color:#7f8ba0;padding:3px 0 0">'+negoEsc(v)+'</div></details>'):''; })()
       +'<select onchange="ausRep(\''+o.id+'\', this.value)" style="min-height:42px;border-radius:9px;padding:8px 10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid '+(r==='ai'?'#46b885':(r?'#d4a017':'rgba(255,255,255,.2)'))+'">'
       +'<option value="">— répondre —</option>'
       +ausRepDe(o).map(function(x){ return '<option value="'+x[0]+'"'+(r===x[0]?' selected':'')+'>'+negoEsc(x[1])+'</option>'; }).join('')
@@ -31181,8 +31494,9 @@ function ausRender(){
       +'</div></div>';
   });
   if(hors.length){
-    h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:#9fb0c4">'+hors.length+' obligation(s) hors de votre taille — avec le seuil qui les déclenchera</summary><div style="font-size:12px;color:#9fb0c4;padding:8px 4px">'
-      +hors.map(function(o){ return '· '+negoEsc(o.lib)+' — dès '+(o.s?o.s[0]:'?')+' salariés ('+negoEsc(o.s?o.s[1]:'')+')'; }).join('<br>')+'</div></details>';
+    h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:#9fb0c4">'+hors.length+' question(s) ne vous sont pas posées — et pourquoi</summary>'
+      +'<div style="font-size:12px;color:#9fb0c4;padding:8px 4px">Aucune n’est un manquement : la condition qui les déclenche n’est pas remplie chez vous.<br><br>'
+      +hors.map(function(o){ return '· <b>'+negoEsc(o.lib)+'</b> — '+negoEsc(ausPourquoiHors(o)); }).join('<br>')+'</div></details>';
   }
   h+='</div>';
 
@@ -33011,9 +33325,11 @@ function ausDocRapport(){
     +(so.length?('<p><b>Ce qui est SANS OBJET à ce jour.</b> '+so.length+' obligation(s) s’appliquent à votre entreprise, mais le cas qui les déclenche ne s’est pas présenté : '
       +so.map(function(o){ return negoEsc(o.lib); }).join(' ; ')
       +'. <b>Ce n’est pas une conformité.</b> Le jour où le cas survient — un accident, un licenciement, un contrat à durée déterminée — l’obligation joue, et rien n’aura été préparé. Ces points ne figurent pas au plan d’action ; ils figurent ici.</p>'):'')
-    +(hors.length?('<p><b>Ce qui NE VOUS CONCERNE PAS.</b> '+hors.length+' obligation(s) naissent à un effectif, un secteur ou une situation qui n’est pas la vôtre'
-      +(horsCse.length?(', dont '+horsCse.length+' qui supposent un comité social et économique — vous avez répondu qu’il n’en existe pas. <b>Le manquement est alors l’absence de comité elle-même</b>, et non les consultations qui n’ont pas eu lieu'):'')
-      +'. Aucun manquement ne vous en est imputé.</p>'):'')
+    +(hors.length?('<p><b>Ce qui NE VOUS CONCERNE PAS.</b> '+hors.length+' obligation(s) ne vous sont pas opposables : la condition qui les déclenche n’est pas remplie chez vous. Aucun manquement ne vous en est imputé.'
+      +(horsCse.length?(' Parmi elles, '+horsCse.length+' supposent un comité social et économique — vous avez répondu qu’il n’en existe pas. <b>Le manquement est alors l’absence de comité elle-même</b>, et non les consultations qui n’ont pas eu lieu.'):'')
+      +'</p><table style="border-collapse:collapse;width:100%"><tr><th style="border:1px solid #000;padding:4px">Obligation</th><th style="border:1px solid #000;padding:4px">Pourquoi elle ne vous est pas opposable</th></tr>'
+      +hors.map(function(o){ return '<tr><td style="border:1px solid #000;padding:4px">'+negoEsc(o.lib)+'</td><td style="border:1px solid #000;padding:4px">'+negoEsc(ausPourquoiHors(o))+'</td></tr>'; }).join('')
+      +'</table>'):'')
     +'<table style="border-collapse:collapse;width:100%"><tr><th style="border:1px solid #000;padding:4px">Obligation</th><th style="border:1px solid #000;padding:4px">Texte</th><th style="border:1px solid #000;padding:4px">Risque</th><th style="border:1px solid #000;padding:4px">État</th></tr>'+lig+'</table>';
   ausRapportBase('Audit social — rapport général', c);
 }
