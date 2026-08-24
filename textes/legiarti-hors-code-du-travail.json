@@ -1,0 +1,22 @@
+{
+ "objet": "Identifiants de version des articles cités par l'audit qui n'appartiennent pas au code du travail.",
+ "date_lecture": "2026-08-24",
+ "provenance": "Pages publiques de legifrance.gouv.fr, lues une fois chacune. Le relais Légifrance de l'application ne sert que le code du travail : ces articles ne pouvaient pas être relevés par lui, et ils n'ont pas eu les deux lectures concordantes exigées pour les 232 autres. À confirmer avant toute citation contentieuse.",
+ "articles": {
+  "CSS L.441-1":   { "id": "LEGIARTI000006743183", "code": "Code de la sécurité sociale", "en_vigueur_depuis": "1986-07-17", "lectures": 1 },
+  "CSS L.441-6":   { "id": "LEGIARTI000042686342", "code": "Code de la sécurité sociale", "en_vigueur_depuis": "2020-12-16", "lectures": 1 },
+  "CSS L.911-7":   { "id": "LEGIARTI000031686110", "code": "Code de la sécurité sociale", "en_vigueur_depuis": "2016-01-01", "lectures": 1 },
+  "CP 225-1":      { "id": "LEGIARTI000045391831", "code": "Code pénal", "en_vigueur_depuis": "2022-09-01", "lectures": 1 },
+  "CP 225-1-1":    { "id": "LEGIARTI000026264881", "code": "Code pénal", "en_vigueur_depuis": "2012-08-08", "lectures": 1 },
+  "CP 225-2":      { "id": "LEGIARTI000033975382", "code": "Code pénal", "en_vigueur_depuis": "2017-01-29", "lectures": 1 },
+  "CP 225-3":      { "id": "LEGIARTI000043895868", "code": "Code pénal", "en_vigueur_depuis": "2021-08-04", "lectures": 1 },
+  "CP 225-4":      { "id": "LEGIARTI000020630926", "code": "Code pénal", "en_vigueur_depuis": "2009-05-14", "lectures": 1 }
+ },
+ "par_question_au_releve_du_23_aout": {
+  "26":  ["CSS L.441-1", "CSS L.441-6"],
+  "57":  ["CSS L.911-7"],
+  "58":  ["CSS L.911-7"],
+  "149": ["CP 225-1", "CP 225-1-1", "CP 225-2", "CP 225-3", "CP 225-4"]
+ },
+ "reserve": "Les numéros de question valent pour le relevé du 23 août 2026, avant l'ajout de trois questions. Rattacher par identifiant d'obligation, pas par numéro. Le choix des articles est celui des questions : seule la version a été relevée, elle n'a pas été rearbitrée."
+}
