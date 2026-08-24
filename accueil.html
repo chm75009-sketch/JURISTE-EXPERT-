@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Juris Expert — qu'est-ce que vous avez à faire ?</title>
+<meta name="description" content="Faire le point, mener une procédure, produire un document, trouver une réponse. La porte d'entrée de Juris Expert.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1b2a4a">
+<link rel="icon" href="icon-192.png">
+
+<!--
+  L'ACCUEIL, ET POURQUOI IL EST FAIT AINSI
+
+  L'application ouvrait sur son propre accueil interne : quatre familles,
+  puis vingt-huit cartes, puis un menu de quarante-neuf entrées. Tout y
+  était, et c'était bien le problème — il fallait déjà savoir ce qu'est une
+  base de données économiques et sociales, ou un protocole préélectoral,
+  pour cliquer au bon endroit.
+
+  Cette page pose la question que le visiteur se pose déjà — qu'est-ce que
+  vous avez à faire ? — et ouvre quatre portes. Rien n'est supprimé :
+  index.html reste le cœur de l'application, ses quarante-neuf écrans sont
+  intacts, et chaque lien d'ici mène à l'un d'eux.
+
+  LE LIEN VERS UN ÉCRAN : « index.html#p=<identifiant> ». L'application
+  n'avait aucun routage ; un renvoi minuscule a été ajouté dans index.html
+  (jxPorteHash) pour qu'un lien venu du dehors puisse désigner un écran.
+  Le contrôle d'accès de goPage() s'applique comme avant : sans abonnement,
+  seuls le Contrôle-minute et les pages libres s'ouvrent.
+
+  AUCUNE POLICE EXTERNE, aucun script externe : la page doit fonctionner
+  hors ligne, comme le reste de l'application.
+-->
+
+<style>
+  :root{
+    /* Les couleurs de l'application, versant clair : le marine de ses
+       titres, l'or de ses sous-titres. Le doré vif du thème sombre
+       (#c9a84c) ne passe pas le contraste sur fond blanc — on prend
+       celui que les pages claires de l'application utilisent déjà. */
+    --encre:#1b2a4a; --encre-2:#4c5a72; --encre-3:#77839a;
+    --fond:#fbfbfc; --carte:#ffffff; --creux:#f3f5f8;
+    --filet:#e4e7ed; --filet-2:#ccd2dc;
+    --marine:#1b2a4a; --marine-clair:#eef1f7;
+    --or:#8a6d21; --or-clair:#f8f1de;
+    --prune:#5c2a54; --vert:#1c5e36; --ambre:#8a5b10; --ambre-clair:#f8efdf;
+    --ombre:0 1px 2px rgba(27,42,74,.05), 0 10px 28px -16px rgba(27,42,74,.32);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fond);color:var(--encre);
+    font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+
+  /* ---------- bandeau ---------- */
+  header.site{background:var(--marine);color:#fff;padding:14px 0}
+  header.site .wrap{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  header.site h1{margin:0;font:600 17px/1.25 system-ui}
+  header.site h1 b{color:#e8c97a;font-weight:600}
+  header.site h1 span{opacity:.62;font-weight:400}
+  .outils{display:flex;flex-wrap:wrap;gap:7px;align-items:center;font-size:13px}
+  .outils button,.outils a{font:500 12.5px/1 system-ui;padding:7px 11px;border-radius:20px;
+    border:1px solid rgba(255,255,255,.34);background:transparent;color:#fff;cursor:pointer;text-decoration:none}
+  .outils button:hover,.outils a:hover{background:rgba(255,255,255,.12)}
+  #etat-version{opacity:.6;font-size:11.5px}
+
+  /* ---------- la question ---------- */
+  .question{padding:44px 0 6px}
+  .question p.sur{margin:0 0 8px;font:600 11.5px/1 system-ui;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--encre-3)}
+  .question h2{margin:0 0 10px;font:600 clamp(28px,4.6vw,42px)/1.12 system-ui;letter-spacing:-.02em}
+  .question p.sous{margin:0;max-width:62ch;color:var(--encre-2)}
+
+  /* ---------- les quatre portes ---------- */
+  .portes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:28px 0 0}
+  .porte{background:var(--carte);border:1px solid var(--filet-2);border-radius:14px;
+    box-shadow:var(--ombre);overflow:hidden;display:flex;flex-direction:column}
+  .porte>.tete{padding:20px 20px 14px;border-bottom:1px solid var(--filet)}
+  .porte .n{display:inline-flex;width:26px;height:26px;border-radius:8px;color:#fff;
+    font:600 13px/26px system-ui;justify-content:center;margin-bottom:10px}
+  .porte h3{margin:0 0 5px;font:600 19px/1.2 system-ui;letter-spacing:-.01em}
+  .porte .tete p{margin:0;font-size:14px;color:var(--encre-2);line-height:1.5}
+  .porte ul{list-style:none;margin:0;padding:6px;display:grid;gap:1px;flex:1}
+  .porte li a{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+    padding:11px 13px;border-radius:9px;text-decoration:none;color:inherit}
+  .porte li a:hover{background:var(--creux)}
+  .porte li a:focus-visible{outline:2px solid var(--marine);outline-offset:-2px}
+  .porte li b{display:block;font:500 14.5px/1.35 system-ui}
+  .porte li small{display:block;color:var(--encre-3);font-size:12.5px;line-height:1.4;margin-top:1px}
+  .marque{font:600 10.5px/1 system-ui;letter-spacing:.05em;text-transform:uppercase;
+    padding:5px 8px;border-radius:5px;white-space:nowrap;background:var(--creux);color:var(--encre-2)}
+  .marque.hors{background:var(--ambre-clair);color:var(--ambre)}
+  .marque.du{background:var(--marine-clair);color:var(--marine)}
+  .marque.or{background:var(--or-clair);color:var(--or)}
+  .p1 .n{background:var(--prune)} .p2 .n{background:var(--vert)}
+  .p3 .n{background:var(--marine)} .p4 .n{background:var(--or)}
+
+  /* ---------- la barre permanente ---------- */
+  .rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:22px 0 0}
+  .rail a{display:block;text-decoration:none;color:inherit;background:var(--carte);
+    border:1px solid var(--filet);border-radius:12px;padding:14px 16px}
+  .rail a:hover{border-color:var(--filet-2);background:var(--creux)}
+  .rail b{display:block;font:600 14.5px/1.3 system-ui;margin-bottom:2px}
+  .rail span{font-size:13px;color:var(--encre-2);line-height:1.45}
+
+  /* ---------- les règles ---------- */
+  .regles{margin:44px 0 0;padding:26px 0 0;border-top:1px solid var(--filet)}
+  .regles h3{margin:0 0 4px;font:600 19px/1.2 system-ui}
+  .regles>p{margin:0 0 16px;color:var(--encre-2);font-size:14.5px;max-width:64ch}
+  .regles ul{list-style:none;margin:0;padding:0;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+  .regles li{background:var(--carte);border:1px solid var(--filet);border-radius:11px;padding:14px 15px}
+  .regles li b{display:block;margin-bottom:4px;font-size:14.5px}
+  .regles li span{font-size:13.5px;color:var(--encre-2);line-height:1.5}
+
+  footer{margin:36px 0 60px;padding-top:18px;border-top:1px solid var(--filet);
+    font-size:13px;color:var(--encre-3)}
+  footer a{color:var(--encre-2)}
+
+  dialog{max-width:64ch;border:1px solid var(--filet-2);border-radius:12px;padding:22px 24px;
+    font:15px/1.55 system-ui;color:var(--encre)}
+  dialog h2{margin:0 0 12px;font:600 19px/1.3 system-ui}
+  dialog p{margin:0 0 10px}
+  dialog button{font:inherit;padding:8px 18px;border-radius:8px;border:1px solid var(--filet-2);
+    background:var(--creux);cursor:pointer}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <h1><b>Juris</b> Expert <span>— droit social</span></h1>
+    <div class="outils">
+      <button id="btn-avert" type="button">Avertissement d'usage</button>
+      <a href="index.html">Ouvrir l'application</a>
+      <span id="etat-version"></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="question">
+    <p class="sur">Bienvenue</p>
+    <h2>Qu'est-ce que vous avez à faire&nbsp;?</h2>
+    <p class="sous" id="sous">Quatre portes. Une seule chose à faire par écran, et rien qu'on
+    vous demande deux fois.</p>
+  </section>
+
+  <div class="portes">
+
+    <!-- ══ 1 ══ -->
+    <section class="porte p1">
+      <div class="tete">
+        <span class="n">1</span>
+        <h3>Faire le point</h3>
+        <p>Où vous en êtes, ce qui manque, et comment le corriger — obligation par
+        obligation, jusqu'au plan d'action.</p>
+      </div>
+      <ul>
+        <li><a href="index.html#p=auditsoc"><span><b>Audit social — tout ce que vous devez avoir</b>
+          <small>168 obligations, chacune avec son article et l'identifiant de la version lue</small></span>
+          <span class="marque du">à commencer ici</span></a></li>
+        <li><a href="controle-minute.html"><span><b>Contrôle-minute — êtes-vous prêt&nbsp;?</b>
+          <small>Score de conformité et plan d'action priorisé, en quelques minutes</small></span>
+          <span class="marque or">sans abonnement</span></a></li>
+        <!-- Jamais mis de côté, quelle que soit la taille : c'est cet écran
+             qui répond à la question du seuil. Le masquer sous onze salariés
+             serait absurde — l'application applique déjà cette règle. -->
+        <li><a href="index.html#p=csediag"><span><b>Comité social et économique — où en suis-je&nbsp;?</b>
+          <small>Obligation, échéances, feuille de route — et, sous onze salariés,
+          la réponse que vous n'en devez pas</small></span>
+          <span class="marque">toute taille</span></a></li>
+        <li><a href="index.html#p=socle"><span><b>Mon effectif et mes seuils</b>
+          <small>Ce que votre taille déclenche, seuil par seuil, avec l'article de chacun</small></span>
+          <span class="marque">toute taille</span></a></li>
+        <li><a href="index.html#p=diag"><span><b>Analyser un contrat, une lettre, un accord</b>
+          <small>Mentions manquantes, délais tenus ou non, clauses nulles</small></span>
+          <span class="marque">avant de signer</span></a></li>
+        <li><a href="index.html#p=harcprev"><span><b>Prévention du harcèlement — le dossier de preuve</b>
+          <small>Ce qui exonère l'employeur, et comment le prouver</small></span>
+          <span class="marque">toute taille</span></a></li>
+        <li><a href="index.html#p=bdese" data-seuil="50"><span><b>Base de données économiques et sociales</b>
+          <small>Les thèmes, les six années, ce qui reste à alimenter</small></span>
+          <span class="marque" data-marque="50">dès 50 salariés</span></a></li>
+        <li><a href="index.html#p=egalite" data-seuil="50"><span><b>Index de l'égalité femmes-hommes</b>
+          <small>Les indicateurs, le calcul, la publication</small></span>
+          <span class="marque" data-marque="50">dès 50 salariés</span></a></li>
+      </ul>
+    </section>
+
+    <!-- ══ 2 ══ -->
+    <section class="porte p2">
+      <div class="tete">
+        <span class="n">2</span>
+        <h3>Mener une procédure</h3>
+        <p>Une chose à faire, maintenant, avec un délai et des étapes dans un ordre
+        qui ne se discute pas.</p>
+      </div>
+      <ul>
+        <li><a href="elections-cse.html" data-seuil="11"><span><b>Organiser les élections du comité</b>
+          <small>Effectif, sièges, collèges, calendrier daté et les quatre actes de la
+          procédure — ce qui manque reste écrit entre crochets</small></span>
+          <span class="marque du">le module complet</span></a></li>
+        <li><a href="index.html#p=parcguide"><span><b>Les parcours guidés</b>
+          <small>Onze procédures pas à pas : le préalable, les étapes datées, le document
+          de chacune, et où vous en êtes</small></span>
+          <span class="marque du">11 parcours</span></a></li>
+        <li><a href="index.html#p=cseinst" data-seuil="11"><span><b>Installer le comité après l'élection</b>
+          <small>Première réunion, bureau, référent, commissions, règlement du comité</small></span>
+          <span class="marque" data-marque="11">dès 11 salariés</span></a></li>
+        <li><a href="index.html#p=csereu" data-seuil="50"><span><b>Tenir une réunion du comité</b>
+          <small>Convocation, ordre du jour, votes, procès-verbal</small></span>
+          <span class="marque" data-marque="50">dès 50 salariés</span></a></li>
+        <li><a href="index.html#p=disciplinaire"><span><b>Sanctionner un salarié</b>
+          <small>Prescription de deux mois, entretien, délais, notification motivée</small></span></a></li>
+        <li><a href="index.html#p=rupture"><span><b>Rompre un contrat — l'assistant décide avec vous</b>
+          <small>Licenciement, rupture conventionnelle, inaptitude : la voie, puis son
+          calendrier daté</small></span>
+          <span class="marque du">assistant</span></a></li>
+        <!-- Le licenciement économique n'a pas de seuil ; seul le plan de
+             sauvegarde en a un. Sous cinquante salariés, c'est donc le TITRE
+             qui perd sa seconde moitié, et non l'écran qui disparaît. -->
+        <li><a href="index.html#p=pse" data-sous-seuil="50" data-sous-lib="Licenciement économique"><span><b>Licenciement économique et plan de sauvegarde</b>
+          <small>Motif, critères d'ordre, reclassement, consultation</small></span>
+          <span class="marque" data-sous-marque="50">le plan dès 50 salariés</span></a></li>
+        <li><a href="index.html#p=nego" data-seuil="11"><span><b>Conduire les négociations obligatoires</b>
+          <small>NAO, égalité professionnelle, gestion des emplois et des parcours —
+          dues dès qu'un délégué syndical est désigné, ce qui suppose un comité</small></span>
+          <span class="marque" data-marque="11">dès 11 salariés</span></a></li>
+      </ul>
+    </section>
+
+    <!-- ══ 3 ══ -->
+    <section class="porte p3">
+      <div class="tete">
+        <span class="n">3</span>
+        <h3>Produire un document</h3>
+        <p>Le document complet, pré-rempli de votre fiche d'entreprise — et ce qui
+        manque encore écrit entre crochets, jamais deviné.</p>
+      </div>
+      <ul>
+        <li><a href="index.html#p=contrat"><span><b>Le contrat de travail</b>
+          <small>CDI : poste, classification, convention visée, période d'essai</small></span></a></li>
+        <li><a href="index.html#p=cdd"><span><b>Le contrat à durée déterminée</b>
+          <small>Motif de recours, mentions, transmission, indemnité de précarité</small></span></a></li>
+        <li><a href="index.html#p=disciplinaire"><span><b>Les lettres de la discipline et de la rupture</b>
+          <small>Convocation, avertissement, mise à pied, notification, certificat de
+          travail, solde de tout compte</small></span>
+          <span class="marque du">14 documents</span></a></li>
+        <li><a href="elections-cse.html" data-seuil="11"><span><b>Les actes des élections</b>
+          <small>Information du personnel, invitation des syndicats, protocole
+          préélectoral, procès-verbal de carence</small></span>
+          <span class="marque" data-marque="11">dès 11 salariés</span></a></li>
+        <li><a href="index.html#p=csereu" data-seuil="50"><span><b>Les actes du comité</b>
+          <small>Convocation, ordre du jour, procès-verbal de réunion</small></span>
+          <span class="marque" data-marque="50">dès 50 salariés</span></a></li>
+        <li><a href="index.html#p=ri" data-seuil="50"><span><b>Le règlement intérieur</b>
+          <small>Obligatoire dès 50 salariés — discipline, hygiène, sécurité</small></span>
+          <span class="marque" data-marque="50">dès 50 salariés</span></a></li>
+        <li><a href="index.html#p=embauche"><span><b>Les formalités de l'embauche</b>
+          <small>Déclaration préalable, visite d'information, registre du personnel</small></span>
+          <span class="marque du">assistant</span></a></li>
+        <li><a href="defense-cph.html"><span><b>Conclusions en défense — conseil de prud'hommes</b>
+          <small>Chefs de demande contestés, argumentaire modifiable, sortie Word</small></span>
+          <span class="marque">si l'affaire est engagée</span></a></li>
+      </ul>
+    </section>
+
+    <!-- ══ 4 ══ -->
+    <section class="porte p4">
+      <div class="tete">
+        <span class="n">4</span>
+        <h3>Trouver une réponse</h3>
+        <p>La question qu'on se pose vraiment, et sa réponse — avec l'article, l'arrêt
+        ou la grille conventionnelle qui la fonde.</p>
+      </div>
+      <ul>
+        <li><a href="index.html#p=faq"><span><b>Questions et réponses</b>
+          <small>Les questions que posent les salariés, et ce qu'on peut leur répondre</small></span>
+          <span class="marque du">la recherche</span></a></li>
+        <li><a href="index.html#p=juris"><span><b>Jurisprudence sociale</b>
+          <small>Toutes branches, filtres par secteur et par sens de la décision</small></span></a></li>
+        <li><a href="index.html#p=statut"><span><b>Ma convention collective</b>
+          <small>Classification, essai, préavis, indemnités, maladie, primes</small></span></a></li>
+        <li><a href="index.html#p=remuneration"><span><b>Salaire, minima et grilles</b>
+          <small>Les barèmes chiffrés de la convention, comparés au salaire versé</small></span>
+          <span class="marque or">chiffré</span></a></li>
+        <li><a href="index.html#p=temps2"><span><b>Durée du travail et forfaits</b>
+          <small>Heures supplémentaires, durées maximales, forfait annuel en jours</small></span></a></li>
+        <li><a href="index.html#p=absences"><span><b>Absences et congés</b>
+          <small>Congés payés, maladie, accident du travail, maternité et paternité</small></span></a></li>
+        <li><a href="index.html#p=calc"><span><b>Les calculateurs</b>
+          <small>Indemnité légale de licenciement, barème d'indemnisation, coût d'une embauche</small></span></a></li>
+        <li><a href="index.html#p=parcours"><span><b>Le parcours de la relation de travail</b>
+          <small>De l'embauche à la rupture, dans l'ordre — chaque étape renvoie à son outil</small></span></a></li>
+        <li><a href="ferroviaire.html"><span><b>Branche ferroviaire</b>
+          <small>Le droit social propre au fret ferroviaire (IDCC 3217)</small></span>
+          <span class="marque">si c'est votre branche</span></a></li>
+      </ul>
+    </section>
+
+  </div>
+
+  <!-- ══ la barre permanente ══ -->
+  <div class="rail">
+    <a href="index.html#p=parametrage"><b id="rail-ent">Ma fiche entreprise</b>
+      <span id="rail-ent-txt">Effectif, secteur, convention — saisis une fois, reportés partout</span></a>
+    <a href="index.html#p=echeances"><b>Mes échéances</b>
+      <span>Ce qui tombe, ce qui est en retard — le tableau de bord de l'espace RH</span></a>
+    <a href="index.html#p=personnel"><b>Mon registre du personnel</b>
+      <span>Les salariés, et l'effectif qui en découle plutôt qu'une tranche déclarée</span></a>
+    <a href="index.html#p=csehub"><b>Mon espace CSE</b>
+      <span>Le guide, ce qui reste à faire, l'agenda des réunions, le classeur</span></a>
+  </div>
+
+  <!-- ══ les règles ══ -->
+  <section class="regles">
+    <h3>Les cinq règles de l'écran</h3>
+    <p>Elles valent pour toutes les pages. C'est ce qui fait qu'on s'y retrouve sans mode d'emploi.</p>
+    <ul>
+      <li><b>Une chose par écran</b><span>Une obligation à corriger, un document à
+        produire, une question. Et aucune page sans retour.</span></li>
+      <li><b>On ne demande jamais deux fois</b><span>La fiche d'entreprise se reporte
+        d'elle-même dans tous les modules. Ce que vous avez saisi prime toujours.</span></li>
+      <li><b>Ce qui ne s'applique pas est mis de côté</b><span>Jamais supprimé, et
+        toujours avec le seuil et l'article qui l'écartent.</span></li>
+      <li><b>Chaque phrase a son article</b><span>Et l'identifiant de la version lue.
+        Un numéro seul ne dit pas laquelle des versions successives a été lue.</span></li>
+      <li><b>Ce qui manque reste écrit</b><span>«&nbsp;[À COMPLÉTER]&nbsp;» se voit et se
+        cherche. Une virgule orpheline, non — et elle se signe sans qu'on la remarque.</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    Les calculs se font dans votre navigateur&nbsp;: rien n'est envoyé, rien n'est conservé
+    ailleurs que sur ce poste, et le registre du personnel y est chiffré. Cet outil assiste
+    votre démarche&nbsp;; il ne remplace ni votre conseil, ni la décision de l'administration
+    ou du juge. <a href="#" id="lien-avert">Avertissement d'usage</a>.
+  </footer>
+
+</main>
+
+<dialog id="dlg-avertissement">
+  <h2>Avertissement d'usage</h2>
+  <p>Cet outil vous assiste dans votre démarche. Il ne se substitue pas au conseil d'un avocat,
+  ni à celui de votre conseil habituel, ni à la décision de l'autorité administrative ou du juge.</p>
+  <p>Les listes d'obligations sont les plus complètes que les textes lus à la source permettent :
+  elles ne sont pas exhaustives pour autant — votre convention collective, vos accords et votre
+  activité peuvent ajouter des obligations que l'application signale sans les détailler.</p>
+  <p>Un rapport sans point bloquant dit « rien ne bloque en l'état de vos réponses », jamais
+  « rien ne bloquera ». La décision, et la responsabilité qui l'accompagne, restent les vôtres.</p>
+  <form method="dialog" style="margin-top:14px"><button>Fermer</button></form>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ── LE DOSSIER OUVERT ────────────────────────────────────────────
+     La fiche d'entreprise n'appartient pas à l'appareil mais au dossier :
+     un cabinet ouvre plusieurs clients depuis le même navigateur, et le
+     précédent ne doit jamais reparaître chez le suivant. On refait donc
+     ici, à l'identique, le calcul de jxCompte() de l'application — et on
+     ne lit RIEN d'autre. Aucun dossier n'est deviné : à défaut de fiche,
+     la page dit « fiche à compléter » et ne masque rien. */
+  function compteRacine() {
+    try {
+      if (sessionStorage.getItem("jte_admin") === "1") return "admin";
+      var c = sessionStorage.getItem("jte_code"); if (c) return "c_" + c;
+      var s = sessionStorage.getItem("jte_sector"); if (s) return "s_" + s;
+    } catch (e) {}
+    return "local";
+  }
+  function compte() {
+    var r = compteRacine();
+    if (r !== "admin") return r;
+    var a = ""; try { a = localStorage.getItem("app_secteur::admin") || ""; } catch (e) {}
+    return a ? ("admin_" + a) : "admin";
+  }
+
+  var E = null;
+  try { E = JSON.parse(localStorage.getItem("juris_transport::" + compte()) || "null"); } catch (e) {}
+
+  /* ── L'EFFECTIF ───────────────────────────────────────────────────
+     La fiche ne porte pas un nombre mais une TRANCHE — « 50 » veut dire
+     « de 50 à 199 salariés ». Deux bornes en découlent, et elles ne
+     servent pas à la même chose :
+       · la borne HAUTE seule permet d'écarter un module (« même au plus
+         haut de votre tranche, vous n'atteignez pas le seuil ») ;
+       · la borne BASSE seule permet d'affirmer qu'il vous concerne.
+     Entre les deux, on ne tranche pas : la tranche chevauche le seuil et
+     c'est l'effectif exact qui décide. Ne rien savoir ne masque rien. */
+  var SEUILS = [1, 11, 20, 50, 200, 250, 300, 500, 750, 1000, 2000, 5000, 10000];
+  var ANCIENNES = { moins11: [1, 10], "11a49": [11, 49], "50a249": [50, 249], "250plus": [250, Infinity] };
+
+  function tranche(v) {
+    if (!v) return null;
+    var d = String(v);
+    if (ANCIENNES[d]) return ANCIENNES[d];
+    for (var i = 0; i < SEUILS.length; i++) {
+      if (d === String(SEUILS[i]))
+        return [SEUILS[i], SEUILS[i + 1] ? SEUILS[i + 1] - 1 : Infinity];
+    }
+    return null;
+  }
+
+  var T = E ? tranche(E.effectif) : null;
+
+  function nb(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function libTranche(t) {
+    return t[1] === Infinity ? (nb(t[0]) + " salariés et plus")
+         : (t[0] === 1 ? "1 à 10 salariés" : nb(t[0]) + " à " + nb(t[1]) + " salariés");
+  }
+
+  /* Le bandeau du bas reprend ce que l'application sait déjà de vous. */
+  if (E && (E.nom || T)) {
+    var bits = [];
+    if (T) bits.push(libTranche(T));
+    if (E.activite) bits.push(E.activite);
+    if (E.siret) bits.push("SIRET " + E.siret);
+    if (E.nom) $("rail-ent").textContent = E.nom;
+    $("rail-ent-txt").textContent = bits.length ? bits.join(" · ") : "Fiche à compléter";
+    if (T)
+      $("sous").textContent = "Quatre portes. Ce qui s'affiche tient compte de votre effectif — "
+        + libTranche(T) + " — et la condition est dite à chaque fois.";
+  }
+
+  /* Marquer ce qui n'est pas dû à cette taille. « Hors de votre taille »
+     serait trop étroit : la condition n'est pas toujours un effectif — le
+     délégué syndical, l'existence d'un comité, un accord d'entreprise en
+     sont aussi. On garde donc l'intitulé de la condition, et on ne touche
+     qu'à ce qu'un seuil d'effectif tranche pour de bon. */
+  if (T) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-seuil]"), function (a) {
+      var seuil = parseInt(a.getAttribute("data-seuil"), 10);
+      var m = a.querySelector("[data-marque]");
+      if (!m) return;
+      if (T[1] < seuil) { m.className = "marque hors"; m.textContent = "ne vous concerne pas — " + m.textContent; }
+      else if (T[0] >= seuil) { m.className = "marque du"; m.textContent = "vous êtes concerné"; }
+      /* La tranche chevauche le seuil : on laisse la condition telle quelle. */
+    });
+
+    /* Quand le seuil ne commande qu'une PARTIE de l'écran — le plan de
+       sauvegarde, pas le licenciement économique — on retire du titre ce
+       qui ne s'applique pas, au lieu de promettre puis de mettre de côté.
+       L'application fait déjà cela sur la même carte (famLib / libSous). */
+    Array.prototype.forEach.call(document.querySelectorAll("[data-sous-seuil]"), function (a) {
+      var seuil = parseInt(a.getAttribute("data-sous-seuil"), 10);
+      if (T[1] >= seuil) {
+        var m2 = a.querySelector("[data-sous-marque]");
+        if (m2 && T[0] >= seuil) { m2.className = "marque du"; m2.textContent = "vous êtes concerné"; }
+        return;
+      }
+      var b = a.querySelector("b");
+      if (b) b.textContent = a.getAttribute("data-sous-lib");
+      var m3 = a.querySelector("[data-sous-marque]");
+      if (m3) { m3.className = "marque hors"; m3.textContent = "le plan ne vous concerne pas"; }
+    });
+  }
+
+  $("btn-avert").addEventListener("click", function () { $("dlg-avertissement").showModal(); });
+  $("lien-avert").addEventListener("click", function (e) { e.preventDefault(); $("dlg-avertissement").showModal(); });
+
+  /* La version réellement chargée, lue au réseau comme le fait
+     l'application : c'est elle qui pilote la mise à jour forcée. */
+  try {
+    fetch("version.json", { cache: "no-store" }).then(function (r) { return r.json(); })
+      .then(function (v) { if (v && v.build) $("etat-version").textContent = v.build; })
+      .catch(function () {});
+  } catch (e) {}
+
+  if ("serviceWorker" in navigator)
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+})();
+</script>
+</body>
+</html>

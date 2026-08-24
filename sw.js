@@ -1,7 +1,10 @@
 /* Service worker — Juris Expert MCH (PWA installable + hors ligne + mise à jour forcée) */
-const CACHE = 'jem-v205';
+const CACHE = 'jem-v206';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './vendor/xlsx.full.min.js', './vendor/jszip.min.js',
+  /* La porte d'entree : elle n'ouvre que des ecrans deja mis en cache, il
+     serait absurde qu'elle soit la seule chose indisponible hors ligne. */
+  './accueil.html',
   /* Les pages annexes atteignables depuis le menu ou l'accueil. Elles
      n'etaient pas mises en cache : l'application se disait « utilisable hors
      ligne » et quatre entrees de menu ne l'etaient pas. */

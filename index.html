@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-24.222';
+var JX_BUILD = 'v2026-08-24.223';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-24.223', d:'24 août 2026', t:[
+   'UNE PORTE D’ENTRÉE QUI POSE LA QUESTION. <b>accueil.html</b> demande « qu’est-ce que vous avez à faire ? » et ouvre quatre portes — faire le point, mener une procédure, produire un document, trouver une réponse — au lieu d’aligner quarante-neuf écrans de même poids. Il fallait déjà savoir ce qu’est un protocole préélectoral pour cliquer au bon endroit.',
+   'RIEN N’EST SUPPRIMÉ. Les quarante-neuf écrans sont intacts, l’accueil interne aussi : la nouvelle page les range, elle ne les remplace pas. Elle s’atteint par le menu, entrée « Les quatre portes ».',
+   'UN LIEN PEUT ENFIN DÉSIGNER UN ÉCRAN. L’application n’avait aucun routage : ouvrir index.html ouvrait toujours l’accueil interne. <b>index.html#p=&lt;écran&gt;</b> ouvre désormais l’écran nommé — et trois raccourcis pour ce qui n’est pas une page : <b>#p=bdese</b>, <b>#p=egalite</b>, <b>#p=echeances</b>. Le contrôle d’accès de goPage() s’applique comme avant.',
+   'LA BARRE PERMANENTE. Quatre choses suivent l’utilisateur partout : sa fiche d’entreprise, ses échéances, son registre du personnel, son espace CSE. La page reprend la fiche du dossier ouvert — le même calcul de compte que l’application, pour qu’un client ne voie jamais celle d’un autre.',
+   'L’EFFECTIF ORIENTE L’ÉCRAN. La fiche porte une TRANCHE, pas un nombre : « 50 » veut dire cinquante à cent quatre-vingt-dix-neuf. La borne haute seule écarte un module, la borne basse seule affirme qu’il vous concerne, et entre les deux la page ne tranche pas. Effectif inconnu, rien n’est masqué.'
+ ]},
  {v:'v2026-08-24.222', d:'24 août 2026', t:[
    'LA TABLE QUESTION → ARTICLES, relevée par le dépôt JURISPRUDENCE (harmonisation/legiarti-audit-jx.json, commit fa4c204), est rattachée ici PAR IDENTIFIANT et non par numéro : un numéro se périme dès que l\u2019ordre change ou qu\u2019une question s\u2019ajoute — et trois se sont ajoutées depuis.',
    'ELLE APPORTE CE QUE LE FONDEMENT AFFICHÉ NE CITE PAS. D.4132-1 et D.4132-2 pour le registre des dangers graves et imminents, L.2242-17 pour le droit à la déconnexion, L.2411-5 pour les salariés protégés, L.1131-2 pour la formation des recruteurs. Cinquante-sept questions gagnent des articles que leur libellé taisait.',
@@ -5038,6 +5045,7 @@ Exemple :<br>
 </div>
 <div style="padding:8px">
   <div class="mi" onclick="goPage('home');closeMenu()"><span style="font-size:18px">◈</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Accueil</div></div></div>
+  <div class="mi" onclick="window.location.href='accueil.html'"><span style="font-size:18px">🚪</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Les quatre portes</div><div style="font-size:11px;color:#9a9585;margin-top:1px">Qu’est-ce que vous avez à faire ?</div></div></div>
   <div class="mi" onclick="closeMenu();secOuvrir()"><span style="font-size:18px">🏢</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Changer de secteur</div><div id="mi-secteur" style="font-size:11px;color:#9a9585;margin-top:1px"></div></div></div>
   <div class="mi" id="mi-admin" style="display:none" onclick="goPage('admin');closeMenu()"><span style="font-size:18px">👑</span><div><div style="font-size:13px;font-weight:500;color:#e8c97a">Administration — codes clients</div></div></div>
   <div class="mi" onclick="goPage('parcours');closeMenu()"><span style="font-size:18px">🧭</span><div><div style="font-size:13px;font-weight:500;color:#e8e4d8">Parcours (pas-à-pas)</div></div></div>
@@ -28132,6 +28140,67 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   },800);
 });
+
+/* ══════════════════════════════════════════════════════════════════════
+   LA PORTE D'ENTREE — accueil.html renvoie ici avec #p=<ecran>
+
+   L'application n'avait aucun routage : ouvrir index.html ouvrait toujours
+   l'accueil interne, et un lien venu du dehors ne pouvait designer aucun
+   ecran. Les quatre portes de accueil.html en ont besoin, et rien d'autre
+   ne change : le controle d'acces de goPage() s'applique comme avant, un
+   identifiant inconnu ne fait rien plutot que d'ouvrir une page au hasard.
+
+   Trois raccourcis nommes s'ajoutent aux identifiants de page, parce que
+   trois destinations utiles ne sont PAS des pages : la base de donnees et
+   l'index d'egalite sont des onglets de l'espace CSE, et les echeances
+   vivent dans le tableau de bord de l'espace RH.
+   ══════════════════════════════════════════════════════════════════════ */
+var JX_PORTES={
+  bdese:    function(){ goBdese(); },
+  egalite:  function(){ goIndexEgalite(); },
+  echeances:function(){ try{ RX_TAB='dash'; }catch(e){} try{ rxOpen(); }catch(e){} }
+};
+var JX_PORTE_GUET=false;
+function jxPorteHash(){
+  var h='';
+  try{ h=(location.hash||'').replace(/^#/,''); }catch(e){}
+  var m=/^p=([A-Za-z0-9_-]+)$/.exec(h);
+  if(!m) return;
+  var id=m[1];
+  /* Un ecran absent ne derange rien : on laisse en place ce que
+     l'utilisateur voyait plutot que de retomber sur l'accueil. */
+  if(!JX_PORTES[id] && !document.getElementById('pg-'+id)) return;
+  /* L'APPLICATION N'EST PAS TOUJOURS OUVERTE. Sans fiche d'entreprise,
+     initApp() presente l'ecran d'inscription et #pg-app reste masque :
+     ouvrir un ecran a cet instant le rendrait actif DERRIERE un ecran
+     invisible, et le lien serait perdu. On ne compte pas le temps qu'il
+     faut pour remplir une fiche : on guette le moment ou l'application
+     s'affiche, et l'ecran demande s'ouvre alors. */
+  try{
+    var app=document.getElementById('pg-app');
+    if(!app || getComputedStyle(app).display==='none'){
+      if(!JX_PORTE_GUET && app && window.MutationObserver){
+        JX_PORTE_GUET=true;
+        var ob=new MutationObserver(function(){
+          try{
+            if(getComputedStyle(app).display==='none') return;
+            ob.disconnect(); JX_PORTE_GUET=false; jxPorteHash();
+          }catch(e){}
+        });
+        ob.observe(app, {attributes:true, attributeFilter:['style','class']});
+      }
+      return;
+    }
+  }catch(e){}
+  if(JX_PORTES[id]){ try{ JX_PORTES[id](); }catch(e){} return; }
+  try{ goPage(id); }catch(e){}
+}
+try{
+  window.addEventListener('hashchange', jxPorteHash);
+  /* Apres initApp() et la restauration d'etat : joue plus tot, goPage()
+     ouvrirait une page que son dossier n'a pas encore remplie. */
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(jxPorteHash, 900); });
+}catch(e){}
 
 /* ===== Auteur / page de garde / personnalisation ===== */
 var AUTEUR_DEFAUT={prenom:'Mounir',nom:'CHIKHAOUI',email:'r.t.h@orange.fr',tel:'06 61 47 61 65'};
