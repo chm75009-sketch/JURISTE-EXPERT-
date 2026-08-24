@@ -613,14 +613,20 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   console.log('\n— Les identifiants de version —');
   const leg = await page.evaluate(() => {
     const avec = new Set(), sans = new Set();
-    AUS_OBLIG.forEach(o => ausArticles(o.src || '').forEach(k => {
+    AUS_OBLIG.forEach(o => ausArticlesDe(o).forEach(k => {
       (AUS_LEGI[k] ? avec : sans).add(k); }));
     return { table: Object.keys(AUS_LEGI).length, avec: avec.size, sans: [...sans],
-             duerp: ausVersions(AUS_OBLIG.filter(o => o.id === 'duerp')[0].src),
+             rattachees: Object.keys(AUS_ART).length,
+             duerp: ausVersions(AUS_OBLIG.filter(o => o.id === 'duerp')[0]),
+             /* Le registre des dangers graves : ses deux articles ne sont
+                pas dans son fondement affiché — c'est le relevé qui les
+                rattache. Sans la table, ils manquaient. */
+             dgi: ausVersions(AUS_OBLIG.filter(o => o.id === 'dgi')[0]),
+             seuil: ausVersions(AUS_OBLIG.filter(o => o.id === 'cse')[0]),
              inconnu: ausVersions('L.9999-1') };
   });
   ok(leg.table === 232, 'la table porte les 232 articles relevés', leg.table);
-  ok(leg.avec === 168, '168 des articles cités portent leur identifiant de version', leg.avec);
+  ok(leg.avec === 232, 'les 232 articles relevés sont rattachés et portent leur version', leg.avec);
   ok(/LEGIARTI\d+, lu le \d\d\/\d\d\/\d{4}/.test(leg.duerp),
      'chaque article s\'affiche avec son identifiant ET sa date de lecture', leg.duerp);
   ok(/version non relevée/.test(leg.inconnu),
@@ -635,6 +641,12 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   });
   ok(/version des textes lue/.test(affiche) && /LEGIARTI/.test(affiche),
      'et la version se consulte sous chaque question');
+  ok(leg.rattachees === 160,
+     'la table question → articles est rattachée par identifiant, non par numéro', leg.rattachees);
+  ok(/D\.4132-1 \(LEGIARTI/.test(leg.dgi) && /D\.4132-2 \(LEGIARTI/.test(leg.dgi),
+     'elle apporte les articles que le fondement affiché ne cite pas', leg.dgi);
+  ok(/L\.2311-2 \(LEGIARTI/.test(leg.seuil),
+     'et l\'article qui porte le SEUIL est rattaché lui aussi', leg.seuil);
 
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();

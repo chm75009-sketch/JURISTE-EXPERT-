@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-23.221';
+var JX_BUILD = 'v2026-08-24.222';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,13 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-24.222', d:'24 août 2026', t:[
+   'LA TABLE QUESTION → ARTICLES, relevée par le dépôt JURISPRUDENCE (harmonisation/legiarti-audit-jx.json, commit fa4c204), est rattachée ici PAR IDENTIFIANT et non par numéro : un numéro se périme dès que l\u2019ordre change ou qu\u2019une question s\u2019ajoute — et trois se sont ajoutées depuis.',
+   'ELLE APPORTE CE QUE LE FONDEMENT AFFICHÉ NE CITE PAS. D.4132-1 et D.4132-2 pour le registre des dangers graves et imminents, L.2242-17 pour le droit à la déconnexion, L.2411-5 pour les salariés protégés, L.1131-2 pour la formation des recruteurs. Cinquante-sept questions gagnent des articles que leur libellé taisait.',
+   'L\u2019ARTICLE QUI PORTE LE SEUIL est rattaché lui aussi : « dès 11 salariés (L.2311-2) » citait son article sans jamais donner sa version.',
+   'LES 232 ARTICLES RELEVÉS SONT DÉSORMAIS TOUS RATTACHÉS, chacun avec son identifiant LEGIARTI et la date de sa lecture — 180 venant des captures confirmées du dépôt, 52 lus au relais avec deux lectures concordantes. Ils se consultent sous chaque question.',
+   'Six articles cités restent sans version : ils relèvent du code de la sécurité sociale ou du code de l\u2019environnement, hors du relevé. L\u2019application l\u2019écrit sur la ligne concernée au lieu de le taire.'
+ ]},
  {v:'v2026-08-23.221', d:'23 août 2026', t:[
    'DEUX QUESTIONS PILOTES DE PLUS, et une question qui en faisait deux. 168 questions.',
    'L\u2019ACCORD DE L.2315-45. Les quatre commissions du comité — formation, logement, égalité, économique — ne sont créées QU\u2019EN L\u2019ABSENCE d\u2019un accord d\u2019entreprise : L.2315-46, L.2315-49, L.2315-50 et L.2315-56 ouvrent tous par ces mots. Aucune question ne demandait cet accord. Elle est posée, et répondre qu\u2019il existe écarte les quatre — <b>ce n\u2019est pas un manquement, c\u2019est un autre régime</b>.',
@@ -31335,6 +31342,176 @@ var AUS_LEGI = {
  'R4624-46':['LEGIARTI000045677119','2026-08-23'],
  'R4624-47':['LEGIARTI000045676758','2026-08-23']
 };
+/* QUELS ARTICLES COMMANDENT QUELLE QUESTION.
+   Releve par le depot JURISPRUDENCE (harmonisation/legiarti-audit-jx.json,
+   commit fa4c204), rattache ici PAR IDENTIFIANT et non par numero : un
+   numero se perime des que l'ordre change ou qu'une question s'ajoute.
+   Il apporte ce que le fondement affiche ne cite pas — D.4132-1 pour le
+   registre des dangers graves, L.2242-17 pour la deconnexion, L.2411-5
+   pour les salaries proteges. */
+var AUS_ART = {
+ 'abondcpf':['L6323-13'],
+ 'adaptation':['L6321-1'],
+ 'affdiscrim':['L1142-6'],
+ 'affegarem':['R3221-2'],
+ 'affich':['L1152-4','L1153-5'],
+ 'affichcoord':['D4711-1'],
+ 'alerteur':['L1132-3-3'],
+ 'amianterep':['L4412-2','R4412-97'],
+ 'atcourt':['R4624-33'],
+ 'atmortel':['R4121-5'],
+ 'attestft':['R1234-9'],
+ 'avismed':['L4624-6'],
+ 'bdese':['L2312-18'],
+ 'bdeseeg':['L2312-18','L2312-36'],
+ 'bilansocial':['L2312-28','L2312-30'],
+ 'budgets':['L2315-61'],
+ 'ccnaffich':['R2262-1','R2262-3','R2262-2'],
+ 'ccnaffich_2':['R2262-1','R2262-3','R2262-2'],
+ 'cddcarence':['L1244-3','L1244-3-1'],
+ 'cddecrit':['L1242-12','L1242-2'],
+ 'cddtransmis':['L1242-13'],
+ 'ceco':['L2315-46','L2315-45'],
+ 'cegalite':['L2315-56','L2315-45'],
+ 'certif':['L1234-19','D1234-6'],
+ 'cformation':['L2315-49','L2315-45'],
+ 'chimique':['R4412-38','R4412-39'],
+ 'clogement':['L2315-50','L2315-45'],
+ 'cmarches':['L2315-44-1','D2315-29'],
+ 'coactivite':['R4511-1','R4512-2','R4512-6','R4512-7','R4512-12'],
+ 'collectinfo':['L1222-4'],
+ 'conserv':['D4711-3','L4711-2','L4711-4'],
+ 'consult':['L2312-17'],
+ 'consultform':['L2312-24','L2312-26'],
+ 'contingent':['L3121-30','L3121-33','D3121-24'],
+ 'contingent_2':['L3121-30','L3121-33','D3121-24'],
+ 'contribform':['L6131-1'],
+ 'convoclic':['L1232-2','L1232-4'],
+ 'cor':['L3121-30','L3121-38'],
+ 'cpacq':['L3141-3'],
+ 'cpdelais':['D3141-5','D3141-6'],
+ 'cpdelais_2':['D3141-5','D3141-6'],
+ 'cpordre':['L3141-15','L3141-16'],
+ 'cpperiode':['L3141-13'],
+ 'cse':['L2311-2'],
+ 'cseaffich':['L2315-15'],
+ 'csealerte':['L2312-59'],
+ 'csealerteco':['L2312-63'],
+ 'csecentral':['L2313-1','L2316-1'],
+ 'csecircul':['L2315-14'],
+ 'csecomptes':['L2315-64','L2315-68','L2315-69'],
+ 'csedelai':['L2312-15','R2312-5','R2312-6'],
+ 'cseexpert':['L2315-78','L2315-80'],
+ 'cseheures':['L2315-9','R2315-5','R2315-6'],
+ 'cselocal':['L2315-25','L2315-26'],
+ 'csemarche':['L2312-8'],
+ 'cseodj':['L2315-30'],
+ 'cseodj_2':['L2315-30'],
+ 'cseponct':['L2312-37'],
+ 'cseprealable':['L2312-14'],
+ 'csergpd':['L2312-38'],
+ 'csetemps':['L2315-11','R2315-7'],
+ 'cssct':['L2315-36'],
+ 'decompte':['D3171-8','D3171-9'],
+ 'decompte_2':['D3171-8','D3171-9'],
+ 'deconnexion':['L2242-17'],
+ 'deconnexion_2':['L2242-17'],
+ 'dgi':['D4132-1','D4132-2'],
+ 'dgi_2':['D4132-1','D4132-2'],
+ 'docduree':['L3171-3','D3171-16'],
+ 'docelec':['L2312-57'],
+ 'docspst':['D4622-22'],
+ 'dpae':['L1221-10'],
+ 'duerp':['R4121-1','R4121-2'],
+ 'duerpaffich':['R4121-4'],
+ 'duerpaffich_2':['R4121-4'],
+ 'duerpannexe':['R4121-1-1','L4161-1'],
+ 'duerpcse':['L4121-3'],
+ 'dureemin':['L3123-7','L3123-27'],
+ 'ecran':['R4542-16','R4542-17'],
+ 'egarem':['L3221-2'],
+ 'entretien':['L6315-1'],
+ 'epi':['R4323-91','R4323-95','R4323-104'],
+ 'essai':['L1221-19','L1221-21'],
+ 'extincteurs':['R4227-29','R4227-4'],
+ 'ficheent':['R4624-46','R4624-47'],
+ 'forfaitjours':['L3121-64','L3121-65','L3121-60'],
+ 'formelus':['L2315-18'],
+ 'formrecrut':['L1131-2'],
+ 'formrenf':['L4154-2'],
+ 'formrenf_2':['L4154-2'],
+ 'formsecu':['L4141-2','R4141-3'],
+ 'gepp':['L2242-2'],
+ 'handamenag':['L5213-6'],
+ 'hcompl':['L3123-8'],
+ 'horaires':['D3171-1','D3171-2'],
+ 'inaptreclas':['L1226-2'],
+ 'inaptsalaire':['L1226-4'],
+ 'incendie':['R4227-37','R4227-38','R4227-39'],
+ 'incendie_2':['R4227-37','R4227-38','R4227-39'],
+ 'incendie_3':['R4227-37','R4227-38','R4227-39'],
+ 'index':['L1142-8'],
+ 'infoemb':['L1221-5-1','R1221-34','R1221-35'],
+ 'infoetranger':['R1221-36'],
+ 'infosecu':['L4141-1','R4141-3-1'],
+ 'locaux':['R4228-10','R4228-19','R4228-22','R4228-23'],
+ 'maxjour':['L3121-18'],
+ 'maxsem':['L3121-20'],
+ 'maxsem_2':['L3121-20'],
+ 'micarriere':['L4624-2-2'],
+ 'mineurs':['L4153-8','R4153-40','R4153-41','R4153-45'],
+ 'nao':['L2242-1'],
+ 'nondiscrim':['L1132-1','L1132-4'],
+ 'notiflic':['L1232-6'],
+ 'nuit':['L3122-1','L3122-2','L3122-11','L3122-12','R4624-18'],
+ 'oeth':['L5212-1'],
+ 'oethcontrib':['L5212-9','L5212-11'],
+ 'oethdecl':['L5212-5'],
+ 'paiemens':['L3242-1'],
+ 'papripact':['L4121-3-1'],
+ 'partagevaleur':['L3346-1'],
+ 'participation':['L3322-2'],
+ 'pause':['L3121-16'],
+ 'precarite':['L1243-8'],
+ 'precmotifs':['L1235-2','R1232-13'],
+ 'prevenance':['L1221-25','L1221-26'],
+ 'prevent':['L4644-1'],
+ 'prioritetp':['L3123-3'],
+ 'protegeds':['L2411-3'],
+ 'proteges':['L2411-1','L2411-5'],
+ 'protocole':['R4515-4','R4515-5'],
+ 'rapportsst':['L2312-27'],
+ 'recrutinfo':['L1221-8','L1221-9'],
+ 'ref250':['L1153-5-1'],
+ 'refcse':['L2314-1'],
+ 'refhandicap':['L5213-6-1'],
+ 'registre':['L1221-13'],
+ 'reposhebdo':['L3132-1','L3132-2'],
+ 'reposhebdo_2':['L3132-1','L3132-2'],
+ 'reposquot':['L3131-1'],
+ 'reprise':['R4624-31','R4624-32','L4624-2-4','R4624-29'],
+ 'reunionsst':['L2315-27'],
+ 'ri':['L1311-2'],
+ 'rupconv':['L1237-11','L1237-13'],
+ 'rupconvhomo':['L1237-14'],
+ 'secours':['R4224-14','R4224-15','R4224-16'],
+ 'secours_2':['R4224-14','R4224-15','R4224-16'],
+ 'secugen':['L4121-1','L4121-2'],
+ 'sexisme':['L1142-2-1'],
+ 'sir':['R4624-23','R4624-24','R4624-28'],
+ 'solidarite':['L3133-7','L3133-8'],
+ 'solidarite_2':['L3133-7','L3133-8'],
+ 'stc':['L1234-20'],
+ 'synaffich':['L2142-3','L2142-4'],
+ 'synlocal1000':['L2142-8'],
+ 'synlocal200':['L2142-8'],
+ 'tpartiel':['L3123-6'],
+ 'verifs':['R4323-23','R4323-24','R4323-25','L4711-5','R4226-14','R4226-16'],
+ 'verifs_2':['R4323-23','R4323-24','R4323-25','L4711-5','R4226-14','R4226-16'],
+ 'vip':['R4624-10','R4624-11','R4624-16','R4624-18'],
+ 'vip_2':['R4624-10','R4624-11','R4624-16','R4624-18']
+};
+
 /* Les articles d'un texte de fondement, dans l'ordre ou ils sont cites. */
 function ausArticles(src){
   var out=[], vus={};
@@ -31342,10 +31519,21 @@ function ausArticles(src){
     var k=a+b; if(!vus[k]){ vus[k]=1; out.push(k); } return _; });
   return out;
 }
+/* Tous les articles d'une obligation : son fondement, l'article qui porte
+   son SEUIL, et ceux que le releve lui rattache sans qu'ils soient cites. */
+function ausArticlesDe(o){
+  var out=[], vus={};
+  var pousse=function(k){ if(k && !vus[k]){ vus[k]=1; out.push(k); } };
+  ausArticles(o.src||'').forEach(pousse);
+  if(o.s && o.s[1]) ausArticles(o.s[1]).forEach(pousse);
+  (AUS_ART[o.id]||[]).forEach(pousse);
+  return out;
+}
 /* Rendu court : « L.4121-1 (LEGIARTI000006903146, lu le 23/08/2026) ».
    Un article sans identifiant est signale, non passe sous silence. */
 function ausVersions(src){
-  var a=ausArticles(src); if(!a.length) return '';
+  var a=(src && typeof src==='object') ? ausArticlesDe(src) : ausArticles(src);
+  if(!a.length) return '';
   return a.map(function(k){
     var e=AUS_LEGI[k];
     var num=k.charAt(0)+'.'+k.slice(1);
@@ -31481,7 +31669,7 @@ function ausRender(){
     h+='<div style="margin:8px 0;padding:9px 10px;border:1px solid rgba(255,255,255,.12);border-radius:10px">'
       +'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><b>'+negoEsc(ausQ(o))+'</b>'
       +'<div style="font-size:11px;color:#9fb0c4">'+negoEsc(o.src)+(o.s?(' · s’applique dès '+o.s[0]+' ('+negoEsc(o.s[1])+')'):' · toute taille')+' · risque : '+(o.r===1?'pénal':o.r===2?'prud’homal':'administratif')+' — '+negoEsc(o.sanc)+'</div></div>'
-      +(function(){ var v=ausVersions(o.src); return v?('<details style="margin-top:3px"><summary style="cursor:pointer;font-size:10.5px;color:#7f8ba0">version des textes lue</summary><div style="font-size:10.5px;color:#7f8ba0;padding:3px 0 0">'+negoEsc(v)+'</div></details>'):''; })()
+      +(function(){ var v=ausVersions(o); return v?('<details style="margin-top:3px"><summary style="cursor:pointer;font-size:10.5px;color:#7f8ba0">version des textes lue</summary><div style="font-size:10.5px;color:#7f8ba0;padding:3px 0 0">'+negoEsc(v)+'</div></details>'):''; })()
       +'<select onchange="ausRep(\''+o.id+'\', this.value)" style="min-height:42px;border-radius:9px;padding:8px 10px;background:rgba(255,255,255,.05);color:inherit;border:1px solid '+(r==='ai'?'#46b885':(r?'#d4a017':'rgba(255,255,255,.2)'))+'">'
       +'<option value="">— répondre —</option>'
       +ausRepDe(o).map(function(x){ return '<option value="'+x[0]+'"'+(r===x[0]?' selected':'')+'>'+negoEsc(x[1])+'</option>'; }).join('')
