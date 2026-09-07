@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-24.222';
+var JX_BUILD = 'v2026-08-24.223';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,12 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-24.223', d:'7 septembre 2026', t:[
+   'LES SEUILS DE L\u2019ÉLECTORAT SE COMPTENT EN JOURS, PLUS EN HEURES. Les dates étaient lues en temps universel puis leur échéance calculée en heure locale : entre l\u2019heure d\u2019été et l\u2019heure d\u2019hiver, elle tombait UNE HEURE trop tard. Un salarié entré exactement trois mois avant le scrutin était déclaré « moins de trois mois » et perdait son droit de vote. Sur un fichier d\u2019essai de 15 600 salariés, cinq électeurs disparaissaient à Paris et reparaissaient à Londres. Les quatre seuils — trois mois, un an, seize ans, dix-huit ans — et l\u2019année de présence du salarié mis à disposition se comparent désormais en année, mois et quantième.',
+   'LE DÉBORDEMENT DE MOIS EST TRAITÉ AU PASSAGE : trente et un janvier plus un mois donne le vingt-huit février, jamais le trois mars. Quand le quantième n\u2019existe pas dans le mois visé, c\u2019est le dernier jour de ce mois qui vaut échéance.',
+   'LA DATE DU SCRUTIN NE RECALCULE PLUS À CHAQUE CHIFFRE. Le champ était en « oninput » : chaque touche relançait le calcul de tous les salariés et la reconstruction de toutes leurs lignes. À 15 600 salariés, l\u2019écran se figeait et les flèches du sélecteur perdaient une pression sur deux. Il passe en « onchange », avec un recalcul à la sortie du champ.',
+   'DEUX FICHIERS D\u2019ESSAI COMPLETS S\u2019AJOUTENT AUX EXEMPLES. Trois cent vingt salariés sans aucun point à vérifier, et quinze mille six cents où tous les cas de L.1111-2 se croisent : temps partiels de quotités variées, contrats à durée déterminée en cours, achevés dans la fenêtre de douze mois ou avant elle, remplaçants, intérimaires, mis à disposition de plus et de moins d\u2019un an, intermittents, saisonniers, apprentis, contrats de professionnalisation, stagiaires, travailleurs à domicile, salariés sortis, mineurs de seize ans, anciennetés sous trois mois et entre trois mois et un an.'
+ ]},
  {v:'v2026-08-24.222', d:'24 août 2026', t:[
    'LA TABLE QUESTION → ARTICLES, relevée par le dépôt JURISPRUDENCE (harmonisation/legiarti-audit-jx.json, commit fa4c204), est rattachée ici PAR IDENTIFIANT et non par numéro : un numéro se périme dès que l\u2019ordre change ou qu\u2019une question s\u2019ajoute — et trois se sont ajoutées depuis.',
    'ELLE APPORTE CE QUE LE FONDEMENT AFFICHÉ NE CITE PAS. D.4132-1 et D.4132-2 pour le registre des dangers graves et imminents, L.2242-17 pour le droit à la déconnexion, L.2411-5 pour les salariés protégés, L.1131-2 pour la formation des recruteurs. Cinquante-sept questions gagnent des articles que leur libellé taisait.',
@@ -4371,7 +4377,7 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <div class="card">
 <div class="ct">Étape D — Date du scrutin</div>
 <div class="fg"><label class="fl">Date du 1er tour de scrutin *</label>
-<input type="date" id="cse-nom-date-scrutin" oninput="refreshNomTable()"/></div>
+<input type="date" id="cse-nom-date-scrutin" onchange="refreshNomTable()" onblur="refreshNomTable()"/></div>
 <div class="al info" style="font-size:12px;margin-top:6px">Tous les calculs (effectif, électeurs, éligibles) sont effectués à cette date.</div>
 </div>
 
@@ -25179,9 +25185,31 @@ function viderListeSalaries(){
   });
 }
 
+/* LES SEUILS SE COMPTENT EN JOURS DE CALENDRIER, JAMAIS EN HEURES.
+   Les dates arrivent en « AAAA-MM-JJ » et « new Date » les lit en temps
+   universel ; setMonth et setFullYear, eux, travaillent en heure locale.
+   Entre l'heure d'ete et l'heure d'hiver, l'echeance tombait UNE HEURE
+   trop tard : un salarie entre exactement trois mois avant le scrutin
+   etait declare « moins de trois mois » et perdait son electorat. On
+   compte desormais en annee, mois et quantieme — rien d'autre. */
+function jxAjoute(iso, ans, mois){
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
+  if(!m) return '';
+  var a = (+m[1]) + (ans||0), mo = (+m[2]) - 1 + (mois||0), j = +m[3];
+  a += Math.floor(mo/12); mo = ((mo % 12) + 12) % 12;
+  /* Le 31 janvier plus un mois n'est pas le 3 mars : quand le quantieme
+     n'existe pas dans le mois vise, on retient le dernier jour du mois. */
+  var bis = (a % 4 === 0 && a % 100 !== 0) || a % 400 === 0;
+  var dernier = [31, bis ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo];
+  if(j > dernier) j = dernier;
+  return a + '-' + String(mo + 1).padStart(2, '0') + '-' + String(j).padStart(2, '0');
+}
+/* « a est-il posterieur a b » : deux jours compares, pas deux instants. */
+function jxApresJour(a, b){ return !!a && !!b && String(a) > String(b); }
 function calcSalarieNom(s, dateScrutinStr){
   if(!dateScrutinStr) return null;
   const D = new Date(dateScrutinStr);
+  const JS = String(dateScrutinStr).slice(0, 10);   /* le jour du scrutin */
   const dN = s.dateNaissance ? new Date(s.dateNaissance) : null;
   const dE = s.dateEntree ? new Date(s.dateEntree) : null;
   const dSor = s.dateSortie ? new Date(s.dateSortie) : null;
@@ -25212,8 +25240,7 @@ function calcSalarieNom(s, dateScrutinStr){
   } else if(s.rempl && ['cdd_act','interim','mad'].includes(s.contrat)){
     raisonEff = 'Remplace un salarié absent — exclu (L.1111-2, 2°, dernière phrase)';
   } else if(['cdd_act','interim','saisonnier','intermittent','mad'].includes(s.contrat)){
-    const debutFen = new Date(D);
-    debutFen.setMonth(D.getMonth() - 12);
+    const debutFen = new Date(jxAjoute(JS, -1, 0) || D);
     const dDeb = s.debutContrat ? new Date(s.debutContrat) : (s.dateEntree ? new Date(s.dateEntree) : null);
     // Si pas de date de fin → on considère le contrat en cours jusqu'à la date du scrutin
     const dFin = s.finContrat ? new Date(s.finContrat) : new Date(D);
@@ -25230,8 +25257,9 @@ function calcSalarieNom(s, dateScrutinStr){
              tard le meme jour de l'annee precedente, il compte ; entre le
              lendemain, non. Le quotient par 365,25 declarait « moins d'un
              an » un salarie present exactement un an. */
-          const _unAn = new Date(D); _unAn.setFullYear(_unAn.getFullYear()-1);
-          if(dDeb > _unAn){
+          const _unAn = jxAjoute(JS, -1, 0);
+          const _dDebJ = (s.debutContrat || s.dateEntree || '').slice(0, 10);
+          if(jxApresJour(_dDebJ, _unAn)){
             effectif = 0;
             raisonEff = `Mis à disposition entré le ${dDeb.toLocaleDateString('fr-FR')} — un an dans les locaux non atteint au ${D.toLocaleDateString('fr-FR')} : hors décompte (L.1111-2, 2°)`;
           } else {
@@ -25265,22 +25293,22 @@ function calcSalarieNom(s, dateScrutinStr){
   else if(!dN){ electeur = false; electeurRaison = 'Date de naissance manquante'; }
   else if(!dE){ electeur = false; electeurRaison = 'Date d\'entrée manquante'; }
   else {
-    const age16 = new Date(dN); age16.setFullYear(age16.getFullYear() + 16);
-    if(age16 > D){ electeur = false; electeurRaison = 'Moins de 16 ans à la date du scrutin'; }
+    const age16 = jxAjoute(String(s.dateNaissance).slice(0,10), 16, 0);
+    if(jxApresJour(age16, JS)){ electeur = false; electeurRaison = 'Moins de 16 ans à la date du scrutin'; }
     else {
-      const anc3 = new Date(dE); anc3.setMonth(anc3.getMonth() + 3);
-      if(anc3 > D){ electeur = false; electeurRaison = 'Moins de 3 mois d\'ancienneté'; }
+      const anc3 = jxAjoute(String(s.dateEntree).slice(0,10), 0, 3);
+      if(jxApresJour(anc3, JS)){ electeur = false; electeurRaison = 'Moins de 3 mois d\'ancienneté'; }
     }
   }
 
   // 3. ÉLIGIBLE
   let eligible = electeur, eligibleRaison = electeurRaison;
   if(eligible){
-    const age18 = new Date(dN); age18.setFullYear(age18.getFullYear() + 18);
-    if(age18 > D){ eligible = false; eligibleRaison = 'Moins de 18 ans à la date du scrutin'; }
+    const age18 = jxAjoute(String(s.dateNaissance).slice(0,10), 18, 0);
+    if(jxApresJour(age18, JS)){ eligible = false; eligibleRaison = 'Moins de 18 ans à la date du scrutin'; }
     else {
-      const anc1 = new Date(dE); anc1.setFullYear(anc1.getFullYear() + 1);
-      if(anc1 > D){ eligible = false; eligibleRaison = 'Moins d\'1 an d\'ancienneté'; }
+      const anc1 = jxAjoute(String(s.dateEntree).slice(0,10), 1, 0);
+      if(jxApresJour(anc1, JS)){ eligible = false; eligibleRaison = 'Moins d\'1 an d\'ancienneté'; }
     }
   }
 
@@ -25315,9 +25343,8 @@ function calcSalarieNom(s, dateScrutinStr){
        voter. Les deux conditions doivent etre constatees, pas presumees. */
     if(e.effet === 'mad'){
       eligible = false; eligibleRaison = 'Salarié mis à disposition — non éligible dans l\'entreprise utilisatrice (L.2314-23)';
-      var _dz = dE ? new Date(dE) : null;
-      if(_dz) _dz.setFullYear(_dz.getFullYear() + 1);
-      if(!_dz || _dz > D){
+      var _dz = jxAjoute(String(s.dateEntree || '').slice(0,10), 1, 0);
+      if(!_dz || jxApresJour(_dz, JS)){
         electeur = false; electeurRaison = 'Mis à disposition depuis moins de 12 mois continus (L.2314-23)';
       } else if(!s.optionVoteMad){
         electeur = false; electeurRaison = 'Mis à disposition : électeur seulement s\'il CHOISIT de voter ici — option non recueillie (L.2314-23)';
