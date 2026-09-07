@@ -465,10 +465,12 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(nat.premier === 'cse' && nat.pilote,
      'la question du comite OUVRE le questionnaire — on ne demande pas la consultation avant',
      nat.premier);
-  /* Cinq natures depuis que le FAIT existe : trois questions ont quitte
-     la piece et l'etat, ou elles n'avaient rien a respecter. */
-  ok(nat.n.piece === 29 && nat.n.fait === 3 && nat.n.acte === 43 && nat.n.etat === 41 && nat.n.cond === 52,
-     'les cinq natures sont reparties', JSON.stringify(nat.n));
+  /* Six natures. Le FAIT a pris trois questions a la piece et a l'etat,
+     ou il n'y avait rien a respecter ; l'AFFICHAGE en a pris huit a la
+     piece, ou il n'y avait rien a detenir. */
+  ok(nat.n.piece === 21 && nat.n.fait === 3 && nat.n.affichage === 8
+     && nat.n.acte === 43 && nat.n.etat === 41 && nat.n.cond === 52,
+     'les six natures sont reparties', JSON.stringify(nat.n));
 
   const menus = await page.evaluate(() => {
     const mauvais = [];
@@ -629,8 +631,11 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
              seuil: ausVersions(AUS_OBLIG.filter(o => o.id === 'cse')[0]),
              inconnu: ausVersions('L.9999-1') };
   });
-  ok(leg.table === 232, 'la table porte les 232 articles relevés', leg.table);
-  ok(leg.avec === 232, 'les 232 articles relevés sont rattachés et portent leur version', leg.avec);
+  /* 232 releves par le depot JURISPRUDENCE, plus L.2411-6 et L.2411-7 lus
+     a la source le 07/09/2026 quand la question des salaries proteges a
+     ete elargie au candidat et au demandeur d'elections. */
+  ok(leg.table === 234, 'la table porte les 234 articles relevés', leg.table);
+  ok(leg.avec === 234, 'les 234 articles relevés sont rattachés et portent leur version', leg.avec);
   ok(/LEGIARTI\d+, lu le \d\d\/\d\d\/\d{4}/.test(leg.duerp),
      'chaque article s\'affiche avec son identifiant ET sa date de lecture', leg.duerp);
   ok(/version non relevée/.test(leg.inconnu),
@@ -679,6 +684,19 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      natF.menuCse.join('|'));
   ok(natF.menuCond.some(x => /SANS OBJET/.test(x)),
      'et la conditionnelle garde son « sans objet »');
+  /* ══ L'AFFICHAGE ══ On ne detient pas un affichage, on l'affiche.
+     « Je l'ai » et « en cours d'etablissement » n'avaient aucun sens
+     pour le texte des articles 225-1 a 225-4 du code penal. */
+  const affi = await page.evaluate(() => {
+    const l = ausRepDe(AUS_OBLIG.filter(o => o.id === 'affdiscrim')[0]).map(x => x[1]);
+    return { menu: l, n: AUS_OBLIG.filter(o => o.nat === 'affichage').map(o => o.id) };
+  });
+  ok(affi.menu.some(x => /affiché et lisible/.test(x)) && !affi.menu.some(x => /je l’ai|je l\'ai/.test(x)),
+     'un affichage se repond « affiché », jamais « je l\'ai »', affi.menu.join('|'));
+  ok(affi.menu.some(x => /incomplet ou périmé/.test(x)),
+     'et l\'affichage incomplet ou perime a sa reponse');
+  ok(affi.n.length === 8 && affi.n.indexOf('horaires') >= 0 && affi.n.indexOf('ccnaffich') >= 0,
+     'les huit questions d\'affichage portent ce menu', affi.n.join(','));
   const compte = await page.evaluate(() => {
     E.effectif = '20'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
     const N = ausEtat(); N.rep = N.rep || {};
@@ -702,6 +720,37 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(compte.avecCse === 'non',
      'mais il ne fait pas exister un comite : les questions qui en supposent un restent ecartees',
      compte.avecCse);
+
+  /* ══ LE RAPPORT DE CONFORMITE DIT CE QUI MANQUE ══
+     Cent lignes toutes « INDETERMINE » ne sont pas un rapport : le
+     verdict doit nommer LE POINT de controle qui reste a lever, et le
+     rapport doit dire en tete que rien n'a encore ete verifie. */
+  const conf = await page.evaluate(() => {
+    const N = ausEtat(); N.rep = N.rep || {}; N.verif = {};
+    AUS_OBLIG.forEach(o => { if (o.nat !== 'fait') N.rep[o.id] = 'ai'; });
+    try { jxEcrire(ausKey(), JSON.stringify(N)); } catch (_) {}
+    ausDocConf();
+    const vide = (window._docCurrent || {}).html || '';
+    const N2 = ausEtat(); N2.verif = { duerp: { q0: 'oui' } };
+    try { jxEcrire(ausKey(), JSON.stringify(N2)); } catch (_) {}
+    ausDocConf();
+    return { vide: vide, partiel: (window._docCurrent || {}).html || '' };
+  });
+  ok(/Aucun point de contrôle n’a été renseigné/.test(conf.vide),
+     'aucun controle renseigne : le rapport le dit en tete, au lieu de cent « INDETERMINE »');
+  ok(/reste à établir *:/.test(conf.vide),
+     'et chaque ligne nomme le point de controle qui manque');
+  ok(/point\(s\) de contrôle renseigné\(s\) sur/.test(conf.partiel),
+     'un controle commence, le rapport dit combien de points restent');
+  const plan = await page.evaluate(() => {
+    const N = ausEtat(); N.rep = N.rep || {};
+    N.rep['seveso'] = 'pas'; N.rep['accordcom'] = 'pas';
+    try { jxEcrire(ausKey(), JSON.stringify(N)); } catch (_) {}
+    ausDocPlan();
+    return (window._docCurrent || {}).html || '';
+  });
+  ok(!/installation nucléaire|Seveso/i.test(plan),
+     'un fait nie n\'entre jamais au plan d\'action');
 
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
