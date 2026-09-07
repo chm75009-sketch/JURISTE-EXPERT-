@@ -1126,7 +1126,7 @@ function jxReprise(){
   });
 }
 try{ jxReprise(); }catch(e){}
-var JX_BUILD = 'v2026-08-24.223';
+var JX_BUILD = 'v2026-08-24.224';
 // Pastille de version affichée dans l'en-tête : dit d'un coup d'oeil quelle
 // version est réellement chargée dans le navigateur (cache du service worker).
 try{ (function(){
@@ -1136,6 +1136,11 @@ try{ (function(){
 })(); }catch(e){}
 // Historique des versions (affiché sur la page Nouveautés — à compléter à chaque publication)
 var JX_CHANGELOG = [
+ {v:'v2026-08-24.224', d:'7 septembre 2026', t:[
+   'UNE CINQUIÈME NATURE DE QUESTION : LE FAIT. « L\u2019un de vos établissements comprend-il une installation nucléaire de base ou un site classé Seveso seuil haut ? » ne se répond pas par « c\u2019est respecté » ou « ce n\u2019est pas respecté » : il n\u2019y a rien à respecter, on demande si la situation EXISTE. Trois questions en relèvent — l\u2019accord d\u2019entreprise sur les commissions, le classement de l\u2019établissement, le nombre d\u2019établissements distincts. Leurs réponses sont désormais : Oui, Non, Je ne sais pas, Autre — à préciser.',
+   'UN FAIT NE COMPTE NI COMME CONFORME NI COMME MANQUANT. Répondre « non, aucune installation classée » n\u2019est pas un manquement : c\u2019est ce qui permet de savoir quelles AUTRES questions se posent. Ces réponses entrent dans un compteur propre, « renseignements », et le rapport écrit « RENSEIGNEMENT — … ; ni conforme ni manquant, cette réponse commande d\u2019autres questions ». La branche est lue EN PREMIER : placée après « non » et « je ne sais pas », elle n\u2019était jamais atteinte et un fait nié sortait « MANQUANT », avec une action à mener.',
+   'LE COMITÉ SOCIAL ET ÉCONOMIQUE A SES PROPRES RÉPONSES, parce que trois situations distinctes se cachaient sous deux cases : un comité élu ; un procès-verbal de carence établi ; des élections en cours. Le procès-verbal de carence n\u2019est pas un échec — c\u2019est la preuve que les élections ont été tenues : il satisfait l\u2019obligation de les organiser et ne se compte plus comme un manque. Il ne fait pas pour autant exister un comité : les questions qui en supposent un restent écartées, avec leur raison écrite.'
+ ]},
  {v:'v2026-08-24.223', d:'7 septembre 2026', t:[
    'LES SEUILS DE L\u2019ÉLECTORAT SE COMPTENT EN JOURS, PLUS EN HEURES. Les dates étaient lues en temps universel puis leur échéance calculée en heure locale : entre l\u2019heure d\u2019été et l\u2019heure d\u2019hiver, elle tombait UNE HEURE trop tard. Un salarié entré exactement trois mois avant le scrutin était déclaré « moins de trois mois » et perdait son droit de vote. Sur un fichier d\u2019essai de 15 600 salariés, cinq électeurs disparaissaient à Paris et reparaissaient à Londres. Les quatre seuils — trois mois, un an, seize ans, dix-huit ans — et l\u2019année de présence du salarié mis à disposition se comparent désormais en année, mois et quantième.',
    'LE DÉBORDEMENT DE MOIS EST TRAITÉ AU PASSAGE : trente et un janvier plus un mois donne le vingt-huit février, jamais le trois mars. Quand le quantième n\u2019existe pas dans le mois visé, c\u2019est le dernier jour de ce mois qui vaut échéance.',
@@ -30425,13 +30430,13 @@ var AUS_OBLIG=[
   sanc:'aucune — c’est une faculté ; mais son existence écarte les commissions supplétives',
   act:'Vérifier si un accord d’entreprise conclu dans les conditions de L.2232-12 organise les commissions',
   src:'L.2315-45 — un accord d’entreprise peut prévoir la création de commissions ; L.2315-46, L.2315-49, L.2315-50 et L.2315-56 ne créent les commissions économique, formation, logement et égalité QU’EN L’ABSENCE d’un tel accord',
-  q:'Un accord d’entreprise organise-t-il les commissions du comité (L.2315-45) ?', nat:'piece',
+  q:'Un accord d’entreprise organise-t-il les commissions du comité (L.2315-45) ?', nat:'fait',
   verif:['L’accord est écrit, daté et signé dans les conditions de L.2232-12','Il précise quelles commissions il crée et leurs attributions','Il a été déposé']},
  {id:'seveso', lib:'Établissement à risque au sens de L.4521-1', s:0, r:1, pilote:1,
   sanc:'la CSSCT y est due quel que soit l’effectif ; son absence est un délit d’entrave',
   act:'Établir si l’un de vos établissements relève de L.4521-1 — la commission santé-sécurité y est due sans condition d’effectif',
   src:'L.4521-1 — établissements comprenant au moins une installation nucléaire de base (L.593-1 du code de l’environnement), une installation figurant sur la liste de L.515-36 du même code — dite « Seveso seuil haut » — ou soumise aux dispositions minières citées · L.2315-36, 3° : la CSSCT y est créée SANS condition d’effectif',
-  q:'L’un de vos établissements comprend-il une installation nucléaire de base, une installation classée « Seveso seuil haut », ou une installation minière visée par L.4521-1 ?', nat:'etat',
+  q:'L’un de vos établissements comprend-il une installation nucléaire de base, une installation classée « Seveso seuil haut », ou une installation minière visée par L.4521-1 ?', nat:'fait',
   verif:['Le classement est établi par un arrêté ou un récépissé de déclaration','La liste des installations concernées est à jour','Le comité en a été informé']},
  {id:'registre', lib:'Registre unique du personnel', s:0, src:'L.1221-13', r:1,
   sanc:'amende pénale par salarié concerné', act:'Constituer le registre — le module Personnel le tient et l’imprime',
@@ -30960,7 +30965,7 @@ var AUS_OBLIG=[
  {id:'csecentral', lib:'CSE central d’entreprise si au moins deux établissements distincts', s:[50,'L.2313-1 · L.2316-1'], r:1,
   sanc:'délit d’entrave ; consultation faite au mauvais niveau, donc irrégulière',
   act:'Constituer un comité central et des comités d’établissement, et consulter au bon niveau selon que le projet comporte ou non des mesures d’adaptation spécifiques',
-  verif:['L’accord ou la décision fixant les établissements distincts existe','L’avis du comité central est transmis aux comités d’établissement','Les consultations récurrentes sont conduites au niveau central'], q:'Votre entreprise compte-t-elle au moins deux établissements distincts ?', nat:'etat', cse:1},
+  verif:['L’accord ou la décision fixant les établissements distincts existe','L’avis du comité central est transmis aux comités d’établissement','Les consultations récurrentes sont conduites au niveau central'], q:'Votre entreprise compte-t-elle au moins deux établissements distincts ?', nat:'fait', cse:1},
  {id:'csecentral_2', lib:'CSE central d’entreprise si au moins deux établissements distincts', s:[50,'L.2313-1 · L.2316-1'], r:1,
   sanc:'délit d’entrave ; consultation faite au mauvais niveau, donc irrégulière',
   act:'Constituer un comité central et des comités d’établissement, et consulter au bon niveau selon que le projet comporte ou non des mesures d’adaptation spécifiques',
@@ -31110,9 +31115,21 @@ var AUS_REP = {
         ['nsp','Je ne sais pas'],['autre','Autre — à préciser']],
  cond: [['ai','Oui — le cas s’est présenté et cela a été fait'],['pas','Le cas s’est présenté, mais cela n’a pas été fait'],
         ['cours','En cours — engagé, pas achevé'],['so','SANS OBJET — le cas ne s’est pas présenté'],
+        ['nsp','Je ne sais pas'],['autre','Autre — à préciser']],
+ /* LE FAIT. Une situation existe, ou elle n'existe pas. Rien a respecter,
+    rien a produire : la reponse sert a savoir quelles AUTRES questions se
+    posent. Un « non » n'est pas un manquement — c'est un renseignement. */
+ fait: [['ai','Oui'],['pas','Non'],['nsp','Je ne sais pas'],['autre','Autre — à préciser']],
+ /* Le comite : trois situations distinctes, et le proces-verbal de carence
+    n'est pas un echec — c'est la preuve que les elections ont ete tenues. */
+ cse:  [['ai','Oui — un comité est élu'],['carence','Oui — procès-verbal de carence établi'],
+        ['cours','Élections en cours'],['pas','Non — ni comité, ni procès-verbal de carence'],
         ['nsp','Je ne sais pas'],['autre','Autre — à préciser']]
 };
-function ausRepDe(o){ return AUS_REP[o.nat] || AUS_REP.piece; }
+function ausRepDe(o){
+  if(o.id==='cse') return AUS_REP.cse;
+  return AUS_REP[o.nat] || AUS_REP.piece;
+}
 /* La question posee : celle qui a ete relue. L'ancien libelle reste, il
    sert de titre court aux rapports et au plan d'action. */
 function ausQ(o){ return o.q || o.lib; }
@@ -31121,7 +31138,10 @@ function ausQ(o){ return o.q || o.lib; }
 function ausAvecCse(N){
   var r=((N||ausEtat()).rep||{})['cse']||'';
   if(r==='ai') return 'oui';
-  if(r==='pas') return 'non';
+  /* Un proces-verbal de carence n'est pas un comite : les questions qui
+     supposent un comite ne se posent pas davantage. Mais l'obligation
+     d'organiser les elections, elle, est satisfaite. */
+  if(r==='pas'||r==='carence') return 'non';
   return '';
 }
 
@@ -31666,10 +31686,16 @@ function ausRender(){
      confondre avec « je ne l'ai pas » ferait redemander un travail deja
      commence ; le confondre avec « je l'ai » ferait controler une piece
      qui n'existe pas encore. */
-  var encours=[], sansobjet=[];
+  var encours=[], sansobjet=[], renseignements=[];
   apply.forEach(function(o){
     var r=(N.rep||{})[o.id]||'';
-    if(r==='ai'){ averif.push(o); faits++; }
+    /* UN FAIT N'EST NI CONFORME NI MANQUANT. « Non, nous n'avons pas
+       d'installation classee » n'est pas un manquement : c'est ce qui
+       permet de savoir quelles autres questions se posent. */
+    if(o.nat==='fait'){ if(r) renseignements.push(o); else sans++; return; }
+    /* Un proces-verbal de carence satisfait l'obligation d'organiser les
+       elections : il ne se compte pas comme un manque. */
+    if(r==='ai'||r==='carence'){ averif.push(o); faits++; }
     else if(r==='so'){ sansobjet.push(o); }   /* l'obligation s'applique ; le cas n'a pas eu lieu */
     else if(r==='cours'){ encours.push(o); manq.push(o); }   /* engage : au plan, mais compte a part */
     else if(r==='pas'||r==='nsp'||r==='autre'){ manq.push(o); }
@@ -31719,6 +31745,7 @@ function ausRender(){
     +'<div style="font-size:13px;line-height:1.8">✅ Déclaré en place : <b>'+faits+'</b> — à contrôler à l’étape 5<br>'
     +(encours.length?('🔧 Engagé, à achever : <b>'+encours.length+'</b> — repris au plan d’action, avec ce qu’il reste à faire<br>'):'')
     +'⚠ Manquant ou incertain : <b>'+(manq.length-encours.length)+'</b> — plan d’action ci-dessous<br>'
+    +(renseignements.length?('ℹ Renseignements : <b>'+renseignements.length+'</b> — ni conformes ni manquants. Ils disent votre situation, et commandent les questions qui suivent.<br>'):'')
     +(sansobjet.length?('⃠ Sans objet à ce jour : <b>'+sansobjet.length+'</b> — l’obligation s’applique, le cas ne s’est pas présenté. <b>Ce n’est pas une conformité</b> : le jour où le cas survient, elle joue.<br>'):'')
     +(hors.length?('▫ Ne vous concerne pas : <b>'+hors.length+'</b> — l’obligation naît à un effectif ou dans une situation qui n’est pas la vôtre. Aucun manquement.<br>'):'')
     +'◻ Sans réponse : <b>'+sans+'</b></div>'
@@ -33518,7 +33545,13 @@ function ausDocRapport(){
   var apply=AUS_OBLIG.filter(function(o){ return ausApplicable(o,ctx); });
   var lig=apply.map(function(o){
     var r=(N.rep||{})[o.id]||'';
-    var txt = r==='ai' ? 'Déclaré en place'
+    /* LE FAIT SE LIT EN PREMIER. Teste apres « non » et « je ne sais
+       pas », sa branche n'etait jamais atteinte : « non, aucune
+       installation classee » sortait « MANQUANT », avec une action a
+       mener. Le fait ne se mesure pas a l'aune de la conformite. */
+    var txt = o.nat==='fait' ? (r ? ('RENSEIGNEMENT — ' + (r==='ai'?'oui':r==='pas'?'non':r==='nsp'?'ne sait pas':'autre') + ' ; ni conforme ni manquant, cette réponse commande d’autres questions') : 'Sans réponse')
+      : r==='carence' ? 'Procès-verbal de carence établi — l’obligation d’organiser les élections est satisfaite'
+      : r==='ai' ? 'Déclaré en place'
       : r==='cours' ? 'EN COURS — engagé, à achever : '+negoEsc(o.act)
       : r==='pas' ? 'MANQUANT — '+negoEsc(o.act)
       : r==='nsp' ? 'À VÉRIFIER'

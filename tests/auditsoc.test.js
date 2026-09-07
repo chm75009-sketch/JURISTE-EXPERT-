@@ -465,8 +465,10 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   ok(nat.premier === 'cse' && nat.pilote,
      'la question du comite OUVRE le questionnaire — on ne demande pas la consultation avant',
      nat.premier);
-  ok(nat.n.piece === 30 && nat.n.acte === 43 && nat.n.etat === 43 && nat.n.cond === 52,
-     'les quatre natures sont reparties', JSON.stringify(nat.n));
+  /* Cinq natures depuis que le FAIT existe : trois questions ont quitte
+     la piece et l'etat, ou elles n'avaient rien a respecter. */
+  ok(nat.n.piece === 29 && nat.n.fait === 3 && nat.n.acte === 43 && nat.n.etat === 41 && nat.n.cond === 52,
+     'les cinq natures sont reparties', JSON.stringify(nat.n));
 
   const menus = await page.evaluate(() => {
     const mauvais = [];
@@ -576,8 +578,10 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
   const ctr = await page.evaluate(() => AUS_OBLIG.filter(o => o.id.indexOf('csecentral') === 0)
     .map(o => ({ id: o.id, nat: o.nat, q: o.q })));
   ok(ctr.length === 2, 'la question en faisait deux', ctr.length);
-  ok(ctr[0].nat === 'etat' && /deux établissements distincts/.test(ctr[0].q),
-     'deux etablissements distincts est un ETAT', ctr[0].nat);
+  /* Compter ses etablissements n'est pas respecter une regle : c'est un
+     FAIT, qui commande seulement si la question suivante se pose. */
+  ok(ctr[0].nat === 'fait' && /deux établissements distincts/.test(ctr[0].q),
+     'deux etablissements distincts est un FAIT', ctr[0].nat);
   ok(ctr[1].nat === 'acte' && /CENTRAL a-t-il été mis en place/.test(ctr[1].q),
      'et le comite central un ACTE', ctr[1].nat);
 
@@ -647,6 +651,57 @@ let e = 0; const ok = (c, m, d) => { console.log((c ? '  ok    ' : '  ECHEC ') +
      'elle apporte les articles que le fondement affiché ne cite pas', leg.dgi);
   ok(/L\.2311-2 \(LEGIARTI/.test(leg.seuil),
      'et l\'article qui porte le SEUIL est rattaché lui aussi', leg.seuil);
+
+  /* ══ LA CINQUIEME NATURE : LE FAIT ══
+     « L'un de vos etablissements comprend-il une installation nucleaire ? »
+     n'appelle ni « c'est respecte » ni « ce n'est pas respecte » : il n'y a
+     rien a respecter. Un « non » n'est pas un manquement, c'est un
+     renseignement — et il commande quelles autres questions se posent. */
+  const natF = await page.evaluate(() => {
+    const par = {};
+    AUS_OBLIG.forEach(o => { par[o.nat] = (par[o.nat] || 0) + 1; });
+    const lib = id => ausRepDe(AUS_OBLIG.filter(o => o.id === id)[0]).map(x => x[1]);
+    return { par, total: AUS_OBLIG.length,
+             faits: AUS_OBLIG.filter(o => o.nat === 'fait').map(o => o.id),
+             menuFait: lib('seveso'), menuCse: lib('cse'),
+             menuCond: lib('atmortel') };
+  });
+  ok(natF.total === 168 && natF.par.fait === 3,
+     'trois questions relevent du fait, sur 168', JSON.stringify(natF.par));
+  ok(['accordcom', 'seveso', 'csecentral'].every(k => natF.faits.indexOf(k) >= 0),
+     'l\'accord sur les commissions, le classement du site et les etablissements distincts',
+     natF.faits.join(','));
+  ok(natF.menuFait.join('|') === 'Oui|Non|Je ne sais pas|Autre — à préciser',
+     'le fait se repond par oui ou non, jamais par « c\'est respecte »',
+     natF.menuFait.join('|'));
+  ok(natF.menuCse.some(x => /carence/.test(x)) && natF.menuCse.some(x => /Élections en cours/.test(x)),
+     'le comite a ses trois situations, dont le proces-verbal de carence',
+     natF.menuCse.join('|'));
+  ok(natF.menuCond.some(x => /SANS OBJET/.test(x)),
+     'et la conditionnelle garde son « sans objet »');
+  const compte = await page.evaluate(() => {
+    E.effectif = '20'; try { jxEcrire(jxEntKey(), JSON.stringify(E)); } catch (_) {}
+    const N = ausEtat(); N.rep = N.rep || {};
+    N.rep['seveso'] = 'pas';        /* aucun site classe : un renseignement */
+    N.rep['cse'] = 'carence';       /* les elections ont ete tenues, sans elu */
+    try { jxEcrire(ausKey(), JSON.stringify(N)); } catch (_) {}
+    ausRender();
+    const h = document.getElementById('auditsoc-zone').innerHTML;
+    ausDocRapport();
+    return { ecran: h, rapport: (window._docCurrent || {}).html || '',
+             avecCse: ausAvecCse() };
+  });
+  ok(/Renseignements *: *<b>1<\/b>/.test(compte.ecran),
+     'un fait repondu « non » entre aux renseignements, pas au plan d\'action');
+  ok(/RENSEIGNEMENT — non/.test(compte.rapport),
+     'et le rapport l\'ecrit comme tel, ni conforme ni manquant');
+  ok(!/MANQUANT[^<]*installation/i.test(compte.rapport),
+     'jamais comme une obligation manquante');
+  ok(/carence établi/.test(compte.rapport),
+     'le proces-verbal de carence satisfait l\'obligation d\'organiser les elections');
+  ok(compte.avecCse === 'non',
+     'mais il ne fait pas exister un comite : les questions qui en supposent un restent ecartees',
+     compte.avecCse);
 
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
