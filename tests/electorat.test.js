@@ -112,6 +112,91 @@ const SCRUTIN = '2026-12-15';
   ok(incert === false,
      'la reserve d\'incertitude au-dela de 2 500 n\'a plus d\'objet : le tableau a ete lu');
 
+  console.log('\n— Trente-quatre mille salaries ne figent plus l\'ecran —');
+  /* Chaque salarie produisait un bloc complet — champs de saisie, menus,
+     boutons. A 34 560, le navigateur s'arretait avant d'avoir fini et la
+     date du premier tour devenait inaccessible. Le calcul porte toujours
+     sur la liste entiere ; seul l'affichage est borne, et l'ecran le dit. */
+  const charge = await page.evaluate(() => {
+    const L = [];
+    for (let i = 0; i < 34560; i++) L.push({
+      nom: 'N' + i, dateNaissance: '1985-04-12', dateEntree: '2015-03-02', dateSortie: '',
+      contrat: (i % 9 === 0 ? 'cdi_tpartiel' : 'cdi_tp'),
+      statut: (i % 7 === 0 ? 'cadre' : 'employe'), sexe: (i % 2 ? 'F' : 'M'),
+      heures: (i % 9 === 0 ? 17.5 : 35) });
+    salariesNom = L;
+    document.getElementById('cse-nom-date-scrutin').value = '2026-12-15';
+    const t0 = performance.now(); refreshNomTable(); const ms = performance.now() - t0;
+    const zone = document.getElementById('cse-nom-liste').innerHTML;
+    return { ms: Math.round(ms), dessinees: (zone.match(/Eff\. /g) || []).length,
+             borne: /lignes affichées sur/.test(zone),
+             synthese: document.getElementById('cse-nom-synthese').innerText };
+  });
+  ok(charge.ms < 5000, 'la liste se redessine en moins de cinq secondes', charge.ms + ' ms');
+  ok(charge.dessinees === 200 && charge.borne,
+     'deux cents lignes dessinees, et l\'ecran dit combien il en reste', charge.dessinees);
+  ok(/32640/.test(charge.synthese),
+     'mais le decompte porte sur la liste entiere — 30 720 temps pleins et 3 840 mi-temps',
+     charge.synthese.slice(0, 160));
+  ok(/35 titulaire/.test(charge.synthese),
+     'et le bareme suit : 35 titulaires au-dela de 10 000 salaries');
+  const vide = await page.evaluate(() => {
+    salariesNom = []; window._cseVoirTout = 0; refreshNomTable();
+    return document.getElementById('cse-nom-liste').innerText;
+  });
+  ok(/Aucun salarié saisi/.test(vide), 'et la liste vide se dit, sans rien calculer');
+
+  console.log('\n— L\'invitation syndicale porte les DEUX branches de L.2314-5 —');
+  /* « Sont informees [...] et INVITEES A NEGOCIER le protocole d'accord
+     preelectoral ET A ETABLIR LES LISTES DE LEURS CANDIDATS aux fonctions
+     de membre de la delegation du personnel ». Les deux courriers
+     n'invitaient qu'a negocier : une invitation amputee de sa seconde
+     branche expose le scrutin a l'annulation. */
+  const inv = await page.evaluate(() => {
+    const out = {};
+    /* La fiche entreprise remplie, sinon le document demande confirmation
+       de ses manques ; et « confirm » ne repond pas tout seul. */
+    window.E = window.E || {};
+    E.nom = 'T.E.C'; E.adresse = '23 avenue du Château, 95100 Argenteuil';
+    E.siret = '53845047900034'; E.dirigeant = 'Chadi EL SAFADI';
+    E.ccn = 'Transports routiers et activités auxiliaires du transport';
+    E.idcc = '16';
+    window.confirm = () => true; window.alert = () => {};
+    document.getElementById('cse-nom-date-scrutin').value = '2026-12-15';
+    try { genDocElectionTEC('invitations_osr'); } catch (e) { out.err1 = String(e); }
+    out.osr = ((window._docCurrent || {}).html || '');
+    try { genDocCSE('invitation_os'); } catch (e) { out.err2 = String(e); }
+    out.type = ((window._docCurrent || {}).html || '');
+    /* Fiche muette : la lettre doit reclamer la convention, pas en inventer
+       une. C'est le defaut qui a fait sortir « IDCC 0016 » chez des clients
+       du batiment et de la banque. */
+    E.ccn = ''; E.idcc = '';
+    out.muet = (typeof jxCCNPhrase === 'function') ? jxCCNPhrase() : '(absente)';
+    return out;
+  });
+  [['aux cinq confédérations', inv.osr], ['au modèle type', inv.type]].forEach(([q, h]) => {
+    ok(/négocier le Protocole d.Accord Préélectoral/i.test(h),
+       'la première branche — négocier le protocole — est ' + q);
+    ok(/établir les listes de vos candidats/i.test(h),
+       'la seconde — établir les listes de candidats — aussi, ' + q,
+       h.slice(0, 120));
+    ok(/L\.2314-5/.test(h), 'et le fondement est cité, ' + q);
+    /* L.2314-13, deuxieme alinea : « Cet accord mentionne la proportion de
+       femmes et d'hommes composant chaque college electoral ». Une mention
+       que l'accord DOIT porter ne peut pas manquer aux points a negocier. */
+    ok(/[Pp]roportion de femmes et d.hommes composant chaque collège/.test(h)
+       && /L\.2314-13/.test(h),
+       'la proportion F/H par collège figure aux points à négocier, ' + q);
+    /* La convention se remplit depuis la fiche du client, elle ne se tape
+       pas dans la lettre. */
+    ok(/Convention collective applicable/.test(h)
+       && /Transports routiers et activités auxiliaires du transport \(IDCC 0016\)/.test(h),
+       'et la convention de la fiche y est reportée, IDCC compris, ' + q);
+  });
+  ok(/à renseigner dans la fiche entreprise/.test(inv.muet) && !/IDCC/.test(inv.muet),
+     'fiche muette : la lettre réclame la convention au lieu d\'en supposer une',
+     inv.muet);
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');

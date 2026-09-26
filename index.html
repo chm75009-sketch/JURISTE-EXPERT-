@@ -4394,7 +4394,8 @@ Salariés âgés de <strong>16 ans révolus</strong>, ayant <strong>3 mois d'anc
 <div class="card">
 <div class="ct">Étape D — Date du scrutin</div>
 <div class="fg"><label class="fl">Date du 1er tour de scrutin *</label>
-<input type="date" id="cse-nom-date-scrutin" onchange="refreshNomTable()" onblur="refreshNomTable()"/></div>
+<input type="date" id="cse-nom-date-scrutin" onchange="refreshNomTable()" onblur="refreshNomTable()"/>
+<button onclick="viderListeSalaries()" class="btn-outline" style="margin-top:8px;width:100%;font-size:12.5px;background:rgba(224,92,92,0.06);border-color:rgba(224,92,92,0.30);color:#e0a0a0">↺ Réinitialiser l’effectif — repartir d’une liste vide</button></div>
 <div class="al info" style="font-size:12px;margin-top:6px">Tous les calculs (effectif, électeurs, éligibles) sont effectués à cette date.</div>
 </div>
 
@@ -4422,7 +4423,7 @@ Chargez la liste depuis le <b>registre du personnel (Espace RH)</b> ci-dessous, 
 
 <button onclick="ouvrirSaisieManuelle()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(91,155,213,0.1);border-color:rgba(91,155,213,0.4);color:#5b9bd5">📝 Saisir / coller le texte du registre manuellement</button>
 
-<button onclick="viderListeSalaries()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(224,92,92,0.08);border-color:rgba(224,92,92,0.35);color:#e05c5c">🗑 Vider la liste des salariés</button>
+<button onclick="viderListeSalaries()" class="btn-outline" style="margin-top:8px;width:100%;background:rgba(224,92,92,0.08);border-color:rgba(224,92,92,0.35);color:#e05c5c">↺ Réinitialiser l’effectif — repartir d’une liste vide</button>
 
 
 <div id="registre-progress" class="al info" style="display:none;font-size:12px;margin-top:8px;text-align:center"></div>
@@ -7024,6 +7025,26 @@ function jxConventionClient(){
   }
   idcc=String(idcc||'').replace(/[^0-9]/g,'');
   return { idcc:idcc, nom:nom, libelle: idcc? ('CCN IDCC '+((idcc.length<4)?('0000'+idcc).slice(-4):idcc)) : '' };
+}
+/* LA CONVENTION, EN CLAIR, POUR LES COURRIERS. jxConventionClient() ne rend
+   que « CCN IDCC 0016 » : un numero ne se met pas dans une lettre adressee a
+   une organisation syndicale. Ici l'intitule tel qu'il a ete saisi dans la
+   fiche du client, a defaut celui de la table des secteurs — une seule
+   lecture, la meme que jxSousTitreContrat(). Rien n'est suppose : si la
+   fiche est muette, la lettre porte un champ a completer, elle n'invente
+   pas une convention. La date de signature de la convention n'est PAS
+   detenue par l'application : elle n'est donc pas ecrite. */
+function jxCCNPhrase(){
+  var lib='', idcc='';
+  try{ if(typeof E!=='undefined' && E){ lib=E.ccn||''; idcc=E.idcc||''; } }catch(e){}
+  if(!lib || !idcc){
+    var p=null; try{ p=(typeof secProfil==='function')?secProfil():null; }catch(e){}
+    if(p){ if(!lib) lib=p.ccnLib||''; if(!idcc) idcc=p.idccNum||''; }
+  }
+  idcc=String(idcc||'').replace(/[^0-9]/g,'');
+  if(idcc) idcc=(idcc.length<4)?('0000'+idcc).slice(-4):idcc;
+  if(!lib) return '[CONVENTION COLLECTIVE APPLICABLE — à renseigner dans la fiche entreprise]';
+  return 'Convention collective nationale — '+lib+(idcc?(' (IDCC '+idcc+')'):'');
 }
 function updateHeroTop(){
   /* Vu en essai : la fiche etait bien sur le disque, le compte etait bon,
@@ -24486,21 +24507,23 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 </tr>
 </table>
 <p style="${S}text-align:right"><em>${ADR.split(',').slice(-1)[0].trim() || 'Argenteuil'}, le ${today}</em></p>
-<p style="${S}text-decoration:underline;font-weight:bold;text-align:center;margin:14px 0">Objet : Invitation à négocier le Protocole d'Accord Préélectoral — Élections du CSE de ${SOC}</p>
+<p style="${S}text-decoration:underline;font-weight:bold;text-align:center;margin:14px 0">Objet : Invitation à négocier le Protocole d'Accord Préélectoral et à établir vos listes de candidats — Élections du CSE de ${SOC}</p>
 <p style="${S}">Madame, Monsieur,</p>
-<p style="${S}">Conformément à l'article L.2314-5 du Code du travail, nous avons l'honneur de vous inviter, au titre de la <strong>${o.nom}</strong>, à participer à la négociation du Protocole d'Accord Préélectoral (PAP) en vue des premières élections des membres du Comité Social et Économique (CSE) au sein de notre entreprise.</p>
+<p style="${S}">Conformément à l'article L.2314-5 du Code du travail, nous avons l'honneur de vous inviter, au titre de la <strong>${o.nom}</strong>, à négocier le Protocole d'Accord Préélectoral (PAP) <strong>et à établir les listes de vos candidats</strong> aux fonctions de membre de la délégation du personnel, en vue des premières élections des membres du Comité Social et Économique (CSE) au sein de notre entreprise.</p>
 <p style="${S}"><strong>Date envisagée pour la 1ère réunion de négociation :</strong> [À COMPLÉTER, au plus tôt 15 jours après réception de la présente]</p>
 <p style="${S}"><strong>Lieu :</strong> ${ADR}</p>
 <p style="${S}"><strong>1er tour de scrutin prévu :</strong> ${DATE_1ER_TOUR}</p>
+<p style="${S}"><strong>Convention collective applicable :</strong> ${jxCCNPhrase()}</p>
 <p style="${S}"><strong>Points à négocier :</strong></p>
 <ul style="${S}">
 <li>Répartition du personnel dans les collèges électoraux</li>
 <li>Répartition des sièges entre les collèges</li>
+<li><strong>Proportion de femmes et d'hommes composant chaque collège électoral</strong> — mention que l'accord doit porter (L.2314-13) et qui commande la composition des listes (L.2314-30)</li>
 <li>Modalités d'organisation et de déroulement des opérations électorales</li>
 <li>Modalités de vote (physique, par correspondance)</li>
 <li>Date du 1er tour et du 2e tour éventuel</li>
 </ul>
-<p style="${S}">Nous vous remercions de bien vouloir confirmer la présence d'un représentant de votre organisation à cette négociation.</p>
+<p style="${S}">Nous vous remercions de bien vouloir confirmer la présence d'un représentant de votre organisation à cette négociation, et vous rappelons que la présente vaut également invitation à présenter des listes de candidats au premier tour, celui-ci étant réservé aux organisations syndicales (art. L.2314-5 et L.2314-29 C. trav.).</p>
 <p style="${S}">Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.</p>
 <div style="margin-top:40px">
 <p style="${S}text-align:right">${DIR}<br>Gérant — ${SOC}</p>
@@ -24634,7 +24657,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 ${_pLignesCol}
 </tbody>
 </table>
-<p style="${S}font-size:10pt"><em>La proportion de femmes et d'hommes composant chaque collège est mentionnée en application de l'article L.2314-13, alinéa 3. Elle commande la composition des listes (L.2314-30) : à défaut, l'élection des élus surnuméraires du sexe surreprésenté est annulée (L.2314-32). La répartition des sièges entre les collèges reste à arrêter et à porter dans ce tableau.</em></p>
+<p style="${S}font-size:10pt"><em>La proportion de femmes et d'hommes composant chaque collège est mentionnée en application de l'article L.2314-13, deuxième alinéa (« Cet accord mentionne la proportion de femmes et d'hommes composant chaque collège électoral »). Elle commande la composition des listes (L.2314-30) : à défaut, l'élection des élus surnuméraires du sexe surreprésenté est annulée (L.2314-32). La répartition des sièges entre les collèges reste à arrêter et à porter dans ce tableau.</em></p>
 
 <h3 style="${S}font-size:12pt;text-decoration:underline">ARTICLE 4 — Modalités de vote</h3>
 <p style="${S}"><strong>Mode de scrutin :</strong> vote physique sur place et vote par correspondance.</p>
@@ -24907,16 +24930,19 @@ ${docLRAR()}
 </tr>
 </table>
 <p style="${S}text-align:right">${_docVille()}, le ${today}</p>
-${docObjetEncadre('Invitation à négocier le Protocole d\'Accord Préélectoral (PAP) — Élections du CSE')}
+${docObjetEncadre('Invitation à négocier le Protocole d\'Accord Préélectoral (PAP) et à établir vos listes de candidats — Élections du CSE')}
 <p style="${S}">Madame, Monsieur,</p>
-<p style="${S}">Nous avons l'honneur de vous inviter à participer à la négociation du Protocole d'Accord Préélectoral en vue des élections des membres du Comité Social et Économique (CSE) de notre entreprise.</p>
+<p style="${S}">Conformément à l'article L.2314-5 du code du travail, nous avons l'honneur de vous inviter à <strong>négocier le Protocole d'Accord Préélectoral</strong> et à <strong>établir les listes de vos candidats</strong> aux fonctions de membre de la délégation du personnel, en vue des élections du Comité Social et Économique (CSE) de notre entreprise.</p>
+<p style="${S}">Le premier tour étant réservé aux listes présentées par les organisations syndicales, la présente vaut invitation à présenter des candidats (art. L.2314-29 C. trav.).</p>
 <p style="${S}"><strong>Date et heure de la négociation :</strong> [DATE ET HEURE]<br>
-<strong>Lieu :</strong> ${E.adresse||'[ADRESSE]'}</p>
+<strong>Lieu :</strong> ${E.adresse||'[ADRESSE]'}<br>
+<strong>Convention collective applicable :</strong> ${jxCCNPhrase()}</p>
 <p style="${S}"><strong>Points à négocier :</strong></p>
 <ul style="${S}margin-left:20px">
 <li>Répartition du personnel dans les collèges électoraux</li>
 <li>Répartition des sièges entre les collèges</li>
-<li>Modalités de vote (urne, correspondance ou modalités adaptées pour les conducteurs en déplacement)</li>
+<li><strong>Proportion de femmes et d'hommes composant chaque collège électoral</strong> — mention que l'accord doit porter (L.2314-13) et qui commande la composition des listes (L.2314-30)</li>
+<li>Modalités de vote (urne, correspondance ou modalités adaptées pour les salariés en déplacement)</li>
 <li>Calendrier électoral détaillé</li>
 <li>Modalités de communication aux salariés</li>
 </ul>
@@ -25193,13 +25219,19 @@ function loadNomSalaries(){
   } catch(e) { salariesNom = []; }
 }
 
+function cseVoirTout(){
+  if(!confirm('Afficher les ' + salariesNom.length + ' lignes ?\n\nAu-delà de quelques milliers de salariés, le navigateur peut mettre plusieurs minutes à répondre. Le décompte, lui, est déjà fait sur la liste entière.')) return;
+  window._cseVoirTout = 1; refreshNomTable();
+}
+function cseVoirMoins(){ window._cseVoirTout = 0; refreshNomTable(); }
 function viderListeSalaries(){
   if(salariesNom.length === 0){ alert('La liste est déjà vide.'); return; }
   _confirmer('Supprimer définitivement les ' + salariesNom.length + ' salarié(s) saisis ?\n\nCette action est irréversible.', () => {
     salariesNom = [];
     try { localStorage.removeItem(jxCle('transport_nom_salaries')); } catch(e) {}
     refreshNomTable();
-    alert('Liste vidée.');
+    window._cseVoirTout = 0;
+    alert('Effectif réinitialisé. La liste est vide : importez un fichier ou saisissez les salariés un à un.');
   });
 }
 
@@ -25570,9 +25602,13 @@ function refreshNomTable(){
   }
   let html = '', totalEff = 0, nbElect = 0, nbElig = 0, nbCadres = 0, nbSansStatut = 0;
   const _electeurs = [];   // {cat:1(ouvriers/employés) | 2(TAM) | 3(cadres), sexe}
+  /* Le calcul porte sur TOUTE la liste ; l'affichage, non. Au-dela de
+     deux cents lignes, le navigateur passait plus de temps a dessiner
+     des champs de saisie qu'a compter, et l'ecran se figeait. */
+  const _plafond = (window._cseVoirTout ? salariesNom.length : 200);
   salariesNom.forEach((s, i) => {
     const r = calcSalarieNom(s, dateScrutin);
-    html += renderSalarieLine(s, i, r);
+    if(i < _plafond) html += renderSalarieLine(s, i, r);
     if(r){
       totalEff += r.effectif;
       if(r.electeur) nbElect++;
@@ -25601,6 +25637,14 @@ function refreshNomTable(){
     if(e.sexe === 'F') _ff[idx]++; else if(e.sexe === 'M' || e.sexe === 'H') _hh[idx]++; else sansSexe++;
   });
   const _labels = _trois ? ['1er collège (ouvriers/employés)','2e collège (TAM)','3e collège (cadres)'] : ['1er collège (ouvriers/employés)','2e collège (TAM/cadres)'];
+  if(salariesNom.length > _plafond){
+    html += '<div class="item" style="margin-top:8px;text-align:center;font-size:12.5px;color:#e8c97a">'
+      + '<b>' + _plafond + ' lignes affichées sur ' + salariesNom.length + '.</b>'
+      + '<div style="font-size:11.5px;color:#9a9585;margin:4px 0 8px">Le décompte, l’électorat et la répartition par collège ci-dessous portent sur la <b>liste entière</b> : seul l’affichage est borné, pour que l’écran reste utilisable.</div>'
+      + '<button class="btn-outline" style="font-size:12px;padding:7px 12px" onclick="cseVoirTout()">Afficher les ' + salariesNom.length + ' lignes (peut figer l’écran)</button></div>';
+  } else if(window._cseVoirTout && salariesNom.length > 200){
+    html += '<div style="text-align:center;margin-top:8px"><button class="btn-outline" style="font-size:12px;padding:7px 12px" onclick="cseVoirMoins()">N’afficher que les 200 premières</button></div>';
+  }
   cont.innerHTML = html;
   const synth = document.getElementById('cse-nom-synthese');
   if(!synth) return;
