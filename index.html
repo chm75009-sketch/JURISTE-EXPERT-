@@ -4496,7 +4496,7 @@ Exemple :<br>
 <button class="btn-outline" onclick="genDocElectionTEC('pv_carence_total')" style="background:rgba(224,92,92,0.1);border-color:rgba(224,92,92,0.4);color:#e05c5c">⚠️ PV de carence (aucun élu après 2e tour)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('affichage_resultats')" style="background:rgba(46,184,46,0.1);border-color:rgba(46,184,46,0.4);color:#2eb82e">📊 Affichage des résultats</button>
 </div>
-<div class="al info" style="font-size:11px;margin-top:10px">📌 <b>PV officiels</b> : le procès-verbal doit être établi sur le <b>formulaire CERFA homologué</b> — titulaires <b>15822*04</b>, suppléants <b>15823*04</b>, carence <b>15248*05</b> (R.2314-22). Il est <b>transmis au CTEP dans les 15 jours</b> via <b>elections-professionnelles.travail.gouv.fr</b> (mesure de l'audience syndicale). Un exemplaire est remis aux OS ayant présenté une liste et tenu à disposition de l'inspection du travail. Les trames ci-dessus préparent la saisie ; reportez-les sur le CERFA officiel avant transmission.</div>
+<div class="al info" style="font-size:11px;margin-top:10px">📌 <b>PV officiels</b> : le procès-verbal doit être établi sur le <b>formulaire CERFA homologué</b> — titulaires <b>15822*04</b>, suppléants <b>15823*04</b>, carence <b>15248*05</b> (formulaires homologués ; R.2314-22, cité ici auparavant, ne porte que l’affichage de la liste nominative des élus). Il est <b>transmis au CTEP dans les 15 jours</b> via <b>elections-professionnelles.travail.gouv.fr</b> (mesure de l'audience syndicale). Un exemplaire est remis aux OS ayant présenté une liste et tenu à disposition de l'inspection du travail. Les trames ci-dessus préparent la saisie ; reportez-les sur le CERFA officiel avant transmission.</div>
 <div class="al warn" style="font-size:11px;margin-top:8px">⚠️ Adresses des électeurs laissées vides — à compléter manuellement avant envoi.</div>
 <button onclick="telechargerTousZIP()" style="margin-top:14px;width:100%;background:#2b579a;border:none;color:#fff;padding:14px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit">📦 Télécharger TOUT en ZIP (tous les documents en un seul fichier)</button>
 </div>
@@ -22850,7 +22850,7 @@ function cseAttribuer(listes, sieges, exprimes){
     if(exAequo.length>1 && !egalite) egalite='Égalité de moyenne entre '+exAequo.map(function(nm){return '« '+nm+' »';}).join(' et ')+' sur l’attribution d’un siège : le siège revient d’abord à la liste qui a recueilli le PLUS GRAND NOMBRE DE VOIX ; ce n’est qu’à égalité de voix également qu’il revient au plus âgé des deux candidats susceptibles d’être élus (R.2314-21). L’application ne tranche pas à votre place — comparez les voix, puis les âges, avant de proclamer.';
   }
   /* Egalite parfaite entre deux listes sur le dernier siege : le texte
-     donne le siege au candidat le plus age (R.2314-22). On le SIGNALE. */
+     donne le siege au candidat le plus age (R.2314-21). On le SIGNALE. */
   return {ok:true, quotient:quotient, exprimes:e, sieges:n, listes:L, etapes:etapes, alerte:egalite};
 }
 function jxNb(x){
@@ -22864,7 +22864,7 @@ function csesRender(){
   var out='';
   out+='<div style="font-size:12px;color:#9fb0c4;line-height:1.65;margin-bottom:8px">'
      +'La <b>moyenne</b> d’une liste est la somme des voix obtenues par ses candidats, divisée par le nombre de candidats qu’elle présente — les ratures jouent donc sur le résultat. '
-     +'Chaque liste obtient d’abord autant de sièges que sa moyenne contient de fois le <b>quotient électoral</b> (suffrages valablement exprimés ÷ sièges à pourvoir). Les sièges restants vont à la <b>plus forte moyenne</b>, un par un (R.2314-19 à R.2314-22).</div>';
+     +'Chaque liste obtient d’abord autant de sièges que sa moyenne contient de fois le <b>quotient électoral</b> (suffrages valablement exprimés ÷ sièges à pourvoir). Les sièges restants vont à la <b>plus forte moyenne</b>, un par un (R.2314-19 à R.2314-21).</div>';
   var actif=(document.getElementById('cse-college-actif')||{}).value||'';
   if(actif) out+='<div style="font-size:12px;color:#e8c97a;margin-bottom:8px">Seules les listes rattachées au <b>'+socEsc(cseColLib(actif))+'</b> entrent dans le calcul ci-dessous.</div>';
   CSE_LISTES.forEach(function(x,i){
@@ -22918,7 +22918,7 @@ function csesCalc(){
   }
   var r=cseAttribuer(L, n, e);
   if(!r.ok){ out.innerHTML='<div class="al warn" style="font-size:12.5px">'+socEsc(r.motif)+'</div>'; return; }
-  var h='<div class="item"><div class="badge badge-gold">ATTRIBUTION DES SIÈGES — R.2314-19 à R.2314-22</div>';
+  var h='<div class="item"><div class="badge badge-gold">ATTRIBUTION DES SIÈGES — R.2314-19 à R.2314-21</div>';
   h+='<div style="font-size:13px;color:#e8e4d8;line-height:2;margin-top:8px">'
     +'Quotient électoral : <strong style="color:#e8c97a">'+jxNb(r.exprimes)+' ÷ '+r.sieges+' = '+jxNb(r.quotient)+'</strong></div>';
   h+='<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px">'
@@ -24299,7 +24299,7 @@ Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebo
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>Dans les 15 jours du scrutin</strong></td>
 <td style="border:1px solid #000;padding:6px"><strong>Transmission du procès-verbal</strong> — à l'administration du travail et au centre de traitement des élections professionnelles ; affichage des résultats dans l'entreprise</td>
-<td style="border:1px solid #000;padding:6px">L'obligation de transmettre existe et le délai de quinze jours est celui qui est appliqué ; la référence exacte n'a pas été vérifiée à la source — à vérifier.</td></tr>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-9 C. trav. pour le <strong>procès-verbal de carence</strong> : porté à la connaissance des salariés par tout moyen donnant date certaine, puis transmis dans les quinze jours à l'agent de contrôle de l'inspection du travail, qui en communique copie aux organisations syndicales du département. Lorsque des élus sont proclamés, la transmission au centre de traitement se fait sur formulaire homologué ; le délai de quinze jours est celui qui est appliqué — sa référence n'a pas été vérifiée à la source.</td></tr>
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>15 jours après l'élection</strong></td>
 <td style="border:1px solid #000;padding:6px"><strong>Fin du délai de contestation</strong> de la régularité de l'élection</td>
@@ -24483,7 +24483,7 @@ ${(function(){ const bv=_cseBureauVote(dateScrutinISO); if(!bv) return `<p style
 </div>
 
 <div style="margin-top:20px;border-top:1px solid #888;padding-top:10px;font-size:9pt;color:#666;font-style:italic">
-À transmettre à la DDETS dans les 15 jours et au prestataire centralisateur des élections (CTEP) — art. R.2314-22 C. trav.
+À transmettre dans les quinze jours au centre de traitement des élections professionnelles (CTEP) et à l’administration du travail. Si le procès-verbal constate une carence, il est transmis dans le même délai, par tout moyen conférant date certaine, à l’agent de contrôle de l’inspection du travail (art. L.2314-9 C. trav.). R.2314-22, cité ici auparavant, ne porte que l’affichage de la liste nominative des élus.
 </div>
 </div>`;
   }
@@ -24852,7 +24852,7 @@ ${idx > 0 ? `<br clear=all style="mso-special-character:line-break;page-break-be
 <ul style="${S}">
 <li>Aucun représentant du personnel élu au CSE</li>
 <li>Un salarié ou une organisation syndicale peut demander l'organisation d'élections ; l'employeur engage alors la procédure <strong>dans le mois</strong> suivant la réception de la demande. Une telle demande n'est toutefois recevable qu'à l'expiration d'un délai de <strong>six mois</strong> suivant l'établissement du présent procès-verbal (art. L.2314-8)</li>
-<li><strong>Procès-verbal porté à la connaissance des salariés</strong> par tout moyen conférant date certaine (affichage), puis transmis à la DDETS/DREETS et au prestataire centralisateur (CTEP — TSA 92315, 62971 ARRAS CEDEX 9) dans les 15 jours (art. L.2314-9, R.2314-22)</li>
+<li><strong>Procès-verbal porté à la connaissance des salariés</strong> par tout moyen conférant date certaine (affichage), puis transmis <strong>dans les quinze jours</strong>, par tout moyen conférant date certaine, à l’agent de contrôle de l’inspection du travail, qui en communique copie aux organisations syndicales du département (art. L.2314-9). Transmission au prestataire centralisateur (CTEP — TSA 92315, 62971 ARRAS CEDEX 9) selon la pratique en vigueur</li>
 </ul>
 
 <div style="margin-top:40px">
