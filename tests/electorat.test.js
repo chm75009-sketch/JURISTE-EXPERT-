@@ -243,6 +243,63 @@ const SCRUTIN = '2026-12-15';
      && /Fin du délai de contestation/.test(cal.html),
      'et les deux échéances d\'après-scrutin figurent au tableau');
 
+  console.log('\n— Aucune liste au 1er tour : on ne convoque personne —');
+  /* L'application sortait les dix-neuf documents d'un bloc, dont les
+     convocations des electeurs, la feuille d'emargement et les bulletins
+     vierges, sans jamais demander si une liste avait ete deposee. Sans
+     liste, le 1er tour n'a rien a faire voter : 82 personnes etaient
+     convoquees devant une urne vide. */
+  const etape = await page.evaluate(() => {
+    const out = {};
+    const sel = document.getElementById('cse-etape-scrutin');
+    out.existe = !!sel;
+    out.choix = sel ? [].map.call(sel.options, o => o.value) : [];
+    /* L'identifiant cse-situation etait deja pris par « premiere mise en
+       place / renouvellement / carence » : les deux coexistent. */
+    out.autreSelecteur = !!document.getElementById('cse-situation');
+    if (sel) { sel.value = 'aucune_liste'; cseEtapeMaj(); }
+    out.note = (document.getElementById('cse-etape-note') || {}).innerHTML || '';
+    out.hors = ((window.CSE_SITUATIONS || {}).aucune_liste || {}).hors || [];
+    /* Un document sans objet ne sort pas sans qu'on le dise. */
+    let demande = null;
+    window.confirm = (m) => { demande = m; return false; };
+    window.alert = () => {};
+    window.E = window.E || {};
+    E.nom = 'T.E.C'; E.adresse = '23 avenue du Château, 95100 Argenteuil';
+    E.siret = '53845047900034'; E.dirigeant = 'Chadi EL SAFADI';
+    E.ccn = 'Transports routiers'; E.idcc = '16';
+    document.getElementById('cse-nom-date-scrutin').value = '2026-12-15';
+    window._docCurrent = null;
+    try { genDocElectionTEC('convocations'); } catch (x) { out.err = String(x); }
+    out.demande = demande;
+    out.produit = !!window._docCurrent;
+    /* Et les cas ou le 2e tour n'a pas lieu ecartent ses documents. */
+    out.horsComplet = ((window.CSE_SITUATIONS || {}).liste_complet || {}).hors || [];
+    out.horsPartiel = ((window.CSE_SITUATIONS || {}).liste_partiel || {}).hors || [];
+    return out;
+  });
+  ok(etape.existe, 'la question « où en est le scrutin ? » est posée');
+  ok(etape.autreSelecteur,
+     'sans écraser le sélecteur « première mise en place / renouvellement / carence »');
+  ok(etape.choix.length === 7 && etape.choix.indexOf('aucune_liste') >= 0
+     && etape.choix.indexOf('autre') >= 0,
+     'les sept cas sont couverts, « Autre » comprise', etape.choix.join(','));
+  ok(/rien \u00e0 voter au 1er tour/.test(etape.note)
+     && /[Nn]e convoquez pas les \u00e9lecteurs/.test(etape.note),
+     'et sans liste, l\'écran dit de ne convoquer personne');
+  ['convocations', 'emargement', 'bulletin'].forEach(d => {
+    ok(etape.hors.indexOf(d) >= 0, 'sans liste, « ' + d + ' » est écarté du dossier');
+  });
+  ok(!etape.produit && /SANS OBJET/.test(String(etape.demande || '')),
+     'et s\'il est demandé quand même, l\'application dit pourquoi avant de le produire',
+     String(etape.demande).slice(0, 90));
+  ok(etape.horsComplet.indexOf('pv_2eme') >= 0
+     && etape.horsComplet.indexOf('convocations_2eme') >= 0,
+     'tous les sièges pourvus au 1er tour : les documents du 2e tour sont écartés');
+  ok(etape.horsPartiel.indexOf('pv_carence_total') >= 0
+     && etape.horsPartiel.indexOf('convocations_2eme') < 0,
+     'sièges restants : le 2e tour a lieu, mais la carence totale n\'a plus d\'objet');
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');

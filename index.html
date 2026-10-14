@@ -4479,6 +4479,20 @@ Exemple :<br>
 <div class="card">
 <div class="ct">📦 Pack documents élection — Prêts à envoyer</div>
 <div class="al info" style="font-size:12px;margin-bottom:10px">Documents à utiliser après calcul de l'effectif. Les coordonnées de la société sont reprises depuis le Module I.</div>
+
+<div style="border:1px solid rgba(212,160,23,0.5);background:rgba(212,160,23,0.07);border-radius:8px;padding:10px;margin-bottom:10px">
+<label class="fl" style="display:block;margin-bottom:4px">Où en est le scrutin ? <span style="color:#d4a017">— c'est cette réponse qui décide des documents à produire</span></label>
+<select id="cse-etape-scrutin" onchange="cseEtapeMaj()" style="width:100%">
+  <option value="avant">Le délai de dépôt des candidatures n'est pas encore expiré</option>
+  <option value="aucune_liste">Aucune liste syndicale n'a été déposée au 1er tour</option>
+  <option value="liste_complet">Listes déposées — quorum atteint, tous les sièges pourvus</option>
+  <option value="liste_partiel">Listes déposées — quorum atteint, des sièges restent à pourvoir</option>
+  <option value="liste_sans_quorum">Listes déposées — quorum non atteint au 1er tour</option>
+  <option value="second_sans_candidat">2e tour — aucun candidat ne s'est présenté</option>
+  <option value="autre">Autre situation — je produis ce que je veux</option>
+</select>
+<div id="cse-etape-note" style="font-size:11.5px;line-height:1.6;margin-top:8px;color:#e8e4d8"></div>
+</div>
 <div style="display:grid;grid-template-columns:1fr;gap:6px">
 <button class="btn-outline" onclick="genDocElectionTEC('calendrier')" style="background:rgba(91,155,213,0.18);border-color:rgba(91,155,213,0.6);color:#5b9bd5;font-weight:700">📅 Calendrier rétroplanning officiel (à partir du 1er tour)</button>
 <button class="btn-outline" onclick="genDocElectionTEC('convocations')" style="background:rgba(212,160,23,0.1);border-color:rgba(212,160,23,0.4);color:#d4a017">✉️ Convocations individuelles (1 par électeur)</button>
@@ -6964,6 +6978,8 @@ pseSetSecteur();
 /* Plus de « transport » par defaut : un secteur non choisi n'est pas le
    transport. C'est ce defaut qui faisait sortir une convention a des
    clients qui n'en relevent pas. */
+/* La situation du scrutin est une donnee du dossier : cseEtapeMaj() la
+   repose a l ouverture, appele depuis l initialisation du module. */
 var cseSecteur='';
 /* LA CONVENTION DU DOSSIER, PAS CELLE D'UN SELECTEUR DE MODULE. Le
    calendrier des elections a annonce « la CCN de la banque (IDCC 2120) » a
@@ -23892,22 +23908,28 @@ async function telechargerTousZIP(){
 
       loader.innerHTML = '⏳ Génération des documents d\'élection...';
       await new Promise(r => setTimeout(r, 50));
-      genDocElectionTEC('note_info');
-      genDocElectionTEC('pv_absence_osr');
-      genDocElectionTEC('pap_unilateral');
-      genDocElectionTEC('emargement');
-      genDocElectionTEC('pv_1er');
-      genDocElectionTEC('bulletin');
-      genDocElectionTEC('invitations_osr');
-      genDocElectionTEC('convocations');
+      /* LE DOSSIER NE PORTE PLUS QUE CE QUI A UN OBJET. Il sortait les
+         convocations des electeurs au 1er tour, la feuille d'emargement et
+         les bulletins vierges meme lorsqu'aucune liste n'avait ete deposee :
+         82 personnes convoquees devant une urne vide. */
+      const _hors = (CSE_SITUATIONS[cseEtapeScrutin()] || {}).hors || [];
+      const _gen = (t) => { if(_hors.indexOf(t) < 0) genDocElectionTEC(t); };
+      _gen('note_info');
+      _gen('pv_absence_osr');
+      _gen('pap_unilateral');
+      _gen('emargement');
+      _gen('pv_1er');
+      _gen('bulletin');
+      _gen('invitations_osr');
+      _gen('convocations');
 
       loader.innerHTML = '⏳ Génération des documents du 2e tour...';
       await new Promise(r => setTimeout(r, 50));
-      genDocElectionTEC('note_info_2eme');
-      genDocElectionTEC('convocations_2eme');
-      genDocElectionTEC('bulletin_2eme');
-      genDocElectionTEC('pv_2eme');
-      genDocElectionTEC('pv_carence_total');
+      _gen('note_info_2eme');
+      _gen('convocations_2eme');
+      _gen('bulletin_2eme');
+      _gen('pv_2eme');
+      _gen('pv_carence_total');
       genDocElectionTEC('affichage_resultats');
     } finally {
       window.showDoc = showDocOriginal;
@@ -24118,7 +24140,76 @@ function _cseBureauVote(dateScrutinISO){
     return { president:f(el[0]), assesseur1:f(el[1]), assesseur2:f(el[el.length-1]) };
   }catch(e){ return null; }
 }
+/* CE QUE CHAQUE SITUATION COMMANDE. « hors » liste les documents qui n'ont
+   plus d'objet : ils ne sont pas supprimes — l'utilisateur garde la main et
+   peut passer outre — mais ils ne partent plus dans le dossier complet, et
+   l'application dit pourquoi avant de les produire. */
+var CSE_SITUATIONS = {
+  avant: {
+    hors: [],
+    note: "Tant que le d\u00e9lai de d\u00e9p\u00f4t n'est pas expir\u00e9, tous les documents restent disponibles. <strong>Revenez ici le lendemain de la date limite</strong> : c'est ce jour-l\u00e0 que l'on sait si le 1er tour aura des candidats, et c'est cette r\u00e9ponse qui commande la suite."
+  },
+  aucune_liste: {
+    hors: ['convocations', 'emargement', 'bulletin'],
+    note: "<strong>Il n'y a rien \u00e0 voter au 1er tour.</strong> Le 1er tour est r\u00e9serv\u00e9 aux listes syndicales (L.2314-29) : sans liste, aucun nom ne figure sur aucun bulletin. <strong>Ne convoquez pas les \u00e9lecteurs, n'installez pas d'urne, n'imprimez pas de bulletins pour le 1er tour.</strong><br><br>D\u00e8s l'expiration du d\u00e9lai de d\u00e9p\u00f4t : affichez la <em>note d'information 2e tour</em>, qui apprend aux salari\u00e9s que les candidatures leur sont ouvertes \u2014 sans cet affichage, personne ne se pr\u00e9sente faute de savoir qu'il peut le faire. Au jour pr\u00e9vu du 1er tour, signez le <em>proc\u00e8s-verbal du 1er tour</em> constatant l'absence de liste : c'est lui qui fait courir les quinze jours du 2e tour."
+  },
+  liste_complet: {
+    hors: ['note_info_2eme', 'convocations_2eme', 'bulletin_2eme', 'pv_2eme', 'pv_carence_total'],
+    note: "<strong>Le scrutin est clos au 1er tour.</strong> Quorum atteint et tous les si\u00e8ges pourvus : il n'y a pas de 2e tour, et aucun de ses documents n'a d'objet. Affichez le r\u00e9sultat, puis transmettez le proc\u00e8s-verbal."
+  },
+  liste_partiel: {
+    hors: ['pv_carence_total'],
+    note: "<strong>Un 2e tour est d\u00fb, pour les seuls si\u00e8ges non pourvus.</strong> Listes incompl\u00e8tes, quorum atteint, candidats \u00e9lus : il y a lieu de proc\u00e9der \u00e0 un second tour pour pourvoir les si\u00e8ges restants (Cass. soc. 5 novembre 1984, n\u00b0 84-60.132). Les candidatures y sont libres. Indiquez dans la note et sur les bulletins <strong>le nombre exact de si\u00e8ges \u00e0 pourvoir</strong>, et non la totalit\u00e9."
+  },
+  liste_sans_quorum: {
+    hors: [],
+    note: "<strong>Moins de la moiti\u00e9 des inscrits ont vot\u00e9 : 2e tour.</strong> L.2314-29 : « Si le nombre des votants est inf\u00e9rieur \u00e0 la moiti\u00e9 des \u00e9lecteurs inscrits, il est proc\u00e9d\u00e9, dans un d\u00e9lai de quinze jours, \u00e0 un second tour pour lequel les \u00e9lecteurs peuvent voter pour des listes autres que celles pr\u00e9sent\u00e9es par une organisation syndicale. » Tous les si\u00e8ges sont remis en jeu."
+  },
+  second_sans_candidat: {
+    hors: ['convocations', 'emargement', 'bulletin', 'convocations_2eme', 'bulletin_2eme', 'affichage_resultats'],
+    note: "<strong>Aucun \u00e9lu : c'est la carence.</strong> Produisez le <em>PV de carence</em>. Il est port\u00e9 \u00e0 la connaissance des salari\u00e9s par tout moyen donnant date certaine \u2014 affichage avec photographie dat\u00e9e \u2014 puis transmis dans les quinze jours \u00e0 l'agent de contr\u00f4le de l'inspection du travail, qui en communique copie aux organisations syndicales du d\u00e9partement (L.2314-9).<br><br>Ensuite, six mois : une demande d'organisation des \u00e9lections pr\u00e9sent\u00e9e par un salari\u00e9 ou un syndicat n'est recevable qu'\u00e0 l'expiration d'un d\u00e9lai de six mois suivant l'\u00e9tablissement de ce proc\u00e8s-verbal ; pass\u00e9 ce d\u00e9lai, elle vous oblige \u00e0 engager la proc\u00e9dure dans le mois (L.2314-8)."
+  },
+  autre: {
+    hors: [],
+    note: "Aucun document n'est \u00e9cart\u00e9. \u00c0 vous de choisir ceux qui correspondent \u00e0 votre situation."
+  }
+};
+function cseEtapeScrutin(){
+  var el=document.getElementById('cse-etape-scrutin');
+  if(el && el.value) return el.value;
+  var v=''; try{ v=(typeof secGet==='function')?(secGet('cse_etape_scrutin')||''):''; }catch(e){}
+  return v||'avant';
+}
+function cseEtapeMaj(){
+  var v=cseEtapeScrutin(), d=CSE_SITUATIONS[v]||CSE_SITUATIONS.avant;
+  try{ if(typeof secSet==='function') secSet('cse_etape_scrutin', v); }catch(e){}
+  var z=document.getElementById('cse-etape-note');
+  if(z) z.innerHTML=d.note;
+  /* Les boutons des documents sans objet le disent, au lieu de se laisser
+     cliquer comme les autres. */
+  var btns=document.querySelectorAll('[onclick*="genDocElectionTEC("]');
+  [].forEach.call(btns, function(b){
+    var m=/genDocElectionTEC\('([a-z0-9_]+)'\)/.exec(b.getAttribute('onclick')||'');
+    if(!m) return;
+    var hors=(d.hors||[]).indexOf(m[1])>=0;
+    b.style.opacity = hors ? '0.45' : '';
+    b.style.textDecoration = hors ? 'line-through' : '';
+    b.title = hors ? 'Sans objet dans la situation d\u00e9clar\u00e9e' : '';
+  });
+}
+/* Pose a l'ouverture : sans cet appel, la note resterait vide et les
+   documents sans objet auraient l'air disponibles jusqu'au premier
+   changement de la liste deroulante. */
+try{ cseEtapeMaj(); }catch(e){}
 function genDocElectionTEC(type){
+  /* UN DOCUMENT SANS OBJET NE SORT PAS SANS QU'ON LE DISE. */
+  try{
+    var _d=CSE_SITUATIONS[cseEtapeScrutin()];
+    if(_d && (_d.hors||[]).indexOf(type)>=0){
+      var _t=document.querySelector('#cse-etape-scrutin option[value="'+cseEtapeScrutin()+'"]');
+      if(!confirm('Ce document est SANS OBJET dans la situation que vous avez d\u00e9clar\u00e9e :\n\n\u00ab '+((_t&&_t.textContent)||'')+' \u00bb\n\nLe produire quand m\u00eame ?')) return;
+    }
+  }catch(e){}
   /* Ce qui manque est annonce avant, pas decouvert sur le document produit. */
   try{ if(!jxPrevenirManques(jxManquesEntreprise())) return; }catch(e){}
 
@@ -24282,8 +24373,8 @@ Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebo
 <td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. — au 1er tour, chaque liste est établie par une organisation syndicale. Aucun texte ne fixe de délai de dépôt : la date relève du protocole (Cass. soc. 8 juillet 1976, n° 76-60.119).</td></tr>
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.propagande)}</strong><br><em>(J − 7)</em></td>
-<td style="border:1px solid #000;padding:6px"><strong>Convocation individuelle des électeurs</strong> + remise du matériel de vote par correspondance + propagande électorale</td>
-<td style="border:1px solid #000;padding:6px">Pratique courante : convocation environ 7 jours avant le scrutin (à préciser dans le PAP).</td></tr>
+<td style="border:1px solid #000;padding:6px"><strong>Convocation individuelle des électeurs</strong> + remise du matériel de vote par correspondance + propagande électorale — <strong>seulement si une liste a été déposée</strong></td>
+<td style="border:1px solid #000;padding:6px">Pratique courante : convocation environ 7 jours avant le scrutin (à préciser dans le PAP). <strong>Si aucune liste syndicale n'a été déposée</strong> à la date limite ci-dessus, il n'y a rien à voter au 1er tour : on ne convoque pas les électeurs et on n'installe pas d'urne. On affiche dès l'expiration du délai la note ouvrant les candidatures libres du 2e tour, et le jour prévu du 1er tour on signe le procès-verbal constatant l'absence de liste.</td></tr>
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.affichListes)}</strong><br><em>(J − 4)</em></td>
 <td style="border:1px solid #000;padding:6px"><strong>Affichage des listes électorales</strong> (électeurs et éligibles) dans l'entreprise</td>
