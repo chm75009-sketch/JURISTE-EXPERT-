@@ -300,6 +300,63 @@ const SCRUTIN = '2026-12-15';
      && etape.horsPartiel.indexOf('convocations_2eme') < 0,
      'sièges restants : le 2e tour a lieu, mais la carence totale n\'a plus d\'objet');
 
+  console.log('\n— La convocation du 2e tour ne sort plus le jour de Noel —');
+  /* Les deux documents du 2e tour etaient dates a cinq jours du scrutin :
+     la convocation tombait le 25 decembre, et la note qui OUVRE les
+     candidatures libres arrivait elle aussi le 25, soit trois semaines
+     apres le jour ou l'on savait qu'aucune liste syndicale n'avait ete
+     deposee. La convocation invitait de surcroit a se porter candidat cinq
+     jours avant le vote. */
+  const conv = await page.evaluate(() => {
+    const o = {};
+    window.E = window.E || {};
+    E.nom = 'SARL TEC'; E.adresse = '23 avenue du Château, 95100 Argenteuil';
+    E.siret = '53845047900034'; E.dirigeant = 'Chadi EL SAFADI';
+    E.ccn = 'Transports routiers'; E.idcc = '16';
+    window.confirm = () => true; window.alert = () => {};
+    const sel = document.getElementById('cse-etape-scrutin');
+    if (sel) { sel.value = 'aucune_liste'; cseEtapeMaj(); }
+    /* Les convocations sont nominatives : sans electeur, le document ne sort
+       pas. Deux suffisent pour en lire la date et le texte. */
+    salariesNom = [
+      { nom: 'DUPONT Jean', dateNaissance: '1980-05-03', dateEntree: '2015-03-02',
+        dateSortie: '', contrat: 'cdi_tp', statut: 'employe', sexe: 'M', heures: 35 },
+      { nom: 'MARTIN Claire', dateNaissance: '1990-09-21', dateEntree: '2018-01-15',
+        dateSortie: '', contrat: 'cdi_tp', statut: 'employe', sexe: 'F', heures: 35 }
+    ];
+    document.getElementById('cse-nom-date-scrutin').value = '2026-12-15';
+    refreshNomTable();
+    const c = calcCalendrierCSE('2026-12-15');
+    o.limite = new Date(c.limiteCandidatures).toISOString().slice(0, 10);
+    window._docCurrent = null;
+    try { genDocElectionTEC('note_info_2eme'); } catch (e) { o.e1 = String(e); }
+    o.dateNote = ((((window._docCurrent || {}).html) || '').match(/le (\d{2}\/\d{2}\/\d{4})/) || [])[1];
+    window._docCurrent = null;
+    try { genDocElectionTEC('convocations_2eme'); } catch (e) { o.e2 = String(e); }
+    const h = ((window._docCurrent || {}).html || '');
+    o.dateConvoc = (h.match(/le (\d{2}\/\d{2}\/\d{4})/) || [])[1];
+    o.ouvre = /adressez votre demande/.test(h);
+    o.convoque = /elle vous convoque \u00e0 voter/.test(h);
+    o.corresp = /enveloppe ext\u00e9rieure pr\u00e9-adress\u00e9e/.test(h);
+    /* Et le garde-fou lui-meme : un 25 decembre recule. */
+    o.noel = _jxJourUtile(new Date(2026, 11, 25)).toISOString().slice(0, 10);
+    o.dimanche = _jxJourUtile(new Date(2026, 11, 20)).toISOString().slice(0, 10);
+    return o;
+  });
+  ok(conv.dateNote === '01/12/2026',
+     'la note ouvrant les candidatures part le lendemain de la date limite',
+     'notée le ' + conv.dateNote + ' (limite ' + conv.limite + ')');
+  ok(conv.dateConvoc === '23/12/2026',
+     'et la convocation sept jours avant le scrutin, pas le 25 décembre',
+     'notée le ' + conv.dateConvoc);
+  ok(!conv.ouvre && conv.convoque,
+     'la convocation convoque à voter au lieu d\'ouvrir les candidatures');
+  ok(conv.corresp,
+     'et elle dit ce que contient l\'envoi du vote par correspondance');
+  ok(conv.noel === '2026-12-24' && conv.dimanche === '2026-12-18',
+     'le garde-fou recule sur le 25 décembre et sur le dimanche',
+     conv.noel + ' / ' + conv.dimanche);
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');
