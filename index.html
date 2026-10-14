@@ -6961,8 +6961,31 @@ function pseSetSecteur(){
 }
 pseSetSecteur();
 
-var cseSecteur='transport';
-function cseConvNom(){var s=SECTEURS_PSE[cseSecteur];return s?(s.nom+' (IDCC '+s.idcc+')'):'la convention collective applicable';}
+/* Plus de « transport » par defaut : un secteur non choisi n'est pas le
+   transport. C'est ce defaut qui faisait sortir une convention a des
+   clients qui n'en relevent pas. */
+var cseSecteur='';
+/* LA CONVENTION DU DOSSIER, PAS CELLE D'UN SELECTEUR DE MODULE. Le
+   calendrier des elections a annonce « la CCN de la banque (IDCC 2120) » a
+   une entreprise de transport routier : ce module gardait son propre
+   secteur, independamment du dossier ouvert. Meme lecture que
+   jxCCNPhrase() : la fiche du client d'abord, la table des secteurs
+   ensuite, le selecteur du module seulement en dernier recours. */
+function cseConvNom(){
+  var lib='', idcc='';
+  try{ if(typeof E!=='undefined' && E){ lib=E.ccn||''; idcc=E.idcc||''; } }catch(e){}
+  if(!lib || !idcc){
+    var p=null; try{ p=(typeof secProfil==='function')?secProfil():null; }catch(e){}
+    if(p){ if(!lib) lib=p.ccnLib||''; if(!idcc) idcc=p.idccNum||''; }
+  }
+  if(!lib && cseSecteur && SECTEURS_PSE[cseSecteur]){
+    var z=SECTEURS_PSE[cseSecteur]; lib=z.nom; idcc=idcc||z.idcc;
+  }
+  idcc=String(idcc||'').replace(/[^0-9]/g,'');
+  if(idcc) idcc=(idcc.length<4)?('0000'+idcc).slice(-4):idcc;
+  if(!lib) return 'convention collective applicable \u2014 non renseign\u00e9e dans la fiche entreprise';
+  return lib+(idcc?(' (IDCC '+idcc+')'):'');
+}
 function cseSetSecteur(){var el=document.getElementById('cse-secteur');if(el)cseSecteur=el.value; if(typeof secSet==='function')secSet('secteur_cse',cseSecteur);var l=document.getElementById('cse-cc-label');if(l)l.textContent=cseConvNom();}
 cseSetSecteur();
 
@@ -7387,7 +7410,10 @@ function calcCalendrierCSE(dateScrutinISO){
     reunionPAP:         dec(-60), // 1ère réunion PAP (~2 mois avant scrutin)
     limiteCandidatures: dec(-15), // Dépôt candidatures (fixé dans le PAP, usuellement ~15 j avant)
     propagande:         dec(-7),  // Convocations + propagande
-    affichListes:       dec(-4),  // Listes électorales - min 4 j avant scrutin (Cass. soc. 3 nov. 1993)
+    affichListes:       dec(-4),  // Listes electorales : aucun texte ne chiffre le delai. J-4 laisse
+                                  // courir avant le scrutin les 3 jours de contestation de
+                                  // l'electorat (R.2314-24). L'arret « Cass. soc. 3 nov. 1993 »
+                                  // porte ici auparavant n'a pas pu etre retrouve : retire.
     scrutin1:           dec(0),   // 1er tour
     affichResultats:    dec(0),   // Affichage résultats - dans la journée
     scrutin2:           dec(15),  // 2nd tour - max 15 j après le 1er (art. L.2314-29)
@@ -20590,7 +20616,7 @@ ${geolocOk?`<p style="${S}"><strong style="${S}">${art("Géolocalisation")}</str
 <p style="${S}"><strong style="${S}">${art("Rupture du contrat — préavis")}</strong></p>
 <p style="${S}">${contratType==='cdi'?(estRoulant?('En cas de rupture (hors faute grave ou lourde), le préavis du personnel de conduite (CCN IDCC 0016) est le suivant. <strong>Licenciement</strong> : 1 semaine si moins de 6 mois d\'ancienneté, 1 mois de 6 mois à 2 ans, 2 mois à partir de 2 ans. <strong>Démission</strong> : 2 semaines pour le personnel de conduite (annexe I de la CCN IDCC 0016 — durée à vérifier dans la rédaction en vigueur ; usage ou accord plus favorable réservés).'):('En cas de rupture, chaque partie respecte le préavis prévu par la CCN Transports (IDCC 0016) pour la catégorie du salarié — à titre indicatif : '+preavis+' mois, étant rappelé qu\'en cas de licenciement le salarié justifiant d\'au moins deux ans d\'ancienneté a droit à un préavis d\'au moins deux mois (art. L.1234-1 C. trav., minimum d\'ordre public) — sauf faute grave ou lourde, et sans préjudice des dispositions légales applicables (licenciement, démission, rupture conventionnelle).')):('Le contrat prend fin de plein droit à l’arrivée de son terme. Sa rupture anticipée n’est possible que dans les cas limitativement prévus par la loi : accord des parties, faute grave, force majeure, inaptitude constatée par le médecin du travail, ou embauche du salarié en contrat à durée indéterminée (art. L.1243-1 et s.).')}</p>
 <p style="${S}"><strong style="${S}">${art("Avantages sociaux — prévoyance, mutuelle, retraite complémentaire")}</strong></p>
-<p style="${S}">Le salarié bénéficie des régimes de prévoyance et de mutuelle collective de l'entreprise conformément à la CCN Transport IDCC 0016. Une notice d'information établie par l'organisme assureur lui est remise (art. 12 de la loi n° 89-1009 du 31 décembre 1989, dite loi Évin). Portabilité des garanties en cas de rupture ouvrant droit au chômage (art. L.911-8 du Code de la sécurité sociale).</p>
+<p style="${S}">Le salarié bénéficie des régimes de prévoyance et de mutuelle collective de l'entreprise conformément à la ${cseConvNom()}. Une notice d'information établie par l'organisme assureur lui est remise (art. 12 de la loi n° 89-1009 du 31 décembre 1989, dite loi Évin). Portabilité des garanties en cas de rupture ouvrant droit au chômage (art. L.911-8 du Code de la sécurité sociale).</p>
 <p style="${S}">Retraite complémentaire : CARCEPT (groupe KLESIA), institution de la branche des transports — Prévoyance : régime conventionnel de branche (CARCEPT-Prévoyance) [à adapter si l’entreprise relève d’autres organismes].</p>
 
 <p style="${S}"><strong style="${S}">${art("Droit à la déconnexion")}</strong></p>
@@ -20828,7 +20854,7 @@ function genFichePoste(){
 <p style="${S}text-align:center"><strong>${E.nom}</strong> · SIRET : ${E.siret}</p>
 <hr style="border:none;border-top:1px solid #000;margin:12px 0">
 <p style="${S}"><strong>Intitulé du poste :</strong> ${poste}</p>
-<p style="${S}"><strong>Catégorie :</strong> ${categorie} · Coefficient ${coeff} · CCN Transport IDCC 0016</p>
+<p style="${S}"><strong>Catégorie :</strong> ${categorie} · Coefficient ${coeff} · ${cseConvNom()}</p>
 <p style="${S}"><strong>Point d'attache :</strong> ${gv('c-depot')||E.adresse}</p>
 <p style="${S}"><strong>Véhicule :</strong> ${vehicule}</p>
 <hr style="border:none;border-top:1px solid #ccc;margin:12px 0">
@@ -24249,11 +24275,11 @@ Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebo
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.reunionPAP)}</strong><br><em>(J − 60)</em></td>
 <td style="border:1px solid #000;padding:6px"><strong>1ère réunion de négociation du PAP</strong> — en l'absence de syndicat dans l'entreprise et si aucune OS ne se présente : procès-verbal de carence puis fixation par décision unilatérale de l'employeur</td>
-<td style="border:1px solid #000;padding:6px">Art. L.2314-6 et L.2314-7 C. trav. — fixation des collèges, des sièges, des modalités de vote. Cass. soc. 26 sept. 2012 n° 11-60.231 : en l'absence d'OS, l'employeur fixe unilatéralement.</td></tr>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-7 C. trav. — le protocole fixe les collèges, les sièges et le volume des heures de délégation. Aucune organisation ne s'étant présentée, aucun accord n'est possible : l'employeur fixe lui-même la répartition. <strong>Si au contraire une organisation a répondu</strong> et que l'accord ne peut être obtenu, la répartition est décidée par l'autorité administrative, qui suspend le processus électoral jusqu'à sa décision (art. L.2314-13).</td></tr>
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.limiteCandidatures)}</strong><br><em>(J − 15)</em></td>
-<td style="border:1px solid #000;padding:6px"><strong>Date limite de dépôt des candidatures</strong> au 1er tour (réservé aux OS représentatives ; à défaut, candidatures libres au 2ᵉ tour)</td>
-<td style="border:1px solid #000;padding:6px">Art. L.2314-24 et L.2314-29 C. trav. — date généralement fixée dans le PAP.</td></tr>
+<td style="border:1px solid #000;padding:6px"><strong>Date limite de dépôt des candidatures</strong> au 1er tour — réservé aux listes présentées par les organisations syndicales visées aux premier et deuxième alinéas de l'article L.2314-5, <strong>représentatives ou non</strong> ; à défaut de liste, candidatures libres au 2ᵉ tour</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. — au 1er tour, chaque liste est établie par une organisation syndicale. Aucun texte ne fixe de délai de dépôt : la date relève du protocole (Cass. soc. 8 juillet 1976, n° 76-60.119).</td></tr>
 
 <tr><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.propagande)}</strong><br><em>(J − 7)</em></td>
 <td style="border:1px solid #000;padding:6px"><strong>Convocation individuelle des électeurs</strong> + remise du matériel de vote par correspondance + propagande électorale</td>
@@ -24268,8 +24294,16 @@ Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebo
 <td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. Quorum = 50 % des inscrits. À défaut : 2ᵉ tour.</td></tr>
 
 <tr style="background:#fff"><td style="border:1px solid #000;padding:6px"><strong>${fmtFRlong(c.scrutin2)}</strong><br><em>(J + 15)</em></td>
-<td style="border:1px solid #000;padding:6px"><strong>🗳️ 2ᵉ TOUR (si carence au 1er)</strong> — candidatures libres ouvertes à tout salarié éligible</td>
-<td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. — le 2ᵉ tour doit avoir lieu dans les 15 jours suivant le 1er.</td></tr>
+<td style="border:1px solid #000;padding:6px"><strong>🗳️ 2ᵉ TOUR — DATE LIMITE</strong> (si carence ou quorum non atteint au 1er) — candidatures libres ouvertes à tout salarié éligible</td>
+<td style="border:1px solid #000;padding:6px">Art. L.2314-29 C. trav. — « il est procédé, dans un délai de quinze jours, à un second tour ». C'est une <strong>limite</strong>, non une date imposée : toute date plus proche convient, et une date choisie hors congés ou fermeture de l'entreprise rassemble davantage de candidats et de votants. Fixez-la dans le protocole.</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>Dans les 15 jours du scrutin</strong></td>
+<td style="border:1px solid #000;padding:6px"><strong>Transmission du procès-verbal</strong> — à l'administration du travail et au centre de traitement des élections professionnelles ; affichage des résultats dans l'entreprise</td>
+<td style="border:1px solid #000;padding:6px">L'obligation de transmettre existe et le délai de quinze jours est celui qui est appliqué ; la référence exacte n'a pas été vérifiée à la source — à vérifier.</td></tr>
+
+<tr><td style="border:1px solid #000;padding:6px"><strong>15 jours après l'élection</strong></td>
+<td style="border:1px solid #000;padding:6px"><strong>Fin du délai de contestation</strong> de la régularité de l'élection</td>
+<td style="border:1px solid #000;padding:6px">Art. R.2314-24 C. trav. — la requête n'est recevable que si elle est remise ou adressée dans les quinze jours suivant l'élection. Passé ce délai, le scrutin n'est plus attaquable.</td></tr>
 </tbody>
 </table>
 
@@ -24277,8 +24311,8 @@ Ce calendrier reprend les étapes obligatoires de la procédure, datées à rebo
 <ul style="${S}">
 <li><strong>Information préalable :</strong> obligatoire dès l'atteinte du seuil de 11 salariés pendant 12 mois consécutifs (art. L.2311-2 C. trav.).</li>
 <li><strong>Invitation des syndicats :</strong> obligation d'inviter les organisations syndicales représentatives au niveau national, même en l'absence de syndicat dans l'entreprise (art. L.2314-5 C. trav.).</li>
-<li><strong>Délai d'affichage des listes :</strong> 4 jours francs minimum avant le scrutin (Cass. soc. 3 nov. 1993).</li>
-<li><strong>Convention collective :</strong> la ${cseConvNom()} ne prévoit pas de délais spécifiques pour les élections CSE ; les règles générales du Code du travail s'appliquent.</li>
+<li><strong>Délai d'affichage des listes :</strong> aucun texte ne le chiffre. Il doit laisser courir, avant le scrutin, les trois jours pendant lesquels l'électorat peut être contesté (art. R.2314-24 C. trav.) — d'où l'affichage à J−4 retenu ci-dessus.</li>
+<li><strong>Convention collective :</strong> ${cseConvNom()}. Vérifiez si elle prévoit des règles ou des délais propres aux élections professionnelles : l'application ne les a pas lus, et ce calendrier n'applique que le Code du travail.</li>
 <li><strong>2ᵉ tour :</strong> obligatoire en cas de carence (pas de candidat OS) ou de quorum non atteint au 1er tour.</li>
 <li><strong>Archivage :</strong> les procès-verbaux et le matériel électoral doivent être conservés pendant toute la durée du mandat.</li>
 </ul>

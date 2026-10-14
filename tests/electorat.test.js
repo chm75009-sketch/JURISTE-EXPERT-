@@ -197,6 +197,52 @@ const SCRUTIN = '2026-12-15';
      'fiche muette : la lettre réclame la convention au lieu d\'en supposer une',
      inv.muet);
 
+  console.log('\n— Le calendrier retroplanning ne porte plus six defauts —');
+  /* Sorti le 9 septembre 2026 pour une entreprise de transport routier, il
+     annoncait « la CCN de la banque (IDCC 2120) », attribuait a un arret de
+     2012 une solution qu'il ne contient pas, citait L.2314-24 — le portage
+     salarial — pour la date de depot des candidatures, reservait le premier
+     tour aux seules organisations representatives, se contredisait sur
+     l'affichage des listes et presentait la limite du second tour comme une
+     date imposee. */
+  const cal = await page.evaluate(() => {
+    const out = {};
+    window.E = window.E || {};
+    E.nom = 'T.E.C'; E.adresse = '23 avenue du Château, 95100 Argenteuil';
+    E.siret = '53845047900034'; E.dirigeant = 'Chadi EL SAFADI';
+    E.ccn = 'Transports routiers et activités auxiliaires du transport';
+    E.idcc = '16';
+    /* Le selecteur du module laisse sur un AUTRE secteur : c'est la
+       situation exacte qui a produit la convention de la banque. */
+    try { window.cseSecteur = 'banque'; } catch (x) {}
+    window.confirm = () => true; window.alert = () => {};
+    document.getElementById('cse-nom-date-scrutin').value = '2026-12-15';
+    try { genDocElectionTEC('calendrier'); } catch (x) { out.err = String(x); }
+    out.html = ((window._docCurrent || {}).html || '');
+    return out;
+  });
+  ok(!cal.err, 'le calendrier se produit sans exception', cal.err);
+  ok(/Transports routiers et activités auxiliaires du transport \(IDCC 0016\)/.test(cal.html)
+     && !/IDCC 2120/.test(cal.html) && !/CCN de la banque/i.test(cal.html),
+     'la convention est celle du dossier, pas celle du sélecteur du module');
+  ok(!/ne prévoit pas de délais spécifiques/.test(cal.html)
+     && /l'application ne les a pas lus/.test(cal.html),
+     'et il n\'affirme plus ce que la convention contient sans l\'avoir lue');
+  ok(!/11-60\.231/.test(cal.html) && /L\.2314-13/.test(cal.html),
+     'l\'arrêt de 2012 n\'est plus cité pour ce qu\'il ne dit pas');
+  ok(!/L\.2314-24/.test(cal.html) && /76-60\.119/.test(cal.html),
+     'le portage salarial ne fonde plus la date de dépôt des candidatures');
+  ok(/représentatives ou non/.test(cal.html),
+     'le 1er tour n\'est plus réservé aux seules organisations représentatives');
+  ok(!/3 nov\. 1993/.test(cal.html) && /aucun texte ne le chiffre/i.test(cal.html),
+     'la contradiction sur l\'affichage des listes est levée');
+  ok(/2ᵉ TOUR — DATE LIMITE/.test(cal.html)
+     && /C'est une <strong>limite<\/strong>, non une date impos/.test(cal.html),
+     'le second tour est donné comme une limite, non comme une date');
+  ok(/Transmission du procès-verbal/.test(cal.html)
+     && /Fin du délai de contestation/.test(cal.html),
+     'et les deux échéances d\'après-scrutin figurent au tableau');
+
   ok(err.length === 0, 'aucune exception JavaScript', err.join(' | '));
   await nav.close();
   console.log(e ? '\n' + e + ' echec(s)' : '\ntout est vert');
